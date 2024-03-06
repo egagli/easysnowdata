@@ -4,14 +4,14 @@ import xarray as xr
 import shapely
 import dask
 
-from easysnowdata.common import convert_bbox_to_geodataframe
+from easysnowdata.utils import convert_bbox_to_geodataframe
 
 
 
 
 def get_forest_cover_fraction(bbox_input) -> xr.DataArray:
     """
-    Fetches forest cover fraction (FCF) data for a given bounding box.
+    Fetches ~100m forest cover fraction (FCF) data for a given bounding box.
 
     The data is obtained from the Copernicus Global Land Service: Land Cover 100m: collection 3: epoch 2019: Globe dataset, available at https://zenodo.org/records/3939050. The specific layer used is the Tree-CoverFraction-layer, which provides the fractional cover (%) for the forest class.
 
@@ -35,7 +35,7 @@ def get_forest_cover_fraction(bbox_input) -> xr.DataArray:
 
 def get_seasonal_snow_classification(bbox_input, return_classes_dict=False) -> xr.DataArray:
     """
-    Fetches Sturm & Liston 2021 seasonal snow classification data for a given bounding box.
+    Fetches 10arcsec (~300m) Sturm & Liston 2021 seasonal snow classification data for a given bounding box.
 
     "This data set consists of global, seasonal snow classifications—e.g., tundra, boreal forest, maritime, ephemeral, prairie, montane forest, and ice—determined from air temperature, precipitation, and wind speed climatologies." This is the 10 arcsec (~300m) product in EPSG:4326. The data is available on NSIDC at http://dx.doi.org/10.5067/99FTCYYYLAQ0. 
 
@@ -71,3 +71,5 @@ def get_seasonal_snow_classification(bbox_input, return_classes_dict=False) -> x
         return classes_dict
 
     return snow_classification
+
+
