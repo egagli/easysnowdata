@@ -7,18 +7,22 @@ dependencies:
  - python
  - numpy
  - pandas
+ - xarray
  - matplotlib
  - wget 
  - requests
  - urllib3
+ - dask
  
  # geospatial (raster+vector)
  - gdal
  - rasterio
+ - rioxarray
  - geopandas
  - shapely
  - contextily
  - earthaccess
+ - ipykernel
  
  # misc
  - pip
@@ -27,5 +31,5 @@ dependencies:
    - matplotlib-scalebar
 
    # geospatial+plotting
-   - "--editable=."
+   - "--editable=./"
    #- "--editable=git+https://github.com/dshean/pygeotools.git#egg=pygeotools"
