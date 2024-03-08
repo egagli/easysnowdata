@@ -23,6 +23,9 @@ dependencies:
  - contextily
  - earthaccess
  - ipykernel
+ - pystac-client
+ - planetary-computer
+ - odc-stac
  
  # misc
  - pip

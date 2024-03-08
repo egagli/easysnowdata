@@ -6,3 +6,6 @@ rasterio
 xarray
 rioxarray
 shapely
+pystac-client
+planetary-computer
+odc-stac
