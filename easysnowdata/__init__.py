@@ -8,3 +8,4 @@ __all__=['easysnowdata','utils','remote_sensing']
 import easysnowdata.easysnowdata
 import easysnowdata.utils
 import easysnowdata.remote_sensing
+import easysnowdata.automatic_weather_stations
