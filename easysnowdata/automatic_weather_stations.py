@@ -8,7 +8,7 @@ from easysnowdata.utils import convert_bbox_to_geodataframe
 #based on https://github.com/egagli/snotel_ccss_stations/blob/main/example_usage.ipynb
 
 
-def get_all_stations(data_available=True, snotel_stations=True, ccss_stations=True, station_proximity_to_geom=None):
+def get_all_stations(data_available=True, snotel_stations=True, ccss_stations=True, sortby_dist_to_geom=None):
     """
     Fetches all weather stations from a GeoJSON file hosted on the snotel_ccss_stations GitHub repository. 
     The function allows filtering based on data availability and station network type. Optionally, a geometry 
@@ -18,12 +18,12 @@ def get_all_stations(data_available=True, snotel_stations=True, ccss_stations=Tr
     data_available (bool): If True, only stations with available data are included.
     snotel_stations (bool): If True, stations from the SNOTEL network are included.
     ccss_stations (bool): If True, stations from the CCSS network are included.
-    station_proximity_to_geom (GeoDataFrame, tuple, Polygon): An optional geometry to calculate distances to. 
+    sortby_dist_to_geom (GeoDataFrame, tuple, Polygon): An optional geometry to calculate distances to. 
                                                Can be a GeoDataFrame, a tuple representing a point (longitude, latitude), 
                                                or a Shapely Polygon.
 
     Returns:
-    GeoDataFrame: A GeoDataFrame containing the details of the stations.
+    GeoDataFrame: A GeoDataFrame containing the details of the stations. Optionally adds a 'dist_km' column, representing distance from each station to the input geometry.
     """
     # Read the GeoJSON file
     all_stations_gdf = gpd.read_file('https://raw.githubusercontent.com/egagli/snotel_ccss_stations/main/all_stations.geojson').set_index('code')
@@ -41,11 +41,11 @@ def get_all_stations(data_available=True, snotel_stations=True, ccss_stations=Tr
         all_stations_gdf = all_stations_gdf[all_stations_gdf['network'] != 'CCSS']
 
     # If a geometry is passed in, calculate the distance to this geometry for each station
-    if station_proximity_to_geom is not None:
-        geom_gdf = convert_bbox_to_geodataframe(station_proximity_to_geom)
+    if sortby_dist_to_geom is not None:
+        geom_gdf = convert_bbox_to_geodataframe(sortby_dist_to_geom)
         proj = 'EPSG:32611'
-        all_stations_gdf['distance_to_input_geom'] = all_stations_gdf.to_crs(proj).distance(geom_gdf.to_crs(proj).geometry[0])
-        all_stations_gdf = all_stations_gdf.sort_values('distance_to_input_geom')
+        all_stations_gdf['dist_km'] = all_stations_gdf.to_crs(proj).distance(geom_gdf.to_crs(proj).geometry[0])/1000
+        all_stations_gdf = all_stations_gdf.sort_values('dist_km')
 
     return all_stations_gdf
 
