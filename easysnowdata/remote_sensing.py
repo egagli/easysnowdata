@@ -150,3 +150,105 @@ def get_esa_worldcover(bbox_input, version: str = 'v200') -> xr.DataArray:
 
 
 
+
+
+
+
+
+# def get_sentinel2(bbox_input, start_date, end_date, catalog_choice='planetarycomputer', bands=None, resolution=None, crs=None, groupby='solar_day',config=None):
+#     """
+#     Fetch Sentinel-2 data from a specified catalog for a given bounding box and date range.
+
+#     Parameters:
+#     bbox_input (GeoDataFrame or tuple or Shapely Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+#     start_date (str): Start date in the format 'YYYY-MM-DD'.
+#     end_date (str): End date in the format 'YYYY-MM-DD'.
+#     catalog_choice (str, optional): Catalog to fetch data from. Options are 'planetarycomputer' and 'earthsearch'. Defaults to 'planetarycomputer'.
+#     bands (list, optional): List of bands to be included in the output data. If not specified, all bands are included.
+#     resolution (tuple, optional): Resolution for the output data. If not specified, the data is returned at its original resolution.
+#     crs (str, optional): Coordinate Reference System to be used for the output data. If not specified, the data is returned in its original CRS.
+#     groupby (str, optional): Method to group by when loading data. Defaults to 'solar_day'.
+
+#     Returns:
+#     s2_ds (Xarray DataSet): An xarray Dataset containing the Sentinel-2 data.
+#     """
+
+#     band_info = {
+#     "B01": {"Name": "coastal", "Description": "Coastal aerosol, 442.7 nm (S2A), 442.3 nm (S2B)", "Resolution": "60m"},
+#     "B02": {"Name": "blue", "Description": "Blue, 492.4 nm (S2A), 492.1 nm (S2B)", "Resolution": "10m"},
+#     "B03": {"Name": "green", "Description": "Green, 559.8 nm (S2A), 559.0 nm (S2B)", "Resolution": "10m"},
+#     "B04": {"Name": "red", "Description": "Red, 664.6 nm (S2A), 665.0 nm (S2B)", "Resolution": "10m"},
+#     "B05": {"Name": "rededge", "Description": "Vegetation red edge, 704.1 nm (S2A), 703.8 nm (S2B)", "Resolution": "20m"},
+#     "B06": {"Name": "rededge2", "Description": "Vegetation red edge, 740.5 nm (S2A), 739.1 nm (S2B)", "Resolution": "20m"},
+#     "B07": {"Name": "rededge3", "Description": "Vegetation red edge, 782.8 nm (S2A), 779.7 nm (S2B)", "Resolution": "20m"},
+#     "B08": {"Name": "nir", "Description": "NIR, 832.8 nm (S2A), 833.0 nm (S2B)", "Resolution": "10m"},
+#     "B8A": {"Name": "nir08", "Description": "Narrow NIR, 864.7 nm (S2A), 864.0 nm (S2B)", "Resolution": "20m"},
+#     "B09": {"Name": "nir09", "Description": "Water vapour, 945.1 nm (S2A), 943.2 nm (S2B)", "Resolution": "60m"},
+#     "B11": {"Name": "swir16", "Description": "SWIR, 1613.7 nm (S2A), 1610.4 nm (S2B)", "Resolution": "20m"},
+#     "B12": {"Name": "swir22", "Description": "SWIR, 2202.4 nm (S2A), 2185.7 nm (S2B)", "Resolution": "20m"},
+#     "AOT": {"Name": "aot", "Description": "Aerosol Optical Thickness map, based on Sen2Cor processor", "Resolution": "10m"},
+#     "SCL": {"Name": "scl", "Description": "Scene classification data, based on Sen2Cor processor: 0 - No data, 1 - Saturated / Defective, 2 - Dark Area Pixels, 3 - Cloud Shadows 4 - Vegetation, 5 - Bare Soils, 6 - Water, 7 - Clouds low probability / Unclassified, 8 - Clouds medium probability, 9 - Clouds high probability, 10 - Cirrus, 11 - Snow / Ice", "Resolution": "20m"},
+#     "WVP": {"Name": "wvp", "Description": "Water Vapour map", "Resolution": "10m"},
+#     "visual": {"Name": "visual", "Description": "True color image", "Resolution": "10m"},
+#     } 
+
+#     # Convert bbox_input to bbox_gdf
+#     bbox_gdf = easysnowdata.utils.convert_bbox_to_geodataframe(bbox_input)
+    
+#     # Choose the catalog URL based on catalog_choice
+#     if catalog_choice == "planetarycomputer":
+#         catalog_url = "https://planetarycomputer.microsoft.com/api/stac/v1"
+#         catalog = pystac_client.Client.open(catalog_url, modifier=planetary_computer.sign_inplace)
+#         config = {
+#             "sentinel-2-l2a": {
+#                 "aliases": {
+#                     "costal": "B01",
+#                     "blue": "B02",
+#                     "green": "B03",
+#                     "red": "B04",
+#                     "rededge": "B05",
+#                     "rededge2": "B06",
+#                     "rededge3": "B07",
+#                     "nir": "B08",
+#                     "nir08": "B8A",
+#                     "nir09": "B09",
+#                     "swir16": "B11",
+#                     "swir22": "B12",
+#                     "scl": "SCL",
+#                     "aot": "AOT",
+#                     "wvp": "WVP",},}}
+#     elif catalog_choice == "earthsearch":
+#         catalog_url = "https://earth-search.aws.element84.com/v1"
+#         catalog = pystac_client.Client.open(catalog_url)
+#     else:
+#         raise ValueError("Invalid catalog_choice. Choose either 'planetarycomputer' or 'earthsearch'.")
+     
+#     # Search for items within the specified bbox and date range
+#     search = catalog.search(collections=["sentinel-2-l2a"], bbox=bbox_gdf.total_bounds, datetime=(start_date, end_date))
+    
+#     # Prepare the parameters for odc.stac.load
+#     load_params = {
+#         'items': search.items(),
+#         'bbox': bbox_gdf.total_bounds,
+#         'nodata': 0,
+#         'chunks': {},
+#         'groupby': groupby
+#     }
+#     if bands:
+#         load_params['bands'] = bands
+#     else:
+#         load_params['bands'] = [info['Name'] for info in band_info.values()]
+#     if crs:
+#         load_params['crs'] = crs
+#     if resolution:
+#         load_params['resolution'] = resolution
+#     if config:
+#         load_params['stac_cfg'] = config
+
+
+#     # Load the data lazily using odc.stac
+#     s2_ds = odc.stac.load(**load_params)
+
+#     s2_ds.attrs['band_info'] = band_info
+    
+#     return s2_ds
