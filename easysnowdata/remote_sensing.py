@@ -7,7 +7,7 @@ import pystac_client
 import planetary_computer
 import odc.stac
 
-from easysnowdata.utils import convert_bbox_to_geodataframe
+from easysnowdata.utils import convert_bbox_to_geodataframe, get_stac_cfg
 
 
 def get_forest_cover_fraction(bbox_input) -> xr.DataArray:
@@ -131,6 +131,364 @@ def get_esa_worldcover(bbox_input, version: str = 'v200') -> xr.DataArray:
 
 
 
+class Sentinel2:
+    """
+    A class to handle Sentinel-2 satellite data.
+
+    Attributes:
+        bbox_input (str): The bounding box input.
+        start_date (str): The start date for the data.
+        end_date (str): The end date for the data.
+        catalog_choice (str): The catalog choice for the data.
+        bands (list): The bands to be used. Default is all.
+        resolution (str): The resolution of the data.
+        crs (str): The coordinate reference system.
+        groupby (str): The groupby parameter for the data.
+        config (dict): The configuration for the data.
+        band_info (dict): Information about the bands.
+        scl_class_info (dict): Information about the scene classification.
+        data (xarray.Dataset): The loaded data.
+        rgb (xarray.DataArray): The RGB data.
+        ndvi (xarray.DataArray): The NDVI data.
+        ndsi (xarray.DataArray): The NDSI data.
+        ndwi (xarray.DataArray): The NDWI data.
+        evi (xarray.DataArray): The EVI data.
+        ndbi (xarray.DataArray): The NDBI data.
+    """
+
+
+    def __init__(self, bbox_input, start_date, end_date, catalog_choice='planetarycomputer', bands=None, resolution=None, crs=None, groupby='solar_day',config=None):
+        """
+        The constructor for the Sentinel2 class.
+
+        Parameters:
+            bbox_input (str): The bounding box input.
+            start_date (str): The start date for the data.
+            end_date (str): The end date for the data.
+            catalog_choice (str): The catalog choice for the data.
+            bands (list): The bands to be used.
+            resolution (str): The resolution of the data.
+            crs (str): The coordinate reference system.
+            groupby (str): The groupby parameter for the data.
+            config (dict): The configuration for the data.
+        """
+        # Initialize the attributes
+        self.bbox_input = bbox_input
+        self.start_date = start_date
+        self.end_date = end_date
+        self.catalog_choice = catalog_choice
+        self.bands = bands
+        self.resolution = resolution
+        self.crs = crs
+        self.groupby = groupby
+        self.config = config
+
+            
+        # Define the band information
+        self.band_info = {
+            "B01": {"name": "coastal", "description": "Coastal aerosol, 442.7 nm (S2A), 442.3 nm (S2B)", "resolution": "60m"},
+            "B02": {"name": "blue", "description": "Blue, 492.4 nm (S2A), 492.1 nm (S2B)", "resolution": "10m"},
+            "B03": {"name": "green", "description": "Green, 559.8 nm (S2A), 559.0 nm (S2B)", "resolution": "10m"},
+            "B04": {"name": "red", "description": "Red, 664.6 nm (S2A), 665.0 nm (S2B)", "resolution": "10m"},
+            "B05": {"name": "rededge", "description": "Vegetation red edge, 704.1 nm (S2A), 703.8 nm (S2B)", "resolution": "20m"},
+            "B06": {"name": "rededge2", "description": "Vegetation red edge, 740.5 nm (S2A), 739.1 nm (S2B)", "resolution": "20m"},
+            "B07": {"name": "rededge3", "description": "Vegetation red edge, 782.8 nm (S2A), 779.7 nm (S2B)", "resolution": "20m"},
+            "B08": {"name": "nir", "description": "NIR, 832.8 nm (S2A), 833.0 nm (S2B)", "resolution": "10m"},
+            "B8A": {"name": "nir08", "description": "Narrow NIR, 864.7 nm (S2A), 864.0 nm (S2B)", "resolution": "20m"},
+            "B09": {"name": "nir09", "description": "Water vapour, 945.1 nm (S2A), 943.2 nm (S2B)", "resolution": "60m"},
+            "B11": {"name": "swir16", "description": "SWIR, 1613.7 nm (S2A), 1610.4 nm (S2B)", "resolution": "20m"},
+            "B12": {"name": "swir22", "description": "SWIR, 2202.4 nm (S2A), 2185.7 nm (S2B)", "resolution": "20m"},
+            "AOT": {"name": "aot", "description": "Aerosol Optical Thickness map, based on Sen2Cor processor", "resolution": "10m"},
+            "SCL": {"name": "scl", "description": "Scene classification data, based on Sen2Cor processor", "resolution": "20m"},
+            "WVP": {"name": "wvp", "description": "Water Vapour map", "resolution": "10m"},
+            "visual": {"name": "visual", "description": "True color image", "resolution": "10m"},
+        } 
+
+        # Define the scene classification information, classes here: https://custom-scripts.sentinel-hub.com/custom-scripts/sentinel-2/scene-classification/
+        self.scl_class_info = { 
+            0: {"name": "No Data (Missing data)", "color": "#000000"},
+            1: {"name": "Saturated or defective pixel", "color": "#ff0000"},
+            2: {"name": "Topographic casted shadows", "color": "#2f2f2f"}, # (called 'Dark features/Shadows' for data before 2022-01-25)
+            3: {"name": "Cloud shadows", "color": "#643200"},
+            4: {"name": "Vegetation", "color": "#00a000"},
+            5: {"name": "Not-vegetated", "color": "#ffe65a"},
+            6: {"name": "Water", "color": "#0000ff"},
+            7: {"name": "Unclassified", "color": "#808080"},
+            8: {"name": "Cloud medium probability", "color": "#c0c0c0"},
+            9: {"name": "Cloud high probability", "color": "#ffffff"},
+            10: {"name": "Thin cirrus", "color": "#64c8ff"},
+            11: {"name": "Snow or ice", "color": "#ff96ff"},
+        }
+
+        # Initialize the data attributes 
+        self.data = None
+        self.rgb = None
+        self.ndvi = None
+        self.ndsi = None
+        self.ndwi = None
+        self.evi = None
+        self.ndbi = None
+
+        self.get_data()
+        self.get_metadata()
+
+    def get_data(self):
+        """
+        The method to get the data.
+        """
+        # Convert bbox_input to bbox_gdf
+        bbox_gdf = convert_bbox_to_geodataframe(self.bbox_input)
+        
+        # Choose the catalog URL based on catalog_choice
+        if self.catalog_choice == "planetarycomputer":
+            catalog_url = "https://planetarycomputer.microsoft.com/api/stac/v1"
+            catalog = pystac_client.Client.open(catalog_url, modifier=planetary_computer.sign_inplace)
+        elif self.catalog_choice == "earthsearch":
+            catalog_url = "https://earth-search.aws.element84.com/v1"
+            catalog = pystac_client.Client.open(catalog_url)
+        else:
+            raise ValueError("Invalid catalog_choice. Choose either 'planetarycomputer' or 'earthsearch'.")
+        
+        # Search for items within the specified bbox and date range
+        search = catalog.search(collections=["sentinel-2-l2a"], bbox=bbox_gdf.total_bounds, datetime=(self.start_date, self.end_date))
+        self.search = search
+
+        # Prepare the parameters for odc.stac.load
+        load_params = {
+            'items': search.items(),
+            'bbox': bbox_gdf.total_bounds,
+            'nodata': 0,
+            'chunks': {},
+            'groupby': self.groupby
+        }
+        if self.bands:
+            load_params['bands'] = self.bands
+        else:
+            load_params['bands'] = [info['name'] for info in self.band_info.values()]
+        if self.crs:
+            load_params['crs'] = self.crs
+        if self.resolution:
+            load_params['resolution'] = self.resolution
+        if self.config:
+            load_params['stac_cfg'] = self.config
+        else:
+            load_params['stac_cfg'] = get_stac_cfg(sensor="sentinel-2-l2a")
+
+        # Load the data lazily using odc.stac
+        self.data = odc.stac.load(**load_params)
+
+        self.data.attrs['band_info'] = self.band_info
+        self.data.scl.attrs['scl_class_info'] = self.scl_class_info
+
+    def get_metadata(self):
+        """
+        The method to get the metadata.
+        """
+        stac_json = self.search.item_collection_as_dict()
+        metadata_gdf = gpd.GeoDataFrame.from_features(stac_json, "epsg:4326")
+        if self.catalog_choice == "earthsearch":
+            metadata_gdf["s2:mgrs_tile"] = (
+                metadata_gdf["mgrs:utm_zone"].apply(lambda x: f"{x:02d}")
+                + metadata_gdf["mgrs:latitude_band"]
+                + metadata_gdf["mgrs:grid_square"]
+            )
+
+        self.metadata = metadata_gdf
+
+    def mask_data(self,remove_nodata=True, remove_saturated_defective=True, remove_topo_shadows=True, remove_cloud_shadows=True, remove_vegetation=False, remove_not_vegetated=False, remove_water=False, remove_unclassified=False, remove_medium_prob_clouds=True,remove_high_prob_clouds=True, remove_thin_cirrus_clouds=True, remove_snow_ice=False):
+        """
+        The method to mask the data.
+
+        Parameters:
+            remove_nodata (bool): Whether to remove no data pixels.
+            remove_saturated_defective (bool): Whether to remove saturated or defective pixels.
+            remove_topo_shadows (bool): Whether to remove topographic shadow pixels.
+            remove_cloud_shadows (bool): Whether to remove cloud shadow pixels.
+            remove_vegetation (bool): Whether to remove vegetation pixels.
+            remove_not_vegetated (bool): Whether to remove not vegetated pixels.
+            remove_water (bool): Whether to remove water pixels.
+            remove_unclassified (bool): Whether to remove unclassified pixels.
+            remove_medium_prob_clouds (bool): Whether to remove medium probability cloud pixels.
+            remove_high_prob_clouds (bool): Whether to remove high probability cloud pixels.
+            remove_thin_cirrus_clouds (bool): Whether to remove thin cirrus cloud pixels.
+            remove_snow_ice (bool): Whether to remove snow or ice pixels.
+        """
+        # Mask the data based on the Scene Classification (SCL) band (see definitions above)
+        mask_list = []
+        if remove_nodata:
+            mask_list.append(0)
+        if remove_saturated_defective:
+            mask_list.append(1)
+        if remove_topo_shadows:
+            mask_list.append(2)
+        if remove_cloud_shadows:
+            mask_list.append(3)
+        if remove_vegetation:
+            mask_list.append(4)
+        if remove_not_vegetated:
+            mask_list.append(5)
+        if remove_water:
+            mask_list.append(6)
+        if remove_unclassified:
+            mask_list.append(7)
+        if remove_medium_prob_clouds:
+            mask_list.append(8)
+        if remove_high_prob_clouds:
+            mask_list.append(9)
+        if remove_thin_cirrus_clouds:
+            mask_list.append(10)
+        if remove_snow_ice:
+            mask_list.append(11)
+
+        scl = self.data.scl
+        mask = scl.where(scl.isin(mask_list) == False, 0)
+        self.data = self.data.where(mask != 0)
+
+    def get_all_data(self):
+        """
+        The method to get all the data.
+
+        Returns:
+            xarray.Dataset: The data.
+        """
+        return self.data
+
+    def get_rgb(self):
+        """
+        The method to get the RGB data.
+
+        Returns:
+            xarray.DataArray: The RGB data.
+        """
+        # Convert the red, green, and blue bands to an RGB DataArray
+        rgb_da = self.data[['red','green','blue']].to_dataarray(dim='band')
+        self.rgb = rgb_da
+
+        return rgb_da
+
+
+    def harmonize_to_old(self):
+        """
+        Harmonize new Sentinel-2 data to the old baseline.
+        Adapted from: https://planetarycomputer.microsoft.com/dataset/sentinel-2-l2a#Baseline-Change
+        Returns
+        -------
+        harmonized: xarray.Dataset
+            A Dataset with all values harmonized to the old
+            processing baseline.
+        """
+        cutoff = datetime.datetime(2022, 1, 25)
+        offset = 1000
+        bands = [
+            "B01",
+            "B02",
+            "B03",
+            "B04",
+            "B05",
+            "B06",
+            "B07",
+            "B08",
+            "B8A",
+            "B09",
+            "B11",
+            "B12",
+        ]
+        bands = [self.data.band_info[band]["name"] for band in bands]
+        old = self.data.sel(time=slice(None, cutoff))
+
+        to_process = list(set(bands) & set(self.data.data_vars))
+        new = self.data.sel(time=slice(cutoff, None))
+
+        for band in to_process:
+            if band in new.data_vars:
+                new[band] = new[band].clip(offset) - offset
+
+        self.data = xr.concat([old, new], dim="time")
+
+    # Indicies
+    # find indicies Sentinel-2 indicies here: https://www.indexdatabase.de/db/is.php?sensor_id=96 and https://custom-scripts.sentinel-hub.com/custom-scripts/sentinel/sentinel-2/
+
+    def get_ndvi(self):
+        """
+        The method to get the NDVI data. 
+        S2 NDVI definition: (B08 - B04) / (B08 + B04) [https://www.indexdatabase.de/db/i-single.php?id=58]
+
+        Returns:
+            ndvi_da (xarray.DataArray): The NDVI data.
+        """
+        red = self.data.red
+        nir = self.data.nir
+        ndvi_da = (nir - red) / (nir + red)
+
+        self.ndvi = ndvi_da
+
+        return ndvi_da
+
+    def get_ndsi(self):
+        """
+        The method to get the NDSI data.
+        S2 NDSI definition: (B03 - B11) / (B03 + B11) 
+
+        Returns:
+            ndsi_da (xarray.DataArray): The NDSI data.
+        """
+        green = self.data.green
+        swir16 = self.data.swir16
+        ndsi_da = (green - swir16) / (green + swir16)
+
+        self.ndsi = ndsi_da
+
+        return ndsi_da
+
+    def get_ndwi(self):
+        """
+        The method to get the NDWI data.
+        S2 NDWI definition: (B03 - B08) / (B03 + B08)
+
+        Returns:
+            ndwi_da (xarray.DataArray): The NDWI data.
+        """
+        green = self.data.green
+        nir = self.data.nir
+        ndwi_da = (green - nir) / (green + nir)
+
+        self.ndwi = ndwi_da
+        
+        return ndwi_da
+
+    def get_evi(self):
+        """
+        The method to get the EVI data.
+        S2 EVI definition: 2.5 * (B08 - B04) / (B08 + 6 * B04 - 7.5 * B02 + 1) [https://www.indexdatabase.de/db/si-single.php?sensor_id=96&rsindex_id=16]
+
+        Returns:
+            xarray.DataArray: The EVI data.
+        """ 
+        red = self.data.red
+        nir = self.data.nir
+        blue = self.data.blue
+
+        evi_da = 2.5 * (nir - red) / (nir+6*red-7.5*blue+1)
+
+        self.evi = evi_da
+
+        return evi_da
+
+    def get_ndbi(self):
+        """
+        The method to get the NDBI data.
+        S2 NDBI definition: (B08 - B12) / (B08 + B12)
+
+        Returns:
+            xarray.DataArray: The NDBI data.
+        """
+        nir = self.data.nir
+        swir22 = self.data.swir22
+        ndbi_da = (nir - swir22) / (nir + swir22)
+
+        self.ndbi = ndbi_da
+        
+        return ndbi_da
 
 
 
@@ -148,8 +506,32 @@ def get_esa_worldcover(bbox_input, version: str = 'v200') -> xr.DataArray:
 
 
 
+# import pystac
+
+# catalog_url = "https://planetarycomputer.microsoft.com/api/stac/v1"
+# catalog = pystac_client.Client.open(catalog_url, modifier=planetary_computer.sign_inplace)
 
 
+# items = search.get_all_items()
+
+# # Initialize an empty list to store the patched items
+# patched_items = []
+
+# # Iterate over the items
+# for item in items:
+#     # Convert the item to a dictionary
+#     item_dict = item.to_dict()
+
+#     # Modify the 'raster:bands' attribute of the 'visual' asset
+#     item_dict['assets']['visual']['raster:bands'] = [{'data_type': 'uint16'}]*3
+
+#     # Convert the dictionary back to an Item
+#     item_patched = pystac.Item.from_dict(item_dict)
+
+#     # Append the patched item to the list
+#     patched_items.append(item_patched)
+
+#     odc.stac.load(patched_items,bbox=bbox_gdf.total_bounds,chunks={},bands=("visual.1","visual.2","visual.3"),nodata=0).to_dataarray(dim='band').isel(time=10).plot.imshow(rgb='band',robust=True)
 
 
 
