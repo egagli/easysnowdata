@@ -1,3 +1,4 @@
+import numpy as np
 import geopandas as gpd
 import rioxarray as rxr
 import xarray as xr
@@ -5,9 +6,17 @@ import shapely
 import dask
 import pystac_client
 import planetary_computer
+import os
+
 import odc.stac
+odc.stac.configure_rio(cloud_defaults=True)  
+
+import datetime
+today = datetime.datetime.now().strftime('%Y-%m-%d')
 
 from easysnowdata.utils import convert_bbox_to_geodataframe, get_stac_cfg
+
+
 
 
 def get_forest_cover_fraction(bbox_input) -> xr.DataArray:
@@ -21,10 +30,10 @@ def get_forest_cover_fraction(bbox_input) -> xr.DataArray:
     Marcel Buchhorn, Bruno Smets, Luc Bertels, Bert De Roo, Myroslava Lesiv, Nandin-Erdene Tsendbazar, Martin Herold, & Steffen Fritz. (2020). Copernicus Global Land Service: Land Cover 100m: collection 3: epoch 2019: Globe (V3.0.1) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.3939050
 
     Parameters:
-    bbox_input (GeoPandas GeoDataFrame or tuple or Shapely Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+    bbox_input (geopandas.GeoDataFrame or tuple or shapely.Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
 
     Returns:
-    fcf_da (Xarray DataArray): Forest cover fraction DataArray.
+    fcf_da (xarray.DataArray): Forest cover fraction DataArray.
     """
 
     # Convert the input to a GeoDataFrame if it's not already one
@@ -49,10 +58,10 @@ def get_seasonal_snow_classification(bbox_input) -> xr.DataArray:
     Liston, G. E. and M. Sturm. (2021). Global Seasonal-Snow Classification, Version 1 [Data Set]. Boulder, Colorado USA. National Snow and Ice Data Center. https://doi.org/10.5067/99FTCYYYLAQ0. Date Accessed 03-06-2024.
 
     Parameters:
-    bbox_input (GeoPandas GeoDataFrame or tuple or Shapely Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+    bbox_input (geopandas.GeoDataFrame or tuple or Shapely Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
 
     Returns:
-    snow_classification_da (Xarray DataArray): Seasonal snow class DataArray.
+    snow_classification_da (xarray.DataArray): Seasonal snow class DataArray.
     """    
 
     # Convert the input to a GeoDataFrame if it's not already one
@@ -89,11 +98,11 @@ def get_esa_worldcover(bbox_input, version: str = 'v200') -> xr.DataArray:
     Zanaga, D., Van De Kerchove, R., De Keersmaecker, W., Souverijns, N., Brockmann, C., Quast, R., Wevers, J., Grosu, A., Paccini, A., Vergnaud, S., Cartus, O., Santoro, M., Fritz, S., Georgieva, I., Lesiv, M., Carter, S., Herold, M., Li, Linlin, Tsendbazar, N.E., Ramoino, F., Arino, O. (2021). ESA WorldCover 10 m 2020 v100. doi:10.5281/zenodo.5571936.
 
     Parameters:
-    bbox_input (GeoPandas GeoDataFrame or tuple or Shapely Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+    bbox_input (geopandas.GeoDataFrame or tuple or Shapely Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
     version (str): Version of the WorldCover data. The two versions are v100 (2020) and v200 (2021). Default is 'v200'.
 
     Returns:
-    worldcover_da (Xarray DataArray): WorldCover DataArray.
+    worldcover_da (xarray.DataArray): WorldCover DataArray.
     """
 
     # Convert the input to a GeoDataFrame if it's not already one
@@ -136,17 +145,18 @@ class Sentinel2:
     A class to handle Sentinel-2 satellite data.
 
     Attributes:
-        bbox_input (str): The bounding box input.
-        start_date (str): The start date for the data.
-        end_date (str): The end date for the data.
-        catalog_choice (str): The catalog choice for the data.
-        bands (list): The bands to be used. Default is all.
-        resolution (str): The resolution of the data.
-        crs (str): The coordinate reference system.
-        groupby (str): The groupby parameter for the data.
-        config (dict): The configuration for the data.
+        bbox_input (geopandas.GeoDataFrame or tuple or Shapely Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+        start_date (str): The start date for the data in the format 'YYYY-MM-DD'. Default is '2014-01-01'.
+        end_date (str): The end date for the data in the format 'YYYY-MM-DD'. Default is today's date.
+        catalog_choice (str): The catalog choice for the data. Can choose between 'planetarycomputer' and 'earthsearch', default is 'planetarycomputer'.
+        bands (list): The bands to be used. Default is all bands. Must include SCL for data masking. Each band should be a string like 'B01', 'B02', etc.
+        resolution (str): The resolution of the data. Defaults to native resolution, 10m.
+        crs (str): The coordinate reference system. This should be a string like 'EPSG:4326'. Default CRS is UTM zone estimated from bounding box.
+        groupby (str): The groupby parameter for the data. Default is "solar_day".
+
         band_info (dict): Information about the bands.
-        scl_class_info (dict): Information about the scene classification.
+        scl_class_info (dict): Information about the scene classification. This should be a dictionary with keys being the class values and values being another dictionary with keys like 'name', 'description', etc.
+        
         data (xarray.Dataset): The loaded data.
         rgb (xarray.DataArray): The RGB data.
         ndvi (xarray.DataArray): The NDVI data.
@@ -157,20 +167,19 @@ class Sentinel2:
     """
 
 
-    def __init__(self, bbox_input, start_date, end_date, catalog_choice='planetarycomputer', bands=None, resolution=None, crs=None, groupby='solar_day',config=None):
+    def __init__(self, bbox_input, start_date='2014-01-01', end_date=datetime.datetime.now().strftime('%Y-%m-%d'), catalog_choice='planetarycomputer', bands=None, resolution=None, crs=None, groupby='solar_day'):
         """
         The constructor for the Sentinel2 class.
 
         Parameters:
-            bbox_input (str): The bounding box input.
-            start_date (str): The start date for the data.
-            end_date (str): The end date for the data.
-            catalog_choice (str): The catalog choice for the data.
-            bands (list): The bands to be used.
-            resolution (str): The resolution of the data.
-            crs (str): The coordinate reference system.
-            groupby (str): The groupby parameter for the data.
-            config (dict): The configuration for the data.
+            bbox_input (geopandas.GeoDataFrame or tuple or Shapely Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+            start_date (str): The start date for the data in the format 'YYYY-MM-DD'. Default is '2014-01-01'.
+            end_date (str): The end date for the data in the format 'YYYY-MM-DD'. Default is today's date.
+            catalog_choice (str): The catalog choice for the data. Can choose between 'planetarycomputer' and 'earthsearch', default is 'planetarycomputer'.
+            bands (list): The bands to be used. Default is all bands. Must include SCL for data masking. Each band should be a string like 'B01', 'B02', etc.
+            resolution (str): The resolution of the data. Defaults to native resolution, 10m.
+            crs (str): The coordinate reference system. This should be a string like 'EPSG:4326'. Default CRS is UTM zone estimated from bounding box.
+            groupby (str): The groupby parameter for the data. Default is "solar_day".
         """
         # Initialize the attributes
         self.bbox_input = bbox_input
@@ -181,9 +190,12 @@ class Sentinel2:
         self.resolution = resolution
         self.crs = crs
         self.groupby = groupby
-        self.config = config
-
             
+        self.bbox_gdf = convert_bbox_to_geodataframe(self.bbox_input)
+
+        if self.crs == None:
+            self.crs = self.bbox_gdf.estimate_utm_crs()
+
         # Define the band information
         self.band_info = {
             "B01": {"name": "coastal", "description": "Coastal aerosol, 442.7 nm (S2A), 442.3 nm (S2B)", "resolution": "60m"},
@@ -221,7 +233,10 @@ class Sentinel2:
         }
 
         # Initialize the data attributes 
+        self.search = None
         self.data = None
+        self.metadata = None
+
         self.rgb = None
         self.ndvi = None
         self.ndsi = None
@@ -229,61 +244,72 @@ class Sentinel2:
         self.evi = None
         self.ndbi = None
 
+        self.search_data()
         self.get_data()
         self.get_metadata()
 
-    def get_data(self):
+    def search_data(self):
         """
-        The method to get the data.
+        The method to search the data.
         """
-        # Convert bbox_input to bbox_gdf
-        bbox_gdf = convert_bbox_to_geodataframe(self.bbox_input)
         
         # Choose the catalog URL based on catalog_choice
         if self.catalog_choice == "planetarycomputer":
             catalog_url = "https://planetarycomputer.microsoft.com/api/stac/v1"
             catalog = pystac_client.Client.open(catalog_url, modifier=planetary_computer.sign_inplace)
         elif self.catalog_choice == "earthsearch":
+            os.environ['AWS_REGION']='us-west-2'
+            os.environ['GDAL_DISABLE_READDIR_ON_OPEN']='EMPTY_DIR' 
+            os.environ['AWS_NO_SIGN_REQUEST']='YES'
             catalog_url = "https://earth-search.aws.element84.com/v1"
             catalog = pystac_client.Client.open(catalog_url)
         else:
             raise ValueError("Invalid catalog_choice. Choose either 'planetarycomputer' or 'earthsearch'.")
         
         # Search for items within the specified bbox and date range
-        search = catalog.search(collections=["sentinel-2-l2a"], bbox=bbox_gdf.total_bounds, datetime=(self.start_date, self.end_date))
+        search = catalog.search(collections=["sentinel-2-l2a"], bbox=self.bbox_gdf.total_bounds, datetime=(self.start_date, self.end_date))
         self.search = search
+        print(f'Data searched. Access the returned seach with the .search attribute.')
 
+
+    def get_data(self):
+        """
+        The method to get the data.
+        """
         # Prepare the parameters for odc.stac.load
         load_params = {
-            'items': search.items(),
-            'bbox': bbox_gdf.total_bounds,
+            'items': self.search.items(),
+            'bbox': self.bbox_gdf.total_bounds,
             'nodata': 0,
             'chunks': {},
-            'groupby': self.groupby
+            'crs': self.crs,
+            'groupby': self.groupby,
+            'stac_cfg': get_stac_cfg(sensor="sentinel-2-l2a")
         }
         if self.bands:
             load_params['bands'] = self.bands
         else:
             load_params['bands'] = [info['name'] for info in self.band_info.values()]
-        if self.crs:
-            load_params['crs'] = self.crs
         if self.resolution:
             load_params['resolution'] = self.resolution
-        if self.config:
-            load_params['stac_cfg'] = self.config
-        else:
-            load_params['stac_cfg'] = get_stac_cfg(sensor="sentinel-2-l2a")
+
 
         # Load the data lazily using odc.stac
         self.data = odc.stac.load(**load_params)
 
         self.data.attrs['band_info'] = self.band_info
-        self.data.scl.attrs['scl_class_info'] = self.scl_class_info
+        self.data.attrs['scl_class_info'] = self.scl_class_info
+
+        if 'scl' in self.data.variables:
+            self.data.scl.attrs['scl_class_info'] = self.scl_class_info
+        
+        print(f'Data retrieved. Access with the .data attribute. Data CRS: {self.bbox_gdf.estimate_utm_crs().name}.')
 
     def get_metadata(self):
         """
         The method to get the metadata.
         """
+
         stac_json = self.search.item_collection_as_dict()
         metadata_gdf = gpd.GeoDataFrame.from_features(stac_json, "epsg:4326")
         if self.catalog_choice == "earthsearch":
@@ -294,6 +320,7 @@ class Sentinel2:
             )
 
         self.metadata = metadata_gdf
+        print(f'Metadata retrieved. Access with the .metadata attribute.')
 
     def mask_data(self,remove_nodata=True, remove_saturated_defective=True, remove_topo_shadows=True, remove_cloud_shadows=True, remove_vegetation=False, remove_not_vegetated=False, remove_water=False, remove_unclassified=False, remove_medium_prob_clouds=True,remove_high_prob_clouds=True, remove_thin_cirrus_clouds=True, remove_snow_ice=False):
         """
@@ -313,6 +340,7 @@ class Sentinel2:
             remove_thin_cirrus_clouds (bool): Whether to remove thin cirrus cloud pixels.
             remove_snow_ice (bool): Whether to remove snow or ice pixels.
         """
+
         # Mask the data based on the Scene Classification (SCL) band (see definitions above)
         mask_list = []
         if remove_nodata:
@@ -339,33 +367,14 @@ class Sentinel2:
             mask_list.append(10)
         if remove_snow_ice:
             mask_list.append(11)
+        
+        print(f'Removed pixels with the following scene classification values:')
+        for val in mask_list:
+            print(self.scl_class_info[val]["name"])
 
         scl = self.data.scl
         mask = scl.where(scl.isin(mask_list) == False, 0)
         self.data = self.data.where(mask != 0)
-
-    def get_all_data(self):
-        """
-        The method to get all the data.
-
-        Returns:
-            xarray.Dataset: The data.
-        """
-        return self.data
-
-    def get_rgb(self):
-        """
-        The method to get the RGB data.
-
-        Returns:
-            xarray.DataArray: The RGB data.
-        """
-        # Convert the red, green, and blue bands to an RGB DataArray
-        rgb_da = self.data[['red','green','blue']].to_dataarray(dim='band')
-        self.rgb = rgb_da
-
-        return rgb_da
-
 
     def harmonize_to_old(self):
         """
@@ -405,6 +414,21 @@ class Sentinel2:
 
         self.data = xr.concat([old, new], dim="time")
 
+        print(f'Data acquired after January 25th, 2022 harmonized to old baseline.')
+
+    def get_rgb(self):
+        """
+        The method to get the RGB data.
+
+        Returns:
+            xarray.DataArray: The RGB data.
+        """
+        # Convert the red, green, and blue bands to an RGB DataArray
+        rgb_da = self.data[['red','green','blue']].to_dataarray(dim='band')
+        self.rgb = rgb_da
+
+        print(f'RGB data retrieved. Access with the .rgb attribute.')
+
     # Indicies
     # find indicies Sentinel-2 indicies here: https://www.indexdatabase.de/db/is.php?sensor_id=96 and https://custom-scripts.sentinel-hub.com/custom-scripts/sentinel/sentinel-2/
 
@@ -422,7 +446,7 @@ class Sentinel2:
 
         self.ndvi = ndvi_da
 
-        return ndvi_da
+        print(f'NDVI data calculated. Access with the .ndvi attribute.')
 
     def get_ndsi(self):
         """
@@ -438,7 +462,8 @@ class Sentinel2:
 
         self.ndsi = ndsi_da
 
-        return ndsi_da
+        print(f'NDSI data calculated. Access with the .ndsi attribute.')
+
 
     def get_ndwi(self):
         """
@@ -454,7 +479,7 @@ class Sentinel2:
 
         self.ndwi = ndwi_da
         
-        return ndwi_da
+        print(f'NDWI data calculated. Access with the .ndwi attribute.')
 
     def get_evi(self):
         """
@@ -472,7 +497,7 @@ class Sentinel2:
 
         self.evi = evi_da
 
-        return evi_da
+        print(f'EVI data calculated. Access with the .evi attribute.')
 
     def get_ndbi(self):
         """
@@ -488,12 +513,158 @@ class Sentinel2:
 
         self.ndbi = ndbi_da
         
-        return ndbi_da
+        print(f'NDBI data calculated. Access with the .ndbi attribute.')
 
 
 
 
 
+class Sentinel1:
+    """
+    A class to handle Sentinel-1 RTC satellite data.
+
+    Attributes:
+        bbox_input (geopandas.GeoDataFrame or tuple or Shapely Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+        start_date (str): The start date for the data in the format 'YYYY-MM-DD'.
+        end_date (str): The end date for the data in the format 'YYYY-MM-DD'.
+        catalog_choice (str): The catalog choice for the data. Can choose between 'planetarycomputer' and 'earthsearch', default is 'planetarycomputer'.
+        bands (list): The bands to be used. Default is all bands. Must include SCL for data masking. Each band should be a string like 'B01', 'B02', etc.
+        resolution (str): The resolution of the data. Defaults to native resolution, 10m.
+        crs (str): The coordinate reference system. This should be a string like 'EPSG:4326'. Default CRS is UTM zone estimated from bounding box.
+        groupby (str): The groupby parameter for the data. Default is "sat:absolute_orbit".
+
+    """
+
+
+    def __init__(self, bbox_input, start_date='2014-01-01', end_date=today, catalog_choice='planetarycomputer', bands=None, resolution=None, crs=None, groupby='sat:absolute_orbit'):
+        """
+        The constructor for the Sentinel1 class.
+
+        Parameters:
+            bbox_input (geopandas.GeoDataFrame or tuple or shapely.Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+            start_date (str): The start date for the data in the format 'YYYY-MM-DD'. Default is '2014-01-01'.
+            end_date (str): The end date for the data in the format 'YYYY-MM-DD'. Default is today's date.
+            catalog_choice (str): The catalog choice for the data. Can choose between 'planetarycomputer' and <unimplemented>, default is 'planetarycomputer'.
+            bands (list): The bands to be used. Default is all bands. 
+            resolution (str): The resolution of the data. Defaults to native resolution, 10m.
+            crs (str): The coordinate reference system. This should be a string like 'EPSG:4326'. Default CRS is UTM zone estimated from bounding box.
+            groupby (str): The groupby parameter for the data. Default is "sat:absolute_orbit".
+        """
+        # Initialize the attributes
+        self.bbox_input = bbox_input
+        self.start_date = start_date
+        self.end_date = end_date
+        self.catalog_choice = catalog_choice
+        self.bands = bands
+        self.resolution = resolution
+        self.crs = crs
+        self.groupby = groupby
+
+        self.bbox_gdf = convert_bbox_to_geodataframe(self.bbox_input)
+
+        if self.crs == None:
+            self.crs = self.bbox_gdf.estimate_utm_crs()
+
+
+        self.search = None
+        self.data = None
+        self.metadata = None
+
+        self.search_data()
+        self.get_data()
+        self.get_metadata()
+        self.remove_border_noise()
+        self.add_orbit_info()
+        self.linear_to_db()
+
+    def search_data(self):
+        """
+        The method to search the data.
+        """
+        
+        # Choose the catalog URL based on catalog_choice
+        if self.catalog_choice == "planetarycomputer":
+            catalog_url = "https://planetarycomputer.microsoft.com/api/stac/v1"
+            catalog = pystac_client.Client.open(catalog_url, modifier=planetary_computer.sign_inplace)
+        # elif self.catalog_choice == "aws":
+        #     catalog_url = indigo
+        #     catalog = pystac_client.Client.open(catalog_url)
+        else:
+            raise ValueError("Invalid catalog_choice. Choose either 'planetarycomputer' or <unimplemented>.")
+        
+        # Search for items within the specified bbox and date range
+        search = catalog.search(collections=["sentinel-1-rtc"], bbox=self.bbox_gdf.total_bounds, datetime=(self.start_date, self.end_date))
+        self.search = search
+        print(f'Data searched. Access the returned seach with the .search attribute.')
+
+    def get_data(self):
+        """
+        The method to get the data.
+        """
+        # Prepare the parameters for odc.stac.load
+        load_params = {
+            'items': self.search.items(),
+            'bbox': self.bbox_gdf.total_bounds,
+            'nodata': -32768,
+            'chunks': {'x':512, 'y':512,'time':-1},
+            'groupby': self.groupby
+        }
+        if self.bands:
+            load_params['bands'] = self.bands
+        if self.crs:
+            load_params['crs'] = self.crs
+        if self.resolution:
+            load_params['resolution'] = self.resolution
+
+        # Load the data lazily using odc.stac
+        self.data = odc.stac.load(**load_params).sortby('time') # sorting by time because of known issue in stac catalog
+        self.data.attrs['units'] = 'linear power'
+        print(f'Data retrieved. Access with the .data attribute. Data CRS: {self.bbox_gdf.estimate_utm_crs().name}.')
+
+
+
+    def get_metadata(self):
+        """
+        The method to get the metadata.
+        """
+        stac_json = self.search.item_collection_as_dict()
+        metadata_gdf = gpd.GeoDataFrame.from_features(stac_json,"epsg:4326")
+
+        self.metadata = metadata_gdf
+        print(f'Metadata retrieved. Access with the .metadata attribute.')
+
+    def remove_border_noise(self):
+        """
+        The method to remove border noise from the data.
+        """
+        self.data = self.data.where(self.data>0.006)
+        print(f'Border noise removed from the data.')
+    
+    def linear_to_db(self):
+        """
+        The method to convert the linear power data to dB.
+        """
+        self.data = 10 * np.log10(self.data)
+        self.data.attrs['units'] = 'dB'
+        print(f'Linear power units converted to dB. Convert back to linear power units using the .db_to_linear() method.')
+
+    def db_to_linear(self):
+        """
+        The method to convert the dB data to linear power.
+        """
+        self.data = 10 ** (self.data / 10)
+        self.data.attrs['units'] = 'linear power'
+        print(f'dB converted to linear power units. Convert back to dB using the .linear_to_db() method.')
+
+
+    def add_orbit_info(self):
+        """
+        The method to add the relative orbit number to the data.
+        """
+        metadata_groupby_gdf = self.metadata.groupby([f'{self.groupby}']).first().sort_values('datetime')
+        self.data = self.data.assign_coords({'sat:orbit_state':('time',metadata_groupby_gdf['sat:orbit_state'])})
+        self.data = self.data.assign_coords({'sat:relative_orbit':('time',metadata_groupby_gdf['sat:relative_orbit'].astype('int16'))})
+        print(f'Added relative orbit number and orbit state as coordinates to the data.')
 
 
 
