@@ -139,7 +139,6 @@ def get_esa_worldcover(bbox_input, version: str = 'v200') -> xr.DataArray:
 
 
 
-
 class Sentinel2:
     """
     A class to handle Sentinel-2 satellite data.
