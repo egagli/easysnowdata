@@ -1,6 +1,9 @@
 import pandas as pd
 import geopandas as gpd
 import numpy as np
+import os
+import glob
+import xarray as xr
 
 from easysnowdata.utils import convert_bbox_to_geodataframe
 
@@ -87,3 +90,39 @@ def get_station_data(station_id):
 
     return station_data_df
 
+def get_all_stations_all_data(all_stations_gdf, temp_dir = './temp_data_download/'):
+
+    print(f'Downloading temporary data to {temp_dir}all_station_data.tar.lzma...')
+    os.system(f'wget -q -P {temp_dir} "https://github.com/egagli/snotel_ccss_stations/raw/main/data/all_station_data.tar.lzma"')
+    print(f'Decompressing data...')
+    os.system(f'tar --lzma -xf {temp_dir}all_station_data.tar.lzma -C {temp_dir}')
+
+    print(f'Creating xarray.Dataset from the downloaded data...')
+    list_of_csv_files = glob.glob(f'{temp_dir}data/*.csv')
+
+    datasets = []
+    for csv_file in list_of_csv_files:
+        # Extract station name from the csv file name
+        station_name = csv_file.split('/')[-1].split('.')[0]
+
+        # Load the CSV data into a pandas DataFrame
+        df = pd.read_csv(csv_file, parse_dates=True).rename(columns={'datetime':'time'}).set_index('time').sort_index()
+
+        # Convert the DataFrame into an xarray DataSet and add station coordinate
+        ds = df.to_xarray()
+        ds.coords['station']=station_name
+
+        # Add other coordinates from all_stations_gdf
+        for col in all_stations_gdf.columns:
+            ds.coords[col] = all_stations_gdf.loc[station_name, col]
+
+        datasets.append(ds)
+
+    ds = xr.concat(datasets,dim='station')
+
+    print(f'Removing temporary data...')
+    os.system(f'rm -rf {temp_dir}')
+
+    print(f'Done!')
+
+    return ds    
