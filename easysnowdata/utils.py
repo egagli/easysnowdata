@@ -1,12 +1,15 @@
 """The common module contains common functions and classes used by the other modules.
 """
-
+import numpy as np
+import pandas as pd
 import geopandas as gpd
 import rioxarray as rxr
 import xarray as xr
 import shapely
 import dask
 import yaml
+import datetime
+import typing
 
 
 def hello_world():
@@ -71,3 +74,45 @@ def get_stac_cfg(sensor='sentinel-2-l2a'):
     cfg = yaml.load(cfg, Loader=yaml.CSafeLoader)
 
     return cfg
+
+
+def datetime_to_DOWY(date: datetime.datetime) -> typing.Union[int, np.nan]:
+    """
+    Convert a datetime to the day of the water year (DOWY).
+    
+    The water year starts on October 1. If the month of the date is less than 10 (October), 
+    the start of the water year is considered to be October 1 of the previous year. 
+    Otherwise, the start of the water year is October 1 of the current year.
+    
+    Parameters:
+    date (datetime): The date to convert.
+    
+    Returns:
+    int: The day of the water year, or np.nan if the date is not valid.
+    """
+    try:
+        if date.month < 10:
+            start_of_water_year = pd.Timestamp(year=date.year-1, month=10, day=1)
+        else:
+            start_of_water_year = pd.Timestamp(year=date.year, month=10, day=1)
+        return (date - start_of_water_year).days + 1
+    except:
+        return np.nan
+
+def datetime_to_WY(date: datetime) -> int:
+    """
+    Convert a datetime to the water year (WY).
+    
+    The water year starts on October 1. If the month of the date is less than 10 (October), 
+    the water year is considered to be the current year. Otherwise, the water year is the next year.
+    
+    Parameters:
+    date (datetime): The date to convert.
+    
+    Returns:
+    int: The water year.
+    """
+    if date.month < 10:
+        return date.year
+    else:
+        return date.year + 1
