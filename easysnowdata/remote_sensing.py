@@ -139,6 +139,7 @@ def get_esa_worldcover(bbox_input, version: str = 'v200') -> xr.DataArray:
 
 
 
+
 class Sentinel2:
     """
     A class to handle Sentinel-2 satellite data.
@@ -616,7 +617,7 @@ class Sentinel1:
             load_params['resolution'] = self.resolution
 
         # Load the data lazily using odc.stac
-        self.data = odc.stac.load(**load_params).sortby('time') # sorting by time because of known issue in stac catalog
+        self.data = odc.stac.load(**load_params).sortby('time') # sorting by time because of known issue in s1 mpc stac catalog
         self.data.attrs['units'] = 'linear power'
         print(f'Data retrieved. Access with the .data attribute. Data CRS: {self.bbox_gdf.estimate_utm_crs().name}.')
 
