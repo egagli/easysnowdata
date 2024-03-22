@@ -10,6 +10,8 @@ import dask
 import yaml
 import datetime
 import typing
+import requests
+from bs4 import BeautifulSoup
 
 
 def hello_world():
@@ -37,6 +39,44 @@ def convert_bbox_to_geodataframe(bbox_input):
 
     return bbox_input
 
+# def get_stac_cfg(sensor='sentinel-2-l2a'):
+#     if sensor == 'sentinel-2-l2a':
+#         cfg = """---
+#         sentinel-2-l2a:
+#             assets:
+#                 '*':
+#                     data_type: uint16
+#                     nodata: 0
+#                     unit: '1'
+#                 SCL:
+#                     data_type: uint8
+#                     nodata: 0
+#                     unit: '1'
+#                 visual:
+#                     data_type: uint8
+#                     nodata: 0
+#                     unit: '1'
+#             aliases:  # Alias -> Canonical Name
+#                 costal: B01
+#                 blue: B02
+#                 green: B03
+#                 red: B04
+#                 rededge1: B05
+#                 rededge2: B06
+#                 rededge3: B07
+#                 nir: B08
+#                 nir08: B8A
+#                 nir09: B09
+#                 swir16: B11
+#                 swir22: B12
+#                 scl: SCL
+#                 aot: AOT
+#                 wvp: WVP
+#         """
+#     cfg = yaml.load(cfg, Loader=yaml.CSafeLoader)
+
+#     return cfg
+
 def get_stac_cfg(sensor='sentinel-2-l2a'):
     if sensor == 'sentinel-2-l2a':
         cfg = """---
@@ -46,7 +86,7 @@ def get_stac_cfg(sensor='sentinel-2-l2a'):
                     data_type: uint16
                     nodata: 0
                     unit: '1'
-                SCL:
+                scl:
                     data_type: uint8
                     nodata: 0
                     unit: '1'
@@ -70,6 +110,97 @@ def get_stac_cfg(sensor='sentinel-2-l2a'):
                 scl: SCL
                 aot: AOT
                 wvp: WVP
+        """
+    elif sensor == 'HLSL30.v2.0':
+        cfg = """---
+        HLSL30.v2.0:
+            assets:
+                '*':
+                    data_type: int16
+                    nodata: -9999
+                    scale: 0.0001
+                Fmask:
+                    data_type: uint8
+                    nodata: 255
+                    scale: 1
+                SZA:
+                    data_type: uint16
+                    nodata: 40000
+                    scale: 0.01
+                SAA:
+                    data_type: uint16
+                    nodata: 40000
+                    scale: 0.01
+                VZA:
+                    data_type: uint16
+                    nodata: 40000
+                    scale: 0.01
+                VAA:
+                    data_type: uint16
+                    nodata: 40000
+                    scale: 0.01
+                thermal infrared 1:
+                    data_type: int16
+                    nodata: -9999
+                    scale: 0.01
+                thermal:
+                    data_type: int16
+                    nodata: -9999
+                    scale: 0.01
+            aliases:
+                coastal aerosol: B01
+                blue: B02
+                green: B03
+                red: B04
+                nir narrow: B05
+                swir 1: B06
+                swir 2: B07
+                cirrus: B09
+                thermal infrared 1: B10
+                thermal: B11
+        """
+    elif sensor == 'HLSS30.v2.0':
+        cfg = """---
+        HLSS30.v2.0:
+            assets:
+                '*':
+                    data_type: int16
+                    nodata: -9999
+                    scale: 0.0001
+                Fmask:
+                    data_type: uint8
+                    nodata: 255
+                    scale: 1
+                SZA:
+                    data_type: uint16
+                    nodata: 40000
+                    scale: 0.01
+                SAA:
+                    data_type: uint16
+                    nodata: 40000
+                    scale: 0.01
+                VZA:
+                    data_type: uint16
+                    nodata: 40000
+                    scale: 0.01
+                VAA:
+                    data_type: uint16
+                    nodata: 40000
+                    scale: 0.01
+            aliases:
+                coastal aerosol: B01
+                blue: B02
+                green: B03
+                red: B04
+                red-edge 1: B05
+                red-edge 2: B06
+                red-edge 3: B07
+                nir broad: B08
+                nir narrow: B8A
+                water vapor: B09
+                cirrus: B10
+                swir 1: B11
+                swir 2: B12
         """
     cfg = yaml.load(cfg, Loader=yaml.CSafeLoader)
 
@@ -116,3 +247,31 @@ def datetime_to_WY(date: datetime) -> int:
         return date.year
     else:
         return date.year + 1
+    
+
+def HLS_xml_url_to_metadata_df(url):
+    # URL of the XML file
+
+    # Send a GET request to the URL
+    response = requests.get(url)
+
+    # Parse the XML content of the response with BeautifulSoup
+    soup = BeautifulSoup(response.content, 'lxml-xml')  # 'lxml-xml' parser is used for parsing XML
+
+    # Create a dictionary to hold the data
+    data = {}
+
+    # Iterate over all tags in the soup object
+    for tag in soup.find_all():
+        # If the tag has a text value, add it to the dictionary
+        if tag.text.strip():
+            data[tag.name] = tag.text.strip().replace('\n',' ')
+
+    # Convert the dictionary to a DataFrame
+    df = pd.DataFrame([data]).iloc[0][['ProducerGranuleId','Temporal','Platform','AssociatedBrowseImageUrls']]
+
+    df['Platform'] = df['Platform'].split(' ')[0]
+    df['AssociatedBrowseImageUrls'] = df['AssociatedBrowseImageUrls'].split(' ')[0]
+    df['Temporal'] = df['Temporal'].split(' ')[0]
+    
+    return df

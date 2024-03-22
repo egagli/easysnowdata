@@ -26,6 +26,7 @@ dependencies:
  - pystac-client
  - planetary-computer
  - odc-stac
+ - xee
  
  # misc
  - pip

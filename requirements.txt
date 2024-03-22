@@ -9,3 +9,4 @@ shapely
 pystac-client
 planetary-computer
 odc-stac
+xee

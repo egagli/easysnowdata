@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import geopandas as gpd
 import rioxarray as rxr
 import xarray as xr
@@ -14,7 +15,7 @@ odc.stac.configure_rio(cloud_defaults=True)
 import datetime
 today = datetime.datetime.now().strftime('%Y-%m-%d')
 
-from easysnowdata.utils import convert_bbox_to_geodataframe, get_stac_cfg
+from easysnowdata.utils import convert_bbox_to_geodataframe, get_stac_cfg, HLS_xml_url_to_metadata_df
 
 
 
@@ -564,6 +565,9 @@ class Sentinel1:
 
         if self.crs == None:
             self.crs = self.bbox_gdf.estimate_utm_crs()
+            
+        # if resolution == None:
+        #     self.resolution = 10
 
 
         self.search = None
@@ -671,6 +675,229 @@ class Sentinel1:
 
 
 
+class HLS:
+    """
+    A class to handle Harmonlized Landsat Sentinel satellite data.
+
+    Attributes:
+        bbox_input (geopandas.GeoDataFrame or tuple or Shapely Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+        start_date (str): The start date for the data in the format 'YYYY-MM-DD'. Default is '2014-01-01'.
+        end_date (str): The end date for the data in the format 'YYYY-MM-DD'. Default is today's date.
+        catalog_choice (str): The catalog choice for the data. Can choose between 'planetarycomputer' and 'earthsearch', default is 'planetarycomputer'.
+        bands (list): The bands to be used. Default is all bands. Must include SCL for data masking. Each band should be a string like 'B01', 'B02', etc.
+        resolution (str): The resolution of the data. Defaults to native resolution, 10m.
+        crs (str): The coordinate reference system. This should be a string like 'EPSG:4326'. Default CRS is UTM zone estimated from bounding box.
+        groupby (str): The groupby parameter for the data. Default is "solar_day".
+
+        band_info (dict): Information about the bands.
+        scl_class_info (dict): Information about the scene classification. This should be a dictionary with keys being the class values and values being another dictionary with keys like 'name', 'description', etc.
+        
+        data (xarray.Dataset): The loaded data.
+        rgb (xarray.DataArray): The RGB data.
+        ndvi (xarray.DataArray): The NDVI data.
+        ndsi (xarray.DataArray): The NDSI data.
+        ndwi (xarray.DataArray): The NDWI data.
+        evi (xarray.DataArray): The EVI data.
+        ndbi (xarray.DataArray): The NDBI data.
+    """
+
+
+    def __init__(self, bbox_input, start_date='2014-01-01', end_date=datetime.datetime.now().strftime('%Y-%m-%d'), bands=None, resolution=None, crs='utm', groupby='solar_day'):#'ProducerGranuleId'
+        """
+        The constructor for the HLS class.
+
+        Parameters:
+            bbox_input (geopandas.GeoDataFrame or tuple or Shapely Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+            start_date (str): The start date for the data in the format 'YYYY-MM-DD'. Default is '2014-01-01'.
+            end_date (str): The end date for the data in the format 'YYYY-MM-DD'. Default is today's date.
+            bands (list): The bands to be used. Default is all bands. Must include SCL for data masking. Each band should be a string like 'B01', 'B02', etc.
+            resolution (str): The resolution of the data. Defaults to native resolution, 10m.
+            crs (str): The coordinate reference system. This should be a string like 'EPSG:4326'. Default CRS is UTM zone estimated from bounding box.
+            groupby (str): The groupby parameter for the data. Default is "solar_day".
+        """
+        # Initialize the attributes
+        self.bbox_input = bbox_input
+        self.start_date = start_date
+        self.end_date = end_date
+        self.bands = bands
+        self.resolution = resolution
+        self.crs = crs
+        self.groupby = groupby
+            
+        self.bbox_gdf = convert_bbox_to_geodataframe(self.bbox_input)
+
+        if self.crs == None:
+            self.crs = self.bbox_gdf.estimate_utm_crs()
+
+        # Define the band information      
+        self.band_info = {
+            "coastal aerosol": {"landsat_band": "B01", "sentinel_band": "B01", "description": "430-450 nm", "data_type": "int16", "nodata": "-9999", "scale": "0.0001"},
+            "blue": {"landsat_band": "B02", "sentinel_band": "B02", "description": "450-510 nm", "data_type": "int16", "nodata": "-9999", "scale": "0.0001"},
+            "green": {"landsat_band": "B03", "sentinel_band": "B03", "description": "530-590 nm", "data_type": "int16", "nodata": "-9999", "scale": "0.0001"},
+            "red": {"landsat_band": "B04", "sentinel_band": "B04", "description": "640-670 nm", "data_type": "int16", "nodata": "-9999", "scale": "0.0001"},
+            "red-edge 1": {"landsat_band": "-", "sentinel_band": "B05", "description": "690-710 nm", "data_type": "int16", "nodata": "-9999", "scale": "0.0001"},
+            "red-edge 2": {"landsat_band": "-", "sentinel_band": "B06", "description": "730-750 nm", "data_type": "int16", "nodata": "-9999", "scale": "0.0001"},
+            "red-edge 3": {"landsat_band": "-", "sentinel_band": "B07", "description": "770-790 nm", "data_type": "int16", "nodata": "-9999", "scale": "0.0001"},
+            "nir broad": {"landsat_band": "-", "sentinel_band": "B08", "description": "780-880 nm", "data_type": "int16", "nodata": "-9999", "scale": "0.0001"},
+            "nir narrow": {"landsat_band": "B05", "sentinel_band": "B8A", "description": "850-880 nm", "data_type": "int16", "nodata": "-9999", "scale": "0.0001"},
+            "swir 1": {"landsat_band": "B06", "sentinel_band": "B11", "description": "1570-1650 nm", "data_type": "int16", "nodata": "-9999", "scale": "0.0001"},
+            "swir 2": {"landsat_band": "B07", "sentinel_band": "B12", "description": "2110-2290 nm", "data_type": "int16", "nodata": "-9999", "scale": "0.0001"},
+            "water vapor": {"landsat_band": "-", "sentinel_band": "B09", "description": "930-950 nm", "data_type": "int16", "nodata": "-9999", "scale": "0.0001"},
+            "cirrus": {"landsat_band": "B09", "sentinel_band": "B10", "description": "1360-1380 nm", "data_type": "int16", "nodata": "-9999", "scale": "0.0001"},
+            "thermal infrared 1": {"landsat_band": "B10", "sentinel_band": "-", "description": "10600-11190 nm", "data_type": "int16", "nodata": "-9999", "scale": "0.0001"},
+            "thermal": {"landsat_band": "B11", "sentinel_band": "-", "description": "11500-12510 nm", "data_type": "int16", "nodata": "-9999", "scale": "0.0001"},
+            "Fmask": {"landsat_band": "Fmask", "sentinel_band": "Fmask", "description": "quality bits", "data_type": "uint8", "nodata": "255", "scale": "1"},
+            "SZA": {"landsat_band": "SZA", "sentinel_band": "SZA", "description": "Sun zenith degrees", "data_type": "uint16", "nodata": "40000", "scale": "0.01"},
+            "SAA": {"landsat_band": "SAA", "sentinel_band": "SAA", "description": "Sun azimuth degrees", "data_type": "uint16", "nodata": "40000", "scale": "0.01"},
+            "VZA": {"landsat_band": "VZA", "sentinel_band": "VZA", "description": "View zenith degrees", "data_type": "uint16", "nodata": "40000", "scale": "0.01"},
+            "VAA": {"landsat_band": "VAA", "sentinel_band": "VAA", "description": "View azimuth degrees", "data_type": "uint16", "nodata": "40000", "scale": "0.01"},
+        }
+
+
+
+        # Initialize the data attributes 
+        self.search = None
+        self.data = None
+        self.metadata = None
+
+        self.rgb = None
+        self.ndvi = None
+        self.ndsi = None
+        self.ndwi = None
+        self.evi = None
+        self.ndbi = None
+
+        self.search_data()
+        self.get_data()
+        self.get_combined_metadata()
+
+    def search_data(self):
+        """
+        The method to search the data.
+        """
+        
+        catalog = pystac_client.Client.open("https://cmr.earthdata.nasa.gov/stac/LPCLOUD")
+
+        
+        # Search for items within the specified bbox and date range
+        landsat_search = catalog.search(collections=["HLSL30.v2.0"],bbox=self.bbox_gdf.total_bounds, datetime=(self.start_date, self.end_date))
+        sentinel_search = catalog.search(collections=["HLSS30.v2.0"],bbox=self.bbox_gdf.total_bounds, datetime=(self.start_date, self.end_date))
+
+
+        self.search_landsat = landsat_search
+        self.search_sentinel = sentinel_search
+        print(f'Data searched. Access the returned seach with the .search attribute.')
+
+
+    def get_data(self):
+        """
+        The method to get the data.
+        """
+        # Prepare the parameters for odc.stac.load
+        load_params_landsat = {
+            'items': self.search_landsat.item_collection(),
+            'bbox': self.bbox_gdf.total_bounds,
+            'chunks': {'time':1,'x':512,'y':512},
+            'crs': self.crs, #maybe put 'utm'?
+            'groupby': self.groupby,
+            'stac_cfg': get_stac_cfg(sensor="HLSL30.v2.0")
+        }
+        if self.bands:
+            load_params_landsat['bands'] = self.bands
+        else:
+            load_params_landsat['bands'] = [band for band, info in self.band_info.items() if info['landsat_band'] != '-']
+        if self.resolution:
+            load_params_landsat['resolution'] = self.resolution
+        else:
+            load_params_landsat['resolution'] = 30
+
+        L30_ds = odc.stac.load(**load_params_landsat)
+
+        load_params_sentinel = {
+            'items': self.search_sentinel.item_collection(),
+            'bbox': self.bbox_gdf.total_bounds,
+            'chunks': {'time':1,'x':512,'y':512},
+            'crs': self.crs,
+            'groupby': self.groupby,
+            'stac_cfg': get_stac_cfg(sensor="HLSS30.v2.0")
+        }
+        if self.bands:
+            load_params_sentinel['bands'] = self.bands
+        else:
+            load_params_sentinel['bands'] = [band for band, info in self.band_info.items() if info['sentinel_band'] != '-']
+        if self.resolution:
+            load_params_sentinel['resolution'] = self.resolution
+        else:
+            load_params_sentinel['resolution'] = 30
+
+
+        S30_ds = odc.stac.load(**load_params_sentinel)
+
+
+        # Load the data lazily using odc.stac
+        self.data = xr.concat((L30_ds,S30_ds), dim='time',fill_value=-9999).sortby("time")
+
+        self.data.attrs['band_info'] = self.band_info
+        #self.data.attrs['scl_class_info'] = self.scl_class_info
+
+        #if 'scl' in self.data.variables:
+        #    self.data.scl.attrs['scl_class_info'] = self.scl_class_info
+        
+        print(f'Data retrieved. Access with the .data attribute. Data CRS: {self.bbox_gdf.estimate_utm_crs().name}.')
+        
+    def get_metadata(self, item_collection):
+
+        HLS_metadata = gpd.GeoDataFrame.from_features(item_collection.to_dict(transform_hrefs=True),'EPSG:4326')
+        HLS_metdata = HLS_metadata.drop(columns=['start_datetime','end_datetime'],inplace=True)
+        HLS_metadata['datetime'] = pd.to_datetime(HLS_metadata['datetime'])
+
+        series_list = []
+        for item in item_collection:
+            url = item.assets['metadata'].href
+            series = HLS_xml_url_to_metadata_df(url)
+            series_list.append(series)
+
+        extra_attributes = pd.DataFrame(series_list)
+        extra_attributes['Temporal'] = pd.to_datetime(extra_attributes['Temporal'])
+        
+        metadata_gdf = gpd.GeoDataFrame(pd.merge_asof(HLS_metadata,extra_attributes,left_on='datetime',right_on='Temporal',direction='nearest',tolerance=pd.Timedelta('100ms'))).drop(columns='Temporal')
+        metadata_gdf = metadata_gdf[['datetime','ProducerGranuleId','Platform','eo:cloud_cover','AssociatedBrowseImageUrls','geometry']]
+        
+        return metadata_gdf
+
+    def get_combined_metadata(self):
+        L30_metadata = self.get_metadata(self.search_landsat.item_collection())
+        S30_metadata = self.get_metadata(self.search_sentinel.item_collection())
+        combined_metadata_gdf = pd.concat([L30_metadata,S30_metadata]).sort_values('datetime')
+        
+        self.metadata = combined_metadata_gdf
+        print(f'Metadata retrieved. Access with the .metadata attribute.')
+    
+    
+    # def add_platform(self):
+    #     metadata_groupby_gdf = self.metadata.groupby('datetime').first()
+    #     self.data = self.data.assign_coords({'platform': ('time',['Landsat-8' for _ in range(len(self.data.time) ) ] )})
+    #     print(f'Platform added to data. Access with the .data attribute.')
+    
+    
+    def scale_data(self):
+        """
+        The method to scale the data.
+        """
+        # Define a function to scale a data variable
+        def scale_var(x):
+            band = x.name
+            if band in self.data.band_info:
+                scale_factor_dict = self.data.band_info[band]
+                # Extract the actual scale factor from the dictionary and convert it to a float
+                scale_factor = float(scale_factor_dict['scale'])
+                return x * scale_factor
+            else:
+                return x
+
+        # Apply the function to each data variable in the Dataset
+        self.data = self.data.apply(scale_var)
+        print(f'Data scaled. Access with the .data attribute.')
 
 
 
