@@ -10,3 +10,5 @@ pystac-client
 planetary-computer
 odc-stac
 xee
+bs4
+py3dep

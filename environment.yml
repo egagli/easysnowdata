@@ -27,6 +27,8 @@ dependencies:
  - planetary-computer
  - odc-stac
  - xee
+ - bs4
+ - py3dep
  
  # misc
  - pip
