@@ -911,6 +911,8 @@ class HLS:
         crs="utm",
         remove_nodata=True,
         scale_data=True,
+        add_metadata = True,
+        add_platform=True,
         groupby="solar_day",
     ):  #'ProducerGranuleId'
         """
@@ -934,6 +936,8 @@ class HLS:
         self.crs = crs
         self.remove_nodata = remove_nodata
         self.scale_data = scale_data
+        self.add_metadata = add_metadata
+        self.add_platform = add_platform
         self.groupby = groupby
 
         self.bbox_gdf = convert_bbox_to_geodataframe(self.bbox_input)
@@ -1136,7 +1140,10 @@ class HLS:
             self.remove_nodata_inplace()
         if self.scale_data:
             self.scale_data_inplace()
-        self.get_combined_metadata()
+        if self.add_metadata:
+            self.get_combined_metadata()
+        if self.add_platform:
+            self.add_platform_inplace()
 
     def search_data(self):
         """
@@ -1381,12 +1388,26 @@ class HLS:
         ).reset_index(drop=True)
 
         self.metadata = combined_metadata_gdf
-        print(f"Metadata retrieved. Access with the .metadata attribute.")
+        print(f"Metadata retrieved. Access with the .metadata attribute. To turn this behavior off, set add_metadata=False.")
 
-    # def add_platform(self):
-    #     metadata_groupby_gdf = self.metadata.groupby('datetime').first()
-    #     self.data = self.data.assign_coords({'platform': ('time',['Landsat-8' for _ in range(len(self.data.time) ) ] )})
-    #     print(f'Platform added to data. Access with the .data attribute.')
+    def add_platform_inplace(self):
+        temp_grouped_metadata = self.metadata
+        temp_grouped_metadata['cluster'] = temp_grouped_metadata['datetime'].diff().dt.total_seconds().gt(60).cumsum()
+
+        grouped_metadata = pd.DataFrame()
+        grouped_metadata['datetime'] = temp_grouped_metadata.groupby('cluster')['datetime'].apply(np.mean)
+        grouped_metadata['Platforms'] = temp_grouped_metadata.groupby('cluster')['Platform'].apply(np.unique)
+        grouped_metadata['eo:cloud_cover_avg'] = temp_grouped_metadata.groupby('cluster')['eo:cloud_cover'].apply(np.mean).astype(int)
+        grouped_metadata['BrowseUrls'] = self.metadata.groupby('cluster')['AssociatedBrowseImageUrls'].apply(list)
+        grouped_metadata['geometry'] = temp_grouped_metadata.groupby('cluster')['geometry'].apply(list).apply(shapely.geometry.MultiPolygon)
+        grouped_metadata_gdf = gpd.GeoDataFrame(grouped_metadata).sort_values("datetime")
+
+        self.data = self.data.assign_coords({'platform': ('time',[item[0] for item in grouped_metadata_gdf['Platforms'].values])})
+        self.data = self.data.assign_coords({'eo:cloud_cover_avg': ('time',grouped_metadata_gdf['eo:cloud_cover_avg'].values)})
+        self.data = self.data.assign_coords({'AssociatedBrowseImageUrls': ('time',grouped_metadata_gdf['BrowseUrls'].values)})
+        self.data = self.data.assign_coords({'geometry': ('time',grouped_metadata_gdf['geometry'].values)})
+
+        print(f'Platform, geometry, cloud cover, browse URLs added to data as coordinates. Access with the .data attribute. To turn this behavior off, set add_platform=False.')
 
     def scale_data_inplace(self):
         """
