@@ -9,6 +9,14 @@ import pystac_client
 import planetary_computer
 import os
 
+import rasterio as rio
+rio_env = rio.Env(GDAL_DISABLE_READDIR_ON_OPEN='TRUE',
+                  CPL_VSIL_CURL_USE_HEAD='FALSE',
+                  GDAL_HTTP_NETRC='TRUE',
+                  GDAL_HTTP_COOKIEFILE=os.path.expanduser('~/cookies.txt'),
+                  GDAL_HTTP_COOKIEJAR=os.path.expanduser('~/cookies.txt'))
+rio_env.__enter__()
+
 import odc.stac
 
 odc.stac.configure_rio(cloud_defaults=True)
@@ -1356,6 +1364,7 @@ class HLS:
 
         extra_attributes = pd.DataFrame(series_list)
         extra_attributes["Temporal"] = pd.to_datetime(extra_attributes["Temporal"])
+        extra_attributes["Platform"] = extra_attributes["Platform"].str.title()
 
         metadata_gdf = gpd.GeoDataFrame(
             pd.merge_asof(
