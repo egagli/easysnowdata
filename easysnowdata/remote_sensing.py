@@ -8,13 +8,18 @@ import dask
 import pystac_client
 import planetary_computer
 import os
+import earthaccess
+import ee
 
 import rasterio as rio
-rio_env = rio.Env(GDAL_DISABLE_READDIR_ON_OPEN='TRUE',
-                  CPL_VSIL_CURL_USE_HEAD='FALSE',
-                  GDAL_HTTP_NETRC='TRUE',
-                  GDAL_HTTP_COOKIEFILE=os.path.expanduser('~/cookies.txt'),
-                  GDAL_HTTP_COOKIEJAR=os.path.expanduser('~/cookies.txt'))
+
+rio_env = rio.Env(
+    GDAL_DISABLE_READDIR_ON_OPEN="TRUE",
+    CPL_VSIL_CURL_USE_HEAD="FALSE",
+    GDAL_HTTP_NETRC="TRUE",
+    GDAL_HTTP_COOKIEFILE=os.path.expanduser("~/cookies.txt"),
+    GDAL_HTTP_COOKIEJAR=os.path.expanduser("~/cookies.txt"),
+)
 rio_env.__enter__()
 
 import odc.stac
@@ -30,6 +35,24 @@ from easysnowdata.utils import (
     get_stac_cfg,
     HLS_xml_url_to_metadata_df,
 )
+
+
+def authenticate_all():
+    """
+    Authenticates with all potential data providers.
+    
+    This function authenticates with NASA EarthData, Planetary Computer, and Earth Engine.
+    It prints the authentication status for each provider.
+    """
+    print("Authenticating for all potential data providers...")
+    
+    print("Authenticating for NASA EarthData...")
+    earthaccess.login(persist=True)
+    #print("Authenticating for Planetary Computer...")
+    #planetary_computer.set_subscription_key()
+    print("Authenticating for Earth Engine...")
+    ee.Authenticate()
+
 
 
 def get_forest_cover_fraction(bbox_input) -> xr.DataArray:
@@ -201,7 +224,7 @@ class Sentinel2:
         self,
         bbox_input,
         start_date="2014-01-01",
-        end_date=datetime.datetime.now().strftime("%Y-%m-%d"),
+        end_date=today,
         catalog_choice="planetarycomputer",
         bands=None,
         resolution=None,
@@ -255,7 +278,6 @@ class Sentinel2:
                 "description": "Blue, 492.4 nm (S2A), 492.1 nm (S2B)",
                 "resolution": "10m",
                 "scale": "0.0001",
-
             },
             "B03": {
                 "name": "green",
@@ -347,7 +369,10 @@ class Sentinel2:
         self.scl_class_info = {
             0: {"name": "No Data (Missing data)", "color": "#000000"},
             1: {"name": "Saturated or defective pixel", "color": "#ff0000"},
-            2: {"name": "Topographic casted shadows","color": "#2f2f2f",},  # (called 'Dark features/Shadows' for data before 2022-01-25)
+            2: {
+                "name": "Topographic casted shadows",
+                "color": "#2f2f2f",
+            },  # (called 'Dark features/Shadows' for data before 2022-01-25)
             3: {"name": "Cloud shadows", "color": "#643200"},
             4: {"name": "Vegetation", "color": "#00a000"},
             5: {"name": "Not-vegetated", "color": "#ffe65a"},
@@ -373,16 +398,16 @@ class Sentinel2:
 
         self.search_data()
         self.get_data()
-        
+
         if self.remove_nodata:
             self.remove_nodata_inplace()
-            
+
         if self.harmonize_to_old:
             self.harmonize_to_old_inplace()
-            
+
         if self.scale_data:
             self.scale_data_inplace()
-            
+
         self.get_metadata()
 
     def search_data(self):
@@ -467,7 +492,6 @@ class Sentinel2:
         self.metadata = metadata_gdf
         print(f"Metadata retrieved. Access with the .metadata attribute.")
 
-
     def remove_nodata_inplace(self):
         """
         The method to remove no data values from the data.
@@ -476,8 +500,9 @@ class Sentinel2:
             nodata_value = self.data[band].attrs.get("nodata")
             if nodata_value is not None:
                 self.data[band] = self.data[band].where(self.data[band] != nodata_value)
-        print(f"Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False.")
-
+        print(
+            f"Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False."
+        )
 
     def mask_data(
         self,
@@ -585,7 +610,9 @@ class Sentinel2:
 
         self.data = xr.concat([old, new], dim="time")
 
-        print(f"Data acquired after January 25th, 2022 harmonized to old baseline. To turn this behavior off, set harmonize_to_old=False.")
+        print(
+            f"Data acquired after January 25th, 2022 harmonized to old baseline. To turn this behavior off, set harmonize_to_old=False."
+        )
 
     def scale_data_inplace(self):
         """
@@ -595,7 +622,9 @@ class Sentinel2:
             scale_factor = self.data[band].attrs.get("scale")
             if scale_factor is not None:
                 self.data[band] = self.data[band] * scale_factor
-        print(f"Data scaled to reflectance. To turn this behavior off, set scale_data=False.")
+        print(
+            f"Data scaled to reflectance. To turn this behavior off, set scale_data=False."
+        )
 
     def get_rgb(self):
         """
@@ -906,9 +935,10 @@ class HLS:
         evi (xarray.DataArray): The EVI data.
         ndbi (xarray.DataArray): The NDBI data.
     """
-    #https://lpdaac.usgs.gov/documents/1698/HLS_User_Guide_V2.pdf
-    #https://lpdaac.usgs.gov/documents/842/HLS_Tutorial.html
-    
+
+    # https://lpdaac.usgs.gov/documents/1698/HLS_User_Guide_V2.pdf
+    # https://lpdaac.usgs.gov/documents/842/HLS_Tutorial.html
+
     def __init__(
         self,
         bbox_input,
@@ -919,7 +949,7 @@ class HLS:
         crs="utm",
         remove_nodata=True,
         scale_data=True,
-        add_metadata = True,
+        add_metadata=True,
         add_platform=True,
         groupby="solar_day",
     ):  #'ProducerGranuleId'
@@ -1256,8 +1286,10 @@ class HLS:
             nodata_value = self.data[band].attrs.get("nodata")
             if nodata_value is not None:
                 self.data[band] = self.data[band].where(self.data[band] != nodata_value)
-        print(f"Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False.")
-        
+        print(
+            f"Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False."
+        )
+
     def mask_data(
         self,
         remove_cirrus=True,
@@ -1354,7 +1386,7 @@ class HLS:
         HLS_metdata = HLS_metadata.drop(
             columns=["start_datetime", "end_datetime"], inplace=True
         )
-        HLS_metadata["datetime"] = pd.to_datetime(HLS_metadata["datetime"],utc=True)
+        HLS_metadata["datetime"] = pd.to_datetime(HLS_metadata["datetime"], utc=True)
 
         series_list = []
         for item in item_collection:
@@ -1392,31 +1424,78 @@ class HLS:
     def get_combined_metadata(self):
         L30_metadata = self.get_metadata(self.search_landsat.item_collection())
         S30_metadata = self.get_metadata(self.search_sentinel.item_collection())
-        combined_metadata_gdf = pd.concat([L30_metadata, S30_metadata]).sort_values(
-            "datetime"
-        ).reset_index(drop=True)
+        combined_metadata_gdf = (
+            pd.concat([L30_metadata, S30_metadata])
+            .sort_values("datetime")
+            .reset_index(drop=True)
+        )
 
         self.metadata = combined_metadata_gdf
-        print(f"Metadata retrieved. Access with the .metadata attribute. To turn this behavior off, set add_metadata=False.")
+        print(
+            f"Metadata retrieved. Access with the .metadata attribute. To turn this behavior off, set add_metadata=False."
+        )
 
     def add_platform_inplace(self):
         temp_grouped_metadata = self.metadata
-        temp_grouped_metadata['cluster'] = temp_grouped_metadata['datetime'].diff().dt.total_seconds().gt(60).cumsum()
+        temp_grouped_metadata["cluster"] = (
+            temp_grouped_metadata["datetime"].diff().dt.total_seconds().gt(60).cumsum()
+        )
 
         grouped_metadata = pd.DataFrame()
-        grouped_metadata['datetime'] = temp_grouped_metadata.groupby('cluster')['datetime'].apply(np.mean)
-        grouped_metadata['Platforms'] = temp_grouped_metadata.groupby('cluster')['Platform'].apply(np.unique)
-        grouped_metadata['eo:cloud_cover_avg'] = temp_grouped_metadata.groupby('cluster')['eo:cloud_cover'].apply(np.mean).astype(int)
-        grouped_metadata['BrowseUrls'] = self.metadata.groupby('cluster')['AssociatedBrowseImageUrls'].apply(list)
-        grouped_metadata['geometry'] = temp_grouped_metadata.groupby('cluster')['geometry'].apply(list).apply(shapely.geometry.MultiPolygon)
-        grouped_metadata_gdf = gpd.GeoDataFrame(grouped_metadata).sort_values("datetime")
+        grouped_metadata["datetime"] = temp_grouped_metadata.groupby("cluster")[
+            "datetime"
+        ].apply(np.mean)
+        grouped_metadata["Platforms"] = temp_grouped_metadata.groupby("cluster")[
+            "Platform"
+        ].apply(np.unique)
+        grouped_metadata["eo:cloud_cover_avg"] = (
+            temp_grouped_metadata.groupby("cluster")["eo:cloud_cover"]
+            .apply(np.mean)
+            .astype(int)
+        )
+        grouped_metadata["BrowseUrls"] = self.metadata.groupby("cluster")[
+            "AssociatedBrowseImageUrls"
+        ].apply(list)
+        grouped_metadata["geometry"] = (
+            temp_grouped_metadata.groupby("cluster")["geometry"]
+            .apply(list)
+            .apply(shapely.geometry.MultiPolygon)
+        )
+        grouped_metadata_gdf = gpd.GeoDataFrame(grouped_metadata).sort_values(
+            "datetime"
+        )
 
-        self.data = self.data.assign_coords({'platform': ('time',[item[0] for item in grouped_metadata_gdf['Platforms'].values])})
-        self.data = self.data.assign_coords({'eo:cloud_cover_avg': ('time',grouped_metadata_gdf['eo:cloud_cover_avg'].values)})
-        self.data = self.data.assign_coords({'AssociatedBrowseImageUrls': ('time',grouped_metadata_gdf['BrowseUrls'].values)})
-        self.data = self.data.assign_coords({'geometry': ('time',grouped_metadata_gdf['geometry'].values)})
+        self.data = self.data.assign_coords(
+            {
+                "platform": (
+                    "time",
+                    [item[0] for item in grouped_metadata_gdf["Platforms"].values],
+                )
+            }
+        )
+        self.data = self.data.assign_coords(
+            {
+                "eo:cloud_cover_avg": (
+                    "time",
+                    grouped_metadata_gdf["eo:cloud_cover_avg"].values,
+                )
+            }
+        )
+        self.data = self.data.assign_coords(
+            {
+                "AssociatedBrowseImageUrls": (
+                    "time",
+                    grouped_metadata_gdf["BrowseUrls"].values,
+                )
+            }
+        )
+        self.data = self.data.assign_coords(
+            {"geometry": ("time", grouped_metadata_gdf["geometry"].values)}
+        )
 
-        print(f'Platform, geometry, cloud cover, browse URLs added to data as coordinates. Access with the .data attribute. To turn this behavior off, set add_platform=False.')
+        print(
+            f"Platform, geometry, cloud cover, browse URLs added to data as coordinates. Access with the .data attribute. To turn this behavior off, set add_platform=False."
+        )
 
     def scale_data_inplace(self):
         """
@@ -1436,7 +1515,9 @@ class HLS:
 
         # Apply the function to each data variable in the Dataset
         self.data = self.data.apply(scale_var)
-        print(f"Data scaled to reflectance. Access with the .data attribute. To turn this behavior off, set scale_data=False.")
+        print(
+            f"Data scaled to reflectance. Access with the .data attribute. To turn this behavior off, set scale_data=False."
+        )
 
     def get_rgb(self):
         """
@@ -1468,3 +1549,66 @@ class HLS:
 
         print(f"NDVI data calculated. Access with the .ndvi attribute.")
 
+
+def get_modis_cgf_NDSI(bbox_input, start_date="2000-01-01", end_date=today):
+    """
+    Retrieves MODIS MOD10A1F daily cloud-gap-filled NDSI snow cover data within a specified bounding box and time range.
+    # https://nsidc.org/data/mod10a1f/versions/61
+
+    Citation:
+    Hall, D. K. and G. A. Riggs. (2020). MODIS/Terra CGF Snow Cover Daily L3 Global 500m SIN Grid, Version 61 [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/MODIS/MOD10A1F.061. Date Accessed 03-19-2024.
+
+    Parameters:
+    - bbox_input (str or list): The bounding box coordinates in either a string or list format.
+    - start_date (str): The start date of the time range in "YYYY-MM-DD" format. Default is "2000-01-01".
+    - end_date (str): The end date of the time range in "YYYY-MM-DD" format. Default is today's date.
+
+    Returns:
+    - modis (xarray.DataArray): A DataArray containing the MODIS CGF NDSI snow cover data.
+    """
+
+    bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
+
+    results = earthaccess.search_data(
+        short_name="MOD10A1F",
+        cloud_hosted=False,
+        bounding_box=tuple(bbox_gdf.total_bounds),
+        temporal=(start_date, end_date),
+    )
+
+    # files = earthaccess.open(results) # doesn't seem to work for .hdf files...
+    # https://github.com/nsidc/earthaccess/blob/main/docs/tutorials/file-access.ipynb
+    # https://github.com/nsidc/earthaccess/tree/main
+    # https://earthaccess.readthedocs.io/en/latest/tutorials/emit-earthaccess/
+    # https://nbviewer.org/urls/gist.githubusercontent.com/scottyhq/790bf19c7811b5c6243ce37aae252ca1/raw/e2632e928647fd91c797e4a23116d2ac3ff62372/0-load-hdf5.ipynb
+    # https://docs.dask.org/en/latest/array-creation.html#concatenation-and-stacking
+    # https://matthewrocklin.com/blog/work/2018/02/06/hdf-in-the-cloud
+
+    # guess we'll download instead
+    temp_download_fp = "/tmp/local_folder"  # do these auto delete, or should i delete when opened explicitly? shutil.rmtree(temp_download_fp)
+
+    files = earthaccess.download(
+        results, temp_download_fp
+    )  # can i suppress the print output? https://earthaccess.readthedocs.io/en/latest/user-reference/api/api/
+
+    xmin, ymin, xmax, ymax = bbox_gdf.total_bounds
+
+    modis = xr.concat(
+        [
+            rxr.open_rasterio(file, variable="CGF_NDSI_Snow_Cover", chunks={})[
+                "CGF_NDSI_Snow_Cover"
+            ]
+            .squeeze()
+            .rio.clip_box(xmin, ymin, xmax, ymax, crs="EPSG:4326")
+            .assign_coords(
+                time=pd.to_datetime(
+                    rxr.open_rasterio(file, variable="CGF_NDSI_Snow_Cover", chunks={}).squeeze().attrs["RANGEBEGINNINGDATE"]
+                )
+            )
+            .drop_vars("band")
+            for file in files
+        ],
+        dim="time",
+    )
+
+    return modis
