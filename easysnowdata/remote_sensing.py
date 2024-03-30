@@ -134,6 +134,75 @@ def get_seasonal_snow_classification(bbox_input) -> xr.DataArray:
 
     return snow_classification_da
 
+def get_seasonal_mountain_snow_mask(bbox_input,data_product='mountain_snow') -> xr.DataArray:
+    """
+    Fetches ~1km static global seasonal (mountain snow / snow) mask for a given bounding box.
+
+    Description:
+    "Seasonal Mountain Snow (SMS) mask derived from MODIS MOD10A2 snow cover extent and GTOPO30 digital elevation model produced at 30 arcsecond spatial resolution.
+    Three datasets are provided: the Seasonal Mountain Snow mask (MODIS_mtnsnow_classes), a seasonal snow cover classification (MODIS_snow_classes), and cool-season cloud percentages (MODIS_clouds). 
+    
+    The classification systems are as follows:
+
+    MODIS_snow_classes:
+    0: Little-to-no snow
+    1: Indeterminate due to clouds
+    2: Ephemeral snow
+    3: Seasonal snow
+    
+    MODIS_mtnsnow_classes:
+    0: Mountains with little-to-no snow
+    1: Indeterminate due to clouds
+    2: Mountains with ephemeral snow
+    3: Mountains with seasonal snow
+    
+    Citation:
+    Wrzesien, M., Pavelsky, T., Durand, M., Lundquist, J., & Dozier, J. (2019). Global Seasonal Mountain Snow Mask from MODIS MOD10A2 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.2626737
+    
+    Parameters:
+    bbox_input (geopandas.GeoDataFrame or tuple or shapely.Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+    data_product (str): Data product to fetch. Choose from 'snow' or 'mountain_snow'. Default is 'mountain_snow'.
+
+    Returns:
+    mountain_snow_da (xarray.DataArray): Mountain snow DataArray.
+    """
+
+    # Convert the input to a GeoDataFrame if it's not already one
+    bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
+
+    xmin, ymin, xmax, ymax = bbox_gdf.total_bounds
+
+    if data_product == 'snow':
+        url = 'zip+https://zenodo.org/records/2626737/files/MODIS_snow_classes.zip!/MODIS_snow_classes.tif'
+        class_dict = {
+            0: {'name': 'Little-to-no snow', 'color': '#FFFFFF'},
+            1: {'name': 'Indeterminate due to clouds', 'color': '#FF0000'},
+            2: {'name': 'Ephemeral snow', 'color': '#00FF00'},
+            3: {'name': 'Seasonal snow', 'color': '#0000FF'},
+        }
+    elif data_product == 'mountain_snow':
+        url = 'zip+https://zenodo.org/records/2626737/files/MODIS_mtnsnow_classes.zip!/MODIS_mtnsnow_classes.tif'
+        class_dict = {
+            0: {'name': 'Mountains with little-to-no snow', 'color': '#FFFFFF'},
+            1: {'name': 'Indeterminate due to clouds', 'color': '#FF0000'},
+            2: {'name': 'Mountains with ephemeral snow', 'color': '#00FF00'},
+            3: {'name': 'Mountains with seasonal snow', 'color': '#0000FF'},
+        }
+    else:
+        raise ValueError('Invalid data_product. Choose from "snow" or "mountain_snow".')
+
+    mountain_snow_da = rxr.open_rasterio(
+        url,
+        chunks=True,
+        mask_and_scale=True,
+    )
+    mountain_snow_da = mountain_snow_da.rio.clip_box(xmin, ymin, xmax, ymax, crs='EPSG:4326').squeeze()
+
+    mountain_snow_da.attrs['class_info'] = class_dict
+    
+    
+    return mountain_snow_da
+
 
 def get_esa_worldcover(bbox_input, version: str = "v200") -> xr.DataArray:
     """
