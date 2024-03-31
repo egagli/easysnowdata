@@ -80,7 +80,14 @@ nav:
     - Changelog: changelog.md
     - Report Issues: https://github.com/egagli/easysnowdata/issues
     - Examples:
-        - examples/intro.ipynb
+        - examples/remote_sensing_examples.ipynb
+        - examples/automatic_weather_station_examples.ipynb
+        - examples/topography_examples.ipynb
+        - examples/hydrology_examples.ipynb
     - API Reference:
           - easysnowdata module: easysnowdata.md
           - common module: common.md
+          - remote_sensing module: remote_sensing.md
+          - automatic_weather_station module: automatic_weather_station.md
+          - topography module: topography.md
+          - hydrology module: hydrology.md
