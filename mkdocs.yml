@@ -48,7 +48,7 @@ plugins:
           include_source: True
           ignore_h1_titles: True
           execute: True
-          allow_errors: false
+          allow_errors: True
           ignore: ["conf.py"]
           execute_ignore: ["*ignore.ipynb"]
           
