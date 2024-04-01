@@ -207,7 +207,7 @@ def get_stac_cfg(sensor='sentinel-2-l2a'):
     return cfg
 
 
-def datetime_to_DOWY(date: datetime.datetime) -> typing.Union[int, np.nan]:
+def datetime_to_DOWY(date: datetime.datetime):
     """
     Convert a datetime to the day of the water year (DOWY).
     
@@ -230,7 +230,7 @@ def datetime_to_DOWY(date: datetime.datetime) -> typing.Union[int, np.nan]:
     except:
         return np.nan
 
-def datetime_to_WY(date: datetime) -> int:
+def datetime_to_WY(date: datetime):
     """
     Convert a datetime to the water year (WY).
     
