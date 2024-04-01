@@ -36,20 +36,20 @@ class StationCollection:
         self.ccss_stations = ccss_stations
         self.sortby_dist_to_geom = sortby_dist_to_geom
 
-        self.all_stations_gdf = None
-        self.stations_gdf = None
+        self.all_stations = None
+        self.stations = None
 
-        self.TAVG_df = None
-        self.TMIN_df = None
-        self.TMAX_df = None
-        self.SNWD_df = None
-        self.WTEQ_df = None
-        self.PRCPSA_df = None
+        self.TAVG = None
+        self.TMIN = None
+        self.TMAX = None
+        self.SNWD = None
+        self.WTEQ = None
+        self.PRCPSA = None
 
-        self.data_df = None
-        self.data_ds = None
+        self.data = None
+        self.data = None
 
-        self.entire_data_archive_ds = None
+        self.entire_data_archive = None
 
         self.get_all_stations()
 
@@ -101,7 +101,7 @@ class StationCollection:
             )
             all_stations_gdf = all_stations_gdf.sort_values("dist_km")
 
-        self.all_stations_gdf = all_stations_gdf
+        self.all_stations = all_stations_gdf
         print(
             f"Geodataframe with all stations has been added to the Station object. Please use the .all_stations attribute to access."
         )
@@ -121,15 +121,15 @@ class StationCollection:
         None
         """
         if type(stations_gdf) is str:
-            stations_gdf = self.all_stations_gdf.loc[[stations_gdf]]
+            stations_gdf = self.all_stations.loc[[stations_gdf]]
         if type(stations_gdf) is list:
-            stations_gdf = self.all_stations_gdf.loc[stations_gdf]
+            stations_gdf = self.all_stations.loc[stations_gdf]
 
-        self.stations_gdf = stations_gdf
+        self.stations = stations_gdf
 
     def get_data(self, stations="679_WA_SNTL", variables=None, start_date='1900-01-01', end_date=today):
         """
-        Retrieves data for the specified stations and variables. Access retrieved data using the .data_df or .data_ds attribute.
+        Retrieves data for the specified stations and variables. Access retrieved data using the .{variable} or .data attribute.
 
         Parameters:
         - stations (geodataframe, str, or list): The stations to retrieve data for. Defaults to '679_WA_SNTL'.
@@ -158,7 +158,7 @@ class StationCollection:
 
         self.choose_stations(stations)
 
-        if len(self.stations_gdf) == 1:
+        if len(self.stations) == 1:
             if variables is None:
                 print(
                     f"Only one station chosen with variables=None. Default behavior fetches all variables for this station."
@@ -189,7 +189,7 @@ class StationCollection:
         """
 
         single_station_df = pd.read_csv(
-            f"https://raw.githubusercontent.com/egagli/snotel_ccss_stations/main/data/{self.stations_gdf.index.values[0]}.csv",
+            f"https://raw.githubusercontent.com/egagli/snotel_ccss_stations/main/data/{self.stations.index.values[0]}.csv",
             index_col="datetime",
             parse_dates=True,
         )
@@ -198,9 +198,9 @@ class StationCollection:
             col for col in single_station_df.columns if col not in variables
         ]
         single_station_df = single_station_df.drop(columns=columns_to_drop).loc[start_date:end_date]
-        self.data_df = single_station_df
+        self.data = single_station_df
         print(
-            f"Dataframe has been added to the Station object. Please use the .data_df attribute to access."
+            f"Dataframe has been added to the Station object. Please use the .data attribute to access."
         )
 
     def get_multiple_station_data(self, variables="WTEQ", start_date='1900-01-01', end_date=today):
@@ -225,7 +225,7 @@ class StationCollection:
 
             self.station_dict = {}
 
-            for station in tqdm.tqdm(self.stations_gdf.index):
+            for station in tqdm.tqdm(self.stations.index):
                 try:
                     tmp = pd.read_csv(
                         f"https://raw.githubusercontent.com/egagli/snotel_ccss_stations/main/data/{station}.csv",
@@ -238,9 +238,9 @@ class StationCollection:
 
             station_data_df = pd.DataFrame.from_dict(self.station_dict).loc[slice(start_date,end_date)]
 
-            setattr(self, f"{variable}_df", station_data_df)
+            setattr(self, f"{variable}", station_data_df)
             print(
-                f"{variable} dataframe has been added to the Station object. Please use the .{variable}_df attribute to access the data."
+                f"{variable} dataframe has been added to the Station object. Please use the .{variable} attribute to access the dataframe."
             )
 
             station_data_da = (
@@ -254,9 +254,9 @@ class StationCollection:
 
         all_stations_ds = xr.merge(dataarrays)
 
-        for col in self.stations_gdf.columns:
+        for col in self.stations.columns:
             all_stations_ds = all_stations_ds.assign_coords(
-                {f"{col}": ("station", self.stations_gdf[f"{col}"])}
+                {f"{col}": ("station", self.stations[f"{col}"])}
             )
 
         all_stations_ds["time"] = pd.to_datetime(all_stations_ds.time)
@@ -267,9 +267,9 @@ class StationCollection:
         all_stations_ds.coords["WY"] = ("time", water_year)
         all_stations_ds.coords["DOWY"] = ("time", day_of_water_year)
 
-        self.data_ds = all_stations_ds
+        self.data = all_stations_ds
         print(
-            f"Full {variables} dataset has been added to the station object. Please use the .data_ds attribute to access.\nIf you prefer to work with pandas dataframes instead of xarray datasets, please use the respective .variable_df attribute."
+            f"Full {variables} dataset has been added to the station object. Please use the .data attribute to access the dataset."
         )
 
     def get_entire_data_archive(self, temp_dir: str = "/tmp/") -> xr.Dataset:
@@ -332,8 +332,8 @@ class StationCollection:
             station_ds.assign_coords(station=station_name)
 
             # Add other coordinates from all_stations_gdf
-            for col in self.all_stations_gdf.columns:
-                station_ds.coords[col] = self.all_stations_gdf.loc[station_name, col]
+            for col in self.all_stations.columns:
+                station_ds.coords[col] = self.all_stations.loc[station_name, col]
 
             datasets.append(station_ds)
 
