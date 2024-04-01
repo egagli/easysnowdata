@@ -272,17 +272,18 @@ class StationCollection:
             f"Full {variables} dataset has been added to the station object. Please use the .data attribute to access the dataset."
         )
 
-    def get_entire_data_archive(self, temp_dir: str = "/tmp/") -> xr.Dataset:
+    def get_entire_data_archive(self, refresh: bool = True, temp_dir: str = "/tmp/") -> xr.Dataset:
         """
         Downloads, decompresses and processes automatic weather station data into an xarray Dataset.
 
         This function downloads a compressed file containing weather station data from a specific URL,
         decompresses the file, and processes the data into an xarray Dataset. The data is organized by station,
         with each station's data stored in a separate CSV file. The function also adds additional coordinates
-        to the Dataset from a provided GeoDataFrame.
+        to the Dataset from a provided GeoDataFrame. Set the refresh parameter to True to redownload cached data.
 
         Parameters:
         all_stations_gdf (GeoDataFrame): A GeoDataFrame containing additional data for each station.
+        refresh (bool, optional): If True, the compressed data file will be redownloaded. Defaults to True.
         temp_dir (str, optional): The directory where the compressed data file will be downloaded and decompressed.
                                 Defaults to '/tmp/'.
 
@@ -294,7 +295,7 @@ class StationCollection:
         compressed_file_path = pathlib.Path(temp_dir, "all_station_data.tar.lzma")
         decompressed_dir_path = pathlib.Path(temp_dir, "data")
 
-        if not compressed_file_path.exists():
+        if not compressed_file_path.exists() or refresh:
             print(
                 f"Downloading compressed data to a temporary directory ({compressed_file_path})..."
             )
@@ -302,7 +303,7 @@ class StationCollection:
                 ["wget", "-q", "-P", temp_dir, github_tar_file_path], check=True
             )
 
-        if not decompressed_dir_path.exists():
+        if not decompressed_dir_path.exists() or refresh:
             print(f"Decompressing data...")
             subprocess.run(
                 ["tar", "--lzma", "-xf", str(compressed_file_path), "-C", temp_dir],
