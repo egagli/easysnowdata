@@ -223,7 +223,7 @@ class StationCollection:
 
         for variable in variables:
 
-            station_dict = {}
+            self.station_dict = {}
 
             for station in tqdm.tqdm(self.stations_gdf.index):
                 try:
@@ -232,11 +232,11 @@ class StationCollection:
                         index_col="datetime",
                         parse_dates=True,
                     )[variable]
-                    station_dict[station] = tmp
+                    self.station_dict[station] = tmp
                 except:
                     print(f"failed to retrieve {station}")
 
-            station_data_df = pd.DataFrame.from_dict(station_dict).loc[slice(start_date,end_date)]
+            station_data_df = pd.DataFrame.from_dict(self.station_dict).loc[slice(start_date,end_date)]
 
             setattr(self, f"{variable}_df", station_data_df)
             print(
