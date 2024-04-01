@@ -13,3 +13,4 @@ xee
 bs4
 py3dep
 earthaccess
+contextily

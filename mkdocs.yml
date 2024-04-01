@@ -86,7 +86,6 @@ nav:
         - examples/hydrology_examples.ipynb
     - API Reference:
           - easysnowdata module: easysnowdata.md
-        #   - common module: common.md
           - remote_sensing module: remote_sensing.md
           - automatic_weather_station module: automatic_weather_station.md
           - topography module: topography.md
