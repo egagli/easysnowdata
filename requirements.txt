@@ -15,3 +15,4 @@ py3dep
 earthaccess
 contextily
 folium
+mapclassify
