@@ -16,3 +16,4 @@ earthaccess
 contextily
 folium
 mapclassify
+lxml
