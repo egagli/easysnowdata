@@ -235,7 +235,7 @@ class StationCollection:
                 except:
                     print(f"failed to retrieve {station}")
 
-            station_data_df = pd.DataFrame.from_dict(self.station_dict).loc[slice(start_date,end_date)]
+            station_data_df = pd.DataFrame.from_dict(self.station_dict).loc[start_date:end_date]
 
             setattr(self, f"{variable}", station_data_df)
             print(
