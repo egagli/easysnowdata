@@ -47,7 +47,6 @@ class StationCollection:
         self.PRCPSA = None
 
         self.data = None
-        self.data = None
 
         self.entire_data_archive = None
 
