@@ -25,15 +25,15 @@ from easysnowdata.utils import (
 class StationCollection:
     def __init__(
         self,
-        data_available: bool = True,
-        snotel_stations: bool = True,
-        ccss_stations: bool = True,
+        #data_available: bool = True,
+        #snotel_stations: bool = True,
+        #ccss_stations: bool = True,
         sortby_dist_to_geom=None,
     ):
 
-        self.data_available = data_available
-        self.snotel_stations = snotel_stations
-        self.ccss_stations = ccss_stations
+        #self.data_available = data_available
+        #self.snotel_stations = snotel_stations
+        #self.ccss_stations = ccss_stations
         self.sortby_dist_to_geom = sortby_dist_to_geom
 
         self.all_stations = None
@@ -75,17 +75,17 @@ class StationCollection:
             "https://raw.githubusercontent.com/egagli/snotel_ccss_stations/main/all_stations.geojson"
         ).set_index("code")
 
-        # Filter based on data availability
-        if self.data_available:
-            all_stations_gdf = all_stations_gdf[all_stations_gdf["csvData"]]
+        # # Filter based on data availability
+        # if self.data_available:
+        #     all_stations_gdf = all_stations_gdf[all_stations_gdf["csvData"]]
 
-        # Filter out SNOTEL stations if not required
-        if not self.snotel_stations:
-            all_stations_gdf = all_stations_gdf[all_stations_gdf["network"] != "SNOTEL"]
+        # # Filter out SNOTEL stations if not required
+        # if not self.snotel_stations:
+        #     all_stations_gdf = all_stations_gdf[all_stations_gdf["network"] != "SNOTEL"]
 
-        # Filter out CCSS stations if not required
-        if not self.ccss_stations:
-            all_stations_gdf = all_stations_gdf[all_stations_gdf["network"] != "CCSS"]
+        # # Filter out CCSS stations if not required
+        # if not self.ccss_stations:
+        #     all_stations_gdf = all_stations_gdf[all_stations_gdf["network"] != "CCSS"]
 
         # If a geometry is passed in, calculate the distance to this geometry for each station
         if self.sortby_dist_to_geom is not None:
