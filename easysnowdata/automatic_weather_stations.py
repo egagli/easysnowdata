@@ -25,13 +25,13 @@ from easysnowdata.utils import (
 class StationCollection:
     def __init__(
         self,
-        #data_available: bool = True,
+        data_available: bool = True,
         #snotel_stations: bool = True,
         #ccss_stations: bool = True,
         sortby_dist_to_geom=None,
     ):
 
-        #self.data_available = data_available
+        self.data_available = data_available
         #self.snotel_stations = snotel_stations
         #self.ccss_stations = ccss_stations
         self.sortby_dist_to_geom = sortby_dist_to_geom
@@ -72,12 +72,12 @@ class StationCollection:
         """
         # Read the GeoJSON file
         all_stations_gdf = gpd.read_file(
-            "https://raw.githubusercontent.com/egagli/snotel_ccss_stations/main/all_stations.geojson"
+            "https://github.com/egagli/snotel_ccss_stations/raw/main/all_stations.geojson"
         ).set_index("code")
 
         # # Filter based on data availability
-        # if self.data_available:
-        #     all_stations_gdf = all_stations_gdf[all_stations_gdf["csvData"]]
+        if self.data_available:
+            all_stations_gdf = all_stations_gdf[all_stations_gdf["csvData"]]
 
         # # Filter out SNOTEL stations if not required
         # if not self.snotel_stations:
