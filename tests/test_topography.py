@@ -1,21 +1,21 @@
-#!/usr/bin/env python
+# #!/usr/bin/env python
 
-"""Tests for `easysnowdata` package."""
-
-
-import unittest
-
-from easysnowdata import easysnowdata
+# """Tests for `easysnowdata` package."""
 
 
-class TestEasysnowdata(unittest.TestCase):
-    """Tests for `easysnowdata` package."""
+# import unittest
 
-    def setUp(self):
-        """Set up test fixtures, if any."""
+# from easysnowdata import easysnowdata
 
-    def tearDown(self):
-        """Tear down test fixtures, if any."""
 
-    def test_000_something(self):
-        """Test something."""
+# class TestEasysnowdata(unittest.TestCase):
+#     """Tests for `easysnowdata` package."""
+
+#     def setUp(self):
+#         """Set up test fixtures, if any."""
+
+#     def tearDown(self):
+#         """Tear down test fixtures, if any."""
+
+#     def test_000_something(self):
+#         """Test something."""
