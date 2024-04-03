@@ -87,7 +87,7 @@ nav:
     - API Reference:
           - easysnowdata module: easysnowdata.md
           - remote_sensing module: remote_sensing.md
-          - automatic_weather_station module: automatic_weather_station.md
+          - automatic_weather_station module: automatic_weather_stations.md
           - topography module: topography.md
           - hydrology module: hydrology.md
           - utils module: utils.md
