@@ -1713,8 +1713,7 @@ class MODIS_snow:
                 load_params["resolution"] = self.resolution
 
             modis_snow = odc.stac.load(**load_params)
-
-            
+                
         elif self.data_product == "MOD10A1F":
             # files = earthaccess.open(results) # doesn't seem to work for .hdf files...
             # https://github.com/nsidc/earthaccess/blob/main/docs/tutorials/file-access.ipynb
@@ -1756,6 +1755,23 @@ class MODIS_snow:
 
         
         self.data = modis_snow
+        
+        if self.data_product == "MOD10A2":
+            self.data.attrs["class_info"] = {
+            0: {"name": "missing data", "color": "#006400"},
+            1: {"name": "no decision", "color": "#FFBB22"},
+            11: {"name": "night", "color": "#FFFF4C"},
+            25: {"name": "no snow", "color": "#F096FF"},
+            37: {"name": "lake", "color": "#FA0000"},
+            39: {"name": "ocean / sparse vegetation", "color": "#B4B4B4"},
+            50: {"name": "cloud", "color": "#F0F0F0"},
+            100: {"name": "lake ice", "color": "#0064C8"},
+            200: {"name": "snow", "color": "#0096A0"},
+            254: {"name": "detector saturated", "color": "#00CF75"},
+            255: {"name": "fill", "color": "#FAE6A0"},
+    }
+            
+            
         print("Data retrieved. Access with the .data attribute.")
         
     def get_binary_snow(self):
