@@ -196,7 +196,7 @@ def get_seasonal_mountain_snow_mask(bbox_input,data_product='mountain_snow') -> 
         chunks=True,
         mask_and_scale=True,
     )
-    mountain_snow_da = mountain_snow_da.rio.clip_box(xmin, ymin, xmax, ymax, crs='EPSG:4326').squeeze()
+    mountain_snow_da = mountain_snow_da.rio.clip_box(xmin, ymin, xmax, ymax, crs='EPSG:4326').squeeze().astype('float32')
 
     mountain_snow_da.attrs['class_info'] = class_dict
     
@@ -1652,11 +1652,12 @@ class MODIS_snow:
 
 
     def __init__(
-        self,bbox_input, start_date="2000-01-01", end_date=today, data_product="MOD10A2", bands=None, resolution=None, crs=None
+        self,bbox_input, clip_to_bbox=True, start_date="2000-01-01", end_date=today, data_product="MOD10A2", bands=None, resolution=None, crs=None
     ):
 
         self.bbox_input = bbox_input
         self.bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
+        self.clip_to_bbox = clip_to_bbox
         self.start_date = start_date
         self.end_date = end_date
         self.data_product = data_product
@@ -1701,10 +1702,10 @@ class MODIS_snow:
         
             load_params = {
                 "items": self.search.item_collection(),
-                "bbox": self.bbox_gdf.total_bounds,
                 "chunks": {"time": 1, "x": 512, "y": 512},
             }
-            
+            if self.clip_to_bbox:
+                load_params["bbox"] = self.bbox_gdf.total_bounds
             if self.bands:
                 load_params["bands"] = self.bands
             if self.crs:
@@ -1732,23 +1733,43 @@ class MODIS_snow:
 
             xmin, ymin, xmax, ymax = self.bbox_gdf.total_bounds
 
-            modis_snow = xr.concat(
-                [
-                    rxr.open_rasterio(file, variable="CGF_NDSI_Snow_Cover", chunks={})[
-                        "CGF_NDSI_Snow_Cover"
-                    ]
-                    .squeeze()
-                    .rio.clip_box(xmin, ymin, xmax, ymax, crs="EPSG:4326")
-                    .assign_coords(
-                        time=pd.to_datetime(
-                            rxr.open_rasterio(file, variable="CGF_NDSI_Snow_Cover", chunks={}).squeeze().attrs["RANGEBEGINNINGDATE"]
+            if self.clip_to_bbox:
+                modis_snow = xr.concat(
+                    [
+                        rxr.open_rasterio(file, variable="CGF_NDSI_Snow_Cover", chunks={})[
+                            "CGF_NDSI_Snow_Cover"
+                        ]
+                        .squeeze()
+                        .rio.clip_box(xmin, ymin, xmax, ymax, crs="EPSG:4326")
+                        .assign_coords(
+                            time=pd.to_datetime(
+                                rxr.open_rasterio(file, variable="CGF_NDSI_Snow_Cover", chunks={}).squeeze().attrs["RANGEBEGINNINGDATE"]
+                            )
                         )
-                    )
-                    .drop_vars("band")
-                    for file in files
-                ],
-                dim="time",
-            )
+                        .drop_vars("band")
+                        for file in files
+                    ],
+                    dim="time",
+                )
+            
+            else:
+                modis_snow = xr.concat(
+                    [
+                        rxr.open_rasterio(file, variable="CGF_NDSI_Snow_Cover", chunks={})[
+                            "CGF_NDSI_Snow_Cover"
+                        ]
+                        .squeeze()
+                        .assign_coords(
+                            time=pd.to_datetime(
+                                rxr.open_rasterio(file, variable="CGF_NDSI_Snow_Cover", chunks={}).squeeze().attrs["RANGEBEGINNINGDATE"]
+                            )
+                        )
+                        .drop_vars("band")
+                        for file in files
+                    ],
+                    dim="time",
+                )                
+                
             
         else:
             raise ValueError("Data product not recognized. Please choose 'MOD10A1', 'MOD10A2', or 'MOD10A1F'.")
