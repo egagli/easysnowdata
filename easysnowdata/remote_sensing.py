@@ -1652,7 +1652,7 @@ class MODIS_snow:
 
 
     def __init__(
-        self,bbox_input, clip_to_bbox=True, start_date="2000-01-01", end_date=today, data_product="MOD10A2", bands=None, resolution=None, crs=None
+        self,bbox_input=None, clip_to_bbox=True, start_date="2000-01-01", end_date=today, data_product="MOD10A2", bands=None, resolution=None, crs=None, vertical_tile=None, horizontal_tile=None
     ):
 
         self.bbox_input = bbox_input
@@ -1664,6 +1664,9 @@ class MODIS_snow:
         self.bands = bands
         self.resolution = resolution
         self.crs = crs
+        self.vertical_tile = vertical_tile
+        self.horizontal_tile = horizontal_tile
+        
         
         self.search_data()
         self.get_data()
@@ -1676,11 +1679,22 @@ class MODIS_snow:
                 modifier=planetary_computer.sign_inplace,
             )
 
-            search = catalog.search(
-                collections=[f"modis-{self.data_product[3:]}-061"],
-                bbox=self.bbox_gdf.total_bounds,
-                datetime=(self.start_date, self.end_date),
-            )
+            if bbox_input:
+                search = catalog.search(
+                    collections=[f"modis-{self.data_product[3:]}-061"],
+                    bbox=self.bbox_gdf.total_bounds,
+                    datetime=(self.start_date, self.end_date),
+                )
+                
+            else:
+                search = catalog.search(
+                    collections=[f"modis-{self.data_product[3:]}-061"],
+                    datetime=(self.start_date, self.end_date),
+                    query={
+                        "modis:vertical-tile": {"eq": self.vertical_tile},
+                        "modis:horizontal-tile": {"eq": self.horizontal_tile}
+    }    
+                )
 
         elif self.data_product == "MOD10A1F":
             search = earthaccess.search_data(
