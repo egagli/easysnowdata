@@ -709,7 +709,7 @@ class Sentinel2:
         """
         # Convert the red, green, and blue bands to an RGB DataArray
         rgb_da = self.data[["red", "green", "blue"]].to_dataarray(dim="band")
-        self.rgb = rgb_da
+        self.rgb = rgb_da.squeeze()
 
         print(f"RGB data retrieved. Access with the .rgb attribute.")
 
@@ -1691,7 +1691,7 @@ class MODIS_snow:
                 modifier=planetary_computer.sign_inplace,
             )
 
-            if self.bbox_input:
+            if self.bbox_input is not None:
                 search = catalog.search(
                     collections=[f"modis-{self.data_product[3:]}-061"],
                     bbox=self.bbox_gdf.total_bounds,
