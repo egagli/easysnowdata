@@ -40,19 +40,18 @@ from easysnowdata.utils import (
 def authenticate_all():
     """
     Authenticates with all potential data providers.
-    
+
     This function authenticates with NASA EarthData, Planetary Computer, and Earth Engine.
     It prints the authentication status for each provider.
     """
     print("Authenticating for all potential data providers...")
-    
+
     print("Authenticating for NASA EarthData...")
     earthaccess.login(persist=True)
-    #print("Authenticating for Planetary Computer...")
-    #planetary_computer.set_subscription_key()
+    # print("Authenticating for Planetary Computer...")
+    # planetary_computer.set_subscription_key()
     print("Authenticating for Earth Engine...")
     ee.Authenticate()
-
 
 
 def get_forest_cover_fraction(bbox_input) -> xr.DataArray:
@@ -134,14 +133,17 @@ def get_seasonal_snow_classification(bbox_input) -> xr.DataArray:
 
     return snow_classification_da
 
-def get_seasonal_mountain_snow_mask(bbox_input,data_product='mountain_snow') -> xr.DataArray:
+
+def get_seasonal_mountain_snow_mask(
+    bbox_input, data_product="mountain_snow"
+) -> xr.DataArray:
     """
     Fetches ~1km static global seasonal (mountain snow / snow) mask for a given bounding box.
 
     Description:
     "Seasonal Mountain Snow (SMS) mask derived from MODIS MOD10A2 snow cover extent and GTOPO30 digital elevation model produced at 30 arcsecond spatial resolution.
-    Three datasets are provided: the Seasonal Mountain Snow mask (MODIS_mtnsnow_classes), a seasonal snow cover classification (MODIS_snow_classes), and cool-season cloud percentages (MODIS_clouds). 
-    
+    Three datasets are provided: the Seasonal Mountain Snow mask (MODIS_mtnsnow_classes), a seasonal snow cover classification (MODIS_snow_classes), and cool-season cloud percentages (MODIS_clouds).
+
     The classification systems are as follows:
 
     MODIS_snow_classes:
@@ -149,16 +151,16 @@ def get_seasonal_mountain_snow_mask(bbox_input,data_product='mountain_snow') -> 
     1: Indeterminate due to clouds
     2: Ephemeral snow
     3: Seasonal snow
-    
+
     MODIS_mtnsnow_classes:
     0: Mountains with little-to-no snow
     1: Indeterminate due to clouds
     2: Mountains with ephemeral snow
     3: Mountains with seasonal snow
-    
+
     Citation:
     Wrzesien, M., Pavelsky, T., Durand, M., Lundquist, J., & Dozier, J. (2019). Global Seasonal Mountain Snow Mask from MODIS MOD10A2 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.2626737
-    
+
     Parameters:
     bbox_input (geopandas.GeoDataFrame or tuple or shapely.Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
     data_product (str): Data product to fetch. Choose from 'snow' or 'mountain_snow'. Default is 'mountain_snow'.
@@ -172,21 +174,21 @@ def get_seasonal_mountain_snow_mask(bbox_input,data_product='mountain_snow') -> 
 
     xmin, ymin, xmax, ymax = bbox_gdf.total_bounds
 
-    if data_product == 'snow':
-        url = 'zip+https://zenodo.org/records/2626737/files/MODIS_snow_classes.zip!/MODIS_snow_classes.tif'
+    if data_product == "snow":
+        url = "zip+https://zenodo.org/records/2626737/files/MODIS_snow_classes.zip!/MODIS_snow_classes.tif"
         class_dict = {
-            0: {'name': 'Little-to-no snow', 'color': '#FFFFFF'},
-            1: {'name': 'Indeterminate due to clouds', 'color': '#FF0000'},
-            2: {'name': 'Ephemeral snow', 'color': '#00FF00'},
-            3: {'name': 'Seasonal snow', 'color': '#0000FF'},
+            0: {"name": "Little-to-no snow", "color": "#FFFFFF"},
+            1: {"name": "Indeterminate due to clouds", "color": "#FF0000"},
+            2: {"name": "Ephemeral snow", "color": "#00FF00"},
+            3: {"name": "Seasonal snow", "color": "#0000FF"},
         }
-    elif data_product == 'mountain_snow':
-        url = 'zip+https://zenodo.org/records/2626737/files/MODIS_mtnsnow_classes.zip!/MODIS_mtnsnow_classes.tif'
+    elif data_product == "mountain_snow":
+        url = "zip+https://zenodo.org/records/2626737/files/MODIS_mtnsnow_classes.zip!/MODIS_mtnsnow_classes.tif"
         class_dict = {
-            0: {'name': 'Mountains with little-to-no snow', 'color': '#FFFFFF'},
-            1: {'name': 'Indeterminate due to clouds', 'color': '#FF0000'},
-            2: {'name': 'Mountains with ephemeral snow', 'color': '#00FF00'},
-            3: {'name': 'Mountains with seasonal snow', 'color': '#0000FF'},
+            0: {"name": "Mountains with little-to-no snow", "color": "#FFFFFF"},
+            1: {"name": "Indeterminate due to clouds", "color": "#FF0000"},
+            2: {"name": "Mountains with ephemeral snow", "color": "#00FF00"},
+            3: {"name": "Mountains with seasonal snow", "color": "#0000FF"},
         }
     else:
         raise ValueError('Invalid data_product. Choose from "snow" or "mountain_snow".')
@@ -196,11 +198,14 @@ def get_seasonal_mountain_snow_mask(bbox_input,data_product='mountain_snow') -> 
         chunks=True,
         mask_and_scale=True,
     )
-    mountain_snow_da = mountain_snow_da.rio.clip_box(xmin, ymin, xmax, ymax, crs='EPSG:4326').squeeze().astype('float32')
+    mountain_snow_da = (
+        mountain_snow_da.rio.clip_box(xmin, ymin, xmax, ymax, crs="EPSG:4326")
+        .squeeze()
+        .astype("float32")
+    )
 
-    mountain_snow_da.attrs['class_info'] = class_dict
-    
-    
+    mountain_snow_da.attrs["class_info"] = class_dict
+
     return mountain_snow_da
 
 
@@ -1619,7 +1624,6 @@ class HLS:
         print(f"NDVI data calculated. Access with the .ndvi attribute.")
 
 
-
 class MODIS_snow:
     """
     A class to handle MODIS snow data.
@@ -1650,9 +1654,18 @@ class MODIS_snow:
     MOD10A2: Hall, D. K. and G. A. Riggs. (2021). MODIS/Terra Snow Cover 8-Day L3 Global 500m SIN Grid, Version 61 [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/MODIS/MOD10A2.061. Date Accessed 03-28-2024.
     """
 
-
     def __init__(
-        self,bbox_input=None, clip_to_bbox=True, start_date="2000-01-01", end_date=today, data_product="MOD10A2", bands=None, resolution=None, crs=None, vertical_tile=None, horizontal_tile=None
+        self,
+        bbox_input=None,
+        clip_to_bbox=True,
+        start_date="2000-01-01",
+        end_date=today,
+        data_product="MOD10A2",
+        bands=None,
+        resolution=None,
+        crs=None,
+        vertical_tile=None,
+        horizontal_tile=None,
     ):
 
         self.bbox_input = bbox_input
@@ -1666,11 +1679,10 @@ class MODIS_snow:
         self.crs = crs
         self.vertical_tile = vertical_tile
         self.horizontal_tile = horizontal_tile
-        
-        
+
         self.search_data()
         self.get_data()
-        
+
     def search_data(self):
 
         if self.data_product == "MOD10A1" or self.data_product == "MOD10A2":
@@ -1679,21 +1691,21 @@ class MODIS_snow:
                 modifier=planetary_computer.sign_inplace,
             )
 
-            if bbox_input:
+            if self.bbox_input:
                 search = catalog.search(
                     collections=[f"modis-{self.data_product[3:]}-061"],
                     bbox=self.bbox_gdf.total_bounds,
                     datetime=(self.start_date, self.end_date),
                 )
-                
+
             else:
                 search = catalog.search(
                     collections=[f"modis-{self.data_product[3:]}-061"],
                     datetime=(self.start_date, self.end_date),
                     query={
                         "modis:vertical-tile": {"eq": self.vertical_tile},
-                        "modis:horizontal-tile": {"eq": self.horizontal_tile}
-    }    
+                        "modis:horizontal-tile": {"eq": self.horizontal_tile},
+                    },
                 )
 
         elif self.data_product == "MOD10A1F":
@@ -1703,17 +1715,18 @@ class MODIS_snow:
                 bounding_box=tuple(self.bbox_gdf.total_bounds),
                 temporal=(self.start_date, self.end_date),
             )
-        
+
         else:
-            raise ValueError("Data product not recognized. Please choose 'MOD10A1', 'MOD10A2', or 'MOD10A1F'.")
-            
-            
+            raise ValueError(
+                "Data product not recognized. Please choose 'MOD10A1', 'MOD10A2', or 'MOD10A1F'."
+            )
+
         self.search = search
-    
+
     def get_data(self):
-        
+
         if self.data_product == "MOD10A1" or self.data_product == "MOD10A2":
-        
+
             load_params = {
                 "items": self.search.item_collection(),
                 "chunks": {"time": 1, "x": 512, "y": 512},
@@ -1728,7 +1741,7 @@ class MODIS_snow:
                 load_params["resolution"] = self.resolution
 
             modis_snow = odc.stac.load(**load_params)
-                
+
         elif self.data_product == "MOD10A1F":
             # files = earthaccess.open(results) # doesn't seem to work for .hdf files...
             # https://github.com/nsidc/earthaccess/blob/main/docs/tutorials/file-access.ipynb
@@ -1750,14 +1763,18 @@ class MODIS_snow:
             if self.clip_to_bbox:
                 modis_snow = xr.concat(
                     [
-                        rxr.open_rasterio(file, variable="CGF_NDSI_Snow_Cover", chunks={})[
-                            "CGF_NDSI_Snow_Cover"
-                        ]
+                        rxr.open_rasterio(
+                            file, variable="CGF_NDSI_Snow_Cover", chunks={}
+                        )["CGF_NDSI_Snow_Cover"]
                         .squeeze()
                         .rio.clip_box(xmin, ymin, xmax, ymax, crs="EPSG:4326")
                         .assign_coords(
                             time=pd.to_datetime(
-                                rxr.open_rasterio(file, variable="CGF_NDSI_Snow_Cover", chunks={}).squeeze().attrs["RANGEBEGINNINGDATE"]
+                                rxr.open_rasterio(
+                                    file, variable="CGF_NDSI_Snow_Cover", chunks={}
+                                )
+                                .squeeze()
+                                .attrs["RANGEBEGINNINGDATE"]
                             )
                         )
                         .drop_vars("band")
@@ -1765,54 +1782,57 @@ class MODIS_snow:
                     ],
                     dim="time",
                 )
-            
+
             else:
                 modis_snow = xr.concat(
                     [
-                        rxr.open_rasterio(file, variable="CGF_NDSI_Snow_Cover", chunks={})[
-                            "CGF_NDSI_Snow_Cover"
-                        ]
+                        rxr.open_rasterio(
+                            file, variable="CGF_NDSI_Snow_Cover", chunks={}
+                        )["CGF_NDSI_Snow_Cover"]
                         .squeeze()
                         .assign_coords(
                             time=pd.to_datetime(
-                                rxr.open_rasterio(file, variable="CGF_NDSI_Snow_Cover", chunks={}).squeeze().attrs["RANGEBEGINNINGDATE"]
+                                rxr.open_rasterio(
+                                    file, variable="CGF_NDSI_Snow_Cover", chunks={}
+                                )
+                                .squeeze()
+                                .attrs["RANGEBEGINNINGDATE"]
                             )
                         )
                         .drop_vars("band")
                         for file in files
                     ],
                     dim="time",
-                )                
-                
-            
-        else:
-            raise ValueError("Data product not recognized. Please choose 'MOD10A1', 'MOD10A2', or 'MOD10A1F'.")
+                )
 
-        
+        else:
+            raise ValueError(
+                "Data product not recognized. Please choose 'MOD10A1', 'MOD10A2', or 'MOD10A1F'."
+            )
+
         self.data = modis_snow
-        
+
         if self.data_product == "MOD10A2":
             self.data.attrs["class_info"] = {
-            0: {"name": "missing data", "color": "#006400"},
-            1: {"name": "no decision", "color": "#FFBB22"},
-            11: {"name": "night", "color": "#FFFF4C"},
-            25: {"name": "no snow", "color": "#F096FF"},
-            37: {"name": "lake", "color": "#FA0000"},
-            39: {"name": "ocean / sparse vegetation", "color": "#B4B4B4"},
-            50: {"name": "cloud", "color": "#F0F0F0"},
-            100: {"name": "lake ice", "color": "#0064C8"},
-            200: {"name": "snow", "color": "#0096A0"},
-            254: {"name": "detector saturated", "color": "#00CF75"},
-            255: {"name": "fill", "color": "#FAE6A0"},
-    }
-            
-            
+                0: {"name": "missing data", "color": "#006400"},
+                1: {"name": "no decision", "color": "#FFBB22"},
+                11: {"name": "night", "color": "#FFFF4C"},
+                25: {"name": "no snow", "color": "#F096FF"},
+                37: {"name": "lake", "color": "#FA0000"},
+                39: {"name": "ocean / sparse vegetation", "color": "#B4B4B4"},
+                50: {"name": "cloud", "color": "#F0F0F0"},
+                100: {"name": "lake ice", "color": "#0064C8"},
+                200: {"name": "snow", "color": "#0096A0"},
+                254: {"name": "detector saturated", "color": "#00CF75"},
+                255: {"name": "fill", "color": "#FAE6A0"},
+            }
+
         print("Data retrieved. Access with the .data attribute.")
-        
+
     def get_binary_snow(self):
-        
-        if self.data_product == 'MOD10A2':
-            self.binary_snow = xr.where(self.data['Maximum_Snow_Extent']==200,1,0)
+
+        if self.data_product == "MOD10A2":
+            self.binary_snow = xr.where(self.data["Maximum_Snow_Extent"] == 200, 1, 0)
             print("Binary snow map calculated. Access with the .binary_snow attribute.")
         else:
             print("This method is only available for the MOD10A2 product.")
