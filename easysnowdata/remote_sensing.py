@@ -34,6 +34,8 @@ from easysnowdata.utils import (
     convert_bbox_to_geodataframe,
     get_stac_cfg,
     HLS_xml_url_to_metadata_df,
+    blockPrint,
+    enablePrint
 )
 
 
@@ -1666,8 +1668,12 @@ class MODIS_snow:
         crs=None,
         vertical_tile=None,
         horizontal_tile=None,
+        mute=False,
     ):
 
+        if mute:
+            blockPrint()
+            
         self.bbox_input = bbox_input
         self.bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
         self.clip_to_bbox = clip_to_bbox
@@ -1680,8 +1686,12 @@ class MODIS_snow:
         self.vertical_tile = vertical_tile
         self.horizontal_tile = horizontal_tile
 
+
         self.search_data()
         self.get_data()
+        
+        if mute:
+            enablePrint()
 
     def search_data(self):
 

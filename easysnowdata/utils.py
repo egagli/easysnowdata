@@ -12,13 +12,22 @@ import datetime
 import typing
 import requests
 from bs4 import BeautifulSoup
-
+import sys
+import os
 
 def hello_world():
     """Prints "Hello World!" to the console.
     """
     print("Hello World!")
 
+
+# Disable
+def blockPrint():
+    sys.stdout = open(os.devnull, 'w')
+
+# Restore
+def enablePrint():
+    sys.stdout = sys.__stdout__
 
 def convert_bbox_to_geodataframe(bbox_input):
     """
