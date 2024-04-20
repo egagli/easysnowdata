@@ -230,17 +230,23 @@ def datetime_to_DOWY(date: datetime.datetime, hemisphere: str = 'northern'):
     int: The day of the water year, or np.nan if the date is not valid.
     """
     try:
-        if hemisphere.lower() == 'northern':
+        if hemisphere == 'northern':
             start_month = 10
-        elif hemisphere.lower() == 'southern':
+        elif hemisphere == 'southern':
             start_month = 4
         else:
             raise ValueError("Invalid hemisphere. Must be 'northern' or 'southern'.")
 
-        if date.month < start_month:
-            start_of_water_year = pd.Timestamp(year=date.year-1, month=start_month, day=1)
+        if hemisphere == 'northern':
+            if date.month < start_month:
+                start_of_water_year = pd.Timestamp(year=date.year-1, month=start_month, day=1)
+            else:
+                start_of_water_year = pd.Timestamp(year=date.year, month=start_month, day=1)
         else:
-            start_of_water_year = pd.Timestamp(year=date.year, month=start_month, day=1)
+            if date.month < start_month:
+                start_of_water_year = pd.Timestamp(year=date.year-1, month=start_month, day=1)
+            else:
+                start_of_water_year = pd.Timestamp(year=date.year, month=start_month, day=1)
         return (date - start_of_water_year).days + 1
     except:
         return np.nan
@@ -258,17 +264,23 @@ def datetime_to_WY(date: datetime, hemisphere: str = 'northern'):
     Returns:
     int: The water year.
     """
-    if hemisphere.lower() == 'northern':
+    if hemisphere == 'northern':
         start_month = 10
-    elif hemisphere.lower() == 'southern':
+    elif hemisphere == 'southern':
         start_month = 4
     else:
         raise ValueError("Invalid hemisphere. Must be 'northern' or 'southern'.")
 
-    if date.month < start_month:
-        return date.year
+    if hemisphere == 'northern':
+        if date.month < start_month:
+            return date.year
+        else:
+            return date.year + 1
     else:
-        return date.year + 1
+        if date.month < start_month:
+            return date.year - 1
+        else:
+            return date.year
     
 
 def HLS_xml_url_to_metadata_df(url):
