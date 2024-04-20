@@ -216,43 +216,56 @@ def get_stac_cfg(sensor='sentinel-2-l2a'):
     return cfg
 
 
-def datetime_to_DOWY(date: datetime.datetime):
+def datetime_to_DOWY(date: datetime.datetime, hemisphere: str = 'northern'):
     """
     Convert a datetime to the day of the water year (DOWY).
     
-    The water year starts on October 1. If the month of the date is less than 10 (October), 
-    the start of the water year is considered to be October 1 of the previous year. 
-    Otherwise, the start of the water year is October 1 of the current year.
+    The water year starts on October 1 for the northern hemisphere and April 1 for the southern hemisphere.
     
     Parameters:
     date (datetime): The date to convert.
+    hemisphere (str): The hemisphere ('northern' or 'southern'). Default is 'northern'.
     
     Returns:
     int: The day of the water year, or np.nan if the date is not valid.
     """
     try:
-        if date.month < 10:
-            start_of_water_year = pd.Timestamp(year=date.year-1, month=10, day=1)
+        if hemisphere.lower() == 'northern':
+            start_month = 10
+        elif hemisphere.lower() == 'southern':
+            start_month = 4
         else:
-            start_of_water_year = pd.Timestamp(year=date.year, month=10, day=1)
+            raise ValueError("Invalid hemisphere. Must be 'northern' or 'southern'.")
+
+        if date.month < start_month:
+            start_of_water_year = pd.Timestamp(year=date.year-1, month=start_month, day=1)
+        else:
+            start_of_water_year = pd.Timestamp(year=date.year, month=start_month, day=1)
         return (date - start_of_water_year).days + 1
     except:
         return np.nan
 
-def datetime_to_WY(date: datetime):
+def datetime_to_WY(date: datetime, hemisphere: str = 'northern'):
     """
     Convert a datetime to the water year (WY).
     
-    The water year starts on October 1. If the month of the date is less than 10 (October), 
-    the water year is considered to be the current year. Otherwise, the water year is the next year.
+    The water year starts on October 1 for the northern hemisphere and April 1 for the southern hemisphere.
     
     Parameters:
     date (datetime): The date to convert.
+    hemisphere (str): The hemisphere ('northern' or 'southern'). Default is 'northern'.
     
     Returns:
     int: The water year.
     """
-    if date.month < 10:
+    if hemisphere.lower() == 'northern':
+        start_month = 10
+    elif hemisphere.lower() == 'southern':
+        start_month = 4
+    else:
+        raise ValueError("Invalid hemisphere. Must be 'northern' or 'southern'.")
+
+    if date.month < start_month:
         return date.year
     else:
         return date.year + 1
