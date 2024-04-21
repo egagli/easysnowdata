@@ -712,8 +712,9 @@ class Sentinel2:
         # Convert the red, green, and blue bands to an RGB DataArray
         rgb_da = self.data[["red", "green", "blue"]].to_dataarray(dim="band")
         self.rgb = rgb_da.squeeze()
+        self.rgb_norm = (self.rgb - self.rgb.min(dim=['x', 'y'])) / (self.rgb.max(dim=['x', 'y']) - self.rgb.min(dim=['x', 'y']))
 
-        print(f"RGB data retrieved. Access with the .rgb attribute.")
+        print(f"RGB data retrieved. Access with the .rgb attribute, or .rgb_norm for normalized RGB.")
 
     # Indicies
     # find indicies Sentinel-2 indicies here: https://www.indexdatabase.de/db/is.php?sensor_id=96 and https://custom-scripts.sentinel-hub.com/custom-scripts/sentinel/sentinel-2/
