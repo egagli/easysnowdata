@@ -1847,3 +1847,12 @@ class MODIS_snow:
             print("Binary snow map calculated. Access with the .binary_snow attribute.")
         else:
             print("This method is only available for the MOD10A2 product.")
+
+
+
+
+
+
+# palsar2
+# ic = ee.ImageCollection('JAXA/ALOS/PALSAR-2/Level2_2/ScanSAR').filterDate('2020-10-05', '2021-03-31')
+# ds = xarray.open_dataset(ic, geometry=bbox_ee,engine='ee')
