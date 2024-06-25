@@ -1,9 +1,63 @@
-#put WBD stuff here
+import geopandas as gpd
+import ee
+import json
+
+from easysnowdata.utils import convert_bbox_to_geodataframe
+
+ee.Authenticate()
+ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
+
+
+def get_huc_geometries(bbox_input=(-180,-90,180,90),huc_level='02'):
+    """
+    Retrieves Hydrologic Unit Code (HUC) geometries within a specified bounding box and HUC level.
+
+    This function queries the USGS Water Boundary Dataset (WBD) for HUC geometries. It can retrieve
+    HUC geometries at different levels (e.g., HUC 02, 04, 06, 08, 10, 12) for a specified region
+    defined by a bounding box. If no bounding box is provided, it retrieves HUC geometries for the
+    entire United States.
+
+    Parameters:
+    - bbox_input (tuple of float, optional): A tuple representing the bounding box in the format
+      (min_lon, min_lat, max_lon, max_lat). Defaults to (-180, -90, 180, 90) which represents the
+      entire world.
+    - huc_level (str, optional): The HUC level to retrieve geometries for. Valid levels are '02',
+      '04', '06', '08', '10', '12'. Defaults to '02'.
+
+    Returns:
+    - GeoDataFrame: A GeoDataFrame containing the retrieved HUC geometries along with associated
+      attributes such as name, area in square kilometers, states, TNMID, and geometry.
+    """
+
+    # Check if the default bounding box is used
+    if bbox_input == (-180,-90,180,90):
+        print(f'No bounding box input provided, retrieving all HUC{huc_level} geometries. This will take a moment...')
+    else:
+        print(f'Retrieving HUC{huc_level} geometries for the region of interest...')
+
+    # Convert bounding box to feature collection to use as region for querying HUC geometries
+    bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
+    bbox_json = bbox_gdf.to_json()
+    featureCollection = ee.FeatureCollection(json.loads(bbox_json))
+
+    # Search Earth Engine USGS WBD collection for HUC geometries
+    huc_gdf = ee.data.listFeatures({
+        'assetId': f'USGS/WBD/2017/HUC{huc_level}',
+        'region': featureCollection.geometry().getInfo(),
+        'fileFormat': 'GEOPANDAS_GEODATAFRAME'
+    })
+
+    # Add crs to geodataframe and select relevant columns
+    huc_gdf.crs = 'EPSG:4326'
+    huc_gdf = huc_gdf[['name',f'huc{huc_level.lstrip("0")}','areasqkm','states','tnmid','geometry']]
+
+    return huc_gdf
 
 
 
 #huc map, from gee?
 
+#hydroatlas? https://developers.google.com/earth-engine/datasets/catalog/WWF_HydroATLAS_v1_Basins_level03
 
 #maybe seperate climate module,or use https://github.com/hyriver/pydaymet
 
