@@ -825,6 +825,7 @@ class Sentinel1:
         end_date=today,
         catalog_choice="planetarycomputer",
         bands=None,
+        units='dB', # linear power or dB
         resolution=None,
         crs=None,
         groupby="sat:absolute_orbit",
@@ -869,7 +870,10 @@ class Sentinel1:
         self.get_metadata()
         self.remove_border_noise()
         self.add_orbit_info()
-        self.linear_to_db()
+        if units == 'dB':
+            self.linear_to_db()
+        else:
+            print('Units remain in linear power. Convert to dB using the .linear_to_db() method.')
 
     def search_data(self):
         """
