@@ -1,11 +1,12 @@
 import geopandas as gpd
 import ee
 import json
+import xarray as xr
 
 from easysnowdata.utils import convert_bbox_to_geodataframe
 
-ee.Authenticate()
-ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
+#ee.Authenticate() need to figure out https://developers.google.com/earth-engine/guides/auth
+#ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
 
 
 def get_huc_geometries(bbox_input=(-180,-90,180,90),huc_level='02'):
@@ -30,7 +31,7 @@ def get_huc_geometries(bbox_input=(-180,-90,180,90),huc_level='02'):
     """
 
     # Check if the default bounding box is used
-    if bbox_input == (-180,-90,180,90):
+    if isinstance(bbox_input, tuple) and (bbox_input == (-180, -90, 180, 90)):
         print(f'No bounding box input provided, retrieving all HUC{huc_level} geometries. This will take a moment...')
     else:
         print(f'Retrieving HUC{huc_level} geometries for the region of interest...')
@@ -54,6 +55,47 @@ def get_huc_geometries(bbox_input=(-180,-90,180,90),huc_level='02'):
     return huc_gdf
 
 
+def get_era5(bbox_input=(-180,-90,180,90)):
+  """
+  Retrieves ERA5 data for a given bounding box.
+
+  Parameters:
+  bbox_input (tuple): Bounding box coordinates in the format (min_lon, min_lat, max_lon, max_lat).
+             Default value is (-180, -90, 180, 90) which represents the global bounding box.
+
+  Returns:
+  era5 (xarray dataset): ERA5 dataset for the specified bounding box.
+  """
+
+  # Check if the default bounding box is used
+  if isinstance(bbox_input, tuple) and (bbox_input == (-180, -90, 180, 90)):
+    print(f'No bounding box input provided, retrieving global ERA5 data...')
+    clip_flag = False
+  else:
+    print(f'Retrieving ERA5 data for the region of interest...')
+    clip_flag = True
+
+  bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
+
+  era5 = xr.open_zarr( #https://cloud.google.com/storage/docs/public-datasets/era5
+      "gs://gcp-public-data-arco-era5/ar/1959-2022-full_37-1h-0p25deg-chunk-1.zarr-v2",
+      chunks={'time': 48},
+      consolidated=True,
+  )
+  era5.rio.write_crs("EPSG:4326", inplace=True)
+  era5.coords['longitude'] = (era5.coords['longitude'] + 180) % 360 - 180
+  era5 = era5.sortby(era5.longitude)
+
+  if clip_flag:
+    era5 = era5.rio.clip(bbox_gdf.geometry,all_touched=True)
+
+  # ar_full_37_1h = xr.open_zarr( #https://github.com/google-research/arco-era5
+  #   'gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3',
+  #   chunks=None,
+  #   storage_options=dict(token='anon'),
+  # )
+
+  return era5
 
 #huc map, from gee?
 
