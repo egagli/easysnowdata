@@ -3,8 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
- # core data science 
- - python
+ - python=3.10
  - numpy
  - pandas
  - xarray
@@ -14,8 +13,6 @@ dependencies:
  - urllib3
  - dask
  - lxml
- 
- # geospatial (raster+vector)
  - gdal
  - rasterio
  - rioxarray
@@ -30,8 +27,12 @@ dependencies:
  - xee
  - bs4
  - py3dep
+ - zarr
+ - bottleneck
+ - netCDF4
+ - earthengine-api
+ - gcsfs
  
- # misc
  - pip
  
  - pip:
