@@ -941,11 +941,17 @@ class Sentinel1:
         self.metadata = metadata_gdf
         print(f"Metadata retrieved. Access with the .metadata attribute.")
 
-    def remove_border_noise(self):
+    def remove_border_noise(self,threshold=0.001):
         """
         The method to remove border noise from the data.
+        https://forum.step.esa.int/t/grd-border-noise-and-thermal-noise-removal-are-not-working-anymore-since-march-13-2018/9332
+        https://www.mdpi.com/2072-4292/8/4/348
+        https://forum.step.esa.int/t/nan-appears-at-the-edge-of-the-scene-after-applying-border-noise-removal-sentinel-1-grd/40627/2
+        https://sentiwiki.copernicus.eu/__attachments/1673968/OI-MPC-OTH-MPC-0243%20-%20Sentinel-1%20masking%20no%20value%20pixels%20grd%20products%20note%202023%20-%202.2.pdf?inst-v=534578f3-fc04-48e9-bd69-3a45a681fe67#page=12.58
+        https://ieeexplore.ieee.org/document/8255846
+        https://www.mdpi.com/2504-3900/2/7/330
         """
-        self.data = self.data.where(self.data > 0.006)
+        self.data.loc[dict(time=slice('2014-01-01','2018-03-14'))] = self.data.sel(time=slice('2014-01-01','2018-03-14')).where(lambda x: x > threshold)
         print(f"Border noise removed from the data.")
 
     def linear_to_db(self):
