@@ -912,7 +912,7 @@ class Sentinel1:
             "items": self.search.items(),
             "bbox": self.bbox_gdf.total_bounds,
             "nodata": -32768,
-            "chunks": {"x": 512, "y": 512, "time": -1},
+            "chunks": {"x": 512, "y": 512},
             "groupby": self.groupby,
         }
         if self.bands:
