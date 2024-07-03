@@ -852,6 +852,7 @@ class Sentinel1:
         self.bands = bands
         self.resolution = resolution
         self.crs = crs
+        self.chunks = chunks
         self.groupby = groupby
 
         self.bbox_gdf = convert_bbox_to_geodataframe(self.bbox_input)
