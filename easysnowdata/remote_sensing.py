@@ -829,6 +829,7 @@ class Sentinel1:
         resolution=None,
         crs=None,
         groupby="sat:absolute_orbit",
+        chunks={}, # {"x": 512, "y": 512} or # {"x": 512, "y": 512, "time": -1}
     ):
         """
         The constructor for the Sentinel1 class.
@@ -912,7 +913,7 @@ class Sentinel1:
             "items": self.search.items(),
             "bbox": self.bbox_gdf.total_bounds,
             "nodata": -32768,
-            "chunks": {"x": 512, "y": 512},
+            "chunks": self.chunks,
             "groupby": self.groupby,
         }
         if self.bands:
