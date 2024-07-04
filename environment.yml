@@ -32,12 +32,11 @@ dependencies:
  - netCDF4
  - earthengine-api
  - gcsfs
+ - fsspec
  
  - pip
  
  - pip:
    - matplotlib-scalebar
-
-   # geospatial+plotting
    - "--editable=./"
-   #- "--editable=git+https://github.com/dshean/pygeotools.git#egg=pygeotools"
+#   - "--editable=git+https://github.com/egagli/easysnowdata.git#egg=easysnowdata"
