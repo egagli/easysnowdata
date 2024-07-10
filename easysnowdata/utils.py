@@ -7,10 +7,7 @@ import geopandas as gpd
 import rioxarray as rxr
 import xarray as xr
 import shapely
-import dask
 import yaml
-import datetime
-import typing
 import requests
 from bs4 import BeautifulSoup
 import sys
@@ -248,7 +245,8 @@ def datetime_to_DOWY(date, hemisphere="northern"):
         date = pd.to_datetime(date)
         start = get_water_year_start(date, hemisphere)
         return (date - start).days + 1
-    except:
+    except Exception as e:
+        print(f'A problem occurred: {e}')
         return np.nan
 
 
@@ -266,7 +264,8 @@ def datetime_to_WY(date, hemisphere="northern"):
         date = pd.to_datetime(date)
         start = get_water_year_start(date, hemisphere)
         return start.year + (1 if hemisphere == "northern" else 0)
-    except:
+    except Exception as e:
+        print(f'A problem occurred: {e}')
         return np.nan
 
 
