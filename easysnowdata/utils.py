@@ -1,5 +1,6 @@
-"""The common module contains common functions and classes used by the other modules.
+"""The utils module contains common functions and classes used by the other modules.
 """
+
 import numpy as np
 import pandas as pd
 import geopandas as gpd
@@ -15,19 +16,21 @@ from bs4 import BeautifulSoup
 import sys
 import os
 
+
 def hello_world():
-    """Prints "Hello World!" to the console.
-    """
+    """Prints "Hello World!" to the console."""
     print("Hello World!")
 
 
 # Disable
 def blockPrint():
-    sys.stdout = open(os.devnull, 'w')
+    sys.stdout = open(os.devnull, "w")
+
 
 # Restore
 def enablePrint():
     sys.stdout = sys.__stdout__
+
 
 def convert_bbox_to_geodataframe(bbox_input):
     """
@@ -41,12 +44,15 @@ def convert_bbox_to_geodataframe(bbox_input):
     """
     if isinstance(bbox_input, tuple) and len(bbox_input) == 4:
         # If it's a tuple of four elements, treat it as (xmin, ymin, xmax, ymax)
-        bbox_input = gpd.GeoDataFrame(geometry=[shapely.geometry.box(*bbox_input)], crs="EPSG:4326")
+        bbox_input = gpd.GeoDataFrame(
+            geometry=[shapely.geometry.box(*bbox_input)], crs="EPSG:4326"
+        )
     elif isinstance(bbox_input, shapely.geometry.base.BaseGeometry):
         # If it's a Shapely geometry, convert it to a GeoDataFrame
         bbox_input = gpd.GeoDataFrame(geometry=[bbox_input], crs="EPSG:4326")
 
     return bbox_input
+
 
 # def get_stac_cfg(sensor='sentinel-2-l2a'):
 #     if sensor == 'sentinel-2-l2a':
@@ -86,8 +92,9 @@ def convert_bbox_to_geodataframe(bbox_input):
 
 #     return cfg
 
-def get_stac_cfg(sensor='sentinel-2-l2a'):
-    if sensor == 'sentinel-2-l2a':
+
+def get_stac_cfg(sensor="sentinel-2-l2a"):
+    if sensor == "sentinel-2-l2a":
         cfg = """---
         sentinel-2-l2a:
             assets:
@@ -120,7 +127,7 @@ def get_stac_cfg(sensor='sentinel-2-l2a'):
                 aot: AOT
                 wvp: WVP
         """
-    elif sensor == 'HLSL30.v2.0':
+    elif sensor == "HLSL30.v2.0":
         cfg = """---
         HLSL30.v2.0:
             assets:
@@ -168,7 +175,7 @@ def get_stac_cfg(sensor='sentinel-2-l2a'):
                 thermal infrared 1: B10
                 thermal: B11
         """
-    elif sensor == 'HLSS30.v2.0':
+    elif sensor == "HLSS30.v2.0":
         cfg = """---
         HLSS30.v2.0:
             assets:
@@ -216,72 +223,52 @@ def get_stac_cfg(sensor='sentinel-2-l2a'):
     return cfg
 
 
-def datetime_to_DOWY(date: datetime.datetime, hemisphere: str = 'northern'):
+def get_water_year_start(date, hemisphere):
+    year = date.year
+    month = 10 if hemisphere == "northern" else 4
+    if (hemisphere == "northern" and date.month < 10) or (
+        hemisphere == "southern" and date.month < 4
+    ):
+        year -= 1
+    return pd.Timestamp(year=year, month=month, day=1)
+
+
+def datetime_to_DOWY(date, hemisphere="northern"):
     """
-    Convert a datetime to the day of the water year (DOWY).
-    
-    The water year starts on October 1 for the northern hemisphere and April 1 for the southern hemisphere.
-    
+    Convert a datetime-like object to the day of water year (DOWY).
+
     Parameters:
-    date (datetime): The date to convert.
-    hemisphere (str): The hemisphere ('northern' or 'southern'). Default is 'northern'.
-    
+    date: datetime-like object (string, datetime, Timestamp, etc.)
+    hemisphere: str, 'northern' or 'southern'
+
     Returns:
     int: The day of the water year, or np.nan if the date is not valid.
     """
     try:
-        if hemisphere == 'northern':
-            start_month = 10
-        elif hemisphere == 'southern':
-            start_month = 4
-        else:
-            raise ValueError("Invalid hemisphere. Must be 'northern' or 'southern'.")
-
-        if hemisphere == 'northern':
-            if date.month < start_month:
-                start_of_water_year = pd.Timestamp(year=date.year-1, month=start_month, day=1)
-            else:
-                start_of_water_year = pd.Timestamp(year=date.year, month=start_month, day=1)
-        else:
-            if date.month < start_month:
-                start_of_water_year = pd.Timestamp(year=date.year-1, month=start_month, day=1)
-            else:
-                start_of_water_year = pd.Timestamp(year=date.year, month=start_month, day=1)
-        return (date - start_of_water_year).days + 1
+        date = pd.to_datetime(date)
+        start = get_water_year_start(date, hemisphere)
+        return (date - start).days + 1
     except:
         return np.nan
 
-def datetime_to_WY(date: datetime, hemisphere: str = 'northern'):
+
+def datetime_to_WY(date, hemisphere="northern"):
     """
-    Convert a datetime to the water year (WY).
-    
-    The water year starts on October 1 for the northern hemisphere and April 1 for the southern hemisphere.
-    
+    Convert a datetime-like object to the water year (WY).
     Parameters:
-    date (datetime): The date to convert.
-    hemisphere (str): The hemisphere ('northern' or 'southern'). Default is 'northern'.
-    
+    date: datetime-like object (string, datetime, Timestamp, etc.)
+    hemisphere: str, 'northern' or 'southern'
+
     Returns:
     int: The water year.
     """
-    if hemisphere == 'northern':
-        start_month = 10
-    elif hemisphere == 'southern':
-        start_month = 4
-    else:
-        raise ValueError("Invalid hemisphere. Must be 'northern' or 'southern'.")
+    try:
+        date = pd.to_datetime(date)
+        start = get_water_year_start(date, hemisphere)
+        return start.year + (1 if hemisphere == "northern" else 0)
+    except:
+        return np.nan
 
-    if hemisphere == 'northern':
-        if date.month < start_month:
-            return date.year
-        else:
-            return date.year + 1
-    else:
-        if date.month < start_month:
-            return date.year - 1
-        else:
-            return date.year
-    
 
 def HLS_xml_url_to_metadata_df(url):
     # URL of the XML file
@@ -290,7 +277,9 @@ def HLS_xml_url_to_metadata_df(url):
     response = requests.get(url)
 
     # Parse the XML content of the response with BeautifulSoup
-    soup = BeautifulSoup(response.content, 'lxml-xml')  # 'lxml-xml' parser is used for parsing XML
+    soup = BeautifulSoup(
+        response.content, "lxml-xml"
+    )  # 'lxml-xml' parser is used for parsing XML
 
     # Create a dictionary to hold the data
     data = {}
@@ -299,13 +288,15 @@ def HLS_xml_url_to_metadata_df(url):
     for tag in soup.find_all():
         # If the tag has a text value, add it to the dictionary
         if tag.text.strip():
-            data[tag.name] = tag.text.strip().replace('\n',' ')
+            data[tag.name] = tag.text.strip().replace("\n", " ")
 
     # Convert the dictionary to a DataFrame
-    df = pd.DataFrame([data]).iloc[0][['ProducerGranuleId','Temporal','Platform','AssociatedBrowseImageUrls']]
+    df = pd.DataFrame([data]).iloc[0][
+        ["ProducerGranuleId", "Temporal", "Platform", "AssociatedBrowseImageUrls"]
+    ]
 
-    df['Platform'] = df['Platform'].split(' ')[0]
-    df['AssociatedBrowseImageUrls'] = df['AssociatedBrowseImageUrls'].split(' ')[0]
-    df['Temporal'] = df['Temporal'].split(' ')[0]
-    
+    df["Platform"] = df["Platform"].split(" ")[0]
+    df["AssociatedBrowseImageUrls"] = df["AssociatedBrowseImageUrls"].split(" ")[0]
+    df["Temporal"] = df["Temporal"].split(" ")[0]
+
     return df
