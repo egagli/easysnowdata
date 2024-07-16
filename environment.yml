@@ -30,6 +30,7 @@ dependencies:
  - zarr
  - bottleneck
  - netCDF4
+ - h5netcdf
  - earthengine-api
  - gcsfs
  - fsspec
