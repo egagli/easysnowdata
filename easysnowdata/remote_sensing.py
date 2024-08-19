@@ -831,6 +831,7 @@ class Sentinel1:
         crs=None,
         groupby="sat:absolute_orbit",
         chunks={}, # {"x": 512, "y": 512} or # {"x": 512, "y": 512, "time": -1}
+        remove_border_noise=True,
     ):
         """
         The constructor for the Sentinel1 class.
@@ -856,6 +857,7 @@ class Sentinel1:
         self.crs = crs
         self.chunks = chunks
         self.groupby = groupby
+        self.remove_border_noise = remove_border_noise
 
         if not self.geobox:
             self.bbox_gdf = convert_bbox_to_geodataframe(self.bbox_input)
@@ -873,7 +875,8 @@ class Sentinel1:
         self.search_data()
         self.get_data()
         self.get_metadata()
-        self.remove_border_noise()
+        if self.remove_border_noise:
+            self.remove_border_noise()
         self.add_orbit_info()
         if units == 'dB':
             self.linear_to_db()

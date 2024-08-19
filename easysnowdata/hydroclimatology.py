@@ -163,8 +163,8 @@ def get_ucla_snow_reanalysis(bbox_input,variable='SWE_Post',stats='mean',start_d
     stats_index = stats_dictionary[stats]
 
     snow_reanalysis_da = snow_reanalysis_ds[variable].sel(Stats=stats_index)
-    snow_reanalysis_da = snow_reanalysis_da.rio.set_spatial_dims(x_dim="Longitude", y_dim="Latitude", inplace=True)
     snow_reanalysis_da = snow_reanalysis_da.rio.write_crs("EPSG:4326", inplace=True)
+    snow_reanalysis_da = snow_reanalysis_da.rio.set_spatial_dims(x_dim="Longitude", y_dim="Latitude")
     snow_reanalysis_da = snow_reanalysis_da.rio.clip_box(xmin, ymin, xmax, ymax)
 
     return snow_reanalysis_da

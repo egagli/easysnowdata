@@ -29,6 +29,7 @@ dependencies:
  - py3dep
  - zarr
  - bottleneck
+ - flox
  - netCDF4
  - h5netcdf
  - earthengine-api
