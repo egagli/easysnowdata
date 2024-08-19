@@ -827,7 +827,6 @@ class Sentinel1:
         bands=None,
         units='dB', # linear power or dB
         resolution=None,
-        geobox=None,
         crs=None,
         groupby="sat:absolute_orbit",
         chunks={}, # {"x": 512, "y": 512} or # {"x": 512, "y": 512, "time": -1}
@@ -853,14 +852,13 @@ class Sentinel1:
         self.catalog_choice = catalog_choice
         self.bands = bands
         self.resolution = resolution
-        self.geobox = geobox
         self.crs = crs
         self.chunks = chunks
         self.groupby = groupby
         self.remove_border_noise = remove_border_noise
 
-        if not self.geobox:
-            self.bbox_gdf = convert_bbox_to_geodataframe(self.bbox_input)
+        #if not self.geobox:
+        self.bbox_gdf = convert_bbox_to_geodataframe(self.bbox_input)
 
         if self.crs is None:
             self.crs = self.bbox_gdf.estimate_utm_crs()
@@ -903,18 +901,17 @@ class Sentinel1:
             )
 
         # Search for items within the specified bbox and date range
-        if self.bbox_gdf:
-            search = catalog.search(
-                collections=["sentinel-1-rtc"],
-                bbox=self.bbox_gdf.total_bounds,
-                datetime=(self.start_date, self.end_date),
-            )
-        elif self.geobox:
-            search = catalog.search(
-                collections=["sentinel-1-rtc"],
-                bbox=np.array(self.geobox.extent.boundingbox.to_crs('epsg:4326')),
-                datetime=(self.start_date, self.end_date),
-            )
+        search = catalog.search(
+            collections=["sentinel-1-rtc"],
+            bbox=self.bbox_gdf.total_bounds,
+            datetime=(self.start_date, self.end_date),
+        )
+        # elif self.geobox:
+        #     search = catalog.search(
+        #         collections=["sentinel-1-rtc"],
+        #         bbox=np.array(self.geobox.extent.boundingbox.to_crs('epsg:4326')),
+        #         datetime=(self.start_date, self.end_date),
+        #     )
 
         self.search = search
         print(f"Data searched. Access the returned seach with the .search attribute.")
@@ -932,14 +929,9 @@ class Sentinel1:
         }
         if self.bands:
             load_params["bands"] = self.bands
-        if self.geobox:
-            load_params["geobox"] = self.geobox
-        if not self.geobox and self.crs:
-            load_params["crs"] = self.crs
-        if not self.geobox and self.bbox_gdf:
-            load_params["bbox"] = self.bbox_gdf.total_bounds
-        if not self.geobox and self.resolution:
-            load_params["resolution"] = self.resolution
+        load_params["crs"] = self.crs
+        load_params["bbox"] = self.bbox_gdf.total_bounds
+        load_params["resolution"] = self.resolution
 
         # Load the data lazily using odc.stac
         self.data = odc.stac.load(**load_params).sortby(
