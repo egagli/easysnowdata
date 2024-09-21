@@ -4,8 +4,12 @@ import geopandas as gpd
 import ee
 import json
 import xarray as xr
+import numpy as np
 import earthaccess
-import rioxarray
+import rioxarray as rxr
+import matplotlib.pyplot as plt
+import matplotlib.colors
+
 
 from easysnowdata.utils import convert_bbox_to_geodataframe
 
@@ -163,14 +167,136 @@ def get_ucla_snow_reanalysis(bbox_input,variable='SWE_Post',stats='mean',start_d
     stats_index = stats_dictionary[stats]
 
     snow_reanalysis_da = snow_reanalysis_ds[variable].sel(Stats=stats_index)
-    snow_reanalysis_da = snow_reanalysis_da.rio.write_crs("EPSG:4326", inplace=True)
+    snow_reanalysis_da = snow_reanalysis_da.rio.write_crs("EPSG:4326")
     snow_reanalysis_da = snow_reanalysis_da.rio.set_spatial_dims(x_dim="Longitude", y_dim="Latitude")
     snow_reanalysis_da = snow_reanalysis_da.rio.clip_box(xmin, ymin, xmax, ymax)
 
     return snow_reanalysis_da
 
 
+def get_koppen_geiger_classes(bbox_input=None,resolution="0.1 degree"):
+    """
+    Retrieves Köppen-Geiger climate classification data for a given bounding box and resolution.
 
+    This function fetches global Köppen-Geiger climate classification data from a high-resolution dataset
+    based on constrained CMIP6 projections. It allows for optional spatial subsetting and provides
+    multiple resolution options. The returned DataArray includes a custom plotting function as an attribute.
+
+    Parameters:
+    bbox_input (geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional): 
+        The bounding box for spatial subsetting. If None, the entire global dataset is returned.
+    resolution (str, optional): 
+        The spatial resolution of the data. Options are "1 degree", "0.5 degree", "0.1 degree", or "1 km".
+        Default is "0.1 degree".
+
+    Returns:
+    xarray.DataArray: 
+        A DataArray containing the Köppen-Geiger climate classification data, with class information,
+        color map, data citation, and a custom plotting function included as attributes
+
+    Examples:
+    >>> koppen_data = get_koppen_geiger_classes(bbox_input=(-180, -90, 180, 90), resolution="1 degree")
+    >>> koppen_data.attrs['plot_classes'](koppen_data)
+    and
+    >>> koppen_geiger_da = get_koppen_geiger_classes(bbox_input=None, resolution="1 degree")
+    >>> koppen_data.plot(cmap=koppen_data.attrs["cmap"])
+
+    Data Source:
+    Beck, H.E., McVicar, T.R., Vergopolan, N. et al. High-resolution (1 km) Köppen-Geiger maps 
+    for 1901–2099 based on constrained CMIP6 projections. Sci Data 10, 724 (2023). 
+    https://doi.org/10.1038/s41597-023-02549-6
+
+    Dataset URL:
+    https://figshare.com/articles/dataset/High-resolution_1_km_K_ppen-Geiger_maps_for_1901_2099_based_on_constrained_CMIP6_projections/21789074/1?file=45057352
+    """
+
+    def get_koppen_geiger_class_info():
+        koppen_geiger_classes = {
+            1: {"name": "Af", "description": "Tropical, rainforest", "color": [0, 0, 255]},
+            2: {"name": "Am", "description": "Tropical, monsoon", "color": [0, 120, 255]},
+            3: {"name": "Aw", "description": "Tropical, savannah", "color": [70, 170, 250]},
+            4: {"name": "BWh", "description": "Arid, desert, hot", "color": [255, 0, 0]},
+            5: {"name": "BWk", "description": "Arid, desert, cold", "color": [255, 150, 150]},
+            6: {"name": "BSh", "description": "Arid, steppe, hot", "color": [245, 165, 0]},
+            7: {"name": "BSk", "description": "Arid, steppe, cold", "color": [255, 220, 100]},
+            8: {"name": "Csa", "description": "Temperate, dry summer, hot summer", "color": [255, 255, 0]},
+            9: {"name": "Csb", "description": "Temperate, dry summer, warm summer", "color": [200, 200, 0]},
+            10: {"name": "Csc", "description": "Temperate, dry summer, cold summer", "color": [150, 150, 0]},
+            11: {"name": "Cwa", "description": "Temperate, dry winter, hot summer", "color": [150, 255, 150]},
+            12: {"name": "Cwb", "description": "Temperate, dry winter, warm summer", "color": [100, 200, 100]},
+            13: {"name": "Cwc", "description": "Temperate, dry winter, cold summer", "color": [50, 150, 50]},
+            14: {"name": "Cfa", "description": "Temperate, no dry season, hot summer", "color": [200, 255, 80]},
+            15: {"name": "Cfb", "description": "Temperate, no dry season, warm summer", "color": [100, 255, 80]},
+            16: {"name": "Cfc", "description": "Temperate, no dry season, cold summer", "color": [50, 200, 0]},
+            17: {"name": "Dsa", "description": "Cold, dry summer, hot summer", "color": [255, 0, 255]},
+            18: {"name": "Dsb", "description": "Cold, dry summer, warm summer", "color": [200, 0, 200]},
+            19: {"name": "Dsc", "description": "Cold, dry summer, cold summer", "color": [150, 50, 150]},
+            20: {"name": "Dsd", "description": "Cold, dry summer, very cold winter", "color": [150, 100, 150]},
+            21: {"name": "Dwa", "description": "Cold, dry winter, hot summer", "color": [170, 175, 255]},
+            22: {"name": "Dwb", "description": "Cold, dry winter, warm summer", "color": [90, 120, 220]},
+            23: {"name": "Dwc", "description": "Cold, dry winter, cold summer", "color": [75, 80, 180]},
+            24: {"name": "Dwd", "description": "Cold, dry winter, very cold winter", "color": [50, 0, 135]},
+            25: {"name": "Dfa", "description": "Cold, no dry season, hot summer", "color": [0, 255, 255]},
+            26: {"name": "Dfb", "description": "Cold, no dry season, warm summer", "color": [55, 200, 255]},
+            27: {"name": "Dfc", "description": "Cold, no dry season, cold summer", "color": [0, 125, 125]},
+            28: {"name": "Dfd", "description": "Cold, no dry season, very cold winter", "color": [0, 70, 95]},
+            29: {"name": "ET", "description": "Polar, tundra", "color": [178, 178, 178]},
+            30: {"name": "EF", "description": "Polar, frost", "color": [102, 102, 102]}
+        }
+        return koppen_geiger_classes
+
+
+    def get_koppen_geiger_cmap(koppen_geiger_classes):
+        colors = {k: [c/255 for c in v["color"]] for k, v in koppen_geiger_classes.items()}
+        return matplotlib.colors.ListedColormap([colors[i] for i in range(1, 31)])
+    
+
+
+    def plot_classes(self, ax=None, figsize=(10, 10), cbar_orientation='horizontal'):
+        if ax is None:
+            f, ax = plt.subplots(figsize=figsize)
+        else:
+            f = ax.get_figure()
+
+        bounds = np.arange(0.5, 31.5, 1)
+        norm = matplotlib.colors.BoundaryNorm(bounds, self.attrs["cmap"].N)
+
+        im = self.plot(ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False)
+
+        ax.set_aspect("equal")
+
+        cbar = f.colorbar(im, ax=ax, orientation=cbar_orientation, aspect=30, pad=0.08)
+
+        cbar.set_ticks(np.arange(1, 31))
+        cbar.set_ticklabels([f"{v['name']}: {v['description']}" for k, v in self.attrs["class_info"].items()], fontsize=8)
+
+        if cbar_orientation == 'horizontal':
+            plt.setp(cbar.ax.get_xticklabels(), rotation=60, ha='right', rotation_mode='anchor')
+        else:
+            plt.setp(cbar.ax.get_yticklabels(), rotation=0, ha='right')
+
+        plt.title("Köppen-Geiger Climate Classification")
+        plt.axis('off')
+        plt.tight_layout()
+
+        return f, ax
+      
+    resolution_dict = {"1 degree": "1p0", "0.5 degree": "0p5", "0.1 degree": "0p1", "1 km": "0p00833333"}
+    resolution = resolution_dict[resolution]
+
+    koppen_geiger_da = rxr.open_rasterio(f"zip+https://figshare.com/ndownloader/files/45057352/koppen_geiger_tif.zip/1991_2020/koppen_geiger_{resolution}.tif").squeeze()
+
+    if bbox_input is not None:
+        bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
+        koppen_geiger_da = koppen_geiger_da.rio.clip(bbox_gdf.geometry, bbox_gdf.crs)
+
+    koppen_geiger_da.attrs["class_info"] = get_koppen_geiger_class_info()
+    koppen_geiger_da.attrs["cmap"] = get_koppen_geiger_cmap(koppen_geiger_da.attrs["class_info"])
+    koppen_geiger_da.attrs["data_citation"] = "Beck, H.E., McVicar, T.R., Vergopolan, N. et al. High-resolution (1 km) Köppen-Geiger maps for 1901–2099 based on constrained CMIP6 projections. Sci Data 10, 724 (2023). https://doi.org/10.1038/s41597-023-02549-6"
+
+    koppen_geiger_da.attrs['plot_classes'] = plot_classes
+
+    return koppen_geiger_da
 
 
 
