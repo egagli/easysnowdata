@@ -1,3 +1,0 @@
-# hydrology module
-
-::: easysnowdata.hydrology
