@@ -24,20 +24,40 @@ def get_huc_geometries(bbox_input=None, huc_level="02"):
     Retrieves Hydrologic Unit Code (HUC) geometries within a specified bounding box and HUC level.
 
     This function queries the USGS Water Boundary Dataset (WBD) for HUC geometries. It can retrieve
-    HUC geometries at different levels (e.g., HUC 02, 04, 06, 08, 10, 12) for a specified region
-    defined by a bounding box. If no bounding box is provided, it retrieves HUC geometries for the
-    entire United States.
+    HUC geometries at different levels for a specified region defined by a bounding box. If no 
+    bounding box is provided, it retrieves HUC geometries for the entire United States.
 
-    Parameters:
-    - bbox_input (tuple of float, optional): A tuple representing the bounding box in the format
-      (min_lon, min_lat, max_lon, max_lat). Defaults to (-180, -90, 180, 90) which represents the
-      entire world.
-    - huc_level (str, optional): The HUC level to retrieve geometries for. Valid levels are '02',
-      '04', '06', '08', '10', '12'. Defaults to '02'.
+    Parameters
+    ----------
+    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional
+        The bounding box for spatial subsetting. If None, the entire US dataset is returned.
+    huc_level : str, optional
+        The HUC level to retrieve geometries for. Valid levels are '02', '04', '06', '08', '10', '12'.
+        Default is '02'.
 
-    Returns:
-    - GeoDataFrame: A GeoDataFrame containing the retrieved HUC geometries along with associated
-      attributes such as name, area in square kilometers, states, TNMID, and geometry.
+    Returns
+    -------
+    geopandas.GeoDataFrame
+        A GeoDataFrame containing the retrieved HUC geometries along with associated attributes
+        such as name, area in square kilometers, states, TNMID, and geometry.
+
+    Examples
+    --------
+    Get HUC geometries for a specific region at HUC level 08...
+
+    >>> huc_data = get_huc_geometries(bbox_input=(-121.94, 46.72, -121.54, 46.99), huc_level="08")
+    >>> huc_data.plot()
+
+    Notes
+    -----
+    This function requires an active Earth Engine session. Make sure to authenticate 
+    with Earth Engine before using this function.
+
+    Data citation: 
+    Jones, K.A., Niknami, L.S., Buto, S.G., and Decker, D., 2022, 
+    Federal standards and procedures for the national Watershed Boundary Dataset (WBD) (5 ed.): 
+    U.S. Geological Survey Techniques and Methods 11-A3, 54 p., 
+    https://doi.org/10.3133/tm11A3
     """
 
     # Convert bounding box to feature collection to use as region for querying HUC geometries
@@ -74,12 +94,41 @@ def get_era5(bbox_input=None):
     """
     Retrieves ERA5 data for a given bounding box.
 
-    Parameters:
-    bbox_input (tuple): Bounding box coordinates in the format (min_lon, min_lat, max_lon, max_lat).
-               Default value is (-180, -90, 180, 90) which represents the global bounding box.
+    This function fetches ERA5 reanalysis data from Google Cloud Storage, allowing for optional
+    spatial subsetting. The data is returned as an xarray dataset with time-chunked data.
 
-    Returns:
-    era5 (xarray dataset): ERA5 dataset for the specified bounding box.
+    Parameters
+    ----------
+    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional
+        The bounding box for spatial subsetting. If None, the global dataset is returned.
+
+    Returns
+    -------
+    xarray.Dataset
+        An xarray Dataset containing ERA5 reanalysis data for the specified region.
+
+    Examples
+    --------
+    Get ERA5 data for the globe, plot the mean 2m temperature on May 26th, 2020...
+
+    >>> era5_global_ds = easysnowdata.hydroclimatology.get_era5()
+    >>> era5_global_ds["2m_temperature"].sel(time="2020-05-26").mean(dim="time").plot.imshow(ax=ax)
+
+    Get ERA5 data for a specific region, plot the mean 2m temperature on May 26th, 2020...
+
+    >>> era5_bbox_ds = easysnowdata.hydroclimatology.get_era5(bbox_input=(-121.94, 46.72, -121.54, 46.99))
+    >>> era5_bbox_ds["2m_temperature"].sel(time="2020-05-26").mean(dim="time").plot.imshow(ax=ax)
+
+    Notes
+    -----
+    The ERA5 data is sourced from Google Cloud Storage and is time-chunked for efficient processing.
+
+    Data citation:
+
+    Carver, Robert W, and Merose, Alex. (2023):
+    ARCO-ERA5: An Analysis-Ready Cloud-Optimized Reanalysis Dataset.
+    22nd Conf. on AI for Env. Science, Denver, CO, Amer. Meteo. Soc, 4A.1,
+    https://ams.confex.com/ams/103ANNUAL/meetingapp.cgi/Paper/415842
     """
 
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
@@ -106,24 +155,47 @@ def get_era5(bbox_input=None):
 
 def get_ucla_snow_reanalysis(bbox_input=None,variable='SWE_Post',stats='mean',start_date='1984-10-01',end_date='2021-09-30') -> xr.DataArray:
     """
-    Fetches the Margulis UCLA snow reanalysis product (https://nsidc.org/data/wus_ucla_sr/versions/1) for a specified bounding box and time range.
+    Fetches the Margulis UCLA snow reanalysis product for a specified bounding box and time range.
 
     This function retrieves snow reanalysis data from the UCLA dataset, allowing users to specify
     the type of snow data variable, statistical measure, and the temporal range for the data retrieval.
     The data is then clipped to the specified bounding box and returned as an xarray DataArray.
 
-    Parameters:
-    - bbox_input: A bounding box input that can be converted to a GeoDataFrame. The bounding box
-                  specifies the geographical area for which the data is retrieved.
-    - variable: The type of snow data variable to retrieve. Options include 'SWE_Post' (Snow Water Equivalent),
-                'SCA_Post' (Snow Cover Area), and 'SD_Post' (Snow Depth). Default is 'SWE_Post'.
-    - stats: The ensemble statistic. Options are 'mean', 'std' (standard deviation),
-             'median', '25pct' (25th percentile), and '75pct' (75th percentile). Default is 'mean'.
-    - start_date: The start date for the data retrieval in 'YYYY-MM-DD' format. Default is '1984-10-01'.
-    - end_date: The end date for the data retrieval in 'YYYY-MM-DD' format. Default is '2021-09-30'.
+    Parameters
+    ----------
+    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional
+        The bounding box for spatial subsetting. If None, the entire dataset is returned.
+    variable : str, optional
+        The type of snow data variable to retrieve. Options include 'SWE_Post' (Snow Water Equivalent),
+        'SCA_Post' (Snow Cover Area), and 'SD_Post' (Snow Depth). Default is 'SWE_Post'.
+    stats : str, optional
+        The ensemble statistic. Options are 'mean', 'std' (standard deviation),
+        'median', '25pct' (25th percentile), and '75pct' (75th percentile). Default is 'mean'.
+    start_date : str, optional
+        The start date for the data retrieval in 'YYYY-MM-DD' format. Default is '1984-10-01'.
+    end_date : str, optional
+        The end date for the data retrieval in 'YYYY-MM-DD' format. Default is '2021-09-30'.
 
-    Returns:
-    - An xarray DataArray containing the requested snow reanalysis data, clipped to the specified bounding box.
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the requested snow reanalysis data, clipped to the specified bounding box.
+
+    Examples
+    --------
+    Get mean Snow Water Equivalent data for a specific region and time period...
+
+    >>> swe_reanalysis_da = easysnowdata.hydroclimatology.get_ucla_snow_reanalysis(bbox_input=(-121.94, 46.72, -121.54, 46.99), 
+    ...                                     variable='SWE_Post', 
+    ...                                     start_date='2000-01-01', 
+    ...                                     end_date='2000-12-31')
+    >>> snow_reanalysis_da.isel(time=slice(0, 365, 30)).plot.imshow(col="time",col_wrap=5,cmap="Blues",vmin=0,vmax=3)
+
+    Notes
+    -----
+    Data citation: 
+
+    Fang, Y., Liu, Y. & Margulis, S. A. (2022). Western United States UCLA Daily Snow Reanalysis. (WUS_UCLA_SR, Version 1). [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/PP7T2GBI52I2
     """
 
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
@@ -182,14 +254,20 @@ def get_koppen_geiger_classes(bbox_input: Union[gpd.GeoDataFrame, tuple, shapely
 
     Examples
     --------
+    Get Köppen-Geiger climate classification data for the entire globe with a 1-degree resolution, use custom plotting function...
+
     >>> koppen_data = get_koppen_geiger_classes(bbox_input=None, resolution="1 degree")
     >>> koppen_data.attrs['plot_classes'](koppen_data)
+
+    Get Köppen-Geiger climate classification data for a specific region with a 1 km resolution, plot using xarray's built-in plotting function...
+
     >>> koppen_geiger_da = get_koppen_geiger_classes(bbox_input=(-121.94224976, 46.72842173, -121.54136001, 46.99728203), resolution="1 km")
     >>> koppen_data.plot(cmap=koppen_data.attrs["cmap"])
 
     Notes
     -----
     Data citation:
+
     Beck, H.E., McVicar, T.R., Vergopolan, N. et al. High-resolution (1 km) Köppen-Geiger maps
     for 1901–2099 based on constrained CMIP6 projections. Sci Data 10, 724 (2023).
     https://doi.org/10.1038/s41597-023-02549-6
