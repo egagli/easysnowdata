@@ -19,7 +19,10 @@ from easysnowdata.utils import convert_bbox_to_geodataframe
 # ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
 
 
-def get_huc_geometries(bbox_input=None, huc_level="02"):
+def get_huc_geometries(
+        bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None, 
+        huc_level: str = "02",
+) -> gpd.GeoDataFrame:
     """
     Retrieves Hydrologic Unit Code (HUC) geometries within a specified bounding box and HUC level.
 
@@ -90,7 +93,8 @@ def get_huc_geometries(bbox_input=None, huc_level="02"):
     return huc_gdf
 
 
-def get_era5(bbox_input=None):
+def get_era5(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
+) -> xr.Dataset:
     """
     Retrieves ERA5 data for a given bounding box.
 
@@ -142,7 +146,7 @@ def get_era5(bbox_input=None):
     era5.coords["longitude"] = (era5.coords["longitude"] + 180) % 360 - 180
     era5 = era5.sortby(era5.longitude)
 
-    era5 = era5.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
+    era5_ds = era5.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
 
     # ar_full_37_1h = xr.open_zarr( #https://github.com/google-research/arco-era5
     #   'gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3',
@@ -150,10 +154,15 @@ def get_era5(bbox_input=None):
     #   storage_options=dict(token='anon'),
     # )
 
-    return era5
+    return era5_ds
 
 
-def get_ucla_snow_reanalysis(bbox_input=None,variable='SWE_Post',stats='mean',start_date='1984-10-01',end_date='2021-09-30') -> xr.DataArray:
+def get_ucla_snow_reanalysis(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
+                             variable: str = 'SWE_Post',
+                             stats: str = 'mean',
+                             start_date: str = '1984-10-01',
+                             end_date: str = '2021-09-30',
+) -> xr.DataArray:
     """
     Fetches the Margulis UCLA snow reanalysis product for a specified bounding box and time range.
 
@@ -193,7 +202,7 @@ def get_ucla_snow_reanalysis(bbox_input=None,variable='SWE_Post',stats='mean',st
 
     Notes
     -----
-    Data citation: 
+    Data citation:
 
     Fang, Y., Liu, Y. & Margulis, S. A. (2022). Western United States UCLA Daily Snow Reanalysis. (WUS_UCLA_SR, Version 1). [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/PP7T2GBI52I2
     """
@@ -230,7 +239,10 @@ def get_ucla_snow_reanalysis(bbox_input=None,variable='SWE_Post',stats='mean',st
     return snow_reanalysis_da
 
 
-def get_koppen_geiger_classes(bbox_input: Union[gpd.GeoDataFrame, tuple, shapely.geometry.base.BaseGeometry, None] = None,resolution: str = "0.1 degree") -> xr.DataArray:
+def get_koppen_geiger_classes(
+        bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
+        resolution: str = "0.1 degree",
+) -> xr.DataArray:
     """
     Retrieves Köppen-Geiger climate classification data for a given bounding box and resolution.
 
@@ -240,9 +252,9 @@ def get_koppen_geiger_classes(bbox_input: Union[gpd.GeoDataFrame, tuple, shapely
 
     Parameters
     ----------
-    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional
+    bbox_input:
         The bounding box for spatial subsetting. If None, the entire global dataset is returned.
-    resolution : str, optional
+    resolution:
         The spatial resolution of the data. Options are "1 degree", "0.5 degree", "0.1 degree", or "1 km".
         Default is "0.1 degree".
 
