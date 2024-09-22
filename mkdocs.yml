@@ -47,7 +47,7 @@ plugins:
     - mkdocs-jupyter:
           include_source: True
           ignore_h1_titles: True
-          execute: True
+          execute: False # this was true, but I changed it to false to iterate docs faster
           allow_errors: True # this was false before
           ignore: ["conf.py"]
           execute_ignore: ["*ignore.ipynb"]

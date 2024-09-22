@@ -9,6 +9,8 @@ import earthaccess
 import rioxarray as rxr
 import matplotlib.pyplot as plt
 import matplotlib.colors
+from typing import Union
+import shapely
 
 
 from easysnowdata.utils import convert_bbox_to_geodataframe
@@ -156,7 +158,7 @@ def get_ucla_snow_reanalysis(bbox_input=None,variable='SWE_Post',stats='mean',st
     return snow_reanalysis_da
 
 
-def get_koppen_geiger_classes(bbox_input=None,resolution="0.1 degree"):
+def get_koppen_geiger_classes(bbox_input: Union[gpd.GeoDataFrame, tuple, shapely.geometry.base.BaseGeometry, None] = None,resolution: str = "0.1 degree") -> xr.DataArray:
     """
     Retrieves Köppen-Geiger climate classification data for a given bounding box and resolution.
 
@@ -164,26 +166,33 @@ def get_koppen_geiger_classes(bbox_input=None,resolution="0.1 degree"):
     based on constrained CMIP6 projections. It allows for optional spatial subsetting and provides
     multiple resolution options. The returned DataArray includes a custom plotting function as an attribute.
 
-    Args:
-        bbox_input (geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional): The bounding box for spatial subsetting. 
-            If None, the entire global dataset is returned. Defaults to None.
-        resolution (str, optional): The spatial resolution of the data. Options are "1 degree", "0.5 degree", 
-            "0.1 degree", or "1 km". Defaults to "0.1 degree".
+    Parameters
+    ----------
+    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional
+        The bounding box for spatial subsetting. If None, the entire global dataset is returned.
+    resolution : str, optional
+        The spatial resolution of the data. Options are "1 degree", "0.5 degree", "0.1 degree", or "1 km".
+        Default is "0.1 degree".
 
-    Returns:
-        xarray.DataArray: A DataArray containing the Köppen-Geiger climate classification data, with class information,
-            color map, data citation, and a custom plotting function included as attributes.
+    Returns
+    -------
+    xarray.DataArray
+        A DataArray containing the Köppen-Geiger climate classification data, with class information,
+        color map, data citation, and a custom plotting function included as attributes.
 
-    Examples:
-        >>> koppen_data = get_koppen_geiger_classes(bbox_input=None, resolution="1 degree")
-        >>> koppen_data.attrs['plot_classes'](koppen_data)
-        >>> koppen_geiger_da = get_koppen_geiger_classes(bbox_input=(-121.94224976, 46.72842173, -121.54136001, 46.99728203), resolution="1 km")
-        >>> koppen_data.plot(cmap=koppen_data.attrs["cmap"])
+    Examples
+    --------
+    >>> koppen_data = get_koppen_geiger_classes(bbox_input=None, resolution="1 degree")
+    >>> koppen_data.attrs['plot_classes'](koppen_data)
+    >>> koppen_geiger_da = get_koppen_geiger_classes(bbox_input=(-121.94224976, 46.72842173, -121.54136001, 46.99728203), resolution="1 km")
+    >>> koppen_data.plot(cmap=koppen_data.attrs["cmap"])
 
-    Data Citation:
-        Beck, H.E., McVicar, T.R., Vergopolan, N. et al. High-resolution (1 km) Köppen-Geiger maps 
-        for 1901–2099 based on constrained CMIP6 projections. Sci Data 10, 724 (2023). 
-        https://doi.org/10.1038/s41597-023-02549-6
+    Notes
+    -----
+    Data citation:
+    Beck, H.E., McVicar, T.R., Vergopolan, N. et al. High-resolution (1 km) Köppen-Geiger maps
+    for 1901–2099 based on constrained CMIP6 projections. Sci Data 10, 724 (2023).
+    https://doi.org/10.1038/s41597-023-02549-6
     """
 
     def get_koppen_geiger_class_info():
