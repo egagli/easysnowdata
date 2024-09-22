@@ -17,3 +17,5 @@ contextily
 folium
 mapclassify
 lxml
+pytkdocs[numpy-style]
+
