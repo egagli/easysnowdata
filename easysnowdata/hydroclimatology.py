@@ -108,7 +108,7 @@ def get_era5(bbox_input=(-180, -90, 180, 90)):
     era5 = era5.sortby(era5.longitude)
 
     if clip_flag:
-        era5 = era5.rio.clip(bbox_gdf.geometry, all_touched=True)
+        era5 = era5.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
 
     # ar_full_37_1h = xr.open_zarr( #https://github.com/google-research/arco-era5
     #   'gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3',
@@ -142,7 +142,6 @@ def get_ucla_snow_reanalysis(bbox_input,variable='SWE_Post',stats='mean',start_d
     """
 
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
-    xmin, ymin, xmax, ymax = bbox_gdf.total_bounds
 
     search = earthaccess.search_data(
                 short_name="WUS_UCLA_SR",
@@ -169,7 +168,7 @@ def get_ucla_snow_reanalysis(bbox_input,variable='SWE_Post',stats='mean',start_d
     snow_reanalysis_da = snow_reanalysis_ds[variable].sel(Stats=stats_index)
     snow_reanalysis_da = snow_reanalysis_da.rio.write_crs("EPSG:4326")
     snow_reanalysis_da = snow_reanalysis_da.rio.set_spatial_dims(x_dim="Longitude", y_dim="Latitude")
-    snow_reanalysis_da = snow_reanalysis_da.rio.clip_box(xmin, ymin, xmax, ymax)
+    snow_reanalysis_da = snow_reanalysis_da.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
 
     return snow_reanalysis_da
 
@@ -280,7 +279,7 @@ def get_koppen_geiger_classes(bbox_input=None,resolution="0.1 degree"):
         plt.tight_layout()
 
         return f, ax
-      
+     
     resolution_dict = {"1 degree": "1p0", "0.5 degree": "0p5", "0.1 degree": "0p1", "1 km": "0p00833333"}
     resolution = resolution_dict[resolution]
 
@@ -288,7 +287,8 @@ def get_koppen_geiger_classes(bbox_input=None,resolution="0.1 degree"):
 
     if bbox_input is not None:
         bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
-        koppen_geiger_da = koppen_geiger_da.rio.clip(bbox_gdf.geometry, bbox_gdf.crs)
+        koppen_geiger_da = koppen_geiger_da.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
+        
 
     koppen_geiger_da.attrs["class_info"] = get_koppen_geiger_class_info()
     koppen_geiger_da.attrs["cmap"] = get_koppen_geiger_cmap(koppen_geiger_da.attrs["class_info"])
