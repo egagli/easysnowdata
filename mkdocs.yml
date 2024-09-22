@@ -42,7 +42,7 @@ plugins:
         default_handler: python
         handlers:
             python:
-                selection:
+                options:
                     docstring_style: numpy
     - git-revision-date
     - git-revision-date-localized:
