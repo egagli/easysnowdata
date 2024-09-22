@@ -39,6 +39,15 @@ def convert_bbox_to_geodataframe(bbox_input):
     Returns:
     GeoDataFrame: The converted bounding box.
     """
+    if bbox_input is None:
+        # If no bounding box is provided, use the entire world
+        print("No spatial subsetting because bbox_input was not provided.")
+        bbox_input = gpd.GeoDataFrame(
+            geometry=[shapely.geometry.box(-180, -90, 180, 90)], crs="EPSG:4326"
+        )
+    if isinstance(bbox_input, gpd.GeoDataFrame):
+        # If it's already a GeoDataFrame, return it
+        return bbox_input
     if isinstance(bbox_input, tuple) and len(bbox_input) == 4:
         # If it's a tuple of four elements, treat it as (xmin, ymin, xmax, ymax)
         bbox_input = gpd.GeoDataFrame(

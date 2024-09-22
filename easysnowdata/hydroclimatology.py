@@ -17,7 +17,7 @@ from easysnowdata.utils import convert_bbox_to_geodataframe
 # ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
 
 
-def get_huc_geometries(bbox_input=(-180, -90, 180, 90), huc_level="02"):
+def get_huc_geometries(bbox_input=None, huc_level="02"):
     """
     Retrieves Hydrologic Unit Code (HUC) geometries within a specified bounding box and HUC level.
 
@@ -37,14 +37,6 @@ def get_huc_geometries(bbox_input=(-180, -90, 180, 90), huc_level="02"):
     - GeoDataFrame: A GeoDataFrame containing the retrieved HUC geometries along with associated
       attributes such as name, area in square kilometers, states, TNMID, and geometry.
     """
-
-    # Check if the default bounding box is used
-    if isinstance(bbox_input, tuple) and (bbox_input == (-180, -90, 180, 90)):
-        print(
-            f"No bounding box input provided, retrieving all HUC{huc_level} geometries. This will take a moment..."
-        )
-    else:
-        print(f"Retrieving HUC{huc_level} geometries for the region of interest...")
 
     # Convert bounding box to feature collection to use as region for querying HUC geometries
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
@@ -76,7 +68,7 @@ def get_huc_geometries(bbox_input=(-180, -90, 180, 90), huc_level="02"):
     return huc_gdf
 
 
-def get_era5(bbox_input=(-180, -90, 180, 90)):
+def get_era5(bbox_input=None):
     """
     Retrieves ERA5 data for a given bounding box.
 
@@ -87,14 +79,6 @@ def get_era5(bbox_input=(-180, -90, 180, 90)):
     Returns:
     era5 (xarray dataset): ERA5 dataset for the specified bounding box.
     """
-
-    # Check if the default bounding box is used
-    if isinstance(bbox_input, tuple) and (bbox_input == (-180, -90, 180, 90)):
-        print(f"No bounding box input provided, retrieving global ERA5 data...")
-        clip_flag = False
-    else:
-        print(f"Retrieving ERA5 data for the region of interest...")
-        clip_flag = True
 
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
 
@@ -107,8 +91,7 @@ def get_era5(bbox_input=(-180, -90, 180, 90)):
     era5.coords["longitude"] = (era5.coords["longitude"] + 180) % 360 - 180
     era5 = era5.sortby(era5.longitude)
 
-    if clip_flag:
-        era5 = era5.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
+    era5 = era5.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
 
     # ar_full_37_1h = xr.open_zarr( #https://github.com/google-research/arco-era5
     #   'gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3',
@@ -119,7 +102,7 @@ def get_era5(bbox_input=(-180, -90, 180, 90)):
     return era5
 
 
-def get_ucla_snow_reanalysis(bbox_input,variable='SWE_Post',stats='mean',start_date='1984-10-01',end_date='2021-09-30') -> xr.DataArray:
+def get_ucla_snow_reanalysis(bbox_input=None,variable='SWE_Post',stats='mean',start_date='1984-10-01',end_date='2021-09-30') -> xr.DataArray:
     """
     Fetches the Margulis UCLA snow reanalysis product (https://nsidc.org/data/wus_ucla_sr/versions/1) for a specified bounding box and time range.
 
@@ -182,31 +165,27 @@ def get_koppen_geiger_classes(bbox_input=None,resolution="0.1 degree"):
     multiple resolution options. The returned DataArray includes a custom plotting function as an attribute.
 
     Parameters:
-    bbox_input (geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional): 
+    - `bbox_input` (geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional):
         The bounding box for spatial subsetting. If None, the entire global dataset is returned.
-    resolution (str, optional): 
+    - `resolution` (str, optional):
         The spatial resolution of the data. Options are "1 degree", "0.5 degree", "0.1 degree", or "1 km".
         Default is "0.1 degree".
 
     Returns:
-    xarray.DataArray: 
+    - `xarray.DataArray`:
         A DataArray containing the Köppen-Geiger climate classification data, with class information,
         color map, data citation, and a custom plotting function included as attributes
 
     Examples:
-    >>> koppen_data = get_koppen_geiger_classes(bbox_input=(-180, -90, 180, 90), resolution="1 degree")
+    ```python
+    >>> koppen_data = get_koppen_geiger_classes(bbox_input=None, resolution="1 degree")
     >>> koppen_data.attrs['plot_classes'](koppen_data)
-    and
-    >>> koppen_geiger_da = get_koppen_geiger_classes(bbox_input=None, resolution="1 degree")
+
+    >>> koppen_geiger_da = get_koppen_geiger_classes(bbox_input=(-121.94224976, 46.72842173, -121.54136001, 46.99728203), resolution="1 km")
     >>> koppen_data.plot(cmap=koppen_data.attrs["cmap"])
+    ```
 
-    Data Source:
-    Beck, H.E., McVicar, T.R., Vergopolan, N. et al. High-resolution (1 km) Köppen-Geiger maps 
-    for 1901–2099 based on constrained CMIP6 projections. Sci Data 10, 724 (2023). 
-    https://doi.org/10.1038/s41597-023-02549-6
-
-    Dataset URL:
-    https://figshare.com/articles/dataset/High-resolution_1_km_K_ppen-Geiger_maps_for_1901_2099_based_on_constrained_CMIP6_projections/21789074/1?file=45057352
+    !!! note "Data citation" Beck, H.E., McVicar, T.R., Vergopolan, N. et al. High-resolution (1 km) Köppen-Geiger maps for 1901–2099 based on constrained CMIP6 projections. Sci Data 10, 724 (2023). https://doi.org/10.1038/s41597-023-02549-6
     """
 
     def get_koppen_geiger_class_info():
@@ -279,15 +258,15 @@ def get_koppen_geiger_classes(bbox_input=None,resolution="0.1 degree"):
         plt.tight_layout()
 
         return f, ax
-     
+    
+    bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
+
     resolution_dict = {"1 degree": "1p0", "0.5 degree": "0p5", "0.1 degree": "0p1", "1 km": "0p00833333"}
     resolution = resolution_dict[resolution]
 
     koppen_geiger_da = rxr.open_rasterio(f"zip+https://figshare.com/ndownloader/files/45057352/koppen_geiger_tif.zip/1991_2020/koppen_geiger_{resolution}.tif").squeeze()
 
-    if bbox_input is not None:
-        bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
-        koppen_geiger_da = koppen_geiger_da.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
+    koppen_geiger_da = koppen_geiger_da.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
         
 
     koppen_geiger_da.attrs["class_info"] = get_koppen_geiger_class_info()
