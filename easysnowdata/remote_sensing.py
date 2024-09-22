@@ -274,26 +274,81 @@ class Sentinel2:
     """
     A class to handle Sentinel-2 satellite data.
 
-    Attributes:
-        bbox_input (geopandas.GeoDataFrame or tuple or Shapely Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
-        start_date (str): The start date for the data in the format 'YYYY-MM-DD'. Default is '2014-01-01'.
-        end_date (str): The end date for the data in the format 'YYYY-MM-DD'. Default is today's date.
-        catalog_choice (str): The catalog choice for the data. Can choose between 'planetarycomputer' and 'earthsearch', default is 'planetarycomputer'.
-        bands (list): The bands to be used. Default is all bands. Must include SCL for data masking. Each band should be a string like 'B01', 'B02', etc.
-        resolution (str): The resolution of the data. Defaults to native resolution, 10m.
-        crs (str): The coordinate reference system. This should be a string like 'EPSG:4326'. Default CRS is UTM zone estimated from bounding box.
-        groupby (str): The groupby parameter for the data. Default is "solar_day".
+    This class provides functionality to search, retrieve, and process Sentinel-2 satellite imagery.
+    It supports various data operations including masking, scaling, and calculation of spectral indices.
 
-        band_info (dict): Information about the bands.
-        scl_class_info (dict): Information about the scene classification. This should be a dictionary with keys being the class values and values being another dictionary with keys like 'name', 'description', etc.
+    Parameters
+    ----------
+    bbox_input : geopandas.GeoDataFrame or tuple or Shapely Geometry
+        GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+    start_date : str, optional
+        The start date for the data in the format 'YYYY-MM-DD'. Default is '2014-01-01'.
+    end_date : str, optional
+        The end date for the data in the format 'YYYY-MM-DD'. Default is today's date.
+    catalog_choice : str, optional
+        The catalog choice for the data. Can choose between 'planetarycomputer' and 'earthsearch'. Default is 'planetarycomputer'.
+    bands : list, optional
+        The bands to be used. Default is all bands. Must include SCL for data masking.
+    resolution : str, optional
+        The resolution of the data. Defaults to native resolution, 10m.
+    crs : str, optional
+        The coordinate reference system. This should be a string like 'EPSG:4326'. Default CRS is UTM zone estimated from bounding box.
+    remove_nodata : bool, optional
+        Whether to remove no data values. Default is True.
+    harmonize_to_old : bool, optional
+        Whether to harmonize new data to the old baseline. Default is True.
+    scale_data : bool, optional
+        Whether to scale the data. Default is True.
+    groupby : str, optional
+        The groupby parameter for the data. Default is "solar_day".
 
-        data (xarray.Dataset): The loaded data.
-        rgb (xarray.DataArray): The RGB data.
-        ndvi (xarray.DataArray): The NDVI data.
-        ndsi (xarray.DataArray): The NDSI data.
-        ndwi (xarray.DataArray): The NDWI data.
-        evi (xarray.DataArray): The EVI data.
-        ndbi (xarray.DataArray): The NDBI data.
+    Attributes
+    ----------
+    data : xarray.Dataset
+        The loaded Sentinel-2 data.
+    metadata : geopandas.GeoDataFrame
+        Metadata for the retrieved Sentinel-2 scenes.
+    rgb : xarray.DataArray
+        RGB composite of the Sentinel-2 data.
+    ndvi : xarray.DataArray
+        Normalized Difference Vegetation Index (NDVI) calculated from the data.
+    ndsi : xarray.DataArray
+        Normalized Difference Snow Index (NDSI) calculated from the data.
+    ndwi : xarray.DataArray
+        Normalized Difference Water Index (NDWI) calculated from the data.
+    evi : xarray.DataArray
+        Enhanced Vegetation Index (EVI) calculated from the data.
+    ndbi : xarray.DataArray
+        Normalized Difference Built-up Index (NDBI) calculated from the data.
+
+    Methods
+    -------
+    search_data()
+        Searches for Sentinel-2 data based on the specified parameters.
+    get_data()
+        Retrieves the Sentinel-2 data based on the search results.
+    get_metadata()
+        Retrieves metadata for the Sentinel-2 scenes.
+    remove_nodata_inplace()
+        Removes no data values from the data.
+    mask_data()
+        Masks the data based on the Scene Classification Layer (SCL).
+    harmonize_to_old_inplace()
+        Harmonizes new Sentinel-2 data to the old baseline.
+    scale_data_inplace()
+        Scales the data to reflectance values.
+    get_rgb()
+        Retrieves the RGB composite of the data.
+    get_ndvi()
+        Calculates the Normalized Difference Vegetation Index (NDVI).
+    get_ndsi()
+        Calculates the Normalized Difference Snow Index (NDSI).
+    get_ndwi()
+        Calculates the Normalized Difference Water Index (NDWI).
+    get_evi()
+        Calculates the Enhanced Vegetation Index (EVI).
+    get_ndbi()
+        Calculates the Normalized Difference Built-up Index (NDBI).
     """
 
     def __init__(
@@ -806,16 +861,57 @@ class Sentinel1:
     """
     A class to handle Sentinel-1 RTC satellite data.
 
-    Attributes:
-        bbox_input (geopandas.GeoDataFrame or tuple or Shapely Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
-        start_date (str): The start date for the data in the format 'YYYY-MM-DD'.
-        end_date (str): The end date for the data in the format 'YYYY-MM-DD'.
-        catalog_choice (str): The catalog choice for the data. Can choose between 'planetarycomputer' and 'earthsearch', default is 'planetarycomputer'.
-        bands (list): The bands to be used. Default is all bands. Must include SCL for data masking. Each band should be a string like 'B01', 'B02', etc.
-        resolution (str): The resolution of the data. Defaults to native resolution, 10m.
-        crs (str): The coordinate reference system. This should be a string like 'EPSG:4326'. Default CRS is UTM zone estimated from bounding box.
-        groupby (str): The groupby parameter for the data. Default is "sat:absolute_orbit".
+    This class provides functionality to search, retrieve, and process Sentinel-1 Radiometric Terrain Corrected (RTC) data.
+    It supports various data operations including border noise removal and unit conversion.
 
+    Parameters
+    ----------
+    bbox_input : geopandas.GeoDataFrame or tuple or Shapely Geometry
+        GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+    start_date : str, optional
+        The start date for the data in the format 'YYYY-MM-DD'. Default is '2014-01-01'.
+    end_date : str, optional
+        The end date for the data in the format 'YYYY-MM-DD'. Default is today's date.
+    catalog_choice : str, optional
+        The catalog choice for the data. Default is 'planetarycomputer'.
+    bands : list, optional
+        The bands to be used. Default is all bands.
+    units : str, optional
+        The units of the data. Can be 'dB' or 'linear power'. Default is 'dB'.
+    resolution : str, optional
+        The resolution of the data. Defaults to native resolution.
+    crs : str, optional
+        The coordinate reference system. Default is None.
+    groupby : str, optional
+        The groupby parameter for the data. Default is "sat:absolute_orbit".
+    chunks : dict, optional
+        The chunk size for dask arrays. Default is {}.
+    remove_border_noise : bool, optional
+        Whether to remove border noise from the data. Default is True.
+
+    Attributes
+    ----------
+    data : xarray.Dataset
+        The loaded Sentinel-1 data.
+    metadata : geopandas.GeoDataFrame
+        Metadata for the retrieved Sentinel-1 scenes.
+
+    Methods
+    -------
+    search_data()
+        Searches for Sentinel-1 data based on the specified parameters.
+    get_data()
+        Retrieves the Sentinel-1 data based on the search results.
+    get_metadata()
+        Retrieves metadata for the Sentinel-1 scenes.
+    remove_border_noise()
+        Removes border noise from the data.
+    linear_to_db()
+        Converts linear power units to decibels (dB).
+    db_to_linear()
+        Converts decibels (dB) to linear power units.
+    add_orbit_info()
+        Adds orbit information to the data as coordinates.
     """
 
     def __init__(
@@ -1010,28 +1106,70 @@ class Sentinel1:
 
 class HLS:
     """
-    A class to handle Harmonlized Landsat Sentinel satellite data.
+    A class to handle Harmonized Landsat Sentinel (HLS) satellite data.
 
-    Attributes:
-        bbox_input (geopandas.GeoDataFrame or tuple or Shapely Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
-        start_date (str): The start date for the data in the format 'YYYY-MM-DD'. Default is '2014-01-01'.
-        end_date (str): The end date for the data in the format 'YYYY-MM-DD'. Default is today's date.
-        catalog_choice (str): The catalog choice for the data. Can choose between 'planetarycomputer' and 'earthsearch', default is 'planetarycomputer'.
-        bands (list): The bands to be used. Default is all bands. Must include SCL for data masking. Each band should be a string like 'B01', 'B02', etc.
-        resolution (str): The resolution of the data. Defaults to native resolution, 10m.
-        crs (str): The coordinate reference system. This should be a string like 'EPSG:4326'. Default CRS is UTM zone estimated from bounding box.
-        groupby (str): The groupby parameter for the data. Default is "solar_day".
+    This class provides functionality to search, retrieve, and process HLS data, which combines
+    data from Landsat and Sentinel-2 satellites. It supports various data operations including
+    masking, scaling, and metadata retrieval.
 
-        band_info (dict): Information about the bands.
-        scl_class_info (dict): Information about the scene classification. This should be a dictionary with keys being the class values and values being another dictionary with keys like 'name', 'description', etc.
+    Parameters
+    ----------
+    bbox_input : geopandas.GeoDataFrame or tuple or Shapely Geometry
+        GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+    start_date : str, optional
+        The start date for the data in the format 'YYYY-MM-DD'. Default is '2014-01-01'.
+    end_date : str, optional
+        The end date for the data in the format 'YYYY-MM-DD'. Default is today's date.
+    bands : list, optional
+        The bands to be used. Default is all bands.
+    resolution : str, optional
+        The resolution of the data. Defaults to native resolution.
+    crs : str, optional
+        The coordinate reference system. Default is 'utm'.
+    remove_nodata : bool, optional
+        Whether to remove no data values. Default is True.
+    scale_data : bool, optional
+        Whether to scale the data. Default is True.
+    add_metadata : bool, optional
+        Whether to add metadata to the data. Default is True.
+    add_platform : bool, optional
+        Whether to add platform information to the data. Default is True.
+    groupby : str, optional
+        The groupby parameter for the data. Default is "solar_day".
 
-        data (xarray.Dataset): The loaded data.
-        rgb (xarray.DataArray): The RGB data.
-        ndvi (xarray.DataArray): The NDVI data.
-        ndsi (xarray.DataArray): The NDSI data.
-        ndwi (xarray.DataArray): The NDWI data.
-        evi (xarray.DataArray): The EVI data.
-        ndbi (xarray.DataArray): The NDBI data.
+    Attributes
+    ----------
+    data : xarray.Dataset
+        The loaded HLS data.
+    metadata : geopandas.GeoDataFrame
+        Metadata for the retrieved HLS scenes.
+    rgb : xarray.DataArray
+        RGB composite of the HLS data.
+    ndvi : xarray.DataArray
+        Normalized Difference Vegetation Index (NDVI) calculated from the data.
+
+    Methods
+    -------
+    search_data()
+        Searches for HLS data based on the specified parameters.
+    get_data()
+        Retrieves the HLS data based on the search results.
+    get_metadata()
+        Retrieves metadata for the HLS scenes.
+    get_combined_metadata()
+        Retrieves and combines metadata for both Landsat and Sentinel-2 scenes.
+    remove_nodata_inplace()
+        Removes no data values from the data.
+    mask_data()
+        Masks the data based on the Fmask quality layer.
+    scale_data_inplace()
+        Scales the data to reflectance values.
+    add_platform_inplace()
+        Adds platform information to the data as coordinates.
+    get_rgb()
+        Retrieves the RGB composite of the data.
+    get_ndvi()
+        Calculates the Normalized Difference Vegetation Index (NDVI).
     """
 
     # https://lpdaac.usgs.gov/documents/1698/HLS_User_Guide_V2.pdf
@@ -1652,27 +1790,58 @@ class MODIS_snow:
     """
     A class to handle MODIS snow data.
 
-    Data product options:
-    MOD10A1: "This global Level-3 (L3) data set provides a daily composite of snow cover and albedo derived from the 'MODIS/Terra Snow Cover 5-Min L2 Swath 500m' data set (DOI:10.5067/MODIS/MOD10_L2.061). Each data granule is a 10°x10° tile projected to a 500 m sinusoidal grid." https://planetarycomputer.microsoft.com/dataset/modis-10A1-061#overview
-    MOD10A2: "This global Level-3 (L3) data set provides the maximum snow cover extent observed over an eight-day period within 10degx10deg MODIS sinusoidal grid tiles. Tiles are generated by compositing 500 m observations from the 'MODIS Snow Cover Daily L3 Global 500m Grid' data set. A bit flag index is used to track the eight-day snow/no-snow chronology for each 500 m cell." https://planetarycomputer.microsoft.com/dataset/modis-10A2-061#overview
-    MOD10A1F: "his global Level-3 data set (MOD10A1F) provides daily cloud-free snow cover derived from the MODIS/Terra Snow Cover Daily L3 Global 500m SIN Grid data set (MOD10A1). Grid cells in MOD10A1 which are obscured by cloud cover are filled by retaining clear-sky views of the surface from previous days. A separate parameter is provided which tracks the number of days in each cell since the last clear-sky observation. Each data granule contains a 10° x 10° tile projected to the 500 m sinusoidal grid." https://nsidc.org/data/mod10a1f/versions/61
+    This class provides functionality to search, retrieve, and process MODIS snow cover data.
+    It supports various MODIS snow products and allows for spatial and temporal subsetting.
 
+    Parameters
+    ----------
+    bbox_input : geopandas.GeoDataFrame or tuple or Shapely Geometry, optional
+        GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+    clip_to_bbox : bool, optional
+        Whether to clip the data to the bounding box. Default is True.
+    start_date : str, optional
+        The start date for the data in the format 'YYYY-MM-DD'. Default is '2000-01-01'.
+    end_date : str, optional
+        The end date for the data in the format 'YYYY-MM-DD'. Default is today's date.
+    data_product : str, optional
+        The MODIS data product to retrieve. Can choose between 'MOD10A1F', 'MOD10A1', or 'MOD10A2'. Default is 'MOD10A2'.
+    bands : list, optional
+        The bands to be used. Default is all bands.
+    resolution : str, optional
+        The resolution of the data. Defaults to native resolution.
+    crs : str, optional
+        The coordinate reference system. Default is None.
+    vertical_tile : int, optional
+        The vertical tile number for MODIS data. Default is None.
+    horizontal_tile : int, optional
+        The horizontal tile number for MODIS data. Default is None.
+    mute : bool, optional
+        Whether to mute print outputs. Default is False.
 
-    Attributes:
-        bbox_input (geopandas.GeoDataFrame or tuple or Shapely Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
-        start_date (str): The start date for the data in the format 'YYYY-MM-DD'. Default is '2000-01-01'.
-        end_date (str): The end date for the data in the format 'YYYY-MM-DD'. Default is today's date.
-        data_product (str): The MODIS data product to retrieve. Can choose between 'MOD10A1F', 'MOD10A1', or 'MOD10A2'. Default is 'MOD10A1F'.
-        bands (list): The bands to be used. Default is all bands.
-        resolution (str): The resolution of the data. Defaults to native resolution.
-        crs (str): The coordinate reference system. This should be a string like 'EPSG:4326'. Default is None.
+    Attributes
+    ----------
+    data : xarray.Dataset
+        The loaded MODIS snow data.
+    binary_snow : xarray.DataArray
+        Binary snow cover map derived from the data (only for MOD10A2 product).
 
-    Methods:
-        search_data(): Searches for MODIS snow data based on the specified parameters.
-        get_data(): Retrieves the MODIS snow data based on the search results.
-        get_binary_snow(): Calculates the binary snow map based on the retrieved data.
+    Methods
+    -------
+    search_data()
+        Searches for MODIS snow data based on the specified parameters.
+    get_data()
+        Retrieves the MODIS snow data based on the search results.
+    get_binary_snow()
+        Calculates a binary snow cover map from the data (only for MOD10A2 product).
 
-    Citation:
+    Notes
+    -----
+    Available data products:
+    MOD10A1: Daily snow cover, 500m resolution
+    MOD10A2: 8-day maximum snow cover, 500m resolution
+    MOD10A1F: Daily cloud-free snow cover (gap-filled), 500m resolution
+
+    Data citations:
     MOD10A1F: Hall, D. K. and G. A. Riggs. (2020). MODIS/Terra CGF Snow Cover Daily L3 Global 500m SIN Grid, Version 61 [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/MODIS/MOD10A1F.061. Date Accessed 03-19-2024.
     MOD10A1: Hall, D. K. and G. A. Riggs. (2021). MODIS/Terra Snow Cover Daily L3 Global 500m SIN Grid, Version 61 [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/MODIS/MOD10A1.061. Date Accessed 03-28-2024.
     MOD10A2: Hall, D. K. and G. A. Riggs. (2021). MODIS/Terra Snow Cover 8-Day L3 Global 500m SIN Grid, Version 61 [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/MODIS/MOD10A2.061. Date Accessed 03-28-2024.

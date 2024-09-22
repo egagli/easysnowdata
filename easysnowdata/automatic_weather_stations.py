@@ -46,12 +46,12 @@ class StationCollection:
 
     Examples
     --------
-    Create a StationCollection with both SNOTEL and CCSS stations...
+    Create a StationCollection with both SNOTEL and CCSS stations:
 
     >>> station_collection = StationCollection(snotel_stations=True, ccss_stations=True)
     >>> print(station_collection.all_stations)
 
-    Create a StationCollection with only SNOTEL stations and choose stations within a specific bounding box...
+    Create a StationCollection with only SNOTEL stations and choose stations within a specific bounding box:
 
     >>> snotel_collection = StationCollection(snotel_stations=True, ccss_stations=False)
     >>> snotel_collection.choose_stations_by_bbox((-121.94, 46.72, -121.54, 46.99))
