@@ -61,16 +61,36 @@ def get_forest_cover_fraction(bbox_input) -> xr.DataArray:
     Fetches ~100m forest cover fraction data for a given bounding box.
 
     Description:
-    The data is obtained from the Copernicus Global Land Service: Land Cover 100m: collection 3: epoch 2019: Globe dataset, available at https://zenodo.org/records/3939050. The specific layer used is the Tree-CoverFraction-layer, which provides the fractional cover (%) for the forest class.
+    The data is obtained from the Copernicus Global Land Service: Land Cover 100m: collection 3: epoch 2019: Globe dataset.
+    The specific layer used is the Tree-CoverFraction-layer, which provides the fractional cover (%) for the forest class.
+
+    Parameters
+    ----------
+    bbox_input : geopandas.GeoDataFrame or tuple or shapely.Geometry
+        GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+
+    Returns
+    -------
+    xarray.DataArray
+        Forest cover fraction DataArray.
+
+    Examples
+    --------
+    >>> import geopandas as gpd
+    >>> from easysnowdata import remote_sensing
+    >>> 
+    >>> # Define a bounding box for an area of interest
+    >>> bbox = (-122.5, 47.0, -121.5, 48.0)
+    >>> 
+    >>> # Fetch forest cover fraction data
+    >>> forest_cover = remote_sensing.get_forest_cover_fraction(bbox)
+    >>> 
+    >>> # Plot the data
+    >>> forest_cover.plot(cmap='Greens', vmin=0, vmax=100)
 
     Citation:
-    Marcel Buchhorn, Bruno Smets, Luc Bertels, Bert De Roo, Myroslava Lesiv, Nandin-Erdene Tsendbazar, Martin Herold, & Steffen Fritz. (2020). Copernicus Global Land Service: Land Cover 100m: collection 3: epoch 2019: Globe (V3.0.1) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.3939050
-
-    Parameters:
-    bbox_input (geopandas.GeoDataFrame or tuple or shapely.Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
-
-    Returns:
-    fcf_da (xarray.DataArray): Forest cover fraction DataArray.
+    Marcel Buchhorn, Bruno Smets, Luc Bertels, Bert De Roo, Myroslava Lesiv, Nandin-Erdene Tsendbazar, Martin Herold, & Steffen Fritz. (2020).
+    Copernicus Global Land Service: Land Cover 100m: collection 3: epoch 2019: Globe (V3.0.1) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.3939050
     """
 
     # Convert the input to a GeoDataFrame if it's not already one
@@ -90,19 +110,39 @@ def get_forest_cover_fraction(bbox_input) -> xr.DataArray:
 
 def get_seasonal_snow_classification(bbox_input) -> xr.DataArray:
     """
-    Fetches 10arcsec (~300m) Sturm & Liston 2021 seasonal snow classification data for a given bounding box. Class info in attributes.
+    Fetches 10arcsec (~300m) Sturm & Liston 2021 seasonal snow classification data for a given bounding box.
 
     Description:
-    "This data set consists of global, seasonal snow classifications—e.g., tundra, boreal forest, maritime, ephemeral, prairie, montane forest, and ice—determined from air temperature, precipitation, and wind speed climatologies." This is the 10 arcsec (~300m) product in EPSG:4326. The data is available on NSIDC at http://dx.doi.org/10.5067/99FTCYYYLAQ0, but this function pulls from a file I've hosted on blob storage (due to inability to stream from NSIDC source).
+    This dataset consists of global, seasonal snow classifications determined from air temperature,
+    precipitation, and wind speed climatologies. This is the 10 arcsec (~300m) product in EPSG:4326.
+
+    Parameters
+    ----------
+    bbox_input : geopandas.GeoDataFrame or tuple or Shapely Geometry
+        GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+
+    Returns
+    -------
+    xarray.DataArray
+        Seasonal snow class DataArray with class information in attributes.
+
+    Examples
+    --------
+    >>> import geopandas as gpd
+    >>> from easysnowdata import remote_sensing
+    >>> 
+    >>> # Define a bounding box for an area of interest
+    >>> bbox = (-120.0, 40.0, -118.0, 42.0)
+    >>> 
+    >>> # Fetch seasonal snow classification data
+    >>> snow_class = remote_sensing.get_seasonal_snow_classification(bbox)
+    >>> 
+    >>> # Plot the data using the provided color map
+    >>> snow_class.plot(cmap=snow_class.attrs['class_info'])
 
     Citation:
-    Liston, G. E. and M. Sturm. (2021). Global Seasonal-Snow Classification, Version 1 [Data Set]. Boulder, Colorado USA. National Snow and Ice Data Center. https://doi.org/10.5067/99FTCYYYLAQ0. Date Accessed 03-06-2024.
-
-    Parameters:
-    bbox_input (geopandas.GeoDataFrame or tuple or Shapely Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
-
-    Returns:
-    snow_classification_da (xarray.DataArray): Seasonal snow class DataArray.
+    Liston, G. E. and M. Sturm. (2021). Global Seasonal-Snow Classification, Version 1 [Data Set].
+    Boulder, Colorado USA. National Snow and Ice Data Center. https://doi.org/10.5067/99FTCYYYLAQ0. Date Accessed 03-06-2024.
     """
 
     # Convert the input to a GeoDataFrame if it's not already one
@@ -143,32 +183,38 @@ def get_seasonal_mountain_snow_mask(
     Fetches ~1km static global seasonal (mountain snow / snow) mask for a given bounding box.
 
     Description:
-    "Seasonal Mountain Snow (SMS) mask derived from MODIS MOD10A2 snow cover extent and GTOPO30 digital elevation model produced at 30 arcsecond spatial resolution.
-    Three datasets are provided: the Seasonal Mountain Snow mask (MODIS_mtnsnow_classes), a seasonal snow cover classification (MODIS_snow_classes), and cool-season cloud percentages (MODIS_clouds).
+    Seasonal Mountain Snow (SMS) mask derived from MODIS MOD10A2 snow cover extent and GTOPO30 digital elevation model
+    produced at 30 arcsecond spatial resolution.
 
-    The classification systems are as follows:
+    Parameters
+    ----------
+    bbox_input : geopandas.GeoDataFrame or tuple or shapely.Geometry
+        GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+    data_product : str, optional
+        Data product to fetch. Choose from 'snow' or 'mountain_snow'. Default is 'mountain_snow'.
 
-    MODIS_snow_classes:
-    0: Little-to-no snow
-    1: Indeterminate due to clouds
-    2: Ephemeral snow
-    3: Seasonal snow
+    Returns
+    -------
+    xarray.DataArray
+        Mountain snow DataArray.
 
-    MODIS_mtnsnow_classes:
-    0: Mountains with little-to-no snow
-    1: Indeterminate due to clouds
-    2: Mountains with ephemeral snow
-    3: Mountains with seasonal snow
+    Examples
+    --------
+    >>> import geopandas as gpd
+    >>> from easysnowdata import remote_sensing
+    >>> 
+    >>> # Define a bounding box for a mountainous area
+    >>> bbox = (-106.0, 39.0, -105.0, 40.0)
+    >>> 
+    >>> # Fetch mountain snow mask data
+    >>> mountain_snow = remote_sensing.get_seasonal_mountain_snow_mask(bbox)
+    >>> 
+    >>> # Plot the data
+    >>> mountain_snow.plot(cmap='Blues')
 
     Citation:
-    Wrzesien, M., Pavelsky, T., Durand, M., Lundquist, J., & Dozier, J. (2019). Global Seasonal Mountain Snow Mask from MODIS MOD10A2 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.2626737
-
-    Parameters:
-    bbox_input (geopandas.GeoDataFrame or tuple or shapely.Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
-    data_product (str): Data product to fetch. Choose from 'snow' or 'mountain_snow'. Default is 'mountain_snow'.
-
-    Returns:
-    mountain_snow_da (xarray.DataArray): Mountain snow DataArray.
+    Wrzesien, M., Pavelsky, T., Durand, M., Lundquist, J., & Dozier, J. (2019).
+    Global Seasonal Mountain Snow Mask from MODIS MOD10A2 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.2626737
     """
 
     # Convert the input to a GeoDataFrame if it's not already one
@@ -213,20 +259,42 @@ def get_seasonal_mountain_snow_mask(
 
 def get_esa_worldcover(bbox_input, version: str = "v200") -> xr.DataArray:
     """
-    Fetches 10m ESA WorldCover global land cover data (2020 v100 or 2021 v200) for a given bounding box. Class info in attributes.
+    Fetches 10m ESA WorldCover global land cover data (2020 v100 or 2021 v200) for a given bounding box.
 
     Description:
-    "The discrete classification maps provide 11 classes defined using the Land Cover Classification System (LCCS) developed by the United Nations (UN) Food and Agriculture Organization (FAO)". Available at https://planetarycomputer.microsoft.com/dataset/esa-worldcover.
+    The discrete classification maps provide 11 classes defined using the Land Cover Classification System (LCCS)
+    developed by the United Nations (UN) Food and Agriculture Organization (FAO).
+
+    Parameters
+    ----------
+    bbox_input : geopandas.GeoDataFrame or tuple or Shapely Geometry
+        GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+    version : str, optional
+        Version of the WorldCover data. The two versions are v100 (2020) and v200 (2021). Default is 'v200'.
+
+    Returns
+    -------
+    xarray.DataArray
+        WorldCover DataArray with class information in attributes.
+
+    Examples
+    --------
+    >>> import geopandas as gpd
+    >>> from easysnowdata import remote_sensing
+    >>> 
+    >>> # Define a bounding box for Mount Rainier
+    >>> bbox = (-121.94, 46.72, -121.54, 46.99)
+    >>> 
+    >>> # Fetch WorldCover data for the area
+    >>> worldcover_data = remote_sensing.get_esa_worldcover(bbox)
+    >>> 
+    >>> # Plot the data
+    >>> worldcover_data.plot(cmap=worldcover_data.attrs['class_info'])
 
     Citation:
-    Zanaga, D., Van De Kerchove, R., De Keersmaecker, W., Souverijns, N., Brockmann, C., Quast, R., Wevers, J., Grosu, A., Paccini, A., Vergnaud, S., Cartus, O., Santoro, M., Fritz, S., Georgieva, I., Lesiv, M., Carter, S., Herold, M., Li, Linlin, Tsendbazar, N.E., Ramoino, F., Arino, O. (2021). ESA WorldCover 10 m 2020 v100. doi:10.5281/zenodo.5571936.
-
-    Parameters:
-    bbox_input (geopandas.GeoDataFrame or tuple or Shapely Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
-    version (str): Version of the WorldCover data. The two versions are v100 (2020) and v200 (2021). Default is 'v200'.
-
-    Returns:
-    worldcover_da (xarray.DataArray): WorldCover DataArray.
+    Zanaga, D., Van De Kerchove, R., De Keersmaecker, W., Souverijns, N., Brockmann, C., Quast, R., Wevers, J., Grosu, A.,
+    Paccini, A., Vergnaud, S., Cartus, O., Santoro, M., Fritz, S., Georgieva, I., Lesiv, M., Carter, S., Herold, M., Li, Linlin,
+    Tsendbazar, N.E., Ramoino, F., Arino, O. (2021). ESA WorldCover 10 m 2020 v100. doi:10.5281/zenodo.5571936.
     """
 
     # Convert the input to a GeoDataFrame if it's not already one

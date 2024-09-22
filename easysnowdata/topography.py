@@ -19,19 +19,41 @@ from easysnowdata.utils import convert_bbox_to_geodataframe, get_stac_cfg
 
 
 
-def get_copernicus_dem(bbox_input, resolution: int = 30) -> xr.DataArray:
+def get_copernicus_dem(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
+                       resolution: int = 30
+) -> xr.DataArray:
     """
     Fetches 30m or 90m Copernicus DEM from Microsoft Planetary Computer.
 
-    Description:
-    "The Copernicus DEM is a Digital Surface Model (DSM) which represents the surface of the Earth including buildings, infrastructure and vegetation. This DSM is derived from an edited DSM named WorldDEM, where flattening of water bodies and consistent flow of rivers has been included. In addition, editing of shore- and coastlines, special features such as airports, and implausible terrain structures has also been applied." From https://doi.org/10.5069/G9028PQB
-    Citation:
-    European Space Agency, Sinergise (2021). Copernicus Global Digital Elevation Model. Distributed by OpenTopography. https://doi.org/10.5069/G9028PQB. Accessed: 2024-03-18
-    Parameters:
-    bbox_input (geopandas.GeoDataFrame or tuple or Shapely Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
-    resolution (int): The resolution of the DEM, either 30 or 90. Default is 30.
-    Returns:
-    cop_dem_da (xarray.DataArray): Copernicus DEM DataArray.
+    This function retrieves the Copernicus Digital Elevation Model (DEM) data for a specified
+    bounding box and resolution. The DEM represents the surface of the Earth including buildings,
+    infrastructure, and vegetation.
+
+    Parameters
+    ----------
+    bbox_input : geopandas.GeoDataFrame or tuple or Shapely Geometry
+        GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+    resolution : int, optional
+        The resolution of the DEM, either 30 or 90 meters. Default is 30.
+
+    Returns
+    -------
+    xarray.DataArray
+        A DataArray containing the Copernicus DEM data for the specified area.
+
+    Raises
+    ------
+    ValueError
+        If the resolution is not 30 or 90 meters.
+
+    Notes
+    -----
+    The Copernicus DEM is a Digital Surface Model (DSM) derived from the WorldDEM, with additional
+    editing applied to water bodies, coastlines, and other special features.
+
+    Data citation:
+    European Space Agency, Sinergise (2021). Copernicus Global Digital Elevation Model.
+    Distributed by OpenTopography. https://doi.org/10.5069/G9028PQB. Accessed: 2024-03-18
     """
     if resolution != 30 and resolution != 90:
         raise ValueError("Copernicus DEM resolution is available in 30m and 90m. Please select either 30 or 90.")
@@ -50,19 +72,38 @@ def get_copernicus_dem(bbox_input, resolution: int = 30) -> xr.DataArray:
 #https://github.com/OpenTopography/OT_3DEP_Workflows
 #https://github.com/OpenTopography/OT_BulkAccess_COGs/blob/main/OT_BulkAccessCOGs.ipynb
 
-def get_3dep_dem(bbox_input, dem_type: str = 'DSM') -> xr.DataArray:
+def get_3dep_dem(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
+                 dem_type: str = 'DSM',
+) -> xr.DataArray:
     """
-    XXXXXFetches 30m or 90m Copernicus DEM from Microsoft Planetary Computer.
+    Fetches 3DEP DEM data from Microsoft Planetary Computer.
 
-    Description:
-    XXXXX"The Copernicus DEM is a Digital Surface Model (DSM) which represents the surface of the Earth including buildings, infrastructure and vegetation. This DSM is derived from an edited DSM named WorldDEM, where flattening of water bodies and consistent flow of rivers has been included. In addition, editing of shore- and coastlines, special features such as airports, and implausible terrain structures has also been applied." From https://doi.org/10.5069/G9028PQB
-    Citation:
-    XXXXXEuropean Space Agency, Sinergise (2021). Copernicus Global Digital Elevation Model. Distributed by OpenTopography. https://doi.org/10.5069/G9028PQB. Accessed: 2024-03-18
-    Parameters:
-    bbox_input (geopandas.GeoDataFrame or tuple or Shapely Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
-    dem_type (str): The DEM type, DSM or DTM. Default is DSM.
-    Returns:
-    dep_dem_da (xarray.DataArray): 3DEP DEM DataArray.
+    This function retrieves the 3D Elevation Program (3DEP) Digital Elevation Model (DEM) data
+    for a specified bounding box and DEM type.
+
+    Parameters
+    ----------
+    bbox_input : geopandas.GeoDataFrame or tuple or Shapely Geometry
+        GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+    dem_type : str, optional
+        The DEM type, either 'DSM' (Digital Surface Model) or 'DTM' (Digital Terrain Model). Default is 'DSM'.
+
+    Returns
+    -------
+    pystac_client.ItemCollection
+        A STAC ItemCollection containing the search results for the 3DEP DEM data.
+
+    Raises
+    ------
+    ValueError
+        If the dem_type is not 'DSM' or 'DTM'.
+
+    Notes
+    -----
+    This function currently returns the search results rather than the actual DEM data.
+    Further processing would be needed to load and process the DEM data from the search results.
+
+    The 3DEP program provides high-quality elevation data for the United States.
     """
     if dem_type != 'DSM' and dem_type != 'DTM':
         raise ValueError("3DEP DEM type is available as DSM and DTM. Please select either DSM or DTM.")

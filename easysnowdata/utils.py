@@ -14,18 +14,23 @@ import sys
 import os
 
 
-def hello_world():
-    """Prints "Hello World!" to the console."""
-    print("Hello World!")
-
-
 # Disable
 def blockPrint():
+    """
+    Disables print output to the console.
+
+    This function redirects stdout to a null device, effectively silencing any print statements.
+    """
     sys.stdout = open(os.devnull, "w")
 
 
 # Restore
 def enablePrint():
+    """
+    Restores print output to the console.
+
+    This function restores stdout to its original state, allowing print statements to function normally.
+    """
     sys.stdout = sys.__stdout__
 
 
@@ -33,11 +38,22 @@ def convert_bbox_to_geodataframe(bbox_input):
     """
     Converts the input to a GeoDataFrame.
 
-    Parameters:
-    bbox_input (GeoDataFrame or tuple or Shapely geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+    This function takes various input formats representing a bounding box and converts them
+    to a standardized GeoDataFrame format.
 
-    Returns:
-    GeoDataFrame: The converted bounding box.
+    Parameters
+    ----------
+    bbox_input : GeoDataFrame or tuple or Shapely geometry or None
+        The input bounding box in various formats.
+
+    Returns
+    -------
+    GeoDataFrame
+        The converted bounding box as a GeoDataFrame.
+
+    Notes
+    -----
+    If no bounding box is provided (None), it returns a GeoDataFrame representing the entire world.
     """
     if bbox_input is None:
         # If no bounding box is provided, use the entire world
@@ -100,6 +116,23 @@ def convert_bbox_to_geodataframe(bbox_input):
 
 
 def get_stac_cfg(sensor="sentinel-2-l2a"):
+    """
+    Retrieves the STAC configuration for a given sensor.
+
+    This function returns a YAML configuration for STAC (SpatioTemporal Asset Catalog) metadata
+    for different satellite sensors.
+
+    Parameters
+    ----------
+    sensor : str, optional
+        The sensor type. Options are "sentinel-2-l2a", "HLSL30.v2.0", or "HLSS30.v2.0".
+        Default is "sentinel-2-l2a".
+
+    Returns
+    -------
+    dict
+        A dictionary containing the STAC configuration for the specified sensor.
+    """
     if sensor == "sentinel-2-l2a":
         cfg = """---
         sentinel-2-l2a:
@@ -230,6 +263,21 @@ def get_stac_cfg(sensor="sentinel-2-l2a"):
 
 
 def get_water_year_start(date, hemisphere):
+    """
+    Determines the start date of the water year for a given date and hemisphere.
+
+    Parameters
+    ----------
+    date : datetime-like
+        The date for which to determine the water year start.
+    hemisphere : str
+        The hemisphere ('northern' or 'southern').
+
+    Returns
+    -------
+    pandas.Timestamp
+        The start date of the water year.
+    """
     year = date.year
     month = 10 if hemisphere == "northern" else 4
     if (hemisphere == "northern" and date.month < 10) or (
@@ -243,12 +291,17 @@ def datetime_to_DOWY(date, hemisphere="northern"):
     """
     Convert a datetime-like object to the day of water year (DOWY).
 
-    Parameters:
-    date: datetime-like object (string, datetime, Timestamp, etc.)
-    hemisphere: str, 'northern' or 'southern'
+    Parameters
+    ----------
+    date : datetime-like
+        The date to convert.
+    hemisphere : str, optional
+        The hemisphere ('northern' or 'southern'). Default is 'northern'.
 
-    Returns:
-    int: The day of the water year, or np.nan if the date is not valid.
+    Returns
+    -------
+    int
+        The day of the water year, or np.nan if the date is not valid.
     """
     try:
         date = pd.to_datetime(date)
@@ -262,12 +315,18 @@ def datetime_to_DOWY(date, hemisphere="northern"):
 def datetime_to_WY(date, hemisphere="northern"):
     """
     Convert a datetime-like object to the water year (WY).
-    Parameters:
-    date: datetime-like object (string, datetime, Timestamp, etc.)
-    hemisphere: str, 'northern' or 'southern'
 
-    Returns:
-    int: The water year.
+    Parameters
+    ----------
+    date : datetime-like
+        The date to convert.
+    hemisphere : str, optional
+        The hemisphere ('northern' or 'southern'). Default is 'northern'.
+
+    Returns
+    -------
+    int
+        The water year.
     """
     try:
         date = pd.to_datetime(date)
@@ -279,6 +338,22 @@ def datetime_to_WY(date, hemisphere="northern"):
 
 
 def HLS_xml_url_to_metadata_df(url):
+    """
+    Extracts metadata from an HLS XML file URL and converts it to a pandas DataFrame.
+
+    This function retrieves XML metadata for Harmonized Landsat Sentinel (HLS) data
+    and extracts relevant information into a structured format.
+
+    Parameters
+    ----------
+    url : str
+        The URL of the XML file containing HLS metadata.
+
+    Returns
+    -------
+    pandas.DataFrame
+        A DataFrame containing extracted metadata information.
+    """
     # URL of the XML file
 
     # Send a GET request to the URL
