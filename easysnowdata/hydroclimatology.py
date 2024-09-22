@@ -273,13 +273,10 @@ def get_koppen_geiger_classes(
 
     Examples
     --------
-    Get Köppen-Geiger climate classification data for the entire globe with a 1-degree resolution, use custom plotting function...
-
+    Get Köppen-Geiger climate classification data for the entire globe with a 1-degree resolution, use custom plotting function:
     >>> koppen_data = get_koppen_geiger_classes(bbox_input=None, resolution="1 degree")
     >>> koppen_data.attrs['plot_classes'](koppen_data)
-
-        Get Köppen-Geiger climate classification data for a specific region with a 1 km resolution, plot using xarray's built-in plotting function...
-
+    Get Köppen-Geiger climate classification data for a specific region with a 1 km resolution, plot using xarray's built-in plotting function
     >>> koppen_geiger_da = get_koppen_geiger_classes(bbox_input=(-121.94224976, 46.72842173, -121.54136001, 46.99728203), resolution="1 km")
     >>> koppen_data.plot(cmap=koppen_data.attrs["cmap"])
 
