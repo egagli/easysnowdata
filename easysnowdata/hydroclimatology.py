@@ -90,6 +90,8 @@ def get_huc_geometries(
         ]
     ]
 
+    huc_gdf.attrs = {"Data citation": "Jones, K.A., Niknami, L.S., Buto, S.G., and Decker, D., 2022, Federal standards and procedures for the national Watershed Boundary Dataset (WBD) (5 ed.): U.S. Geological Survey Techniques and Methods 11-A3, 54 p., https://doi.org/10.3133/tm11A3"}
+    
     return huc_gdf
 
 
@@ -153,6 +155,8 @@ def get_era5(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGe
     #   chunks=None,
     #   storage_options=dict(token='anon'),
     # )
+
+    era5.attrs["data_citation"] = "Carver, Robert W, and Merose, Alex. (2023): ARCO-ERA5: An Analysis-Ready Cloud-Optimized Reanalysis Dataset. 22nd Conf. on AI for Env. Science, Denver, CO, Amer. Meteo. Soc, 4A.1, https://ams.confex.com/ams/103ANNUAL/meetingapp.cgi/Paper/415842"
 
     return era5_ds
 
@@ -236,6 +240,8 @@ def get_ucla_snow_reanalysis(bbox_input: gpd.GeoDataFrame | tuple | shapely.geom
     snow_reanalysis_da = snow_reanalysis_da.rio.set_spatial_dims(x_dim="Longitude", y_dim="Latitude")
     snow_reanalysis_da = snow_reanalysis_da.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
 
+    snow_reanalysis_da.attrs["data_citation"] = "Fang, Y., Liu, Y. & Margulis, S. A. (2022). Western United States UCLA Daily Snow Reanalysis. (WUS_UCLA_SR, Version 1). [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/PP7T2GBI52I2"
+    
     return snow_reanalysis_da
 
 
@@ -267,10 +273,10 @@ def get_koppen_geiger_classes(
     Examples
     --------
     Get Köppen-Geiger climate classification data for the entire globe with a 1-degree resolution, use custom plotting function...
-
+```python
     >>> koppen_data = get_koppen_geiger_classes(bbox_input=None, resolution="1 degree")
     >>> koppen_data.attrs['plot_classes'](koppen_data)
-
+```
     Get Köppen-Geiger climate classification data for a specific region with a 1 km resolution, plot using xarray's built-in plotting function...
 
     >>> koppen_geiger_da = get_koppen_geiger_classes(bbox_input=(-121.94224976, 46.72842173, -121.54136001, 46.99728203), resolution="1 km")
