@@ -23,6 +23,46 @@ from easysnowdata.utils import (
 
 
 class StationCollection:
+    """
+    A collection of automatic weather stations, including SNOTEL and CCSS stations.
+
+    This class manages a collection of weather stations, allowing for data retrieval,
+    spatial subsetting, and various data processing operations. It supports both
+    SNOTEL and CCSS station types.
+
+    Parameters
+    ----------
+    snotel_stations : bool, optional
+        Whether to include SNOTEL stations in the collection. Default is True.
+    ccss_stations : bool, optional
+        Whether to include CCSS stations in the collection. Default is False.
+
+    Attributes
+    ----------
+    all_stations : geopandas.GeoDataFrame
+        A GeoDataFrame containing all the stations in the collection.
+    chosen_stations : geopandas.GeoDataFrame
+        A GeoDataFrame containing the subset of stations chosen for analysis.
+
+    Examples
+    --------
+    Create a StationCollection with both SNOTEL and CCSS stations...
+
+    >>> station_collection = StationCollection(snotel_stations=True, ccss_stations=True)
+    >>> print(station_collection.all_stations)
+
+    Create a StationCollection with only SNOTEL stations and choose stations within a specific bounding box...
+
+    >>> snotel_collection = StationCollection(snotel_stations=True, ccss_stations=False)
+    >>> snotel_collection.choose_stations_by_bbox((-121.94, 46.72, -121.54, 46.99))
+    >>> print(snotel_collection.chosen_stations)
+
+    Notes
+    -----
+    Data sources:
+    SNOTEL: https://www.nrcs.usda.gov/wps/portal/wcc/home/quicklinks/imap
+    CCSS: https://cdec.water.ca.gov/snow/current/snow/
+    """
     def __init__(
         self,
         data_available: bool = True,
@@ -56,19 +96,18 @@ class StationCollection:
     def get_all_stations(self):
         """
         Fetches all weather stations from a GeoJSON file hosted on the snotel_ccss_stations GitHub repository.
-        The function allows filtering based on data availability and station network type. Optionally, a geometry
-        can be passed in to calculate the distance of each station to this geometry and sort the stations by this distance.
 
-        Parameters:
-        data_available (bool): If True, only stations with available data are included.
-        snotel_stations (bool): If True, stations from the SNOTEL network are included.
-        ccss_stations (bool): If True, stations from the CCSS network are included.
-        sortby_dist_to_geom (GeoDataFrame, tuple, Polygon): An optional geometry to calculate distances to.
-                                                   Can be a GeoDataFrame, a tuple representing a point (longitude, latitude),
-                                                   or a Shapely Polygon.
+        This method retrieves station data, filters based on data availability, and optionally sorts stations
+        by distance to a specified geometry.
 
-        Returns:
-        GeoDataFrame: A GeoDataFrame containing the details of the stations. Optionally adds a 'dist_km' column, representing distance from each station to the input geometry.
+        Returns
+        -------
+        None
+            Updates the all_stations attribute of the class.
+
+        Notes
+        -----
+        The method prints information about the retrieved stations and available data access methods.
         """
         # Read the GeoJSON file
         all_stations_gdf = gpd.read_file(
@@ -110,14 +149,28 @@ class StationCollection:
 
     def choose_stations(self, stations_gdf):
         """
-        Choose the stations to be used for further analysis.
+        Choose specific stations for further analysis.
 
-        Parameters:
-        - stations_gdf: gpd.GeoDataFrame, str, or list
+        This method allows selection of specific stations from the collection
+        for subsequent data processing and analysis.
+
+        Parameters
+        ----------
+        stations_gdf : gpd.GeoDataFrame, str, or list
             The name(s) or index(es) of the stations to be chosen.
 
-        Returns:
+        Returns
+        -------
         None
+            Updates the stations attribute of the class.
+
+        Examples
+        --------
+        Choose stations by name:
+        >>> station_collection.choose_stations('Paradise')
+
+        Choose multiple stations by index:
+        >>> station_collection.choose_stations([0, 1, 2])
         """
         if type(stations_gdf) is str:
             stations_gdf = self.all_stations.loc[[stations_gdf]]
@@ -128,31 +181,29 @@ class StationCollection:
 
     def get_data(self, stations="679_WA_SNTL", variables=None, start_date='1900-01-01', end_date=today):
         """
-        Retrieves data for the specified stations and variables. Access retrieved data using the .{variable} or .data attribute.
+        Retrieves data for the specified stations and variables.
 
-        Parameters:
-        - stations (geodataframe, str, or list): The stations to retrieve data for. Defaults to '679_WA_SNTL'.
-        - variables (str or list): The variables to retrieve data for. Defaults to None.
-        - start_date (str): The start date for the data. Defaults to '1900-01-01'.
-        - end_date (str): The end date for the data. Defaults to today's date.
-        
-        Returns:
+        This method fetches data for chosen stations and variables within a specified date range.
+
+        Parameters
+        ----------
+        stations : geodataframe, str, or list, optional
+            The stations to retrieve data for. Default is '679_WA_SNTL'.
+        variables : str or list, optional
+            The variables to retrieve data for. Default is None.
+        start_date : str, optional
+            The start date for the data. Default is '1900-01-01'.
+        end_date : str, optional
+            The end date for the data. Default is today's date.
+
+        Returns
+        -------
         None
+            Updates the data attribute of the class.
 
-        If only one station is chosen and variables is None, all variables for that station will be fetched.
-        If only one station is chosen and variables is specified, only the specified variables will be fetched for that station.
-        If multiple stations are chosen and variables is None, WTEQ (Water Equivalent) data will be fetched for all stations.
-        If multiple stations are chosen and variables is specified, only the specified variables will be fetched for all stations.
-
-        Example usage:
-        >>> stations = easysnowdata.automatic_weather_stations.Stations()
-        >>> stations.get_data(stations='679_WA_SNTL', variables=['WTEQ', 'SNWD'])
-        Retrieves SWE and snow depth data for the station '679_WA_SNTL'.
-
-        >>> bbox_gdf = gpd.read_file('https://github.com/egagli/sar_snowmelt_timing/raw/main/input/shapefiles/mt_rainier.geojson')
-        >>> stations = easysnowdata.automatic_weather_stations.Stations(sortby_dist_to_geom=bbox_gdf)
-        >>> stations.get_data(stations=stations.all_stations.iloc[0:4])
-        Retrieves all variables for the 4 stations closest to the input geometry.
+        Notes
+        -----
+        The behavior of this method varies based on the number of stations chosen and the specified variables.
         """
 
         self.choose_stations(stations)
@@ -180,11 +231,25 @@ class StationCollection:
         """
         Retrieves data for a single weather station.
 
-        Args:
-            variables (list, optional): List of variables to include in the data. Defaults to ['WTEQ','SNWD','PRCPSA','TAVG','TMIN','TMAX'].
+        This method fetches data for specified variables from a single station within a given date range.
 
-        Returns:
-            None
+        Parameters
+        ----------
+        variables : list, optional
+            List of variables to include in the data. Default is ['WTEQ','SNWD','PRCPSA','TAVG','TMIN','TMAX'].
+        start_date : str, optional
+            The start date for the data. Default is '1900-01-01'.
+        end_date : str, optional
+            The end date for the data. Default is today's date.
+
+        Returns
+        -------
+        None
+            Updates the data attribute of the class.
+
+        Notes
+        -----
+        The method prints a message indicating that the data has been added to the Station object.
         """
 
         single_station_df = pd.read_csv(
@@ -204,15 +269,27 @@ class StationCollection:
 
     def get_multiple_station_data(self, variables="WTEQ", start_date='1900-01-01', end_date=today):
         """
-        Fetches the data for the specified variable(s) from the snotel_ccss_stations GitHub repository.
+        Fetches data for multiple stations and specified variables.
 
-        Parameters:
-        variables (str or list): The variable(s) to fetch. Default is 'WTEQ' (water equivalent of snow on the ground).
-                                 Can be a single variable as a string or multiple variables as a list.
+        This method retrieves data for multiple stations and specified variables within a given date range.
 
-        Returns:
-        DataFrame: A DataFrame containing the data for the specified variable(s).
+        Parameters
+        ----------
+        variables : str or list, optional
+            The variable(s) to fetch. Default is 'WTEQ' (water equivalent of snow on the ground).
+        start_date : str, optional
+            The start date for the data. Default is '1900-01-01'.
+        end_date : str, optional
+            The end date for the data. Default is today's date.
 
+        Returns
+        -------
+        None
+            Updates the data attribute of the class with an xarray Dataset.
+
+        Notes
+        -----
+        The method prints messages indicating the progress of data retrieval and processing.
         """
 
         dataarrays = []
@@ -273,21 +350,25 @@ class StationCollection:
 
     def get_entire_data_archive(self, refresh: bool = True, temp_dir: str = "/tmp/") -> xr.Dataset:
         """
-        Downloads, decompresses and processes automatic weather station data into an xarray Dataset.
+        Downloads, decompresses and processes the entire automatic weather station data archive.
 
-        This function downloads a compressed file containing weather station data from a specific URL,
-        decompresses the file, and processes the data into an xarray Dataset. The data is organized by station,
-        with each station's data stored in a separate CSV file. The function also adds additional coordinates
-        to the Dataset from a provided GeoDataFrame. Set the refresh parameter to True to redownload cached data.
+        This method retrieves a compressed file containing all station data, processes it, and creates an xarray Dataset.
 
-        Parameters:
-        all_stations_gdf (GeoDataFrame): A GeoDataFrame containing additional data for each station.
-        refresh (bool, optional): If True, the compressed data file will be redownloaded. Defaults to True.
-        temp_dir (str, optional): The directory where the compressed data file will be downloaded and decompressed.
-                                Defaults to '/tmp/'.
+        Parameters
+        ----------
+        refresh : bool, optional
+            If True, the compressed data file will be redownloaded. Default is True.
+        temp_dir : str, optional
+            The directory where the compressed data file will be downloaded and decompressed. Default is '/tmp/'.
 
-        Returns:
-        xarray.Dataset: An xarray Dataset containing the processed weather station data.
+        Returns
+        -------
+        xarray.Dataset
+            An xarray Dataset containing the processed weather station data for all stations.
+
+        Notes
+        -----
+        The method prints messages indicating the progress of data retrieval, decompression, and processing.
         """
 
         github_tar_file_path = "https://github.com/egagli/snotel_ccss_stations/raw/main/data/all_station_data.tar.lzma"
