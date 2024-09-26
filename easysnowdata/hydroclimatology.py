@@ -275,7 +275,7 @@ def get_koppen_geiger_classes(
     --------
     Get Köppen-Geiger climate classification data for the entire globe with a 1-degree resolution, use custom plotting function:
     >>> koppen_data = get_koppen_geiger_classes(bbox_input=None, resolution="1 degree")
-    >>> koppen_data.attrs['plot_classes'](koppen_data)
+    >>> koppen_data.attrs['example_plot'](koppen_data)
     Get Köppen-Geiger climate classification data for a specific region with a 1 km resolution, plot using xarray's built-in plotting function
     >>> koppen_geiger_da = get_koppen_geiger_classes(bbox_input=(-121.94224976, 46.72842173, -121.54136001, 46.99728203), resolution="1 km")
     >>> koppen_data.plot(cmap=koppen_data.attrs["cmap"])
@@ -289,8 +289,8 @@ def get_koppen_geiger_classes(
     https://doi.org/10.1038/s41597-023-02549-6
     """
 
-    def get_koppen_geiger_class_info():
-        koppen_geiger_classes = {
+    def get_class_info():
+        classes = {
             1: {"name": "Af", "description": "Tropical, rainforest", "color": [0, 0, 255]},
             2: {"name": "Am", "description": "Tropical, monsoon", "color": [0, 120, 255]},
             3: {"name": "Aw", "description": "Tropical, savannah", "color": [70, 170, 250]},
@@ -322,16 +322,15 @@ def get_koppen_geiger_classes(
             29: {"name": "ET", "description": "Polar, tundra", "color": [178, 178, 178]},
             30: {"name": "EF", "description": "Polar, frost", "color": [102, 102, 102]}
         }
-        return koppen_geiger_classes
+        return classes
 
 
-    def get_koppen_geiger_cmap(koppen_geiger_classes):
-        colors = {k: [c/255 for c in v["color"]] for k, v in koppen_geiger_classes.items()}
+    def get_class_cmap(classes):
+        colors = {k: [c/255 for c in v["color"]] for k, v in classes.items()}
         return matplotlib.colors.ListedColormap([colors[i] for i in range(1, 31)])
     
 
-
-    def plot_classes(self, ax=None, figsize=(10, 10), cbar_orientation='horizontal'):
+    def plot_classes(self, ax=None, figsize=(8, 10), cbar_orientation='horizontal'):
         if ax is None:
             f, ax = plt.subplots(figsize=figsize)
         else:
@@ -356,8 +355,8 @@ def get_koppen_geiger_classes(
 
         ax.set_xlabel("Longitude")
         ax.set_ylabel("Latitude")
-        ax.set_title("Köppen-Geiger Climate Classification")
-        f.tight_layout()
+        ax.set_title("Köppen-Geiger climate classification")
+        f.tight_layout(pad=1.5, w_pad=1.5, h_pad=1.5)
 
         return f, ax
     
@@ -371,11 +370,11 @@ def get_koppen_geiger_classes(
     koppen_geiger_da = koppen_geiger_da.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
         
 
-    koppen_geiger_da.attrs["class_info"] = get_koppen_geiger_class_info()
-    koppen_geiger_da.attrs["cmap"] = get_koppen_geiger_cmap(koppen_geiger_da.attrs["class_info"])
+    koppen_geiger_da.attrs["class_info"] = get_class_info()
+    koppen_geiger_da.attrs["cmap"] = get_class_cmap(koppen_geiger_da.attrs["class_info"])
     koppen_geiger_da.attrs["data_citation"] = "Beck, H.E., McVicar, T.R., Vergopolan, N. et al. High-resolution (1 km) Köppen-Geiger maps for 1901–2099 based on constrained CMIP6 projections. Sci Data 10, 724 (2023). https://doi.org/10.1038/s41597-023-02549-6"
 
-    koppen_geiger_da.attrs['plot_classes'] = plot_classes
+    koppen_geiger_da.attrs['example_plot'] = plot_classes
 
     return koppen_geiger_da
 
