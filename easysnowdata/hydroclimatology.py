@@ -221,7 +221,7 @@ def get_ucla_snow_reanalysis(bbox_input: gpd.GeoDataFrame | tuple | shapely.geom
             )
     
     files = earthaccess.open(search) # cant disable progress bar yet https://github.com/nsidc/earthaccess/issues/612
-    snow_reanalysis_ds = xr.open_mfdataset(files)
+    snow_reanalysis_ds = xr.open_mfdataset(files).transpose()
 
     url = files[0].path
     date_pattern = r'\d{4}\.\d{2}\.\d{2}'
@@ -236,9 +236,9 @@ def get_ucla_snow_reanalysis(bbox_input: gpd.GeoDataFrame | tuple | shapely.geom
     stats_index = stats_dictionary[stats]
 
     snow_reanalysis_da = snow_reanalysis_ds[variable].sel(Stats=stats_index)
+    snow_reanalysis_da = snow_reanalysis_da.rio.set_spatial_dims(x_dim="Longitude", y_dim="Latitude")
     snow_reanalysis_da = snow_reanalysis_da.rio.write_crs(bbox_gdf.crs)
     snow_reanalysis_da = snow_reanalysis_da.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
-    snow_reanalysis_da = snow_reanalysis_da.rio.set_spatial_dims(x_dim="Longitude", y_dim="Latitude")
 
 
     snow_reanalysis_da.attrs["data_citation"] = "Fang, Y., Liu, Y. & Margulis, S. A. (2022). Western United States UCLA Daily Snow Reanalysis. (WUS_UCLA_SR, Version 1). [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/PP7T2GBI52I2"
