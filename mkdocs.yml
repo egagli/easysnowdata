@@ -43,7 +43,7 @@ plugins:
             python:
                 options:
                     docstring_style: numpy
-                    show_docstring_examples: true
+                    show_docstring_examples: True
     - git-revision-date
     - git-revision-date-localized:
           enable_creation_date: true
