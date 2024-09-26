@@ -10,6 +10,8 @@ import planetary_computer
 import os
 import earthaccess
 import ee
+import matplotlib
+import matplotlib.pyplot as plt
 
 import rasterio as rio
 
@@ -56,7 +58,8 @@ def authenticate_all():
     ee.Authenticate()
 
 
-def get_forest_cover_fraction(bbox_input) -> xr.DataArray:
+def get_forest_cover_fraction(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
+) -> xr.DataArray:
     """
     Fetches ~100m forest cover fraction data for a given bounding box.
 
@@ -88,7 +91,9 @@ def get_forest_cover_fraction(bbox_input) -> xr.DataArray:
     >>> # Plot the data
     >>> forest_cover.plot(cmap='Greens', vmin=0, vmax=100)
 
-    Citation:
+    Notes
+    -----
+    Data citation:
     Marcel Buchhorn, Bruno Smets, Luc Bertels, Bert De Roo, Myroslava Lesiv, Nandin-Erdene Tsendbazar, Martin Herold, & Steffen Fritz. (2020).
     Copernicus Global Land Service: Land Cover 100m: collection 3: epoch 2019: Globe (V3.0.1) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.3939050
     """
@@ -96,19 +101,18 @@ def get_forest_cover_fraction(bbox_input) -> xr.DataArray:
     # Convert the input to a GeoDataFrame if it's not already one
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
 
-    xmin, ymin, xmax, ymax = bbox_gdf.total_bounds
-
     fcf_da = rxr.open_rasterio(
         "https://zenodo.org/record/3939050/files/PROBAV_LC100_global_v3.0.1_2019-nrt_Tree-CoverFraction-layer_EPSG-4326.tif",
         chunks=True,
         mask_and_scale=True,
     )
-    fcf_da = fcf_da.rio.clip_box(xmin, ymin, xmax, ymax).squeeze()
+    fcf_da = fcf_da.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs).squeeze()
 
     return fcf_da
 
 
-def get_seasonal_snow_classification(bbox_input) -> xr.DataArray:
+def get_seasonal_snow_classification(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
+) -> xr.DataArray:
     """
     Fetches 10arcsec (~300m) Sturm & Liston 2021 seasonal snow classification data for a given bounding box.
 
@@ -129,26 +133,91 @@ def get_seasonal_snow_classification(bbox_input) -> xr.DataArray:
     Examples
     --------
     >>> import geopandas as gpd
-    >>> from easysnowdata import remote_sensing
+    >>> import easysnowdata
     >>> 
     >>> # Define a bounding box for an area of interest
     >>> bbox = (-120.0, 40.0, -118.0, 42.0)
     >>> 
     >>> # Fetch seasonal snow classification data
-    >>> snow_class = remote_sensing.get_seasonal_snow_classification(bbox)
+    >>> snow_classification_da = easysnowdata.remote_sensing.get_seasonal_snow_classification(bbox)
     >>> 
-    >>> # Plot the data using the provided color map
-    >>> snow_class.plot(cmap=snow_class.attrs['class_info'])
+    >>> # Plot the data using the example plot function
+    >>> f,ax = snow_classification_da.attrs['example_plot'](snow_classification_da)
 
-    Citation:
+    Notes
+    -----
+    Data citation:
     Liston, G. E. and M. Sturm. (2021). Global Seasonal-Snow Classification, Version 1 [Data Set].
     Boulder, Colorado USA. National Snow and Ice Data Center. https://doi.org/10.5067/99FTCYYYLAQ0. Date Accessed 03-06-2024.
     """
 
+    def get_class_info():
+        classes = {
+            1: {"name": "Tundra", "color": "#a100c8"},
+            2: {"name": "Boreal Forest", "color": "#00a0fe"},
+            3: {"name": "Maritime", "color": "#fe0000"},
+            4: {"name": "Ephemeral (includes no snow)", "color": "#e7dc32"},
+            5: {"name": "Prairie", "color": "#f08328"},
+            6: {"name": "Montane Forest", "color": "#00dc00"},
+            7: {"name": "Ice (glaciers and ice sheets)", "color": "#aaaaaa"},
+            8: {"name": "Ocean", "color": "#0000ff"},
+            9: {"name": "Fill", "color": "#ffffff"},
+        }
+        return classes
+
+    def get_class_cmap(classes):
+        cmap = plt.cm.colors.ListedColormap(
+            [classes[key]["color"] for key in classes.keys()]
+        )
+        return cmap
+    
+    def plot_classes(self, ax=None, figsize=(8, 10), legend_kwargs=None):
+        if ax is None:
+            f, ax = plt.subplots(figsize=figsize)
+        else:
+            f = ax.get_figure()
+
+        class_values = sorted(list(self.attrs["class_info"].keys()))
+        bounds = [
+            (class_values[i] + class_values[i + 1]) / 2 for i in range(len(class_values) - 1)
+        ]
+        bounds = [class_values[0] - 0.5] + bounds + [class_values[-1] + 0.5]
+        norm = matplotlib.colors.BoundaryNorm(bounds, self.attrs["cmap"].N)
+
+        im = self.plot.imshow(ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False)
+        ax.set_aspect("equal")
+
+
+        legend_handles = []
+        class_names = []
+        for class_value, class_info in self.attrs["class_info"].items():
+            legend_handles.append(
+                plt.Rectangle((0, 0), 1, 1, facecolor=class_info["color"], edgecolor="black")
+            )
+            class_names.append(class_info["name"])
+
+        legend_kwargs = legend_kwargs or {}
+        default_legend_kwargs = {
+            "bbox_to_anchor": (0.5, -0.1),
+            "loc": "upper center",
+            "ncol": len(class_names) // 3,
+            "frameon": False,
+            "handlelength": 3.5,
+            "handleheight": 5,
+        }
+        legend_kwargs = {**default_legend_kwargs, **legend_kwargs}
+
+        ax.legend(legend_handles, class_names, **legend_kwargs)
+
+        ax.set_xlabel("Longitude")
+        ax.set_ylabel("Latitude")
+        ax.set_title("Seasonal snow classification\nfrom Sturm & Liston 2021")
+        f.tight_layout(pad=1.5, w_pad=2.5, h_pad=1.5)
+
+        return f, ax
+    
     # Convert the input to a GeoDataFrame if it's not already one
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
-
-    xmin, ymin, xmax, ymax = bbox_gdf.total_bounds
 
     snow_classification_da = rxr.open_rasterio(
         "https://snowmelt.blob.core.windows.net/snowmelt/eric/snow_classification/SnowClass_GL_300m_10.0arcsec_2021_v01.0.tif",
@@ -156,28 +225,23 @@ def get_seasonal_snow_classification(bbox_input) -> xr.DataArray:
         mask_and_scale=True,
     )
     snow_classification_da = (
-        snow_classification_da.rio.clip_box(xmin, ymin, xmax, ymax)
+        snow_classification_da.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
         .squeeze()
         .rio.write_nodata(9, encoded=True)
     )
 
-    snow_classification_da.attrs["class_info"] = {
-        1: {"name": "Tundra", "color": "#a100c8"},
-        2: {"name": "Boreal Forest", "color": "#00a0fe"},
-        3: {"name": "Maritime", "color": "#fe0000"},
-        4: {"name": "Ephemeral (includes no snow)", "color": "#e7dc32"},
-        5: {"name": "Prairie", "color": "#f08328"},
-        6: {"name": "Montane Forest", "color": "#00dc00"},
-        7: {"name": "Ice (glaciers and ice sheets)", "color": "#aaaaaa"},
-        8: {"name": "Ocean", "color": "#0000ff"},
-        9: {"name": "Fill", "color": "#ffffff"},
-    }
+    snow_classification_da.attrs["class_info"] = get_class_info()
+    snow_classification_da.attrs["cmap"] = get_class_cmap(snow_classification_da.attrs["class_info"])
+    snow_classification_da.attrs['data_citation'] = "Liston, G. E. and M. Sturm. (2021). Global Seasonal-Snow Classification, Version 1 [Data Set]. Boulder, Colorado USA. National Snow and Ice Data Center. https://doi.org/10.5067/99FTCYYYLAQ0. Date Accessed 03-06-2024."
+    
+    snow_classification_da.attrs['example_plot'] = plot_classes
 
     return snow_classification_da
 
 
 def get_seasonal_mountain_snow_mask(
-    bbox_input, data_product="mountain_snow"
+    bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
+    data_product: str = "mountain_snow"
 ) -> xr.DataArray:
     """
     Fetches ~1km static global seasonal (mountain snow / snow) mask for a given bounding box.
@@ -196,50 +260,102 @@ def get_seasonal_mountain_snow_mask(
     Returns
     -------
     xarray.DataArray
-        Mountain snow DataArray.
+        Mountain snow DataArray with class information in attributes.
 
     Examples
     --------
     >>> import geopandas as gpd
-    >>> from easysnowdata import remote_sensing
+    >>> import easysnowdata
     >>> 
     >>> # Define a bounding box for a mountainous area
     >>> bbox = (-106.0, 39.0, -105.0, 40.0)
     >>> 
     >>> # Fetch mountain snow mask data
-    >>> mountain_snow = remote_sensing.get_seasonal_mountain_snow_mask(bbox)
+    >>> mountain_snow_da = easysnowdata.remote_sensing.get_seasonal_mountain_snow_mask(bbox)
     >>> 
-    >>> # Plot the data
-    >>> mountain_snow.plot(cmap='Blues')
+    >>> # Plot the data using the example plot function
+    >>> f, ax = mountain_snow_da.attrs['example_plot'](mountain_snow_da)
 
-    Citation:
+    Notes
+    -----
+    Data citation:
     Wrzesien, M., Pavelsky, T., Durand, M., Lundquist, J., & Dozier, J. (2019).
     Global Seasonal Mountain Snow Mask from MODIS MOD10A2 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.2626737
     """
 
+    def get_class_info(data_product):
+        if data_product == "snow":
+            classes = {
+                0: {"name": "Little-to-no snow", "color": "#FFFFFF"},
+                1: {"name": "Indeterminate due to clouds", "color": "#FF0000"},
+                2: {"name": "Ephemeral snow", "color": "#00FF00"},
+                3: {"name": "Seasonal snow", "color": "#0000FF"},
+            }
+        elif data_product == "mountain_snow":
+            classes = {
+                0: {"name": "Mountains with little-to-no snow", "color": "#FFFFFF"},
+                1: {"name": "Indeterminate due to clouds", "color": "#FF0000"},
+                2: {"name": "Mountains with ephemeral snow", "color": "#00FF00"},
+                3: {"name": "Mountains with seasonal snow", "color": "#0000FF"},
+            }
+        else:
+            raise ValueError('Invalid data_product. Choose from "snow" or "mountain_snow".')
+        return classes
+
+    def get_class_cmap(classes):
+        cmap = plt.cm.colors.ListedColormap(
+            [classes[key]["color"] for key in classes.keys()]
+        )
+        return cmap
+    
+    def plot_classes(self, ax=None, figsize=(8, 10), legend_kwargs=None):
+        if ax is None:
+            f, ax = plt.subplots(figsize=figsize)
+        else:
+            f = ax.get_figure()
+
+        class_values = sorted(list(self.attrs["class_info"].keys()))
+        bounds = [
+            (class_values[i] + class_values[i + 1]) / 2 for i in range(len(class_values) - 1)
+        ]
+        bounds = [class_values[0] - 0.5] + bounds + [class_values[-1] + 0.5]
+        norm = matplotlib.colors.BoundaryNorm(bounds, self.attrs["cmap"].N)
+
+        im = self.plot.imshow(ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False)
+        ax.set_aspect("equal")
+
+        legend_handles = []
+        class_names = []
+        for class_value, class_info in self.attrs["class_info"].items():
+            legend_handles.append(
+                plt.Rectangle((0, 0), 1, 1, facecolor=class_info["color"], edgecolor="black")
+            )
+            class_names.append(class_info["name"])
+
+        legend_kwargs = legend_kwargs or {}
+        default_legend_kwargs = {
+            "bbox_to_anchor": (0.5, -0.1),
+            "loc": "upper center",
+            "ncol": len(class_names) // 2,
+            "frameon": False,
+            "handlelength": 3.5,
+            "handleheight": 5,
+        }
+        legend_kwargs = {**default_legend_kwargs, **legend_kwargs}
+
+        ax.legend(legend_handles, class_names, **legend_kwargs)
+
+        ax.set_xlabel("Longitude")
+        ax.set_ylabel("Latitude")
+        ax.set_title(f"Global seasonal {'mountain ' if data_product == 'mountain_snow' else ''}snow mask\nfrom Wrzesien et al 2019")
+        f.tight_layout(pad=5.5, w_pad=5.5, h_pad=1.5)
+
+        return f, ax
+
     # Convert the input to a GeoDataFrame if it's not already one
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
 
-    xmin, ymin, xmax, ymax = bbox_gdf.total_bounds
-
-    if data_product == "snow":
-        url = "zip+https://zenodo.org/records/2626737/files/MODIS_snow_classes.zip!/MODIS_snow_classes.tif"
-        class_dict = {
-            0: {"name": "Little-to-no snow", "color": "#FFFFFF"},
-            1: {"name": "Indeterminate due to clouds", "color": "#FF0000"},
-            2: {"name": "Ephemeral snow", "color": "#00FF00"},
-            3: {"name": "Seasonal snow", "color": "#0000FF"},
-        }
-    elif data_product == "mountain_snow":
-        url = "zip+https://zenodo.org/records/2626737/files/MODIS_mtnsnow_classes.zip!/MODIS_mtnsnow_classes.tif"
-        class_dict = {
-            0: {"name": "Mountains with little-to-no snow", "color": "#FFFFFF"},
-            1: {"name": "Indeterminate due to clouds", "color": "#FF0000"},
-            2: {"name": "Mountains with ephemeral snow", "color": "#00FF00"},
-            3: {"name": "Mountains with seasonal snow", "color": "#0000FF"},
-        }
-    else:
-        raise ValueError('Invalid data_product. Choose from "snow" or "mountain_snow".')
+    url = f"zip+https://zenodo.org/records/2626737/files/MODIS_{'mtnsnow' if data_product == 'mountain_snow' else 'snow'}_classes.zip!/MODIS_{'mtnsnow' if data_product == 'mountain_snow' else 'snow'}_classes.tif"
 
     mountain_snow_da = rxr.open_rasterio(
         url,
@@ -247,17 +363,24 @@ def get_seasonal_mountain_snow_mask(
         mask_and_scale=True,
     )
     mountain_snow_da = (
-        mountain_snow_da.rio.clip_box(xmin, ymin, xmax, ymax, crs="EPSG:4326")
+        mountain_snow_da.rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs)
         .squeeze()
         .astype("float32")
     )
 
-    mountain_snow_da.attrs["class_info"] = class_dict
+    mountain_snow_da.attrs["class_info"] = get_class_info(data_product)
+    mountain_snow_da.attrs["cmap"] = get_class_cmap(mountain_snow_da.attrs["class_info"])
+    mountain_snow_da.attrs['data_citation'] = "Wrzesien, M., Pavelsky, T., Durand, M., Lundquist, J., & Dozier, J. (2019). Global Seasonal Mountain Snow Mask from MODIS MOD10A2 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.2626737"
+    
+    mountain_snow_da.attrs['example_plot'] = plot_classes
 
     return mountain_snow_da
 
 
-def get_esa_worldcover(bbox_input, version: str = "v200") -> xr.DataArray:
+def get_esa_worldcover(
+    bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
+    version: str = "v200"
+) -> xr.DataArray:
     """
     Fetches 10m ESA WorldCover global land cover data (2020 v100 or 2021 v200) for a given bounding box.
 
@@ -280,22 +403,90 @@ def get_esa_worldcover(bbox_input, version: str = "v200") -> xr.DataArray:
     Examples
     --------
     >>> import geopandas as gpd
-    >>> from easysnowdata import remote_sensing
+    >>> import easysnowdata
     >>> 
     >>> # Define a bounding box for Mount Rainier
     >>> bbox = (-121.94, 46.72, -121.54, 46.99)
     >>> 
     >>> # Fetch WorldCover data for the area
-    >>> worldcover_data = remote_sensing.get_esa_worldcover(bbox)
+    >>> worldcover_da = easysnowdata.remote_sensing.get_esa_worldcover(bbox)
     >>> 
-    >>> # Plot the data
-    >>> worldcover_data.plot(cmap=worldcover_data.attrs['class_info'])
+    >>> # Plot the data using the example plot function
+    >>> f, ax = worldcover_da.attrs['example_plot'](worldcover_da)
 
-    Citation:
+    Notes
+    -----
+    Data citation:
     Zanaga, D., Van De Kerchove, R., De Keersmaecker, W., Souverijns, N., Brockmann, C., Quast, R., Wevers, J., Grosu, A.,
     Paccini, A., Vergnaud, S., Cartus, O., Santoro, M., Fritz, S., Georgieva, I., Lesiv, M., Carter, S., Herold, M., Li, Linlin,
     Tsendbazar, N.E., Ramoino, F., Arino, O. (2021). ESA WorldCover 10 m 2020 v100. doi:10.5281/zenodo.5571936.
     """
+
+    def get_class_info():
+        classes = {
+            10: {"name": "Tree cover", "color": "#006400"},
+            20: {"name": "Shrubland", "color": "#FFBB22"},
+            30: {"name": "Grassland", "color": "#FFFF4C"},
+            40: {"name": "Cropland", "color": "#F096FF"},
+            50: {"name": "Built-up", "color": "#FA0000"},
+            60: {"name": "Bare / sparse vegetation", "color": "#B4B4B4"},
+            70: {"name": "Snow and ice", "color": "#F0F0F0"},
+            80: {"name": "Permanent water bodies", "color": "#0064C8"},
+            90: {"name": "Herbaceous wetland", "color": "#0096A0"},
+            95: {"name": "Mangroves", "color": "#00CF75"},
+            100: {"name": "Moss and lichen", "color": "#FAE6A0"},
+        }
+        return classes
+
+    def get_class_cmap(classes):
+        cmap = plt.cm.colors.ListedColormap(
+            [classes[key]["color"] for key in classes.keys()]
+        )
+        return cmap
+    
+    def plot_classes(self, ax=None, figsize=(8, 10), legend_kwargs=None):
+        if ax is None:
+            f, ax = plt.subplots(figsize=figsize)
+        else:
+            f = ax.get_figure()
+
+        class_values = sorted(list(self.attrs["class_info"].keys()))
+        bounds = [
+            (class_values[i] + class_values[i + 1]) / 2 for i in range(len(class_values) - 1)
+        ]
+        bounds = [class_values[0] - 0.5] + bounds + [class_values[-1] + 0.5]
+        norm = matplotlib.colors.BoundaryNorm(bounds, self.attrs["cmap"].N)
+
+        im = self.plot.imshow(ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False)
+        ax.set_aspect("equal")
+
+        legend_handles = []
+        class_names = []
+        for class_value, class_info in self.attrs["class_info"].items():
+            legend_handles.append(
+                plt.Rectangle((0, 0), 1, 1, facecolor=class_info["color"], edgecolor="black")
+            )
+            class_names.append(class_info["name"])
+
+        legend_kwargs = legend_kwargs or {}
+        default_legend_kwargs = {
+            "bbox_to_anchor": (0.5, -0.1),
+            "loc": "upper center",
+            "ncol": len(class_names) // 3,
+            "frameon": False,
+            "handlelength": 3.5,
+            "handleheight": 5,
+        }
+        legend_kwargs = {**default_legend_kwargs, **legend_kwargs}
+
+        ax.legend(legend_handles, class_names, **legend_kwargs)
+
+        ax.set_xlabel("Longitude")
+        ax.set_ylabel("Latitude")
+        ax.set_title(f"ESA WorldCover\n{version} ({version_year})")
+        f.tight_layout(pad=5.5, w_pad=5.5, h_pad=1.5)
+
+        return f, ax
 
     # Convert the input to a GeoDataFrame if it's not already one
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
@@ -319,21 +510,13 @@ def get_esa_worldcover(bbox_input, version: str = "v200") -> xr.DataArray:
         .sel(time=version_year)
         .squeeze()
     )
-    worldcover_da = worldcover_da.rio.write_nodata(0, encoded=True)
+    worldcover_da = worldcover_da.rio.write_nodata(0, encoded=False)
 
-    worldcover_da.attrs["class_info"] = {
-        10: {"name": "Tree cover", "color": "#006400"},
-        20: {"name": "Shrubland", "color": "#FFBB22"},
-        30: {"name": "Grassland", "color": "#FFFF4C"},
-        40: {"name": "Cropland", "color": "#F096FF"},
-        50: {"name": "Built-up", "color": "#FA0000"},
-        60: {"name": "Bare / sparse vegetation", "color": "#B4B4B4"},
-        70: {"name": "Snow and ice", "color": "#F0F0F0"},
-        80: {"name": "Permanent water bodies", "color": "#0064C8"},
-        90: {"name": "Herbaceous wetland", "color": "#0096A0"},
-        95: {"name": "Mangroves", "color": "#00CF75"},
-        100: {"name": "Moss and lichen", "color": "#FAE6A0"},
-    }
+    worldcover_da.attrs["class_info"] = get_class_info()
+    worldcover_da.attrs["cmap"] = get_class_cmap(worldcover_da.attrs["class_info"])
+    worldcover_da.attrs['data_citation'] = "Zanaga, D., Van De Kerchove, R., De Keersmaecker, W., Souverijns, N., Brockmann, C., Quast, R., Wevers, J., Grosu, A., Paccini, A., Vergnaud, S., Cartus, O., Santoro, M., Fritz, S., Georgieva, I., Lesiv, M., Carter, S., Herold, M., Li, Linlin, Tsendbazar, N.E., Ramoino, F., Arino, O. (2021). ESA WorldCover 10 m 2020 v100. doi:10.5281/zenodo.5571936."
+    
+    worldcover_da.attrs['example_plot'] = plot_classes
 
     return worldcover_da
 
@@ -2027,7 +2210,6 @@ class MODIS_snow:
                 self.search, temp_download_fp
             )  # can i suppress the print output? https://earthaccess.readthedocs.io/en/latest/user-reference/api/api/
 
-            xmin, ymin, xmax, ymax = self.bbox_gdf.total_bounds
 
             if self.clip_to_bbox:
                 modis_snow = xr.concat(
@@ -2036,7 +2218,7 @@ class MODIS_snow:
                             file, variable="CGF_NDSI_Snow_Cover", chunks={}
                         )["CGF_NDSI_Snow_Cover"]
                         .squeeze()
-                        .rio.clip_box(xmin, ymin, xmax, ymax, crs="EPSG:4326")
+                        .rio.clip_box(*self.bbox_gdf.total_bounds,crs=self.bbox_gdf.crs)
                         .assign_coords(
                             time=pd.to_datetime(
                                 rxr.open_rasterio(
