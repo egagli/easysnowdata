@@ -28,3 +28,4 @@ mkdocstrings-python-legacy
 pygments
 pymdown-extensions
 pytkdocs[numpy-style]
+scikit-image

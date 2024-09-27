@@ -18,4 +18,4 @@ folium
 mapclassify
 lxml
 pytkdocs[numpy-style]
-
+scikit-image
