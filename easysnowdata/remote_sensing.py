@@ -12,6 +12,7 @@ import earthaccess
 import ee
 import matplotlib
 import matplotlib.pyplot as plt
+import skimage
 
 import rasterio as rio
 
@@ -185,7 +186,7 @@ def get_seasonal_snow_classification(bbox_input: gpd.GeoDataFrame | tuple | shap
         norm = matplotlib.colors.BoundaryNorm(bounds, self.attrs["cmap"].N)
 
         im = self.plot.imshow(ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False)
-        ax.set_aspect("equal")
+        #ax.set_aspect("equal")
 
 
         legend_handles = []
@@ -212,7 +213,8 @@ def get_seasonal_snow_classification(bbox_input: gpd.GeoDataFrame | tuple | shap
         ax.set_xlabel("Longitude")
         ax.set_ylabel("Latitude")
         ax.set_title("Seasonal snow classification\nfrom Sturm & Liston 2021")
-        f.tight_layout(pad=1.5, w_pad=2.5, h_pad=1.5)
+        f.tight_layout(pad=1.5, w_pad=1.5, h_pad=1.5)
+        f.dpi = 300
 
         return f, ax
     
@@ -322,7 +324,7 @@ def get_seasonal_mountain_snow_mask(
         norm = matplotlib.colors.BoundaryNorm(bounds, self.attrs["cmap"].N)
 
         im = self.plot.imshow(ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False)
-        ax.set_aspect("equal")
+        #ax.set_aspect("equal")
 
         legend_handles = []
         class_names = []
@@ -349,6 +351,7 @@ def get_seasonal_mountain_snow_mask(
         ax.set_ylabel("Latitude")
         ax.set_title(f"Global seasonal {'mountain ' if data_product == 'mountain_snow' else ''}snow mask\nfrom Wrzesien et al 2019")
         f.tight_layout(pad=5.5, w_pad=5.5, h_pad=1.5)
+        f.dpi = 300
 
         return f, ax
 
@@ -458,7 +461,7 @@ def get_esa_worldcover(
         norm = matplotlib.colors.BoundaryNorm(bounds, self.attrs["cmap"].N)
 
         im = self.plot.imshow(ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False)
-        ax.set_aspect("equal")
+        #ax.set_aspect("equal")
 
         legend_handles = []
         class_names = []
@@ -485,6 +488,7 @@ def get_esa_worldcover(
         ax.set_ylabel("Latitude")
         ax.set_title(f"ESA WorldCover\n{version} ({version_year})")
         f.tight_layout(pad=5.5, w_pad=5.5, h_pad=1.5)
+        f.dpi = 300
 
         return f, ax
 
@@ -766,12 +770,19 @@ class Sentinel2:
             11: {"name": "Snow or ice", "color": "#ff96ff"},
         }
 
+        self.scl_cmap = plt.cm.colors.ListedColormap(
+            [info["color"] for info in self.scl_class_info.values()]
+        )
+
         # Initialize the data attributes
         self.search = None
         self.data = None
         self.metadata = None
 
         self.rgb = None
+        self.rgba = None
+        self.rgb_clahe = None
+        self.rgb_percentile = None
         self.ndvi = None
         self.ndsi = None
         self.ndwi = None
@@ -791,6 +802,100 @@ class Sentinel2:
             self.scale_data_inplace()
 
         self.get_metadata()
+
+
+
+        # Add the plot_scl method as an attribute to the SCL data variable
+        if 'scl' in self.data.data_vars:
+            self.data.scl.attrs['example_plot'] = self.plot_scl
+            self.data.scl.attrs['class_info'] = self.scl_class_info
+            self.data.scl.attrs['cmap'] = self.scl_cmap
+
+    def plot_scl(self, scl_data, ax=None, figsize=None, col_wrap=5, legend_kwargs=None):
+        
+        if figsize is None:
+            figsize = (8, 10) if scl_data.time.size == 1 else (12, 7)
+
+        class_values = sorted(list(self.scl_class_info.keys()))
+        bounds = [(class_values[i] + class_values[i + 1]) / 2 for i in range(len(class_values) - 1)]
+        bounds = [class_values[0] - 0.5] + bounds + [class_values[-1] + 0.5]
+        norm = matplotlib.colors.BoundaryNorm(bounds, self.scl_cmap.N)
+
+        if scl_data.time.size == 1:
+            # Single image plot
+            if ax is None:
+                f, ax = plt.subplots(figsize=figsize)
+            else:
+                f = ax.get_figure()
+
+            im = scl_data.plot.imshow(ax=ax, cmap=self.scl_cmap, norm=norm, add_colorbar=False)
+            ax.set_aspect("equal")
+
+            local_time = pd.to_datetime(scl_data.time.values).tz_localize('UTC').tz_convert('America/Los_Angeles')
+            ax.set_title(f"Sentinel-2 Scene Classification Layer (SCL)\n{local_time.strftime('%B %d, %Y')}\n{local_time.strftime('%I:%M%p')}")
+
+        else:
+            # Multiple images plot
+            f = scl_data.plot.imshow(
+                col='time',
+                col_wrap=col_wrap,
+                cmap=self.scl_cmap,
+                norm=matplotlib.colors.BoundaryNorm(bounds, self.scl_cmap.N),
+                add_colorbar=False,
+                #figsize=figsize
+            )
+
+            for ax, time in zip(f.axs.flat, scl_data.time.values):
+                local_time = pd.to_datetime(time).tz_localize('UTC').tz_convert('America/Los_Angeles')
+                ax.set_title(f'{local_time.strftime("%B %d, %Y")}\n{local_time.strftime("%I:%M%p")}')
+                ax.axis('off')
+                ax.set_aspect('equal')
+
+            f.fig.suptitle('Sentinel-2 SCL time series', fontsize=16, y=1.02)
+
+        # Add legend
+        legend_handles = []
+        class_names = []
+        for class_value, class_info in self.scl_class_info.items():
+            legend_handles.append(
+                plt.Rectangle((0, 0), 1, 1, facecolor=class_info["color"], edgecolor="black")
+            )
+            class_names.append(class_info["name"])
+
+        legend_kwargs = legend_kwargs or {}
+
+        if scl_data.time.size == 1:
+            default_legend_kwargs = {
+                "bbox_to_anchor": (0.5, -0.1),
+                "loc": "upper center",
+                "ncol": len(class_names) // 4,
+                "frameon": False,
+                "handlelength": 3.5,
+                "handleheight": 5,
+            }
+        else:
+            default_legend_kwargs = {
+                "bbox_to_anchor": (0.5, -0.1),
+                "loc": "upper center",
+                "ncol": len(class_names) // 4,
+                "frameon": False,
+                "handlelength": 5,
+                "handleheight": 6,
+                "fontsize": 16,
+            }
+
+        legend_kwargs = {**default_legend_kwargs, **legend_kwargs}
+
+        if scl_data.time.size == 1:
+            ax.legend(legend_handles, class_names, **legend_kwargs)
+            f.tight_layout(pad=1.5, w_pad=1.5, h_pad=1.5)
+            f.dpi = 300
+        else:
+            f.fig.legend(legend_handles, class_names, **legend_kwargs)
+            f.fig.tight_layout(pad=1.5, w_pad=1.5, h_pad=1.5)
+            f.fig.dpi = 300
+
+        return f, ax if scl_data.time.size == 1 else f
 
     def search_data(self):
         """
@@ -1008,19 +1113,127 @@ class Sentinel2:
             f"Data scaled to reflectance. To turn this behavior off, set scale_data=False."
         )
 
-    def get_rgb(self):
+    def get_rgb(self, percentile_kwargs={'lower': 2, 'upper': 98}, clahe_kwargs={'clip_limit': 0.03, 'nbins': 256, 'kernel_size': None}):
         """
-        The method to get the RGB data.
+        Retrieve RGB data with optional percentile-based contrast stretching and CLAHE enhancement.
 
-        Returns:
-            xarray.DataArray: The RGB data.
+        This method calculates and stores three versions of RGB data: raw, percentile-stretched, and CLAHE-enhanced.
+
+        Parameters
+        ----------
+        percentile_kwargs : dict, optional
+            Parameters for percentile-based contrast stretching. Keys are:
+            - 'lower': Lower percentile for contrast stretching (default: 2)
+            - 'upper': Upper percentile for contrast stretching (default: 98)
+        clahe_kwargs : dict, optional
+            Parameters for CLAHE enhancement. Keys are:
+            - 'clip_limit': Clipping limit for CLAHE (default: 0.03)
+            - 'nbins': Number of bins for CLAHE histogram (default: 256)
+            - 'kernel_size': Size of kernel for CLAHE (default: None)
+
+        Returns
+        -------
+        None
+            The method stores results in instance attributes.
+
+        Notes
+        -----
+        Results are stored in the following attributes:
+        - .rgb: Raw RGB data
+        - .rgb_percentile: Percentile-stretched RGB data
+        - .rgb_clahe: CLAHE-enhanced RGB data
         """
-        # Convert the red, green, and blue bands to an RGB DataArray
-        rgb_da = self.data[["red", "green", "blue"]].to_dataarray(dim="band")
-        self.rgb = rgb_da.squeeze()
-        self.rgb_norm = (self.rgb - self.rgb.min(dim=['x', 'y'])) / (self.rgb.max(dim=['x', 'y']) - self.rgb.min(dim=['x', 'y']))
 
-        print(f"RGB data retrieved. Access with the .rgb attribute, or .rgb_norm for normalized RGB.")
+        rgba_da = self.data.odc.to_rgba(bands=('red','green','blue'),vmin=0, vmax=30000).isel(band=slice(0, 3))
+        self.rgba = rgba_da
+
+        rgb_da = rgba_da.isel(band=slice(0, 3)) #.where(self.data.scl>=0, other=255) if we want to make no data white
+        self.rgb = rgb_da
+
+        self.rgb_percentile = self.get_rgb_percentile(**percentile_kwargs)
+        self.rgb_clahe = self.get_rgb_clahe(**clahe_kwargs)
+
+        print(f"RGB data retrieved.\nAccess with the following attributes:\n.rgb for raw RGB,\n.rgba for RGBA,\n.rgb_percentile for percentile RGB,\n.rgb_clahe for CLAHE RGB.\nYou can pass in percentile_kwargs and clahe_kwargs to adjust RGB calculations.")
+
+    def get_rgb_percentile(self, **percentile_kwargs):
+        """
+        Apply percentile-based contrast stretching to the RGB bands of the Sentinel-2 data.
+
+        This function creates a new DataArray with the contrast-stretched RGB bands.
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Keyword arguments for percentile calculation. Supported keys:
+            - 'lower': Lower percentile for contrast stretching (default: 2)
+            - 'upper': Upper percentile for contrast stretching (default: 98)
+
+        Returns
+        -------
+        xarray.DataArray
+            RGB data with percentile-based contrast stretching applied.
+
+        Notes
+        -----
+        The function clips values to the range [0, 1] and masks areas where SCL < 0.
+        """
+        lower_percentile = percentile_kwargs.get('lower', 2)
+        upper_percentile = percentile_kwargs.get('upper', 98)
+
+        def stretch_percentile(da):
+            p_low, p_high = np.percentile(da.values, [lower_percentile, upper_percentile])
+            return (da - p_low) / (p_high - p_low)
+
+        rgb_da = self.data.odc.to_rgba(bands=('red','green','blue'),vmin=0, vmax=30000).isel(band=slice(0, 3))
+        
+        template = xr.zeros_like(rgb_da)
+        rgb_percentile_da = xr.map_blocks(stretch_percentile, rgb_da, template=template)
+        rgb_percentile_da = rgb_percentile_da.clip(0, 1).where(self.data.scl>=0)
+
+        return rgb_percentile_da
+    
+    def get_rgb_clahe(self, **kwargs):
+        """
+        Apply Contrast Limited Adaptive Histogram Equalization (CLAHE) to RGB bands.
+
+        This function creates a new DataArray with CLAHE applied to the RGB bands.
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Keyword arguments for CLAHE. Supported keys:
+            - 'clip_limit': Clipping limit for CLAHE (default: 0.03)
+            - 'nbins': Number of bins for CLAHE histogram (default: 256)
+            - 'kernel_size': Size of kernel for CLAHE (default: None)
+
+        Returns
+        -------
+        xarray.DataArray
+            RGB data with CLAHE enhancement applied.
+
+        Notes
+        -----
+        The function applies CLAHE to each band separately and masks areas where SCL < 0.
+        https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.equalize_adapthist
+        """
+
+        # Custom wrapper to preserve xarray metadata
+        def equalize_adapthist_da(da, **kwargs):
+            # Apply the CLAHE function from skimage
+            result = skimage.exposure.equalize_adapthist(da.values, **kwargs)
+            #new_coords = {k: v for k, v in da.coords.items() if k != 'band' or len(v) == 3}
+
+            # Convert the result back to a DataArray, preserving the original metadata
+            return xr.DataArray(result, dims=da.dims, coords=da.coords, attrs=da.attrs)
+        
+        rgb_da = self.data.odc.to_rgba(bands=('red','green','blue'),vmin=0, vmax=30000).isel(band=slice(0, 3))
+        
+        #template = rgb_da.copy(data=np.empty_like(rgb_da).data)
+        template = xr.zeros_like(rgb_da)
+        rgb_clahe_da = xr.map_blocks(equalize_adapthist_da, rgb_da, template=template, kwargs=kwargs)
+        rgb_clahe_da = rgb_clahe_da.where(self.data.scl>=0)
+
+        return rgb_clahe_da
 
     # Indicies
     # find indicies Sentinel-2 indicies here: https://www.indexdatabase.de/db/is.php?sensor_id=96 and https://custom-scripts.sentinel-hub.com/custom-scripts/sentinel/sentinel-2/
