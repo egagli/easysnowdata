@@ -166,9 +166,9 @@ def get_stac_cfg(sensor="sentinel-2-l2a"):
                 aot: AOT
                 wvp: WVP
         """
-    elif sensor == "HLSL30.v2.0":
+    elif sensor == "HLSL30_2.0":
         cfg = """---
-        HLSL30.v2.0:
+        HLSL30_2.0:
             assets:
                 '*':
                     data_type: int16
@@ -203,20 +203,20 @@ def get_stac_cfg(sensor="sentinel-2-l2a"):
                     nodata: -9999
                     scale: 0.01
             aliases:
-                coastal aerosol: B01
+                coastal: B01
                 blue: B02
                 green: B03
                 red: B04
-                nir narrow: B05
-                swir 1: B06
-                swir 2: B07
+                nir08: B05
+                swir16: B06
+                swir22: B07
                 cirrus: B09
-                thermal infrared 1: B10
-                thermal: B11
+                lwir11: B10
+                lwir12: B11
         """
-    elif sensor == "HLSS30.v2.0":
+    elif sensor == "HLSS30_2.0":
         cfg = """---
-        HLSS30.v2.0:
+        HLSS30_2.0:
             assets:
                 '*':
                     data_type: int16
@@ -243,19 +243,19 @@ def get_stac_cfg(sensor="sentinel-2-l2a"):
                     nodata: 40000
                     scale: 0.01
             aliases:
-                coastal aerosol: B01
+                coastal: B01
                 blue: B02
                 green: B03
                 red: B04
-                red-edge 1: B05
-                red-edge 2: B06
-                red-edge 3: B07
-                nir broad: B08
-                nir narrow: B8A
+                rededge071: B05
+                rededge075: B06
+                rededge078: B07
+                nir: B08
+                nir08: B8A
                 water vapor: B09
                 cirrus: B10
-                swir 1: B11
-                swir 2: B12
+                swir16: B11
+                swir22: B12
         """
     cfg = yaml.load(cfg, Loader=yaml.CSafeLoader)
 
