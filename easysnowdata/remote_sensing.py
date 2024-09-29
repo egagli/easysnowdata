@@ -25,6 +25,8 @@ rio_env = rio.Env(
 )
 rio_env.__enter__()
 
+xr.set_options(keep_attrs=True)
+
 import odc.stac
 
 odc.stac.configure_rio(cloud_defaults=True)
@@ -612,11 +614,12 @@ class Sentinel2:
         start_date="2014-01-01",
         end_date=today,
         catalog_choice="planetarycomputer",
+        collection= "sentinel-2-l2a", # could also choose "sentinel-2-c1-l2a" once published to https://github.com/Element84/earth-search
         bands=None,
         resolution=None,
         crs=None,
         remove_nodata=True,
-        harmonize_to_old=True,
+        harmonize_to_old=None,
         scale_data=True,
         groupby="solar_day",
     ):
@@ -638,6 +641,7 @@ class Sentinel2:
         self.start_date = start_date
         self.end_date = end_date
         self.catalog_choice = catalog_choice
+        self.collection = collection
         self.bands = bands
         self.resolution = resolution
         self.crs = crs
@@ -795,6 +799,18 @@ class Sentinel2:
         if self.remove_nodata:
             self.remove_nodata_inplace()
 
+        if self.harmonize_to_old is None:
+            if self.catalog_choice == "planetarycomputer":
+                self.harmonize_to_old = True
+            else:
+                if self.collection == "sentinel-2-c1-l2a":
+                    self.harmonize_to_old = True
+                elif self.collection == "sentinel-2-l2a":
+                    self.harmonize_to_old = False
+                    print(f"Since {self.collection} on {self.catalog_choice} is used, harmonization step is not needed.")
+                else:
+                    raise ValueError(f"Unknown collection: {self.collection}")
+                
         if self.harmonize_to_old:
             self.harmonize_to_old_inplace()
 
@@ -921,7 +937,7 @@ class Sentinel2:
 
         # Search for items within the specified bbox and date range
         search = catalog.search(
-            collections=["sentinel-2-l2a"],
+            collections=[self.collection],
             bbox=self.bbox_gdf.total_bounds,
             datetime=(self.start_date, self.end_date),
         )
@@ -983,13 +999,18 @@ class Sentinel2:
         """
         The method to remove no data values from the data.
         """
+        data_removed = False
         for band in self.data.data_vars:
+            nodata_value = None
             nodata_value = self.data[band].attrs.get("nodata")
             if nodata_value is not None:
+                #print(f"Removing nodata {nodata_value} values for band {band}...")
                 self.data[band] = self.data[band].where(self.data[band] != nodata_value)
-        print(
-            f"Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False."
-        )
+                data_removed = True
+        if data_removed:
+            print(f"Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False.")
+        else:
+            print(f"Tried to remove nodata values and set them to nans, but no nodata values found in the data.")
 
     def mask_data(
         self,
@@ -1098,7 +1119,7 @@ class Sentinel2:
         self.data = xr.concat([old, new], dim="time")
 
         print(
-            f"Data acquired after January 25th, 2022 harmonized to old baseline. To turn this behavior off, set harmonize_to_old=False."
+            f"Data acquired after January 25th, 2022 harmonized to old baseline. To override this behavior, set harmonize_to_old=False."
         )
 
     def scale_data_inplace(self):
@@ -1107,10 +1128,15 @@ class Sentinel2:
         """
         for band in self.data.data_vars:
             scale_factor = self.data[band].attrs.get("scale")
-            if scale_factor is not None:
-                self.data[band] = self.data[band] * scale_factor
+
+            if scale_factor is None:
+                scale_factor = next((info['scale'] for name, info in self.band_info.items() if info['name'] == band), None)
+
+            scale_factor = int(scale_factor) if scale_factor == '1' else float(scale_factor)
+            self.data[band] = self.data[band] * scale_factor
+
         print(
-            f"Data scaled to reflectance. To turn this behavior off, set scale_data=False."
+            f"Data scaled to float reflectance. To turn this behavior off, set scale_data=False."
         )
 
     def get_rgb(self, percentile_kwargs={'lower': 2, 'upper': 98}, clahe_kwargs={'clip_limit': 0.03, 'nbins': 256, 'kernel_size': None}):
@@ -1144,16 +1170,16 @@ class Sentinel2:
         - .rgb_clahe: CLAHE-enhanced RGB data
         """
 
-        rgba_da = self.data.odc.to_rgba(bands=('red','green','blue'),vmin=0, vmax=30000).isel(band=slice(0, 3))
+        rgba_da = self.data.odc.to_rgba(bands=('red','green','blue'),vmin=0, vmax=1.7)
         self.rgba = rgba_da
 
-        rgb_da = rgba_da.isel(band=slice(0, 3)) #.where(self.data.scl>=0, other=255) if we want to make no data white
+        rgb_da = rgba_da.isel(band=slice(0, 3))  #.where(self.data.scl>=0, other=255) if we want to make no data white
         self.rgb = rgb_da
 
         self.rgb_percentile = self.get_rgb_percentile(**percentile_kwargs)
         self.rgb_clahe = self.get_rgb_clahe(**clahe_kwargs)
 
-        print(f"RGB data retrieved.\nAccess with the following attributes:\n.rgb for raw RGB,\n.rgba for RGBA,\n.rgb_percentile for percentile RGB,\n.rgb_clahe for CLAHE RGB.\nYou can pass in percentile_kwargs and clahe_kwargs to adjust RGB calculations.")
+        print(f"RGB data retrieved.\nAccess with the following attributes:\n.rgb for raw RGB,\n.rgba for RGBA,\n.rgb_percentile for percentile RGB,\n.rgb_clahe for CLAHE RGB.\nYou can pass in percentile_kwargs and clahe_kwargs to adjust RGB calculations, check documentation for options.")
 
     def get_rgb_percentile(self, **percentile_kwargs):
         """
@@ -1181,10 +1207,10 @@ class Sentinel2:
         upper_percentile = percentile_kwargs.get('upper', 98)
 
         def stretch_percentile(da):
-            p_low, p_high = np.percentile(da.values, [lower_percentile, upper_percentile])
+            p_low, p_high = np.nanpercentile(da.values, [lower_percentile, upper_percentile])
             return (da - p_low) / (p_high - p_low)
 
-        rgb_da = self.data.odc.to_rgba(bands=('red','green','blue'),vmin=0, vmax=30000).isel(band=slice(0, 3))
+        rgb_da = self.rgb
         
         template = xr.zeros_like(rgb_da)
         rgb_percentile_da = xr.map_blocks(stretch_percentile, rgb_da, template=template)
@@ -1226,7 +1252,7 @@ class Sentinel2:
             # Convert the result back to a DataArray, preserving the original metadata
             return xr.DataArray(result, dims=da.dims, coords=da.coords, attrs=da.attrs)
         
-        rgb_da = self.data.odc.to_rgba(bands=('red','green','blue'),vmin=0, vmax=30000).isel(band=slice(0, 3))
+        rgb_da = self.rgb
         
         #template = rgb_da.copy(data=np.empty_like(rgb_da).data)
         template = xr.zeros_like(rgb_da)
@@ -1434,7 +1460,7 @@ class Sentinel1:
         self.get_data()
         self.get_metadata()
         if self.remove_border_noise:
-            self.remove_border_noise()
+            self.remove_bad_scenes_and_border_noise()
         self.add_orbit_info()
         if units == 'dB':
             self.linear_to_db()
@@ -1512,18 +1538,34 @@ class Sentinel1:
         self.metadata = metadata_gdf
         print(f"Metadata retrieved. Access with the .metadata attribute.")
 
-    def remove_border_noise(self,threshold=0.001):
-        """
-        The method to remove border noise from the data.
-        https://forum.step.esa.int/t/grd-border-noise-and-thermal-noise-removal-are-not-working-anymore-since-march-13-2018/9332
-        https://www.mdpi.com/2072-4292/8/4/348
-        https://forum.step.esa.int/t/nan-appears-at-the-edge-of-the-scene-after-applying-border-noise-removal-sentinel-1-grd/40627/2
-        https://sentiwiki.copernicus.eu/__attachments/1673968/OI-MPC-OTH-MPC-0243%20-%20Sentinel-1%20masking%20no%20value%20pixels%20grd%20products%20note%202023%20-%202.2.pdf?inst-v=534578f3-fc04-48e9-bd69-3a45a681fe67#page=12.58
-        https://ieeexplore.ieee.org/document/8255846
-        https://www.mdpi.com/2504-3900/2/7/330
-        """
-        self.data.loc[dict(time=slice('2014-01-01','2018-03-14'))] = self.data.sel(time=slice('2014-01-01','2018-03-14')).where(lambda x: x > threshold)
-        print(f"Border noise removed from the data.")
+    # def remove_border_noise(self,threshold=0.001):
+    #     """
+    #     The method to remove border noise from the data.
+    #     https://forum.step.esa.int/t/grd-border-noise-and-thermal-noise-removal-are-not-working-anymore-since-march-13-2018/9332
+    #     https://www.mdpi.com/2072-4292/8/4/348
+    #     https://forum.step.esa.int/t/nan-appears-at-the-edge-of-the-scene-after-applying-border-noise-removal-sentinel-1-grd/40627/2
+    #     https://sentiwiki.copernicus.eu/__attachments/1673968/OI-MPC-OTH-MPC-0243%20-%20Sentinel-1%20masking%20no%20value%20pixels%20grd%20products%20note%202023%20-%202.2.pdf?inst-v=534578f3-fc04-48e9-bd69-3a45a681fe67#page=12.58
+    #     https://ieeexplore.ieee.org/document/8255846
+    #     https://www.mdpi.com/2504-3900/2/7/330
+    #     """
+    #     self.data.loc[dict(time=slice('2014-01-01','2018-03-14'))] = self.data.sel(time=slice('2014-01-01','2018-03-14')).where(lambda x: x > threshold)
+    #     print(f"Border noise removed from the data.")
+
+    def remove_bad_scenes_and_border_noise(self, threshold=0.001):
+        cutoff_date = np.datetime64('2018-03-14')
+        
+        original_crs = self.data.rio.crs
+        
+        result = xr.where(
+            self.data.time < cutoff_date,
+            self.data.where(self.data > threshold),
+            self.data.where(self.data > 0)
+        )
+        
+        result.rio.write_crs(original_crs, inplace=True)
+        
+        self.data = result
+        print(f"Falsely low scenes and border noise removed from the data.")
 
     def linear_to_db(self):
         """
@@ -1684,8 +1726,8 @@ class HLS:
             self.crs = self.bbox_gdf.estimate_utm_crs()
 
         # Define the band information
-        self.band_info = {
-            "coastal aerosol": {
+        self.band_info = { # https://github.com/stac-extensions/eo#common-band-names
+            "coastal": {
                 "landsat_band": "B01",
                 "sentinel_band": "B01",
                 "description": "430-450 nm",
@@ -1717,7 +1759,7 @@ class HLS:
                 "nodata": "-9999",
                 "scale": "0.0001",
             },
-            "red-edge 1": {
+            "rededge071": {
                 "landsat_band": "-",
                 "sentinel_band": "B05",
                 "description": "690-710 nm",
@@ -1725,7 +1767,7 @@ class HLS:
                 "nodata": "-9999",
                 "scale": "0.0001",
             },
-            "red-edge 2": {
+            "rededge075": {
                 "landsat_band": "-",
                 "sentinel_band": "B06",
                 "description": "730-750 nm",
@@ -1733,7 +1775,7 @@ class HLS:
                 "nodata": "-9999",
                 "scale": "0.0001",
             },
-            "red-edge 3": {
+            "rededge078": {
                 "landsat_band": "-",
                 "sentinel_band": "B07",
                 "description": "770-790 nm",
@@ -1741,7 +1783,7 @@ class HLS:
                 "nodata": "-9999",
                 "scale": "0.0001",
             },
-            "nir broad": {
+            "nir": {
                 "landsat_band": "-",
                 "sentinel_band": "B08",
                 "description": "780-880 nm",
@@ -1749,7 +1791,7 @@ class HLS:
                 "nodata": "-9999",
                 "scale": "0.0001",
             },
-            "nir narrow": {
+            "nir08": {
                 "landsat_band": "B05",
                 "sentinel_band": "B8A",
                 "description": "850-880 nm",
@@ -1757,7 +1799,7 @@ class HLS:
                 "nodata": "-9999",
                 "scale": "0.0001",
             },
-            "swir 1": {
+            "swir16": {
                 "landsat_band": "B06",
                 "sentinel_band": "B11",
                 "description": "1570-1650 nm",
@@ -1765,7 +1807,7 @@ class HLS:
                 "nodata": "-9999",
                 "scale": "0.0001",
             },
-            "swir 2": {
+            "swir22": {
                 "landsat_band": "B07",
                 "sentinel_band": "B12",
                 "description": "2110-2290 nm",
@@ -1789,7 +1831,7 @@ class HLS:
                 "nodata": "-9999",
                 "scale": "0.0001",
             },
-            "thermal infrared 1": {
+            "lwir11": {
                 "landsat_band": "B10",
                 "sentinel_band": "-",
                 "description": "10600-11190 nm",
@@ -1797,7 +1839,7 @@ class HLS:
                 "nodata": "-9999",
                 "scale": "0.0001",
             },
-            "thermal": {
+            "lwir12": {
                 "landsat_band": "B11",
                 "sentinel_band": "-",
                 "description": "11500-12510 nm",
@@ -1894,12 +1936,12 @@ class HLS:
 
         # Search for items within the specified bbox and date range
         landsat_search = catalog.search(
-            collections=["HLSL30.v2.0"],
+            collections=["HLSL30_2.0"],
             bbox=self.bbox_gdf.total_bounds,
             datetime=(self.start_date, self.end_date),
         )
         sentinel_search = catalog.search(
-            collections=["HLSS30.v2.0"],
+            collections=["HLSS30_2.0"],
             bbox=self.bbox_gdf.total_bounds,
             datetime=(self.start_date, self.end_date),
         )
@@ -1922,7 +1964,7 @@ class HLS:
             "crs": self.crs,  # maybe put 'utm'?
             "groupby": self.groupby,
             "fail_on_error": False,
-            "stac_cfg": get_stac_cfg(sensor="HLSL30.v2.0"),
+            "stac_cfg": get_stac_cfg(sensor="HLSL30_2.0"),
         }
         if self.bands:
             load_params_landsat["bands"] = self.bands
@@ -1946,7 +1988,7 @@ class HLS:
             "crs": self.crs,
             "groupby": self.groupby,
             "fail_on_error": False,
-            "stac_cfg": get_stac_cfg(sensor="HLSS30.v2.0"),
+            "stac_cfg": get_stac_cfg(sensor="HLSS30_2.0"),
         }
         if self.bands:
             load_params_sentinel["bands"] = self.bands
@@ -1982,13 +2024,17 @@ class HLS:
         """
         The method to remove no data values from the data.
         """
+        data_removed=False
         for band in self.data.data_vars:
             nodata_value = self.data[band].attrs.get("nodata")
             if nodata_value is not None:
                 self.data[band] = self.data[band].where(self.data[band] != nodata_value)
-        print(
-            f"Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False."
-        )
+                data_removed=True
+        if data_removed:
+            print(f"Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False.")
+        else:
+            print(f"Tried to remove nodata values and set them to nans, but no nodata values found in the data.")
+
 
     def mask_data(
         self,
@@ -2083,7 +2129,7 @@ class HLS:
         HLS_metadata = gpd.GeoDataFrame.from_features(
             item_collection.to_dict(transform_hrefs=True), "EPSG:4326"
         )
-        HLS_metdata = HLS_metadata.drop(
+        HLS_metadata = HLS_metadata.drop(
             columns=["start_datetime", "end_datetime"], inplace=True
         )
         HLS_metadata["datetime"] = pd.to_datetime(HLS_metadata["datetime"], utc=True)
@@ -2214,23 +2260,146 @@ class HLS:
                 return x
 
         # Apply the function to each data variable in the Dataset
-        self.data = self.data.apply(scale_var)
+        self.data = self.data.apply(scale_var, keep_attrs=True)
         print(
             f"Data scaled to reflectance. Access with the .data attribute. To turn this behavior off, set scale_data=False."
         )
 
-    def get_rgb(self):
-        """
-        The method to get the RGB data.
+    # def get_rgb(self):
+    #     """
+    #     The method to get the RGB data.
 
-        Returns:
-            xarray.DataArray: The RGB data.
+    #     Returns:
+    #         xarray.DataArray: The RGB data.
+    #     """
+    #     # Convert the red, green, and blue bands to an RGB DataArray
+    #     rgb_da = self.data[["red", "green", "blue"]].to_dataarray(dim="band")
+    #     self.rgb = rgb_da
+
+    #     print(f"RGB data retrieved. Access with the .rgb attribute.")
+
+
+    def get_rgb(self, percentile_kwargs={'lower': 2, 'upper': 98}, clahe_kwargs={'clip_limit': 0.03, 'nbins': 256, 'kernel_size': None}):
         """
-        # Convert the red, green, and blue bands to an RGB DataArray
-        rgb_da = self.data[["red", "green", "blue"]].to_dataarray(dim="band")
+        Retrieve RGB data with optional percentile-based contrast stretching and CLAHE enhancement.
+
+        This method calculates and stores three versions of RGB data: raw, percentile-stretched, and CLAHE-enhanced.
+
+        Parameters
+        ----------
+        percentile_kwargs : dict, optional
+            Parameters for percentile-based contrast stretching. Keys are:
+            - 'lower': Lower percentile for contrast stretching (default: 2)
+            - 'upper': Upper percentile for contrast stretching (default: 98)
+        clahe_kwargs : dict, optional
+            Parameters for CLAHE enhancement. Keys are:
+            - 'clip_limit': Clipping limit for CLAHE (default: 0.03)
+            - 'nbins': Number of bins for CLAHE histogram (default: 256)
+            - 'kernel_size': Size of kernel for CLAHE (default: None)
+
+        Returns
+        -------
+        None
+            The method stores results in instance attributes.
+
+        Notes
+        -----
+        Results are stored in the following attributes:
+        - .rgb: Raw RGB data
+        - .rgb_percentile: Percentile-stretched RGB data
+        - .rgb_clahe: CLAHE-enhanced RGB data
+        """
+
+        rgba_da = self.data.odc.to_rgba(bands=('red','green','blue'),vmin=-0.30, vmax=1.35)
+        self.rgba = rgba_da
+
+        rgb_da = rgba_da.isel(band=slice(0, 3)) # .where(self.data.scl>=0, other=255) if we want to make no data white
         self.rgb = rgb_da
 
-        print(f"RGB data retrieved. Access with the .rgb attribute.")
+        self.rgb_percentile = self.get_rgb_percentile(**percentile_kwargs)
+        self.rgb_clahe = self.get_rgb_clahe(**clahe_kwargs)
+
+        print(f"RGB data retrieved.\nAccess with the following attributes:\n.rgb for raw RGB,\n.rgba for RGBA,\n.rgb_percentile for percentile RGB,\n.rgb_clahe for CLAHE RGB.\nYou can pass in percentile_kwargs and clahe_kwargs to adjust RGB calculations, check documentation for options.")
+
+    def get_rgb_percentile(self, **percentile_kwargs):
+        """
+        Apply percentile-based contrast stretching to the RGB bands of the Sentinel-2 data.
+
+        This function creates a new DataArray with the contrast-stretched RGB bands.
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Keyword arguments for percentile calculation. Supported keys:
+            - 'lower': Lower percentile for contrast stretching (default: 2)
+            - 'upper': Upper percentile for contrast stretching (default: 98)
+
+        Returns
+        -------
+        xarray.DataArray
+            RGB data with percentile-based contrast stretching applied.
+
+        Notes
+        -----
+        The function clips values to the range [0, 1] and masks areas where SCL < 0.
+        """
+        lower_percentile = percentile_kwargs.get('lower', 2)
+        upper_percentile = percentile_kwargs.get('upper', 98)
+
+        def stretch_percentile(da):
+            p_low, p_high = np.nanpercentile(da.values, [lower_percentile, upper_percentile])
+            return (da - p_low) / (p_high - p_low)
+
+        rgb_da = self.rgb.where(self.rgba.isel(band=-1)==255)
+        
+        template = xr.zeros_like(rgb_da)
+        rgb_percentile_da = xr.map_blocks(stretch_percentile, rgb_da, template=template)
+        rgb_percentile_da = rgb_percentile_da.clip(0, 1)#.where(self.data.scl>=0)
+
+        return rgb_percentile_da
+    
+    def get_rgb_clahe(self, **kwargs):
+        """
+        Apply Contrast Limited Adaptive Histogram Equalization (CLAHE) to RGB bands.
+
+        This function creates a new DataArray with CLAHE applied to the RGB bands.
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Keyword arguments for CLAHE. Supported keys:
+            - 'clip_limit': Clipping limit for CLAHE (default: 0.03)
+            - 'nbins': Number of bins for CLAHE histogram (default: 256)
+            - 'kernel_size': Size of kernel for CLAHE (default: None)
+
+        Returns
+        -------
+        xarray.DataArray
+            RGB data with CLAHE enhancement applied.
+
+        Notes
+        -----
+        The function applies CLAHE to each band separately and masks areas where SCL < 0.
+        https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.equalize_adapthist
+        """
+
+        # Custom wrapper to preserve xarray metadata
+        def equalize_adapthist_da(da, **kwargs):
+            # Apply the CLAHE function from skimage
+            result = skimage.exposure.equalize_adapthist(da.values, **kwargs)
+            #new_coords = {k: v for k, v in da.coords.items() if k != 'band' or len(v) == 3}
+
+            # Convert the result back to a DataArray, preserving the original metadata
+            return xr.DataArray(result, dims=da.dims, coords=da.coords, attrs=da.attrs)
+        
+        rgb_da = self.rgb
+        
+        #template = rgb_da.copy(data=np.empty_like(rgb_da).data)
+        template = xr.zeros_like(rgb_da)
+        rgb_clahe_da = xr.map_blocks(equalize_adapthist_da, rgb_da, template=template, kwargs=kwargs)
+        rgb_clahe_da = rgb_clahe_da.where(self.rgba.isel(band=-1)==255)#.where(self.data.scl>=0)
+
+        return rgb_clahe_da
 
     # Indicies
 
@@ -2496,7 +2665,7 @@ class MODIS_snow:
     def get_binary_snow(self):
 
         if self.data_product == "MOD10A2":
-            self.binary_snow = xr.where(self.data["Maximum_Snow_Extent"] == 200, 1, 0)
+            self.binary_snow = xr.where(self.data["Maximum_Snow_Extent"] == 200, 1, 0).rio.write_crs(self.data.rio.crs)
             print("Binary snow map calculated. Access with the .binary_snow attribute.")
         else:
             print("This method is only available for the MOD10A2 product.")
