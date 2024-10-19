@@ -63,6 +63,8 @@ def get_huc_geometries(
     https://doi.org/10.3133/tm11A3
     """
 
+    ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
+
     # Convert bounding box to feature collection to use as region for querying HUC geometries
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
     bbox_json = bbox_gdf.to_json()
