@@ -61,7 +61,7 @@ def authenticate_all():
     ee.Authenticate()
 
 
-def get_forest_cover_fraction(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
+def get_forest_cover_fraction(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None, mask_nodata: bool = False,
 ) -> xr.DataArray:
     """
     Fetches ~100m forest cover fraction data for a given bounding box.
@@ -74,6 +74,10 @@ def get_forest_cover_fraction(bbox_input: gpd.GeoDataFrame | tuple | shapely.geo
     ----------
     bbox_input : geopandas.GeoDataFrame or tuple or shapely.Geometry
         GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+    mask_nodata : bool, optional
+        Whether to mask no data values. Default is False.
+        If False: (dtype=uint8, rio.nodata=255, rio.encoded_nodata=None)
+        If True: (dtype=float32, rio.nodata=nan, rio.encoded_nodata=255)
 
     Returns
     -------
@@ -91,8 +95,8 @@ def get_forest_cover_fraction(bbox_input: gpd.GeoDataFrame | tuple | shapely.geo
     >>> # Fetch forest cover fraction data
     >>> forest_cover = remote_sensing.get_forest_cover_fraction(bbox)
     >>> 
-    >>> # Plot the data
-    >>> forest_cover.plot(cmap='Greens', vmin=0, vmax=100)
+    >>> # Plot the data using the example plot function
+    >>> f, ax = forest_cover.attrs['example_plot'](forest_cover)
 
     Notes
     -----
@@ -101,20 +105,48 @@ def get_forest_cover_fraction(bbox_input: gpd.GeoDataFrame | tuple | shapely.geo
     Copernicus Global Land Service: Land Cover 100m: collection 3: epoch 2019: Globe (V3.0.1) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.3939050
     """
 
+    def plot_forest_cover(self, ax=None, figsize=(8, 10), legend_kwargs=None):
+        if ax is None:
+            f, ax = plt.subplots(figsize=figsize)
+        else:
+            f = ax.get_figure()
+
+        cmap = matplotlib.colormaps.get_cmap('Greens').copy()
+        cmap.set_over('white')  # Set values over 100 (i.e., 255) to white
+
+        im = self.plot.imshow(ax=ax, cmap=cmap, vmin=0, vmax=100, add_colorbar=False)
+        
+        cbar = plt.colorbar(im, ax=ax, extend='max')
+        cbar.set_label('Forest Cover Fraction (%)')
+
+        ax.set_xlabel("Longitude")
+        ax.set_ylabel("Latitude")
+        ax.set_title("Copernicus Global Land Service Forest Cover Fraction\nLand Cover 100m: collection 3: epoch 2019")
+        f.tight_layout(pad=1.5, w_pad=1.5, h_pad=1.5)
+        f.dpi = 300
+
+        return f, ax
+
     # Convert the input to a GeoDataFrame if it's not already one
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
 
     fcf_da = rxr.open_rasterio(
         "https://zenodo.org/record/3939050/files/PROBAV_LC100_global_v3.0.1_2019-nrt_Tree-CoverFraction-layer_EPSG-4326.tif",
         chunks=True,
-        mask_and_scale=True,
+        mask_and_scale=mask_nodata,
     )
+
     fcf_da = fcf_da.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs).squeeze()
+
+
+
+    fcf_da.attrs['example_plot'] = plot_forest_cover
+    fcf_da.attrs['data_citation'] = "Marcel Buchhorn, Bruno Smets, Luc Bertels, Bert De Roo, Myroslava Lesiv, Nandin-Erdene Tsendbazar, Martin Herold, & Steffen Fritz. (2020). Copernicus Global Land Service: Land Cover 100m: collection 3: epoch 2019: Globe (V3.0.1) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.3939050"
 
     return fcf_da
 
 
-def get_seasonal_snow_classification(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
+def get_seasonal_snow_classification(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None, mask_nodata: bool = False,
 ) -> xr.DataArray:
     """
     Fetches 10arcsec (~300m) Sturm & Liston 2021 seasonal snow classification data for a given bounding box.
@@ -127,6 +159,10 @@ def get_seasonal_snow_classification(bbox_input: gpd.GeoDataFrame | tuple | shap
     ----------
     bbox_input : geopandas.GeoDataFrame or tuple or Shapely Geometry
         GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
+    mask_nodata : bool, optional
+        Whether to mask no data values. Default is False.
+        If False: (dtype=uint8, rio.nodata=9, rio.encoded_nodata=None)
+        If True: (dtype=float32, rio.nodata=nan, rio.encoded_nodata=9)
 
     Returns
     -------
@@ -226,13 +262,16 @@ def get_seasonal_snow_classification(bbox_input: gpd.GeoDataFrame | tuple | shap
     snow_classification_da = rxr.open_rasterio(
         "https://snowmelt.blob.core.windows.net/snowmelt/eric/snow_classification/SnowClass_GL_300m_10.0arcsec_2021_v01.0.tif",
         chunks=True,
-        mask_and_scale=True,
+        mask_and_scale=mask_nodata,
     )
     snow_classification_da = (
-        snow_classification_da.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
-        .squeeze()
-        .rio.write_nodata(9, encoded=True)
+        snow_classification_da.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs).squeeze()
     )
+
+    if mask_nodata:
+        snow_classification_da.rio.write_nodata(9, encoded=True, inplace=True)
+    else:
+        snow_classification_da.rio.set_nodata(9, inplace=True)
 
     snow_classification_da.attrs["class_info"] = get_class_info()
     snow_classification_da.attrs["cmap"] = get_class_cmap(snow_classification_da.attrs["class_info"])
@@ -244,8 +283,7 @@ def get_seasonal_snow_classification(bbox_input: gpd.GeoDataFrame | tuple | shap
 
 
 def get_seasonal_mountain_snow_mask(
-    bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
-    data_product: str = "mountain_snow"
+    bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None, data_product: str = "mountain_snow", mask_nodata: bool = False,
 ) -> xr.DataArray:
     """
     Fetches ~1km static global seasonal (mountain snow / snow) mask for a given bounding box.
@@ -260,6 +298,10 @@ def get_seasonal_mountain_snow_mask(
         GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
     data_product : str, optional
         Data product to fetch. Choose from 'snow' or 'mountain_snow'. Default is 'mountain_snow'.
+    mask_nodata : bool, optional
+        Whether to mask no data values. Default is False.
+        If False: (dtype=uint8, rio.nodata=255, rio.encoded_nodata=None)
+        If True: (dtype=float32, rio.nodata=nan, rio.encoded_nodata=255)
 
     Returns
     -------
@@ -290,17 +332,19 @@ def get_seasonal_mountain_snow_mask(
     def get_class_info(data_product):
         if data_product == "snow":
             classes = {
-                0: {"name": "Little-to-no snow", "color": "#FFFFFF"},
-                1: {"name": "Indeterminate due to clouds", "color": "#FF0000"},
-                2: {"name": "Ephemeral snow", "color": "#00FF00"},
-                3: {"name": "Seasonal snow", "color": "#0000FF"},
+                0: {"name": "Little-to-no snow", "color": "#030303"},
+                1: {"name": "Indeterminate due to clouds", "color": "#755F4A"},
+                2: {"name": "Ephemeral snow", "color": "#792B8E"},
+                3: {"name": "Seasonal snow", "color": "#679ACF"},
+                255: {"name": "Fill", "color": "#ffffff"},
             }
         elif data_product == "mountain_snow":
             classes = {
-                0: {"name": "Mountains with little-to-no snow", "color": "#FFFFFF"},
-                1: {"name": "Indeterminate due to clouds", "color": "#FF0000"},
-                2: {"name": "Mountains with ephemeral snow", "color": "#00FF00"},
-                3: {"name": "Mountains with seasonal snow", "color": "#0000FF"},
+                0: {"name": "Mountains with little-to-no snow", "color": "#030303"},
+                1: {"name": "Indeterminate due to clouds", "color": "#755F4A"},
+                2: {"name": "Mountains with ephemeral snow", "color": "#792B8E"},
+                3: {"name": "Mountains with seasonal snow", "color": "#679ACF"},
+                255: {"name": "Fill", "color": "#ffffff"},
             }
         else:
             raise ValueError('Invalid data_product. Choose from "snow" or "mountain_snow".')
@@ -357,6 +401,7 @@ def get_seasonal_mountain_snow_mask(
 
         return f, ax
 
+    print(f'This function takes a moment, getting zipped file from zenodo...')
     # Convert the input to a GeoDataFrame if it's not already one
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
 
@@ -365,13 +410,19 @@ def get_seasonal_mountain_snow_mask(
     mountain_snow_da = rxr.open_rasterio(
         url,
         chunks=True,
-        mask_and_scale=True,
-    )
-    mountain_snow_da = (
-        mountain_snow_da.rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs)
-        .squeeze()
-        .astype("float32")
-    )
+        mask_and_scale=mask_nodata,
+    ).rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs).squeeze()
+
+    # looks like the creators accidently set no data to 256 and 265 instead of 255, therefore unmasked the data is of type uint32 :(
+    # attempt to fix this by setting all invalid values to 255, then converting types
+    mask = mountain_snow_da > 3
+    mountain_snow_da = mountain_snow_da.where(~mask, 255)
+
+    if mask_nodata:
+        mountain_snow_da = mountain_snow_da.astype("float32").rio.write_nodata(255, encoded=True)
+    else:
+        mountain_snow_da = mountain_snow_da.astype("uint8").rio.set_nodata(255)
+
 
     mountain_snow_da.attrs["class_info"] = get_class_info(data_product)
     mountain_snow_da.attrs["cmap"] = get_class_cmap(mountain_snow_da.attrs["class_info"])
@@ -384,7 +435,7 @@ def get_seasonal_mountain_snow_mask(
 
 def get_esa_worldcover(
     bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
-    version: str = "v200"
+    version: str = "v200", mask_nodata: bool = False,
 ) -> xr.DataArray:
     """
     Fetches 10m ESA WorldCover global land cover data (2020 v100 or 2021 v200) for a given bounding box.
@@ -399,6 +450,10 @@ def get_esa_worldcover(
         GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
     version : str, optional
         Version of the WorldCover data. The two versions are v100 (2020) and v200 (2021). Default is 'v200'.
+    mask_nodata : bool, optional
+        Whether to mask no data values. Default is False.
+        If False: (dtype=uint8, rio.nodata=0, rio.encoded_nodata=None)
+        If True: (dtype=float32, rio.nodata=nan, rio.encoded_nodata=0)
 
     Returns
     -------
@@ -516,7 +571,10 @@ def get_esa_worldcover(
         .sel(time=version_year)
         .squeeze()
     )
-    worldcover_da = worldcover_da.rio.write_nodata(0, encoded=False)
+
+    if mask_nodata:
+        worldcover_da = worldcover_da.where(worldcover_da>0)
+        worldcover_da.rio.write_nodata(0, encoded=True, inplace=True)
 
     worldcover_da.attrs["class_info"] = get_class_info()
     worldcover_da.attrs["cmap"] = get_class_cmap(worldcover_da.attrs["class_info"])
