@@ -35,5 +35,4 @@ https://egagli.github.io/easysnowdata
 
 ## to do list
 
--   goes
--   palsar2
+-   [list of data products to add](https://github.com/egagli/easysnowdata/issues/11)
