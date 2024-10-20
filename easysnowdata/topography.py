@@ -127,10 +127,10 @@ def get_chili(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseG
     transform = image.projection().getInfo()['transform']
 
     # Load the data using xarray and Earth Engine
-    chili_da = xr.open_dataset(image_collection, engine='ee', geometry=tuple(bbox_gdf.total_bounds), projection=ee.Projection(crs=crs,transform=transform)).to_dataarray().transpose().rio.set_spatial_dims(x_dim='lon', y_dim='lat')
+    chili_da = xr.open_dataset(image_collection, engine='ee', geometry=tuple(bbox_gdf.total_bounds), projection=ee.Projection(crs=crs,transform=transform)).drop_vars('time').squeeze()['constant'].squeeze().transpose().rio.set_spatial_dims(x_dim='lon', y_dim='lat')
     
     # Clip the data to the bounding box
-    chili_da = chili_da.rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs).squeeze()
+    chili_da = chili_da.rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs)
 
     # Check if data is available for the specified region
     if chili_da.dropna(dim='lat',how='all').dropna(dim='lon',how='all').shape == (0,0):
