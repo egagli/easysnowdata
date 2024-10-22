@@ -114,7 +114,9 @@ def get_chili(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseG
     """
 
     # Initialize Earth Engine with high-volume endpoint
-    ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
+    # ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
+
+    print(f'If you haven\'t already, please sign in to Google Earth Engine by running the following code:\n\nimport ee\nee.Authenticate()\nee.Initialize()\n\n')
 
     # Convert the input to a GeoDataFrame if it's not already one
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
