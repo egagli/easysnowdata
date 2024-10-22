@@ -68,7 +68,7 @@ def get_copernicus_dem(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.b
 
     return cop_dem_da
 
-def get_chili(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
+def get_chili(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None, initialize_ee: bool = True,
 ) -> xr.DataArray:
     """
     Fetches Continuous Heat-Insolation Load Index (CHILI) data for a given bounding box. 
@@ -114,9 +114,10 @@ def get_chili(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseG
     """
 
     # Initialize Earth Engine with high-volume endpoint
-    # ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
-
-    print(f'If you haven\'t already, please sign in to Google Earth Engine by running the following code:\n\nimport ee\nee.Authenticate()\nee.Initialize()\n\n')
+    if initialize_ee:
+        ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
+    else:
+        print(f'Initialization turned off. If you haven\'t already, please sign in to Google Earth Engine by running the following code:\n\nimport ee\nee.Authenticate()\nee.Initialize()\n\n')
 
     # Convert the input to a GeoDataFrame if it's not already one
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
