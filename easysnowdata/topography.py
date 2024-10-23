@@ -136,7 +136,7 @@ def get_chili(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseG
     chili_da = chili_da.rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs)
 
     # Check if data is available for the specified region
-    if chili_da.dropna(dim='lat',how='all').dropna(dim='lon',how='all').shape == (0,0):
+    if chili_da.isnull().all().item():
         print("No CHILI data available for this location. CHILI data is only available for latitudes between 70°N and 70°S.")
 
     chili_da = (chili_da - chili_da.min()) / (chili_da.max() - chili_da.min())
