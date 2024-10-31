@@ -410,7 +410,7 @@ class StationCollection:
 
             # Convert the DataFrame into an xarray DataSet and add station coordinate
             station_ds = station_df.to_xarray()
-            station_ds.assign_coords(station=station_name)
+            station_ds = station_ds.assign_coords(station=station_name)
 
             # Add other coordinates from all_stations_gdf
             for col in self.all_stations.columns:
