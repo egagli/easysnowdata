@@ -594,7 +594,7 @@ def get_nlcd_landcover(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.b
     Description:
     The National Land Cover Database (NLCD) provides nationwide data on land cover and land cover change 
     at a 30m resolution. The dataset includes various layers such as land cover classification, 
-    impervious surfaces, and urban intensity.
+    impervious surfaces, and urban intensity. Projection is an albers equal area conic projection.
 
     Parameters
     ----------
@@ -661,10 +661,15 @@ def get_nlcd_landcover(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.b
         image_collection, 
         engine='ee', 
         geometry=tuple(bbox_gdf.total_bounds), 
-        projection=projection
-    ).squeeze().transpose().rename({'X':'x','Y':'y'}).rio.set_spatial_dims(x_dim='x', y_dim='y')
+        projection=projection,
+        chunks={},
+    ).squeeze().transpose().rename({'X':'x','Y':'y'}).rio.set_spatial_dims(x_dim='x', y_dim='y').astype('uint8')
     
     nlcd_da = ds[layer]
+
+    # would be nice for them to come in as ints
+    # https://github.com/google/Xee/issues/86
+    # https://github.com/google/Xee/issues/146
     
     
     def get_class_info():
@@ -682,7 +687,7 @@ def get_nlcd_landcover(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.b
                 )
             }
         elif layer == 'impervious':
-            return None  # Continuous data
+            return None  
         elif layer == 'impervious_descriptor':
             return {
                 value: {
@@ -747,7 +752,7 @@ def get_nlcd_landcover(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.b
 
         else: 
             im = self.plot.imshow(ax=ax, cmap=self.attrs["cmap"], add_colorbar=False)
-            f.colorbar(im, ax=ax, label='Percent Impervious Surface')
+            f.colorbar(im, ax=ax, label='Percent impervious surface [%]')
 
         ax.set_xlabel("x")
         ax.set_ylabel("y")
