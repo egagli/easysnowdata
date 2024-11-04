@@ -602,9 +602,14 @@ def get_nlcd_landcover(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.b
         GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
     layer : str, optional
         The NLCD layer to retrieve. Options are:
-        - 'landcover': Land cover classification
-        - 'impervious': Percent impervious surface
-        - 'impervious_descriptor': Detailed impervious surface type
+        - 'landcover'
+        - 'impervious'
+        - 'impervious_descriptor'
+        - 'science_products_land_cover_change_count'
+        - 'science_products_land_cover_change_first_disturbance_date'
+        - 'science_products_land_cover_change_index'
+        - 'science_products_land_cover_science_product'
+        - 'science_products_forest_disturbance_date'
         Default is 'landcover'.
     initialize_ee : bool, optional
         Whether to initialize Earth Engine. Default is True.
