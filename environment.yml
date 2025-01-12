@@ -25,7 +25,7 @@ dependencies:
  - planetary-computer
  - odc-stac
  - xee
- - bs4
+ - beautifulsoup4
  - py3dep
  - zarr
  - bottleneck

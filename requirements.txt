@@ -10,7 +10,7 @@ pystac-client
 planetary-computer
 odc-stac
 xee
-bs4
+beautifulsoup4
 py3dep
 earthaccess
 contextily
