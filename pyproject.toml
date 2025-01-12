@@ -1,6 +1,6 @@
 [project]
 name = "easysnowdata"
-version = "0.0.12"
+version = "0.0.13"
 dynamic = [
     "dependencies",
 ]
@@ -49,7 +49,7 @@ universal = true
 
 
 [tool.bumpversion]
-current_version = "0.0.12"
+current_version = "0.0.13"
 commit = true
 tag = true
 
