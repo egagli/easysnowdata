@@ -13,7 +13,11 @@ easysnowdata is a package for retrieving all types of data relevant to snow, wit
 ![easysnowdata](https://github.com/user-attachments/assets/5b2c83a4-b732-4c35-86fd-1bccb954c286)
 
 ## installation
-`pip install easysnowdata`
+easysnowdata is available on pypi and conda-forge. you can install easysnowdata with any of the following...
+
+*  `pip install easysnowdata`     
+*  `conda install easysnowdata`    
+*  `mamba install easysnowdata`
 
 ## examples
 
