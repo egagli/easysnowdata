@@ -2,15 +2,11 @@
 
 ## Stable release
 
-To install easysnowdata, run this command in your terminal:
+easysnowdata is available on pypi and conda-forge. you can install easysnowdata with any of the following...
 
-```
-pip install easysnowdata
-```
-
-This is the preferred method to install easysnowdata, as it will always install the most recent stable release.
-
-If you don't have [pip](https://pip.pypa.io) installed, this [Python installation guide](http://docs.python-guide.org/en/latest/starting/installation/) can guide you through the process.
+*  `pip install easysnowdata`
+*  `conda install easysnowdata`
+*  `mamba install easysnowdata`
 
 ## From sources
 
