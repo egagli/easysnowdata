@@ -1,0 +1,43 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: easysnowdata
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Eric
+    family-names: Gagliano
+    email: egagli@uw.edu
+    affiliation: University of Washington
+    orcid: 'https://orcid.org/0000-0002-4362-6260'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.14741501
+repository-code: 'https://github.com/egagli/easysnowdata'
+url: 'https://egagli.github.io/easysnowdata/'
+abstract: >-
+  package for snow science data, providing streamlined
+  access to satellite imagery (Sentinel-1/2, HLS, MODIS,
+  etc), weather station data, climate reanalysis, land cover
+  data, DEMs, and derived snow products as xarray objects.
+keywords:
+  - snow
+  - remote sensing
+  - weather stations
+  - snotel
+  - sentinel-1
+  - sentinel-2
+  - HLS
+  - DEM
+  - land cover
+  - HUC
+  - MODIS
+  - snow classification
+  - easysnowdata
+license: MIT
+commit: 2555f865587707998f6ae2212e82a0c2dcfc606a
+version: v0.0.15
+date-released: '2025-01-26'
