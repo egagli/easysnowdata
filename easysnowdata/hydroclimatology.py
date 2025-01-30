@@ -11,6 +11,10 @@ import matplotlib.pyplot as plt
 import matplotlib.colors
 from typing import Union
 import shapely
+import tempfile
+import zipfile
+import requests
+import os
 
 
 from easysnowdata.utils import convert_bbox_to_geodataframe
@@ -95,6 +99,184 @@ def get_huc_geometries(
     huc_gdf.attrs = {"Data citation": "Jones, K.A., Niknami, L.S., Buto, S.G., and Decker, D., 2022, Federal standards and procedures for the national Watershed Boundary Dataset (WBD) (5 ed.): U.S. Geological Survey Techniques and Methods 11-A3, 54 p., https://doi.org/10.3133/tm11A3"}
     
     return huc_gdf
+
+
+def get_hydroBASINS(
+    bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
+    regions: str | list = "all",
+    level: int = 4,
+) -> gpd.GeoDataFrame:
+    """
+    Retrieves HydroBASINS sub-basin boundaries at specified hierarchical level.
+
+    This function downloads and loads vectorized polygon layers depicting sub-basin boundaries
+    from the HydroBASINS database. It provides consistently sized and hierarchically nested 
+    sub-basins at different scales, supported by Pfafstetter coding for catchment topology analysis.
+
+    Parameters
+    ----------
+    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional
+        The bounding box for spatial subsetting. If None, the entire dataset is returned.
+    regions : str or list, optional
+        Regions to download. Can be 'all' or list of region names. Valid regions are:
+        'Africa', 'Arctic', 'Asia', 'Australia', 'Europe', 'Greenland', 'North America',
+        'South America', 'Siberia'. Default is 'all'.
+    level : int, optional
+        The hierarchical level (1-12) of sub-basin delineation. Higher levels represent
+        finer subdivisions. Default is 4.
+
+    Returns
+    -------
+    geopandas.GeoDataFrame
+        A GeoDataFrame containing the HydroBASINS sub-basin boundaries with associated attributes.
+
+    Examples
+    --------
+    Get level 4 sub-basins for all regions...
+    
+    >>> basins = get_hydrobasins()
+    >>> basins.plot()
+
+    Get level 6 sub-basins for North America...
+    
+    >>> na_basins = get_hydrobasins(regions=['North America'], level=6)
+    >>> na_basins.plot()
+
+    Notes
+    -----
+    Data citation:
+    Lehner, B., Grill G. (2013). Global river hydrography and network routing: baseline data 
+    and new approaches to study the world's large river systems. Hydrological Processes, 
+    27(15): 2171–2186. https://doi.org/10.1002/hyp.9740
+    """
+    
+    HYDROBASINS_LEVELS = {
+        1: 'lev01', 2: 'lev02', 3: 'lev03', 4: 'lev04', 
+        5: 'lev05', 6: 'lev06', 7: 'lev07', 8: 'lev08',
+        9: 'lev09', 10: 'lev10', 11: 'lev11', 12: 'lev12'
+    }
+
+    HYDROBASINS_REGIONS = {
+        'Africa': 'af', 'Arctic': 'ar', 'Asia': 'as', 
+        'Australia': 'au', 'Europe': 'eu', 'Greenland': 'gr',
+        'North America': 'na', 'South America': 'sa', 'Siberia': 'si'
+    }
+
+    # Convert bbox to GeoDataFrame if provided
+    bbox_gdf = convert_bbox_to_geodataframe(bbox_input) if bbox_input is not None else None
+
+    # Handle regions parameter
+    if regions == 'all':
+        regions_to_process = HYDROBASINS_REGIONS
+    else:
+        regions_to_process = {region: HYDROBASINS_REGIONS[region] for region in regions}
+
+    level_code = HYDROBASINS_LEVELS[level]
+    region_gdfs = []
+
+    for region_name, region_code in regions_to_process.items():
+        
+        print(f'Getting geometries for {region_name}...')
+        url = f"https://data.hydrosheds.org/file/hydrobasins/standard/hybas_{region_code}_lev01-12_v1c.zip"
+        
+        if region_name == 'Africa': 
+            # Special handling for Africa due to streaming issues
+            print("Africa takes a bit longer because we have to temporarily save the file due to read issue...")
+            with tempfile.TemporaryDirectory() as temp_dir:
+                zip_path = os.path.join(temp_dir, f"hybas_{region_code}_lev01-12_v1c.zip")
+                
+                response = requests.get(url, stream=True)
+                with open(zip_path, 'wb') as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        f.write(chunk)
+                
+                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                    zip_ref.extractall(temp_dir)
+                
+                shp_path = os.path.join(temp_dir, f'hybas_{region_code}_{level_code}_v1c.shp')
+                region_gdf = gpd.read_file(shp_path)
+            
+        else:
+            
+            region_gdf = gpd.read_file("zip+" + url, layer=f'hybas_{region_code}_{level_code}_v1c')
+        
+        region_gdfs.append(region_gdf)
+
+    basins_gdf = pd.concat(region_gdfs)
+    
+    # Clip to bbox if provided
+    if bbox_gdf is not None:
+        basins_gdf = basins_gdf.clip(bbox_gdf)
+
+    # Add citation to attributes
+    basins_gdf.attrs["data_citation"] = "Lehner, B., Grill G. (2013). Global river hydrography and network routing: baseline data and new approaches to study the world's large river systems. Hydrological Processes, 27(15): 2171–2186. https://doi.org/10.1002/hyp.9740"
+
+    return basins_gdf
+
+
+def get_grdc_major_river_basins_of_the_world(
+    bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
+) -> gpd.GeoDataFrame:
+    """
+    Retrieves GRDC Major River Basins of the World dataset.
+
+    This function downloads and loads the Global Runoff Data Centre's (GRDC) Major River Basins 
+    dataset, which contains 520 river/lake basins considered major in size or hydro-political 
+    importance. The basins include both exorheic drainage (flowing to oceans) and endorheic 
+    drainage (inland sinks/lakes) systems.
+
+    Parameters
+    ----------
+    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional
+        The bounding box for spatial subsetting. If None, the entire global dataset is returned.
+
+    Returns
+    -------
+    geopandas.GeoDataFrame
+        A GeoDataFrame containing the GRDC major river basins with associated attributes.
+
+    Examples
+    --------
+    Get all major river basins...
+
+    >>> basins = get_grdc_basins()
+    >>> basins.plot()
+
+    Get basins for a specific region...
+
+    >>> bbox = (-121.94, 46.72, -121.54, 46.99)
+    >>> regional_basins = get_grdc_basins(bbox_input=bbox)
+    >>> regional_basins.plot()
+
+    Notes
+    -----
+    This dataset incorporates data from HydroSHEDS database which is © World Wildlife Fund, Inc. 
+    (2006-2013) and has been used under license.
+
+    Data citation:
+    GRDC (2020): GRDC Major River Basins. Global Runoff Data Centre. 2nd, rev. ed. 
+    Koblenz: Federal Institute of Hydrology (BfG).
+    """
+    
+    url = "https://datacatalogfiles.worldbank.org/ddh-published/0041426/DR0051689/major_basins_of_the_world_0_0_0.zip"
+    
+    # Convert bbox to GeoDataFrame if provided
+    bbox_gdf = convert_bbox_to_geodataframe(bbox_input) if bbox_input is not None else None
+    
+    # Load the data
+    basins_gdf = gpd.read_file("zip+" + url)
+    
+    # Clip to bbox if provided
+    if bbox_gdf is not None:
+        basins_gdf = basins_gdf.clip(bbox_gdf)
+    else:
+        print("No spatial subsetting because bbox_input was not provided.")
+
+    # Add citation to attributes
+    basins_gdf.attrs["data_citation"] = "GRDC (2020): GRDC Major River Basins. Global Runoff Data Centre. 2nd, rev. ed. Koblenz: Federal Institute of Hydrology (BfG)."
+    
+    return basins_gdf
+
 
 
 def get_era5(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
