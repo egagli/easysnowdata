@@ -1,12 +1,13 @@
-#!/usr/bin/env/ Python3
+#!/usr/bin/env python3
 
 # """Tests for `easysnowdata` package."""
 import pytest
+
 import ee
 import json
 import os
 import google.oauth2.credentials
-from unittest.mock import patch
+
 
 @pytest.fixture
 def ee_credentials():
@@ -38,17 +39,17 @@ class TestEarthEngine:
         assert isinstance(response, str)
         assert "Greetings" in response
     
-    def test_missing_token(self):
+    def test_missing_token(self, monkeypatch):
         """Test handling of missing environment variable"""
-        with patch.dict(os.environ, clear=True):
-            with pytest.raises(pytest.skip):
-                ee_credentials()
+        monkeypatch.delenv("EARTHENGINE_TOKEN", raising=False)
+        with pytest.raises(pytest.skip.Exception):
+            ee_credentials()
     
-    def test_invalid_token(self):
+    def test_invalid_token(self, monkeypatch):
         """Test handling of invalid token"""
-        with patch.dict(os.environ, {"EARTHENGINE_TOKEN": '{"invalid": "token"}'}):
-            with pytest.raises(KeyError):
-                ee_credentials()
+        monkeypatch.setenv("EARTHENGINE_TOKEN", '{"invalid": "token"}')
+        with pytest.raises(KeyError):
+            ee_credentials()
             
 
 # https://github.com/gee-community/ee-initialize-github-actions?tab=readme-ov-file#4-initialize-to-earth-engine-in-your-test-file
