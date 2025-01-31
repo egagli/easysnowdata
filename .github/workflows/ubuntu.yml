@@ -43,8 +43,8 @@ jobs:
                   pip install --user -r requirements.txt
                   pip install .
             - name: PKG-TEST
-              env:
-                EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_TOKEN }}
+              # env:
+              #   EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_TOKEN }}
               run: |
                   python -m unittest discover tests/
 
