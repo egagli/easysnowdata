@@ -9,6 +9,7 @@ shapely==2.0.6
 pystac-client
 planetary-computer
 odc-stac
+earthengine-api
 xee
 beautifulsoup4
 py3dep
