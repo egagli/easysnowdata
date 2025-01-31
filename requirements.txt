@@ -20,3 +20,4 @@ mapclassify
 lxml
 pytkdocs[numpy-style]
 scikit-image
+pytest
