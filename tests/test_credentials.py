@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # """Tests for `easysnowdata` package."""
 import pytest
 
@@ -9,14 +7,13 @@ import os
 import google.oauth2.credentials
 
 
-@pytest.fixture
-def ee_credentials():
-    """Fixture to setup Earth Engine credentials"""
+def create_ee_credentials():
+    """Create Earth Engine credentials from environment token"""
     if not os.getenv("EARTHENGINE_TOKEN"):
-        pytest.skip("EARTHENGINE_TOKEN environment variable not set")
+        raise pytest.skip("EARTHENGINE_TOKEN environment variable not set")
     
     stored = json.loads(os.getenv("EARTHENGINE_TOKEN"))
-    credentials = google.oauth2.credentials.Credentials(
+    return google.oauth2.credentials.Credentials(
         None,
         token_uri="https://oauth2.googleapis.com/token",
         client_id=stored["client_id"],
@@ -24,7 +21,11 @@ def ee_credentials():
         refresh_token=stored["refresh_token"],
         quota_project_id=stored["project"],
     )
-    return credentials
+
+@pytest.fixture
+def ee_credentials():
+    """Fixture to setup Earth Engine credentials"""
+    return create_ee_credentials()
 
 class TestEarthEngine:
     def test_ee_initialization(self, ee_credentials):
@@ -43,13 +44,13 @@ class TestEarthEngine:
         """Test handling of missing environment variable"""
         monkeypatch.delenv("EARTHENGINE_TOKEN", raising=False)
         with pytest.raises(pytest.skip.Exception):
-            ee_credentials()
+            create_ee_credentials()
     
     def test_invalid_token(self, monkeypatch):
         """Test handling of invalid token"""
         monkeypatch.setenv("EARTHENGINE_TOKEN", '{"invalid": "token"}')
         with pytest.raises(KeyError):
-            ee_credentials()
+            create_ee_credentials()
             
 
 # https://github.com/gee-community/ee-initialize-github-actions?tab=readme-ov-file#4-initialize-to-earth-engine-in-your-test-file
