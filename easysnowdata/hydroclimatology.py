@@ -323,24 +323,35 @@ def get_era5(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGe
 
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
 
-    era5 = xr.open_zarr(  # https://cloud.google.com/storage/docs/public-datasets/era5
-        "gs://gcp-public-data-arco-era5/ar/1959-2022-full_37-1h-0p25deg-chunk-1.zarr-v2",
-        chunks={"time": 48},
-        consolidated=True,
+    era5_ds = xr.open_zarr( # dataset changed... https://github.com/google-research/arco-era5/commit/3a9991abfdf989b1c6fa7becc2c09e9e22ae35a1
+        'gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3',
+        chunks=None, # this new dataset doesnt play well with dask?? 
+        #consolidated=True,
+        #chunks={},
+        storage_options=dict(token='anon'),
     )
-    era5.rio.write_crs("EPSG:4326", inplace=True)
-    era5.coords["longitude"] = (era5.coords["longitude"] + 180) % 360 - 180
-    era5 = era5.sortby(era5.longitude)
+    era5_ds = era5_ds.sel(time=slice(era5_ds.attrs['valid_time_start'], era5_ds.attrs['valid_time_stop']))
+    era5_ds.rio.write_crs("EPSG:4326", inplace=True)
+    era5_ds = era5_ds.assign_coords(longitude=(((era5_ds.longitude + 180) % 360) - 180)).sortby('longitude')
+    era5_ds["longitude"].attrs["long_name"] = "longitude"
+    era5_ds["longitude"].attrs["units"] = "degrees_east"
 
-    era5_ds = era5.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
+    era5_ds = era5_ds.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
 
-    # ar_full_37_1h = xr.open_zarr( #https://github.com/google-research/arco-era5
-    #   'gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3',
-    #   chunks=None,
-    #   storage_options=dict(token='anon'),
+    # Old dataset, but worked well with chunks...
+    # era5 = xr.open_zarr(  # https://cloud.google.com/storage/docs/public-datasets/era5
+    #     "gs://gcp-public-data-arco-era5/ar/1959-2022-full_37-1h-0p25deg-chunk-1.zarr-v2",
+    #     chunks={"time": 48},
+    #     consolidated=True,
     # )
+    # era5.rio.write_crs("EPSG:4326", inplace=True)
+    # era5.coords["longitude"] = (era5.coords["longitude"] + 180) % 360 - 180
+    # era5 = era5.sortby(era5.longitude)
 
-    era5.attrs["data_citation"] = "Carver, Robert W, and Merose, Alex. (2023): ARCO-ERA5: An Analysis-Ready Cloud-Optimized Reanalysis Dataset. 22nd Conf. on AI for Env. Science, Denver, CO, Amer. Meteo. Soc, 4A.1, https://ams.confex.com/ams/103ANNUAL/meetingapp.cgi/Paper/415842"
+    # era5_ds = era5.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
+
+
+    era5_ds.attrs["data_citation"] = "Carver, Robert W, and Merose, Alex. (2023): ARCO-ERA5: An Analysis-Ready Cloud-Optimized Reanalysis Dataset. 22nd Conf. on AI for Env. Science, Denver, CO, Amer. Meteo. Soc, 4A.1, https://ams.confex.com/ams/103ANNUAL/meetingapp.cgi/Paper/415842"
 
     return era5_ds
 
