@@ -279,81 +279,222 @@ def get_grdc_major_river_basins_of_the_world(
 
 
 
-def get_era5(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
+def get_era5(
+    bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
+    version: str = "ERA5",
+    cadence: str = "HOURLY",
+    source: str = "auto",  # "auto", "GEE", or "GCS"
+    start_date: str | None = None,
+    end_date: str | None = None,
+    variables: str | list | None = None,
+    initialize_ee: bool = True,
 ) -> xr.Dataset:
     """
-    Retrieves ERA5 data for a given bounding box.
-
-    This function fetches ERA5 reanalysis data from Google Cloud Storage, allowing for optional
-    spatial subsetting. The data is returned as an xarray dataset with time-chunked data.
-
+    Retrieves ERA5 reanalysis data using optimal source selection.
+    
+    By default, this function uses Google Earth Engine for most requests, but automatically 
+    switches to the high-resolution ARCO-ERA5 Zarr dataset from Google Cloud Storage for
+    hourly ERA5 data due to its superior performance and coverage for that specific combination.
+    
     Parameters
     ----------
-    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional
-        The bounding box for spatial subsetting. If None, the global dataset is returned.
-
+    bbox_input : geopandas.GeoDataFrame or tuple or shapely.Geometry, optional
+        The spatial bounding box for subsetting. If None, returns global data.
+    version : str, optional
+        Version of ERA5 data. Options are 'ERA5' or 'ERA5_LAND'. Default is 'ERA5'.
+    cadence : str, optional
+        Temporal resolution. Options are 'HOURLY', 'DAILY', or 'MONTHLY'. Default is 'HOURLY'.
+    source : str, optional
+        Data source to use: "auto" (smart selection), "GEE" (Google Earth Engine), or 
+        "GCS" (Google Cloud Storage). Default is "auto", which uses GCS for ERA5 hourly data
+        and GEE for everything else.
+    start_date : str, optional
+        Start date in 'YYYY-MM-DD' format. If None, uses earliest available date.
+    end_date : str, optional
+        End date in 'YYYY-MM-DD' format. If None, uses latest available date.
+    variables : str or list, optional
+        Variable(s) to select. If None, returns all variables. Only applicable for GEE source.
+    initialize_ee : bool, optional
+        Whether to initialize Earth Engine. Default is True. Only applicable for GEE source.
+        
     Returns
     -------
     xarray.Dataset
         An xarray Dataset containing ERA5 reanalysis data for the specified region.
-
+        
     Examples
     --------
-    Get ERA5 data for the globe, plot the mean 2m temperature on May 26th, 2020...
-
-    >>> era5_global_ds = easysnowdata.hydroclimatology.get_era5()
-    >>> era5_global_ds["2m_temperature"].sel(time="2020-05-26").mean(dim="time").plot.imshow(ax=ax)
-
-    Get ERA5 data for a specific region, plot the mean 2m temperature on May 26th, 2020...
-
-    >>> era5_bbox_ds = easysnowdata.hydroclimatology.get_era5(bbox_input=(-121.94, 46.72, -121.54, 46.99))
-    >>> era5_bbox_ds["2m_temperature"].sel(time="2020-05-26").mean(dim="time").plot.imshow(ax=ax)
-
+    Get hourly ERA5 data (automatically uses ARCO-ERA5 from GCS):
+    
+    >>> bbox = (-121.94, 46.72, -121.54, 46.99)
+    >>> era5_ds = get_era5(bbox_input=bbox)  # Uses GCS for hourly ERA5
+    >>> era5_ds["2m_temperature"].sel(time="2020-05-26").mean(dim="time").plot()
+    
+    Get monthly ERA5 data (uses Google Earth Engine):
+    
+    >>> era5_gee = get_era5(
+    ...     bbox_input=bbox,
+    ...     cadence="MONTHLY", 
+    ...     start_date="2020-01-01",
+    ...     end_date="2020-12-31",
+    ...     variables=["temperature_2m"]
+    ... )  # Uses GEE for monthly data
+    >>> era5_gee["temperature_2m"].plot()
+    
+    Force using GEE for hourly ERA5 data:
+    
+    >>> era5_hourly_gee = get_era5(
+    ...     bbox_input=bbox,
+    ...     source="GEE",
+    ...     start_date="2020-01-01",
+    ...     end_date="2020-01-02"
+    ... )  # Explicitly uses GEE for hourly data
+    
     Notes
     -----
-    The ERA5 data is sourced from Google Cloud Storage and is time-chunked for efficient processing.
-
-    Data citation:
-
-    Carver, Robert W, and Merose, Alex. (2023):
-    ARCO-ERA5: An Analysis-Ready Cloud-Optimized Reanalysis Dataset.
-    22nd Conf. on AI for Env. Science, Denver, CO, Amer. Meteo. Soc, 4A.1,
-    https://ams.confex.com/ams/103ANNUAL/meetingapp.cgi/Paper/415842
+    - The function automatically selects the optimal data source based on your request
+    - Hourly ERA5 data comes from ARCO-ERA5 on Google Cloud Storage by default
+    - All other combinations use Google Earth Engine
+    - You can override the automatic source selection by explicitly setting the source parameter
+    
+    Data citations:
+    - GCS: Carver & Merose (2023), ARCO-ERA5: An Analysis-Ready Cloud-Optimized Reanalysis Dataset
+    - GEE: Hersbach et al. (2020), The ERA5 global reanalysis
     """
-
-    bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
-
-    era5_ds = xr.open_zarr( # dataset changed... https://github.com/google-research/arco-era5/commit/3a9991abfdf989b1c6fa7becc2c09e9e22ae35a1
-        'gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3',
-        chunks=None, # this new dataset doesnt play well with dask?? 
-        #consolidated=True,
-        #chunks={},
-        storage_options=dict(token='anon'),
-    )
-    era5_ds = era5_ds.sel(time=slice(era5_ds.attrs['valid_time_start'], era5_ds.attrs['valid_time_stop']))
-    era5_ds.rio.write_crs("EPSG:4326", inplace=True)
-    era5_ds = era5_ds.assign_coords(longitude=(((era5_ds.longitude + 180) % 360) - 180)).sortby('longitude')
-    era5_ds["longitude"].attrs["long_name"] = "longitude"
-    era5_ds["longitude"].attrs["units"] = "degrees_east"
-
-    era5_ds = era5_ds.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
-
-    # Old dataset, but worked well with chunks...
-    # era5 = xr.open_zarr(  # https://cloud.google.com/storage/docs/public-datasets/era5
-    #     "gs://gcp-public-data-arco-era5/ar/1959-2022-full_37-1h-0p25deg-chunk-1.zarr-v2",
-    #     chunks={"time": 48},
-    #     consolidated=True,
-    # )
-    # era5.rio.write_crs("EPSG:4326", inplace=True)
-    # era5.coords["longitude"] = (era5.coords["longitude"] + 180) % 360 - 180
-    # era5 = era5.sortby(era5.longitude)
-
-    # era5_ds = era5.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
-
-
-    era5_ds.attrs["data_citation"] = "Carver, Robert W, and Merose, Alex. (2023): ARCO-ERA5: An Analysis-Ready Cloud-Optimized Reanalysis Dataset. 22nd Conf. on AI for Env. Science, Denver, CO, Amer. Meteo. Soc, 4A.1, https://ams.confex.com/ams/103ANNUAL/meetingapp.cgi/Paper/415842"
-
-    return era5_ds
+    # Determine the appropriate source based on parameters
+    effective_source = source.upper()
+    
+    if effective_source == "AUTO":
+        if version == "ERA5" and cadence == "HOURLY":
+            effective_source = "GCS"  # Use ARCO dataset for hourly ERA5
+        else:
+            effective_source = "GEE"  # Default to GEE for all other combinations
+    
+    # Convert bbox to GeoDataFrame format for consistent handling
+    bbox_gdf = convert_bbox_to_geodataframe(bbox_input) if bbox_input is not None else None
+    
+    # Option 1: Google Cloud Storage (GCS) - ARCO-ERA5 Zarr dataset
+    if effective_source == "GCS":
+        # Verify we're using ERA5 hourly (the only supported option for GCS)
+        if version != "ERA5" or cadence != "HOURLY":
+            raise ValueError(f"GCS source only supports ERA5 hourly data, not {version} {cadence}")
+            
+        era5_ds = xr.open_zarr(
+            'gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3',
+            chunks=None,
+            storage_options=dict(token='anon'),
+        )
+        
+        # Apply time filtering if specified
+        if start_date is not None and end_date is not None:
+            era5_ds = era5_ds.sel(time=slice(start_date, end_date))
+        else:
+            era5_ds = era5_ds.sel(time=slice(era5_ds.attrs['valid_time_start'], 
+                                            era5_ds.attrs['valid_time_stop']))
+            
+        # Set CRS and normalize longitude coordinates
+        era5_ds.rio.write_crs("EPSG:4326", inplace=True)
+        era5_ds = era5_ds.assign_coords(
+            longitude=(((era5_ds.longitude + 180) % 360) - 180)
+        ).sortby('longitude')
+        
+        # Add coordinate attributes
+        era5_ds["longitude"].attrs["long_name"] = "longitude"
+        era5_ds["longitude"].attrs["units"] = "degrees_east"
+        
+        # Apply spatial subsetting if specified
+        if bbox_gdf is not None:
+            era5_ds = era5_ds.rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs)
+            
+        # Add metadata
+        era5_ds.attrs["data_citation"] = (
+            "Carver, Robert W, and Merose, Alex. (2023): ARCO-ERA5: An Analysis-Ready "
+            "Cloud-Optimized Reanalysis Dataset. 22nd Conf. on AI for Env. Science, "
+            "Denver, CO, Amer. Meteo. Soc, 4A.1, "
+            "https://ams.confex.com/ams/103ANNUAL/meetingapp.cgi/Paper/415842"
+        )
+        era5_ds.attrs["source"] = "Google Cloud Storage (ARCO-ERA5)"
+        era5_ds.attrs["version"] = version
+        era5_ds.attrs["cadence"] = cadence
+        
+        return era5_ds
+        
+    # Option 2: Google Earth Engine (GEE)
+    elif effective_source == "GEE":
+        # Initialize Earth Engine if requested
+        if initialize_ee:
+            ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
+        else:
+            print("Earth Engine initialization skipped. Please ensure EE is initialized.")
+        
+        # Collection name mapping
+        collection_mapping = {
+            ("ERA5_LAND", "HOURLY"): "ECMWF/ERA5_LAND/HOURLY",
+            ("ERA5_LAND", "DAILY"): "ECMWF/ERA5_LAND/DAILY_AGGR",
+            ("ERA5_LAND", "MONTHLY"): "ECMWF/ERA5_LAND/MONTHLY_AGGR",
+            ("ERA5", "HOURLY"): "ECMWF/ERA5/HOURLY",
+            ("ERA5", "DAILY"): "ECMWF/ERA5/DAILY",
+            ("ERA5", "MONTHLY"): "ECMWF/ERA5/MONTHLY"
+        }
+        
+        # Get collection name
+        collection_key = (version, cadence)
+        if collection_key not in collection_mapping:
+            raise ValueError(f"Invalid combination of version '{version}' and cadence '{cadence}'")
+        
+        collection_name = collection_mapping[collection_key]
+        
+        # Initialize image collection
+        image_collection = ee.ImageCollection(collection_name)
+        
+        # Apply date filtering if specified
+        if start_date is not None and end_date is not None:
+            end_date = end_date + "T23:59:59"  # Include full end date
+            image_collection = image_collection.filterDate(start_date, end_date)
+        
+        # Apply variable selection if specified
+        if variables is not None:
+            if isinstance(variables, str):
+                variables = [variables]
+            image_collection = image_collection.select(variables)
+        
+        # Get projection from first image
+        image = image_collection.first()
+        projection = image.select(0).projection()
+        
+        # Prepare geometry for GEE
+        geometry = None
+        if bbox_gdf is not None:
+            geometry = tuple(bbox_gdf.total_bounds)
+        
+        # Load dataset
+        ds = xr.open_dataset(
+            image_collection,
+            engine='ee',
+            geometry=geometry,
+            projection=projection,
+            chunks=None
+        )
+        
+        # Clean up dimensions and coordinate names
+        ds = (ds
+              .transpose('time', 'lat', 'lon')
+              .rename({'lat': 'latitude', 'lon': 'longitude'})
+              .rio.set_spatial_dims(x_dim='longitude', y_dim='latitude'))
+        
+        # Add metadata
+        ds.attrs['data_citation'] = (
+            "Hersbach, H., Bell, B., Berrisford, P., et al. (2020). The ERA5 global reanalysis. "
+            "Quarterly Journal of the Royal Meteorological Society, 146(730), 1999-2049."
+        )
+        ds.attrs['version'] = version
+        ds.attrs['cadence'] = cadence
+        ds.attrs["source"] = "Google Earth Engine"
+        
+        return ds
+        
+    else:
+        raise ValueError("Source must be 'auto', 'GEE' (Google Earth Engine), or 'GCS' (Google Cloud Storage)")
 
 
 def get_ucla_snow_reanalysis(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
