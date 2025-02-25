@@ -2,7 +2,7 @@
 
 __author__ = """Eric Gagliano"""
 __email__ = "egagli@uw.edu"
-__version__ = "0.0.17"
+__version__ = "0.0.18"
 __all__=['easysnowdata','utils','remote_sensing','automatic_weather_stations','topography','hydroclimatology']
 
 import easysnowdata.easysnowdata
