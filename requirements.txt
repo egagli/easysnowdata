@@ -5,7 +5,7 @@ geopandas
 rasterio
 xarray
 rioxarray
-shapely==2.0.6
+shapely
 pystac-client
 planetary-computer
 odc-stac

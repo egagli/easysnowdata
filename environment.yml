@@ -35,7 +35,8 @@ dependencies:
  - earthengine-api
  - gcsfs
  - fsspec
- - scikit-image 
+ - scikit-image
+ - pytest 
  - pip
  
  - pip:
