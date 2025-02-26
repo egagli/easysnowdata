@@ -294,7 +294,9 @@ def get_era5(
     
     By default, this function uses Google Earth Engine for most requests, but automatically 
     switches to the high-resolution ARCO-ERA5 Zarr dataset from Google Cloud Storage for
-    hourly ERA5 data due to its superior performance and coverage for that specific combination.
+    hourly ERA5 data due to its superior performance and coverage for that specific 
+    combination. Please note, these datasets may be different from the original ERA5 data
+    hosted on the Copernicus Climate Data Store (CDS).
     
     Parameters
     ----------
@@ -356,10 +358,12 @@ def get_era5(
     - Hourly ERA5 data comes from ARCO-ERA5 on Google Cloud Storage by default
     - All other combinations use Google Earth Engine
     - You can override the automatic source selection by explicitly setting the source parameter
+    - Please note, these data are not the original ERA5 data but have been processed and optimized for cloud access. Each dataset will also have an assosciated latency different from the original dataset. The most up-to-date information can be found at: https://cds.climate.copernicus.eu/datasets
+
     
     Data citations:
-    - GCS: Carver & Merose (2023), ARCO-ERA5: An Analysis-Ready Cloud-Optimized Reanalysis Dataset
-    - GEE: Hersbach et al. (2020), The ERA5 global reanalysis
+    - GEE+GCS: Hersbach, H., Bell, B., Berrisford, P., et al. (2020). The ERA5 global reanalysis. Quarterly Journal of the Royal Meteorological Society, 146(730), 1999-2049.
+    - GCS: Carver, Robert W, and Merose, Alex. (2023): ARCO-ERA5: An Analysis-Ready Cloud-Optimized Reanalysis Dataset. 22nd Conf. on AI for Env. Science, Denver, CO, Amer. Meteo. Soc, 4A.1, https://ams.confex.com/ams/103ANNUAL/meetingapp.cgi/Paper/415842
     """
     # Determine the appropriate source based on parameters
     effective_source = source.upper()
