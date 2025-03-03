@@ -2376,7 +2376,7 @@ class HLS:
             item_collection.to_dict(transform_hrefs=True), "EPSG:4326"
         )
         HLS_metadata = HLS_metadata.drop(
-            columns=["start_datetime", "end_datetime"], inplace=True
+            columns=["start_datetime", "end_datetime"], inplace=False
         )
         HLS_metadata["datetime"] = pd.to_datetime(HLS_metadata["datetime"], utc=True)
 
