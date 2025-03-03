@@ -1,0 +1,2231 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="package to easily get data relevant to snow">
+      
+      
+        <meta name="author" content="egagli">
+      
+      
+        <link rel="canonical" href="https://egagli.github.io/easysnowdata/hydroclimatology/">
+      
+      
+        <link rel="prev" href="../topography/">
+      
+      
+        <link rel="next" href="../utils/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.7">
+    
+    
+      
+        <title>hydroclimatology module - easysnowdata</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.8608ea7d.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Google+Sans:300,300i,400,400i,700,700i%7CRegular:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Google Sans";--md-code-font:"Regular"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../css/timeago.css">
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#hydrology-module" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="easysnowdata" class="md-header__button md-logo" aria-label="easysnowdata" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            easysnowdata
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              hydroclimatology module
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6m0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4M7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/egagli/easysnowdata" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="easysnowdata" class="md-nav__button md-logo" aria-label="easysnowdata" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    easysnowdata
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/egagli/easysnowdata" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Usage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contributing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../faq/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FAQ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Changelog
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/egagli/easysnowdata/issues" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Report Issues
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/remote_sensing_examples/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remote sensing examples
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/automatic_weather_station_examples/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Automatic weather station examples
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/topography_examples/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Topography examples
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/hydroclimatology_examples/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hydroclimatology examples
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../easysnowdata/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    easysnowdata module
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../remote_sensing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    remote_sensing module
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../automatic_weather_stations/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    automatic_weather_station module
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../topography/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    topography module
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    hydroclimatology module
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    hydroclimatology module
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#easysnowdata.hydroclimatology" class="md-nav__link">
+    <span class="md-ellipsis">
+      easysnowdata.hydroclimatology
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#easysnowdata.hydroclimatology.get_era5" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_era5()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#easysnowdata.hydroclimatology.get_grdc_major_river_basins_of_the_world" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_grdc_major_river_basins_of_the_world()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#easysnowdata.hydroclimatology.get_huc_geometries" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_huc_geometries()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#easysnowdata.hydroclimatology.get_hydroBASINS" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_hydroBASINS()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#easysnowdata.hydroclimatology.get_koppen_geiger_classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_koppen_geiger_classes()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#easysnowdata.hydroclimatology.get_ucla_snow_reanalysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_ucla_snow_reanalysis()
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utils/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    utils module
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#easysnowdata.hydroclimatology" class="md-nav__link">
+    <span class="md-ellipsis">
+      easysnowdata.hydroclimatology
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#easysnowdata.hydroclimatology.get_era5" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_era5()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#easysnowdata.hydroclimatology.get_grdc_major_river_basins_of_the_world" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_grdc_major_river_basins_of_the_world()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#easysnowdata.hydroclimatology.get_huc_geometries" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_huc_geometries()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#easysnowdata.hydroclimatology.get_hydroBASINS" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_hydroBASINS()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#easysnowdata.hydroclimatology.get_koppen_geiger_classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_koppen_geiger_classes()
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#easysnowdata.hydroclimatology.get_ucla_snow_reanalysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_ucla_snow_reanalysis()
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+
+
+
+                  
+
+
+  
+  
+
+
+<h1 id="hydrology-module">hydrology module<a class="headerlink" href="#hydrology-module" title="Permanent link">&para;</a></h1>
+
+
+  <div class="doc doc-object doc-module">
+
+<a id="easysnowdata.hydroclimatology"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 id="easysnowdata.hydroclimatology.get_era5" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">get_era5</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s1">&#39;ERA5&#39;</span><span class="p">,</span> <span class="n">cadence</span><span class="o">=</span><span class="s1">&#39;HOURLY&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initialize_ee</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+
+
+<a href="#easysnowdata.hydroclimatology.get_era5" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Retrieves ERA5 reanalysis data using optimal source selection.</p>
+<p>By default, this function uses Google Earth Engine for most requests, but automatically 
+switches to the high-resolution ARCO-ERA5 Zarr dataset from Google Cloud Storage for
+hourly ERA5 data due to its superior performance and coverage for that specific 
+combination. Please note, these datasets may be different from the original ERA5 data
+hosted on the Copernicus Climate Data Store (CDS).</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>bbox_input</code></td>
+        <td><code>geopandas.geodataframe.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None</code></td>
+        <td><p>The spatial bounding box for subsetting. If None, returns global data.</p></td>
+        <td><code>None</code></td>
+      </tr>
+      <tr>
+        <td><code>version</code></td>
+        <td><code>str</code></td>
+        <td><p>Version of ERA5 data. Options are 'ERA5' or 'ERA5_LAND'. Default is 'ERA5'.</p></td>
+        <td><code>&#39;ERA5&#39;</code></td>
+      </tr>
+      <tr>
+        <td><code>cadence</code></td>
+        <td><code>str</code></td>
+        <td><p>Temporal resolution. Options are 'HOURLY', 'DAILY', or 'MONTHLY'. Default is 'HOURLY'.</p></td>
+        <td><code>&#39;HOURLY&#39;</code></td>
+      </tr>
+      <tr>
+        <td><code>source</code></td>
+        <td><code>str</code></td>
+        <td><p>Data source to use: "auto" (smart selection), "GEE" (Google Earth Engine), or 
+"GCS" (Google Cloud Storage). Default is "auto", which uses GCS for ERA5 hourly data
+and GEE for everything else.</p></td>
+        <td><code>&#39;auto&#39;</code></td>
+      </tr>
+      <tr>
+        <td><code>start_date</code></td>
+        <td><code>str | None</code></td>
+        <td><p>Start date in 'YYYY-MM-DD' format. If None, uses earliest available date.</p></td>
+        <td><code>None</code></td>
+      </tr>
+      <tr>
+        <td><code>end_date</code></td>
+        <td><code>str | None</code></td>
+        <td><p>End date in 'YYYY-MM-DD' format. If None, uses latest available date.</p></td>
+        <td><code>None</code></td>
+      </tr>
+      <tr>
+        <td><code>variables</code></td>
+        <td><code>str | list | None</code></td>
+        <td><p>Variable(s) to select. If None, returns all variables. Only applicable for GEE source.</p></td>
+        <td><code>None</code></td>
+      </tr>
+      <tr>
+        <td><code>initialize_ee</code></td>
+        <td><code>bool</code></td>
+        <td><p>Whether to initialize Earth Engine. Default is True. Only applicable for GEE source.</p></td>
+        <td><code>True</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Examples:</strong></p>
+    <p>Get hourly ERA5 data (automatically uses ARCO-ERA5 from GCS):</p>
+
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Dataset</code></td>
+      <td><p>An xarray Dataset containing ERA5 reanalysis data for the specified region.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>easysnowdata/hydroclimatology.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_era5</span><span class="p">(</span>
+    <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ERA5&quot;</span><span class="p">,</span>
+    <span class="n">cadence</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;HOURLY&quot;</span><span class="p">,</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>  <span class="c1"># &quot;auto&quot;, &quot;GEE&quot;, or &quot;GCS&quot;</span>
+    <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">variables</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">initialize_ee</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieves ERA5 reanalysis data using optimal source selection.</span>
+
+<span class="sd">    By default, this function uses Google Earth Engine for most requests, but automatically </span>
+<span class="sd">    switches to the high-resolution ARCO-ERA5 Zarr dataset from Google Cloud Storage for</span>
+<span class="sd">    hourly ERA5 data due to its superior performance and coverage for that specific </span>
+<span class="sd">    combination. Please note, these datasets may be different from the original ERA5 data</span>
+<span class="sd">    hosted on the Copernicus Climate Data Store (CDS).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bbox_input : geopandas.GeoDataFrame or tuple or shapely.Geometry, optional</span>
+<span class="sd">        The spatial bounding box for subsetting. If None, returns global data.</span>
+<span class="sd">    version : str, optional</span>
+<span class="sd">        Version of ERA5 data. Options are &#39;ERA5&#39; or &#39;ERA5_LAND&#39;. Default is &#39;ERA5&#39;.</span>
+<span class="sd">    cadence : str, optional</span>
+<span class="sd">        Temporal resolution. Options are &#39;HOURLY&#39;, &#39;DAILY&#39;, or &#39;MONTHLY&#39;. Default is &#39;HOURLY&#39;.</span>
+<span class="sd">    source : str, optional</span>
+<span class="sd">        Data source to use: &quot;auto&quot; (smart selection), &quot;GEE&quot; (Google Earth Engine), or </span>
+<span class="sd">        &quot;GCS&quot; (Google Cloud Storage). Default is &quot;auto&quot;, which uses GCS for ERA5 hourly data</span>
+<span class="sd">        and GEE for everything else.</span>
+<span class="sd">    start_date : str, optional</span>
+<span class="sd">        Start date in &#39;YYYY-MM-DD&#39; format. If None, uses earliest available date.</span>
+<span class="sd">    end_date : str, optional</span>
+<span class="sd">        End date in &#39;YYYY-MM-DD&#39; format. If None, uses latest available date.</span>
+<span class="sd">    variables : str or list, optional</span>
+<span class="sd">        Variable(s) to select. If None, returns all variables. Only applicable for GEE source.</span>
+<span class="sd">    initialize_ee : bool, optional</span>
+<span class="sd">        Whether to initialize Earth Engine. Default is True. Only applicable for GEE source.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        An xarray Dataset containing ERA5 reanalysis data for the specified region.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Get hourly ERA5 data (automatically uses ARCO-ERA5 from GCS):</span>
+
+<span class="sd">    &gt;&gt;&gt; bbox = (-121.94, 46.72, -121.54, 46.99)</span>
+<span class="sd">    &gt;&gt;&gt; era5_ds = get_era5(bbox_input=bbox)  # Uses GCS for hourly ERA5</span>
+<span class="sd">    &gt;&gt;&gt; era5_ds[&quot;2m_temperature&quot;].sel(time=&quot;2020-05-26&quot;).mean(dim=&quot;time&quot;).plot()</span>
+
+<span class="sd">    Get monthly ERA5 data (uses Google Earth Engine):</span>
+
+<span class="sd">    &gt;&gt;&gt; era5_gee = get_era5(</span>
+<span class="sd">    ...     bbox_input=bbox,</span>
+<span class="sd">    ...     cadence=&quot;MONTHLY&quot;, </span>
+<span class="sd">    ...     start_date=&quot;2020-01-01&quot;,</span>
+<span class="sd">    ...     end_date=&quot;2020-12-31&quot;,</span>
+<span class="sd">    ...     variables=[&quot;temperature_2m&quot;]</span>
+<span class="sd">    ... )  # Uses GEE for monthly data</span>
+<span class="sd">    &gt;&gt;&gt; era5_gee[&quot;temperature_2m&quot;].plot()</span>
+
+<span class="sd">    Force using GEE for hourly ERA5 data:</span>
+
+<span class="sd">    &gt;&gt;&gt; era5_hourly_gee = get_era5(</span>
+<span class="sd">    ...     bbox_input=bbox,</span>
+<span class="sd">    ...     source=&quot;GEE&quot;,</span>
+<span class="sd">    ...     start_date=&quot;2020-01-01&quot;,</span>
+<span class="sd">    ...     end_date=&quot;2020-01-02&quot;</span>
+<span class="sd">    ... )  # Explicitly uses GEE for hourly data</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function automatically selects the optimal data source based on your request</span>
+<span class="sd">    - Hourly ERA5 data comes from ARCO-ERA5 on Google Cloud Storage by default</span>
+<span class="sd">    - All other combinations use Google Earth Engine</span>
+<span class="sd">    - You can override the automatic source selection by explicitly setting the source parameter</span>
+<span class="sd">    - Please note, these data are not the original ERA5 data but have been processed and optimized for cloud access. Each dataset will also have an assosciated latency different from the original dataset. The most up-to-date information can be found at: https://cds.climate.copernicus.eu/datasets</span>
+
+
+<span class="sd">    Data citations:</span>
+<span class="sd">    - GEE+GCS: Hersbach, H., Bell, B., Berrisford, P., et al. (2020). The ERA5 global reanalysis. Quarterly Journal of the Royal Meteorological Society, 146(730), 1999-2049.</span>
+<span class="sd">    - GCS: Carver, Robert W, and Merose, Alex. (2023): ARCO-ERA5: An Analysis-Ready Cloud-Optimized Reanalysis Dataset. 22nd Conf. on AI for Env. Science, Denver, CO, Amer. Meteo. Soc, 4A.1, https://ams.confex.com/ams/103ANNUAL/meetingapp.cgi/Paper/415842</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Determine the appropriate source based on parameters</span>
+    <span class="n">effective_source</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">effective_source</span> <span class="o">==</span> <span class="s2">&quot;AUTO&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="s2">&quot;ERA5&quot;</span> <span class="ow">and</span> <span class="n">cadence</span> <span class="o">==</span> <span class="s2">&quot;HOURLY&quot;</span><span class="p">:</span>
+            <span class="n">effective_source</span> <span class="o">=</span> <span class="s2">&quot;GCS&quot;</span>  <span class="c1"># Use ARCO dataset for hourly ERA5</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">effective_source</span> <span class="o">=</span> <span class="s2">&quot;GEE&quot;</span>  <span class="c1"># Default to GEE for all other combinations</span>
+
+    <span class="c1"># Convert bbox to GeoDataFrame format for consistent handling</span>
+    <span class="n">bbox_gdf</span> <span class="o">=</span> <span class="n">convert_bbox_to_geodataframe</span><span class="p">(</span><span class="n">bbox_input</span><span class="p">)</span> <span class="k">if</span> <span class="n">bbox_input</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="c1"># Option 1: Google Cloud Storage (GCS) - ARCO-ERA5 Zarr dataset</span>
+    <span class="k">if</span> <span class="n">effective_source</span> <span class="o">==</span> <span class="s2">&quot;GCS&quot;</span><span class="p">:</span>
+        <span class="c1"># Verify we&#39;re using ERA5 hourly (the only supported option for GCS)</span>
+        <span class="k">if</span> <span class="n">version</span> <span class="o">!=</span> <span class="s2">&quot;ERA5&quot;</span> <span class="ow">or</span> <span class="n">cadence</span> <span class="o">!=</span> <span class="s2">&quot;HOURLY&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;GCS source only supports ERA5 hourly data, not </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">cadence</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">era5_ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_zarr</span><span class="p">(</span>
+            <span class="s1">&#39;gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3&#39;</span><span class="p">,</span>
+            <span class="n">chunks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">storage_options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="s1">&#39;anon&#39;</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Apply time filtering if specified</span>
+        <span class="k">if</span> <span class="n">start_date</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">end_date</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">era5_ds</span> <span class="o">=</span> <span class="n">era5_ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">era5_ds</span> <span class="o">=</span> <span class="n">era5_ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">era5_ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;valid_time_start&#39;</span><span class="p">],</span> 
+                                            <span class="n">era5_ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;valid_time_stop&#39;</span><span class="p">]))</span>
+
+        <span class="c1"># Set CRS and normalize longitude coordinates</span>
+        <span class="n">era5_ds</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">write_crs</span><span class="p">(</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">era5_ds</span> <span class="o">=</span> <span class="n">era5_ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span>
+            <span class="n">longitude</span><span class="o">=</span><span class="p">(((</span><span class="n">era5_ds</span><span class="o">.</span><span class="n">longitude</span> <span class="o">+</span> <span class="mi">180</span><span class="p">)</span> <span class="o">%</span> <span class="mi">360</span><span class="p">)</span> <span class="o">-</span> <span class="mi">180</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">sortby</span><span class="p">(</span><span class="s1">&#39;longitude&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Add coordinate attributes</span>
+        <span class="n">era5_ds</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;longitude&quot;</span>
+        <span class="n">era5_ds</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;degrees_east&quot;</span>
+
+        <span class="c1"># Apply spatial subsetting if specified</span>
+        <span class="k">if</span> <span class="n">bbox_gdf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">era5_ds</span> <span class="o">=</span> <span class="n">era5_ds</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">clip_box</span><span class="p">(</span><span class="o">*</span><span class="n">bbox_gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">bbox_gdf</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+
+        <span class="c1"># Add metadata</span>
+        <span class="n">era5_ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;data_citation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Carver, Robert W, and Merose, Alex. (2023): ARCO-ERA5: An Analysis-Ready &quot;</span>
+            <span class="s2">&quot;Cloud-Optimized Reanalysis Dataset. 22nd Conf. on AI for Env. Science, &quot;</span>
+            <span class="s2">&quot;Denver, CO, Amer. Meteo. Soc, 4A.1, &quot;</span>
+            <span class="s2">&quot;https://ams.confex.com/ams/103ANNUAL/meetingapp.cgi/Paper/415842&quot;</span>
+        <span class="p">)</span>
+        <span class="n">era5_ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Google Cloud Storage (ARCO-ERA5)&quot;</span>
+        <span class="n">era5_ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">version</span>
+        <span class="n">era5_ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;cadence&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cadence</span>
+
+        <span class="k">return</span> <span class="n">era5_ds</span>
+
+    <span class="c1"># Option 2: Google Earth Engine (GEE)</span>
+    <span class="k">elif</span> <span class="n">effective_source</span> <span class="o">==</span> <span class="s2">&quot;GEE&quot;</span><span class="p">:</span>
+        <span class="c1"># Initialize Earth Engine if requested</span>
+        <span class="k">if</span> <span class="n">initialize_ee</span><span class="p">:</span>
+            <span class="n">ee</span><span class="o">.</span><span class="n">Initialize</span><span class="p">(</span><span class="n">opt_url</span><span class="o">=</span><span class="s1">&#39;https://earthengine-highvolume.googleapis.com&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Earth Engine initialization skipped. Please ensure EE is initialized.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Collection name mapping</span>
+        <span class="n">collection_mapping</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">(</span><span class="s2">&quot;ERA5_LAND&quot;</span><span class="p">,</span> <span class="s2">&quot;HOURLY&quot;</span><span class="p">):</span> <span class="s2">&quot;ECMWF/ERA5_LAND/HOURLY&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="s2">&quot;ERA5_LAND&quot;</span><span class="p">,</span> <span class="s2">&quot;DAILY&quot;</span><span class="p">):</span> <span class="s2">&quot;ECMWF/ERA5_LAND/DAILY_AGGR&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="s2">&quot;ERA5_LAND&quot;</span><span class="p">,</span> <span class="s2">&quot;MONTHLY&quot;</span><span class="p">):</span> <span class="s2">&quot;ECMWF/ERA5_LAND/MONTHLY_AGGR&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="s2">&quot;ERA5&quot;</span><span class="p">,</span> <span class="s2">&quot;HOURLY&quot;</span><span class="p">):</span> <span class="s2">&quot;ECMWF/ERA5/HOURLY&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="s2">&quot;ERA5&quot;</span><span class="p">,</span> <span class="s2">&quot;DAILY&quot;</span><span class="p">):</span> <span class="s2">&quot;ECMWF/ERA5/DAILY&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="s2">&quot;ERA5&quot;</span><span class="p">,</span> <span class="s2">&quot;MONTHLY&quot;</span><span class="p">):</span> <span class="s2">&quot;ECMWF/ERA5/MONTHLY&quot;</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Get collection name</span>
+        <span class="n">collection_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="n">cadence</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">collection_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">collection_mapping</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid combination of version &#39;</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">&#39; and cadence &#39;</span><span class="si">{</span><span class="n">cadence</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+        <span class="n">collection_name</span> <span class="o">=</span> <span class="n">collection_mapping</span><span class="p">[</span><span class="n">collection_key</span><span class="p">]</span>
+
+        <span class="c1"># Initialize image collection</span>
+        <span class="n">image_collection</span> <span class="o">=</span> <span class="n">ee</span><span class="o">.</span><span class="n">ImageCollection</span><span class="p">(</span><span class="n">collection_name</span><span class="p">)</span>
+
+        <span class="c1"># Apply date filtering if specified</span>
+        <span class="k">if</span> <span class="n">start_date</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">end_date</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">end_date</span> <span class="o">=</span> <span class="n">end_date</span> <span class="o">+</span> <span class="s2">&quot;T23:59:59&quot;</span>  <span class="c1"># Include full end date</span>
+            <span class="n">image_collection</span> <span class="o">=</span> <span class="n">image_collection</span><span class="o">.</span><span class="n">filterDate</span><span class="p">(</span><span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span>
+
+        <span class="c1"># Apply variable selection if specified</span>
+        <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">variables</span><span class="p">]</span>
+            <span class="n">image_collection</span> <span class="o">=</span> <span class="n">image_collection</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+
+        <span class="c1"># Get projection from first image</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">image_collection</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="n">projection</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">projection</span><span class="p">()</span>
+
+        <span class="c1"># Prepare geometry for GEE</span>
+        <span class="n">geometry</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">bbox_gdf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">bbox_gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">)</span>
+
+        <span class="c1"># Load dataset</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span>
+            <span class="n">image_collection</span><span class="p">,</span>
+            <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;ee&#39;</span><span class="p">,</span>
+            <span class="n">geometry</span><span class="o">=</span><span class="n">geometry</span><span class="p">,</span>
+            <span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">,</span>
+            <span class="n">chunks</span><span class="o">=</span><span class="kc">None</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Clean up dimensions and coordinate names</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="p">(</span><span class="n">ds</span>
+              <span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">)</span>
+              <span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">&#39;lat&#39;</span><span class="p">:</span> <span class="s1">&#39;latitude&#39;</span><span class="p">,</span> <span class="s1">&#39;lon&#39;</span><span class="p">:</span> <span class="s1">&#39;longitude&#39;</span><span class="p">})</span>
+              <span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">set_spatial_dims</span><span class="p">(</span><span class="n">x_dim</span><span class="o">=</span><span class="s1">&#39;longitude&#39;</span><span class="p">,</span> <span class="n">y_dim</span><span class="o">=</span><span class="s1">&#39;latitude&#39;</span><span class="p">))</span>
+
+        <span class="c1"># Add metadata</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;data_citation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Hersbach, H., Bell, B., Berrisford, P., et al. (2020). The ERA5 global reanalysis. &quot;</span>
+            <span class="s2">&quot;Quarterly Journal of the Royal Meteorological Society, 146(730), 1999-2049.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">version</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;cadence&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cadence</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Google Earth Engine&quot;</span>
+
+        <span class="k">return</span> <span class="n">ds</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Source must be &#39;auto&#39;, &#39;GEE&#39; (Google Earth Engine), or &#39;GCS&#39; (Google Cloud Storage)&quot;</span><span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 id="easysnowdata.hydroclimatology.get_grdc_major_river_basins_of_the_world" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">get_grdc_major_river_basins_of_the_world</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+
+<a href="#easysnowdata.hydroclimatology.get_grdc_major_river_basins_of_the_world" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Retrieves GRDC Major River Basins of the World dataset.</p>
+<p>This function downloads and loads the Global Runoff Data Centre's (GRDC) Major River Basins 
+dataset, which contains 520 river/lake basins considered major in size or hydro-political 
+importance. The basins include both exorheic drainage (flowing to oceans) and endorheic 
+drainage (inland sinks/lakes) systems.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>bbox_input</code></td>
+        <td><code>geopandas.geodataframe.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None</code></td>
+        <td><p>The bounding box for spatial subsetting. If None, the entire global dataset is returned.</p></td>
+        <td><code>None</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Examples:</strong></p>
+    <p>Get all major river basins...</p>
+
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>GeoDataFrame</code></td>
+      <td><p>A GeoDataFrame containing the GRDC major river basins with associated attributes.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>easysnowdata/hydroclimatology.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_grdc_major_river_basins_of_the_world</span><span class="p">(</span>
+    <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieves GRDC Major River Basins of the World dataset.</span>
+
+<span class="sd">    This function downloads and loads the Global Runoff Data Centre&#39;s (GRDC) Major River Basins </span>
+<span class="sd">    dataset, which contains 520 river/lake basins considered major in size or hydro-political </span>
+<span class="sd">    importance. The basins include both exorheic drainage (flowing to oceans) and endorheic </span>
+<span class="sd">    drainage (inland sinks/lakes) systems.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional</span>
+<span class="sd">        The bounding box for spatial subsetting. If None, the entire global dataset is returned.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    geopandas.GeoDataFrame</span>
+<span class="sd">        A GeoDataFrame containing the GRDC major river basins with associated attributes.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Get all major river basins...</span>
+
+<span class="sd">    &gt;&gt;&gt; basins = get_grdc_basins()</span>
+<span class="sd">    &gt;&gt;&gt; basins.plot()</span>
+
+<span class="sd">    Get basins for a specific region...</span>
+
+<span class="sd">    &gt;&gt;&gt; bbox = (-121.94, 46.72, -121.54, 46.99)</span>
+<span class="sd">    &gt;&gt;&gt; regional_basins = get_grdc_basins(bbox_input=bbox)</span>
+<span class="sd">    &gt;&gt;&gt; regional_basins.plot()</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This dataset incorporates data from HydroSHEDS database which is © World Wildlife Fund, Inc. </span>
+<span class="sd">    (2006-2013) and has been used under license.</span>
+
+<span class="sd">    Data citation:</span>
+<span class="sd">    GRDC (2020): GRDC Major River Basins. Global Runoff Data Centre. 2nd, rev. ed. </span>
+<span class="sd">    Koblenz: Federal Institute of Hydrology (BfG).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://datacatalogfiles.worldbank.org/ddh-published/0041426/DR0051689/major_basins_of_the_world_0_0_0.zip&quot;</span>
+
+    <span class="c1"># Convert bbox to GeoDataFrame if provided</span>
+    <span class="n">bbox_gdf</span> <span class="o">=</span> <span class="n">convert_bbox_to_geodataframe</span><span class="p">(</span><span class="n">bbox_input</span><span class="p">)</span> <span class="k">if</span> <span class="n">bbox_input</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="c1"># Load the data</span>
+    <span class="n">basins_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">&quot;zip+&quot;</span> <span class="o">+</span> <span class="n">url</span><span class="p">)</span>
+
+    <span class="c1"># Clip to bbox if provided</span>
+    <span class="k">if</span> <span class="n">bbox_gdf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">basins_gdf</span> <span class="o">=</span> <span class="n">basins_gdf</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">bbox_gdf</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No spatial subsetting because bbox_input was not provided.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Add citation to attributes</span>
+    <span class="n">basins_gdf</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;data_citation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;GRDC (2020): GRDC Major River Basins. Global Runoff Data Centre. 2nd, rev. ed. Koblenz: Federal Institute of Hydrology (BfG).&quot;</span>
+
+    <span class="k">return</span> <span class="n">basins_gdf</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 id="easysnowdata.hydroclimatology.get_huc_geometries" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">get_huc_geometries</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">huc_level</span><span class="o">=</span><span class="s1">&#39;02&#39;</span><span class="p">)</span></code>
+
+
+<a href="#easysnowdata.hydroclimatology.get_huc_geometries" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Retrieves Hydrologic Unit Code (HUC) geometries within a specified bounding box and HUC level.</p>
+<p>This function queries the USGS Water Boundary Dataset (WBD) for HUC geometries. It can retrieve
+HUC geometries at different levels for a specified region defined by a bounding box. If no 
+bounding box is provided, it retrieves HUC geometries for the entire United States.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>bbox_input</code></td>
+        <td><code>geopandas.geodataframe.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None</code></td>
+        <td><p>The bounding box for spatial subsetting. If None, the entire US dataset is returned.</p></td>
+        <td><code>None</code></td>
+      </tr>
+      <tr>
+        <td><code>huc_level</code></td>
+        <td><code>str</code></td>
+        <td><p>The HUC level to retrieve geometries for. Valid levels are '02', '04', '06', '08', '10', '12'.
+Default is '02'.</p></td>
+        <td><code>&#39;02&#39;</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Examples:</strong></p>
+    <p>Get HUC geometries for a specific region at HUC level 08...</p>
+
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>GeoDataFrame</code></td>
+      <td><p>A GeoDataFrame containing the retrieved HUC geometries along with associated attributes
+such as name, area in square kilometers, states, TNMID, and geometry.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>easysnowdata/hydroclimatology.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_huc_geometries</span><span class="p">(</span>
+        <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+        <span class="n">huc_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;02&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieves Hydrologic Unit Code (HUC) geometries within a specified bounding box and HUC level.</span>
+
+<span class="sd">    This function queries the USGS Water Boundary Dataset (WBD) for HUC geometries. It can retrieve</span>
+<span class="sd">    HUC geometries at different levels for a specified region defined by a bounding box. If no </span>
+<span class="sd">    bounding box is provided, it retrieves HUC geometries for the entire United States.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional</span>
+<span class="sd">        The bounding box for spatial subsetting. If None, the entire US dataset is returned.</span>
+<span class="sd">    huc_level : str, optional</span>
+<span class="sd">        The HUC level to retrieve geometries for. Valid levels are &#39;02&#39;, &#39;04&#39;, &#39;06&#39;, &#39;08&#39;, &#39;10&#39;, &#39;12&#39;.</span>
+<span class="sd">        Default is &#39;02&#39;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    geopandas.GeoDataFrame</span>
+<span class="sd">        A GeoDataFrame containing the retrieved HUC geometries along with associated attributes</span>
+<span class="sd">        such as name, area in square kilometers, states, TNMID, and geometry.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Get HUC geometries for a specific region at HUC level 08...</span>
+
+<span class="sd">    &gt;&gt;&gt; huc_data = get_huc_geometries(bbox_input=(-121.94, 46.72, -121.54, 46.99), huc_level=&quot;08&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; huc_data.plot()</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function requires an active Earth Engine session. Make sure to authenticate </span>
+<span class="sd">    with Earth Engine before using this function.</span>
+
+<span class="sd">    Data citation: </span>
+<span class="sd">    Jones, K.A., Niknami, L.S., Buto, S.G., and Decker, D., 2022, </span>
+<span class="sd">    Federal standards and procedures for the national Watershed Boundary Dataset (WBD) (5 ed.): </span>
+<span class="sd">    U.S. Geological Survey Techniques and Methods 11-A3, 54 p., </span>
+<span class="sd">    https://doi.org/10.3133/tm11A3</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ee</span><span class="o">.</span><span class="n">Initialize</span><span class="p">(</span><span class="n">opt_url</span><span class="o">=</span><span class="s1">&#39;https://earthengine-highvolume.googleapis.com&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Convert bounding box to feature collection to use as region for querying HUC geometries</span>
+    <span class="n">bbox_gdf</span> <span class="o">=</span> <span class="n">convert_bbox_to_geodataframe</span><span class="p">(</span><span class="n">bbox_input</span><span class="p">)</span>
+    <span class="n">bbox_json</span> <span class="o">=</span> <span class="n">bbox_gdf</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span>
+    <span class="n">featureCollection</span> <span class="o">=</span> <span class="n">ee</span><span class="o">.</span><span class="n">FeatureCollection</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">bbox_json</span><span class="p">))</span>
+
+    <span class="c1"># Search Earth Engine USGS WBD collection for HUC geometries</span>
+    <span class="n">huc_gdf</span> <span class="o">=</span> <span class="n">ee</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">listFeatures</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;assetId&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;USGS/WBD/2017/HUC</span><span class="si">{</span><span class="n">huc_level</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">featureCollection</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">getInfo</span><span class="p">(),</span>
+            <span class="s2">&quot;fileFormat&quot;</span><span class="p">:</span> <span class="s2">&quot;GEOPANDAS_GEODATAFRAME&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Add crs to geodataframe and select relevant columns</span>
+    <span class="n">huc_gdf</span><span class="o">.</span><span class="n">crs</span> <span class="o">=</span> <span class="s2">&quot;EPSG:4326&quot;</span>
+    <span class="n">huc_gdf</span> <span class="o">=</span> <span class="n">huc_gdf</span><span class="p">[</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">&#39;huc</span><span class="si">{</span><span class="n">huc_level</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;areasqkm&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;states&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tnmid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;geometry&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">]</span>
+
+    <span class="n">huc_gdf</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Data citation&quot;</span><span class="p">:</span> <span class="s2">&quot;Jones, K.A., Niknami, L.S., Buto, S.G., and Decker, D., 2022, Federal standards and procedures for the national Watershed Boundary Dataset (WBD) (5 ed.): U.S. Geological Survey Techniques and Methods 11-A3, 54 p., https://doi.org/10.3133/tm11A3&quot;</span><span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">huc_gdf</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 id="easysnowdata.hydroclimatology.get_hydroBASINS" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">get_hydroBASINS</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">regions</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></code>
+
+
+<a href="#easysnowdata.hydroclimatology.get_hydroBASINS" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Retrieves HydroBASINS sub-basin boundaries at specified hierarchical level.</p>
+<p>This function downloads and loads vectorized polygon layers depicting sub-basin boundaries
+from the HydroBASINS database. It provides consistently sized and hierarchically nested 
+sub-basins at different scales, supported by Pfafstetter coding for catchment topology analysis.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>bbox_input</code></td>
+        <td><code>geopandas.geodataframe.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None</code></td>
+        <td><p>The bounding box for spatial subsetting. If None, the entire dataset is returned.</p></td>
+        <td><code>None</code></td>
+      </tr>
+      <tr>
+        <td><code>regions</code></td>
+        <td><code>str | list</code></td>
+        <td><p>Regions to download. Can be 'all' or list of region names. Valid regions are:
+'Africa', 'Arctic', 'Asia', 'Australia', 'Europe', 'Greenland', 'North America',
+'South America', 'Siberia'. Default is 'all'.</p></td>
+        <td><code>&#39;all&#39;</code></td>
+      </tr>
+      <tr>
+        <td><code>level</code></td>
+        <td><code>int</code></td>
+        <td><p>The hierarchical level (1-12) of sub-basin delineation. Higher levels represent
+finer subdivisions. Default is 4.</p></td>
+        <td><code>4</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Examples:</strong></p>
+    <p>Get level 4 sub-basins for all regions...</p>
+
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>GeoDataFrame</code></td>
+      <td><p>A GeoDataFrame containing the HydroBASINS sub-basin boundaries with associated attributes.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>easysnowdata/hydroclimatology.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_hydroBASINS</span><span class="p">(</span>
+    <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">regions</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span><span class="p">,</span>
+    <span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieves HydroBASINS sub-basin boundaries at specified hierarchical level.</span>
+
+<span class="sd">    This function downloads and loads vectorized polygon layers depicting sub-basin boundaries</span>
+<span class="sd">    from the HydroBASINS database. It provides consistently sized and hierarchically nested </span>
+<span class="sd">    sub-basins at different scales, supported by Pfafstetter coding for catchment topology analysis.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional</span>
+<span class="sd">        The bounding box for spatial subsetting. If None, the entire dataset is returned.</span>
+<span class="sd">    regions : str or list, optional</span>
+<span class="sd">        Regions to download. Can be &#39;all&#39; or list of region names. Valid regions are:</span>
+<span class="sd">        &#39;Africa&#39;, &#39;Arctic&#39;, &#39;Asia&#39;, &#39;Australia&#39;, &#39;Europe&#39;, &#39;Greenland&#39;, &#39;North America&#39;,</span>
+<span class="sd">        &#39;South America&#39;, &#39;Siberia&#39;. Default is &#39;all&#39;.</span>
+<span class="sd">    level : int, optional</span>
+<span class="sd">        The hierarchical level (1-12) of sub-basin delineation. Higher levels represent</span>
+<span class="sd">        finer subdivisions. Default is 4.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    geopandas.GeoDataFrame</span>
+<span class="sd">        A GeoDataFrame containing the HydroBASINS sub-basin boundaries with associated attributes.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Get level 4 sub-basins for all regions...</span>
+
+<span class="sd">    &gt;&gt;&gt; basins = get_hydrobasins()</span>
+<span class="sd">    &gt;&gt;&gt; basins.plot()</span>
+
+<span class="sd">    Get level 6 sub-basins for North America...</span>
+
+<span class="sd">    &gt;&gt;&gt; na_basins = get_hydrobasins(regions=[&#39;North America&#39;], level=6)</span>
+<span class="sd">    &gt;&gt;&gt; na_basins.plot()</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Data citation:</span>
+<span class="sd">    Lehner, B., Grill G. (2013). Global river hydrography and network routing: baseline data </span>
+<span class="sd">    and new approaches to study the world&#39;s large river systems. Hydrological Processes, </span>
+<span class="sd">    27(15): 2171–2186. https://doi.org/10.1002/hyp.9740</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">HYDROBASINS_LEVELS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;lev01&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;lev02&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;lev03&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="s1">&#39;lev04&#39;</span><span class="p">,</span> 
+        <span class="mi">5</span><span class="p">:</span> <span class="s1">&#39;lev05&#39;</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="s1">&#39;lev06&#39;</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="s1">&#39;lev07&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="s1">&#39;lev08&#39;</span><span class="p">,</span>
+        <span class="mi">9</span><span class="p">:</span> <span class="s1">&#39;lev09&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="s1">&#39;lev10&#39;</span><span class="p">,</span> <span class="mi">11</span><span class="p">:</span> <span class="s1">&#39;lev11&#39;</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="s1">&#39;lev12&#39;</span>
+    <span class="p">}</span>
+
+    <span class="n">HYDROBASINS_REGIONS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;Africa&#39;</span><span class="p">:</span> <span class="s1">&#39;af&#39;</span><span class="p">,</span> <span class="s1">&#39;Arctic&#39;</span><span class="p">:</span> <span class="s1">&#39;ar&#39;</span><span class="p">,</span> <span class="s1">&#39;Asia&#39;</span><span class="p">:</span> <span class="s1">&#39;as&#39;</span><span class="p">,</span> 
+        <span class="s1">&#39;Australia&#39;</span><span class="p">:</span> <span class="s1">&#39;au&#39;</span><span class="p">,</span> <span class="s1">&#39;Europe&#39;</span><span class="p">:</span> <span class="s1">&#39;eu&#39;</span><span class="p">,</span> <span class="s1">&#39;Greenland&#39;</span><span class="p">:</span> <span class="s1">&#39;gr&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;North America&#39;</span><span class="p">:</span> <span class="s1">&#39;na&#39;</span><span class="p">,</span> <span class="s1">&#39;South America&#39;</span><span class="p">:</span> <span class="s1">&#39;sa&#39;</span><span class="p">,</span> <span class="s1">&#39;Siberia&#39;</span><span class="p">:</span> <span class="s1">&#39;si&#39;</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Convert bbox to GeoDataFrame if provided</span>
+    <span class="n">bbox_gdf</span> <span class="o">=</span> <span class="n">convert_bbox_to_geodataframe</span><span class="p">(</span><span class="n">bbox_input</span><span class="p">)</span> <span class="k">if</span> <span class="n">bbox_input</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="c1"># Handle regions parameter</span>
+    <span class="k">if</span> <span class="n">regions</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
+        <span class="n">regions_to_process</span> <span class="o">=</span> <span class="n">HYDROBASINS_REGIONS</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">regions_to_process</span> <span class="o">=</span> <span class="p">{</span><span class="n">region</span><span class="p">:</span> <span class="n">HYDROBASINS_REGIONS</span><span class="p">[</span><span class="n">region</span><span class="p">]</span> <span class="k">for</span> <span class="n">region</span> <span class="ow">in</span> <span class="n">regions</span><span class="p">}</span>
+
+    <span class="n">level_code</span> <span class="o">=</span> <span class="n">HYDROBASINS_LEVELS</span><span class="p">[</span><span class="n">level</span><span class="p">]</span>
+    <span class="n">region_gdfs</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">region_name</span><span class="p">,</span> <span class="n">region_code</span> <span class="ow">in</span> <span class="n">regions_to_process</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Getting geometries for </span><span class="si">{</span><span class="n">region_name</span><span class="si">}</span><span class="s1">...&#39;</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://data.hydrosheds.org/file/hydrobasins/standard/hybas_</span><span class="si">{</span><span class="n">region_code</span><span class="si">}</span><span class="s2">_lev01-12_v1c.zip&quot;</span>
+
+        <span class="k">if</span> <span class="n">region_name</span> <span class="o">==</span> <span class="s1">&#39;Africa&#39;</span><span class="p">:</span> 
+            <span class="c1"># Special handling for Africa due to streaming issues</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Africa takes a bit longer because we have to temporarily save the file due to read issue...&quot;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
+                <span class="n">zip_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;hybas_</span><span class="si">{</span><span class="n">region_code</span><span class="si">}</span><span class="s2">_lev01-12_v1c.zip&quot;</span><span class="p">)</span>
+
+                <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">zip_path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">iter_content</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="mi">8192</span><span class="p">):</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+
+                <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">zip_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zip_ref</span><span class="p">:</span>
+                    <span class="n">zip_ref</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span>
+
+                <span class="n">shp_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;hybas_</span><span class="si">{</span><span class="n">region_code</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">level_code</span><span class="si">}</span><span class="s1">_v1c.shp&#39;</span><span class="p">)</span>
+                <span class="n">region_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">shp_path</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">region_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">&quot;zip+&quot;</span> <span class="o">+</span> <span class="n">url</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;hybas_</span><span class="si">{</span><span class="n">region_code</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">level_code</span><span class="si">}</span><span class="s1">_v1c&#39;</span><span class="p">)</span>
+
+        <span class="n">region_gdfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">region_gdf</span><span class="p">)</span>
+
+    <span class="n">basins_gdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">region_gdfs</span><span class="p">)</span>
+
+    <span class="c1"># Clip to bbox if provided</span>
+    <span class="k">if</span> <span class="n">bbox_gdf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">basins_gdf</span> <span class="o">=</span> <span class="n">basins_gdf</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">bbox_gdf</span><span class="p">)</span>
+
+    <span class="c1"># Add citation to attributes</span>
+    <span class="n">basins_gdf</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;data_citation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Lehner, B., Grill G. (2013). Global river hydrography and network routing: baseline data and new approaches to study the world&#39;s large river systems. Hydrological Processes, 27(15): 2171–2186. https://doi.org/10.1002/hyp.9740&quot;</span>
+
+    <span class="k">return</span> <span class="n">basins_gdf</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 id="easysnowdata.hydroclimatology.get_koppen_geiger_classes" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">get_koppen_geiger_classes</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="s1">&#39;0.1 degree&#39;</span><span class="p">)</span></code>
+
+
+<a href="#easysnowdata.hydroclimatology.get_koppen_geiger_classes" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Retrieves Köppen-Geiger climate classification data for a given bounding box and resolution.</p>
+<p>This function fetches global Köppen-Geiger climate classification data from a high-resolution dataset
+based on constrained CMIP6 projections. It allows for optional spatial subsetting and provides
+multiple resolution options. The returned DataArray includes a custom plotting function as an attribute.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>bbox_input</code></td>
+        <td><code>geopandas.geodataframe.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None</code></td>
+        <td><p>The bounding box for spatial subsetting. If None, the entire global dataset is returned.</p></td>
+        <td><code>None</code></td>
+      </tr>
+      <tr>
+        <td><code>resolution</code></td>
+        <td><code>str</code></td>
+        <td><p>The spatial resolution of the data. Options are "1 degree", "0.5 degree", "0.1 degree", or "1 km".
+Default is "0.1 degree".</p></td>
+        <td><code>&#39;0.1 degree&#39;</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Examples:</strong></p>
+    <p>Get Köppen-Geiger climate classification data for the entire globe with a 1-degree resolution, use custom plotting function:</p>
+
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>DataArray</code></td>
+      <td><p>A DataArray containing the Köppen-Geiger climate classification data, with class information,
+color map, data citation, and a custom plotting function included as attributes.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>easysnowdata/hydroclimatology.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_koppen_geiger_classes</span><span class="p">(</span>
+        <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">resolution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;0.1 degree&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieves Köppen-Geiger climate classification data for a given bounding box and resolution.</span>
+
+<span class="sd">    This function fetches global Köppen-Geiger climate classification data from a high-resolution dataset</span>
+<span class="sd">    based on constrained CMIP6 projections. It allows for optional spatial subsetting and provides</span>
+<span class="sd">    multiple resolution options. The returned DataArray includes a custom plotting function as an attribute.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bbox_input:</span>
+<span class="sd">        The bounding box for spatial subsetting. If None, the entire global dataset is returned.</span>
+<span class="sd">    resolution:</span>
+<span class="sd">        The spatial resolution of the data. Options are &quot;1 degree&quot;, &quot;0.5 degree&quot;, &quot;0.1 degree&quot;, or &quot;1 km&quot;.</span>
+<span class="sd">        Default is &quot;0.1 degree&quot;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        A DataArray containing the Köppen-Geiger climate classification data, with class information,</span>
+<span class="sd">        color map, data citation, and a custom plotting function included as attributes.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Get Köppen-Geiger climate classification data for the entire globe with a 1-degree resolution, use custom plotting function:</span>
+<span class="sd">    &gt;&gt;&gt; koppen_data = get_koppen_geiger_classes(bbox_input=None, resolution=&quot;1 degree&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; koppen_data.attrs[&#39;example_plot&#39;](koppen_data)</span>
+<span class="sd">    Get Köppen-Geiger climate classification data for a specific region with a 1 km resolution, plot using xarray&#39;s built-in plotting function</span>
+<span class="sd">    &gt;&gt;&gt; koppen_geiger_da = get_koppen_geiger_classes(bbox_input=(-121.94224976, 46.72842173, -121.54136001, 46.99728203), resolution=&quot;1 km&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; koppen_data.plot(cmap=koppen_data.attrs[&quot;cmap&quot;])</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Data citation:</span>
+
+<span class="sd">    Beck, H.E., McVicar, T.R., Vergopolan, N. et al. High-resolution (1 km) Köppen-Geiger maps</span>
+<span class="sd">    for 1901–2099 based on constrained CMIP6 projections. Sci Data 10, 724 (2023).</span>
+<span class="sd">    https://doi.org/10.1038/s41597-023-02549-6</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_class_info</span><span class="p">():</span>
+        <span class="n">classes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Af&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Tropical, rainforest&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">]},</span>
+            <span class="mi">2</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Am&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Tropical, monsoon&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">255</span><span class="p">]},</span>
+            <span class="mi">3</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Aw&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Tropical, savannah&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">70</span><span class="p">,</span> <span class="mi">170</span><span class="p">,</span> <span class="mi">250</span><span class="p">]},</span>
+            <span class="mi">4</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;BWh&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Arid, desert, hot&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]},</span>
+            <span class="mi">5</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;BWk&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Arid, desert, cold&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">]},</span>
+            <span class="mi">6</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;BSh&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Arid, steppe, hot&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">245</span><span class="p">,</span> <span class="mi">165</span><span class="p">,</span> <span class="mi">0</span><span class="p">]},</span>
+            <span class="mi">7</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;BSk&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Arid, steppe, cold&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">220</span><span class="p">,</span> <span class="mi">100</span><span class="p">]},</span>
+            <span class="mi">8</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Csa&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Temperate, dry summer, hot summer&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">]},</span>
+            <span class="mi">9</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Csb&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Temperate, dry summer, warm summer&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">]},</span>
+            <span class="mi">10</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Csc&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Temperate, dry summer, cold summer&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">0</span><span class="p">]},</span>
+            <span class="mi">11</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Cwa&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Temperate, dry winter, hot summer&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">150</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">150</span><span class="p">]},</span>
+            <span class="mi">12</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Cwb&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Temperate, dry winter, warm summer&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">100</span><span class="p">]},</span>
+            <span class="mi">13</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Cwc&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Temperate, dry winter, cold summer&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">50</span><span class="p">]},</span>
+            <span class="mi">14</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Cfa&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Temperate, no dry season, hot summer&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">80</span><span class="p">]},</span>
+            <span class="mi">15</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Cfb&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Temperate, no dry season, warm summer&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">80</span><span class="p">]},</span>
+            <span class="mi">16</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Cfc&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Temperate, no dry season, cold summer&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">]},</span>
+            <span class="mi">17</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Dsa&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cold, dry summer, hot summer&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">]},</span>
+            <span class="mi">18</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Dsb&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cold, dry summer, warm summer&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">200</span><span class="p">]},</span>
+            <span class="mi">19</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Dsc&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cold, dry summer, cold summer&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">150</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">150</span><span class="p">]},</span>
+            <span class="mi">20</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Dsd&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cold, dry summer, very cold winter&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">150</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">150</span><span class="p">]},</span>
+            <span class="mi">21</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Dwa&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cold, dry winter, hot summer&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">170</span><span class="p">,</span> <span class="mi">175</span><span class="p">,</span> <span class="mi">255</span><span class="p">]},</span>
+            <span class="mi">22</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Dwb&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cold, dry winter, warm summer&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">220</span><span class="p">]},</span>
+            <span class="mi">23</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Dwc&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cold, dry winter, cold summer&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">75</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">180</span><span class="p">]},</span>
+            <span class="mi">24</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Dwd&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cold, dry winter, very cold winter&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">135</span><span class="p">]},</span>
+            <span class="mi">25</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Dfa&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cold, no dry season, hot summer&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">]},</span>
+            <span class="mi">26</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Dfb&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cold, no dry season, warm summer&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">55</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">255</span><span class="p">]},</span>
+            <span class="mi">27</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Dfc&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cold, no dry season, cold summer&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">125</span><span class="p">,</span> <span class="mi">125</span><span class="p">]},</span>
+            <span class="mi">28</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Dfd&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cold, no dry season, very cold winter&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">95</span><span class="p">]},</span>
+            <span class="mi">29</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ET&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Polar, tundra&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">178</span><span class="p">,</span> <span class="mi">178</span><span class="p">,</span> <span class="mi">178</span><span class="p">]},</span>
+            <span class="mi">30</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;EF&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Polar, frost&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">102</span><span class="p">,</span> <span class="mi">102</span><span class="p">,</span> <span class="mi">102</span><span class="p">]}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">classes</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_class_cmap</span><span class="p">(</span><span class="n">classes</span><span class="p">):</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">[</span><span class="n">c</span><span class="o">/</span><span class="mi">255</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">v</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">classes</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">return</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">ListedColormap</span><span class="p">([</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">31</span><span class="p">)])</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">cbar_orientation</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
+
+        <span class="n">bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">31.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">BoundaryNorm</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;cmap&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+
+        <span class="n">im</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;cmap&quot;</span><span class="p">],</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">add_colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="n">cbar_orientation</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.08</span><span class="p">)</span>
+
+        <span class="n">cbar</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">31</span><span class="p">))</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;class_info&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cbar_orientation</span> <span class="o">==</span> <span class="s1">&#39;horizontal&#39;</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">(),</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">rotation_mode</span><span class="o">=</span><span class="s1">&#39;anchor&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">(),</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Longitude&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Latitude&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Köppen-Geiger climate classification&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">pad</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">w_pad</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">h_pad</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">f</span><span class="p">,</span> <span class="n">ax</span>
+
+    <span class="n">bbox_gdf</span> <span class="o">=</span> <span class="n">convert_bbox_to_geodataframe</span><span class="p">(</span><span class="n">bbox_input</span><span class="p">)</span>
+
+    <span class="n">resolution_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;1 degree&quot;</span><span class="p">:</span> <span class="s2">&quot;1p0&quot;</span><span class="p">,</span> <span class="s2">&quot;0.5 degree&quot;</span><span class="p">:</span> <span class="s2">&quot;0p5&quot;</span><span class="p">,</span> <span class="s2">&quot;0.1 degree&quot;</span><span class="p">:</span> <span class="s2">&quot;0p1&quot;</span><span class="p">,</span> <span class="s2">&quot;1 km&quot;</span><span class="p">:</span> <span class="s2">&quot;0p00833333&quot;</span><span class="p">}</span>
+    <span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution_dict</span><span class="p">[</span><span class="n">resolution</span><span class="p">]</span>
+
+    <span class="n">koppen_geiger_da</span> <span class="o">=</span> <span class="n">rxr</span><span class="o">.</span><span class="n">open_rasterio</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;zip+https://figshare.com/ndownloader/files/45057352/koppen_geiger_tif.zip/1991_2020/koppen_geiger_</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s2">.tif&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+
+    <span class="n">koppen_geiger_da</span> <span class="o">=</span> <span class="n">koppen_geiger_da</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">clip_box</span><span class="p">(</span><span class="o">*</span><span class="n">bbox_gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">,</span><span class="n">crs</span><span class="o">=</span><span class="n">bbox_gdf</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+
+
+    <span class="n">koppen_geiger_da</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;class_info&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_class_info</span><span class="p">()</span>
+    <span class="n">koppen_geiger_da</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;cmap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_class_cmap</span><span class="p">(</span><span class="n">koppen_geiger_da</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;class_info&quot;</span><span class="p">])</span>
+    <span class="n">koppen_geiger_da</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;data_citation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Beck, H.E., McVicar, T.R., Vergopolan, N. et al. High-resolution (1 km) Köppen-Geiger maps for 1901–2099 based on constrained CMIP6 projections. Sci Data 10, 724 (2023). https://doi.org/10.1038/s41597-023-02549-6&quot;</span>
+
+    <span class="n">koppen_geiger_da</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;example_plot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plot_classes</span>
+
+    <span class="k">return</span> <span class="n">koppen_geiger_da</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 id="easysnowdata.hydroclimatology.get_ucla_snow_reanalysis" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">get_ucla_snow_reanalysis</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="s1">&#39;SWE_Post&#39;</span><span class="p">,</span> <span class="n">stats</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="s1">&#39;1984-10-01&#39;</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="s1">&#39;2021-09-30&#39;</span><span class="p">)</span></code>
+
+
+<a href="#easysnowdata.hydroclimatology.get_ucla_snow_reanalysis" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Fetches the Margulis UCLA snow reanalysis product for a specified bounding box and time range.</p>
+<p>This function retrieves snow reanalysis data from the UCLA dataset, allowing users to specify
+the type of snow data variable, statistical measure, and the temporal range for the data retrieval.
+The data is then clipped to the specified bounding box and returned as an xarray DataArray.</p>
+
+<p><strong>Parameters:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><code>bbox_input</code></td>
+        <td><code>geopandas.geodataframe.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None</code></td>
+        <td><p>The bounding box for spatial subsetting. If None, the entire dataset is returned.</p></td>
+        <td><code>None</code></td>
+      </tr>
+      <tr>
+        <td><code>variable</code></td>
+        <td><code>str</code></td>
+        <td><p>The type of snow data variable to retrieve. Options include 'SWE_Post' (Snow Water Equivalent),
+'SCA_Post' (Snow Cover Area), and 'SD_Post' (Snow Depth). Default is 'SWE_Post'.</p></td>
+        <td><code>&#39;SWE_Post&#39;</code></td>
+      </tr>
+      <tr>
+        <td><code>stats</code></td>
+        <td><code>str</code></td>
+        <td><p>The ensemble statistic. Options are 'mean', 'std' (standard deviation),
+'median', '25pct' (25th percentile), and '75pct' (75th percentile). Default is 'mean'.</p></td>
+        <td><code>&#39;mean&#39;</code></td>
+      </tr>
+      <tr>
+        <td><code>start_date</code></td>
+        <td><code>str</code></td>
+        <td><p>The start date for the data retrieval in 'YYYY-MM-DD' format. Default is '1984-10-01'.</p></td>
+        <td><code>&#39;1984-10-01&#39;</code></td>
+      </tr>
+      <tr>
+        <td><code>end_date</code></td>
+        <td><code>str</code></td>
+        <td><p>The end date for the data retrieval in 'YYYY-MM-DD' format. Default is '2021-09-30'.</p></td>
+        <td><code>&#39;2021-09-30&#39;</code></td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>Examples:</strong></p>
+    <p>Get mean Snow Water Equivalent data for a specific region and time period...</p>
+
+<p><strong>Returns:</strong></p>
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>DataArray</code></td>
+      <td><p>An xarray DataArray containing the requested snow reanalysis data, clipped to the specified bounding box.</p></td>
+    </tr>
+  </tbody>
+</table>
+        <details class="quote">
+          <summary>Source code in <code>easysnowdata/hydroclimatology.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ucla_snow_reanalysis</span><span class="p">(</span><span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                             <span class="n">variable</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;SWE_Post&#39;</span><span class="p">,</span>
+                             <span class="n">stats</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span><span class="p">,</span>
+                             <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;1984-10-01&#39;</span><span class="p">,</span>
+                             <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;2021-09-30&#39;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fetches the Margulis UCLA snow reanalysis product for a specified bounding box and time range.</span>
+
+<span class="sd">    This function retrieves snow reanalysis data from the UCLA dataset, allowing users to specify</span>
+<span class="sd">    the type of snow data variable, statistical measure, and the temporal range for the data retrieval.</span>
+<span class="sd">    The data is then clipped to the specified bounding box and returned as an xarray DataArray.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional</span>
+<span class="sd">        The bounding box for spatial subsetting. If None, the entire dataset is returned.</span>
+<span class="sd">    variable : str, optional</span>
+<span class="sd">        The type of snow data variable to retrieve. Options include &#39;SWE_Post&#39; (Snow Water Equivalent),</span>
+<span class="sd">        &#39;SCA_Post&#39; (Snow Cover Area), and &#39;SD_Post&#39; (Snow Depth). Default is &#39;SWE_Post&#39;.</span>
+<span class="sd">    stats : str, optional</span>
+<span class="sd">        The ensemble statistic. Options are &#39;mean&#39;, &#39;std&#39; (standard deviation),</span>
+<span class="sd">        &#39;median&#39;, &#39;25pct&#39; (25th percentile), and &#39;75pct&#39; (75th percentile). Default is &#39;mean&#39;.</span>
+<span class="sd">    start_date : str, optional</span>
+<span class="sd">        The start date for the data retrieval in &#39;YYYY-MM-DD&#39; format. Default is &#39;1984-10-01&#39;.</span>
+<span class="sd">    end_date : str, optional</span>
+<span class="sd">        The end date for the data retrieval in &#39;YYYY-MM-DD&#39; format. Default is &#39;2021-09-30&#39;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        An xarray DataArray containing the requested snow reanalysis data, clipped to the specified bounding box.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Get mean Snow Water Equivalent data for a specific region and time period...</span>
+
+<span class="sd">    &gt;&gt;&gt; swe_reanalysis_da = easysnowdata.hydroclimatology.get_ucla_snow_reanalysis(bbox_input=(-121.94, 46.72, -121.54, 46.99), </span>
+<span class="sd">    ...                                     variable=&#39;SWE_Post&#39;, </span>
+<span class="sd">    ...                                     start_date=&#39;2000-01-01&#39;, </span>
+<span class="sd">    ...                                     end_date=&#39;2000-12-31&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; snow_reanalysis_da.isel(time=slice(0, 365, 30)).plot.imshow(col=&quot;time&quot;,col_wrap=5,cmap=&quot;Blues&quot;,vmin=0,vmax=3)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Data citation:</span>
+
+<span class="sd">    Fang, Y., Liu, Y. &amp; Margulis, S. A. (2022). Western United States UCLA Daily Snow Reanalysis. (WUS_UCLA_SR, Version 1). [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/PP7T2GBI52I2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">bbox_gdf</span> <span class="o">=</span> <span class="n">convert_bbox_to_geodataframe</span><span class="p">(</span><span class="n">bbox_input</span><span class="p">)</span>
+
+    <span class="n">search</span> <span class="o">=</span> <span class="n">earthaccess</span><span class="o">.</span><span class="n">search_data</span><span class="p">(</span>
+                <span class="n">short_name</span><span class="o">=</span><span class="s2">&quot;WUS_UCLA_SR&quot;</span><span class="p">,</span>
+                <span class="n">cloud_hosted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">bounding_box</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">bbox_gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">),</span>
+                <span class="n">temporal</span><span class="o">=</span><span class="p">(</span><span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">),</span>
+            <span class="p">)</span>
+
+    <span class="n">files</span> <span class="o">=</span> <span class="n">earthaccess</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">search</span><span class="p">)</span> <span class="c1"># cant disable progress bar yet https://github.com/nsidc/earthaccess/issues/612</span>
+    <span class="n">snow_reanalysis_ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_mfdataset</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+
+    <span class="n">url</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>
+    <span class="n">date_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;\d</span><span class="si">{4}</span><span class="s1">\.\d</span><span class="si">{2}</span><span class="s1">\.\d</span><span class="si">{2}</span><span class="s1">&#39;</span>
+    <span class="n">WY_start_date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">date_pattern</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">())</span>
+
+    <span class="n">snow_reanalysis_ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Day&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">WY_start_date</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="n">snow_reanalysis_ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;Day&#39;</span><span class="p">]))</span>
+    <span class="n">snow_reanalysis_ds</span> <span class="o">=</span> <span class="n">snow_reanalysis_ds</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s1">&#39;Day&#39;</span><span class="p">:</span><span class="s1">&#39;time&#39;</span><span class="p">})</span>
+
+    <span class="n">snow_reanalysis_ds</span> <span class="o">=</span> <span class="n">snow_reanalysis_ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">))</span>
+
+    <span class="n">stats_dictionary</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mean&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;median&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;25pct&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;75pct&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">}</span>
+    <span class="n">stats_index</span> <span class="o">=</span> <span class="n">stats_dictionary</span><span class="p">[</span><span class="n">stats</span><span class="p">]</span>
+
+    <span class="n">snow_reanalysis_da</span> <span class="o">=</span> <span class="n">snow_reanalysis_ds</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">Stats</span><span class="o">=</span><span class="n">stats_index</span><span class="p">)</span>
+    <span class="n">snow_reanalysis_da</span> <span class="o">=</span> <span class="n">snow_reanalysis_da</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">set_spatial_dims</span><span class="p">(</span><span class="n">x_dim</span><span class="o">=</span><span class="s2">&quot;Longitude&quot;</span><span class="p">,</span> <span class="n">y_dim</span><span class="o">=</span><span class="s2">&quot;Latitude&quot;</span><span class="p">)</span>
+    <span class="n">snow_reanalysis_da</span> <span class="o">=</span> <span class="n">snow_reanalysis_da</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">write_crs</span><span class="p">(</span><span class="n">bbox_gdf</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+    <span class="n">snow_reanalysis_da</span> <span class="o">=</span> <span class="n">snow_reanalysis_da</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">clip_box</span><span class="p">(</span><span class="o">*</span><span class="n">bbox_gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">,</span><span class="n">crs</span><span class="o">=</span><span class="n">bbox_gdf</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+
+
+    <span class="n">snow_reanalysis_da</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;data_citation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Fang, Y., Liu, Y. &amp; Margulis, S. A. (2022). Western United States UCLA Daily Snow Reanalysis. (WUS_UCLA_SR, Version 1). [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/PP7T2GBI52I2&quot;</span>
+
+    <span class="k">return</span> <span class="n">snow_reanalysis_da</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2025-03-03T20:15:48+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2025-03-03</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Created">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2025-03-03T20:15:48+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2025-03-03</span>
+  </span>
+
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2024 - 2024 Eric Gagliano
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "search.highlight", "search.share"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../js/timeago.min.js"></script>
+      
+        <script src="../js/timeago_mkdocs_material.js"></script>
+      
+    
+  </body>
+</html>
