@@ -1631,6 +1631,9 @@ class Sentinel1:
         The loaded Sentinel-1 data.
     metadata : geopandas.GeoDataFrame
         Metadata for the retrieved Sentinel-1 scenes.
+    local_incidence_angle_data : xarray.DataArray
+        Local incidence angle values calculated from Sentinel-1 data and Copernicus DEM.
+        functionality requires google earth engine initialization, and is based on https://gis.stackexchange.com/a/352658
 
     Methods
     -------
@@ -1648,6 +1651,8 @@ class Sentinel1:
         Converts decibels (dB) to linear power units.
     add_orbit_info()
         Adds orbit information to the data as coordinates.
+    get_local_incidence_angle()
+        Calculates and retrieves the local incidence angle for the area of interest.
     """
 
     def __init__(
@@ -1701,6 +1706,7 @@ class Sentinel1:
         self.search = None
         self.data = None
         self.metadata = None
+        self._local_incidence_angle_data = None
 
         self.search_data()
         self.get_data()
@@ -1854,6 +1860,275 @@ class Sentinel1:
         print(
             f"Added relative orbit number and orbit state as coordinates to the data."
         )
+
+    @property
+    def local_incidence_angle_data(self):
+        """
+        Property to access local incidence angle data.
+        
+        Returns
+        -------
+        xarray.DataArray
+            DataArray containing local incidence angle values aligned to the same grid as the primary data.
+            
+        Notes
+        -----
+        On first access, this property calculates local incidence angles using Sentinel-1 data and 
+        Copernicus 30m DEM. Results are cached for subsequent accesses.
+        """
+        if self._local_incidence_angle_data is None:
+            self.get_local_incidence_angle()
+        return self._local_incidence_angle_data
+
+    def get_local_incidence_angle(self, resolution=None, initialize_ee=True):
+        """
+        Calculate local incidence angle for Sentinel-1 data within a bounding box.
+        
+        Parameters
+        ----------
+        resolution : int or float, optional
+            Desired resolution in meters for the calculation. Defaults to self.resolution if set, or 30m.
+        initialize_ee : bool, optional
+            Whether to initialize Earth Engine. Default is True.
+            
+        Returns
+        -------
+        xarray.DataArray
+            DataArray containing local incidence angle values with dimensions (sat:relative_orbit, y, x),
+            aligned to the same grid as the primary data.
+            
+        Notes
+        -----
+        This method calculates the local incidence angle using the Copernicus 30m DEM and
+        stores the results in the local_incidence_angle_data attribute.
+        """
+        import math
+        import xee
+        from collections import Counter
+        
+        # Use object's resolution if none provided
+        calc_resolution = resolution or self.resolution or 30
+        
+        # Initialize Earth Engine with high-volume endpoint
+        if initialize_ee:
+            ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
+        else:
+            print("Initialization turned off. If you haven't already, please sign in to Google Earth Engine by running:\n\nimport ee\nee.Authenticate()\nee.Initialize()\n\n")
+
+        # Convert bbox to Earth Engine geometry
+        bbox = tuple(self.bbox_gdf.total_bounds)
+        ee_bbox = ee.Geometry.Rectangle(bbox)
+        
+        # Filter Sentinel-1 collection
+        collection = ee.ImageCollection('COPERNICUS/S1_GRD') \
+            .filterBounds(ee_bbox) \
+            .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VV')) \
+            .filter(ee.Filter.eq('instrumentMode', 'IW'))
+        
+        # Get distinct orbit numbers
+        distinct_orbits = collection.aggregate_array('relativeOrbitNumber_start').distinct()
+        orbit_list = distinct_orbits.getInfo()
+        
+        if not orbit_list:
+            raise ValueError("No Sentinel-1 data found for the specified bounding box.")
+        
+        print(f"Found {len(orbit_list)} unique relative orbits: {orbit_list}")
+        
+        # Find the most common projection among the orbits
+        orbit_projections = {}
+        print("Analyzing orbit projections to find the most common one...")
+        
+        for orbit in orbit_list:
+            orbit_image = collection \
+                .filter(ee.Filter.eq('relativeOrbitNumber_start', orbit)) \
+                .first()
+            
+            if orbit_image:
+                # Get projection info
+                proj_info = orbit_image.select(0).projection().getInfo()
+                crs = proj_info['crs']
+                orbit_projections[orbit] = {
+                    'crs': crs,
+                    'transform': proj_info['transform']
+                }
+                print(f"Orbit {orbit} uses {crs}")
+        
+        # Count CRS frequencies
+        crs_counts = Counter([info['crs'] for info in orbit_projections.values()])
+        most_common_crs = crs_counts.most_common(1)[0][0]
+        
+        print(f"Most common CRS: {most_common_crs} (used by {crs_counts[most_common_crs]} of {len(orbit_list)} orbits)")
+        
+        # Function to calculate local incidence angle using Copernicus 30m DEM
+        def calculate_local_incidence_angle(image):
+            img_geom = image.geometry()
+            
+            # Use Copernicus 30m DEM with proper reprojection
+            dem_collection = ee.ImageCollection('COPERNICUS/DEM/GLO30')
+            dem = dem_collection.select('DEM').mosaic().clip(img_geom)
+            
+            # Reproject DEM to the most common CRS with the specified resolution
+            projection = ee.Projection(most_common_crs).atScale(calc_resolution)
+            dem = dem.reproject(projection)
+            
+            # 2.1.1 Radar geometry 
+            theta_i = image.select('angle')
+            phi_i = ee.Terrain.aspect(theta_i) \
+                .reduceRegion(ee.Reducer.mean(), theta_i.get('system:footprint'), 1000) \
+                .get('aspect')
+            
+            # 2.1.2 Terrain geometry
+            alpha_s = ee.Terrain.slope(dem).select('slope')
+            phi_s = ee.Terrain.aspect(dem).select('aspect')
+            
+            # 2.1.3 Model geometry
+            # reduce to 3 angle
+            phi_r = ee.Image.constant(phi_i).subtract(phi_s)
+            
+            # convert all to radians
+            phi_rRad = phi_r.multiply(math.pi / 180)
+            alpha_sRad = alpha_s.multiply(math.pi / 180)
+            theta_iRad = theta_i.multiply(math.pi / 180)
+            ninetyRad = ee.Image.constant(90).multiply(math.pi / 180)
+            
+            # slope steepness in range (eq. 2)
+            alpha_r = (alpha_sRad.tan().multiply(phi_rRad.cos())).atan()
+            
+            # slope steepness in azimuth (eq 3)
+            alpha_az = (alpha_sRad.tan().multiply(phi_rRad.sin())).atan()
+            
+            # local incidence angle (eq. 4)
+            cos_theta_lia = (alpha_az.cos().multiply((theta_iRad.subtract(alpha_r)).cos()))
+            
+            # Ensure valid range for acos
+            cos_theta_lia = cos_theta_lia.clamp(-1, 1)
+            
+            theta_lia = cos_theta_lia.acos()
+            theta_liaDeg = theta_lia.multiply(180 / math.pi)
+            
+            return image.addBands(theta_liaDeg.rename('local_incidence_angle'))
+        
+        # Create list to store DataArrays for each orbit
+        orbit_arrays = []
+        
+        # Create standard projection based on the most common CRS
+        standard_projection = ee.Projection(most_common_crs).atScale(calc_resolution)
+        
+        # Process each orbit
+        for orbit in orbit_list:
+            # Get images for this orbit
+            orbit_images = collection \
+                .filter(ee.Filter.eq('relativeOrbitNumber_start', orbit)) \
+                .sort('system:time_start', True) \
+                .limit(3)
+            
+            if orbit_images.size().getInfo() > 0:
+                # Calculate LIA for each image
+                lia_images = orbit_images.map(calculate_local_incidence_angle)
+                
+                # Calculate median LIA
+                median_lia = lia_images.select('local_incidence_angle').median()
+                
+                # Set properties on the median image
+                timestamp = orbit_images.first().get('system:time_start')
+                median_lia = median_lia.set({
+                    'relativeOrbitNumber_start': orbit,
+                    'system:time_start': timestamp
+                })
+                
+                # Create a single-image collection for xee
+                orbit_collection = ee.ImageCollection([median_lia])
+                
+                # Use xee to convert to xarray
+                try:
+                    ds = xr.open_dataset(
+                        orbit_collection, 
+                        engine='ee',
+                        geometry=bbox,
+                        projection=standard_projection,
+                        chunks={},
+                    )
+                    
+                    # Extract the DataArray
+                    da = ds['local_incidence_angle']
+                    
+                    # Remove the time dimension if present
+                    if 'time' in da.dims:
+                        da = da.isel(time=0, drop=True)
+                    
+                    # Add orbit as a coordinate
+                    da = da.assign_coords({'sat:relative_orbit': orbit})
+                    
+                    # Check for NaN values
+                    nan_percentage = np.isnan(da.values).mean() * 100
+                    print(f"Orbit {orbit} - Shape: {da.shape}, NaN percentage: {nan_percentage:.1f}%")
+                    
+                    if nan_percentage < 100:  # Only keep arrays with some valid data
+                        # Store in list
+                        orbit_arrays.append(da)
+                        print(f"Successfully processed orbit {orbit}")
+                    else:
+                        print(f"Skipping orbit {orbit} - all values are NaN")
+                        
+                except Exception as e:
+                    print(f"Error processing orbit {orbit}: {e}")
+        
+        if orbit_arrays:
+            # Ensure all arrays have the same shape before concatenating
+            shapes = [da.shape for da in orbit_arrays]
+            if len(set(shapes)) > 1:
+                print(f"Warning: Arrays have different shapes: {shapes}")
+                
+                # Take the shape with the most non-NaN values as template
+                best_da_idx = np.argmax([~np.isnan(da.values).sum() for da in orbit_arrays])
+                template_da = orbit_arrays[best_da_idx]
+                
+                for i in range(len(orbit_arrays)):
+                    if i != best_da_idx and orbit_arrays[i].shape != template_da.shape:
+                        orbit_num = orbit_arrays[i].sat_relative_orbit.values[0]
+                        print(f"Resampling orbit {orbit_num} to match template shape {template_da.shape}")
+                        orbit_arrays[i] = orbit_arrays[i].reindex_like(template_da)
+            
+            # Combine all orbits into a single DataArray
+            lia_da = xr.concat(orbit_arrays, dim='sat:relative_orbit')
+            
+            # Add attributes
+            lia_da.attrs.update({
+                'long_name': 'Sentinel-1 Local Incidence Angle',
+                'units': 'degrees',
+                'description': 'Local incidence angle calculated from Sentinel-1 data and Copernicus 30m DEM',
+                'source': 'Sentinel-1 GRD'
+            })
+
+            lia_da = lia_da.transpose("sat:relative_orbit",'Y','X').rename({'X':'x', 'Y':'y'}).rio.set_spatial_dims(x_dim='x', y_dim='y')
+            lia_da = lia_da.sortby('sat:relative_orbit')
+            # should be in range from 0 to 90
+            #lia_da = lia_da.where(lambda x: (x >= 0) & (x <= 90))
+            
+            # Reproject to match data grid exactly using bilinear interpolation
+            if self.data is not None:
+                # Get reference grid from first data variable
+                ref_da = self.data[list(self.data.data_vars)[0]].isel(time=0)
+                
+                # Ensure lia_da has CRS information
+                if not lia_da.rio.crs and ref_da.rio.crs:
+                    lia_da.rio.write_crs(ref_da.rio.crs, inplace=True)
+                
+                # Reproject to match data grid using bilinear interpolation, careful with nodata
+                lia_da = lia_da.rio.reproject_match(
+                    ref_da,
+                    resampling=rio.warp.Resampling.bilinear,
+                    nodata=np.nan,
+                )
+                
+                print("Local incidence angle data reprojected to match main data grid using bilinear resampling.")
+            
+            self._local_incidence_angle_data = lia_da
+            print("Local incidence angle calculation complete. Access via the .local_incidence_angle_data attribute.")
+            
+            #return self._local_incidence_angle_data
+        else:
+            raise ValueError("No valid Sentinel-1 data found for the specified bounding box.")
 
 
 class HLS:
