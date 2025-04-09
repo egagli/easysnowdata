@@ -278,6 +278,79 @@ def get_grdc_major_river_basins_of_the_world(
     return basins_gdf
 
 
+def get_grdc_wmo_basins_and_subbasins(
+    bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
+) -> gpd.GeoDataFrame:
+    """
+    Retrieves WMO Basins and Sub-Basins dataset.
+
+    This function downloads and loads the Global Runoff Data Centre's (GRDC) WMO Basins 
+    and Sub-Basins dataset. It contains 515 WMO Basins representing hydrographic regions
+    including river/lake basins with both exorheic drainage (flowing to oceans) and 
+    endorheic drainage (inland sinks/lakes).
+
+    Parameters
+    ----------
+    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional
+        The bounding box for spatial subsetting. If None, the entire global dataset is returned.
+
+    Returns
+    -------
+    geopandas.GeoDataFrame
+        A GeoDataFrame containing the WMO Basins and Sub-Basins with associated attributes.
+
+    Examples
+    --------
+    Get all WMO basins...
+
+    >>> basins = get_wmo_basins_and_subbasins()
+    >>> basins.plot()
+
+    Get basins for a specific region...
+
+    >>> bbox = (-121.94, 46.72, -121.54, 46.99)
+    >>> regional_basins = get_wmo_basins_and_subbasins(bbox_input=bbox)
+    >>> regional_basins.plot()
+
+    Notes
+    -----
+    This dataset incorporates data from the HydroSHEDS database which is © World Wildlife Fund, Inc. 
+    (2006-2013) and has been used under license.
+
+    WMO basins and sub-basins are attributed with:
+    - WMOBB: identifier of hydrographic region
+    - WMOBB_NAME: name of hydrographic region
+    - WMOBB_BASIN: name of river/lake basin, coastal region or island
+    - WMOBB_SUBBASIN: name of river/lake basin forming a separate sub-basin
+    - WMOBB_DESCRIPTION: description of hydrographic region
+    - REGNUM: number of the WMO Region (Regional Association)
+    - REGNAME: name of the WMO Region (Regional Association)
+    - WMO306_MoC_NUM: reference to Manual on Codes, 2-digit basin code
+    - WMO306_MoC_REFERENCE: reference to Manual on Codes, name of basin/sub-basin
+    - SUMSUBAREA: approximate of drainage area (in square km)
+
+    Data citation:
+    GRDC (2020): WMO Basins and Sub-Basins / Global Runoff Data Centre, GRDC. 3rd, rev. ext. ed. 
+    Koblenz, Germany: Federal Institute of Hydrology (BfG).
+    """
+    
+    url = "https://grdc.bafg.de/downloads/wmobb_json.zip"
+    
+    # Convert bbox to GeoDataFrame if provided
+    bbox_gdf = convert_bbox_to_geodataframe(bbox_input) if bbox_input is not None else None
+    
+    basins_gdf = gpd.read_file("zip+" + url)
+    
+    # Clip to bbox if provided
+    if bbox_gdf is not None:
+        basins_gdf = basins_gdf.clip(bbox_gdf)
+    else:
+        print("No spatial subsetting because bbox_input was not provided.")
+
+    # Add citation to attributes
+    basins_gdf.attrs["data_citation"] = "GRDC (2020): WMO Basins and Sub-Basins / Global Runoff Data Centre, GRDC. 3rd, rev. ext. ed. Koblenz, Germany: Federal Institute of Hydrology (BfG)."
+    
+    return basins_gdf
 
 def get_era5(
     bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
