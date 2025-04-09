@@ -334,7 +334,7 @@ def get_grdc_wmo_basins(
     Koblenz, Germany: Federal Institute of Hydrology (BfG).
     """
     
-    url = "https://grdc.bafg.de/downloads/wmobb_json.zip"
+    url = "https://grdc.bafg.de/downloads/wmobb_json.zip/wmobb_basins.json"
     
     # Convert bbox to GeoDataFrame if provided
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input) if bbox_input is not None else None
