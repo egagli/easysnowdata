@@ -278,7 +278,7 @@ def get_grdc_major_river_basins_of_the_world(
     return basins_gdf
 
 
-def get_grdc_wmo_basins_and_subbasins(
+def get_grdc_wmo_basins(
     bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
 ) -> gpd.GeoDataFrame:
     """
