@@ -508,64 +508,6 @@ class AWDBClient:
             **kwargs,
         )
 
-    def get_forecasts(
-        self,
-        triplets: list[str] | str,
-        elements: list[str] | str = "SRVO",
-        begin_publication_date: str | date | None = None,
-        end_publication_date: str | date | None = None,
-    ) -> list[dict]:
-        """
-        Retrieve seasonal streamflow or SWE forecasts.
-
-        Parameters
-        ----------
-        triplets : list[str] or str
-            Forecast point station triplet(s).
-        elements : list[str] or str
-            Forecast element code(s).  Common values:
-            ``"SRVO"`` (natural flow volume, kaf),
-            ``"WTEQ"`` (SWE forecast).
-        begin_publication_date : str or date, optional
-            Start of the publication date range (``"YYYY-MM-DD"``).
-        end_publication_date : str or date, optional
-            End of the publication date range.
-
-        Returns
-        -------
-        list[dict]
-            One dict per station with ``publicationDate``, ``forecastPeriod``,
-            and ``forecastValues`` (exceedance probabilities).
-
-        Example
-        -------
-        >>> fcst = client.get_forecasts(
-        ...     "09085000:CO:USGS",
-        ...     begin_publication_date="2024-01-01",
-        ...     end_publication_date="2024-06-30",
-        ... )
-        """
-        triplets = _coerce_list(triplets)
-
-        begin_str = _date_str(begin_publication_date) if begin_publication_date else None
-        end_str   = _date_str(end_publication_date)   if end_publication_date   else None
-
-        results = []
-        for batch in _chunk(triplets, 50):
-            params: dict[str, str] = {
-                "stationTriplets": ",".join(batch),
-                "elementCodes":    ",".join(_coerce_list(elements)),
-            }
-            if begin_str:
-                params["beginPublicationDate"] = begin_str
-            if end_str:
-                params["endPublicationDate"] = end_str
-
-            batch_result = self._get("forecasts", params)
-            if isinstance(batch_result, list):
-                results.extend(batch_result)
-
-        return results
 
     def get_normals(
         self,
@@ -609,30 +551,6 @@ class AWDBClient:
             begin_date=f"{begin_year}-10-01",
             end_date=f"{end_year}-09-30",
             central_tendency_type=central_tendency_type,
-        )
-
-    def get_reservoir_metadata(
-        self,
-        triplets: list[str] | str,
-    ) -> list[dict]:
-        """
-        Retrieve reservoir-specific metadata (capacity, storage levels, etc.).
-
-        Parameters
-        ----------
-        triplets : list[str] or str
-            Station triplet(s) for reservoir stations (typically BOR network).
-
-        Returns
-        -------
-        list[dict]
-            Full metadata dicts with ``reservoir`` block populated.
-        """
-        return self.get_metadata(
-            triplets=triplets,
-            elements="RESC",
-            durations="MONTHLY",
-            include_reservoir=True,
         )
 
     # ── Internal helpers ──────────────────────────────────────────────────────

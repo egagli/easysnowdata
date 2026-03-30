@@ -374,50 +374,9 @@ data = client.get_data_by_water_year(
 
 ---
 
-### 2.7 `get_forecasts`
-
-```python
-get_forecasts(
-    triplets: list[str] | str,
-    elements: list[str] | str = "SRVO",
-    begin_publication_date: str | date | None = None,
-    end_publication_date: str | date | None = None,
-) -> list[dict]
-```
-
-Retrieve seasonal streamflow or SWE volume forecasts with exceedance probabilities.
-
-**Parameters**
-
-| Parameter | Type | Description |
-|---|---|---|
-| `triplets` | `list[str]` | Forecast point triplet(s) (typically USGS gauge triplets) |
-| `elements` | `list[str]` | Forecast element: `"SRVO"` (natural flow, kaf) is most common |
-| `begin_publication_date` | `str` | Start of the range of publication dates to retrieve |
-| `end_publication_date` | `str` | End of the range of publication dates |
-
-**Returns:** `list[dict]` — one dict per station, with `data` containing a list of forecasts each with `publicationDate`, `forecastPeriod` (start, end), and `forecastValues` (dict of exceedance % → value).
-
-**Example**
-
-```python
-# Roaring Fork River at Glenwood Springs — WY2024 forecasts
-fcst = client.get_forecasts(
-    "09085000:CO:USGS",
-    begin_publication_date="2024-01-01",
-    end_publication_date="2024-07-31",
-)
-
-for f in fcst[0]["data"]:
-    period = f["forecastPeriod"]
-    pub    = f["publicationDate"]
-    p50    = f["forecastValues"].get("50", "N/A")
-    print(f"{pub}  {period[0]}–{period[1]}  50%: {p50} kaf")
-```
-
 ---
 
-### 2.8 `get_normals`
+### 2.7 `get_normals`
 
 ```python
 get_normals(
@@ -453,25 +412,6 @@ norms = client.get_normals(
 
 ---
 
-### 2.9 `get_reservoir_metadata`
-
-```python
-get_reservoir_metadata(triplets: list[str] | str) -> list[dict]
-```
-
-Convenience wrapper for `get_metadata` that filters to reservoir stations and populates the `reservoir` metadata block (capacity, active storage, dead pool, etc.).
-
-**Example**
-
-```python
-# BOR reservoir stations in a HUC
-res_stations = client.get_stations(networks=["BOR"], huc="14010004")
-triplets = [s["stationTriplet"] for s in res_stations]
-res_meta = client.get_reservoir_metadata(triplets)
-
-for s in res_meta:
-    r = s.get("reservoir", {})
-    print(f"{s['name']:30s}  capacity={r.get('reservoirCapacity')} ac-ft")
 ```
 
 ---
@@ -535,4 +475,4 @@ To add support for a new data source (e.g., CDEC, GHCND, Environment Canada):
 4. Export the class from `clients/__init__.py`.
 5. Document the client in this README with the same section structure.
 
-The key invariant: all `get_data()` methods should return a list of station dicts, each with a `data` field containing time-series blocks, so that the Zarr pipeline scripts can treat all clients uniformly.
+The key invariant: all `get_data()` methods should return a list of station dicts, each with a `data` field containing time-series blocks, so that shared CSV pipeline scripts can treat all clients uniformly.
