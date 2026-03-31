@@ -84,6 +84,9 @@ DATA_BASE = "https://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data"
 ASWS_LAYER = "WHSE_WATER_MANAGEMENT.SSL_SNOW_ASWS_STNS_SP"
 MSS_LAYER = "WHSE_WATER_MANAGEMENT.SSL_SNOW_MSS_LOCS_SP"
 
+# Per-station combined CSV archive (SW + SD + TA + PC for each station)
+SNOW_ALL_BASE = f"{DATA_BASE}/SnowAll"
+
 _DEFAULT_TIMEOUT = 120
 _DEFAULT_RETRIES = 3
 _DEFAULT_BACKOFF = 5
@@ -108,8 +111,24 @@ VARIABLES: dict[str, dict[str, str]] = {
     "snwd_cm": {
         "name": "Snow Depth",
         "units": "cm",
-        "source": "MSS (periodic survey only)",
-        "description": "Manually measured snow depth from snow course surveys.",
+        "source": "ASWS (daily automated, SD.csv) and MSS (periodic survey)",
+        "description": (
+            "ASWS: automated snow depth sensor reading from SD.csv, "
+            "16:00 UTC value used as daily canonical reading. "
+            "MSS: manually measured snow depth from snow course surveys."
+        ),
+    },
+    "air_temp_degc": {
+        "name": "Air Temperature",
+        "units": "°C",
+        "source": "ASWS (daily automated, TA.csv)",
+        "description": "Hourly air temperature from ASWS stations; 16:00 UTC reading used.",
+    },
+    "precip_mm": {
+        "name": "Precipitation",
+        "units": "mm",
+        "source": "ASWS (daily automated, PC.csv)",
+        "description": "Hourly precipitation accumulation from ASWS stations.",
     },
     "density_pct": {
         "name": "Snow Density",
@@ -278,44 +297,146 @@ class DataBCClient:
             ``location_id`` (str),
             ``swe_mm`` (float or NaN).
         """
-        dfs = []
+        return self._get_asws_var_data(
+            current_url=f"{DATA_BASE}/SWDaily.csv",
+            archive_url=f"{DATA_BASE}/SW_DailyArchive.csv",
+            value_col="swe_mm",
+            archive=archive,
+            location_ids=location_ids,
+            begin_date=begin_date,
+            end_date=end_date,
+        )
 
-        # Current season
+    def get_asws_sd_data(
+        self,
+        location_ids: list[str] | None = None,
+        begin_date: str | None = None,
+        end_date: str | None = None,
+        archive: bool = True,
+    ) -> pd.DataFrame:
+        """
+        Get daily snow depth data from Automated Snow Weather Stations.
+
+        Data is sourced from wide-format hourly CSV files (SD.csv /
+        SD_Archive.csv).  The 16:00 UTC reading is used as the canonical
+        daily value (~08:00 PST / 09:00 PDT), matching the convention used
+        for SWE in ``get_asws_daily_data()``.
+
+        Parameters
+        ----------
+        location_ids : list[str] or None
+            Filter to specific location IDs (e.g. ``["1A01P", "1E08P"]``).
+        begin_date : str or None
+            Start date (``"YYYY-MM-DD"``).
+        end_date : str or None
+            End date (inclusive, ``"YYYY-MM-DD"``).
+        archive : bool
+            If True, also load the historical archive CSV.
+
+        Returns
+        -------
+        pd.DataFrame
+            Long-format DataFrame with columns:
+            ``date`` (str ``"YYYY-MM-DD"``),
+            ``location_id`` (str),
+            ``snwd_cm`` (float or NaN).
+        """
+        return self._get_asws_var_data(
+            current_url=f"{DATA_BASE}/SD.csv",
+            archive_url=f"{DATA_BASE}/SD_Archive.csv",
+            value_col="snwd_cm",
+            archive=archive,
+            location_ids=location_ids,
+            begin_date=begin_date,
+            end_date=end_date,
+        )
+
+    def get_asws_combined_data(
+        self,
+        location_id: str,
+    ) -> pd.DataFrame:
+        """
+        Get the full combined time-series for a single ASWS station.
+
+        Fetches the per-station archive from the ``SnowAll/`` directory,
+        which contains SW (SWE, mm), SD (snow depth, cm), TA (air temp, °C),
+        and PC (precipitation, mm) in one file.
+
+        Parameters
+        ----------
+        location_id : str
+            ASWS station location ID (e.g. ``"1E08P"``).
+
+        Returns
+        -------
+        pd.DataFrame
+            Long-format DataFrame with columns:
+            ``date`` (str ``"YYYY-MM-DD"``),
+            ``swe_mm`` (float or NaN),
+            ``snwd_cm`` (float or NaN),
+            ``air_temp_degc`` (float or NaN),
+            ``precip_mm`` (float or NaN).
+        """
+        url = f"{SNOW_ALL_BASE}/{location_id}.csv"
         try:
-            dfs.append(
-                self._load_asws_wide_csv(f"{DATA_BASE}/SWDaily.csv")
-            )
+            resp = self._request(url)
         except DataBCError as exc:
-            logger.warning("Could not load SWDaily.csv: %s", exc)
+            logger.warning(
+                "Could not load SnowAll/%s.csv: %s", location_id, exc
+            )
+            return pd.DataFrame(
+                columns=["date", "swe_mm", "snwd_cm", "air_temp_degc", "precip_mm"]
+            )
 
-        # Historical archive
-        if archive:
-            try:
-                dfs.append(
-                    self._load_asws_wide_csv(
-                        f"{DATA_BASE}/SW_DailyArchive.csv"
-                    )
-                )
-            except DataBCError as exc:
-                logger.warning(
-                    "Could not load SW_DailyArchive.csv: %s", exc
-                )
+        df = pd.read_csv(io.StringIO(resp.text))
+        df.columns = df.columns.str.strip()
 
-        if not dfs:
-            return pd.DataFrame(columns=["date", "location_id", "swe_mm"])
+        # Normalise column names (headers vary between files)
+        col_map: dict[str, str] = {}
+        for col in df.columns:
+            c = col.strip().lower()
+            if "date" in c or c == "datetime":
+                col_map[col] = "datetime_raw"
+            elif c.startswith("sw") and "unit" not in c and "grade" not in c:
+                col_map[col] = "swe_mm"
+            elif c.startswith("sd") and "unit" not in c and "grade" not in c:
+                col_map[col] = "snwd_cm"
+            elif c.startswith("ta") and "unit" not in c and "grade" not in c:
+                col_map[col] = "air_temp_degc"
+            elif c.startswith("pc") and "unit" not in c and "grade" not in c:
+                col_map[col] = "precip_mm"
+        df = df.rename(columns=col_map)
 
-        df = pd.concat(dfs, ignore_index=True)
-        df = df.drop_duplicates(subset=["date", "location_id"])
-        df = df.sort_values(["location_id", "date"]).reset_index(drop=True)
+        if "datetime_raw" not in df.columns:
+            return pd.DataFrame(
+                columns=["date", "swe_mm", "snwd_cm", "air_temp_degc", "precip_mm"]
+            )
 
-        if location_ids is not None:
-            df = df[df["location_id"].isin(location_ids)]
-        if begin_date:
-            df = df[df["date"] >= begin_date]
-        if end_date:
-            df = df[df["date"] <= end_date]
+        df["date"] = (
+            pd.to_datetime(df["datetime_raw"], errors="coerce")
+            .dt.strftime("%Y-%m-%d")
+        )
+        df = df.drop(columns=["datetime_raw"])
 
-        return df.reset_index(drop=True)
+        for num_col in ("swe_mm", "snwd_cm", "air_temp_degc", "precip_mm"):
+            if num_col in df.columns:
+                df[num_col] = pd.to_numeric(df[num_col], errors="coerce")
+            else:
+                df[num_col] = float("nan")
+
+        # Take one reading per date (last non-NaN per day)
+        df = df.dropna(subset=["date"])
+        df = (
+            df.groupby("date")
+            .last()
+            .reset_index()
+        )
+        df = df.sort_values("date").reset_index(drop=True)
+
+        for num_col in ("swe_mm", "snwd_cm", "air_temp_degc", "precip_mm"):
+            df.loc[df[num_col] < 0, num_col] = float("nan")
+
+        return df[["date", "swe_mm", "snwd_cm", "air_temp_degc", "precip_mm"]]
 
     def get_mss_survey_data(
         self,
@@ -462,7 +583,48 @@ class DataBCClient:
 
         return stations
 
-    def _load_asws_wide_csv(self, url: str) -> pd.DataFrame:
+    def _get_asws_var_data(
+        self,
+        current_url: str,
+        archive_url: str,
+        value_col: str,
+        archive: bool,
+        location_ids: list[str] | None,
+        begin_date: str | None,
+        end_date: str | None,
+    ) -> pd.DataFrame:
+        """Generic helper for fetching a single variable from ASWS wide CSVs."""
+        dfs = []
+        try:
+            dfs.append(self._load_asws_wide_csv(current_url, value_col=value_col))
+        except DataBCError as exc:
+            logger.warning("Could not load %s: %s", current_url, exc)
+
+        if archive:
+            try:
+                dfs.append(
+                    self._load_asws_wide_csv(archive_url, value_col=value_col)
+                )
+            except DataBCError as exc:
+                logger.warning("Could not load %s: %s", archive_url, exc)
+
+        if not dfs:
+            return pd.DataFrame(columns=["date", "location_id", value_col])
+
+        df = pd.concat(dfs, ignore_index=True)
+        df = df.drop_duplicates(subset=["date", "location_id"])
+        df = df.sort_values(["location_id", "date"]).reset_index(drop=True)
+
+        if location_ids is not None:
+            df = df[df["location_id"].isin(location_ids)]
+        if begin_date:
+            df = df[df["date"] >= begin_date]
+        if end_date:
+            df = df[df["date"] <= end_date]
+
+        return df.reset_index(drop=True)
+
+    def _load_asws_wide_csv(self, url: str, value_col: str = "swe_mm") -> pd.DataFrame:
         """
         Load a wide-format ASWS CSV and convert to long format.
 
@@ -474,7 +636,7 @@ class DataBCClient:
 
         if df.empty or len(df.columns) < 2:
             return pd.DataFrame(
-                columns=["date", "location_id", "swe_mm"]
+                columns=["date", "location_id", value_col]
             )
 
         date_col = df.columns[0]  # "DATE(UTC)"
@@ -486,7 +648,7 @@ class DataBCClient:
         df = df[mask].copy()
         if df.empty:
             return pd.DataFrame(
-                columns=["date", "location_id", "swe_mm"]
+                columns=["date", "location_id", value_col]
             )
 
         df["date"] = df[date_col].astype(str).str[:10]
@@ -496,7 +658,7 @@ class DataBCClient:
         df_long = df.melt(
             id_vars=["date"],
             var_name="station_col",
-            value_name="swe_mm",
+            value_name=value_col,
         )
 
         # Extract location ID from "1A01P Yellowhead Lake"
@@ -505,13 +667,13 @@ class DataBCClient:
         )
         df_long = df_long.drop(columns=["station_col"])
 
-        df_long["swe_mm"] = pd.to_numeric(
-            df_long["swe_mm"], errors="coerce"
+        df_long[value_col] = pd.to_numeric(
+            df_long[value_col], errors="coerce"
         )
-        # Remove clearly invalid values (negative, extreme)
-        df_long.loc[df_long["swe_mm"] < 0, "swe_mm"] = float("nan")
+        # Remove clearly invalid values (negative)
+        df_long.loc[df_long[value_col] < 0, value_col] = float("nan")
 
-        return df_long[["date", "location_id", "swe_mm"]]
+        return df_long[["date", "location_id", value_col]]
 
     def _load_mss_csv(self, url: str) -> pd.DataFrame:
         """Load a long-format MSS (manual snow survey) CSV."""
