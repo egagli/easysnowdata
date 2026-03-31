@@ -1,6 +1,9 @@
 # Clients
 
-This folder contains API client modules for retrieving snow observation data from external data sources. Each client is responsible for one data source and exposes a consistent interface for fetching stations, metadata, and time-series data.
+This folder contains API client modules for retrieving snow observation data
+from external data sources.  Each client is responsible for one data source
+and exposes a consistent interface for fetching stations, metadata, and
+time-series data.
 
 ---
 
@@ -8,48 +11,70 @@ This folder contains API client modules for retrieving snow observation data fro
 
 1. [Design Philosophy](#1-design-philosophy)
 2. [AWDBClient — USDA NRCS AWDB REST API](#2-awdbclient)
-   - [Constructor](#21-constructor)
-   - [get_reference_data](#22-get_reference_data)
-   - [get_stations](#23-get_stations)
-   - [get_metadata](#24-get_metadata)
-   - [get_data](#25-get_data)
-   - [get_data_by_water_year](#26-get_data_by_water_year)
-   - [get_forecasts](#27-get_forecasts)
-   - [get_normals](#28-get_normals)
-   - [get_reservoir_metadata](#29-get_reservoir_metadata)
-3. [Error Handling](#3-error-handling)
-4. [API Notes and Gotchas](#4-api-notes-and-gotchas)
-5. [Adding a New Client](#5-adding-a-new-client)
+3. [CDECClient — California Data Exchange Center](#3-cdecclient)
+4. [DataBCClient — BC Data Catalogue](#4-databcclient)
+5. [Error Handling](#5-error-handling)
+6. [Adding a New Client](#6-adding-a-new-client)
 
 ---
 
 ## 1. Design Philosophy
 
-- **One client per data source.** Each client encapsulates the full lifecycle of requests to its source: authentication (if needed), URL construction, batching, retry, and response parsing.
-- **Return plain Python objects.** Methods return `dict` / `list[dict]` so callers decide how to convert to pandas or xarray. No opinionated output schema.
-- **Metric-first normalization.** Known imperial AWDB snow variables are converted in-client so downstream code stays unit-consistent; specifically `WTEQ` and `SNWD` are returned in centimeters.
-- **Handle limits internally.** API rate limits, value-count limits, and URL length limits are managed by the client. Callers just ask for data.
-- **Fail clearly.** All errors raise `{Client}Error` subclasses of `Exception` with descriptive messages.
+- **One client per data source.**  Each client encapsulates HTTP requests,
+  batching, retry logic, HTML/JSON parsing, and response normalisation.
+- **Return plain Python objects.**  Methods return `dict` / `list[dict]` or
+  pandas DataFrames so callers decide how to convert.
+- **Metric-first normalisation.**  All SWE and snow depth values are returned
+  in centimetres.  Imperial inputs are converted in-client.
+- **Handle limits internally.**  API rate limits, value-count limits, and URL
+  length limits are managed by the client.
+- **Fail clearly.**  All errors raise `{Client}Error(Exception)` with
+  descriptive messages.
+- **Data flags are opt-in.**  Pass `include_flags=True` to `get_data()` to
+  receive per-value quality flags.  Flags are NOT stored in per-station CSVs
+  but are available for QC analysis.
+- **Variables and flags are documented in-module.**  Each client exports
+  `SENSORS`/`VARIABLES` and `DATA_FLAGS` dicts so downstream code can
+  reference variable metadata without hardcoding.
 
 ---
 
 ## 2. AWDBClient
 
-**Module:** `clients.awdb_client`  
-**Class:** `AWDBClient`  
-**API:** [AWDB REST API v1](https://wcc.sc.egov.usda.gov/awdbRestApi/swagger-ui/index.html)  
-**Demo:** [nrcs-nwcc/iow_awdb_rest_api_demo](https://github.com/nrcs-nwcc/iow_awdb_rest_api_demo)
+**Module:** `clients.awdb.awdb_client`
+**Class:** `AWDBClient`
+**API:** [AWDB REST API v1](https://wcc.sc.egov.usda.gov/awdbRestApi/swagger-ui/index.html)
 
-The AWDB (Air and Water Database) REST API provides access to data from SNOTEL, SNOLite, SCAN, COOP, Manual SNOTEL, snow courses, streamflow gauges, reservoirs, and more. It supports all elements (snow, precipitation, temperature, soil moisture, streamflow, etc.) at all available temporal resolutions.
+The AWDB (Air and Water Database) REST API provides access to data from
+SNOTEL, SNOLite, SCAN, COOP, Manual SNOTEL, snow courses, streamflow gauges,
+reservoirs, and more.
 
 ```python
-from global_snow_point_obs.clients import AWDBClient
+from clients.awdb import AWDBClient
 client = AWDBClient()
 ```
 
----
+### Networks supported
 
-### 2.1 Constructor
+| Network | Code | Description |
+|---|---|---|
+| SNOTEL | `SNTL` | Automated snow pillow + weather stations, western U.S. |
+| SNOLite | `SNTLT` | Simplified lower-cost SNOTEL variant |
+| Manual SNOTEL | `MSNT` | Legacy / transitional sites (includes some BC and CCSS) |
+| SCAN | `SCAN` | Soil climate network with snow sensors |
+| COOP | `COOP` | NWS cooperative observer snow sites |
+
+### Key data variables
+
+| Element | Description | Units |
+|---|---|---|
+| `WTEQ` | Snow Water Equivalent | cm (converted from inches) |
+| `SNWD` | Snow Depth | cm (converted from inches) |
+| `TOBS` | Air Temperature (observed) | °C |
+| `PREC` | Precipitation accumulation | cm |
+| `PRCP` | Precipitation increment | cm |
+
+### Constructor
 
 ```python
 AWDBClient(
@@ -61,418 +86,418 @@ AWDBClient(
 )
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `base_url` | `str` | AWDB v1 URL | Override for staging or mirror endpoints |
-| `timeout` | `int` | `180` | Per-request HTTP timeout in seconds |
-| `max_retries` | `int` | `3` | Retry attempts on 5xx server errors |
-| `backoff` | `int` | `6` | Base backoff delay; actual delay = `backoff × attempt` |
-| `session` | `requests.Session` | `None` | Pre-configured session (for custom headers, proxies, etc.) |
+### Key methods
 
----
+#### `get_stations(networks, states, active_only, ...)` → `list[dict]`
 
-### 2.2 `get_reference_data`
+Returns basic station identification fields (no element inventory).
 
 ```python
-get_reference_data(tables: list[str] | str = "all") -> dict[str, Any]
-```
-
-Fetch AWDB lookup/reference tables. Useful for converting network codes, element codes, and unit codes to human-readable names.
-
-**Parameters**
-
-| Parameter | Type | Description |
-|---|---|---|
-| `tables` | `list[str]` or `"all"` | Table name(s): `"networks"`, `"elements"`, `"states"`, `"counties"`, `"durations"`, `"units"`, or `"all"` |
-
-**Returns:** `dict` — keys are table names, values are `list[dict]` of `{code, name, description}`.
-
-**Example**
-
-```python
-ref = client.get_reference_data(["networks", "elements"])
-
-# Build a lookup dict: code → name
-network_names = {n["code"]: n["name"] for n in ref["networks"]}
-# → {"SNTL": "SNOTEL", "SNTLT": "SNOLite", "SCAN": "SCAN", ...}
-
-element_names = {e["code"]: e["name"] for e in ref["elements"]}
-# → {"WTEQ": "Snow Water Equivalent", "SNWD": "Snow Depth", ...}
-```
-
----
-
-### 2.3 `get_stations`
-
-```python
-get_stations(
-    networks: list[str] | str | None = None,
-    states: list[str] | str | None = None,
-    huc: str | None = None,
-    county_name: str | None = None,
-    active_only: bool = False,
-    station_triplets: list[str] | str | None = None,
-) -> list[dict]
-```
-
-List stations matching the given filters. Returns basic identification fields only (no element inventory). Use `get_metadata` for the full element list.
-
-**Parameters**
-
-| Parameter | Type | Description |
-|---|---|---|
-| `networks` | `list[str]` | Network code(s), e.g. `["SNTL", "SNTLT"]`. Defaults to all networks. |
-| `states` | `list[str]` | Two-letter state code(s), e.g. `["CO", "UT", "WY"]` |
-| `huc` | `str` | HUC prefix (2–12 digits). Returns stations whose HUC starts with this prefix. |
-| `county_name` | `str` | County name (prefix match, case-insensitive) |
-| `active_only` | `bool` | If `True`, exclude retired stations |
-| `station_triplets` | `list[str]` | Explicit triplet list (overrides network/state filters) |
-
-**Returns:** `list[dict]` — one dict per station with keys: `stationTriplet`, `stationId`, `networkCode`, `name`, `stateCode`, `countyName`, `huc`, `latitude`, `longitude`, `elevation`, `beginDate`, `endDate`.
-
-**Station triplet format:** `{stationId}:{stateCode}:{networkCode}`, e.g. `303:CO:SNTL`.
-
-**Examples**
-
-```python
-# All SNOTEL and SNOLite stations in Colorado
 stations = client.get_stations(networks=["SNTL", "SNTLT"], states=["CO"])
-
-# All stations in a HUC8 (Roaring Fork)
-stations = client.get_stations(huc="14010004")
-
-# Mix of networks
-stations = client.get_stations(networks=["SNTL", "SNTLT", "MSNT", "SCAN", "COOP"])
-
-# Specific stations by triplet
-stations = client.get_stations(station_triplets=["303:CO:SNTL", "713:CO:SNTL"])
 ```
 
----
+#### `get_metadata(triplets, elements, durations, ...)` → `list[dict]`
 
-### 2.4 `get_metadata`
-
-```python
-get_metadata(
-    triplets: list[str] | str,
-    elements: list[str] | str = "*",
-    durations: list[str] | str = "*",
-    include_forecast_point: bool = True,
-    include_reservoir: bool = True,
-    active_only: bool = False,
-) -> list[dict]
-```
-
-Retrieve full station metadata including the element inventory (what's measured, at what resolution, and for what period of record).
-
-**Parameters**
-
-| Parameter | Type | Description |
-|---|---|---|
-| `triplets` | `list[str]` | Station triplet(s) |
-| `elements` | `list[str]` or `"*"` | Filter to specific element codes, e.g. `["WTEQ", "SNWD"]` |
-| `durations` | `list[str]` or `"*"` | Filter to specific durations: `"DAILY"`, `"HOURLY"`, `"MONTHLY"`, `"SEMIMONTHLY"`, `"ANNUAL"`, `"WATER_YEAR"` |
-| `include_forecast_point` | `bool` | Include forecast point metadata block |
-| `include_reservoir` | `bool` | Include reservoir metadata block |
-| `active_only` | `bool` | Exclude retired elements |
-
-**Returns:** `list[dict]` — one dict per station (only stations with matching elements are returned). The `stationElements` key contains the element inventory:
+Returns full station metadata including the `stationElements` inventory
+(what variables are measured, at what resolution, and for what period).
 
 ```python
-{
-    "stationTriplet": "303:CO:SNTL",
-    "name": "COPPER MOUNTAIN",
-    "networkCode": "SNTL",
-    "latitude": 39.4797,
-    "longitude": -106.1597,
-    "elevation": 10550,
-    "huc": "14010001",
-    "beginDate": "1978-10-01 00:00",
-    "endDate": None,
-    "stateCode": "CO",
-    "countyName": "Summit",
-    "stationElements": [
-        {
-            "elementCode": "WTEQ",
-            "elementName": "Snow Water Equivalent",
-            "durationName": "DAILY",
-            "originalUnitCode": "in",
-            "storedUnitCode": "in",
-            "beginDate": "1978-10-01 00:00",
-            "endDate": "2100-01-01 00:00",
-            "dataPrecision": 1,
-            "ordinal": 1,
-        },
-        ...
-    ],
-    "forecastPoint": { ... },   # if applicable
-    "reservoir": { ... },        # if applicable
-}
-```
-
-**Notes**
-- Requests are automatically batched to 150 triplets per call (URL length limit).
-- Only stations with at least one matching element are returned.
-
-**Example**
-
-```python
-# All stations in CO with daily WTEQ or SNWD
-stations = client.get_stations(networks=["SNTL"], states=["CO"])
-triplets = [s["stationTriplet"] for s in stations]
-
 meta = client.get_metadata(
-    triplets=triplets,
+    triplets=["303:CO:SNTL", "713:CO:SNTL"],
     elements=["WTEQ", "SNWD"],
     durations=["DAILY"],
 )
-
-# Summarize periods of record
-for s in meta:
-    for el in s["stationElements"]:
-        print(f"{s['name']:30s}  {el['elementCode']}  {el['beginDate'][:10]}")
 ```
 
----
+#### `get_data(triplets, elements, duration, begin_date, end_date, ...)` → `list[dict]`
 
-### 2.5 `get_data`
+Primary data retrieval.  Automatically batches to respect the 500k-value limit.
 
 ```python
-get_data(
-    triplets: list[str] | str,
-    elements: list[str] | str,
-    duration: str = "DAILY",
-    begin_date: str | date | None = None,
-    end_date: str | date | None = None,
-    period_ref: str = "START",
-    central_tendency_type: str | None = None,
-) -> list[dict]
-```
-
-The primary data retrieval method. Fetches time-series observations for any combination of stations, elements, and date range.
-
-**Parameters**
-
-| Parameter | Type | Description |
-|---|---|---|
-| `triplets` | `list[str]` | Station triplet(s) |
-| `elements` | `list[str]` | Element code(s), e.g. `["WTEQ", "SNWD", "TOBS", "PRCP"]` |
-| `duration` | `str` | `"DAILY"`, `"HOURLY"`, `"MONTHLY"`, `"SEMIMONTHLY"`, `"ANNUAL"`, `"WATER_YEAR"` |
-| `begin_date` | `str` or `date` | Start date (`"YYYY-MM-DD"`). Defaults to earliest available. |
-| `end_date` | `str` or `date` | End date (inclusive). Defaults to today. |
-| `period_ref` | `str` | Date alignment: `"START"` (date is start of period) or `"END"` |
-| `central_tendency_type` | `str` | Include normals: `"MEDIAN"`, `"AVERAGE"`, or `None` |
-
-**Returns:** `list[dict]` — one dict per station:
-
-```python
-{
-    "stationTriplet": "303:CO:SNTL",
-    "data": [
-        {
-            "stationElement": {
-                "elementCode": "WTEQ",
-                "durationName": "DAILY",
-                "originalUnitCode": "in",
-                ...
-            },
-            "values": [
-                {"date": "2023-10-01", "value": 0.0},
-                {"date": "2023-10-02", "value": 0.0},
-                ...
-                # If central_tendency_type provided, each record also has "median" or "average"
-                {"date": "2023-10-01", "value": 0.0, "median": 1.2},
-            ]
-        },
-        # one block per element
-    ]
-}
-```
-
-**API value limit and auto-batching**
-
-The AWDB API rejects requests where `n_stations × n_elements × n_days > 500,000`. The client computes the maximum safe batch size automatically and splits the station list accordingly. For long time series with multiple elements, the effective batch size may be as small as 2–5 stations.
-
-```
-# Example: 2 elements × 47,000 days ≈ 94,000 values per station
-# → max batch size = floor(450,000 / 94,000) = 4 stations per request
-```
-
-**Examples**
-
-```python
-# Daily SWE + snow depth for WY2024
 data = client.get_data(
-    triplets=["303:CO:SNTL", "713:CO:SNTL"],
+    triplets=["303:CO:SNTL"],
     elements=["WTEQ", "SNWD"],
+    duration="DAILY",
     begin_date="2023-10-01",
     end_date="2024-09-30",
 )
-
-# Hourly SWE for a single station
-data = client.get_data(
-    triplets="303:CO:SNTL",
-    elements=["WTEQ"],
-    duration="HOURLY",
-    begin_date="2024-01-01",
-    end_date="2024-03-31",
-)
-
-# Monthly reservoir storage with normals
-data = client.get_data(
-    triplets=["JAK:CO:BOR"],
-    elements=["RESC"],
-    duration="MONTHLY",
-    begin_date="2020-10-01",
-    end_date="2024-09-30",
-    central_tendency_type="MEDIAN",
-)
-
-# Full period of record for a single station
-data = client.get_data(
-    triplets="303:CO:SNTL",
-    elements=["WTEQ"],
-    # begin_date / end_date omitted → all available data
-)
+# data[0]["data"][0]["values"][0]
+# → {"date": "2023-10-01", "value": 5.08}
 ```
 
----
+#### `get_normals(triplets, elements, duration, normal_period, ...)` → `list[dict]`
 
-### 2.6 `get_data_by_water_year`
+Fetch climatological normals (1991–2020, 1981–2010, or 1971–2000).
 
 ```python
-get_data_by_water_year(
-    triplets: list[str] | str,
-    elements: list[str] | str,
-    water_year: int,
-    duration: str = "DAILY",
-    **kwargs,
-) -> list[dict]
+norms = client.get_normals("303:CO:SNTL", ["WTEQ"], normal_period="1991-2020")
 ```
 
-Convenience wrapper for `get_data` that accepts a water year integer instead of explicit begin/end dates.
+### Notes and gotchas
 
-**Parameters**
+- **500k value limit:** `n_stations × n_elements × n_days ≤ 500,000`.  The
+  client auto-splits requests.
+- **Triplet format:** `{stationId}:{stateCode}:{networkCode}` — case-sensitive.
+- **BC/AB/YK stations:** Accessible with state codes `BC`, `AB`, `YK`.
+- **Missing values:** `None` in parsed response.
+- **WTEQ/SNWD units:** Converted from inches to cm automatically.
 
-| Parameter | Type | Description |
-|---|---|---|
-| `triplets` | `list[str]` | Station triplet(s) |
-| `elements` | `list[str]` | Element code(s) |
-| `water_year` | `int` | Water year, e.g. `2024` for Oct 1 2023 – Sep 30 2024 |
-| `duration` | `str` | Temporal resolution |
-| `**kwargs` | | Passed to `get_data` |
+---
 
-**Example**
+## 3. CDECClient
+
+**Module:** `clients.cdec.cdec_client`
+**Class:** `CDECClient`
+**Source:** [CDEC — California Data Exchange Center](https://cdec.water.ca.gov)
+**Operator:** California Department of Water Resources (CA DWR)
+
+Provides access to California Cooperative Snow Surveys (CCSS) data — both
+automated snow pillow stations (daily) and manual snow course sites
+(periodic).
 
 ```python
-data = client.get_data_by_water_year(
-    triplets=["303:CO:SNTL", "713:CO:SNTL"],
-    elements=["WTEQ", "SNWD"],
-    water_year=2024,
-)
+from clients.cdec import CDECClient
+client = CDECClient()
 ```
 
----
-
----
-
-### 2.7 `get_normals`
+### Snow sensors
 
 ```python
-get_normals(
-    triplets: list[str] | str,
-    elements: list[str] | str,
-    duration: str = "DAILY",
-    normal_period: str = "1991-2020",
-    central_tendency_type: str = "MEDIAN",
-) -> list[dict]
+from clients.cdec.cdec_client import SENSORS, DATA_FLAGS, DURATION_CODES
 ```
 
-Retrieve climatological normals (1991–2020 or other reference period) for stations. Returns the same structure as `get_data` but with `median` or `average` fields populated in the values list.
+| Sensor | Short name | Variable | Description |
+|---|---|---|---|
+| 3 | SNOW WC | `swe_raw` | Raw SWE from snow pillow (inches → cm) |
+| 18 | SNOW DP | `snwd` | Snow depth, ultrasonic (inches → cm) |
+| 82 | SNO ADJ | `swe` | **Preferred SWE** — quality-controlled, offset-adjusted version of sensor 3 |
 
-**Parameters**
+**SWE vs. SNO ADJ:** Sensor 82 (SNO ADJ) is the revised version of sensor 3
+(raw SWE), with a calibration offset applied after manual QC.  Both represent
+SWE from the same snow pillow.  Sensor 82 is always preferred and is stored
+as `wteq_cm` in per-station CSVs.  If sensor 82 is unavailable, sensor 3 is
+used as fallback.
 
-| Parameter | Type | Description |
-|---|---|---|
-| `triplets` | `list[str]` | Station triplet(s) |
-| `elements` | `list[str]` | Element code(s) |
-| `duration` | `str` | `"DAILY"`, `"MONTHLY"`, etc. |
-| `normal_period` | `str` | `"1991-2020"`, `"1981-2010"`, or `"1971-2000"` |
-| `central_tendency_type` | `str` | `"MEDIAN"` or `"AVERAGE"` |
+### Data flags
 
-**Example**
-
-```python
-# 1991–2020 daily SWE median for SNOTEL 303
-norms = client.get_normals(
-    "303:CO:SNTL", ["WTEQ"], normal_period="1991-2020"
-)
-# Each value dict: {"date": "...", "value": <observed>, "median": <normal>}
-```
-
----
-
-```
-
----
-
-## 3. Error Handling
-
-All methods raise `AWDBError` on failure:
-
-| Scenario | Behavior |
+| Flag | Meaning |
 |---|---|
-| HTTP 400 (bad request / value limit exceeded) | Raises `AWDBError` immediately (not retried) |
-| HTTP 404 | Raises `AWDBError` immediately |
-| HTTP 5xx (server error) | Retried up to `max_retries` times with exponential backoff, then raises `AWDBError` |
-| Network timeout / connection error | Same retry behavior as 5xx |
+| ` ` (space) | Unreviewed / provisional |
+| `r` | Revised (most sensor 82 values carry this flag) |
+| `o` | Calibration offset applied |
+| `e` | Estimated |
+| `N` | Error in data |
+| `v` | Out of valid range |
+| `t` | Trace of precipitation |
+
+### Duration codes
+
+| Code | Meaning |
+|---|---|
+| `D` | Daily |
+| `H` | Hourly |
+| `M` | Monthly (not available for sensors 3/18/82) |
+| `E` | Event (sub-hourly telemetry) |
+
+### Constructor
 
 ```python
-from global_snow_point_obs.clients.awdb_client import AWDBClient, AWDBError
+CDECClient(
+    timeout: int = 60,
+    max_retries: int = 3,
+    backoff: int = 4,
+    session: requests.Session | None = None,
+)
+```
 
-client = AWDBClient()
-try:
-    data = client.get_data(["303:CO:SNTL"], ["WTEQ"])
-except AWDBError as e:
-    print(f"AWDB request failed: {e}")
+### Key methods
+
+#### `get_snow_courses()` → `list[dict]`
+
+Returns the official CCSS manual snow course list (~260 stations) from the
+CDEC SnowCourses report.
+
+Fields: `station_id`, `course_number`, `name`, `elevation_ft`, `latitude`,
+`longitude`, `april1_avg_swe_in`, `measuring_agency`, `is_snow_course`,
+`station_url`.
+
+```python
+courses = client.get_snow_courses()
+# courses[0] → {"station_id": "QUA", "name": "QUAKING ASPEN",
+#               "april1_avg_swe_in": 12.3, "measuring_agency": "CA DWR", ...}
+```
+
+#### `get_snow_pillows()` → `list[dict]`
+
+Returns the automated snow pillow station list (~137 active) from the CDEC
+SnowSensors report.
+
+Fields: `station_id`, `name`, `elevation_ft`, `latitude`, `longitude`,
+`april1_avg_swe_in`, `operator`, `is_snow_pillow`, `has_daily_swe`,
+`station_url`.
+
+#### `get_stations(sensors, active_only)` → `list[dict]`
+
+Queries the CDEC station search for each sensor number and merges results.
+Also supplements with the snow course and pillow lists to set `is_snow_course`,
+`is_snow_pillow`, `has_daily_swe`, `has_daily_snwd` flags.
+
+```python
+# All stations with any snow sensor
+stations = client.get_stations(sensors=(3, 18, 82))
+
+# Filter to those with daily data
+daily = [s for s in stations if s["has_daily_swe"] or s["has_daily_snwd"]]
+```
+
+#### `get_metadata(station_id)` → `dict`
+
+Scrapes the CDEC staMeta HTML page for a single station.
+
+Fields: `station_id`, `name`, `elevation_ft`, `river_basin`, `county`,
+`hydrologic_area`, `nearby_city`, `latitude`, `longitude`, `operator`,
+`maintenance`, `sensor_inventory` (list of sensor dicts), `station_url`.
+
+```python
+meta = client.get_metadata("QUA")
+for s in meta["sensor_inventory"]:
+    print(s["sensor_num"], s["sensor_description"], s["data_available"])
+```
+
+Note: `get_metadata()` requires one HTTP request per station.  For bulk
+metadata, call `get_stations()` first (which uses the bulk HTML reports)
+and only call `get_metadata()` for stations requiring the full sensor inventory.
+
+#### `get_data(station_ids, sensors, duration, begin_date, end_date, include_flags)` → `list[dict]`
+
+Fetches time-series data from the CDEC JSONDataServlet.  Values are converted
+from inches to centimetres.  Missing values (-9999) are normalised to `None`.
+
+```python
+data = client.get_data(
+    station_ids=["QUA", "BLC"],
+    sensors=[82, 18],
+    duration="D",
+    begin_date="2023-10-01",
+    end_date="2024-09-30",
+    include_flags=True,
+)
+# data[0]["data"][0]["stationElement"]
+# → {"sensorNum": 82, "sensorType": "SNO ADJ", "units": "cm", ...}
+# data[0]["data"][0]["values"][0]
+# → {"date": "2023-10-01", "value": 5.08, "flag": "r"}
+```
+
+### Data availability notes
+
+- The JSON data service accepts multiple comma-separated station IDs.
+- **Monthly duration** (`M`) returns empty results for sensors 3, 18, 82.
+  Use daily (`D`) for all snow sensor data.
+- **Hourly data** is available for sensors 3 and 18 at most automated stations.
+- Station IDs are 2–5 uppercase alphanumeric characters (e.g. `QUA`, `BLC`).
+
+### Station URLs
+
+```
+https://cdec.water.ca.gov/dynamicapp/staMeta?station_id={ID}
 ```
 
 ---
 
-## 4. API Notes and Gotchas
+## 4. DataBCClient
 
-**Value limit per request**  
-The AWDB REST API enforces a hard limit of 500,000 data values per `/data` request:
-`n_stations × n_elements × n_days ≤ 500,000`. The client handles this automatically, but it means long time series (full period of record, 2+ elements) require many small batches. For 2 elements and a 130-year time axis, the maximum batch size is **4–5 stations**.
+**Module:** `clients.databc.databc_client`
+**Class:** `DataBCClient`
+**Source:** [BC Data Catalogue](https://catalogue.data.gov.bc.ca)
+**Operator:** BC Ministry of Environment (BC ENV)
 
-**Triplet format**  
-All station references use the AWDB triplet format: `{stationId}:{stateCode}:{networkCode}`. This is case-sensitive. Example: `303:CO:SNTL`.
+Provides access to BC snow survey data — both Automated Snow Weather Stations
+(ASWS, daily SWE) and Manual Snow Survey sites (MSS, periodic surveys).
 
-**Date format**  
-All dates are `YYYY-MM-DD` strings. The API also returns timestamps with time components (`"1978-10-01 00:00"`); the client returns these as-is.
+```python
+from clients.databc import DataBCClient
+client = DataBCClient()
+```
 
-**Null values**  
-Missing observations are returned as `null` in JSON (Python `None` in the parsed response). The `value` field in each record may be `None`. Check before converting to float.
+### Station types
 
-**Water year convention**  
-AWDB uses the standard water year: October 1 through September 30. WY2024 = 2023-10-01 through 2024-09-30.
+| Type | ID suffix | Description | Data |
+|---|---|---|---|
+| ASWS | ends in `P` (e.g. `1A01P`) | Automated snow pillow | Daily SWE (mm) |
+| MSS | no `P` (e.g. `1A06A`, `1A10`) | Manual snow course | Periodic SWE (mm), depth (cm), density (%) |
 
-**Active vs. retired stations**  
-`get_stations(active_only=False)` (the default) returns all stations, including retired ones. Retired stations have a non-null `endDate`. This is important for long time series where you want historical data from stations that are no longer operational.
+### Variables
 
-**BC/AB/YK stations**  
-Some Canadian stations (British Columbia, Alberta, Yukon) are in AWDB under `BC`, `AB`, and `YK` state codes. The client handles these identically to U.S. stations.
+```python
+from clients.databc.databc_client import VARIABLES, DATA_FLAGS
+```
+
+| Variable | Units | Source | Notes |
+|---|---|---|---|
+| `swe_mm` | mm | ASWS daily + MSS periodic | Convert to cm (÷10) for CSV storage |
+| `snwd_cm` | cm | MSS periodic only | Not available from ASWS daily CSV |
+| `density_pct` | % | MSS periodic only | Calculated from depth and SWE |
+| `snow_line_m` | m | MSS periodic only | Elevation of snow line at survey |
+
+### Data flags (MSS)
+
+The `survey_code` field in MSS data acts as a quality flag.
+
+| Flag | Meaning |
+|---|---|
+| `` (empty) | Normal data quality |
+| `PROBLEM` | Data quality problem noted by surveyor |
+| `ESTIMATE` | Estimated value |
+| `EXTRAPOLATED` | Extrapolated from nearby site |
+
+ASWS data does not currently include per-value quality flags.
+
+### Constructor
+
+```python
+DataBCClient(
+    timeout: int = 120,
+    max_retries: int = 3,
+    backoff: int = 5,
+    session: requests.Session | None = None,
+)
+```
+
+### Key methods
+
+#### `get_asws_stations(active_only)` → `list[dict]`
+
+Returns ASWS station locations from the BC OpenMaps WFS.
+
+Fields: `location_id`, `name`, `elevation_m`, `latitude`, `longitude`,
+`status`, `operator`, `camera_url` (or `None`), `station_type` (`"ASWS"`),
+`station_url`.
+
+```python
+asws = client.get_asws_stations(active_only=True)
+# asws[0] → {"location_id": "1A01P", "name": "Yellowhead Lake",
+#             "elevation_m": 1860.0, "operator": "BC ENV", ...}
+```
+
+#### `get_mss_stations(active_only)` → `list[dict]`
+
+Returns MSS site locations from the BC OpenMaps WFS.
+
+Fields: `location_id`, `name`, `elevation_m`, `latitude`, `longitude`,
+`status`, `station_type` (`"MSS"`), `station_url`.
+
+#### `get_all_stations(active_only)` → `list[dict]`
+
+Returns combined ASWS + MSS station list.
+
+#### `get_asws_daily_data(location_ids, begin_date, end_date, archive, include_flags)` → `pd.DataFrame`
+
+Fetches daily ASWS SWE data from the BC CSV files.
+
+The 16:00 UTC reading (approximately 08:00 PST / 09:00 PDT) is used as the
+canonical daily value.
+
+Returns a long-format DataFrame with columns: `date`, `location_id`, `swe_mm`.
+
+```python
+df = client.get_asws_daily_data(
+    location_ids=["1A01P", "1E08P"],
+    begin_date="2022-10-01",
+    archive=True,
+)
+print(df.head())
+#          date location_id  swe_mm
+# 0  2022-10-01      1A01P     0.0
+# 1  2022-10-01      1E08P     0.0
+```
+
+The `archive=True` flag loads the full historical archive from
+`SW_DailyArchive.csv` (large file, ~5 MB).
+
+#### `get_mss_survey_data(location_ids, begin_date, end_date, archive, include_flags)` → `pd.DataFrame`
+
+Fetches periodic manual snow survey data.
+
+Returns a long-format DataFrame with columns: `date`, `location_id`, `name`,
+`swe_mm`, `snwd_cm`, `density_pct`, `snow_line_m`, `survey_period`,
+and optionally `survey_code` (when `include_flags=True`).
+
+```python
+df = client.get_mss_survey_data(
+    archive=True,
+    include_flags=True,
+)
+# Filter for April 1 surveys
+apr1 = df[df["survey_period"] == "01-Apr"]
+```
+
+### Data source URLs
+
+| Data | URL |
+|---|---|
+| ASWS daily SWE (current season) | `https://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/SWDaily.csv` |
+| ASWS daily SWE (archive) | `https://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/SW_DailyArchive.csv` |
+| MSS current season | `https://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/allmss_current.csv` |
+| MSS archive | `https://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/allmss_archive.csv` |
+| ASWS WFS locations | `https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.SSL_SNOW_ASWS_STNS_SP/ows` |
+| MSS WFS locations | `https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.SSL_SNOW_MSS_LOCS_SP/ows` |
+
+### Station URLs
+
+```
+https://aqrt.nrs.gov.bc.ca/Data/Location/Summary/Location/{ID}/Interval/Latest
+```
+
+Camera/image URLs are available for a small subset of ASWS stations via
+the `camera_url` field in the WFS data.  These are third-party live webcam
+feeds hosted at `pvs.nupointsystems.com`.
 
 ---
 
-## 5. Adding a New Client
+## 5. Error Handling
 
-To add support for a new data source (e.g., CDEC, GHCND, Environment Canada):
+| Client | Exception | Scenarios |
+|---|---|---|
+| AWDBClient | `AWDBError` | HTTP 4xx/5xx, network timeout, value limit |
+| CDECClient | `CDECError` | HTTP 4xx/5xx, network timeout, HTML parse failure |
+| DataBCClient | `DataBCError` | HTTP 4xx/5xx, network timeout, malformed CSV |
 
-1. Create `clients/{source}_client.py` with a `{Source}Client` class.
-2. Follow the same method signature patterns as `AWDBClient`.
-3. Raise `{Source}Error(Exception)` for errors.
-4. Export the class from `clients/__init__.py`.
-5. Document the client in this README with the same section structure.
+All exceptions are subclasses of `Exception` with descriptive messages.
 
-The key invariant: all `get_data()` methods should return a list of station dicts, each with a `data` field containing time-series blocks, so that shared CSV pipeline scripts can treat all clients uniformly.
+```python
+from clients.awdb import AWDBClient, AWDBError
+from clients.cdec import CDECClient, CDECError
+from clients.databc import DataBCClient, DataBCError
+
+try:
+    data = AWDBClient().get_data(["303:CO:SNTL"], ["WTEQ"])
+except AWDBError as e:
+    print(f"AWDB error: {e}")
+```
+
+HTTP 400/404 errors are not retried.  HTTP 5xx and network errors are retried
+with linear backoff up to `max_retries` attempts.
+
+---
+
+## 6. Adding a New Client
+
+To add support for a new data source (e.g. GHCND, Environment Canada):
+
+1. Create `clients/{source}/` directory with `__init__.py` and
+   `{source}_client.py`.
+2. Implement a `{Source}Client` class with at minimum:
+   - `get_stations(...)` → `list[dict]`
+   - `get_data(..., include_flags: bool = False)` → `list[dict]`
+3. Export `VARIABLES` (or `SENSORS`) and `DATA_FLAGS` module-level dicts.
+4. Raise `{Source}Error(Exception)` for all errors.
+5. Return metric units (cm for SWE and snow depth).
+6. Export the class from `clients/{source}/__init__.py`.
+7. Add to `clients/__init__.py`.
+8. Add to `scripts/create_all_stations_geojson.py` with a `run_{source}_workflow()`.
+9. Add to `scripts/get_all_stations_data.py` with a `refresh_{source}()`.
+10. Document in this README.
+
+The key invariant: all `get_data()` methods should return a list of station
+dicts, each with a `data` list of element blocks, so that pipeline scripts
+can route data to CSVs uniformly.
