@@ -109,21 +109,26 @@ meta = client.get_metadata(
 )
 ```
 
-#### `get_data(triplets, elements, duration, begin_date, end_date, ...)` → `list[dict]`
+#### `get_data(station_ids, variables, bbox, begin_date, end_date, interval, include_flags)` → `list[dict]`
 
-Primary data retrieval.  Automatically batches to respect the 500k-value limit.
+Standardized data fetch — returns a **flat** list of observation records.
+Accepts native element codes (`"WTEQ"`) or standardized types (`"swe"`).
 
 ```python
-data = client.get_data(
-    triplets=["303:CO:SNTL"],
-    elements=["WTEQ", "SNWD"],
-    duration="DAILY",
+records = client.get_data(
+    station_ids=["303:CO:SNTL"],
+    variables=["swe", "snwd"],   # or ["WTEQ", "SNWD"]
+    interval="daily",
     begin_date="2023-10-01",
     end_date="2024-09-30",
 )
-# data[0]["data"][0]["values"][0]
-# → {"date": "2023-10-01", "value": 5.08}
+# records[0]
+# → {"station_id": "303:CO:SNTL", "date": "2023-10-01",
+#    "variable": "WTEQ", "type": "swe", "value": 5.08,
+#    "units": "cm", "interval": "daily"}
 ```
+
+The internal batching method `_get_data_awdb()` respects the 500k-value limit.
 
 #### `get_normals(triplets, elements, duration, normal_period, ...)` → `list[dict]`
 
@@ -270,25 +275,29 @@ Note: `get_metadata()` requires one HTTP request per station.  For bulk
 metadata, call `get_stations()` first (which uses the bulk HTML reports)
 and only call `get_metadata()` for stations requiring the full sensor inventory.
 
-#### `get_data(station_ids, sensors, duration, begin_date, end_date, include_flags)` → `list[dict]`
+#### `get_data(station_ids, variables, bbox, begin_date, end_date, interval, include_flags)` → `list[dict]`
 
-Fetches time-series data from the CDEC JSONDataServlet.  Values are converted
-from inches to centimetres.  Missing values (-9999) are normalised to `None`.
+Standardized data fetch — returns a **flat** list of observation records.
+Accepts sensor short names (`"SNO ADJ"`) or standardized types (`"swe"`).
+Sensor 82 (SNO ADJ) takes priority over sensor 3 (SNOW WC) per date.
+Values are converted from inches to centimetres.
 
 ```python
-data = client.get_data(
+records = client.get_data(
     station_ids=["QUA", "BLC"],
-    sensors=[82, 18],
-    duration="D",
+    variables=["swe", "snwd"],   # or sensor short names
+    interval="daily",
     begin_date="2023-10-01",
     end_date="2024-09-30",
     include_flags=True,
 )
-# data[0]["data"][0]["stationElement"]
-# → {"sensorNum": 82, "sensorType": "SNO ADJ", "units": "cm", ...}
-# data[0]["data"][0]["values"][0]
-# → {"date": "2023-10-01", "value": 5.08, "flag": "r"}
+# records[0]
+# → {"station_id": "QUA", "date": "2023-10-01",
+#    "variable": "SNO ADJ", "type": "swe", "value": 5.08,
+#    "units": "cm", "interval": "daily", "flag": "r"}
 ```
+
+The internal fetch method `_get_data_cdec()` calls the JSONDataServlet directly.
 
 ### Data availability notes
 
@@ -413,9 +422,28 @@ Returns MSS site locations from the BC OpenMaps WFS.
 Fields: `location_id`, `name`, `elevation_m`, `latitude`, `longitude`,
 `status`, `station_type` (`"MSS"`), `station_url`.
 
-#### `get_all_stations(active_only)` → `list[dict]`
+#### `get_all_stations(active_only, bbox)` → `list[dict]`
 
 Returns combined ASWS + MSS station list.
+
+#### `get_data(station_ids, variables, bbox, begin_date, end_date, interval, include_flags)` → `list[dict]`
+
+Standardized data fetch — returns a **flat** list of observation records.
+`interval="daily"` fetches ASWS data; `interval="periodic"` fetches MSS survey
+data.  `swe_mm` values are converted to cm so all SWE is returned in cm.
+
+```python
+records = client.get_data(
+    station_ids=["1A01P", "1E08P"],
+    variables=["swe", "snwd"],
+    interval="daily",
+    begin_date="2022-10-01",
+)
+# records[0]
+# → {"station_id": "1A01P", "date": "2022-10-01",
+#    "variable": "swe_mm", "type": "swe", "value": 4.5,
+#    "units": "cm", "interval": "daily"}
+```
 
 #### `get_asws_daily_data(location_ids, begin_date, end_date, archive)` → `pd.DataFrame`
 
@@ -563,7 +591,7 @@ from clients.cdec import CDECClient, CDECError
 from clients.databc import DataBCClient, DataBCError
 
 try:
-    data = AWDBClient().get_data(["303:CO:SNTL"], ["WTEQ"])
+    data = AWDBClient().get_data(station_ids=["303:CO:SNTL"], variables=["swe"])
 except AWDBError as e:
     print(f"AWDB error: {e}")
 ```
@@ -624,8 +652,9 @@ To add support for a new data source (e.g. GHCND, Environment Canada):
 
 **Key invariants:**
 
-- All `get_data()` methods return a list of station dicts, each with a `data`
-  list of element blocks, so pipeline scripts can route data to CSVs uniformly.
+- All `get_data()` methods return a **flat** list of observation records with
+  keys `station_id`, `date`, `variable`, `type`, `value`, `units`, `interval`
+  (plus optional `flag`), so pipeline scripts can route data uniformly.
 - `station_image_url` must be a direct URL that can be used in an `<img src>`
   tag without authentication.
 - `networkCode` in the GeoJSON must match the `NET_LABELS` key in the live map.
