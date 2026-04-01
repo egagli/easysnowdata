@@ -240,13 +240,15 @@ Fields: `station_id`, `name`, `elevation_ft`, `latitude`, `longitude`,
 
 Queries the CDEC station search for each sensor number and merges results.
 Also supplements with the snow course and pillow lists to set `is_snow_course`,
-`is_snow_pillow`, `has_daily_swe`, `has_daily_snwd` flags.
+`is_snow_pillow`, `has_daily_swe`, `has_daily_snwd` flags on each station dict.
 
 ```python
 # All stations with any snow sensor
 stations = client.get_stations(sensors=(3, 18, 82))
 
-# Filter to those with daily data
+# Filter to those with daily data (use GeoJSON dailySWE/dailySnowDepth in
+# create_all_stations_geojson.py; has_daily_swe/has_daily_snwd available on
+# station dicts from get_stations() for direct client use)
 daily = [s for s in stations if s["has_daily_swe"] or s["has_daily_snwd"]]
 ```
 
@@ -601,10 +603,14 @@ To add support for a new data source (e.g. GHCND, Environment Canada):
        the live map popup).  Fetch this from the source portal even if it
        requires an extra HTTP request — the live map is the primary user
        interface and station images significantly improve UX.
-     - `variables_daily` — comma-separated list of variables available
-       at daily resolution (e.g. `"swe_mm, snwd_cm"`)
-     - `variables_available` — comma-separated list of ALL variables
-       the client can retrieve for this station (including non-daily)
+     - `data_variables` — list of dicts describing every variable the
+       station reports: `{name, type, interval, units, description, notes}`.
+       `type` must use the standardized vocabulary (`"swe"`, `"snwd"`, etc.).
+     - `dailySWE` — boolean derived from `data_variables`; `True` if any
+       entry has `type="swe"` and `interval` in `{"daily","sub_daily","hourly"}`.
+     - `dailySnowDepth` — same for `type="snwd"`.
+     - `variables_daily` — derived from `data_variables`; comma-separated
+       names of variables with a daily-class interval (used by map popup).
 9. Add to `scripts/get_all_stations_data.py` with a `refresh_{source}()`.
 10. Add the network to `scripts/generate_live_map.py`:
     - Add an entry in `NET_LABELS` (`"CODE": "Human Name"`)
