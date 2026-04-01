@@ -308,11 +308,12 @@ https://cdec.water.ca.gov/dynamicapp/staMeta?station_id={ID}
 
 **Module:** `clients.databc.databc_client`
 **Class:** `DataBCClient`
-**Source:** [BC Data Catalogue](https://catalogue.data.gov.bc.ca)
+**Source:** [BC Data Catalogue](https://catalogue.data.gov.bc.ca) + [BC env.gov.bc.ca CSV files](https://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/)
 **Operator:** BC Ministry of Environment (BC ENV)
 
 Provides access to BC snow survey data — both Automated Snow Weather Stations
-(ASWS, daily SWE) and Manual Snow Survey sites (MSS, periodic surveys).
+(ASWS, full meteorological suite) and Manual Snow Survey sites (MSS, periodic
+surveys).  Also fetches ASWS station photos from the AQRT BCMOE portal.
 
 ```python
 from clients.databc import DataBCClient
@@ -323,7 +324,7 @@ client = DataBCClient()
 
 | Type | ID suffix | Description | Data |
 |---|---|---|---|
-| ASWS | ends in `P` (e.g. `1A01P`) | Automated snow pillow | Daily SWE (mm) |
+| ASWS | ends in `P` (e.g. `1A01P`) | Automated snow pillow + weather station | Daily SWE, snow depth, air temp, precip, wind, humidity, pressure |
 | MSS | no `P` (e.g. `1A06A`, `1A10`) | Manual snow course | Periodic SWE (mm), depth (cm), density (%) |
 
 ### Variables
@@ -332,12 +333,32 @@ client = DataBCClient()
 from clients.databc.databc_client import VARIABLES, DATA_FLAGS
 ```
 
-| Variable | Units | Source | Notes |
-|---|---|---|---|
-| `swe_mm` | mm | ASWS daily + MSS periodic | Convert to cm (÷10) for CSV storage |
-| `snwd_cm` | cm | MSS periodic only | Not available from ASWS daily CSV |
-| `density_pct` | % | MSS periodic only | Calculated from depth and SWE |
-| `snow_line_m` | m | MSS periodic only | Elevation of snow line at survey |
+All ASWS variables share the same wide-format CSV structure.  The **16:00 UTC
+reading** is used as the canonical daily value (~08:00 PST / 09:00 PDT).
+Pass `daily_only=False` to any ASWS method to retrieve all hourly readings
+instead, which returns a `datetime` column rather than `date`.
+
+| Variable | Units | Method | Archive? | Notes |
+|---|---|---|---|---|
+| `swe_mm` | mm | `get_asws_daily_data()` | Yes | Daily pre-aggregated (SWDaily.csv) |
+| `swe_mm` | mm | `get_asws_sw_hourly_data()` | Yes | Hourly raw pillow (SW.csv) |
+| `snwd_cm` | cm | `get_asws_sd_data()` | Yes | Snow depth sensor (SD.csv) |
+| `air_temp_degc` | °C | `get_asws_ta_data()` | Yes | Air temperature (TA.csv) |
+| `precip_cumul_mm` | mm | `get_asws_pc_data()` | Yes | Cumulative precipitation (PC.csv) |
+| `baro_press_hpa` | hPa | `get_asws_pa_data()` | **No** | Barometric pressure (PA.csv) |
+| `wind_dir_deg` | ° | `get_asws_ud_data()` | **No** | Wind direction (UD.csv) |
+| `wind_spd_kmh` | km/h | `get_asws_us_data()` | **No** | Wind speed (US.csv) |
+| `wind_spd_peak_kmh` | km/h | `get_asws_up_data()` | **No** | Wind gust speed (UP.csv) |
+| `wind_run_km` | km | `get_asws_ur_data()` | **No** | Cumulative wind run (UR.csv) |
+| `rh_pct` | % | `get_asws_xr_data()` | **No** | Relative humidity (XR.csv) |
+| `swe_mm` + `snwd_cm` + `air_temp_degc` + `precip_cumul_mm` | mixed | `get_asws_combined_data(id)` | — | Per-station combined file (SnowAll/) |
+| `swe_mm` | mm | `get_mss_survey_data()` | Yes | MSS periodic survey (Water Equiv.) |
+| `snwd_cm` | cm | `get_mss_survey_data()` | Yes | MSS periodic survey (Snow Depth) |
+| `density_pct` | % | `get_mss_survey_data()` | Yes | MSS periodic only |
+| `snow_line_m` | m | `get_mss_survey_data()` | Yes | MSS periodic only |
+
+"No archive" variables have only current-season data (the archive files do
+not exist for PA, UD, US, UP, UR, XR).
 
 ### Data flags (MSS)
 
@@ -350,7 +371,7 @@ The `survey_code` field in MSS data acts as a quality flag.
 | `ESTIMATE` | Estimated value |
 | `EXTRAPOLATED` | Extrapolated from nearby site |
 
-ASWS data does not currently include per-value quality flags.
+ASWS data does not include per-value quality flags.
 
 ### Constructor
 
@@ -362,6 +383,10 @@ DataBCClient(
     session: requests.Session | None = None,
 )
 ```
+
+The client maintains two internal HTTP sessions: one for data/WFS endpoints
+(`env.gov.bc.ca`, `openmaps.gov.bc.ca`) and a separate session for the AQRT
+BCMOE portal (`bcmoe-prod.aquaticinformatics.net`) used for station photos.
 
 ### Key methods
 
@@ -390,14 +415,10 @@ Fields: `location_id`, `name`, `elevation_m`, `latitude`, `longitude`,
 
 Returns combined ASWS + MSS station list.
 
-#### `get_asws_daily_data(location_ids, begin_date, end_date, archive, include_flags)` → `pd.DataFrame`
+#### `get_asws_daily_data(location_ids, begin_date, end_date, archive)` → `pd.DataFrame`
 
-Fetches daily ASWS SWE data from the BC CSV files.
-
-The 16:00 UTC reading (approximately 08:00 PST / 09:00 PDT) is used as the
-canonical daily value.
-
-Returns a long-format DataFrame with columns: `date`, `location_id`, `swe_mm`.
+Fetches daily ASWS SWE data from the pre-aggregated `SWDaily.csv` files.
+Returns columns: `date`, `location_id`, `swe_mm`.
 
 ```python
 df = client.get_asws_daily_data(
@@ -405,52 +426,122 @@ df = client.get_asws_daily_data(
     begin_date="2022-10-01",
     archive=True,
 )
-print(df.head())
-#          date location_id  swe_mm
-# 0  2022-10-01      1A01P     0.0
-# 1  2022-10-01      1E08P     0.0
 ```
 
-The `archive=True` flag loads the full historical archive from
-`SW_DailyArchive.csv` (large file, ~5 MB).
+Archive file (`SW_DailyArchive.csv`) is ~5 MB.
+
+#### `get_asws_sw_hourly_data(location_ids, begin_date, end_date, archive)` → `pd.DataFrame`
+
+Fetches raw hourly SWE from `SW.csv` / `SW_Archive.csv`.
+Returns columns: `datetime` (UTC, `"YYYY-MM-DD HH:MM"`), `location_id`, `swe_mm`.
+
+#### `get_asws_sd_data(location_ids, begin_date, end_date, archive, daily_only)` → `pd.DataFrame`
+
+Fetches snow depth from `SD.csv` / `SD_Archive.csv`.
+Returns columns: `date`/`datetime`, `location_id`, `snwd_cm`.
+Archive file is ~37 MB.
+
+#### `get_asws_ta_data(location_ids, begin_date, end_date, archive, daily_only)` → `pd.DataFrame`
+
+Fetches air temperature from `TA.csv` / `TA_Archive.csv`.
+Returns columns: `date`/`datetime`, `location_id`, `air_temp_degc`.
+Archive file is ~75 MB.
+
+#### `get_asws_pc_data(location_ids, begin_date, end_date, archive, daily_only)` → `pd.DataFrame`
+
+Fetches cumulative precipitation from `PC.csv` / `PC_Archive.csv`.
+Returns columns: `date`/`datetime`, `location_id`, `precip_cumul_mm`.
+Archive file is ~63 MB.
+
+#### `get_asws_pa_data(location_ids, begin_date, end_date, daily_only)` → `pd.DataFrame`
+
+Fetches barometric pressure from `PA.csv` (current season only).
+Returns columns: `date`/`datetime`, `location_id`, `baro_press_hpa`.
+
+#### `get_asws_ud_data(...)` / `get_asws_us_data(...)` / `get_asws_up_data(...)` / `get_asws_ur_data(...)` / `get_asws_xr_data(...)` → `pd.DataFrame`
+
+Fetch wind direction, wind speed, wind gust, wind run, and relative humidity
+respectively from the corresponding current-season-only CSV files.
+All return columns: `date`/`datetime`, `location_id`, `{variable}`.
+
+```python
+# Example: fetch all met variables for a station, hourly
+df_ta = client.get_asws_ta_data(["1E08P"], daily_only=False)
+df_rh = client.get_asws_xr_data(["1E08P"], daily_only=False)
+df_ws = client.get_asws_us_data(["1E08P"], daily_only=False)
+```
+
+#### `get_asws_combined_data(location_id)` → `pd.DataFrame`
+
+Fetches the per-station combined archive from `SnowAll/{id}.csv`.
+Contains SWE, snow depth, air temperature, and precipitation in one file.
+Uses 16:00 UTC as canonical daily value.
+Returns columns: `date`, `swe_mm`, `snwd_cm`, `air_temp_degc`, `precip_cumul_mm`.
 
 #### `get_mss_survey_data(location_ids, begin_date, end_date, archive, include_flags)` → `pd.DataFrame`
 
-Fetches periodic manual snow survey data.
+Fetches periodic manual snow survey data from `allmss_current.csv` /
+`allmss_archive.csv`.
 
-Returns a long-format DataFrame with columns: `date`, `location_id`, `name`,
-`swe_mm`, `snwd_cm`, `density_pct`, `snow_line_m`, `survey_period`,
-and optionally `survey_code` (when `include_flags=True`).
+Returns: `date`, `location_id`, `name`, `swe_mm`, `snwd_cm`,
+`density_pct`, `snow_line_m`, `survey_period`, optionally `survey_code`.
 
 ```python
-df = client.get_mss_survey_data(
-    archive=True,
-    include_flags=True,
-)
-# Filter for April 1 surveys
+df = client.get_mss_survey_data(archive=True, include_flags=True)
 apr1 = df[df["survey_period"] == "01-Apr"]
 ```
+
+#### `get_station_image_url(location_id)` → `str | None`
+
+Fetches the station photo URL from the public AQRT BCMOE portal
+(`bcmoe-prod.aquaticinformatics.net`).  The portal requires accepting a
+one-time disclaimer; the client does this lazily and reuses the session.
+
+Returns a direct `GetFileById` URL suitable for an `<img>` tag, or `None`
+if the station has no photo or the portal is unreachable.
+
+```python
+url = client.get_station_image_url("1E08P")
+# → "https://bcmoe-prod.aquaticinformatics.net/Data/GetFileById/12345"
+```
+
+**Note:** This performs 4 HTTP requests on first call (disclaimer acceptance)
+and 2 requests per station thereafter.  For ~150 ASWS stations, expect
+2–5 minutes total.  In `create_all_stations_geojson.py`, use the
+`--skip-station-images` flag to skip this step.
 
 ### Data source URLs
 
 | Data | URL |
 |---|---|
-| ASWS daily SWE (current season) | `https://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/SWDaily.csv` |
-| ASWS daily SWE (archive) | `https://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/SW_DailyArchive.csv` |
-| MSS current season | `https://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/allmss_current.csv` |
-| MSS archive | `https://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/allmss_archive.csv` |
+| ASWS daily SWE | `…/data/SWDaily.csv` / `SW_DailyArchive.csv` |
+| ASWS hourly SWE | `…/data/SW.csv` / `SW_Archive.csv` |
+| ASWS snow depth | `…/data/SD.csv` / `SD_Archive.csv` |
+| ASWS air temperature | `…/data/TA.csv` / `TA_Archive.csv` |
+| ASWS precipitation | `…/data/PC.csv` / `PC_Archive.csv` |
+| ASWS pressure | `…/data/PA.csv` |
+| ASWS wind direction | `…/data/UD.csv` |
+| ASWS wind speed | `…/data/US.csv` |
+| ASWS wind gust | `…/data/UP.csv` |
+| ASWS wind run | `…/data/UR.csv` |
+| ASWS relative humidity | `…/data/XR.csv` |
+| Per-station combined | `…/data/SnowAll/{ID}.csv` |
+| MSS current season | `…/data/allmss_current.csv` |
+| MSS archive | `…/data/allmss_archive.csv` |
 | ASWS WFS locations | `https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.SSL_SNOW_ASWS_STNS_SP/ows` |
 | MSS WFS locations | `https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.SSL_SNOW_MSS_LOCS_SP/ows` |
+
+Base data URL: `https://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data`
 
 ### Station URLs
 
 ```
+# Station information (RFC AQRT portal)
 https://aqrt.nrs.gov.bc.ca/Data/Location/Summary/Location/{ID}/Interval/Latest
-```
 
-Camera/image URLs are available for a small subset of ASWS stations via
-the `camera_url` field in the WFS data.  These are third-party live webcam
-feeds hosted at `pvs.nupointsystems.com`.
+# Station photos (BCMOE AQRT portal — used by get_station_image_url())
+https://bcmoe-prod.aquaticinformatics.net/Data/Location/Summary/Location/{ID}/Interval/Latest
+```
 
 ---
 
@@ -494,10 +585,41 @@ To add support for a new data source (e.g. GHCND, Environment Canada):
 5. Return metric units (cm for SWE and snow depth).
 6. Export the class from `clients/{source}/__init__.py`.
 7. Add to `clients/__init__.py`.
-8. Add to `scripts/create_all_stations_geojson.py` with a `run_{source}_workflow()`.
+8. Add to `scripts/create_all_stations_geojson.py`:
+   - Add `run_{source}_workflow()` that returns `(all_features, daily_features)`.
+   - In `databc_station_to_feature()` (or its equivalent), set these required
+     GeoJSON properties on every feature:
+     - `code` — native station identifier
+     - `name` — station name
+     - `latitude`, `longitude` — WGS-84
+     - `elevation_m` — elevation in metres
+     - `networkCode` — short code used by the live map (e.g. `"BCSS"`)
+     - `Operator` — operating agency
+     - `client` — source client name (e.g. `"databc"`)
+     - `station_url` — link to official station page
+     - `station_image_url` — station photo URL (where available; used by
+       the live map popup).  Fetch this from the source portal even if it
+       requires an extra HTTP request — the live map is the primary user
+       interface and station images significantly improve UX.
+     - `variables_daily` — comma-separated list of variables available
+       at daily resolution (e.g. `"swe_mm, snwd_cm"`)
+     - `variables_available` — comma-separated list of ALL variables
+       the client can retrieve for this station (including non-daily)
 9. Add to `scripts/get_all_stations_data.py` with a `refresh_{source}()`.
-10. Document in this README.
+10. Add the network to `scripts/generate_live_map.py`:
+    - Add an entry in `NET_LABELS` (`"CODE": "Human Name"`)
+    - Add an SVG shape entry in `NET_SHAPES`
+    - Add a `case "CODE"` in `buildIcon()` to assign a Leaflet marker shape
+    - The legend is built dynamically from `MAP_META.available_networks`,
+      so no further changes to the legend HTML are needed.
+11. Document in this README.
+12. Update `README.md` (root): add to the Networks section and update the
+    comparison table.
 
-The key invariant: all `get_data()` methods should return a list of station
-dicts, each with a `data` list of element blocks, so that pipeline scripts
-can route data to CSVs uniformly.
+**Key invariants:**
+
+- All `get_data()` methods return a list of station dicts, each with a `data`
+  list of element blocks, so pipeline scripts can route data to CSVs uniformly.
+- `station_image_url` must be a direct URL that can be used in an `<img src>`
+  tag without authentication.
+- `networkCode` in the GeoJSON must match the `NET_LABELS` key in the live map.

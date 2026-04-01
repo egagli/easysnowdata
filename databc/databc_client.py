@@ -16,14 +16,41 @@ Data sources
        (~390 manual snow course sites, active + inactive).
 
 2. **BC env.gov.bc.ca CSV files** — time-series observations.
-     - ASWS daily SWE:  ``SWDaily.csv`` / ``SW_DailyArchive.csv``
-       Wide format: DATE(UTC) rows × location ID columns.
-       Two readings per day (00:00 and 16:00 UTC); 16:00 UTC is used as the
-       daily value (approximately 08:00 PST).
-       Units: mm SWE.
+     All ASWS CSV files share the same wide format:
+       - Rows: one per UTC timestamp (typically hourly)
+       - Columns: one per station, header = ``"{ID} {Name}"``
+       - The 16:00 UTC reading is used as the daily canonical value
+         (~08:00 PST / 09:00 PDT).
+       - Negative values and the -99999 sentinel are normalised to NaN.
+
+     Available CSV files (``https://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/``):
+
+     +-----------+-------------------------------------+---------+---------+
+     | File      | Variable                            | Units   | Archive |
+     +===========+=====================================+=========+=========+
+     | SWDaily   | Snow Water Equivalent (daily avg)   | mm      | Yes     |
+     | SW        | Snow Water Equivalent (hourly)      | mm      | Yes     |
+     | SD        | Snow Depth                          | cm      | Yes     |
+     | TA        | Air Temperature                     | °C      | Yes     |
+     | PC        | Precipitation Cumulative            | mm      | Yes     |
+     | PA        | Barometric Pressure                 | hPa     | No      |
+     | UD        | Wind Direction                      | degrees | No      |
+     | US        | Wind Speed                          | km/h    | No      |
+     | UP        | Wind Speed Peak (gust)              | km/h    | No      |
+     | UR        | Wind Run (cumulative)               | km      | No      |
+     | XR        | Relative Humidity                   | %       | No      |
+     +-----------+-------------------------------------+---------+---------+
+
      - MSS periodic surveys: ``allmss_current.csv`` / ``allmss_archive.csv``
        Long format: one row per station × survey date.
        Columns include Snow Depth (cm) and Water Equiv. (mm SWE).
+
+3. **AQRT BCMOE portal** — station photos.
+     ``https://bcmoe-prod.aquaticinformatics.net``
+     A public (disclaimer-gated) AQUARIUS Web Portal instance.
+     Station photos are accessible via the station summary page after
+     accepting the disclaimer.  Use ``get_station_image_url()`` to retrieve
+     a direct image URL for a given station.
 
 Station ID conventions
 ----------------------
@@ -35,20 +62,31 @@ Station URLs
 Each station has a page on the BC AQRT (Aquarius Report Tool) portal:
   ``https://aqrt.nrs.gov.bc.ca/Data/Location/Summary/Location/{id}/Interval/Latest``
 
-Camera URLs are available for a small subset of ASWS stations
-(stored in the ``CAMERA_URL`` WFS field); these are third-party webcam feeds.
+Station image URL
+-----------------
+A second AQRT instance at ``bcmoe-prod.aquaticinformatics.net`` hosts station
+photos.  ``DataBCClient.get_station_image_url(location_id)`` scrapes this
+portal (after accepting the disclaimer) and returns a direct ``GetFileById``
+URL, or ``None`` if no photo is found.
 
 Variables and units
 -------------------
-+-------------------+--------+-----------------------------------+
-| Variable          | Units  | Source                            |
-+===================+========+===================================+
-| swe_mm            | mm     | ASWS daily pillow (SWDaily.csv)   |
-| swe_mm            | mm     | MSS periodic survey (Water Equiv.)|
-| snwd_cm           | cm     | MSS periodic survey (Snow Depth)  |
-| density_pct       | %      | MSS periodic survey (Density %)   |
-| snow_line_m       | m      | MSS periodic survey (Snow Line)   |
-+-------------------+--------+-----------------------------------+
++--------------------+--------+-------------------------------------------+
+| Variable           | Units  | Source                                    |
++====================+========+===========================================+
+| swe_mm             | mm     | ASWS daily/hourly pillow; MSS survey      |
+| snwd_cm            | cm     | ASWS daily (SD.csv); MSS periodic survey  |
+| air_temp_degc      | °C     | ASWS daily (TA.csv)                       |
+| precip_cumul_mm    | mm     | ASWS daily (PC.csv)                       |
+| baro_press_hpa     | hPa    | ASWS (PA.csv, current season only)        |
+| wind_dir_deg       | °      | ASWS (UD.csv, current season only)        |
+| wind_spd_kmh       | km/h   | ASWS (US.csv, current season only)        |
+| wind_spd_peak_kmh  | km/h   | ASWS (UP.csv, current season only)        |
+| wind_run_km        | km     | ASWS (UR.csv, current season only)        |
+| rh_pct             | %      | ASWS (XR.csv, current season only)        |
+| density_pct        | %      | MSS periodic survey only                  |
+| snow_line_m        | m      | MSS periodic survey only                  |
++--------------------+--------+-------------------------------------------+
 
 For the per-station CSV archive, ASWS SWE (mm) is converted to cm (÷ 10)
 for ``wteq_cm``.  MSS data is periodic and not stored in the daily CSV
@@ -58,15 +96,21 @@ Design principles
 -----------------
 - Returns plain Python objects (dicts / lists) or pandas DataFrames.
 - Metric-first: all outputs are in SI units.
-- Missing / sentinel values (NaN, negative) are normalised to ``None``/NaN.
+- Missing / sentinel values (NaN, negative, -99999) are normalised to
+  ``None``/NaN.
 - Data flags in MSS survey: the ``Survey Code`` field (e.g. ``"PROBLEM"``)
   acts as a data flag.  Include ``include_flags=True`` to retain it.
+- ``daily_only=True`` (default on all ASWS methods): returns one row per
+  station per calendar date using the 16:00 UTC reading.
+- ``daily_only=False``: returns all hourly rows with a ``datetime`` column
+  (UTC string, format ``"YYYY-MM-DD HH:MM"``).
 """
 
 from __future__ import annotations
 
 import io
 import logging
+import re
 import time
 from typing import Any
 
@@ -78,6 +122,7 @@ logger = logging.getLogger(__name__)
 # ── Constants ────────────────────────────────────────────────────────────────
 
 AQRT_BASE = "https://aqrt.nrs.gov.bc.ca"
+AQRT_BCMOE_BASE = "https://bcmoe-prod.aquaticinformatics.net"
 WFS_BASE = "https://openmaps.gov.bc.ca/geo/pub"
 DATA_BASE = "https://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data"
 
@@ -102,18 +147,19 @@ VARIABLES: dict[str, dict[str, str]] = {
     "swe_mm": {
         "name": "Snow Water Equivalent",
         "units": "mm",
-        "source": "ASWS (daily automated) and MSS (periodic survey)",
+        "source": "ASWS (daily: SWDaily.csv; hourly: SW.csv) and MSS (periodic survey)",
         "description": (
-            "ASWS: automated snow pillow reading from SWDaily.csv. "
+            "ASWS: automated snow pillow reading. "
+            "Daily file uses 16:00 UTC as canonical value. "
             "MSS: manually surveyed water equivalent."
         ),
     },
     "snwd_cm": {
         "name": "Snow Depth",
         "units": "cm",
-        "source": "ASWS (daily automated, SD.csv) and MSS (periodic survey)",
+        "source": "ASWS (SD.csv / SD_Archive.csv) and MSS (periodic survey)",
         "description": (
-            "ASWS: automated snow depth sensor reading from SD.csv, "
+            "ASWS: automated snow depth sensor reading from SD.csv; "
             "16:00 UTC value used as daily canonical reading. "
             "MSS: manually measured snow depth from snow course surveys."
         ),
@@ -121,14 +167,74 @@ VARIABLES: dict[str, dict[str, str]] = {
     "air_temp_degc": {
         "name": "Air Temperature",
         "units": "°C",
-        "source": "ASWS (daily automated, TA.csv)",
-        "description": "Hourly air temperature from ASWS stations; 16:00 UTC reading used.",
+        "source": "ASWS (TA.csv / TA_Archive.csv)",
+        "description": (
+            "Hourly air temperature from ASWS stations. "
+            "16:00 UTC reading used as daily canonical value."
+        ),
     },
-    "precip_mm": {
-        "name": "Precipitation",
+    "precip_cumul_mm": {
+        "name": "Precipitation Cumulative",
         "units": "mm",
-        "source": "ASWS (daily automated, PC.csv)",
-        "description": "Hourly precipitation accumulation from ASWS stations.",
+        "source": "ASWS (PC.csv / PC_Archive.csv)",
+        "description": (
+            "Cumulative precipitation accumulation from ASWS stations. "
+            "16:00 UTC reading used as daily canonical value."
+        ),
+    },
+    "baro_press_hpa": {
+        "name": "Barometric Pressure",
+        "units": "hPa",
+        "source": "ASWS (PA.csv, current season only — no archive)",
+        "description": (
+            "Station-level barometric pressure. "
+            "16:00 UTC reading used as daily canonical value."
+        ),
+    },
+    "wind_dir_deg": {
+        "name": "Wind Direction",
+        "units": "degrees",
+        "source": "ASWS (UD.csv, current season only — no archive)",
+        "description": (
+            "Wind direction in degrees from north (0–360). "
+            "16:00 UTC reading used as daily canonical value."
+        ),
+    },
+    "wind_spd_kmh": {
+        "name": "Wind Speed",
+        "units": "km/h",
+        "source": "ASWS (US.csv, current season only — no archive)",
+        "description": (
+            "Average wind speed. "
+            "16:00 UTC reading used as daily canonical value."
+        ),
+    },
+    "wind_spd_peak_kmh": {
+        "name": "Wind Speed Peak (Gust)",
+        "units": "km/h",
+        "source": "ASWS (UP.csv, current season only — no archive)",
+        "description": (
+            "Peak (gust) wind speed. "
+            "16:00 UTC reading used as daily canonical value."
+        ),
+    },
+    "wind_run_km": {
+        "name": "Wind Run",
+        "units": "km",
+        "source": "ASWS (UR.csv, current season only — no archive)",
+        "description": (
+            "Cumulative wind run (distance travelled by wind). "
+            "16:00 UTC reading used as daily canonical value."
+        ),
+    },
+    "rh_pct": {
+        "name": "Relative Humidity",
+        "units": "%",
+        "source": "ASWS (XR.csv, current season only — no archive)",
+        "description": (
+            "Relative humidity as a percentage. "
+            "16:00 UTC reading used as daily canonical value."
+        ),
     },
     "density_pct": {
         "name": "Snow Density",
@@ -161,7 +267,8 @@ class DataBCClient:
 
     Provides access to both Automated Snow Weather Station (ASWS) data and
     Manual Snow Survey (MSS) data through publicly available BC government
-    endpoints.
+    endpoints.  Also provides access to ASWS station photos via the AQRT
+    BCMOE portal.
 
     Parameters
     ----------
@@ -172,7 +279,7 @@ class DataBCClient:
     backoff : int
         Base backoff delay in seconds.
     session : requests.Session or None
-        Optional pre-configured session.
+        Optional pre-configured session for data/WFS requests.
     """
 
     def __init__(
@@ -187,8 +294,12 @@ class DataBCClient:
         self.backoff = backoff
         self._session = session or requests.Session()
         self._session.headers.update({"User-Agent": "global-snow-networks/1.0"})
+        # Separate session for the AQRT BCMOE portal (disclaimer-gated)
+        self._aqrt_session = requests.Session()
+        self._aqrt_session.headers.update({"User-Agent": "global-snow-networks/1.0"})
+        self._aqrt_disclaimer_accepted = False
 
-    # ── Public API ────────────────────────────────────────────────────────────
+    # ── Public API — station lists ────────────────────────────────────────────
 
     def get_asws_stations(self, active_only: bool = False) -> list[dict]:
         """
@@ -259,6 +370,8 @@ class DataBCClient:
         mss = self.get_mss_stations(active_only=active_only)
         return asws + mss
 
+    # ── Public API — ASWS time-series data ───────────────────────────────────
+
     def get_asws_daily_data(
         self,
         location_ids: list[str] | None = None,
@@ -270,8 +383,9 @@ class DataBCClient:
         """
         Get daily SWE data from Automated Snow Weather Stations.
 
-        Data is sourced from wide-format CSV files.  The 16:00 UTC reading
-        is used as the canonical daily value (~08:00 PST / 09:00 PDT).
+        Data is sourced from the pre-aggregated ``SWDaily.csv`` files.  The
+        16:00 UTC reading is used as the canonical daily value (~08:00 PST /
+        09:00 PDT).
 
         Parameters
         ----------
@@ -305,6 +419,50 @@ class DataBCClient:
             location_ids=location_ids,
             begin_date=begin_date,
             end_date=end_date,
+            daily_only=True,
+        )
+
+    def get_asws_sw_hourly_data(
+        self,
+        location_ids: list[str] | None = None,
+        begin_date: str | None = None,
+        end_date: str | None = None,
+        archive: bool = True,
+    ) -> pd.DataFrame:
+        """
+        Get hourly SWE data from Automated Snow Weather Stations.
+
+        Data is sourced from the raw hourly ``SW.csv`` files (distinct from
+        ``SWDaily.csv`` which contains pre-aggregated daily values).
+
+        Parameters
+        ----------
+        location_ids : list[str] or None
+            Filter to specific location IDs.
+        begin_date : str or None
+            Start datetime string (``"YYYY-MM-DD"`` or ``"YYYY-MM-DD HH:MM"``).
+        end_date : str or None
+            End datetime string (inclusive).
+        archive : bool
+            If True, also load the historical archive CSV.
+
+        Returns
+        -------
+        pd.DataFrame
+            Long-format DataFrame with columns:
+            ``datetime`` (str ``"YYYY-MM-DD HH:MM"`` UTC),
+            ``location_id`` (str),
+            ``swe_mm`` (float or NaN).
+        """
+        return self._get_asws_var_data(
+            current_url=f"{DATA_BASE}/SW.csv",
+            archive_url=f"{DATA_BASE}/SW_Archive.csv",
+            value_col="swe_mm",
+            archive=archive,
+            location_ids=location_ids,
+            begin_date=begin_date,
+            end_date=end_date,
+            daily_only=False,
         )
 
     def get_asws_sd_data(
@@ -313,33 +471,35 @@ class DataBCClient:
         begin_date: str | None = None,
         end_date: str | None = None,
         archive: bool = True,
+        daily_only: bool = True,
     ) -> pd.DataFrame:
         """
-        Get daily snow depth data from Automated Snow Weather Stations.
+        Get snow depth data from Automated Snow Weather Stations.
 
         Data is sourced from wide-format hourly CSV files (SD.csv /
-        SD_Archive.csv).  The 16:00 UTC reading is used as the canonical
-        daily value (~08:00 PST / 09:00 PDT), matching the convention used
-        for SWE in ``get_asws_daily_data()``.
+        SD_Archive.csv).
 
         Parameters
         ----------
         location_ids : list[str] or None
             Filter to specific location IDs (e.g. ``["1A01P", "1E08P"]``).
         begin_date : str or None
-            Start date (``"YYYY-MM-DD"``).
+            Start date or datetime string.
         end_date : str or None
-            End date (inclusive, ``"YYYY-MM-DD"``).
+            End date or datetime string (inclusive).
         archive : bool
             If True, also load the historical archive CSV.
+        daily_only : bool
+            If True (default), return only the 16:00 UTC reading per day
+            with a ``date`` column.  If False, return all hourly readings
+            with a ``datetime`` column.
 
         Returns
         -------
         pd.DataFrame
-            Long-format DataFrame with columns:
-            ``date`` (str ``"YYYY-MM-DD"``),
-            ``location_id`` (str),
-            ``snwd_cm`` (float or NaN).
+            Long-format DataFrame.  Columns depend on ``daily_only``:
+            - ``daily_only=True``: ``date``, ``location_id``, ``snwd_cm``
+            - ``daily_only=False``: ``datetime``, ``location_id``, ``snwd_cm``
         """
         return self._get_asws_var_data(
             current_url=f"{DATA_BASE}/SD.csv",
@@ -349,6 +509,342 @@ class DataBCClient:
             location_ids=location_ids,
             begin_date=begin_date,
             end_date=end_date,
+            daily_only=daily_only,
+        )
+
+    def get_asws_ta_data(
+        self,
+        location_ids: list[str] | None = None,
+        begin_date: str | None = None,
+        end_date: str | None = None,
+        archive: bool = True,
+        daily_only: bool = True,
+    ) -> pd.DataFrame:
+        """
+        Get air temperature data from Automated Snow Weather Stations.
+
+        Data is sourced from TA.csv / TA_Archive.csv.
+
+        Parameters
+        ----------
+        location_ids : list[str] or None
+            Filter to specific location IDs.
+        begin_date : str or None
+            Start date or datetime string.
+        end_date : str or None
+            End date or datetime string (inclusive).
+        archive : bool
+            If True, also load the historical archive CSV (~75 MB).
+        daily_only : bool
+            If True (default), return only the 16:00 UTC reading per day
+            with a ``date`` column.  If False, return all hourly readings
+            with a ``datetime`` column.
+
+        Returns
+        -------
+        pd.DataFrame
+            Long-format DataFrame with columns:
+            ``date``/``datetime``, ``location_id``, ``air_temp_degc``.
+        """
+        return self._get_asws_var_data(
+            current_url=f"{DATA_BASE}/TA.csv",
+            archive_url=f"{DATA_BASE}/TA_Archive.csv",
+            value_col="air_temp_degc",
+            archive=archive,
+            location_ids=location_ids,
+            begin_date=begin_date,
+            end_date=end_date,
+            daily_only=daily_only,
+        )
+
+    def get_asws_pc_data(
+        self,
+        location_ids: list[str] | None = None,
+        begin_date: str | None = None,
+        end_date: str | None = None,
+        archive: bool = True,
+        daily_only: bool = True,
+    ) -> pd.DataFrame:
+        """
+        Get cumulative precipitation data from Automated Snow Weather Stations.
+
+        Data is sourced from PC.csv / PC_Archive.csv.
+
+        Parameters
+        ----------
+        location_ids : list[str] or None
+            Filter to specific location IDs.
+        begin_date : str or None
+            Start date or datetime string.
+        end_date : str or None
+            End date or datetime string (inclusive).
+        archive : bool
+            If True, also load the historical archive CSV (~63 MB).
+        daily_only : bool
+            If True (default), return only the 16:00 UTC reading per day.
+            If False, return all hourly readings with a ``datetime`` column.
+
+        Returns
+        -------
+        pd.DataFrame
+            Long-format DataFrame with columns:
+            ``date``/``datetime``, ``location_id``, ``precip_cumul_mm``.
+        """
+        return self._get_asws_var_data(
+            current_url=f"{DATA_BASE}/PC.csv",
+            archive_url=f"{DATA_BASE}/PC_Archive.csv",
+            value_col="precip_cumul_mm",
+            archive=archive,
+            location_ids=location_ids,
+            begin_date=begin_date,
+            end_date=end_date,
+            daily_only=daily_only,
+        )
+
+    def get_asws_pa_data(
+        self,
+        location_ids: list[str] | None = None,
+        begin_date: str | None = None,
+        end_date: str | None = None,
+        daily_only: bool = True,
+    ) -> pd.DataFrame:
+        """
+        Get barometric pressure data from Automated Snow Weather Stations.
+
+        Data is sourced from PA.csv (current season only — no archive).
+
+        Parameters
+        ----------
+        location_ids : list[str] or None
+            Filter to specific location IDs.
+        begin_date : str or None
+            Start date or datetime string.
+        end_date : str or None
+            End date or datetime string (inclusive).
+        daily_only : bool
+            If True (default), return only the 16:00 UTC reading per day.
+            If False, return all hourly readings.
+
+        Returns
+        -------
+        pd.DataFrame
+            Long-format DataFrame with columns:
+            ``date``/``datetime``, ``location_id``, ``baro_press_hpa``.
+        """
+        return self._get_asws_var_data(
+            current_url=f"{DATA_BASE}/PA.csv",
+            archive_url=None,
+            value_col="baro_press_hpa",
+            archive=False,
+            location_ids=location_ids,
+            begin_date=begin_date,
+            end_date=end_date,
+            daily_only=daily_only,
+        )
+
+    def get_asws_ud_data(
+        self,
+        location_ids: list[str] | None = None,
+        begin_date: str | None = None,
+        end_date: str | None = None,
+        daily_only: bool = True,
+    ) -> pd.DataFrame:
+        """
+        Get wind direction data from Automated Snow Weather Stations.
+
+        Data is sourced from UD.csv (current season only — no archive).
+
+        Parameters
+        ----------
+        location_ids : list[str] or None
+            Filter to specific location IDs.
+        begin_date : str or None
+            Start date or datetime string.
+        end_date : str or None
+            End date or datetime string (inclusive).
+        daily_only : bool
+            If True (default), return only the 16:00 UTC reading per day.
+            If False, return all hourly readings.
+
+        Returns
+        -------
+        pd.DataFrame
+            Long-format DataFrame with columns:
+            ``date``/``datetime``, ``location_id``, ``wind_dir_deg``.
+        """
+        return self._get_asws_var_data(
+            current_url=f"{DATA_BASE}/UD.csv",
+            archive_url=None,
+            value_col="wind_dir_deg",
+            archive=False,
+            location_ids=location_ids,
+            begin_date=begin_date,
+            end_date=end_date,
+            daily_only=daily_only,
+        )
+
+    def get_asws_us_data(
+        self,
+        location_ids: list[str] | None = None,
+        begin_date: str | None = None,
+        end_date: str | None = None,
+        daily_only: bool = True,
+    ) -> pd.DataFrame:
+        """
+        Get wind speed data from Automated Snow Weather Stations.
+
+        Data is sourced from US.csv (current season only — no archive).
+
+        Parameters
+        ----------
+        location_ids : list[str] or None
+            Filter to specific location IDs.
+        begin_date : str or None
+            Start date or datetime string.
+        end_date : str or None
+            End date or datetime string (inclusive).
+        daily_only : bool
+            If True (default), return only the 16:00 UTC reading per day.
+            If False, return all hourly readings.
+
+        Returns
+        -------
+        pd.DataFrame
+            Long-format DataFrame with columns:
+            ``date``/``datetime``, ``location_id``, ``wind_spd_kmh``.
+        """
+        return self._get_asws_var_data(
+            current_url=f"{DATA_BASE}/US.csv",
+            archive_url=None,
+            value_col="wind_spd_kmh",
+            archive=False,
+            location_ids=location_ids,
+            begin_date=begin_date,
+            end_date=end_date,
+            daily_only=daily_only,
+        )
+
+    def get_asws_up_data(
+        self,
+        location_ids: list[str] | None = None,
+        begin_date: str | None = None,
+        end_date: str | None = None,
+        daily_only: bool = True,
+    ) -> pd.DataFrame:
+        """
+        Get peak (gust) wind speed data from Automated Snow Weather Stations.
+
+        Data is sourced from UP.csv (current season only — no archive).
+
+        Parameters
+        ----------
+        location_ids : list[str] or None
+            Filter to specific location IDs.
+        begin_date : str or None
+            Start date or datetime string.
+        end_date : str or None
+            End date or datetime string (inclusive).
+        daily_only : bool
+            If True (default), return only the 16:00 UTC reading per day.
+            If False, return all hourly readings.
+
+        Returns
+        -------
+        pd.DataFrame
+            Long-format DataFrame with columns:
+            ``date``/``datetime``, ``location_id``, ``wind_spd_peak_kmh``.
+        """
+        return self._get_asws_var_data(
+            current_url=f"{DATA_BASE}/UP.csv",
+            archive_url=None,
+            value_col="wind_spd_peak_kmh",
+            archive=False,
+            location_ids=location_ids,
+            begin_date=begin_date,
+            end_date=end_date,
+            daily_only=daily_only,
+        )
+
+    def get_asws_ur_data(
+        self,
+        location_ids: list[str] | None = None,
+        begin_date: str | None = None,
+        end_date: str | None = None,
+        daily_only: bool = True,
+    ) -> pd.DataFrame:
+        """
+        Get wind run (cumulative) data from Automated Snow Weather Stations.
+
+        Data is sourced from UR.csv (current season only — no archive).
+
+        Parameters
+        ----------
+        location_ids : list[str] or None
+            Filter to specific location IDs.
+        begin_date : str or None
+            Start date or datetime string.
+        end_date : str or None
+            End date or datetime string (inclusive).
+        daily_only : bool
+            If True (default), return only the 16:00 UTC reading per day.
+            If False, return all hourly readings.
+
+        Returns
+        -------
+        pd.DataFrame
+            Long-format DataFrame with columns:
+            ``date``/``datetime``, ``location_id``, ``wind_run_km``.
+        """
+        return self._get_asws_var_data(
+            current_url=f"{DATA_BASE}/UR.csv",
+            archive_url=None,
+            value_col="wind_run_km",
+            archive=False,
+            location_ids=location_ids,
+            begin_date=begin_date,
+            end_date=end_date,
+            daily_only=daily_only,
+        )
+
+    def get_asws_xr_data(
+        self,
+        location_ids: list[str] | None = None,
+        begin_date: str | None = None,
+        end_date: str | None = None,
+        daily_only: bool = True,
+    ) -> pd.DataFrame:
+        """
+        Get relative humidity data from Automated Snow Weather Stations.
+
+        Data is sourced from XR.csv (current season only — no archive).
+
+        Parameters
+        ----------
+        location_ids : list[str] or None
+            Filter to specific location IDs.
+        begin_date : str or None
+            Start date or datetime string.
+        end_date : str or None
+            End date or datetime string (inclusive).
+        daily_only : bool
+            If True (default), return only the 16:00 UTC reading per day.
+            If False, return all hourly readings.
+
+        Returns
+        -------
+        pd.DataFrame
+            Long-format DataFrame with columns:
+            ``date``/``datetime``, ``location_id``, ``rh_pct``.
+        """
+        return self._get_asws_var_data(
+            current_url=f"{DATA_BASE}/XR.csv",
+            archive_url=None,
+            value_col="rh_pct",
+            archive=False,
+            location_ids=location_ids,
+            begin_date=begin_date,
+            end_date=end_date,
+            daily_only=daily_only,
         )
 
     def get_asws_combined_data(
@@ -361,6 +857,9 @@ class DataBCClient:
         Fetches the per-station archive from the ``SnowAll/`` directory,
         which contains SW (SWE, mm), SD (snow depth, cm), TA (air temp, °C),
         and PC (precipitation, mm) in one file.
+
+        The 16:00 UTC reading is used as the canonical daily value, consistent
+        with ``get_asws_daily_data()`` and ``get_asws_sd_data()``.
 
         Parameters
         ----------
@@ -375,18 +874,17 @@ class DataBCClient:
             ``swe_mm`` (float or NaN),
             ``snwd_cm`` (float or NaN),
             ``air_temp_degc`` (float or NaN),
-            ``precip_mm`` (float or NaN).
+            ``precip_cumul_mm`` (float or NaN).
         """
         url = f"{SNOW_ALL_BASE}/{location_id}.csv"
+        _cols = ["date", "swe_mm", "snwd_cm", "air_temp_degc", "precip_cumul_mm"]
         try:
             resp = self._request(url)
         except DataBCError as exc:
             logger.warning(
                 "Could not load SnowAll/%s.csv: %s", location_id, exc
             )
-            return pd.DataFrame(
-                columns=["date", "swe_mm", "snwd_cm", "air_temp_degc", "precip_mm"]
-            )
+            return pd.DataFrame(columns=_cols)
 
         df = pd.read_csv(io.StringIO(resp.text))
         df.columns = df.columns.str.strip()
@@ -404,39 +902,50 @@ class DataBCClient:
             elif c.startswith("ta") and "unit" not in c and "grade" not in c:
                 col_map[col] = "air_temp_degc"
             elif c.startswith("pc") and "unit" not in c and "grade" not in c:
-                col_map[col] = "precip_mm"
+                col_map[col] = "precip_cumul_mm"
         df = df.rename(columns=col_map)
 
         if "datetime_raw" not in df.columns:
-            return pd.DataFrame(
-                columns=["date", "swe_mm", "snwd_cm", "air_temp_degc", "precip_mm"]
+            return pd.DataFrame(columns=_cols)
+
+        # Parse datetime and select the 16:00 UTC reading as daily value
+        dt_series = pd.to_datetime(df["datetime_raw"], errors="coerce")
+        hour_mask = dt_series.dt.strftime("%H:%M") == _DAILY_UTC_HOUR
+        if hour_mask.any():
+            df = df[hour_mask].copy()
+            df["date"] = dt_series[hour_mask].dt.strftime("%Y-%m-%d")
+        else:
+            # Fallback: take last non-NaN reading per calendar day
+            logger.warning(
+                "No 16:00 UTC readings in SnowAll/%s.csv; "
+                "falling back to last reading per day",
+                location_id,
+            )
+            df["date"] = dt_series.dt.strftime("%Y-%m-%d")
+            df = (
+                df.dropna(subset=["date"])
+                .groupby("date")
+                .last()
+                .reset_index()
             )
 
-        df["date"] = (
-            pd.to_datetime(df["datetime_raw"], errors="coerce")
-            .dt.strftime("%Y-%m-%d")
-        )
-        df = df.drop(columns=["datetime_raw"])
+        df = df.drop(columns=["datetime_raw"], errors="ignore")
 
-        for num_col in ("swe_mm", "snwd_cm", "air_temp_degc", "precip_mm"):
+        for num_col in ("swe_mm", "snwd_cm", "air_temp_degc", "precip_cumul_mm"):
             if num_col in df.columns:
                 df[num_col] = pd.to_numeric(df[num_col], errors="coerce")
             else:
                 df[num_col] = float("nan")
 
-        # Take one reading per date (last non-NaN per day)
         df = df.dropna(subset=["date"])
-        df = (
-            df.groupby("date")
-            .last()
-            .reset_index()
-        )
         df = df.sort_values("date").reset_index(drop=True)
 
-        for num_col in ("swe_mm", "snwd_cm", "air_temp_degc", "precip_mm"):
+        for num_col in ("swe_mm", "snwd_cm", "air_temp_degc", "precip_cumul_mm"):
             df.loc[df[num_col] < 0, num_col] = float("nan")
 
-        return df[["date", "swe_mm", "snwd_cm", "air_temp_degc", "precip_mm"]]
+        return df[_cols]
+
+    # ── Public API — MSS time-series data ─────────────────────────────────────
 
     def get_mss_survey_data(
         self,
@@ -517,6 +1026,98 @@ class DataBCClient:
 
         return df.reset_index(drop=True)
 
+    # ── Public API — station photos ───────────────────────────────────────────
+
+    def get_station_image_url(self, location_id: str) -> str | None:
+        """
+        Get the station photo URL for an ASWS station from the AQRT BCMOE portal.
+
+        Scrapes ``https://bcmoe-prod.aquaticinformatics.net`` (the public
+        BC Ministry of Environment AQUARIUS Web Portal).  The portal requires
+        accepting a one-time disclaimer; this client does so lazily and reuses
+        the session for subsequent calls.
+
+        The returned URL is a direct ``GetFileById`` link that can be embedded
+        in an ``<img>`` tag.  Returns ``None`` if the station has no photo or
+        the portal is unreachable.
+
+        Parameters
+        ----------
+        location_id : str
+            ASWS station location ID, e.g. ``"1E08P"``.
+
+        Returns
+        -------
+        str or None
+            Direct image URL, e.g.
+            ``"https://bcmoe-prod.aquaticinformatics.net/Data/GetFileById/12345"``,
+            or ``None`` if no photo is available.
+        """
+        base = AQRT_BCMOE_BASE
+
+        # Accept the disclaimer once per client session
+        if not self._aqrt_disclaimer_accepted:
+            try:
+                d = self._aqrt_session.get(
+                    f"{base}/Disclaimer", timeout=self.timeout
+                )
+                d.raise_for_status()
+                match = re.search(
+                    r'name="__RequestVerificationToken"[^>]+value="([^"]+)"',
+                    d.text,
+                )
+                if not match:
+                    logger.warning(
+                        "Could not find antiforgery token on AQRT disclaimer page"
+                    )
+                    return None
+                token = match.group(1)
+                self._aqrt_session.post(
+                    f"{base}/AcceptDisclaimer",
+                    data={
+                        "returnUrl": "/Data",
+                        "__RequestVerificationToken": token,
+                    },
+                    timeout=self.timeout,
+                ).raise_for_status()
+                self._aqrt_disclaimer_accepted = True
+            except Exception as exc:
+                logger.warning("Could not accept AQRT BCMOE disclaimer: %s", exc)
+                return None
+
+        station_url = (
+            f"{base}/Data/Location/Summary"
+            f"/Location/{location_id}/Interval/Latest"
+        )
+        try:
+            page = self._aqrt_session.get(station_url, timeout=self.timeout)
+            page.raise_for_status()
+            numeric_id_match = re.search(
+                r"var\s+initialLocation\s*=\s*(\d+)\s*;", page.text
+            )
+            if not numeric_id_match:
+                logger.debug(
+                    "No initialLocation found for ASWS station %s", location_id
+                )
+                return None
+            numeric_id = numeric_id_match.group(1)
+
+            summary = self._aqrt_session.get(
+                f"{base}/Data/Location_Summary/",
+                params={"location": numeric_id},
+                timeout=self.timeout,
+            )
+            summary.raise_for_status()
+            m = re.search(r"/Data/GetFileById/(\d+)", summary.text)
+            if m:
+                return f"{base}/Data/GetFileById/{m.group(1)}"
+            return None
+        except Exception as exc:
+            logger.warning(
+                "Could not fetch image URL for %s: %s", location_id, exc
+            )
+            return None
+
     # ── Internal helpers ──────────────────────────────────────────────────────
 
     def _get_wfs_stations(
@@ -586,77 +1187,107 @@ class DataBCClient:
     def _get_asws_var_data(
         self,
         current_url: str,
-        archive_url: str,
+        archive_url: str | None,
         value_col: str,
         archive: bool,
         location_ids: list[str] | None,
         begin_date: str | None,
         end_date: str | None,
+        daily_only: bool = True,
     ) -> pd.DataFrame:
         """Generic helper for fetching a single variable from ASWS wide CSVs."""
+        time_col = "date" if daily_only else "datetime"
         dfs = []
         try:
-            dfs.append(self._load_asws_wide_csv(current_url, value_col=value_col))
+            dfs.append(
+                self._load_asws_wide_csv(
+                    current_url, value_col=value_col, daily_only=daily_only
+                )
+            )
         except DataBCError as exc:
             logger.warning("Could not load %s: %s", current_url, exc)
 
-        if archive:
+        if archive and archive_url:
             try:
                 dfs.append(
-                    self._load_asws_wide_csv(archive_url, value_col=value_col)
+                    self._load_asws_wide_csv(
+                        archive_url, value_col=value_col, daily_only=daily_only
+                    )
                 )
             except DataBCError as exc:
                 logger.warning("Could not load %s: %s", archive_url, exc)
 
         if not dfs:
-            return pd.DataFrame(columns=["date", "location_id", value_col])
+            return pd.DataFrame(columns=[time_col, "location_id", value_col])
 
         df = pd.concat(dfs, ignore_index=True)
-        df = df.drop_duplicates(subset=["date", "location_id"])
-        df = df.sort_values(["location_id", "date"]).reset_index(drop=True)
+        df = df.drop_duplicates(subset=[time_col, "location_id"])
+        df = df.sort_values(["location_id", time_col]).reset_index(drop=True)
 
         if location_ids is not None:
             df = df[df["location_id"].isin(location_ids)]
         if begin_date:
-            df = df[df["date"] >= begin_date]
+            df = df[df[time_col] >= begin_date]
         if end_date:
-            df = df[df["date"] <= end_date]
+            df = df[df[time_col] <= end_date]
 
         return df.reset_index(drop=True)
 
-    def _load_asws_wide_csv(self, url: str, value_col: str = "swe_mm") -> pd.DataFrame:
+    def _load_asws_wide_csv(
+        self,
+        url: str,
+        value_col: str = "swe_mm",
+        daily_only: bool = True,
+    ) -> pd.DataFrame:
         """
         Load a wide-format ASWS CSV and convert to long format.
 
-        The CSV has one row per timestamp and one column per station.
+        The CSV has one row per UTC timestamp and one column per station.
         Column headers are of the form ``"1A01P Yellowhead Lake"``.
+
+        Parameters
+        ----------
+        url : str
+            URL of the wide-format CSV file.
+        value_col : str
+            Name to use for the value column in the output DataFrame.
+        daily_only : bool
+            If True, filter to the 16:00 UTC reading and return a ``date``
+            column (``"YYYY-MM-DD"``).  If False, return all rows with a
+            ``datetime`` column (``"YYYY-MM-DD HH:MM"`` UTC).
         """
         resp = self._request(url)
         df = pd.read_csv(io.StringIO(resp.text))
 
+        time_col = "date" if daily_only else "datetime"
+
         if df.empty or len(df.columns) < 2:
             return pd.DataFrame(
-                columns=["date", "location_id", value_col]
+                columns=[time_col, "location_id", value_col]
             )
 
         date_col = df.columns[0]  # "DATE(UTC)"
 
-        # Use only the 16:00 UTC reading as the daily value
-        mask = df[date_col].astype(str).str.strip().str.endswith(
-            _DAILY_UTC_HOUR
-        )
-        df = df[mask].copy()
-        if df.empty:
-            return pd.DataFrame(
-                columns=["date", "location_id", value_col]
+        if daily_only:
+            # Use only the 16:00 UTC reading as the canonical daily value
+            mask = df[date_col].astype(str).str.strip().str.endswith(
+                _DAILY_UTC_HOUR
             )
+            df = df[mask].copy()
+            if df.empty:
+                return pd.DataFrame(
+                    columns=[time_col, "location_id", value_col]
+                )
+            df[time_col] = df[date_col].astype(str).str[:10]
+        else:
+            # Return all hourly rows; keep "YYYY-MM-DD HH:MM" format
+            df[time_col] = df[date_col].astype(str).str.strip().str[:16]
 
-        df["date"] = df[date_col].astype(str).str[:10]
         df = df.drop(columns=[date_col])
 
         # Melt to long format
         df_long = df.melt(
-            id_vars=["date"],
+            id_vars=[time_col],
             var_name="station_col",
             value_name=value_col,
         )
@@ -670,10 +1301,10 @@ class DataBCClient:
         df_long[value_col] = pd.to_numeric(
             df_long[value_col], errors="coerce"
         )
-        # Remove clearly invalid values (negative)
+        # Remove clearly invalid values (negative, -99999 sentinel)
         df_long.loc[df_long[value_col] < 0, value_col] = float("nan")
 
-        return df_long[["date", "location_id", value_col]]
+        return df_long[[time_col, "location_id", value_col]]
 
     def _load_mss_csv(self, url: str) -> pd.DataFrame:
         """Load a long-format MSS (manual snow survey) CSV."""
