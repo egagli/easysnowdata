@@ -143,9 +143,10 @@ _DAILY_UTC_HOUR = "16:00"
 # ── Public variable / flag tables ─────────────────────────────────────────────
 
 #: Variables available from this client.
-VARIABLES: dict[str, dict[str, str]] = {
+VARIABLES: dict[str, dict] = {
     "swe_mm": {
         "name": "Snow Water Equivalent",
+        "type": "swe",
         "units": "mm",
         "source": "ASWS (daily: SWDaily.csv; hourly: SW.csv) and MSS (periodic survey)",
         "description": (
@@ -153,9 +154,11 @@ VARIABLES: dict[str, dict[str, str]] = {
             "Daily file uses 16:00 UTC as canonical value. "
             "MSS: manually surveyed water equivalent."
         ),
+        "notes": "",
     },
     "snwd_cm": {
         "name": "Snow Depth",
+        "type": "snwd",
         "units": "cm",
         "source": "ASWS (SD.csv / SD_Archive.csv) and MSS (periodic survey)",
         "description": (
@@ -163,91 +166,128 @@ VARIABLES: dict[str, dict[str, str]] = {
             "16:00 UTC value used as daily canonical reading. "
             "MSS: manually measured snow depth from snow course surveys."
         ),
+        "notes": "",
     },
     "air_temp_degc": {
         "name": "Air Temperature",
+        "type": "temp",
         "units": "°C",
         "source": "ASWS (TA.csv / TA_Archive.csv)",
         "description": (
             "Hourly air temperature from ASWS stations. "
             "16:00 UTC reading used as daily canonical value."
         ),
+        "notes": "",
     },
     "precip_cumul_mm": {
         "name": "Precipitation Cumulative",
+        "type": "precip",
         "units": "mm",
         "source": "ASWS (PC.csv / PC_Archive.csv)",
         "description": (
             "Cumulative precipitation accumulation from ASWS stations. "
             "16:00 UTC reading used as daily canonical value."
         ),
+        "notes": "",
     },
     "baro_press_hpa": {
         "name": "Barometric Pressure",
+        "type": "baro",
         "units": "hPa",
         "source": "ASWS (PA.csv, current season only — no archive)",
         "description": (
             "Station-level barometric pressure. "
             "16:00 UTC reading used as daily canonical value."
         ),
+        "notes": "No historical archive available.",
     },
     "wind_dir_deg": {
         "name": "Wind Direction",
+        "type": "wind_dir",
         "units": "degrees",
         "source": "ASWS (UD.csv, current season only — no archive)",
         "description": (
             "Wind direction in degrees from north (0–360). "
             "16:00 UTC reading used as daily canonical value."
         ),
+        "notes": "No historical archive available.",
     },
     "wind_spd_kmh": {
         "name": "Wind Speed",
+        "type": "wind_spd",
         "units": "km/h",
         "source": "ASWS (US.csv, current season only — no archive)",
         "description": (
             "Average wind speed. "
             "16:00 UTC reading used as daily canonical value."
         ),
+        "notes": "No historical archive available.",
     },
     "wind_spd_peak_kmh": {
         "name": "Wind Speed Peak (Gust)",
+        "type": "wind_gust",
         "units": "km/h",
         "source": "ASWS (UP.csv, current season only — no archive)",
         "description": (
             "Peak (gust) wind speed. "
             "16:00 UTC reading used as daily canonical value."
         ),
+        "notes": "No historical archive available.",
     },
     "wind_run_km": {
         "name": "Wind Run",
+        "type": "wind_run",
         "units": "km",
         "source": "ASWS (UR.csv, current season only — no archive)",
         "description": (
             "Cumulative wind run (distance travelled by wind). "
             "16:00 UTC reading used as daily canonical value."
         ),
+        "notes": "No historical archive available.",
     },
     "rh_pct": {
         "name": "Relative Humidity",
+        "type": "rh",
         "units": "%",
         "source": "ASWS (XR.csv, current season only — no archive)",
         "description": (
             "Relative humidity as a percentage. "
             "16:00 UTC reading used as daily canonical value."
         ),
+        "notes": "No historical archive available.",
     },
     "density_pct": {
         "name": "Snow Density",
+        "type": "density",
         "units": "%",
         "source": "MSS (periodic survey only)",
         "description": "Snow density calculated from depth and SWE.",
+        "notes": "",
     },
     "snow_line_m": {
         "name": "Snow Line Elevation",
+        "type": "snow_line",
         "units": "m",
         "source": "MSS (periodic survey only)",
         "description": "Elevation of the snow line at time of survey.",
+        "notes": "",
     },
+}
+
+# Standardized type → DataBC variable key(s)
+_TYPE_TO_DATABC_VARS: dict[str, list[str]] = {
+    "swe":        ["swe_mm"],
+    "snwd":       ["snwd_cm"],
+    "temp":       ["air_temp_degc"],
+    "precip":     ["precip_cumul_mm"],
+    "baro":       ["baro_press_hpa"],
+    "wind_dir":   ["wind_dir_deg"],
+    "wind_spd":   ["wind_spd_kmh"],
+    "wind_gust":  ["wind_spd_peak_kmh"],
+    "wind_run":   ["wind_run_km"],
+    "rh":         ["rh_pct"],
+    "density":    ["density_pct"],
+    "snow_line":  ["snow_line_m"],
 }
 
 #: MSS data quality flags (``Survey Code`` field values).
@@ -352,7 +392,11 @@ class DataBCClient:
             active_only=active_only,
         )
 
-    def get_all_stations(self, active_only: bool = False) -> list[dict]:
+    def get_all_stations(
+        self,
+        active_only: bool = False,
+        bbox: tuple[float, float, float, float] | None = None,
+    ) -> list[dict]:
         """
         Get both ASWS and MSS stations.
 
@@ -360,15 +404,277 @@ class DataBCClient:
         ----------
         active_only : bool
             If True, filter to Active stations/sites only.
+        bbox : tuple, optional
+            ``(min_lon, min_lat, max_lon, max_lat)`` bounding box filter.
 
         Returns
         -------
         list[dict]
             Combined list of ASWS and MSS stations.
         """
-        asws = self.get_asws_stations(active_only=active_only)
-        mss = self.get_mss_stations(active_only=active_only)
-        return asws + mss
+        stations = (
+            self.get_asws_stations(active_only=active_only)
+            + self.get_mss_stations(active_only=active_only)
+        )
+        if bbox is not None:
+            min_lon, min_lat, max_lon, max_lat = bbox
+            stations = [
+                s for s in stations
+                if s.get("latitude") is not None
+                and s.get("longitude") is not None
+                and min_lat <= float(s["latitude"]) <= max_lat
+                and min_lon <= float(s["longitude"]) <= max_lon
+            ]
+        return stations
+
+    def get_data(
+        self,
+        station_ids: list[str] | str | None = None,
+        variables: list[str] | str | None = None,
+        bbox: tuple[float, float, float, float] | None = None,
+        begin_date: str | None = None,
+        end_date: str | None = None,
+        interval: str = "daily",
+        include_flags: bool = False,
+    ) -> list[dict]:
+        """
+        Standardized data fetch — returns a flat list of observation records.
+
+        For ASWS stations, daily SWE is sourced from ``SWDaily.csv``
+        (16:00 UTC reading).  For MSS stations, all survey variables
+        are returned with ``interval="periodic"``.
+
+        Parameters
+        ----------
+        station_ids : list[str] or str or None
+            Location ID(s), e.g. ``"1A01P"`` (ASWS) or ``"1A01"`` (MSS).
+            Required unless ``bbox`` is provided.
+        variables : list[str] or str or None
+            DataBC variable keys (e.g. ``"swe_mm"``) **or** standardized
+            types (e.g. ``"swe"``).  ``None`` returns all variables in
+            :data:`VARIABLES` available for the given station type.
+        bbox : tuple, optional
+            ``(min_lon, min_lat, max_lon, max_lat)``.
+        begin_date, end_date : str or None
+            Date range (``"YYYY-MM-DD"``).
+        interval : str
+            ``"daily"`` fetches ASWS data; ``"periodic"`` fetches MSS
+            survey data; ``"hourly"`` fetches hourly ASWS sensor data.
+        include_flags : bool
+            If True, MSS survey codes are included as ``"flag"`` field.
+
+        Returns
+        -------
+        list[dict]
+            Flat list of observation records::
+
+                {
+                    "station_id": "1A01P",
+                    "date": "2024-01-15",
+                    "variable": "swe_mm",
+                    "type": "swe",
+                    "value": 45.0,   # mm ÷ 10 → cm for swe_mm
+                    "units": "cm",
+                    "interval": "daily",
+                    # "flag": None  (only when include_flags=True)
+                }
+
+        Notes
+        -----
+        ``swe_mm`` values are converted to cm (÷ 10) in this method so
+        that the returned ``"units"`` is always ``"cm"`` for type ``"swe"``.
+
+        Raises
+        ------
+        ValueError
+            If neither ``station_ids`` nor ``bbox`` is provided.
+        DataBCError
+            On network / data-loading failure.
+        """
+        if station_ids is None and bbox is not None:
+            ids: list[str] | None = [
+                s["location_id"]
+                for s in self.get_all_stations(bbox=bbox)
+            ]
+        elif station_ids is not None:
+            ids = (
+                [station_ids]
+                if isinstance(station_ids, str)
+                else list(station_ids)
+            )
+        else:
+            raise ValueError("Provide station_ids or bbox.")
+
+        # Resolve variables list
+        var_list: list[str] | None = None
+        if variables is not None:
+            raw_vars = (
+                [variables]
+                if isinstance(variables, str)
+                else list(variables)
+            )
+            resolved: list[str] = []
+            for v in raw_vars:
+                if v in VARIABLES:
+                    resolved.append(v)
+                elif v in _TYPE_TO_DATABC_VARS:
+                    resolved.extend(_TYPE_TO_DATABC_VARS[v])
+            var_list = resolved or None
+
+        records: list[dict] = []
+
+        if interval in ("daily", "sub_daily"):
+            # ASWS stations — filter to IDs ending in 'P'
+            asws_ids = (
+                [i for i in ids if str(i).upper().endswith("P")]
+                if ids is not None else None
+            )
+            if asws_ids is None or asws_ids:
+                df = self.get_asws_combined_data(
+                    location_ids=asws_ids or None,
+                    begin_date=begin_date,
+                    end_date=end_date,
+                    archive=True,
+                )
+                # Determine which variables to emit
+                emit_vars = var_list or [
+                    k for k, v in VARIABLES.items()
+                    if "ASWS" in v.get("source", "")
+                ]
+                col_map = {
+                    "swe_mm": ("swe", "cm", lambda x: round(x / 10.0, 3)),
+                    "snwd_cm": ("snwd", "cm", lambda x: x),
+                    "air_temp_degc": ("temp", "°C", lambda x: x),
+                    "precip_cumul_mm": (
+                        "precip", "mm", lambda x: x
+                    ),
+                    "baro_press_hpa": ("baro", "hPa", lambda x: x),
+                    "wind_dir_deg": (
+                        "wind_dir", "degrees", lambda x: x
+                    ),
+                    "wind_spd_kmh": (
+                        "wind_spd", "km/h", lambda x: x
+                    ),
+                    "wind_spd_peak_kmh": (
+                        "wind_gust", "km/h", lambda x: x
+                    ),
+                    "wind_run_km": (
+                        "wind_run", "km", lambda x: x
+                    ),
+                    "rh_pct": ("rh", "%", lambda x: x),
+                }
+                for var_key in emit_vars:
+                    if var_key not in col_map:
+                        continue
+                    col_name = (
+                        var_key if var_key in df.columns else None
+                    )
+                    if col_name is None:
+                        continue
+                    std_type, units, converter = col_map[var_key]
+                    for _, row in df.iterrows():
+                        raw_val = row.get(col_name)
+                        import math
+                        if (
+                            raw_val is None
+                            or (
+                                isinstance(raw_val, float)
+                                and math.isnan(raw_val)
+                            )
+                        ):
+                            value = None
+                        else:
+                            try:
+                                value = converter(float(raw_val))
+                            except (TypeError, ValueError):
+                                value = None
+                        r: dict = {
+                            "station_id": str(row.get(
+                                "location_id", ""
+                            )),
+                            "date": str(row.get("date", ""))[:10],
+                            "variable": var_key,
+                            "type": std_type,
+                            "value": value,
+                            "units": units,
+                            "interval": "daily",
+                        }
+                        if include_flags:
+                            r["flag"] = None
+                        records.append(r)
+
+        if interval in ("periodic", "monthly") or (
+            interval == "daily"
+            and ids is not None
+            and any(not str(i).upper().endswith("P") for i in ids)
+        ):
+            # MSS stations
+            mss_ids = (
+                [i for i in ids if not str(i).upper().endswith("P")]
+                if ids is not None else None
+            )
+            if mss_ids is None or mss_ids:
+                df_mss = self.get_mss_survey_data(
+                    location_ids=mss_ids or None,
+                    begin_date=begin_date,
+                    end_date=end_date,
+                    archive=True,
+                    include_flags=include_flags,
+                )
+                mss_col_map = {
+                    "swe_mm": ("swe", "cm",
+                               lambda x: round(x / 10.0, 3)),
+                    "snwd_cm": ("snwd", "cm", lambda x: x),
+                    "density_pct": (
+                        "density", "%", lambda x: x
+                    ),
+                    "snow_line_m": (
+                        "snow_line", "m", lambda x: x
+                    ),
+                }
+                emit_mss = var_list or list(mss_col_map.keys())
+                for _, row in df_mss.iterrows():
+                    for var_key in emit_mss:
+                        if var_key not in mss_col_map:
+                            continue
+                        if var_key not in df_mss.columns:
+                            continue
+                        std_type, units, converter = (
+                            mss_col_map[var_key]
+                        )
+                        raw_val = row.get(var_key)
+                        import math
+                        if (
+                            raw_val is None
+                            or (
+                                isinstance(raw_val, float)
+                                and math.isnan(raw_val)
+                            )
+                        ):
+                            value = None
+                        else:
+                            try:
+                                value = converter(float(raw_val))
+                            except (TypeError, ValueError):
+                                value = None
+                        r = {
+                            "station_id": str(
+                                row.get("location_id", "")
+                            ),
+                            "date": str(row.get("date", ""))[:10],
+                            "variable": var_key,
+                            "type": std_type,
+                            "value": value,
+                            "units": units,
+                            "interval": "periodic",
+                        }
+                        if include_flags:
+                            r["flag"] = row.get(
+                                "survey_code", None
+                            )
+                        records.append(r)
+
+        return records
 
     # ── Public API — ASWS time-series data ───────────────────────────────────
 

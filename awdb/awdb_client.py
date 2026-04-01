@@ -76,6 +76,93 @@ _CM_CONVERSIONS: dict[str, float] = {
     "SNWD": 2.54,
 }
 
+#: Known AWDB element codes with standardized type and unit metadata.
+#: Elements not listed here are returned with ``type="other"``.
+VARIABLES: dict[str, dict] = {
+    "WTEQ":   {"name": "Snow Water Equivalent",          "type": "swe",       "units": "cm",      "description": "Snow water equivalent. Converted in-client from inches to cm.", "notes": ""},
+    "SNWD":   {"name": "Snow Depth",                     "type": "snwd",      "units": "cm",      "description": "Snow depth. Converted in-client from inches to cm.",            "notes": ""},
+    "TOBS":   {"name": "Air Temperature (observed)",     "type": "temp",      "units": "°F",      "description": "Instantaneous air temperature at observation time.",             "notes": ""},
+    "TMAX":   {"name": "Maximum Air Temperature",        "type": "temp_max",  "units": "°F",      "description": "Daily maximum air temperature.",                                "notes": ""},
+    "TMIN":   {"name": "Minimum Air Temperature",        "type": "temp_min",  "units": "°F",      "description": "Daily minimum air temperature.",                                "notes": ""},
+    "PREC":   {"name": "Precipitation Accumulation",     "type": "precip",    "units": "in",      "description": "Cumulative seasonal precipitation accumulation.",                "notes": ""},
+    "PRCP":   {"name": "Precipitation Increment",        "type": "precip",    "units": "in",      "description": "Precipitation increment since last observation.",               "notes": ""},
+    "PRCPSA": {"name": "Precipitation Accumulation (storm)", "type": "precip","units": "in",      "description": "Storm-period precipitation accumulation.",                     "notes": ""},
+    "RHUM":   {"name": "Relative Humidity",              "type": "rh",        "units": "%",       "description": "Relative humidity percentage.",                                 "notes": ""},
+    "WSPDV":  {"name": "Wind Speed Average",             "type": "wind_spd",  "units": "mph",     "description": "Average wind speed.",                                           "notes": ""},
+    "WSPDX":  {"name": "Wind Speed Maximum (Gust)",      "type": "wind_gust", "units": "mph",     "description": "Maximum (gust) wind speed.",                                   "notes": ""},
+    "WDIRV":  {"name": "Wind Direction",                 "type": "wind_dir",  "units": "degrees", "description": "Wind direction in degrees from north (0–360).",                "notes": ""},
+    "SRADV":  {"name": "Solar Radiation Average",        "type": "solar",     "units": "W/m²",    "description": "Average solar radiation.",                                      "notes": ""},
+}
+
+# Standardized interval → AWDB duration name
+_INTERVAL_TO_AWDB_DURATION: dict[str, str] = {
+    "daily":        "DAILY",
+    "hourly":       "HOURLY",
+    "monthly":      "MONTHLY",
+    "semi_monthly": "SEMIMONTHLY",
+    "annual":       "ANNUAL",
+    "sub_daily":    "HOURLY",
+}
+# AWDB duration name → standardized interval
+_AWDB_DURATION_TO_INTERVAL: dict[str, str] = {
+    "DAILY":        "daily",
+    "HOURLY":       "hourly",
+    "MONTHLY":      "monthly",
+    "SEMIMONTHLY":  "semi_monthly",
+    "ANNUAL":       "annual",
+    "WATER_YEAR":   "annual",
+    "EVENT":        "sub_daily",
+}
+# Standardized type → AWDB element code(s)
+_TYPE_TO_ELEMENTS: dict[str, list[str]] = {
+    "swe":       ["WTEQ"],
+    "snwd":      ["SNWD"],
+    "temp":      ["TOBS", "TMAX", "TMIN"],
+    "temp_max":  ["TMAX"],
+    "temp_min":  ["TMIN"],
+    "precip":    ["PREC", "PRCP", "PRCPSA"],
+    "rh":        ["RHUM"],
+    "wind_spd":  ["WSPDV"],
+    "wind_gust": ["WSPDX"],
+    "wind_dir":  ["WDIRV"],
+    "solar":     ["SRADV"],
+}
+
+
+def _resolve_variables_to_awdb(variables: list[str] | str | None) -> list[str]:
+    """Translate a variables list (native codes or types) to AWDB element codes."""
+    if variables is None:
+        return list(VARIABLES.keys())
+    elems: list[str] = []
+    seen: set[str] = set()
+    for v in (_coerce_list(variables) if isinstance(variables, str) else variables):
+        if v in VARIABLES:
+            if v not in seen:
+                elems.append(v)
+                seen.add(v)
+        elif v in _TYPE_TO_ELEMENTS:
+            for e in _TYPE_TO_ELEMENTS[v]:
+                if e not in seen:
+                    elems.append(e)
+                    seen.add(e)
+    return elems or list(VARIABLES.keys())
+
+
+def _filter_by_bbox(
+    stations: list[dict],
+    bbox: tuple[float, float, float, float],
+    lat_key: str = "latitude",
+    lon_key: str = "longitude",
+) -> list[dict]:
+    """Return stations whose lat/lon fall within (min_lon, min_lat, max_lon, max_lat)."""
+    min_lon, min_lat, max_lon, max_lat = bbox
+    return [
+        s for s in stations
+        if s.get(lat_key) is not None and s.get(lon_key) is not None
+        and min_lat <= float(s[lat_key]) <= max_lat
+        and min_lon <= float(s[lon_key]) <= max_lon
+    ]
+
 
 # ── Client ───────────────────────────────────────────────────────────────────
 
@@ -286,7 +373,7 @@ class AWDBClient:
 
         return results
 
-    def get_data(
+    def _get_data_awdb(
         self,
         triplets: list[str] | str,
         elements: list[str] | str,
@@ -499,7 +586,7 @@ class AWDBClient:
         """
         begin = f"{water_year - 1}-10-01"
         end   = f"{water_year}-09-30"
-        return self.get_data(
+        return self._get_data_awdb(
             triplets=triplets,
             elements=elements,
             duration=duration,
@@ -544,7 +631,7 @@ class AWDBClient:
         ... )
         """
         begin_year, end_year = normal_period.split("-")
-        return self.get_data(
+        return self._get_data_awdb(
             triplets=triplets,
             elements=elements,
             duration=duration,
@@ -552,6 +639,137 @@ class AWDBClient:
             end_date=f"{end_year}-09-30",
             central_tendency_type=central_tendency_type,
         )
+
+
+    def get_all_stations(
+        self,
+        active_only: bool = False,
+        bbox: tuple[float, float, float, float] | None = None,
+    ) -> list[dict]:
+        """
+        Standardized station list.
+
+        Parameters
+        ----------
+        active_only : bool
+            If True, only return active stations.
+        bbox : tuple, optional
+            ``(min_lon, min_lat, max_lon, max_lat)`` bounding box filter.
+
+        Returns
+        -------
+        list[dict]
+            Station dicts (same schema as :meth:`get_stations`).
+        """
+        stations = self.get_stations(active_only=active_only)
+        if bbox is not None:
+            stations = _filter_by_bbox(stations, bbox)
+        return stations
+
+    def get_data(
+        self,
+        station_ids: list[str] | str | None = None,
+        variables: list[str] | str | None = None,
+        bbox: tuple[float, float, float, float] | None = None,
+        begin_date: str | date | None = None,
+        end_date: str | date | None = None,
+        interval: str = "daily",
+        include_flags: bool = False,
+    ) -> list[dict]:
+        """
+        Standardized data fetch — returns a flat list of observation records.
+
+        Parameters
+        ----------
+        station_ids : list[str] or str or None
+            AWDB station triplet(s), e.g. ``"303:CO:SNTL"``.
+            Required unless ``bbox`` is provided.
+        variables : list[str] or str or None
+            Element codes (e.g. ``"WTEQ"``) **or** standardized types
+            (e.g. ``"swe"``).  ``None`` returns all elements in
+            :data:`VARIABLES`.
+        bbox : tuple, optional
+            ``(min_lon, min_lat, max_lon, max_lat)``.  Alternative to
+            ``station_ids``; fetches data for all stations in the box.
+        begin_date : str or date, optional
+            Start date (``"YYYY-MM-DD"``).  Defaults to earliest available.
+        end_date : str or date, optional
+            End date (inclusive).  Defaults to today.
+        interval : str
+            Temporal resolution: ``"daily"``, ``"hourly"``, ``"monthly"``,
+            etc.  Mapped to the AWDB ``duration`` parameter.
+        include_flags : bool
+            Reserved; the AWDB REST API does not return per-value QC flags.
+
+        Returns
+        -------
+        list[dict]
+            Flat list of observation records::
+
+                {
+                    "station_id": "303:CO:SNTL",
+                    "date": "2024-01-15",
+                    "variable": "WTEQ",
+                    "type": "swe",
+                    "value": 14.2,
+                    "units": "cm",
+                    "interval": "daily",
+                    # "flag": None  (only present when include_flags=True)
+                }
+
+        Raises
+        ------
+        ValueError
+            If neither ``station_ids`` nor ``bbox`` is provided.
+        AWDBError
+            If a batch request fails after all retries.
+        """
+        if station_ids is None and bbox is not None:
+            ids = [s["stationTriplet"] for s in self.get_all_stations(bbox=bbox)]
+        elif station_ids is not None:
+            ids = _coerce_list(station_ids)
+        else:
+            raise ValueError("Provide station_ids or bbox.")
+        if not ids:
+            return []
+
+        elements = _resolve_variables_to_awdb(variables)
+        duration = _INTERVAL_TO_AWDB_DURATION.get(interval.lower(), "DAILY")
+        raw = self._get_data_awdb(ids, elements, duration, begin_date, end_date)
+
+        records: list[dict] = []
+        for station_data in raw:
+            triplet = station_data.get("stationTriplet", "")
+            for block in station_data.get("data", []):
+                elem_info = block.get("stationElement", {})
+                elem_code = str(elem_info.get("elementCode") or "")
+                dur_name = str(
+                    elem_info.get("durationName") or "DAILY"
+                ).upper()
+                units = str(
+                    elem_info.get("convertedUnitCode")
+                    or elem_info.get("originalUnitCode")
+                    or ""
+                )
+                std_interval = _AWDB_DURATION_TO_INTERVAL.get(
+                    dur_name, dur_name.lower()
+                )
+                var_info = VARIABLES.get(elem_code, {})
+                std_type = var_info.get("type", "other")
+                for rec in block.get("values", []):
+                    r: dict = {
+                        "station_id": triplet,
+                        "date": str(rec.get("date", ""))[:10],
+                        "variable": elem_code,
+                        "type": std_type,
+                        "value": rec.get("value"),
+                        "units": units,
+                        "interval": std_interval,
+                    }
+                    if include_flags:
+                        r["flag"] = None
+                    records.append(r)
+        return records
 
     # ── Internal helpers ──────────────────────────────────────────────────────
 

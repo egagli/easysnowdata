@@ -77,27 +77,46 @@ SENSORS: dict[int, dict[str, str]] = {
     3: {
         "name": "Snow Water Content",
         "short_name": "SNOW WC",
+        "type": "swe",
         "units": "in",
         "variable": "swe_raw",
-        "description": "Raw snow pillow reading (SWE, inches).",
+        "description": "Raw snow pillow reading (SWE, inches). Converted to cm by client.",
+        "notes": "Prefer sensor 82 (SNO ADJ) when available.",
     },
     18: {
         "name": "Snow Depth",
         "short_name": "SNOW DP",
+        "type": "snwd",
         "units": "in",
         "variable": "snwd",
-        "description": "Ultrasonic snow depth sensor (inches).",
+        "description": "Ultrasonic snow depth sensor (inches). Converted to cm by client.",
+        "notes": "",
     },
     82: {
         "name": "Snow Water Content (Adjusted)",
         "short_name": "SNO ADJ",
+        "type": "swe",
         "units": "in",
         "variable": "swe",
         "description": (
             "Quality-controlled SWE with calibration offset applied "
-            "(preferred over sensor 3 for analysis)."
+            "(preferred over sensor 3). Converted to cm by client."
         ),
+        "notes": "Preferred SWE sensor for CCSS automated pillows.",
     },
+}
+
+# Standardized type → CDEC sensor number(s) in priority order
+_TYPE_TO_SENSORS: dict[str, list[int]] = {
+    "swe":  [82, 3],
+    "snwd": [18],
+}
+# CDEC duration code → standardized interval
+_CDEC_DURATION_TO_INTERVAL: dict[str, str] = {
+    "D": "daily",
+    "H": "hourly",
+    "M": "monthly",
+    "E": "sub_daily",
 }
 
 #: CDEC data quality flags.
@@ -123,6 +142,49 @@ DURATION_CODES: dict[str, str] = {
     "H": "Hourly",
     "E": "Event (sub-hourly)",
 }
+
+# Standardized interval → CDEC duration code
+_INTERVAL_TO_CDEC_DURATION: dict[str, str] = {
+    "daily":     "D",
+    "hourly":    "H",
+    "monthly":   "M",
+    "sub_daily": "E",
+}
+
+
+def _resolve_variables_to_cdec_sensors(
+    variables: list[str] | str | None,
+) -> list[int]:
+    """Translate a variables list (short names or types) to sensor numbers."""
+    if variables is None:
+        return list(SENSORS.keys())
+    sensors: list[int] = []
+    seen: set[int] = set()
+    var_list = (
+        [variables] if isinstance(variables, str) else list(variables)
+    )
+    # Build reverse lookups
+    short_name_to_num = {
+        v["short_name"]: k for k, v in SENSORS.items()
+    }
+    name_to_num = {v["name"]: k for k, v in SENSORS.items()}
+    for v in var_list:
+        if v in _TYPE_TO_SENSORS:
+            for snum in _TYPE_TO_SENSORS[v]:
+                if snum not in seen:
+                    sensors.append(snum)
+                    seen.add(snum)
+        elif v in short_name_to_num:
+            snum = short_name_to_num[v]
+            if snum not in seen:
+                sensors.append(snum)
+                seen.add(snum)
+        elif v in name_to_num:
+            snum = name_to_num[v]
+            if snum not in seen:
+                sensors.append(snum)
+                seen.add(snum)
+    return sensors or list(SENSORS.keys())
 
 
 # ── Client ───────────────────────────────────────────────────────────────────
@@ -394,7 +456,7 @@ class CDECClient:
         html = self._get_html(url, params={"station_id": station_id})
         return _parse_sta_meta_html(station_id, html)
 
-    def get_data(
+    def _get_data_cdec(
         self,
         station_ids: list[str] | str,
         sensors: list[int] | int,
@@ -551,6 +613,203 @@ class CDECClient:
                 }
             )
         return output
+
+
+    def get_all_stations(
+        self,
+        active_only: bool = False,
+        bbox: tuple[float, float, float, float] | None = None,
+    ) -> list[dict]:
+        """
+        Standardized station list (automated pillows + manual courses).
+
+        Parameters
+        ----------
+        active_only : bool
+            If True, filter to currently active stations.
+        bbox : tuple, optional
+            ``(min_lon, min_lat, max_lon, max_lat)`` bounding box filter.
+
+        Returns
+        -------
+        list[dict]
+            Combined list of all CDEC snow stations.
+        """
+        stations = self.get_stations(active_only=active_only)
+        if bbox is not None:
+            stations = [
+                s for s in stations
+                if s.get("latitude") is not None
+                and s.get("longitude") is not None
+                and bbox[1] <= float(s["latitude"]) <= bbox[3]
+                and bbox[0] <= float(s["longitude"]) <= bbox[2]
+            ]
+        return stations
+
+    def get_data(
+        self,
+        station_ids: list[str] | str | None = None,
+        variables: list[str] | str | None = None,
+        bbox: tuple[float, float, float, float] | None = None,
+        begin_date: str | date | None = None,
+        end_date: str | date | None = None,
+        interval: str = "daily",
+        include_flags: bool = False,
+    ) -> list[dict]:
+        """
+        Standardized data fetch — returns a flat list of observation records.
+
+        Parameters
+        ----------
+        station_ids : list[str] or str or None
+            CDEC station ID(s), e.g. ``"QUA"``.
+            Required unless ``bbox`` is provided.
+        variables : list[str] or str or None
+            Sensor short names (e.g. ``"SNO ADJ"``) **or** standardized
+            types (e.g. ``"swe"``).  ``None`` fetches all sensors in
+            :data:`SENSORS`.  For type ``"swe"``, sensor 82 (SNO ADJ) is
+            preferred over sensor 3 (SNOW WC).
+        bbox : tuple, optional
+            ``(min_lon, min_lat, max_lon, max_lat)``.
+        begin_date, end_date : str or date, optional
+        interval : str
+            ``"daily"``, ``"hourly"``, ``"monthly"``, ``"sub_daily"``.
+        include_flags : bool
+            If True, each record includes a ``"flag"`` key.
+
+        Returns
+        -------
+        list[dict]
+            Flat list of observation records::
+
+                {
+                    "station_id": "QUA",
+                    "date": "2024-01-15",
+                    "variable": "SNO ADJ",
+                    "type": "swe",
+                    "value": 24.7,
+                    "units": "cm",
+                    "interval": "daily",
+                    # "flag": "r"  (only when include_flags=True)
+                }
+
+        Notes
+        -----
+        When multiple SWE sensors are present for the same station and date,
+        sensor 82 (SNO ADJ) takes priority over sensor 3 (SNOW WC).
+
+        Raises
+        ------
+        ValueError
+            If neither ``station_ids`` nor ``bbox`` is provided.
+        CDECError
+            On network / API failure.
+        """
+        if station_ids is None and bbox is not None:
+            ids = [
+                s["station_id"]
+                for s in self.get_all_stations(bbox=bbox)
+            ]
+        elif station_ids is not None:
+            ids = (
+                [station_ids]
+                if isinstance(station_ids, str)
+                else list(station_ids)
+            )
+        else:
+            raise ValueError("Provide station_ids or bbox.")
+        if not ids:
+            return []
+
+        # Resolve variables → sensor numbers
+        sensors = _resolve_variables_to_cdec_sensors(variables)
+        cdec_duration = _INTERVAL_TO_CDEC_DURATION.get(
+            interval.lower(), "D"
+        )
+
+        raw = self._get_data_cdec(
+            ids, sensors, cdec_duration, begin_date, end_date,
+            include_flags=include_flags,
+        )
+
+        # Flatten to standard schema; apply SWE priority (sensor 82 > 3)
+        records: list[dict] = []
+        for station_data in raw:
+            sid = station_data.get("stationId", "")
+            # Collect per-date SWE values by sensor priority
+            swe_by_date: dict[str, tuple[int, float | None, str | None]] = {}
+            other_records: list[dict] = []
+
+            for block in station_data.get("data", []):
+                elem = block.get("stationElement", {})
+                sensor_num = int(elem.get("sensorNum", 0))
+                sensor_info = SENSORS.get(sensor_num, {})
+                std_type = sensor_info.get("type", "other")
+                short_name = sensor_info.get("short_name", str(sensor_num))
+                dur_code = str(elem.get("durationCode", "D"))
+                std_interval = _CDEC_DURATION_TO_INTERVAL.get(
+                    dur_code, dur_code
+                )
+
+                for rec in block.get("values", []):
+                    d = str(rec.get("date", ""))[:10]
+                    v = rec.get("value")
+                    flag = rec.get("flag") if include_flags else None
+
+                    if std_type == "swe":
+                        # Keep higher-priority sensor per date
+                        existing = swe_by_date.get(d)
+                        if existing is None or sensor_num < existing[0]:
+                            # lower sensor number = lower priority
+                            # 82 preferred over 3; store as
+                            # (-priority, sensor_num) — we want 82 to win
+                            pass
+                        # sensor 82 wins over sensor 3
+                        if existing is None:
+                            swe_by_date[d] = (sensor_num, v, flag)
+                        else:
+                            existing_snum = existing[0]
+                            # 82 > 3 in priority
+                            if sensor_num == 82 or (
+                                sensor_num != 3 or existing_snum != 82
+                            ):
+                                if existing_snum != 82:
+                                    swe_by_date[d] = (sensor_num, v, flag)
+                    else:
+                        r: dict = {
+                            "station_id": sid,
+                            "date": d,
+                            "variable": short_name,
+                            "type": std_type,
+                            "value": v,
+                            "units": "cm",
+                            "interval": std_interval,
+                        }
+                        if include_flags:
+                            r["flag"] = flag
+                        other_records.append(r)
+
+            # Emit SWE records (priority-resolved)
+            for d, (snum, v, flag) in sorted(swe_by_date.items()):
+                sinfo = SENSORS.get(snum, {})
+                r = {
+                    "station_id": sid,
+                    "date": d,
+                    "variable": sinfo.get("short_name", str(snum)),
+                    "type": "swe",
+                    "value": v,
+                    "units": "cm",
+                    "interval": _CDEC_DURATION_TO_INTERVAL.get(
+                        cdec_duration, cdec_duration
+                    ),
+                }
+                if include_flags:
+                    r["flag"] = flag
+                records.append(r)
+
+            records.extend(other_records)
+
+        return records
 
     # ── Internal helpers ──────────────────────────────────────────────────────
 
