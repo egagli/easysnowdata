@@ -110,6 +110,7 @@ from __future__ import annotations
 
 import io
 import logging
+import math
 import re
 import time
 from typing import Any
@@ -530,57 +531,82 @@ class DataBCClient:
                 if ids is not None else None
             )
             if asws_ids is None or asws_ids:
-                df = self.get_asws_combined_data(
-                    location_ids=asws_ids or None,
-                    begin_date=begin_date,
-                    end_date=end_date,
-                    archive=True,
-                )
-                # Determine which variables to emit
-                emit_vars = var_list or [
-                    k for k, v in VARIABLES.items()
-                    if "ASWS" in v.get("source", "")
+                # Map variable key → (fetch method, value col, type,
+                # units, converter)
+                _var_methods: list[tuple] = [
+                    (
+                        "swe_mm", self.get_asws_daily_data,
+                        "swe_mm", "swe", "cm",
+                        lambda x: round(x / 10.0, 3),
+                    ),
+                    (
+                        "snwd_cm", self.get_asws_sd_data,
+                        "snwd_cm", "snwd", "cm",
+                        lambda x: x,
+                    ),
+                    (
+                        "air_temp_degc", self.get_asws_ta_data,
+                        "air_temp_degc", "temp", "\u00b0C",
+                        lambda x: x,
+                    ),
+                    (
+                        "precip_cumul_mm", self.get_asws_pc_data,
+                        "precip_cumul_mm", "precip", "mm",
+                        lambda x: x,
+                    ),
+                    (
+                        "baro_press_hpa", self.get_asws_pa_data,
+                        "baro_press_hpa", "baro", "hPa",
+                        lambda x: x,
+                    ),
+                    (
+                        "wind_dir_deg", self.get_asws_ud_data,
+                        "wind_dir_deg", "wind_dir", "degrees",
+                        lambda x: x,
+                    ),
+                    (
+                        "wind_spd_kmh", self.get_asws_us_data,
+                        "wind_spd_kmh", "wind_spd", "km/h",
+                        lambda x: x,
+                    ),
+                    (
+                        "wind_spd_peak_kmh", self.get_asws_up_data,
+                        "wind_spd_peak_kmh", "wind_gust", "km/h",
+                        lambda x: x,
+                    ),
+                    (
+                        "wind_run_km", self.get_asws_ur_data,
+                        "wind_run_km", "wind_run", "km",
+                        lambda x: x,
+                    ),
+                    (
+                        "rh_pct", self.get_asws_xr_data,
+                        "rh_pct", "rh", "%",
+                        lambda x: x,
+                    ),
                 ]
-                col_map = {
-                    "swe_mm": ("swe", "cm", lambda x: round(x / 10.0, 3)),
-                    "snwd_cm": ("snwd", "cm", lambda x: x),
-                    "air_temp_degc": ("temp", "°C", lambda x: x),
-                    "precip_cumul_mm": (
-                        "precip", "mm", lambda x: x
-                    ),
-                    "baro_press_hpa": ("baro", "hPa", lambda x: x),
-                    "wind_dir_deg": (
-                        "wind_dir", "degrees", lambda x: x
-                    ),
-                    "wind_spd_kmh": (
-                        "wind_spd", "km/h", lambda x: x
-                    ),
-                    "wind_spd_peak_kmh": (
-                        "wind_gust", "km/h", lambda x: x
-                    ),
-                    "wind_run_km": (
-                        "wind_run", "km", lambda x: x
-                    ),
-                    "rh_pct": ("rh", "%", lambda x: x),
-                }
-                for var_key in emit_vars:
-                    if var_key not in col_map:
+                emit_vars = set(var_list) if var_list else None
+                for (
+                    var_key, method, val_col,
+                    std_type, units, converter
+                ) in _var_methods:
+                    if emit_vars and var_key not in emit_vars:
                         continue
-                    col_name = (
-                        var_key if var_key in df.columns else None
-                    )
-                    if col_name is None:
+                    try:
+                        df = method(
+                            location_ids=asws_ids,
+                            begin_date=begin_date,
+                            end_date=end_date,
+                        )
+                    except Exception:
                         continue
-                    std_type, units, converter = col_map[var_key]
+                    if df.empty or val_col not in df.columns:
+                        continue
                     for _, row in df.iterrows():
-                        raw_val = row.get(col_name)
-                        import math
-                        if (
-                            raw_val is None
-                            or (
-                                isinstance(raw_val, float)
-                                and math.isnan(raw_val)
-                            )
+                        raw_val = row.get(val_col)
+                        if raw_val is None or (
+                            isinstance(raw_val, float)
+                            and math.isnan(raw_val)
                         ):
                             value = None
                         else:
@@ -589,10 +615,12 @@ class DataBCClient:
                             except (TypeError, ValueError):
                                 value = None
                         r: dict = {
-                            "station_id": str(row.get(
-                                "location_id", ""
-                            )),
-                            "date": str(row.get("date", ""))[:10],
+                            "station_id": str(
+                                row.get("location_id", "")
+                            ),
+                            "date": str(
+                                row.get("date", "")
+                            )[:10],
                             "variable": var_key,
                             "type": std_type,
                             "value": value,
@@ -643,7 +671,6 @@ class DataBCClient:
                             mss_col_map[var_key]
                         )
                         raw_val = row.get(var_key)
-                        import math
                         if (
                             raw_val is None
                             or (

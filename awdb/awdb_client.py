@@ -78,20 +78,22 @@ _CM_CONVERSIONS: dict[str, float] = {
 
 #: Known AWDB element codes with standardized type and unit metadata.
 #: Elements not listed here are returned with ``type="other"``.
+_AWDB_DATA_SOURCE = "USDA NRCS AWDB REST API v1 — /data endpoint"
+
 VARIABLES: dict[str, dict] = {
-    "WTEQ":   {"name": "Snow Water Equivalent",          "type": "swe",       "units": "cm",      "description": "Snow water equivalent. Converted in-client from inches to cm.", "notes": ""},
-    "SNWD":   {"name": "Snow Depth",                     "type": "snwd",      "units": "cm",      "description": "Snow depth. Converted in-client from inches to cm.",            "notes": ""},
-    "TOBS":   {"name": "Air Temperature (observed)",     "type": "temp",      "units": "°F",      "description": "Instantaneous air temperature at observation time.",             "notes": ""},
-    "TMAX":   {"name": "Maximum Air Temperature",        "type": "temp_max",  "units": "°F",      "description": "Daily maximum air temperature.",                                "notes": ""},
-    "TMIN":   {"name": "Minimum Air Temperature",        "type": "temp_min",  "units": "°F",      "description": "Daily minimum air temperature.",                                "notes": ""},
-    "PREC":   {"name": "Precipitation Accumulation",     "type": "precip",    "units": "in",      "description": "Cumulative seasonal precipitation accumulation.",                "notes": ""},
-    "PRCP":   {"name": "Precipitation Increment",        "type": "precip",    "units": "in",      "description": "Precipitation increment since last observation.",               "notes": ""},
-    "PRCPSA": {"name": "Precipitation Accumulation (storm)", "type": "precip","units": "in",      "description": "Storm-period precipitation accumulation.",                     "notes": ""},
-    "RHUM":   {"name": "Relative Humidity",              "type": "rh",        "units": "%",       "description": "Relative humidity percentage.",                                 "notes": ""},
-    "WSPDV":  {"name": "Wind Speed Average",             "type": "wind_spd",  "units": "mph",     "description": "Average wind speed.",                                           "notes": ""},
-    "WSPDX":  {"name": "Wind Speed Maximum (Gust)",      "type": "wind_gust", "units": "mph",     "description": "Maximum (gust) wind speed.",                                   "notes": ""},
-    "WDIRV":  {"name": "Wind Direction",                 "type": "wind_dir",  "units": "degrees", "description": "Wind direction in degrees from north (0–360).",                "notes": ""},
-    "SRADV":  {"name": "Solar Radiation Average",        "type": "solar",     "units": "W/m²",    "description": "Average solar radiation.",                                      "notes": ""},
+    "WTEQ":   {"name": "Snow Water Equivalent",          "type": "swe",       "units": "cm",      "description": "Snow water equivalent. Converted in-client from inches to cm.", "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "SNWD":   {"name": "Snow Depth",                     "type": "snwd",      "units": "cm",      "description": "Snow depth. Converted in-client from inches to cm.",            "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "TOBS":   {"name": "Air Temperature (observed)",     "type": "temp",      "units": "°F",      "description": "Instantaneous air temperature at observation time.",             "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "TMAX":   {"name": "Maximum Air Temperature",        "type": "temp_max",  "units": "°F",      "description": "Daily maximum air temperature.",                                "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "TMIN":   {"name": "Minimum Air Temperature",        "type": "temp_min",  "units": "°F",      "description": "Daily minimum air temperature.",                                "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "PREC":   {"name": "Precipitation Accumulation",     "type": "precip",    "units": "in",      "description": "Cumulative seasonal precipitation accumulation.",                "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "PRCP":   {"name": "Precipitation Increment",        "type": "precip",    "units": "in",      "description": "Precipitation increment since last observation.",               "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "PRCPSA": {"name": "Precipitation Accumulation (storm)", "type": "precip","units": "in",      "description": "Storm-period precipitation accumulation.",                     "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "RHUM":   {"name": "Relative Humidity",              "type": "rh",        "units": "%",       "description": "Relative humidity percentage.",                                 "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "WSPDV":  {"name": "Wind Speed Average",             "type": "wind_spd",  "units": "mph",     "description": "Average wind speed.",                                           "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "WSPDX":  {"name": "Wind Speed Maximum (Gust)",      "type": "wind_gust", "units": "mph",     "description": "Maximum (gust) wind speed.",                                   "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "WDIRV":  {"name": "Wind Direction",                 "type": "wind_dir",  "units": "degrees", "description": "Wind direction in degrees from north (0–360).",                "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "SRADV":  {"name": "Solar Radiation Average",        "type": "solar",     "units": "W/m²",    "description": "Average solar radiation.",                                      "notes": "",  "source": _AWDB_DATA_SOURCE},
 }
 
 # Standardized interval → AWDB duration name
@@ -298,7 +300,18 @@ class AWDBClient:
         if not active_only:
             params["activeOnly"] = "false"
 
-        return self._get("stations", params)
+        results = self._get("stations", params)
+        for sta in results:
+            _enrich_awdb_station(sta)
+        # Post-filter by state: the API ignores stateCodes when
+        # stationTriplets is a wildcard pattern.
+        if states:
+            states_set = {s.upper() for s in _coerce_list(states)}
+            results = [
+                s for s in results
+                if s.get("stateCode", "").upper() in states_set
+            ]
+        return results
 
     def get_metadata(
         self,
@@ -361,12 +374,17 @@ class AWDBClient:
             params = {
                 "stationTriplets": ",".join(batch),
                 "elements": elements_str,
-                "durations": durations_str,
                 "returnStationElements": "true",
-                "returnForecastPointMetadata": str(include_forecast_point).lower(),
-                "returnReservoirMetadata": str(include_reservoir).lower(),
+                "returnForecastPointMetadata": str(
+                    include_forecast_point
+                ).lower(),
+                "returnReservoirMetadata": str(
+                    include_reservoir
+                ).lower(),
                 "activeOnly": str(active_only).lower(),
             }
+            if durations != "*":
+                params["durations"] = durations_str
             batch_result = self._get("stations", params)
             if isinstance(batch_result, list):
                 results.extend(batch_result)
@@ -473,7 +491,8 @@ class AWDBClient:
 
         n_days     = (date.fromisoformat(end_str) - date.fromisoformat(begin_str)).days + 1
         n_elements = len(elements)
-        batch_size = max(1, _MAX_VALUES // (n_elements * max(n_days, 1)))
+        # Cap at 75 stations per batch to avoid HTTP 414 (URL too long)
+        batch_size = min(75, max(1, _MAX_VALUES // (n_elements * max(n_days, 1))))
 
         logger.debug(
             "get_data: %d stations, %d elements, %d days → batch_size=%d",
@@ -847,6 +866,37 @@ class AWDBError(Exception):
 
 
 # ── Private helpers ───────────────────────────────────────────────────────────
+
+def _enrich_awdb_station(sta: dict) -> None:
+    """Add station_url, station_image_url, elevation_m, status in-place."""
+    network = str(sta.get("networkCode") or "")
+    sid = str(sta.get("stationId") or "").strip()
+    # station_url — NRCS site page for SNOTEL networks
+    if not sta.get("station_url"):
+        if network in {"SNTL", "SNTLT"} and sid:
+            sta["station_url"] = (
+                f"https://wcc.sc.egov.usda.gov/nwcc/site?sitenum={sid}"
+            )
+        else:
+            sta["station_url"] = ""
+    # station_image_url — predictable NRCS SNOTEL photo URL
+    if not sta.get("station_image_url"):
+        if network in {"SNTL", "SNTLT"} and sid and sid.isdigit():
+            sta["station_image_url"] = (
+                f"https://www.wcc.nrcs.usda.gov/siteimages/{sid}.jpg"
+            )
+    # elevation_m — convert feet to metres
+    if "elevation_m" not in sta:
+        elev_ft = sta.get("elevation")
+        if elev_ft is not None:
+            try:
+                sta["elevation_m"] = round(float(elev_ft) * 0.3048, 1)
+            except (TypeError, ValueError):
+                pass
+    # status — Active if no endDate, else Inactive
+    if "status" not in sta:
+        sta["status"] = "Active" if not sta.get("endDate") else "Inactive"
+
 
 def _coerce_list(value: list | str) -> list[str]:
     """Ensure value is a list of strings."""

@@ -53,6 +53,7 @@ from typing import Any
 
 import pandas as pd
 import requests
+from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +74,8 @@ _STATION_ID_RE = re.compile(r"^[A-Z0-9]{2,5}$")
 # ── Public sensor / flag / duration tables ───────────────────────────────────
 
 #: Known snow-relevant CDEC sensors.
+_CDEC_DATA_SOURCE = "CDEC JSONDataServlet — {BASE_URL}/dynamicapp/req/JSONDataServlet"
+
 SENSORS: dict[int, dict[str, str]] = {
     3: {
         "name": "Snow Water Content",
@@ -80,6 +83,7 @@ SENSORS: dict[int, dict[str, str]] = {
         "type": "swe",
         "units": "in",
         "variable": "swe_raw",
+        "source": "CDEC JSONDataServlet (SensorNums=3, dur_code=D)",
         "description": "Raw snow pillow reading (SWE, inches). Converted to cm by client.",
         "notes": "Prefer sensor 82 (SNO ADJ) when available.",
     },
@@ -89,6 +93,7 @@ SENSORS: dict[int, dict[str, str]] = {
         "type": "snwd",
         "units": "in",
         "variable": "snwd",
+        "source": "CDEC JSONDataServlet (SensorNums=18, dur_code=D)",
         "description": "Ultrasonic snow depth sensor (inches). Converted to cm by client.",
         "notes": "",
     },
@@ -98,6 +103,7 @@ SENSORS: dict[int, dict[str, str]] = {
         "type": "swe",
         "units": "in",
         "variable": "swe",
+        "source": "CDEC JSONDataServlet (SensorNums=82, dur_code=D)",
         "description": (
             "Quality-controlled SWE with calibration offset applied "
             "(preferred over sensor 3). Converted to cm by client."
@@ -238,6 +244,10 @@ class CDECClient:
         html = self._get_html(url)
         courses = []
         for t in _read_html_tables(html):
+            # Flatten multi-level column headers (pandas returns tuples for
+            # tables with a spanning header row)
+            if isinstance(t.columns, pd.MultiIndex):
+                t.columns = [col[-1] for col in t.columns]
             # Identify the snow courses table by looking for an "ID" column
             cols_lower = [str(c).lower().strip() for c in t.columns]
             if "id" not in cols_lower:
@@ -294,6 +304,8 @@ class CDECClient:
         html = self._get_html(url)
         pillows = []
         for t in _read_html_tables(html):
+            if isinstance(t.columns, pd.MultiIndex):
+                t.columns = [col[-1] for col in t.columns]
             cols_lower = [str(c).lower().strip() for c in t.columns]
             if "id" not in cols_lower and not any(
                 "station" in c for c in cols_lower
@@ -429,6 +441,18 @@ class CDECClient:
                 "station_url",
                 f"{BASE_URL}/dynamicapp/staMeta?station_id={sid}",
             )
+            # elevation_m — convert feet to metres
+            if "elevation_m" not in sta:
+                elev_ft = sta.get("elevation_ft")
+                if elev_ft is not None:
+                    try:
+                        sta["elevation_m"] = round(
+                            float(elev_ft) * 0.3048, 1
+                        )
+                    except (TypeError, ValueError):
+                        pass
+            # status
+            sta.setdefault("status", "Active")
 
         return list(all_by_id.values())
 
@@ -1012,10 +1036,11 @@ def _normalise_snow_sensors_table(
 
 def _parse_sta_meta_html(station_id: str, html: str) -> dict:
     """
-    Parse the staMeta HTML page for a single station.
+    Parse the staMeta HTML page for a single station using BeautifulSoup.
 
-    The page contains four tables:
-    - Table 0: station info (key-value pairs in a grid layout)
+    Page layout:
+    - <h2>: station name
+    - Table 0: station info (4-column key-value grid)
     - Table 2: sensor inventory (one row per sensor × duration)
     """
     meta: dict[str, Any] = {
@@ -1024,80 +1049,102 @@ def _parse_sta_meta_html(station_id: str, html: str) -> dict:
             f"{BASE_URL}/dynamicapp/staMeta?station_id={station_id}"
         ),
     }
-    tables = _read_html_tables(html)
+    soup = BeautifulSoup(html, "html.parser")
+
+    # Station name from <h2>
+    h2 = soup.find("h2")
+    meta["name"] = h2.get_text(strip=True) if h2 else ""
+
+    tables = soup.find_all("table")
     if not tables:
         return meta
 
-    # Table 0: station info
-    # Typically a 4-column table (label, value, label, value)
-    if tables:
-        t0 = tables[0]
-        flat: dict[str, str] = {}
-        for _, row in t0.iterrows():
-            vals = [str(v).strip() for v in row if str(v).strip() not in ("", "nan")]
-            for k, v in zip(vals[::2], vals[1::2]):
-                flat[k.lower()] = v
-        meta["elevation_ft"] = _to_float(
-            flat.get("elevation", "").replace("ft", "").replace(",", "")
-        )
-        meta["river_basin"] = flat.get("river basin", "")
-        meta["county"] = flat.get("county", "")
-        meta["hydrologic_area"] = flat.get("hydrologic area", "")
-        meta["nearby_city"] = flat.get("nearby city", "")
-        lat_str = flat.get("latitude", "").replace("°", "")
-        lon_str = flat.get("longitude", "").replace("°", "")
-        meta["latitude"] = _to_float(lat_str)
-        meta["longitude"] = _to_float(lon_str)
-        meta["operator"] = flat.get("operator", "")
-        meta["maintenance"] = flat.get("maintenance", "")
+    # Table 0: station info — 4-column key-value layout
+    flat: dict[str, str] = {}
+    for row in tables[0].find_all("tr"):
+        cells = [
+            td.get_text(strip=True)
+            for td in row.find_all(["td", "th"])
+        ]
+        for k, v in zip(cells[::2], cells[1::2]):
+            flat[k.lower()] = v
+    meta["elevation_ft"] = _to_float(
+        flat.get("elevation", "").replace("ft", "").replace(",", "")
+    )
+    meta["river_basin"] = flat.get("river basin", "")
+    meta["county"] = flat.get("county", "")
+    meta["hydrologic_area"] = flat.get("hydrologic area", "")
+    meta["nearby_city"] = flat.get("nearby city", "")
+    meta["latitude"] = _to_float(
+        flat.get("latitude", "").replace("\u00b0", "")
+    )
+    meta["longitude"] = _to_float(
+        flat.get("longitude", "").replace("\u00b0", "")
+    )
+    meta["operator"] = flat.get("operator", "")
+    meta["maintenance"] = flat.get("maintenance", "")
 
-    # Table 2 (index 2 if present): sensor inventory
+    # Table 2: sensor inventory
+    sensors_list = []
     if len(tables) > 2:
-        t2 = tables[2]
-        # Sensor inventory columns: Sensor Description | Sensor Number |
-        #   Duration | Short Name | Data Collection | Data Available
-        sensor_col_map: dict[Any, str] = {}
-        for col in t2.columns:
-            c = str(col).lower()
-            if "desc" in c or "sensor d" in c:
-                sensor_col_map[col] = "sensor_description"
-            elif "number" in c or "num" in c:
-                sensor_col_map[col] = "sensor_num"
-            elif "dur" in c:
-                sensor_col_map[col] = "duration"
-            elif "short" in c:
-                sensor_col_map[col] = "short_name"
-            elif "collect" in c:
-                sensor_col_map[col] = "data_collection"
-            elif "avail" in c:
-                sensor_col_map[col] = "data_available"
-        t2 = t2.rename(columns=sensor_col_map)
+        rows = tables[2].find_all("tr")
+        if rows:
+            # Map header columns
+            header_cells = [
+                td.get_text(strip=True).lower()
+                for td in rows[0].find_all(["td", "th"])
+            ]
+            col_idx: dict[str, int] = {}
+            for i, h in enumerate(header_cells):
+                if "desc" in h or h.startswith("sensor d"):
+                    col_idx["sensor_description"] = i
+                elif "number" in h or "num" in h:
+                    col_idx["sensor_num"] = i
+                elif "dur" in h:
+                    col_idx["duration"] = i
+                elif "short" in h:
+                    col_idx["short_name"] = i
+                elif "collect" in h:
+                    col_idx["data_collection"] = i
+                elif "avail" in h:
+                    col_idx["data_available"] = i
+            for row in rows[1:]:
+                cells = [
+                    td.get_text(strip=True)
+                    for td in row.find_all(["td", "th"])
+                ]
+                if not cells:
+                    continue
 
-        sensors_list = []
-        for _, row in t2.iterrows():
-            snum_raw = str(row.get("sensor_num", "")).strip()
-            if not snum_raw or snum_raw.lower() in ("nan", "sensor number"):
-                continue
-            try:
-                snum = int(float(snum_raw))
-            except ValueError:
-                continue
-            sensors_list.append(
-                {
-                    "sensor_num": snum,
-                    "sensor_description": _str(
-                        row.get("sensor_description")
-                    ),
-                    "duration": _str(row.get("duration")),
-                    "short_name": _str(row.get("short_name")),
-                    "data_collection": _str(row.get("data_collection")),
-                    "data_available": _str(row.get("data_available")),
-                }
-            )
-        meta["sensor_inventory"] = sensors_list
-    else:
-        meta["sensor_inventory"] = []
+                def _cell(key: str) -> str:
+                    idx = col_idx.get(key)
+                    return cells[idx] if idx is not None and idx < len(
+                        cells
+                    ) else ""
 
+                snum_raw = _cell("sensor_num")
+                if not snum_raw:
+                    # No header mapping; fall back to column by position
+                    # (sensor description, sensor number, duration …)
+                    if len(cells) >= 2:
+                        snum_raw = cells[1]
+                try:
+                    snum = int(float(snum_raw))
+                except (ValueError, TypeError):
+                    continue
+                sensors_list.append(
+                    {
+                        "sensor_num": snum,
+                        "sensor_description": _cell(
+                            "sensor_description"
+                        ) or (cells[0] if cells else ""),
+                        "duration": _cell("duration"),
+                        "short_name": _cell("short_name"),
+                        "data_collection": _cell("data_collection"),
+                        "data_available": _cell("data_available"),
+                    }
+                )
+    meta["sensor_inventory"] = sensors_list
     return meta
 
 
