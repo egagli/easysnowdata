@@ -13,8 +13,9 @@ time-series data.
 2. [AWDBClient — USDA NRCS AWDB REST API](#2-awdbclient)
 3. [CDECClient — California Data Exchange Center](#3-cdecclient)
 4. [DataBCClient — BC Data Catalogue](#4-databcclient)
-5. [Error Handling](#5-error-handling)
-6. [Adding a New Client](#6-adding-a-new-client)
+5. [NVEClient — NVE HydAPI (Norway)](#5-nveclient)
+6. [Error Handling](#6-error-handling)
+7. [Adding a New Client](#7-adding-a-new-client)
 
 ---
 
@@ -575,13 +576,153 @@ https://bcmoe-prod.aquaticinformatics.net/Data/Location/Summary/Location/{ID}/In
 
 ---
 
-## 5. Error Handling
+## 5. NVEClient
+
+**Module:** `clients.nve.nve_client`
+**Class:** `NVEClient`
+**API:** [NVE HydAPI v1](https://hydapi.nve.no/)
+
+The NVE HydAPI provides access to hydrological observations from the Norwegian
+Water Resources and Energy Directorate (Norges vassdrags- og energidirektorat).
+No authentication is required — the API is fully open.
+
+```python
+from clients.nve import NVEClient
+client = NVEClient()
+```
+
+### Key parameters
+
+| Parameter ID | Description | Native Units | Returned Units |
+|---|---|---|---|
+| `2002` | Snow Water Equivalent (SWE) | mm | cm (÷ 10) |
+| `2001` | Snow Depth | cm | cm |
+
+### Constructor
+
+```python
+NVEClient(
+    base_url: str = "https://hydapi.nve.no/api/v1",
+    timeout: int = 60,
+    max_retries: int = 3,
+    backoff: int = 4,
+    session: requests.Session | None = None,
+)
+```
+
+### Key methods
+
+#### `get_stations(parameter_ids, active_only, bbox)` → `list[dict]`
+
+Returns stations filtered by NVE parameter ID(s).
+
+```python
+# All SWE stations
+swe_stations = client.get_stations(parameter_ids=2002)
+
+# SWE + snow depth stations, active only
+stations = client.get_stations(parameter_ids=[2001, 2002], active_only=True)
+```
+
+#### `get_all_stations(active_only, bbox)` → `list[dict]`
+
+Returns all NVE stations with snow parameters (SWE and/or snow depth).
+Convenience wrapper around `get_stations(parameter_ids=[2001, 2002])`.
+
+#### `get_metadata(station_id)` → `dict`
+
+Returns full metadata for a single station including its available series.
+
+```python
+meta = client.get_metadata("2.11.0")
+```
+
+#### `get_observations(station_id, parameter_id, begin_date, end_date, resolution)` → `list[dict]`
+
+Low-level endpoint — returns raw observation records from `/Observations`.
+
+```python
+obs = client.get_observations(
+    station_id="2.11.0",
+    parameter_id=2002,
+    begin_date="2024-01-01",
+    end_date="2024-04-30",
+    resolution=1440,   # 1440 = daily; 60 = hourly
+)
+```
+
+#### `get_data(station_ids, variables, bbox, begin_date, end_date, interval, include_flags)` → `list[dict]`
+
+Standardised flat-record output.  SWE is returned in cm (converted from mm).
+
+```python
+records = client.get_data(
+    station_ids=["2.11.0", "12.228.0"],
+    variables=["swe"],          # or "snwd", "swe_mm", "snwd_cm"
+    begin_date="2024-01-01",
+    end_date="2024-03-31",
+    interval="daily",
+    include_flags=True,
+)
+# records[0] → {
+#   "station_id": "2.11.0",
+#   "date": "2024-01-01",
+#   "variable": "swe_mm",
+#   "type": "swe",
+#   "value": 45.2,       # cm
+#   "units": "cm",
+#   "interval": "daily",
+#   "flag": "0",         # NVE quality code (only when include_flags=True)
+# }
+```
+
+### Station dict schema
+
+| Key | Type | Description |
+|---|---|---|
+| `station_id` | str | NVE station identifier (e.g. `"2.11.0"`) |
+| `name` | str | Station name |
+| `latitude` | float | WGS-84 latitude |
+| `longitude` | float | WGS-84 longitude |
+| `elevation_m` | float | Elevation in metres |
+| `drainage_basin_key` | str | NVE drainage basin identifier |
+| `status` | str | `"Active"` or `"Inactive"` |
+| `station_url` | str | URL to NVE Sildre station page |
+| `parameters` | list[int] | Available NVE parameter IDs at this station |
+
+### Quality flags
+
+NVE quality codes returned when `include_flags=True`:
+
+| Code | Meaning |
+|---|---|
+| `"0"` | No flag / good data |
+| `"1"` | Interpolated |
+| `"2"` | Estimated / corrected |
+| `"3"` | Dubious |
+| `"4"` | Missing |
+| `"9"` | No data |
+
+### Endpoints used
+
+| Purpose | Endpoint |
+|---|---|
+| Station list | `GET /Stations?ParameterId={id}` |
+| Single station | `GET /Stations?StationId={id}` |
+| Observations | `GET /Observations?StationId={id}&ParameterId={id}&...` |
+
+Base URL: `https://hydapi.nve.no/api/v1`
+
+---
+
+## 6. Error Handling
 
 | Client | Exception | Scenarios |
 |---|---|---|
 | AWDBClient | `AWDBError` | HTTP 4xx/5xx, network timeout, value limit |
 | CDECClient | `CDECError` | HTTP 4xx/5xx, network timeout, HTML parse failure |
 | DataBCClient | `DataBCError` | HTTP 4xx/5xx, network timeout, malformed CSV |
+| NVEClient | `NVEError` | HTTP 4xx/5xx, network timeout, station not found |
 
 All exceptions are subclasses of `Exception` with descriptive messages.
 
@@ -589,6 +730,7 @@ All exceptions are subclasses of `Exception` with descriptive messages.
 from clients.awdb import AWDBClient, AWDBError
 from clients.cdec import CDECClient, CDECError
 from clients.databc import DataBCClient, DataBCError
+from clients.nve import NVEClient, NVEError
 
 try:
     data = AWDBClient().get_data(station_ids=["303:CO:SNTL"], variables=["swe"])
@@ -601,7 +743,7 @@ with linear backoff up to `max_retries` attempts.
 
 ---
 
-## 6. Adding a New Client
+## 7. Adding a New Client
 
 To add support for a new data source (e.g. GHCND, Environment Canada):
 
