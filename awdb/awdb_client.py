@@ -318,8 +318,8 @@ class AWDBClient:
         triplets: list[str] | str,
         elements: list[str] | str = "*",
         durations: list[str] | str = "*",
-        include_forecast_point: bool = True,
-        include_reservoir: bool = True,
+        include_forecast_point: bool = False,
+        include_reservoir: bool = False,
         active_only: bool = False,
     ) -> list[dict]:
         """
