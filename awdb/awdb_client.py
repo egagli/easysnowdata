@@ -353,7 +353,8 @@ class AWDBClient:
         -----
         Only stations that have at least one matching element are returned.
         Requests are automatically split into batches of at most 150 triplets
-        to avoid URL-length limits.
+        and then split further on request-size errors to avoid URL-length and
+        payload-size limits.
 
         Example
         -------
@@ -369,8 +370,17 @@ class AWDBClient:
         elements_str = ",".join(_coerce_list(elements)) if elements != "*" else "*"
         durations_str = ",".join(_coerce_list(durations)) if durations != "*" else "*"
 
-        results = []
-        for batch in _chunk(triplets, 150):
+        def is_request_too_large_error(exc: AWDBError) -> bool:
+            message = str(exc).lower()
+            return (
+                "413" in message
+                or "414" in message
+                or ("400" in message and "exceeds the amount allowed" in message)
+                or "request entity too large" in message
+                or "request-uri too large" in message
+            )
+
+        def fetch_batch(batch: list[str]) -> list[dict]:
             params = {
                 "stationTriplets": ",".join(batch),
                 "elements": elements_str,
@@ -385,9 +395,24 @@ class AWDBClient:
             }
             if durations != "*":
                 params["durations"] = durations_str
-            batch_result = self._get("stations", params)
-            if isinstance(batch_result, list):
-                results.extend(batch_result)
+
+            try:
+                batch_result = self._get("stations", params)
+            except AWDBError as exc:
+                if not is_request_too_large_error(exc):
+                    raise
+                if len(batch) == 1:
+                    raise
+                mid = max(1, len(batch) // 2)
+                left = fetch_batch(batch[:mid])
+                right = fetch_batch(batch[mid:])
+                return left + right
+
+            return batch_result if isinstance(batch_result, list) else []
+
+        results = []
+        for batch in _chunk(triplets, 150):
+            results.extend(fetch_batch(batch))
 
         return results
 
