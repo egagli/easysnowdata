@@ -58,6 +58,10 @@ _DEFAULT_TIMEOUT = 60
 _DEFAULT_RETRIES = 3
 _DEFAULT_BACKOFF = 4
 
+# NVE HydAPI rate limit: 5 requests per second per API key.
+# A small inter-request delay keeps us safely under the limit.
+_REQUEST_DELAY = 0.25  # seconds between Observations requests
+
 # Sentinel / missing value used by some NVE responses
 _MISSING_VALUES = {-9999, -9999.0}
 
@@ -456,9 +460,9 @@ class NVEClient:
             "ResolutionTime": resolution,
         }
         if begin_date is not None:
-            params["StartDate"] = f"{_date_str(begin_date)}T00:00"
+            params["StartDate"] = f"{_date_str(begin_date)}T00:00:00"
         if end_date is not None:
-            params["EndDate"] = f"{_date_str(end_date)}T23:59"
+            params["EndDate"] = f"{_date_str(end_date)}T23:59:59"
 
         raw = self._get("Observations", params)
         return raw.get("data") or []
@@ -563,11 +567,15 @@ class NVEClient:
         std_interval = _RESOLUTION_TO_INTERVAL.get(resolution, interval.lower())
 
         records: list[dict] = []
+        request_count = 0
         for sid in ids:
             for var_key, param_id, converter in var_jobs:
                 var_info = VARIABLES[var_key]
                 std_type = var_info["type"]
                 units = var_info["units"]
+                if request_count > 0:
+                    time.sleep(_REQUEST_DELAY)
+                request_count += 1
                 try:
                     obs_list = self.get_observations(
                         station_id=sid,
