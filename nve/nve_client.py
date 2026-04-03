@@ -328,6 +328,13 @@ class NVEClient:
                 for item in raw.get("data") or []:
                     sta = _enrich_station(item)
                     if sta["station_id"]:
+                        # The API may omit seriesList when filtering by
+                        # ParameterId, leaving parameters=[]. Guarantee the
+                        # queried parameter is present.
+                        if pid not in sta["parameters"]:
+                            sta["parameters"] = sorted(
+                                set(sta["parameters"]) | {pid}
+                            )
                         all_stations[sta["station_id"]] = sta
             stations = list(all_stations.values())
         else:
