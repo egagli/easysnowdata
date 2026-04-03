@@ -10,7 +10,10 @@ and snow depth measurements.
 
 API documentation : https://hydapi.nve.no/
 Base URL          : https://hydapi.nve.no/api/v1
-Authentication    : None — fully open public API
+Authentication    : API key required — pass via X-API-Key header.
+                   Register for a free key at https://hydapi.nve.no/
+                   Set the NVE_API_KEY environment variable or pass
+                   ``api_key`` to NVEClient().
 
 Key parameters
 --------------
@@ -38,6 +41,7 @@ Design principles
 from __future__ import annotations
 
 import logging
+import os
 import time
 from datetime import date, datetime
 from typing import Any
@@ -256,16 +260,21 @@ class NVEClient:
         max_retries: int = _DEFAULT_RETRIES,
         backoff: int = _DEFAULT_BACKOFF,
         session: requests.Session | None = None,
+        api_key: str | None = None,
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.max_retries = max_retries
         self.backoff = backoff
         self._session = session or requests.Session()
-        self._session.headers.update({
+        resolved_key = api_key or os.environ.get("NVE_API_KEY", "")
+        headers: dict[str, str] = {
             "accept": "application/json",
             "User-Agent": "global-snow-networks/1.0",
-        })
+        }
+        if resolved_key:
+            headers["X-API-Key"] = resolved_key
+        self._session.headers.update(headers)
 
     # ── Public API — station lists ────────────────────────────────────────────
 
