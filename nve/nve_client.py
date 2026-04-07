@@ -460,9 +460,9 @@ class NVEClient:
             "ResolutionTime": resolution,
         }
         if begin_date is not None:
-            params["StartDate"] = f"{_date_str(begin_date)}T00:00:00"
+            params["StartDate"] = _date_str(begin_date)
         if end_date is not None:
-            params["EndDate"] = f"{_date_str(end_date)}T23:59:59"
+            params["EndDate"] = _date_str(end_date)
 
         raw = self._get("Observations", params)
         return raw.get("data") or []
@@ -662,9 +662,15 @@ class NVEClient:
             # Non-retryable client errors
             if response.status_code == 400:
                 try:
-                    msg = response.json().get("message", response.text[:200])
+                    body = response.json()
+                    errors = body.get("errors") or {}
+                    msg = (
+                        f"{body.get('title', '')} {errors}"
+                        if errors
+                        else body.get("title") or response.text[:500]
+                    )
                 except Exception:
-                    msg = response.text[:200]
+                    msg = response.text[:500]
                 raise NVEError(f"HTTP 400 Bad Request: {msg}")
 
             if response.status_code == 404:
