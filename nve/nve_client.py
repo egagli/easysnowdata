@@ -454,15 +454,24 @@ class NVEClient:
         NVEError
             On request failure.
         """
+        # ResolutionTime accepts string names ("day", "hour") or equivalent
+        # numeric strings ("1440", "60").  Map our integer constant to the name.
+        _resolution_name = {
+            _RESOLUTION_DAILY: "day",
+            _RESOLUTION_HOURLY: "hour",
+        }.get(resolution, str(resolution))
+
         params: dict[str, Any] = {
             "StationId": station_id,
             "Parameter": parameter_id,
-            "ResolutionTime": resolution,
+            "ResolutionTime": _resolution_name,
         }
-        if begin_date is not None:
-            params["StartDate"] = _date_str(begin_date)
-        if end_date is not None:
-            params["EndDate"] = _date_str(end_date)
+        # The Observations endpoint uses ReferenceTime in ISO-8601 interval
+        # format ("start/end"), NOT separate StartDate/EndDate parameters.
+        if begin_date is not None or end_date is not None:
+            start = _date_str(begin_date) if begin_date is not None else ""
+            end = _date_str(end_date) if end_date is not None else ""
+            params["ReferenceTime"] = f"{start}/{end}"
 
         raw = self._get("Observations", params)
         return raw.get("data") or []
