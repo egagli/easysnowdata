@@ -456,7 +456,7 @@ class NVEClient:
         """
         params: dict[str, Any] = {
             "StationId": station_id,
-            "ParameterId": parameter_id,
+            "Parameter": parameter_id,
             "ResolutionTime": resolution,
         }
         if begin_date is not None:
