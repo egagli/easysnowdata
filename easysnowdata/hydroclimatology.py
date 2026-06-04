@@ -1,27 +1,37 @@
-import re
-import pandas as pd
-import geopandas as gpd
-import ee
-import json
-import xarray as xr
-import numpy as np
-import earthaccess
-import rioxarray as rxr
-import matplotlib.pyplot as plt
-import matplotlib.colors
-from typing import Union
-import shapely
-import tempfile
-import zipfile
-import requests
-import os
+"""Access hydroclimatology datasets: ERA5, SNODAS, UCLA reanalysis, basin geometries, and more."""
 
+from __future__ import annotations
+
+import json
+import logging
+import re
+
+import earthaccess
+import ee
+import geopandas as gpd
+import matplotlib.colors
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import requests
+import rioxarray as rxr
+import shapely
+import xarray as xr
 
 from easysnowdata.utils import convert_bbox_to_geodataframe
 
-# ee.Authenticate() need to figure out https://developers.google.com/earth-engine/guides/auth
-# ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
+__all__ = [
+    "get_huc_geometries",
+    "get_hydroBASINS",
+    "get_grdc_major_river_basins_of_the_world",
+    "get_grdc_wmo_basins",
+    "get_era5",
+    "get_snodas",
+    "get_ucla_snow_reanalysis",
+    "get_koppen_geiger_classes",
+]
 
+_logger = logging.getLogger(__name__)
 
 def get_huc_geometries(
         bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None, 
@@ -100,7 +110,6 @@ def get_huc_geometries(
     
     return huc_gdf
 
-
 def get_hydroBASINS(
     bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
     level: int = 5,
@@ -161,13 +170,13 @@ def get_hydroBASINS(
     url = 'https://figshare.com/ndownloader/files/20082137/BasinATLAS_Data_v10.gdb.zip'
     layer_name = f"BasinATLAS_v10_lev{level:02d}"
     
-    print(f"Loading HydroATLAS level {level} basins...")
+    _logger.info("Loading HydroATLAS level {level} basins...")
     
     # Load the data with optional spatial masking
     if bbox_gdf is not None:
         basins_gdf = gpd.read_file("zip+" + url, mask=bbox_gdf, layer=layer_name)
     else:
-        print("Loading global dataset (this may take a while)...")
+        _logger.info("Loading global dataset (this may take a while)...")
         basins_gdf = gpd.read_file("zip+" + url, layer=layer_name)
 
     # Add citation to attributes
@@ -236,13 +245,12 @@ def get_grdc_major_river_basins_of_the_world(
     if bbox_gdf is not None:
         basins_gdf = basins_gdf.clip(bbox_gdf)
     else:
-        print("No spatial subsetting because bbox_input was not provided.")
+        _logger.info("No spatial subsetting because bbox_input was not provided.")
 
     # Add citation to attributes
     basins_gdf.attrs["data_citation"] = "GRDC (2020): GRDC Major River Basins. Global Runoff Data Centre. 2nd, rev. ed. Koblenz: Federal Institute of Hydrology (BfG)."
     
     return basins_gdf
-
 
 def get_grdc_wmo_basins(
     bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
@@ -311,7 +319,7 @@ def get_grdc_wmo_basins(
     if bbox_gdf is not None:
         basins_gdf = basins_gdf.clip(bbox_gdf)
     else:
-        print("No spatial subsetting because bbox_input was not provided.")
+        _logger.info("No spatial subsetting because bbox_input was not provided.")
 
     # Add citation to attributes
     basins_gdf.attrs["data_citation"] = "GRDC (2020): WMO Basins and Sub-Basins / Global Runoff Data Centre, GRDC. 3rd, rev. ext. ed. Koblenz, Germany: Federal Institute of Hydrology (BfG)."
@@ -468,7 +476,7 @@ def get_era5(
         if initialize_ee:
             ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
         else:
-            print("Earth Engine initialization skipped. Please ensure EE is initialized.")
+            _logger.info("Earth Engine initialization skipped. Please ensure EE is initialized.")
         
         # Collection name mapping
         collection_mapping = {
@@ -538,7 +546,6 @@ def get_era5(
         
     else:
         raise ValueError("Source must be 'auto', 'GEE' (Google Earth Engine), or 'GCS' (Google Cloud Storage)")
-
 
 def get_snodas(
     bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
@@ -625,7 +632,7 @@ def get_snodas(
     if initialize_ee:
         ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
     else:
-        print("Earth Engine initialization skipped. Please ensure EE is initialized.")
+        _logger.info("Earth Engine initialization skipped. Please ensure EE is initialized.")
 
     # Set default end date to today if not provided
     if end_date is None:
@@ -797,11 +804,9 @@ def get_ucla_snow_reanalysis(bbox_input: gpd.GeoDataFrame | tuple | shapely.geom
     snow_reanalysis_da = snow_reanalysis_da.rio.write_crs(bbox_gdf.crs)
     snow_reanalysis_da = snow_reanalysis_da.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs)
 
-
     snow_reanalysis_da.attrs["data_citation"] = "Fang, Y., Liu, Y. & Margulis, S. A. (2022). Western United States UCLA Daily Snow Reanalysis. (WUS_UCLA_SR, Version 1). [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/PP7T2GBI52I2"
     
     return snow_reanalysis_da
-
 
 def get_koppen_geiger_classes(
         bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
@@ -881,7 +886,6 @@ def get_koppen_geiger_classes(
         }
         return classes
 
-
     def get_class_cmap(classes):
         colors = {k: [c/255 for c in v["color"]] for k, v in classes.items()}
         return matplotlib.colors.ListedColormap([colors[i] for i in range(1, 31)])
@@ -934,25 +938,6 @@ def get_koppen_geiger_classes(
     koppen_geiger_da.attrs['example_plot'] = plot_classes
 
     return koppen_geiger_da
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # huc map, from gee?
 

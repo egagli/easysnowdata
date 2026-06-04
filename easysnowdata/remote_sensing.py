@@ -1,20 +1,34 @@
-import numpy as np
-import pandas as pd
-import geopandas as gpd
-import rioxarray as rxr
-import xarray as xr
-import shapely
-import dask
-import pystac_client
-import planetary_computer
+"""Access remote sensing datasets for snow science applications.
+
+Includes Sentinel-1, Sentinel-2, HLS, MODIS snow products, land cover,
+snow classifications, and more.
+"""
+
+from __future__ import annotations
+
+import datetime
+import logging
 import os
+
+import dask
 import earthaccess
 import ee
+import geopandas as gpd
 import matplotlib
 import matplotlib.pyplot as plt
-import skimage
-
+import numpy as np
+import odc.stac
+import pandas as pd
+import planetary_computer
+import pystac_client
 import rasterio as rio
+import rioxarray as rxr
+import shapely
+import skimage
+import xarray as xr
+
+odc.stac.configure_rio(cloud_defaults=True)
+xr.set_options(keep_attrs=True)
 
 rio_env = rio.Env(
     GDAL_DISABLE_READDIR_ON_OPEN="TRUE",
@@ -25,23 +39,29 @@ rio_env = rio.Env(
 )
 rio_env.__enter__()
 
-xr.set_options(keep_attrs=True)
-
-import odc.stac
-
-odc.stac.configure_rio(cloud_defaults=True)
-
-import datetime
-
-today = datetime.datetime.now().strftime("%Y-%m-%d")
-
 from easysnowdata.utils import (
+    HLS_xml_url_to_metadata_df,
     convert_bbox_to_geodataframe,
     get_stac_cfg,
-    HLS_xml_url_to_metadata_df,
-    blockPrint,
-    enablePrint
+    suppress_stdout,
 )
+
+__all__ = [
+    "authenticate_all",
+    "get_forest_cover_fraction",
+    "get_seasonal_snow_classification",
+    "get_seasonal_mountain_snow_mask",
+    "get_esa_worldcover",
+    "get_nlcd_landcover",
+    "Sentinel2",
+    "Sentinel1",
+    "HLS",
+    "MODIS_snow",
+]
+
+_logger = logging.getLogger(__name__)
+
+today = datetime.datetime.now().strftime("%Y-%m-%d")
 
 
 def authenticate_all():
@@ -3016,9 +3036,6 @@ class MODIS_snow:
         mute=False,
     ):
 
-        if mute:
-            blockPrint()
-            
         self.bbox_input = bbox_input
         self.bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
         self.clip_to_bbox = clip_to_bbox
@@ -3031,12 +3048,13 @@ class MODIS_snow:
         self.vertical_tile = vertical_tile
         self.horizontal_tile = horizontal_tile
 
-
-        self.search_data()
-        self.get_data()
-        
         if mute:
-            enablePrint()
+            with suppress_stdout():
+                self.search_data()
+                self.get_data()
+        else:
+            self.search_data()
+            self.get_data()
 
     def search_data(self):
 

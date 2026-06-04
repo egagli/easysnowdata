@@ -1,137 +1,100 @@
-"""The utils module contains common functions and classes used by the other modules.
-"""
+"""Shared utility functions used across easysnowdata modules."""
 
+from __future__ import annotations
+
+import contextlib
+import io
+import logging
+from typing import TYPE_CHECKING
+
+import geopandas as gpd
 import numpy as np
 import pandas as pd
-import geopandas as gpd
-import rioxarray as rxr
-import xarray as xr
+import requests
 import shapely
 import yaml
-import requests
 from bs4 import BeautifulSoup
-import sys
-import os
+
+if TYPE_CHECKING:
+    import xarray as xr
+
+__all__ = [
+    "suppress_stdout",
+    "convert_bbox_to_geodataframe",
+    "get_stac_cfg",
+    "get_water_year_start",
+    "datetime_to_DOWY",
+    "datetime_to_WY",
+    "HLS_xml_url_to_metadata_df",
+]
+
+_logger = logging.getLogger(__name__)
 
 
-# Disable
-def blockPrint():
-    """
-    Disables print output to the console.
-
-    This function redirects stdout to a null device, effectively silencing any print statements.
-    """
-    sys.stdout = open(os.devnull, "w")
+@contextlib.contextmanager
+def suppress_stdout():
+    """Context manager that silences stdout for noisy third-party calls."""
+    with contextlib.redirect_stdout(io.StringIO()):
+        yield
 
 
-# Restore
-def enablePrint():
-    """
-    Restores print output to the console.
-
-    This function restores stdout to its original state, allowing print statements to function normally.
-    """
-    sys.stdout = sys.__stdout__
-
-
-def convert_bbox_to_geodataframe(bbox_input):
-    """
-    Converts the input to a GeoDataFrame.
-
-    This function takes various input formats representing a bounding box and converts them
-    to a standardized GeoDataFrame format.
+def convert_bbox_to_geodataframe(
+    bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None,
+) -> gpd.GeoDataFrame:
+    """Convert a bounding-box input of any supported type to a GeoDataFrame.
 
     Parameters
     ----------
-    bbox_input : GeoDataFrame or tuple or Shapely geometry or None
-        The input bounding box in various formats.
+    bbox_input : geopandas.GeoDataFrame or tuple or shapely.geometry or None
+        Accepted forms:
+
+        * ``geopandas.GeoDataFrame`` — returned unchanged.
+        * 4-element tuple ``(xmin, ymin, xmax, ymax)`` in EPSG:4326.
+        * Any Shapely geometry — wrapped in a single-row GeoDataFrame.
+        * ``None`` — returns a GeoDataFrame covering the entire world.
 
     Returns
     -------
-    GeoDataFrame
-        The converted bounding box as a GeoDataFrame.
-
-    Notes
-    -----
-    If no bounding box is provided (None), it returns a GeoDataFrame representing the entire world.
+    geopandas.GeoDataFrame
+        Single-row GeoDataFrame in EPSG:4326.
     """
     if bbox_input is None:
-        # If no bounding box is provided, use the entire world
-        print("No spatial subsetting because bbox_input was not provided.")
-        bbox_input = gpd.GeoDataFrame(
+        _logger.debug("No bbox_input provided — using global extent.")
+        return gpd.GeoDataFrame(
             geometry=[shapely.geometry.box(-180, -90, 180, 90)], crs="EPSG:4326"
         )
     if isinstance(bbox_input, gpd.GeoDataFrame):
-        # If it's already a GeoDataFrame, return it
         return bbox_input
     if isinstance(bbox_input, tuple) and len(bbox_input) == 4:
-        # If it's a tuple of four elements, treat it as (xmin, ymin, xmax, ymax)
-        bbox_input = gpd.GeoDataFrame(
+        return gpd.GeoDataFrame(
             geometry=[shapely.geometry.box(*bbox_input)], crs="EPSG:4326"
         )
-    elif isinstance(bbox_input, shapely.geometry.base.BaseGeometry):
-        # If it's a Shapely geometry, convert it to a GeoDataFrame
-        bbox_input = gpd.GeoDataFrame(geometry=[bbox_input], crs="EPSG:4326")
-
-    return bbox_input
-
-
-# def get_stac_cfg(sensor='sentinel-2-l2a'):
-#     if sensor == 'sentinel-2-l2a':
-#         cfg = """---
-#         sentinel-2-l2a:
-#             assets:
-#                 '*':
-#                     data_type: uint16
-#                     nodata: 0
-#                     unit: '1'
-#                 SCL:
-#                     data_type: uint8
-#                     nodata: 0
-#                     unit: '1'
-#                 visual:
-#                     data_type: uint8
-#                     nodata: 0
-#                     unit: '1'
-#             aliases:  # Alias -> Canonical Name
-#                 costal: B01
-#                 blue: B02
-#                 green: B03
-#                 red: B04
-#                 rededge1: B05
-#                 rededge2: B06
-#                 rededge3: B07
-#                 nir: B08
-#                 nir08: B8A
-#                 nir09: B09
-#                 swir16: B11
-#                 swir22: B12
-#                 scl: SCL
-#                 aot: AOT
-#                 wvp: WVP
-#         """
-#     cfg = yaml.load(cfg, Loader=yaml.CSafeLoader)
-
-#     return cfg
+    if isinstance(bbox_input, shapely.geometry.base.BaseGeometry):
+        return gpd.GeoDataFrame(geometry=[bbox_input], crs="EPSG:4326")
+    raise TypeError(
+        f"Unsupported bbox_input type: {type(bbox_input)}. "
+        "Expected GeoDataFrame, 4-tuple, Shapely geometry, or None."
+    )
 
 
-def get_stac_cfg(sensor="sentinel-2-l2a"):
-    """
-    Retrieves the STAC configuration for a given sensor.
-
-    This function returns a YAML configuration for STAC (SpatioTemporal Asset Catalog) metadata
-    for different satellite sensors.
+def get_stac_cfg(sensor: str = "sentinel-2-l2a") -> dict:
+    """Return an ODC-STAC band configuration dict for common sensors.
 
     Parameters
     ----------
     sensor : str, optional
-        The sensor type. Options are "sentinel-2-l2a", "HLSL30.v2.0", or "HLSS30.v2.0".
-        Default is "sentinel-2-l2a".
+        Sensor identifier. Supported values: ``"sentinel-2-l2a"``,
+        ``"HLSL30_2.0"``, ``"HLSS30_2.0"``. Default is ``"sentinel-2-l2a"``.
 
     Returns
     -------
     dict
-        A dictionary containing the STAC configuration for the specified sensor.
+        STAC configuration dict suitable for ``odc.stac.load(stac_cfg=...)``.
+
+    Raises
+    ------
+    ValueError
+        If *sensor* is not a recognised identifier.
     """
     if sensor == "sentinel-2-l2a":
         cfg = """---
@@ -149,7 +112,7 @@ def get_stac_cfg(sensor="sentinel-2-l2a"):
                     data_type: uint8
                     nodata: 0
                     unit: '1'
-            aliases:  # Alias -> Canonical Name
+            aliases:
                 costal: B01
                 blue: B02
                 green: B03
@@ -257,26 +220,29 @@ def get_stac_cfg(sensor="sentinel-2-l2a"):
                 swir16: B11
                 swir22: B12
         """
-    cfg = yaml.load(cfg, Loader=yaml.CSafeLoader)
+    else:
+        raise ValueError(
+            f"Unknown sensor '{sensor}'. "
+            "Supported sensors: 'sentinel-2-l2a', 'HLSL30_2.0', 'HLSS30_2.0'."
+        )
+    return yaml.load(cfg, Loader=yaml.CSafeLoader)
 
-    return cfg
 
-
-def get_water_year_start(date, hemisphere):
-    """
-    Determines the start date of the water year for a given date and hemisphere.
+def get_water_year_start(date: pd.Timestamp, hemisphere: str) -> pd.Timestamp:
+    """Return the start date of the water year containing *date*.
 
     Parameters
     ----------
-    date : datetime-like
-        The date for which to determine the water year start.
+    date : pandas.Timestamp
+        Any date within the water year of interest.
     hemisphere : str
-        The hemisphere ('northern' or 'southern').
+        ``"northern"`` (water year starts Oct 1) or
+        ``"southern"`` (water year starts Apr 1).
 
     Returns
     -------
     pandas.Timestamp
-        The start date of the water year.
+        The first day of the corresponding water year.
     """
     year = date.year
     month = 10 if hemisphere == "northern" else 4
@@ -287,99 +253,94 @@ def get_water_year_start(date, hemisphere):
     return pd.Timestamp(year=year, month=month, day=1)
 
 
-def datetime_to_DOWY(date, hemisphere="northern"):
-    """
-    Convert a datetime-like object to the day of water year (DOWY).
+def datetime_to_DOWY(
+    date: pd.Timestamp | str, hemisphere: str = "northern"
+) -> int | float:
+    """Convert a date to the day-of-water-year (DOWY).
 
     Parameters
     ----------
-    date : datetime-like
-        The date to convert.
+    date : pandas.Timestamp or str
+        The date to convert. Strings are parsed by :func:`pandas.to_datetime`.
     hemisphere : str, optional
-        The hemisphere ('northern' or 'southern'). Default is 'northern'.
+        ``"northern"`` or ``"southern"``. Default is ``"northern"``.
 
     Returns
     -------
-    int
-        The day of the water year, or np.nan if the date is not valid.
+    int or float
+        Day of the water year (1-indexed), or ``np.nan`` on parse failure.
     """
     try:
         date = pd.to_datetime(date)
         start = get_water_year_start(date, hemisphere)
         return (date - start).days + 1
-    except Exception as e:
-        print(f'A problem occurred: {e}')
+    except Exception as exc:
+        _logger.warning("Could not compute DOWY for %s: %s", date, exc)
         return np.nan
 
 
-def datetime_to_WY(date, hemisphere="northern"):
-    """
-    Convert a datetime-like object to the water year (WY).
+def datetime_to_WY(
+    date: pd.Timestamp | str, hemisphere: str = "northern"
+) -> int | float:
+    """Convert a date to its water year (WY).
 
     Parameters
     ----------
-    date : datetime-like
-        The date to convert.
+    date : pandas.Timestamp or str
+        The date to convert. Strings are parsed by :func:`pandas.to_datetime`.
     hemisphere : str, optional
-        The hemisphere ('northern' or 'southern'). Default is 'northern'.
+        ``"northern"`` or ``"southern"``. Default is ``"northern"``.
 
     Returns
     -------
-    int
-        The water year.
+    int or float
+        The water year as a calendar year integer, or ``np.nan`` on failure.
+
+    Notes
+    -----
+    For the northern hemisphere, the water year is the calendar year in which
+    the water year *ends* (i.e. WY 2021 runs Oct 1 2020 – Sep 30 2021).
     """
     try:
         date = pd.to_datetime(date)
         start = get_water_year_start(date, hemisphere)
         return start.year + (1 if hemisphere == "northern" else 0)
-    except Exception as e:
-        print(f'A problem occurred: {e}')
+    except Exception as exc:
+        _logger.warning("Could not compute WY for %s: %s", date, exc)
         return np.nan
 
 
-def HLS_xml_url_to_metadata_df(url):
-    """
-    Extracts metadata from an HLS XML file URL and converts it to a pandas DataFrame.
-
-    This function retrieves XML metadata for Harmonized Landsat Sentinel (HLS) data
-    and extracts relevant information into a structured format.
+def HLS_xml_url_to_metadata_df(url: str) -> pd.DataFrame:
+    """Parse an HLS granule XML metadata URL into a one-row DataFrame.
 
     Parameters
     ----------
     url : str
-        The URL of the XML file containing HLS metadata.
+        Full URL to an HLS XML metadata file (NASA CMR or direct link).
 
     Returns
     -------
     pandas.DataFrame
-        A DataFrame containing extracted metadata information.
+        One-row DataFrame with columns:
+        ``ProducerGranuleId``, ``Temporal``, ``Platform``,
+        ``AssociatedBrowseImageUrls``.
+
+    Notes
+    -----
+    HLS (Harmonized Landsat Sentinel) metadata is produced by NASA LP DAAC.
     """
-    # URL of the XML file
-
-    # Send a GET request to the URL
-    response = requests.get(url)
-
-    # Parse the XML content of the response with BeautifulSoup
-    soup = BeautifulSoup(
-        response.content, "lxml-xml"
-    )  # 'lxml-xml' parser is used for parsing XML
-
-    # Create a dictionary to hold the data
-    data = {}
-
-    # Iterate over all tags in the soup object
-    for tag in soup.find_all():
-        # If the tag has a text value, add it to the dictionary
-        if tag.text.strip():
-            data[tag.name] = tag.text.strip().replace("\n", " ")
-
-    # Convert the dictionary to a DataFrame
+    response = requests.get(url, timeout=30)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.content, "lxml-xml")
+    data = {
+        tag.name: tag.text.strip().replace("\n", " ")
+        for tag in soup.find_all()
+        if tag.text.strip()
+    }
     df = pd.DataFrame([data]).iloc[0][
         ["ProducerGranuleId", "Temporal", "Platform", "AssociatedBrowseImageUrls"]
     ]
-
     df["Platform"] = df["Platform"].split(" ")[0]
     df["AssociatedBrowseImageUrls"] = df["AssociatedBrowseImageUrls"].split(" ")[0]
     df["Temporal"] = df["Temporal"].split(" ")[0]
-
     return df
