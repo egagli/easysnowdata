@@ -1,51 +1,58 @@
 [project]
 name = "easysnowdata"
 version = "0.0.21"
-dynamic = [
-    "dependencies",
-]
-description = "package to easily get data relevant to snow"
+description = "A Python package to easily retrieve data relevant to snow science"
 readme = "README.md"
 requires-python = ">=3.10"
-keywords = [
-    "easysnowdata",
-]
-license = {text = "MIT License"}
-authors = [
-  {name = "Eric Gagliano", email = "egagli@uw.edu"},
-]
+license = { text = "MIT License" }
+authors = [{ name = "Eric Gagliano", email = "egagli@uw.edu" }]
+keywords = ["snow", "hydrology", "remote-sensing", "climate", "geospatial"]
 classifiers = [
-    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
 ]
-
-[project.optional-dependencies]
-all = [
-    "easysnowdata[extra]",
-]
-
-extra = [
+dependencies = [
+    "numpy",
+    "matplotlib",
     "pandas",
+    "geopandas",
+    "rasterio",
+    "xarray",
+    "rioxarray",
+    "shapely",
+    "pystac-client",
+    "planetary-computer",
+    "odc-stac",
+    "earthengine-api",
+    "xee",
+    "beautifulsoup4",
+    "py3dep",
+    "earthaccess",
+    "contextily",
+    "folium",
+    "mapclassify",
+    "lxml",
+    "scikit-image",
+    "tqdm",
+    "dask",
 ]
 
+[project.urls]
+Homepage = "https://github.com/egagli/easysnowdata"
+Documentation = "https://egagli.github.io/easysnowdata"
+Repository = "https://github.com/egagli/easysnowdata"
+"Bug Tracker" = "https://github.com/egagli/easysnowdata/issues"
 
-[tool]
 [tool.setuptools.packages.find]
 include = ["easysnowdata*"]
-exclude = ["docs*"]
-
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
-
-
-[tool.distutils.bdist_wheel]
-universal = true
-
+exclude = ["docs*", "tests*", "scripts*"]
 
 [tool.bumpversion]
 current_version = "0.0.21"
@@ -58,20 +65,40 @@ search = 'version = "{current_version}"'
 replace = 'version = "{new_version}"'
 
 [[tool.bumpversion.files]]
+filename = "pixi.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
+
+[[tool.bumpversion.files]]
 filename = "easysnowdata/__init__.py"
 search = '__version__ = "{current_version}"'
 replace = '__version__ = "{new_version}"'
 
+[tool.ruff]
+target-version = "py310"
+line-length = 88
 
-[tool.flake8]
-exclude = [
-    "docs",
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP"]
+ignore = [
+    "E501",  # line too long — handled by formatter
+    "F841",  # local variable assigned but never used
 ]
-max-line-length = 88
 
+[tool.ruff.lint.isort]
+known-first-party = ["easysnowdata"]
 
-[project.urls]
-Homepage = "https://github.com/egagli/easysnowdata"
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "requires_earthengine: marks tests that require a valid EARTHENGINE_TOKEN env var",
+    "requires_earthaccess: marks tests that require EARTHDATA_USERNAME and EARTHDATA_PASSWORD env vars",
+    "integration: marks slow integration tests that make live external API calls",
+]
+filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]
 
 [build-system]
 requires = ["setuptools>=64", "setuptools_scm>=8"]
