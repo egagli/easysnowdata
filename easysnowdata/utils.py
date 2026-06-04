@@ -66,8 +66,9 @@ First-time setup (run once in a terminal or notebook):
     import earthaccess
     earthaccess.login(persist=True)   # saves to ~/.netrc — only needed once
 
-For non-interactive / CI environments set EARTHDATA_USERNAME and
-EARTHDATA_PASSWORD environment variables.
+For non-interactive / CI environments use one of:
+  - EARTHDATA_TOKEN   (recommended — generate at urs.earthdata.nasa.gov)
+  - EARTHDATA_USERNAME + EARTHDATA_PASSWORD
 
 Register for a free account at: https://urs.earthdata.nasa.gov"""
 
@@ -88,6 +89,8 @@ def _has_earthengine_credentials() -> bool:
 
 def _has_earthaccess_credentials() -> bool:
     """Return True if NASA EarthData credentials can be found (env vars or ~/.netrc)."""
+    if os.environ.get("EARTHDATA_TOKEN"):
+        return True
     if os.environ.get("EARTHDATA_USERNAME") and os.environ.get("EARTHDATA_PASSWORD"):
         return True
     try:

@@ -71,6 +71,7 @@ jobs:
       - name: Run tests
         env:
           EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_TOKEN }}
+          EARTHDATA_TOKEN: ${{ secrets.EARTHDATA_TOKEN }}
           EARTHDATA_USERNAME: ${{ secrets.EARTHDATA_USERNAME }}
           EARTHDATA_PASSWORD: ${{ secrets.EARTHDATA_PASSWORD }}
         run: pytest tests/ -v --tb=short

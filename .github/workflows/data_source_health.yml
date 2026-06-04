@@ -37,6 +37,7 @@ jobs:
       - name: Run health checks
         env:
           EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_TOKEN }}
+          EARTHDATA_TOKEN: ${{ secrets.EARTHDATA_TOKEN }}
           EARTHDATA_USERNAME: ${{ secrets.EARTHDATA_USERNAME }}
           EARTHDATA_PASSWORD: ${{ secrets.EARTHDATA_PASSWORD }}
         run: python scripts/check_data_sources.py --output data_status/history.json
