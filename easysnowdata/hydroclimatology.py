@@ -18,7 +18,12 @@ import rioxarray as rxr
 import shapely
 import xarray as xr
 
-from easysnowdata.utils import convert_bbox_to_geodataframe
+from easysnowdata.utils import (
+    _has_earthengine_credentials,
+    convert_bbox_to_geodataframe,
+    requires_earthaccess,
+    requires_earthengine,
+)
 
 __all__ = [
     "get_huc_geometries",
@@ -33,15 +38,17 @@ __all__ = [
 
 _logger = logging.getLogger(__name__)
 
+
+@requires_earthengine
 def get_huc_geometries(
-        bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None, 
+        bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
         huc_level: str = "02",
 ) -> gpd.GeoDataFrame:
     """
     Retrieves Hydrologic Unit Code (HUC) geometries within a specified bounding box and HUC level.
 
     This function queries the USGS Water Boundary Dataset (WBD) for HUC geometries. It can retrieve
-    HUC geometries at different levels for a specified region defined by a bounding box. If no 
+    HUC geometries at different levels for a specified region defined by a bounding box. If no
     bounding box is provided, it retrieves HUC geometries for the entire United States.
 
     Parameters
@@ -67,13 +74,13 @@ def get_huc_geometries(
 
     Notes
     -----
-    This function requires an active Earth Engine session. Make sure to authenticate 
-    with Earth Engine before using this function.
+    Requires Google Earth Engine authentication. Run ``ee.Authenticate()`` and
+    ``ee.Initialize()`` once, or call ``easysnowdata.authenticate_all()``.
 
-    Data citation: 
-    Jones, K.A., Niknami, L.S., Buto, S.G., and Decker, D., 2022, 
-    Federal standards and procedures for the national Watershed Boundary Dataset (WBD) (5 ed.): 
-    U.S. Geological Survey Techniques and Methods 11-A3, 54 p., 
+    Data citation:
+    Jones, K.A., Niknami, L.S., Buto, S.G., and Decker, D., 2022,
+    Federal standards and procedures for the national Watershed Boundary Dataset (WBD) (5 ed.):
+    U.S. Geological Survey Techniques and Methods 11-A3, 54 p.,
     https://doi.org/10.3133/tm11A3
     """
 
@@ -401,6 +408,12 @@ def get_era5(
     
     Notes
     -----
+    When *source* is ``"GEE"`` or ``"auto"`` selects GEE (all combinations except hourly ERA5),
+    Google Earth Engine authentication is required. Run ``ee.Authenticate()`` /
+    ``ee.Initialize()`` once, or call ``easysnowdata.authenticate_all()``.
+    When *source* is ``"GCS"`` (or ``"auto"`` selects GCS for hourly ERA5), no credentials
+    are needed.
+
     - The function automatically selects the optimal data source based on your request
     - Hourly ERA5 data comes from ARCO-ERA5 on Google Cloud Storage by default
     - All other combinations use Google Earth Engine
@@ -472,6 +485,11 @@ def get_era5(
         
     # Option 2: Google Earth Engine (GEE)
     elif effective_source == "GEE":
+        from easysnowdata.utils import CredentialError, _has_earthengine_credentials, _EE_SETUP_MSG  # noqa: PLC0415
+        if not _has_earthengine_credentials():
+            raise CredentialError(
+                f"`get_era5` with source='GEE' requires Google Earth Engine.\n\n{_EE_SETUP_MSG}"
+            )
         # Initialize Earth Engine if requested
         if initialize_ee:
             ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
@@ -547,6 +565,7 @@ def get_era5(
     else:
         raise ValueError("Source must be 'auto', 'GEE' (Google Earth Engine), or 'GCS' (Google Cloud Storage)")
 
+@requires_earthengine
 def get_snodas(
     bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
     start_date: str = "2003-10-01",
@@ -613,10 +632,12 @@ def get_snodas(
 
     Notes
     -----
+    Requires Google Earth Engine authentication. Run ``ee.Authenticate()`` and
+    ``ee.Initialize()`` once, or call ``easysnowdata.authenticate_all()``.
+
     - SNODAS covers the continental United States, Alaska, and Hawaii
     - Data is available from 2003-10-01 to present with daily updates
     - Spatial resolution is 1 km (1/120-degree)
-    - This function requires an active Earth Engine session
 
     Data citations:
     Barrett, Andrew. 2003. National Operational Hydrologic Remote Sensing Center Snow Data 
@@ -725,6 +746,7 @@ def get_snodas(
 
     return ds
 
+@requires_earthaccess
 def get_ucla_snow_reanalysis(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
                              variable: str = 'SWE_Post',
                              stats: str = 'mean',
@@ -770,6 +792,9 @@ def get_ucla_snow_reanalysis(bbox_input: gpd.GeoDataFrame | tuple | shapely.geom
 
     Notes
     -----
+    Requires NASA EarthData authentication. Run ``earthaccess.login(persist=True)``
+    once, or call ``easysnowdata.authenticate_all()``.
+
     Data citation:
 
     Fang, Y., Liu, Y. & Margulis, S. A. (2022). Western United States UCLA Daily Snow Reanalysis. (WUS_UCLA_SR, Version 1). [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/PP7T2GBI52I2

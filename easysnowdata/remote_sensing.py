@@ -40,9 +40,14 @@ rio_env = rio.Env(
 rio_env.__enter__()
 
 from easysnowdata.utils import (
+    CredentialError,
     HLS_xml_url_to_metadata_df,
+    _has_earthaccess_credentials,
+    _EARTHACCESS_SETUP_MSG,
+    _EE_SETUP_MSG,
     convert_bbox_to_geodataframe,
     get_stac_cfg,
+    requires_earthengine,
     suppress_stdout,
 )
 
@@ -65,20 +70,31 @@ today = datetime.datetime.now().strftime("%Y-%m-%d")
 
 
 def authenticate_all():
-    """
-    Authenticates with all potential data providers.
+    """Interactively authenticate with all credentialed data providers.
 
-    This function authenticates with NASA EarthData, Planetary Computer, and Earth Engine.
-    It prints the authentication status for each provider.
-    """
-    print("Authenticating for all potential data providers...")
+    Runs the one-time credential setup for NASA EarthData and Google Earth
+    Engine, then saves credentials locally so subsequent sessions require no
+    further authentication.
 
-    print("Authenticating for NASA EarthData...")
+    Providers that require no credentials (Planetary Computer, anonymous GCS)
+    are skipped.
+
+    Notes
+    -----
+    Call this function once before using any function that requires
+    ``requires_earthengine`` or ``requires_earthaccess``.  Credentials are
+    stored in ``~/.netrc`` (EarthData) and
+    ``~/.config/earthengine/credentials`` (Earth Engine).
+    """
+    _logger.info("Starting interactive credential setup for all providers.")
+
+    _logger.info("Authenticating with NASA EarthData...")
     earthaccess.login(persist=True)
-    # print("Authenticating for Planetary Computer...")
-    # planetary_computer.set_subscription_key()
-    print("Authenticating for Earth Engine...")
+    _logger.info("NASA EarthData: done.")
+
+    _logger.info("Authenticating with Google Earth Engine...")
     ee.Authenticate()
+    _logger.info("Google Earth Engine: done. Call ee.Initialize() before use.")
 
 
 def get_forest_cover_fraction(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None, mask_nodata: bool = False,
@@ -605,7 +621,8 @@ def get_esa_worldcover(
     return worldcover_da
 
 
-def get_nlcd_landcover(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None, 
+@requires_earthengine
+def get_nlcd_landcover(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
              layer: str = 'landcover',
              initialize_ee: bool = True) -> xr.DataArray:
     """
@@ -656,6 +673,9 @@ def get_nlcd_landcover(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.b
 
     Notes
     -----
+    Requires Google Earth Engine authentication. Run ``ee.Authenticate()`` and
+    ``ee.Initialize()`` once, or call ``easysnowdata.authenticate_all()``.
+
     - NLCD data is only available for the contiguous United States
     - The latest version (2021) includes data from 2001-2021
     - Resolution is 30 meters
@@ -667,7 +687,7 @@ def get_nlcd_landcover(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.b
     if initialize_ee:
         ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
     else:
-        print("Initialization turned off. If you haven't already, please sign in to Google Earth Engine by running:\n\nimport ee\nee.Authenticate()\nee.Initialize()\n\n")
+        _logger.info("Earth Engine initialization skipped. Ensure EE is already initialized.")
 
     # Convert the input to a GeoDataFrame if it's not already one
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
@@ -1900,10 +1920,11 @@ class Sentinel1:
             self.get_local_incidence_angle()
         return self._local_incidence_angle_data
 
+    @requires_earthengine
     def get_local_incidence_angle(self, resolution=None, initialize_ee=True):
         """
         Calculate local incidence angle for Sentinel-1 data within a bounding box.
-        
+
         Parameters
         ----------
         resolution : int or float, optional
@@ -1919,21 +1940,25 @@ class Sentinel1:
             
         Notes
         -----
+        Requires Google Earth Engine authentication. Run ``ee.Authenticate()`` and
+        ``ee.Initialize()`` once, or call ``easysnowdata.authenticate_all()``.
+
         This method calculates the local incidence angle using the Copernicus 30m DEM and
         stores the results in the local_incidence_angle_data attribute.
         """
         import math
-        import xee
         from collections import Counter
-        
+
+        import xee
+
         # Use object's resolution if none provided
         calc_resolution = resolution or self.resolution or 30
-        
+
         # Initialize Earth Engine with high-volume endpoint
         if initialize_ee:
             ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
         else:
-            print("Initialization turned off. If you haven't already, please sign in to Google Earth Engine by running:\n\nimport ee\nee.Authenticate()\nee.Initialize()\n\n")
+            _logger.info("Earth Engine initialization skipped. Ensure EE is already initialized.")
 
         # Convert bbox to Earth Engine geometry
         bbox = tuple(self.bbox_gdf.total_bounds)
@@ -2217,6 +2242,11 @@ class HLS:
         Retrieves the RGB composite of the data.
     get_ndvi()
         Calculates the Normalized Difference Vegetation Index (NDVI).
+
+    Notes
+    -----
+    Requires NASA EarthData authentication. Run ``earthaccess.login(persist=True)``
+    once, or call ``easysnowdata.authenticate_all()``.
     """
 
     # https://lpdaac.usgs.gov/documents/1698/HLS_User_Guide_V2.pdf
@@ -2248,6 +2278,11 @@ class HLS:
             crs (str): The coordinate reference system. This should be a string like 'EPSG:4326'. Default CRS is UTM zone estimated from bounding box.
             groupby (str): The groupby parameter for the data. Default is "solar_day".
         """
+        if not _has_earthaccess_credentials():
+            raise CredentialError(
+                f"`HLS` requires NASA EarthData credentials.\n\n{_EARTHACCESS_SETUP_MSG}"
+            )
+
         # Initialize the attributes
         self.bbox_input = bbox_input
         self.start_date = start_date
@@ -3010,6 +3045,11 @@ class MODIS_snow:
 
     Notes
     -----
+    The ``MOD10A1F`` product requires NASA EarthData authentication. Run
+    ``earthaccess.login(persist=True)`` once, or call
+    ``easysnowdata.authenticate_all()``. The ``MOD10A1`` and ``MOD10A2``
+    products use Microsoft Planetary Computer and require no credentials.
+
     Available data products:
     MOD10A1: Daily snow cover, 500m resolution
     MOD10A2: 8-day maximum snow cover, 500m resolution
@@ -3035,6 +3075,11 @@ class MODIS_snow:
         horizontal_tile=None,
         mute=False,
     ):
+
+        if data_product == "MOD10A1F" and not _has_earthaccess_credentials():
+            raise CredentialError(
+                f"`MODIS_snow` with data_product='MOD10A1F' requires NASA EarthData credentials.\n\n{_EARTHACCESS_SETUP_MSG}"
+            )
 
         self.bbox_input = bbox_input
         self.bbox_gdf = convert_bbox_to_geodataframe(bbox_input)

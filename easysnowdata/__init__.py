@@ -9,6 +9,8 @@ __all__ = [
     "automatic_weather_stations",
     "topography",
     "hydroclimatology",
+    "authenticate_all",
+    "CredentialError",
 ]
 
 import easysnowdata.utils
@@ -16,3 +18,6 @@ import easysnowdata.remote_sensing
 import easysnowdata.automatic_weather_stations
 import easysnowdata.topography
 import easysnowdata.hydroclimatology
+
+from easysnowdata.utils import CredentialError
+from easysnowdata.remote_sensing import authenticate_all

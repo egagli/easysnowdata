@@ -21,7 +21,7 @@ import xarray as xr
 
 odc.stac.configure_rio(cloud_defaults=True)
 
-from easysnowdata.utils import convert_bbox_to_geodataframe, get_stac_cfg
+from easysnowdata.utils import convert_bbox_to_geodataframe, get_stac_cfg, requires_earthengine
 
 __all__ = ["get_copernicus_dem", "get_chili"]
 
@@ -89,6 +89,7 @@ def get_copernicus_dem(
     return cop_dem_da
 
 
+@requires_earthengine
 def get_chili(
     bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
     initialize_ee: bool = True,
@@ -114,6 +115,9 @@ def get_chili(
 
     Notes
     -----
+    Requires Google Earth Engine authentication. Run ``ee.Authenticate()`` and
+    ``ee.Initialize()`` once, or call ``easysnowdata.authenticate_all()``.
+
     Data are only available between 70°N and 70°S.
 
     Data citation:

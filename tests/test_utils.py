@@ -8,12 +8,18 @@ import pandas as pd
 import pytest
 import shapely
 
+import easysnowdata
 from easysnowdata.utils import (
+    CredentialError,
+    _has_earthaccess_credentials,
+    _has_earthengine_credentials,
     convert_bbox_to_geodataframe,
     datetime_to_DOWY,
     datetime_to_WY,
     get_stac_cfg,
     get_water_year_start,
+    requires_earthaccess,
+    requires_earthengine,
     suppress_stdout,
 )
 
@@ -97,6 +103,64 @@ class TestWaterYear:
     def test_invalid_date_returns_nan(self):
         result = datetime_to_DOWY("not-a-date")
         assert np.isnan(result)
+
+
+class TestCredentialError:
+    def test_credential_error_is_exception(self):
+        with pytest.raises(CredentialError):
+            raise CredentialError("test")
+
+    def test_top_level_export(self):
+        assert easysnowdata.CredentialError is CredentialError
+
+    def test_authenticate_all_is_callable(self):
+        assert callable(easysnowdata.authenticate_all)
+
+    def test_requires_earthengine_decorator_blocks_without_creds(self, monkeypatch):
+        monkeypatch.setattr("easysnowdata.utils._has_earthengine_credentials", lambda: False)
+
+        @requires_earthengine
+        def fake_gee_func():
+            return "ok"
+
+        with pytest.raises(CredentialError, match="Google Earth Engine"):
+            fake_gee_func()
+
+    def test_requires_earthengine_passes_with_creds(self, monkeypatch):
+        monkeypatch.setattr("easysnowdata.utils._has_earthengine_credentials", lambda: True)
+
+        @requires_earthengine
+        def fake_gee_func():
+            return "ok"
+
+        assert fake_gee_func() == "ok"
+
+    def test_requires_earthaccess_decorator_blocks_without_creds(self, monkeypatch):
+        monkeypatch.setattr("easysnowdata.utils._has_earthaccess_credentials", lambda: False)
+
+        @requires_earthaccess
+        def fake_ea_func():
+            return "ok"
+
+        with pytest.raises(CredentialError, match="NASA EarthData"):
+            fake_ea_func()
+
+    def test_requires_earthaccess_passes_with_creds(self, monkeypatch):
+        monkeypatch.setattr("easysnowdata.utils._has_earthaccess_credentials", lambda: True)
+
+        @requires_earthaccess
+        def fake_ea_func():
+            return "ok"
+
+        assert fake_ea_func() == "ok"
+
+    def test_has_earthengine_credentials_returns_bool(self):
+        result = _has_earthengine_credentials()
+        assert isinstance(result, bool)
+
+    def test_has_earthaccess_credentials_returns_bool(self):
+        result = _has_earthaccess_credentials()
+        assert isinstance(result, bool)
 
 
 class TestGetStacCfg:

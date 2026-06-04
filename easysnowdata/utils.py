@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 import contextlib
+import functools
 import io
 import logging
+import netrc
+import os
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import geopandas as gpd
@@ -19,6 +23,9 @@ if TYPE_CHECKING:
     import xarray as xr
 
 __all__ = [
+    "CredentialError",
+    "requires_earthengine",
+    "requires_earthaccess",
     "suppress_stdout",
     "convert_bbox_to_geodataframe",
     "get_stac_cfg",
@@ -29,6 +36,91 @@ __all__ = [
 ]
 
 _logger = logging.getLogger(__name__)
+
+
+class CredentialError(Exception):
+    """Raised when required credentials are missing or not yet configured."""
+
+
+# ── Setup instructions ────────────────────────────────────────────────────────
+
+_EE_SETUP_MSG = """\
+Google Earth Engine credentials not found.
+
+First-time setup (run once in a terminal or notebook):
+
+    import ee
+    ee.Authenticate()   # opens a browser window — follow the prompts
+    ee.Initialize()
+
+For non-interactive / CI environments set the EARTHENGINE_TOKEN environment
+variable to the base64-encoded contents of a service-account credentials JSON.
+
+Sign up at: https://earthengine.google.com"""
+
+_EARTHACCESS_SETUP_MSG = """\
+NASA EarthData credentials not found.
+
+First-time setup (run once in a terminal or notebook):
+
+    import earthaccess
+    earthaccess.login(persist=True)   # saves to ~/.netrc — only needed once
+
+For non-interactive / CI environments set EARTHDATA_USERNAME and
+EARTHDATA_PASSWORD environment variables.
+
+Register for a free account at: https://urs.earthdata.nasa.gov"""
+
+
+# ── Credential detection ──────────────────────────────────────────────────────
+
+def _has_earthengine_credentials() -> bool:
+    """Return True if EE credentials can be found (env var or credential file)."""
+    if os.environ.get("EARTHENGINE_TOKEN"):
+        return True
+    try:
+        import ee  # noqa: PLC0415
+        creds_path = Path(ee.oauth.get_credentials_path())
+        return creds_path.exists()
+    except Exception:
+        return False
+
+
+def _has_earthaccess_credentials() -> bool:
+    """Return True if NASA EarthData credentials can be found (env vars or ~/.netrc)."""
+    if os.environ.get("EARTHDATA_USERNAME") and os.environ.get("EARTHDATA_PASSWORD"):
+        return True
+    try:
+        n = netrc.netrc()
+        return n.authenticators("urs.earthdata.nasa.gov") is not None
+    except Exception:
+        return False
+
+
+# ── Auth decorators ───────────────────────────────────────────────────────────
+
+def requires_earthengine(func):
+    """Decorator: raise CredentialError with setup instructions if EE credentials are missing."""
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if not _has_earthengine_credentials():
+            raise CredentialError(
+                f"`{func.__qualname__}` requires Google Earth Engine.\n\n{_EE_SETUP_MSG}"
+            )
+        return func(*args, **kwargs)
+    return wrapper
+
+
+def requires_earthaccess(func):
+    """Decorator: raise CredentialError with setup instructions if EarthData credentials are missing."""
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if not _has_earthaccess_credentials():
+            raise CredentialError(
+                f"`{func.__qualname__}` requires NASA EarthData credentials.\n\n{_EARTHACCESS_SETUP_MSG}"
+            )
+        return func(*args, **kwargs)
+    return wrapper
 
 
 @contextlib.contextmanager
