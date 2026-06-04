@@ -1,43 +1,110 @@
 # easysnowdata
 
-
-[![image](https://img.shields.io/pypi/v/easysnowdata.svg)](https://pypi.python.org/pypi/easysnowdata)
-[![image](https://img.shields.io/conda/vn/conda-forge/easysnowdata.svg)](https://anaconda.org/conda-forge/easysnowdata)
+[![PyPI](https://img.shields.io/pypi/v/easysnowdata.svg)](https://pypi.python.org/pypi/easysnowdata)
+[![conda-forge](https://img.shields.io/conda/vn/conda-forge/easysnowdata.svg)](https://anaconda.org/conda-forge/easysnowdata)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14741502.svg)](https://doi.org/10.5281/zenodo.14741502)
+[![CI](https://github.com/egagli/easysnowdata/actions/workflows/ci.yml/badge.svg)](https://github.com/egagli/easysnowdata/actions/workflows/ci.yml)
 
+**A Python package to easily retrieve data relevant to snow science.**
 
-**package to easily get data relevant to snow**
+`easysnowdata` unifies access to a wide range of snow-relevant geospatial
+datasets — weather stations, satellite imagery, climate reanalysis, DEMs, and
+more — under a consistent API that returns xarray objects. The emphasis is on
+minimising downloads and local computation by leveraging cloud-optimised data
+formats wherever possible.
 
-easysnowdata is a package for retrieving all types of data relevant to snow, with an emphasis on minimizing downloads and local computations. Data is primarily ouput in xarray objects. This is a package primarily for personal use, so design decisions made are often tailored to my particular use cases. Feel free to contribute! Package is under heavy construction for the time being.
+## Gallery
 
-## gallery
 ![easysnowdata](https://github.com/user-attachments/assets/5b2c83a4-b732-4c35-86fd-1bccb954c286)
 
-## installation
-easysnowdata is available on pypi and conda-forge. you can install easysnowdata with any of the following...
+## Data Source Status
 
-*  `pip install easysnowdata`     
-*  `conda install easysnowdata`    
-*  `mamba install easysnowdata`
+<!-- DATA_STATUS_START -->
+_No status data yet. The weekly health check will populate this table automatically._
+<!-- DATA_STATUS_END -->
 
-## examples
+## Installation
 
-[quickstart](https://github.com/egagli/easysnowdata/blob/main/docs/examples/how_easy.ipynb)
+```bash
+pip install easysnowdata
+```
+```bash
+conda install -c conda-forge easysnowdata
+```
+```bash
+mamba install -c conda-forge easysnowdata
+```
 
-[remote_sensing module examples](https://nbviewer.org/github/egagli/easysnowdata/blob/main/docs/examples/remote_sensing_examples.ipynb)
+### Development install (with [pixi](https://pixi.sh))
 
-[hydroclimatology module examples](https://github.com/egagli/easysnowdata/blob/main/docs/examples/hydroclimatology_examples.ipynb)
+```bash
+git clone https://github.com/egagli/easysnowdata.git
+cd easysnowdata
+pixi install          # sets up the environment
+pixi run test-fast    # run credential-free tests
+pixi run test         # run all tests (requires API secrets)
+pixi run docs-serve   # preview the docs locally
+```
 
-[automatic_weather_stations module examples](https://github.com/egagli/easysnowdata/blob/main/docs/examples/automatic_weather_station_examples.ipynb)
+### Services that require account setup
 
-[topography module examples](https://github.com/egagli/easysnowdata/blob/main/docs/examples/topography_examples.ipynb)
+Some data sources need free accounts and credentials passed as environment variables:
 
-[full examples folder](https://github.com/egagli/easysnowdata/tree/main/docs/examples)
+| Service | Env vars | Sign-up |
+|---------|----------|---------|
+| Google Earth Engine | `EARTHENGINE_TOKEN` | [earthengine.google.com](https://earthengine.google.com) |
+| NASA EarthData | `EARTHDATA_USERNAME`, `EARTHDATA_PASSWORD` | [urs.earthengine.nasa.gov](https://urs.earthdata.nasa.gov) |
 
-## documentation 
-https://egagli.github.io/easysnowdata
-    
+Planetary Computer and anonymous GCS access require no credentials.
 
-## to do list
+## Modules
 
--   [list of data products to add](https://github.com/egagli/easysnowdata/issues/11)
+| Module | What it provides |
+|--------|-----------------|
+| `automatic_weather_stations` | SNOTEL & CCSS station metadata + time-series data |
+| `hydroclimatology` | ERA5, SNODAS, UCLA snow reanalysis, HUC boundaries, HydroATLAS, GRDC basins, Köppen-Geiger |
+| `remote_sensing` | Sentinel-1, Sentinel-2, HLS, MODIS snow, ESA WorldCover, forest cover, snow classification |
+| `topography` | Copernicus DEM (30 m / 90 m), CHILI topographic index |
+| `utils` | Shared helpers: bbox conversion, water-year utilities, STAC config |
+
+## Quick Start
+
+```python
+import easysnowdata
+
+# ── Automatic weather stations ─────────────────────────────────────────────
+sc = easysnowdata.automatic_weather_stations.StationCollection()
+sc.get_data(stations="679_WA_SNTL", variables=["WTEQ", "SNWD"],
+            start_date="2023-10-01", end_date="2024-06-30")
+sc.data.plot()                        # pandas DataFrame for one station
+
+# ── Topography ─────────────────────────────────────────────────────────────
+bbox = (-121.94, 46.72, -121.54, 46.99)   # Mount Rainier, WA
+dem = easysnowdata.topography.get_copernicus_dem(bbox_input=bbox, resolution=30)
+dem.plot()                               # xarray DataArray
+
+# ── Hydroclimatology ───────────────────────────────────────────────────────
+era5 = easysnowdata.hydroclimatology.get_era5(
+    bbox_input=bbox, source="GCS",
+    start_date="2023-01-01", end_date="2023-01-31"
+)
+era5["2m_temperature"].mean("time").plot()
+
+# ── Remote sensing ─────────────────────────────────────────────────────────
+snow_class = easysnowdata.remote_sensing.get_seasonal_snow_classification(bbox)
+snow_class.attrs["example_plot"](snow_class)
+```
+
+## Documentation
+
+Full API reference and example notebooks: <https://egagli.github.io/easysnowdata>
+
+## Contributing
+
+Contributions welcome! See [CONTRIBUTING](docs/contributing.md) for guidelines.
+
+## Citing
+
+If you use easysnowdata in your research, please cite the Zenodo archive:
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14741502.svg)](https://doi.org/10.5281/zenodo.14741502)
