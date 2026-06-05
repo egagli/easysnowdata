@@ -20,7 +20,29 @@ formats wherever possible.
 ## Data Source Status
 
 <!-- DATA_STATUS_START -->
-_No status data yet. The weekly health check will populate this table automatically._
+_Last updated: 2026-06-05 08:31 UTC_  
+_⚠️ = skipped (credentials not available in this run)_
+
+| Data Source | Latest (Jun 5) |
+| :---------- | :------: |
+| SNOTEL/CCSS station list (GitHub) | ✅ |
+| SNOTEL/CCSS station CSV (GitHub) | ✅ |
+| HydroATLAS basins (figshare) | ✅ |
+| GRDC major river basins (World Bank) | ✅ |
+| GRDC WMO basins | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> |
+| Köppen-Geiger classification (figshare) | ✅ |
+| Sturm & Liston snow classification (Azure) | <abbr title="RuntimeError: Unreachable: HTTPSConnectionPool(host='snowmelt.blob.core.windows.">❌</abbr> |
+| Forest cover fraction (Zenodo) | ✅ |
+| Mountain snow mask (Zenodo) | ✅ |
+| ARCO-ERA5 (GCS anonymous) | ✅ |
+| Copernicus DEM (Planetary Computer) | ✅ |
+| ESA WorldCover (Planetary Computer) | ✅ |
+| HUC geometries (GEE/USGS WBD) | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
+| SNODAS (GEE/Climate Engine) | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
+| ERA5 (Google Earth Engine) | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
+| CHILI (GEE/CSP ERGo) | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
+| NLCD (GEE/USGS) | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
+| UCLA Snow Reanalysis (NASA NSIDC) | ⚠️ |
 <!-- DATA_STATUS_END -->
 
 ## Installation

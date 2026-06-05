@@ -1,1 +1,112 @@
-[]
+[
+  [
+    {
+      "source": "SNOTEL/CCSS station list (GitHub)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-06-05T08:30:49Z"
+    },
+    {
+      "source": "SNOTEL/CCSS station CSV (GitHub)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-06-05T08:30:49Z"
+    },
+    {
+      "source": "HydroATLAS basins (figshare)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-06-05T08:30:49Z"
+    },
+    {
+      "source": "GRDC major river basins (World Bank)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-06-05T08:30:52Z"
+    },
+    {
+      "source": "GRDC WMO basins",
+      "status": "fail",
+      "error": "RuntimeError: Unreachable: HTTP 404",
+      "checked_at": "2026-06-05T08:30:52Z"
+    },
+    {
+      "source": "K\u00f6ppen-Geiger classification (figshare)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-06-05T08:31:02Z"
+    },
+    {
+      "source": "Sturm & Liston snow classification (Azure)",
+      "status": "fail",
+      "error": "RuntimeError: Unreachable: HTTPSConnectionPool(host='snowmelt.blob.core.windows.net', port=443): Max retries exceeded with url: /snowmelt/eric/snow_classification/SnowClass_GL_300m_10.0arcsec_2021_v01.0.tif (Caused by NameResolutionError(\"HTTPSConnection(host='snowmelt.blob.core.windows.net', port=443): Failed to resolve 'snowmelt.blob.core.windows.net' ([Errno -2] Name or service not known)\"))",
+      "checked_at": "2026-06-05T08:31:04Z"
+    },
+    {
+      "source": "Forest cover fraction (Zenodo)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-06-05T08:31:08Z"
+    },
+    {
+      "source": "Mountain snow mask (Zenodo)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-06-05T08:31:09Z"
+    },
+    {
+      "source": "ARCO-ERA5 (GCS anonymous)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-06-05T08:31:10Z"
+    },
+    {
+      "source": "Copernicus DEM (Planetary Computer)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-06-05T08:31:12Z"
+    },
+    {
+      "source": "ESA WorldCover (Planetary Computer)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-06-05T08:31:14Z"
+    },
+    {
+      "source": "HUC geometries (GEE/USGS WBD)",
+      "status": "fail",
+      "error": "RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_description': 'Bad Request'})",
+      "checked_at": "2026-06-05T08:31:15Z"
+    },
+    {
+      "source": "SNODAS (GEE/Climate Engine)",
+      "status": "fail",
+      "error": "RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_description': 'Bad Request'})",
+      "checked_at": "2026-06-05T08:31:15Z"
+    },
+    {
+      "source": "ERA5 (Google Earth Engine)",
+      "status": "fail",
+      "error": "RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_description': 'Bad Request'})",
+      "checked_at": "2026-06-05T08:31:15Z"
+    },
+    {
+      "source": "CHILI (GEE/CSP ERGo)",
+      "status": "fail",
+      "error": "RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_description': 'Bad Request'})",
+      "checked_at": "2026-06-05T08:31:15Z"
+    },
+    {
+      "source": "NLCD (GEE/USGS)",
+      "status": "fail",
+      "error": "RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_description': 'Bad Request'})",
+      "checked_at": "2026-06-05T08:31:15Z"
+    },
+    {
+      "source": "UCLA Snow Reanalysis (NASA NSIDC)",
+      "status": "skip",
+      "error": "Missing env vars: EARTHDATA_USERNAME, EARTHDATA_PASSWORD",
+      "checked_at": "2026-06-05T08:31:16Z"
+    }
+  ]
+]
