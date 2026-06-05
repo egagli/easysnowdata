@@ -1,98 +1,97 @@
 site_name: easysnowdata
-site_description: package to easily get data relevant to snow
-site_author: egagli
+site_description: A Python package to easily retrieve data relevant to snow science
+site_author: Eric Gagliano
 site_url: https://egagli.github.io/easysnowdata
 repo_url: https://github.com/egagli/easysnowdata
+repo_name: egagli/easysnowdata
 
-copyright: "Copyright &copy; 2024 - 2024 Eric Gagliano"
+copyright: "Copyright &copy; 2024 Eric Gagliano"
 
 theme:
-    palette:
-        - scheme: default
-          #   primary: blue
-          #   accent: indigo
-          toggle:
-              icon: material/toggle-switch-off-outline
-              name: Switch to dark mode
-        - scheme: slate
-          primary: indigo
-          accent: indigo
-          toggle:
-              icon: material/toggle-switch
-              name: Switch to light mode
-    name: material
-    icon:
-        repo: fontawesome/brands/github
-    # logo: assets/logo.png
-    # favicon: assets/favicon.png
-    features:
-        - navigation.instant
-        - navigation.tracking
-        - navigation.top
-        - search.highlight
-        - search.share
-    custom_dir: "docs/overrides"
-    font:
-        text: Google Sans
-        code: Regular
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.top
+    - navigation.sections
+    - search.highlight
+    - search.share
+    - content.code.copy
+  font:
+    text: Google Sans
+    code: Regular
+  custom_dir: "docs/overrides"
 
 plugins:
-    - search
-    - mkdocstrings:
-        handlers:
-            python:
-                options:
-                    docstring_style: numpy
-                    show_docstring_examples: True
-    - git-revision-date
-    - git-revision-date-localized:
-          enable_creation_date: true
-          type: timeago
-    # - pdf-export
-    - mkdocs-jupyter:
-          include_source: True
-          ignore_h1_titles: True
-          execute: False # this was true, but I changed it to false to iterate docs faster
-          allow_errors: True # this was false before
-          ignore: ["conf.py"]
-          execute_ignore: ["*ignore.ipynb"]
-          
-markdown_extensions:
-    - admonition
-    - abbr
-    - attr_list
-    - def_list
-    - footnotes
-    - meta
-    - md_in_html
-    - pymdownx.superfences
-    - pymdownx.highlight:
-          linenums: true
-    - toc:
-          permalink: true
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
+            show_docstring_examples: true
+            show_source: true
+            show_bases: true
+            merge_init_into_class: true
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago
+  - mkdocs-jupyter:
+      include_source: true
+      ignore_h1_titles: true
+      execute: false
+      allow_errors: true
+      ignore: ["conf.py"]
+      execute_ignore: ["*ignore.ipynb"]
 
-# extra:
-#     analytics:
-#         provider: google
-#         property: UA-XXXXXXXXX-X
+markdown_extensions:
+  - admonition
+  - abbr
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      linenums: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
 
 nav:
-    - Home: index.md
-    - Installation: installation.md
-    - Usage: usage.md
-    - Contributing: contributing.md
-    - FAQ: faq.md
-    - Changelog: changelog.md
-    - Report Issues: https://github.com/egagli/easysnowdata/issues
-    - Examples:
-        - examples/remote_sensing_examples.ipynb
-        - examples/automatic_weather_station_examples.ipynb
-        - examples/topography_examples.ipynb
-        - examples/hydroclimatology_examples.ipynb
-    - API Reference:
-          - easysnowdata module: easysnowdata.md
-          - remote_sensing module: remote_sensing.md
-          - automatic_weather_station module: automatic_weather_stations.md
-          - topography module: topography.md
-          - hydroclimatology module: hydroclimatology.md
-          - utils module: utils.md
+  - Home: index.md
+  - Getting Started:
+      - Installation: installation.md
+      - Usage: usage.md
+      - FAQ: faq.md
+  - User Guide:
+      - Automatic Weather Stations: examples/automatic_weather_station_examples.ipynb
+      - Hydroclimatology: examples/hydroclimatology_examples.ipynb
+      - Remote Sensing: examples/remote_sensing_examples.ipynb
+      - Topography: examples/topography_examples.ipynb
+      - Quickstart: examples/how_easy.ipynb
+  - API Reference:
+      - automatic_weather_stations: automatic_weather_stations.md
+      - hydroclimatology: hydroclimatology.md
+      - remote_sensing: remote_sensing.md
+      - topography: topography.md
+      - utils: utils.md
+  - Development:
+      - Contributing: contributing.md
+      - Changelog: changelog.md
+      - Report Issues: https://github.com/egagli/easysnowdata/issues
