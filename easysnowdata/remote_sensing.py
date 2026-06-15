@@ -296,7 +296,7 @@ def get_seasonal_snow_classification(bbox_input: gpd.GeoDataFrame | tuple | shap
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
 
     snow_classification_da = rxr.open_rasterio(
-        "https://snowmelt.blob.core.windows.net/snowmelt/eric/snow_classification/SnowClass_GL_300m_10.0arcsec_2021_v01.0.tif",
+        "https://uwcryo.blob.core.windows.net/snowmelt/eric/snow_classification/SnowClass_GL_300m_10.0arcsec_2021_v01.0.tif",
         chunks=True,
         mask_and_scale=mask_nodata,
     )
