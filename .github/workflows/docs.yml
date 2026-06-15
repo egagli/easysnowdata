@@ -3,27 +3,29 @@ on:
     push:
         branches:
             - main
-            - master
+
 jobs:
     deploy:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
             - uses: actions/setup-python@v5
               with:
-                  python-version: "3.11"
+                  python-version: "3.12"
 
-            - name: Install dependencies
+            - name: Install GDAL
               run: |
                   python -m pip install --upgrade pip
-                  pip install --user --no-cache-dir Cython
-                  pip install --user -r requirements.txt -r requirements_dev.txt
-                  pip install .
-            # - name: Discover typos with codespell
-            #   run: |
-            #       codespell --skip="*.csv,*.geojson,*.json,*.js,*.html,*cff,./.git" --ignore-words-list="aci,hist"
-            - name: PKG-TEST
-              run: |
-                  python -m unittest discover tests/
-            - run: mkdocs gh-deploy --force
+                  pip install --find-links=https://girder.github.io/large_image_wheels --no-cache GDAL
 
+            - name: Install package and docs dependencies
+              run: |
+                  pip install -e .
+                  pip install mkdocs mkdocs-material mkdocstrings mkdocstrings-python \
+                      pymdown-extensions pygments mkdocs-jupyter \
+                      mkdocs-git-revision-date-localized-plugin
+
+            - run: mkdocs gh-deploy --force

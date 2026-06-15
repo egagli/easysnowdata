@@ -75,12 +75,14 @@ Register for a free account at: https://urs.earthdata.nasa.gov"""
 
 # ── Credential detection ──────────────────────────────────────────────────────
 
+
 def _has_earthengine_credentials() -> bool:
     """Return True if EE credentials can be found (env var or credential file)."""
     if os.environ.get("EARTHENGINE_TOKEN"):
         return True
     try:
         import ee  # noqa: PLC0415
+
         creds_path = Path(ee.oauth.get_credentials_path())
         return creds_path.exists()
     except Exception:
@@ -102,8 +104,10 @@ def _has_earthaccess_credentials() -> bool:
 
 # ── Auth decorators ───────────────────────────────────────────────────────────
 
+
 def requires_earthengine(func):
     """Decorator: raise CredentialError with setup instructions if EE credentials are missing."""
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if not _has_earthengine_credentials():
@@ -111,11 +115,13 @@ def requires_earthengine(func):
                 f"`{func.__qualname__}` requires Google Earth Engine.\n\n{_EE_SETUP_MSG}"
             )
         return func(*args, **kwargs)
+
     return wrapper
 
 
 def requires_earthaccess(func):
     """Decorator: raise CredentialError with setup instructions if EarthData credentials are missing."""
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if not _has_earthaccess_credentials():
@@ -123,6 +129,7 @@ def requires_earthaccess(func):
                 f"`{func.__qualname__}` requires NASA EarthData credentials.\n\n{_EARTHACCESS_SETUP_MSG}"
             )
         return func(*args, **kwargs)
+
     return wrapper
 
 

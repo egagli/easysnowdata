@@ -40,9 +40,7 @@ _STATION_GEOJSON_URL = (
 _STATION_DATA_BASE_URL = (
     "https://raw.githubusercontent.com/egagli/snotel_ccss_stations/main/data/"
 )
-_ARCHIVE_URL = (
-    "https://github.com/egagli/snotel_ccss_stations/raw/main/data/all_station_data.tar.lzma"
-)
+_ARCHIVE_URL = "https://github.com/egagli/snotel_ccss_stations/raw/main/data/all_station_data.tar.lzma"
 
 
 class StationCollection:
@@ -147,13 +145,9 @@ class StationCollection:
             all_stations_gdf = all_stations_gdf.sort_values("dist_km")
 
         self.all_stations = all_stations_gdf
-        _logger.info(
-            "Loaded %d stations into all_stations.", len(self.all_stations)
-        )
+        _logger.info("Loaded %d stations into all_stations.", len(self.all_stations))
 
-    def choose_stations(
-        self, stations_input: gpd.GeoDataFrame | str | list
-    ) -> None:
+    def choose_stations(self, stations_input: gpd.GeoDataFrame | str | list) -> None:
         """Select a subset of stations by code string, list of codes, or GeoDataFrame.
 
         Parameters
@@ -295,12 +289,14 @@ class StationCollection:
             for station in tqdm.tqdm(self.stations.index, desc=variable):
                 try:
                     url = f"{_STATION_DATA_BASE_URL}{station}.csv"
-                    tmp = pd.read_csv(
-                        url, index_col="datetime", parse_dates=True
-                    )[variable]
+                    tmp = pd.read_csv(url, index_col="datetime", parse_dates=True)[
+                        variable
+                    ]
                     station_dict[station] = tmp
                 except Exception as exc:
-                    _logger.warning("Failed to retrieve %s for %s: %s", variable, station, exc)
+                    _logger.warning(
+                        "Failed to retrieve %s for %s: %s", variable, station, exc
+                    )
 
             station_df = pd.DataFrame.from_dict(station_dict).loc[start_date:end_date]
             setattr(self, variable, station_df)
@@ -323,9 +319,7 @@ class StationCollection:
         ds.coords["DOWY"] = ("time", pd.to_datetime(ds.time).map(datetime_to_DOWY))
 
         self.data = ds
-        _logger.info(
-            "Loaded %s for %d stations.", variables, len(self.stations)
-        )
+        _logger.info("Loaded %s for %d stations.", variables, len(self.stations))
 
     def get_entire_data_archive(
         self, refresh: bool = True, temp_dir: str = "/tmp/"
@@ -356,9 +350,7 @@ class StationCollection:
 
         if not compressed_path.exists() or refresh:
             _logger.info("Downloading archive to %s …", compressed_path)
-            subprocess.run(
-                ["wget", "-q", "-P", temp_dir, _ARCHIVE_URL], check=True
-            )
+            subprocess.run(["wget", "-q", "-P", temp_dir, _ARCHIVE_URL], check=True)
 
         if not decompressed_dir.exists() or refresh:
             _logger.info("Decompressing archive …")

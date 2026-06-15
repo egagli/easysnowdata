@@ -24,7 +24,13 @@ def test_version_is_string():
 
 def test_public_api_surface():
     """Verify __all__ entries are importable from each module."""
-    from easysnowdata import automatic_weather_stations, hydroclimatology, remote_sensing, topography, utils
+    from easysnowdata import (
+        automatic_weather_stations,
+        hydroclimatology,
+        remote_sensing,
+        topography,
+        utils,
+    )
 
     for name in utils.__all__:
         assert hasattr(utils, name), f"utils.{name} missing"

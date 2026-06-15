@@ -59,6 +59,7 @@ class TestChili:
 
         result = get_chili(bbox_input=TEST_BBOX)
         import numpy as np
+
         valid = result.values[~np.isnan(result.values)]
         assert valid.min() >= 0.0
         assert valid.max() <= 1.0

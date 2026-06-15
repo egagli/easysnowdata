@@ -88,6 +88,7 @@ def _check(
 # Individual source checks
 # ---------------------------------------------------------------------------
 
+
 def check_snotel_station_list() -> None:
     url = "https://github.com/egagli/snotel_ccss_stations/raw/main/all_stations.geojson"
     ok, reason = _head_ok(url)
@@ -297,15 +298,30 @@ CHECKS: list[dict] = [
     {"name": "SNOTEL/CCSS station list (GitHub)", "fn": check_snotel_station_list},
     {"name": "SNOTEL/CCSS station CSV (GitHub)", "fn": check_snotel_single_csv},
     {"name": "HydroATLAS basins (figshare)", "fn": check_hydroatlas_figshare},
-    {"name": "GRDC major river basins (World Bank)", "fn": check_grdc_major_river_basins},
+    {
+        "name": "GRDC major river basins (World Bank)",
+        "fn": check_grdc_major_river_basins,
+    },
     {"name": "GRDC WMO basins", "fn": check_grdc_wmo_basins},
-    {"name": "Köppen-Geiger classification (figshare)", "fn": check_koppen_geiger_figshare},
-    {"name": "Sturm & Liston snow classification (Azure)", "fn": check_snow_classification_azure},
+    {
+        "name": "Köppen-Geiger classification (figshare)",
+        "fn": check_koppen_geiger_figshare,
+    },
+    {
+        "name": "Sturm & Liston snow classification (Azure)",
+        "fn": check_snow_classification_azure,
+    },
     {"name": "Forest cover fraction (Zenodo)", "fn": check_forest_cover_zenodo},
     {"name": "Mountain snow mask (Zenodo)", "fn": check_mountain_snow_mask_zenodo},
     {"name": "ARCO-ERA5 (GCS anonymous)", "fn": check_arco_era5_gcs},
-    {"name": "Copernicus DEM (Planetary Computer)", "fn": check_copernicus_dem_planetary_computer},
-    {"name": "ESA WorldCover (Planetary Computer)", "fn": check_esa_worldcover_planetary_computer},
+    {
+        "name": "Copernicus DEM (Planetary Computer)",
+        "fn": check_copernicus_dem_planetary_computer,
+    },
+    {
+        "name": "ESA WorldCover (Planetary Computer)",
+        "fn": check_esa_worldcover_planetary_computer,
+    },
     # GEE-credential checks
     {
         "name": "HUC geometries (GEE/USGS WBD)",
