@@ -6,34 +6,37 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="package to easily get data relevant to snow">
+        <meta name="description" content="A Python package to easily retrieve data relevant to snow science">
       
       
-        <meta name="author" content="egagli">
+        <meta name="author" content="Eric Gagliano">
       
       
         <link rel="canonical" href="https://egagli.github.io/easysnowdata/topography/">
       
       
-        <link rel="prev" href="../automatic_weather_stations/">
+        <link rel="prev" href="../remote_sensing/">
       
       
-        <link rel="next" href="../hydroclimatology/">
+        <link rel="next" href="../utils/">
+      
+      
+        
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.19">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>topography module - easysnowdata</title>
+        <title>topography - easysnowdata</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.7e37652d.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -60,7 +63,6 @@
     
       
 
-    
     
     
   </head>
@@ -94,9 +96,7 @@
     
       
 
-  
-
-<header class="md-header md-header--shadow" data-md-component="header">
+<header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="easysnowdata" class="md-header__button md-logo" aria-label="easysnowdata" data-md-component="logo">
       
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              topography module
+              topography
             
           </span>
         </div>
@@ -206,10 +206,10 @@
         <a href="https://github.com/egagli/easysnowdata" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
   </div>
   <div class="md-source__repository">
-    GitHub
+    egagli/easysnowdata
   </div>
 </a>
       </div>
@@ -222,6 +222,116 @@
       
       
         
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../examples/automatic_weather_station_examples/" class="md-tabs__link">
+          
+  
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../automatic_weather_stations/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
           
         
       
@@ -236,8 +346,10 @@
                     
 
 
+  
 
-<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="easysnowdata" class="md-nav__button md-logo" aria-label="easysnowdata" data-md-component="logo">
       
@@ -252,10 +364,10 @@
       <a href="https://github.com/egagli/easysnowdata" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
   </div>
   <div class="md-source__repository">
-    GitHub
+    egagli/easysnowdata
   </div>
 </a>
     </div>
@@ -274,9 +386,14 @@
   
   
   <span class="md-ellipsis">
+    
+  
     Home
+  
+
     
   </span>
+  
   
 
       </a>
@@ -290,167 +407,49 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../installation/" class="md-nav__link">
+    
+    
+    
+    
+      
+      
         
-  
-  
-  <span class="md-ellipsis">
-    Installation
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
       
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../usage/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Usage
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../contributing/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Contributing
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../faq/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    FAQ
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../changelog/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Changelog
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="https://github.com/egagli/easysnowdata/issues" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Report Issues
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
     
     
     <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
-          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Examples
+    
+  
+    Getting Started
+  
+
     
   </span>
+  
   
 
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
-            Examples
+            
+  
+    Getting Started
+  
+
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -461,14 +460,19 @@
   
   
     <li class="md-nav__item">
-      <a href="../examples/remote_sensing_examples/" class="md-nav__link">
+      <a href="../installation/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Remote sensing examples
+    
+  
+    Installation
+  
+
     
   </span>
+  
   
 
       </a>
@@ -476,6 +480,121 @@
   
 
               
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -489,32 +608,14 @@
   
   
   <span class="md-ellipsis">
-    Automatic weather station examples
+    
+  
+    Automatic Weather Stations
+  
+
     
   </span>
   
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../examples/topography_examples/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Topography examples
-    
-  </span>
   
 
       </a>
@@ -535,9 +636,98 @@
   
   
   <span class="md-ellipsis">
-    Hydroclimatology examples
+    
+  
+    Hydroclimatology
+  
+
     
   </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/remote_sensing_examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote Sensing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/topography_examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Topography
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/how_easy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
   
 
       </a>
@@ -565,31 +755,48 @@
     
     
     
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
-          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   
   <span class="md-ellipsis">
+    
+  
     API Reference
+  
+
     
   </span>
+  
   
 
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_9">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
-            API Reference
+            
+  
+    API Reference
+  
+
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -600,14 +807,47 @@
   
   
     <li class="md-nav__item">
-      <a href="../easysnowdata/" class="md-nav__link">
+      <a href="../automatic_weather_stations/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    easysnowdata module
+    
+  
+    automatic_weather_stations
+  
+
     
   </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hydroclimatology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    hydroclimatology
+  
+
+    
+  </span>
+  
   
 
       </a>
@@ -628,32 +868,14 @@
   
   
   <span class="md-ellipsis">
-    remote_sensing module
+    
+  
+    remote_sensing
+  
+
     
   </span>
   
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../automatic_weather_stations/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    automatic_weather_station module
-    
-  </span>
   
 
       </a>
@@ -683,9 +905,14 @@
   
   
   <span class="md-ellipsis">
-    topography module
+    
+  
+    topography
+  
+
     
   </span>
+  
   
 
           <span class="md-nav__icon md-icon"></span>
@@ -696,9 +923,14 @@
   
   
   <span class="md-ellipsis">
-    topography module
+    
+  
+    topography
+  
+
     
   </span>
+  
   
 
       </a>
@@ -721,7 +953,9 @@
         <li class="md-nav__item">
   <a href="#easysnowdata.topography" class="md-nav__link">
     <span class="md-ellipsis">
-      easysnowdata.topography
+      
+        topography
+      
     </span>
   </a>
   
@@ -730,7 +964,9 @@
         <li class="md-nav__item">
   <a href="#easysnowdata.topography.get_chili" class="md-nav__link">
     <span class="md-ellipsis">
-      get_chili()
+      
+        get_chili
+      
     </span>
   </a>
   
@@ -739,7 +975,9 @@
         <li class="md-nav__item">
   <a href="#easysnowdata.topography.get_copernicus_dem" class="md-nav__link">
     <span class="md-ellipsis">
-      get_copernicus_dem()
+      
+        get_copernicus_dem
+      
     </span>
   </a>
   
@@ -761,14 +999,106 @@
   
   
     <li class="md-nav__item">
-      <a href="../hydroclimatology/" class="md-nav__link">
+      <a href="../utils/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    hydroclimatology module
+    
+  
+    utils
+  
+
     
   </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
   
 
       </a>
@@ -784,14 +1114,47 @@
   
   
     <li class="md-nav__item">
-      <a href="../utils/" class="md-nav__link">
+      <a href="../changelog/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    utils module
+    
+  
+    Changelog
+  
+
     
   </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/egagli/easysnowdata/issues" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Report Issues
+  
+
+    
+  </span>
+  
   
 
       </a>
@@ -836,7 +1199,9 @@
         <li class="md-nav__item">
   <a href="#easysnowdata.topography" class="md-nav__link">
     <span class="md-ellipsis">
-      easysnowdata.topography
+      
+        topography
+      
     </span>
   </a>
   
@@ -845,7 +1210,9 @@
         <li class="md-nav__item">
   <a href="#easysnowdata.topography.get_chili" class="md-nav__link">
     <span class="md-ellipsis">
-      get_chili()
+      
+        get_chili
+      
     </span>
   </a>
   
@@ -854,7 +1221,9 @@
         <li class="md-nav__item">
   <a href="#easysnowdata.topography.get_copernicus_dem" class="md-nav__link">
     <span class="md-ellipsis">
-      get_copernicus_dem()
+      
+        get_copernicus_dem
+      
     </span>
   </a>
   
@@ -870,6 +1239,7 @@
           
           
             <div class="md-content" data-md-component="content">
+              
               <article class="md-content__inner md-typeset">
                 
 
@@ -885,15 +1255,30 @@
 <h1 id="topography-module">topography module<a class="headerlink" href="#topography-module" title="Permanent link">&para;</a></h1>
 
 
-  <div class="doc doc-object doc-module">
+<div class="doc doc-object doc-module">
+
+
 
 <a id="easysnowdata.topography"></a>
     <div class="doc doc-contents first">
 
+        <p>Access digital elevation models and topographic indices.</p>
+<p>Currently supported datasets:</p>
+<ul>
+<li><strong>Copernicus DEM</strong> (30 m / 90 m) via Microsoft Planetary Computer</li>
+<li><strong>CHILI</strong> — Continuous Heat-Insolation Load Index via Google Earth Engine</li>
+</ul>
 
 
 
-  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-children">
 
 
 
@@ -903,275 +1288,516 @@
 
 
 
-  <div class="doc doc-object doc-function">
 
+<div class="doc doc-object doc-function">
 
 
 <h2 id="easysnowdata.topography.get_chili" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">get_chili</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initialize_ee</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
-
+            <code class="highlight language-python"><span class="n">get_chili</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initialize_ee</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
 <a href="#easysnowdata.topography.get_chili" class="headerlink" title="Permanent link">&para;</a></h2>
 
+
     <div class="doc doc-contents ">
 
-      <p>Fetches Continuous Heat-Insolation Load Index (CHILI) data for a given bounding box. </p>
-<p>Description:
-CHILI is a topographic index that quantifies the combined effect of solar radiation and surface temperature.
-It is derived from the ALOS World 3D - 30m (AW3D30) dataset and is available globally between 70°N and 70°S.
-The values range from 0 to 1, with classifications warm (0.767,1], cool [0,0.448), and neutral [0.448,0.767].</p>
+        <p>Fetch CHILI (Continuous Heat-Insolation Load Index) for a bounding box.</p>
+<p>CHILI is a topographic index quantifying the combined effect of solar
+radiation and surface temperature, derived from ALOS World 3D-30m (AW3D30).
+Values range 0–1: warm (&gt; 0.767), neutral (0.448–0.767), cool (&lt; 0.448).</p>
 
-<p><strong>Parameters:</strong></p>
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Type</th>
-      <th>Description</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
-      <tr>
-        <td><code>bbox_input</code></td>
-        <td><code>geopandas.geodataframe.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None</code></td>
-        <td><p>GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.</p></td>
-        <td><code>None</code></td>
-      </tr>
-  </tbody>
-</table>
-<p><strong>Returns:</strong></p>
-<table>
-  <thead>
-    <tr>
-      <th>Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>DataArray</code></td>
-      <td><p>CHILI DataArray for the specified region.</p></td>
-    </tr>
-  </tbody>
-</table>
-        <details class="quote">
-          <summary>Source code in <code>easysnowdata/topography.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_chili</span><span class="p">(</span><span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">initialize_ee</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>bbox_input</code>
+            </td>
+            <td>
+                  <code><span title="geopandas.GeoDataFrame">GeoDataFrame</span> or <span title="tuple">tuple</span> or <span title="shapely.geometry">geometry</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Spatial extent. Defaults to global extent if <code>None</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>initialize_ee</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Initialise Earth Engine before fetching. Default <code>True</code>. Set to
+<code>False</code> if EE is already initialised in the calling script.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="xarray.DataArray">DataArray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>CHILI DataArray, min–max normalised to [0, 1].</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<details class="note" open>
+  <summary>Notes</summary>
+  <p>Requires Google Earth Engine authentication. Run <code>ee.Authenticate()</code> and
+<code>ee.Initialize()</code> once, or call <code>easysnowdata.authenticate_all()</code>.</p>
+<p>Data are only available between 70°N and 70°S.</p>
+<p>Data citation:
+    Theobald, D.M., Harrison-Atlas, D., Monahan, W.B., Albano, C.M. (2015).
+    Ecologically-Relevant Maps of Landforms and Physiographic Diversity for
+    Climate Adaptation Planning. PLoS ONE 10(12): e0143619.
+    https://doi.org/10.1371/journal.pone.0143619</p>
+</details>
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>easysnowdata/topography.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@requires_earthengine</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_chili</span><span class="p">(</span>
+    <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
+    <span class="o">|</span> <span class="nb">tuple</span>
+    <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">initialize_ee</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Fetches Continuous Heat-Insolation Load Index (CHILI) data for a given bounding box. </span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch CHILI (Continuous Heat-Insolation Load Index) for a bounding box.</span>
 
-<span class="sd">    Description:</span>
-<span class="sd">    CHILI is a topographic index that quantifies the combined effect of solar radiation and surface temperature.</span>
-<span class="sd">    It is derived from the ALOS World 3D - 30m (AW3D30) dataset and is available globally between 70°N and 70°S.</span>
-<span class="sd">    The values range from 0 to 1, with classifications warm (0.767,1], cool [0,0.448), and neutral [0.448,0.767].</span>
+<span class="sd">    CHILI is a topographic index quantifying the combined effect of solar</span>
+<span class="sd">    radiation and surface temperature, derived from ALOS World 3D-30m (AW3D30).</span>
+<span class="sd">    Values range 0–1: warm (&gt; 0.767), neutral (0.448–0.767), cool (&lt; 0.448).</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    bbox_input : geopandas.GeoDataFrame or tuple or shapely.Geometry</span>
-<span class="sd">        GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.</span>
+<span class="sd">    bbox_input : geopandas.GeoDataFrame or tuple or shapely.geometry, optional</span>
+<span class="sd">        Spatial extent. Defaults to global extent if ``None``.</span>
+<span class="sd">    initialize_ee : bool, optional</span>
+<span class="sd">        Initialise Earth Engine before fetching. Default ``True``. Set to</span>
+<span class="sd">        ``False`` if EE is already initialised in the calling script.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    xarray.DataArray</span>
-<span class="sd">        CHILI DataArray for the specified region.</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; import geopandas as gpd</span>
-<span class="sd">    &gt;&gt;&gt; easysnowdata</span>
-<span class="sd">    &gt;&gt;&gt; </span>
-<span class="sd">    &gt;&gt;&gt; # Define a bounding box for an area of interest</span>
-<span class="sd">    &gt;&gt;&gt; bbox = (-122.5, 47.0, -121.5, 48.0)</span>
-<span class="sd">    &gt;&gt;&gt; </span>
-<span class="sd">    &gt;&gt;&gt; # Fetch CHILI data</span>
-<span class="sd">    &gt;&gt;&gt; chili_data = easysnowdata.remote_sensing.get_chili(bbox)</span>
-<span class="sd">    &gt;&gt;&gt; </span>
-<span class="sd">    &gt;&gt;&gt; # Plot the data</span>
-<span class="sd">    &gt;&gt;&gt; chili_data.plot(cmap=&#39;viridis&#39;)</span>
+<span class="sd">        CHILI DataArray, min–max normalised to [0, 1].</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
-<span class="sd">    - CHILI data is only available for latitudes between 70°N and 70°S.</span>
-<span class="sd">    - The function uses Google Earth Engine to access the dataset.</span>
+<span class="sd">    Requires Google Earth Engine authentication. Run ``ee.Authenticate()`` and</span>
+<span class="sd">    ``ee.Initialize()`` once, or call ``easysnowdata.authenticate_all()``.</span>
+
+<span class="sd">    Data are only available between 70°N and 70°S.</span>
 
 <span class="sd">    Data citation:</span>
-<span class="sd">    Theobald, D.M., Harrison-Atlas, D., Monahan, W.B., Albano, C.M. (2015).</span>
-<span class="sd">    Ecologically-Relevant Maps of Landforms and Physiographic Diversity for Climate Adaptation Planning.</span>
-<span class="sd">    PLoS ONE 10(12): e0143619. https://doi.org/10.1371/journal.pone.0143619</span>
+<span class="sd">        Theobald, D.M., Harrison-Atlas, D., Monahan, W.B., Albano, C.M. (2015).</span>
+<span class="sd">        Ecologically-Relevant Maps of Landforms and Physiographic Diversity for</span>
+<span class="sd">        Climate Adaptation Planning. PLoS ONE 10(12): e0143619.</span>
+<span class="sd">        https://doi.org/10.1371/journal.pone.0143619</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">initialize_ee</span><span class="p">:</span>
+        <span class="n">ee</span><span class="o">.</span><span class="n">Initialize</span><span class="p">(</span><span class="n">opt_url</span><span class="o">=</span><span class="s2">&quot;https://earthengine-highvolume.googleapis.com&quot;</span><span class="p">)</span>
 
-    <span class="c1"># Initialize Earth Engine with high-volume endpoint</span>
-    <span class="k">if</span> <span class="n">initialize_ee</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="n">ee</span><span class="o">.</span><span class="n">Initialize</span><span class="p">(</span><span class="n">opt_url</span><span class="o">=</span><span class="s1">&#39;https://earthengine-highvolume.googleapis.com&#39;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Initialization turned off. If you haven</span><span class="se">\&#39;</span><span class="s1">t already, please sign in to Google Earth Engine by running the following code:</span><span class="se">\n\n</span><span class="s1">import ee</span><span class="se">\n</span><span class="s1">ee.Authenticate()</span><span class="se">\n</span><span class="s1">ee.Initialize()</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
-
-    <span class="c1"># Convert the input to a GeoDataFrame if it&#39;s not already one</span>
     <span class="n">bbox_gdf</span> <span class="o">=</span> <span class="n">convert_bbox_to_geodataframe</span><span class="p">(</span><span class="n">bbox_input</span><span class="p">)</span>
-    <span class="c1"># Access the CHILI dataset</span>
+
     <span class="n">image</span> <span class="o">=</span> <span class="n">ee</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="s2">&quot;CSP/ERGo/1_0/Global/ALOS_CHILI&quot;</span><span class="p">)</span>
-    <span class="n">image_collection</span> <span class="o">=</span> <span class="n">ee</span><span class="o">.</span><span class="n">ImageCollection</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+    <span class="n">crs</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">projection</span><span class="p">()</span><span class="o">.</span><span class="n">getInfo</span><span class="p">()[</span><span class="s2">&quot;crs&quot;</span><span class="p">]</span>
+    <span class="n">transform</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">projection</span><span class="p">()</span><span class="o">.</span><span class="n">getInfo</span><span class="p">()[</span><span class="s2">&quot;transform&quot;</span><span class="p">]</span>
 
-    <span class="c1"># Get projection information</span>
-    <span class="n">crs</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">projection</span><span class="p">()</span><span class="o">.</span><span class="n">getInfo</span><span class="p">()[</span><span class="s1">&#39;crs&#39;</span><span class="p">]</span>
-    <span class="n">transform</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">projection</span><span class="p">()</span><span class="o">.</span><span class="n">getInfo</span><span class="p">()[</span><span class="s1">&#39;transform&#39;</span><span class="p">]</span>
-
-    <span class="c1"># Load the data using xarray and Earth Engine</span>
-    <span class="n">chili_da</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">image_collection</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;ee&#39;</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">bbox_gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">),</span> <span class="n">projection</span><span class="o">=</span><span class="n">ee</span><span class="o">.</span><span class="n">Projection</span><span class="p">(</span><span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span><span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">))</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()[</span><span class="s1">&#39;constant&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">set_spatial_dims</span><span class="p">(</span><span class="n">x_dim</span><span class="o">=</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span> <span class="n">y_dim</span><span class="o">=</span><span class="s1">&#39;lat&#39;</span><span class="p">)</span>
-    <span class="c1"># maybe add chunks={} here to lazy load data</span>
-
-    <span class="c1"># Clip the data to the bounding box</span>
+    <span class="n">chili_da</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span>
+            <span class="n">ee</span><span class="o">.</span><span class="n">ImageCollection</span><span class="p">(</span><span class="n">image</span><span class="p">),</span>
+            <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;ee&quot;</span><span class="p">,</span>
+            <span class="n">geometry</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">bbox_gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">),</span>
+            <span class="n">projection</span><span class="o">=</span><span class="n">ee</span><span class="o">.</span><span class="n">Projection</span><span class="p">(</span><span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">squeeze</span><span class="p">()[</span><span class="s2">&quot;constant&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">set_spatial_dims</span><span class="p">(</span><span class="n">x_dim</span><span class="o">=</span><span class="s2">&quot;lon&quot;</span><span class="p">,</span> <span class="n">y_dim</span><span class="o">=</span><span class="s2">&quot;lat&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
     <span class="n">chili_da</span> <span class="o">=</span> <span class="n">chili_da</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">clip_box</span><span class="p">(</span><span class="o">*</span><span class="n">bbox_gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">bbox_gdf</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
 
-    <span class="c1"># Check if data is available for the specified region</span>
     <span class="k">if</span> <span class="n">chili_da</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">():</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No CHILI data available for this location. CHILI data is only available for latitudes between 70°N and 70°S.&quot;</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;No CHILI data for this location. CHILI is only available 70°N–70°S.&quot;</span>
+        <span class="p">)</span>
 
     <span class="n">chili_da</span> <span class="o">=</span> <span class="p">(</span><span class="n">chili_da</span> <span class="o">-</span> <span class="n">chili_da</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">chili_da</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">chili_da</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
-
-    <span class="n">chili_da</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;data_citation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Theobald, D.M., Harrison-Atlas, D., Monahan, W.B., Albano, C.M. (2015). Ecologically-Relevant Maps of Landforms and Physiographic Diversity for Climate Adaptation Planning. PLoS ONE 10(12): e0143619. https://doi.org/10.1371/journal.pone.0143619&quot;</span>
-
+    <span class="n">chili_da</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;data_citation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Theobald, D.M., Harrison-Atlas, D., Monahan, W.B., Albano, C.M. (2015). &quot;</span>
+        <span class="s2">&quot;Ecologically-Relevant Maps of Landforms and Physiographic Diversity for &quot;</span>
+        <span class="s2">&quot;Climate Adaptation Planning. PLoS ONE 10(12): e0143619. &quot;</span>
+        <span class="s2">&quot;https://doi.org/10.1371/journal.pone.0143619&quot;</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">chili_da</span>
-</code></pre></div>
-        </details>
+</code></pre></div></td></tr></table></div>
+            </details>
     </div>
 
-  </div>
+</div>
 
-
-
-  <div class="doc doc-object doc-function">
-
+<div class="doc doc-object doc-function">
 
 
 <h2 id="easysnowdata.topography.get_copernicus_dem" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">get_copernicus_dem</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span></code>
-
+            <code class="highlight language-python"><span class="n">get_copernicus_dem</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span></code>
 
 <a href="#easysnowdata.topography.get_copernicus_dem" class="headerlink" title="Permanent link">&para;</a></h2>
 
+
     <div class="doc doc-contents ">
 
-      <p>Fetches 30m or 90m Copernicus DEM from Microsoft Planetary Computer.</p>
-<p>This function retrieves the Copernicus Digital Elevation Model (DEM) data for a specified
-bounding box and resolution. The DEM represents the surface of the Earth including buildings,
-infrastructure, and vegetation.</p>
+        <p>Fetch the Copernicus Global DEM for a bounding box.</p>
 
-<p><strong>Parameters:</strong></p>
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Type</th>
-      <th>Description</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
-      <tr>
-        <td><code>bbox_input</code></td>
-        <td><code>geopandas.geodataframe.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None</code></td>
-        <td><p>GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.</p></td>
-        <td><code>None</code></td>
-      </tr>
-      <tr>
-        <td><code>resolution</code></td>
-        <td><code>int</code></td>
-        <td><p>The resolution of the DEM, either 30 or 90 meters. Default is 30.</p></td>
-        <td><code>30</code></td>
-      </tr>
-  </tbody>
-</table>
-<p><strong>Exceptions:</strong></p>
-<table>
-  <thead>
-    <tr>
-      <th>Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-      <tr>
-        <td><code>ValueError</code></td>
-        <td><p>If the resolution is not 30 or 90 meters.</p></td>
-      </tr>
-  </tbody>
-</table>
-<p><strong>Returns:</strong></p>
-<table>
-  <thead>
-    <tr>
-      <th>Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>DataArray</code></td>
-      <td><p>A DataArray containing the Copernicus DEM data for the specified area.</p></td>
-    </tr>
-  </tbody>
-</table>
-        <details class="quote">
-          <summary>Source code in <code>easysnowdata/topography.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_copernicus_dem</span><span class="p">(</span><span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                       <span class="n">resolution</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span>
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>bbox_input</code>
+            </td>
+            <td>
+                  <code><span title="geopandas.GeoDataFrame">GeoDataFrame</span> or <span title="tuple">tuple</span> or <span title="shapely.geometry">geometry</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Spatial extent. Tuple should be <code>(xmin, ymin, xmax, ymax)</code> in
+EPSG:4326. Defaults to global extent if <code>None</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>resolution</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>DEM resolution in metres. Either <code>30</code> or <code>90</code>. Default is <code>30</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>30</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="xarray.DataArray">DataArray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Elevation DataArray in metres (EPSG:4326).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If <em>resolution</em> is not <code>30</code> or <code>90</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<details class="note" open>
+  <summary>Notes</summary>
+  <p>The Copernicus DEM is a Digital Surface Model (DSM) derived from the
+WorldDEM with additional editing applied to water bodies and coastlines.</p>
+<p>Data citation:
+    European Space Agency, Sinergise (2021). Copernicus Global Digital
+    Elevation Model. Distributed by OpenTopography.
+    https://doi.org/10.5069/G9028PQB</p>
+</details>
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>easysnowdata/topography.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_copernicus_dem</span><span class="p">(</span>
+    <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
+    <span class="o">|</span> <span class="nb">tuple</span>
+    <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">resolution</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Fetches 30m or 90m Copernicus DEM from Microsoft Planetary Computer.</span>
-
-<span class="sd">    This function retrieves the Copernicus Digital Elevation Model (DEM) data for a specified</span>
-<span class="sd">    bounding box and resolution. The DEM represents the surface of the Earth including buildings,</span>
-<span class="sd">    infrastructure, and vegetation.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch the Copernicus Global DEM for a bounding box.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    bbox_input : geopandas.GeoDataFrame or tuple or Shapely Geometry</span>
-<span class="sd">        GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.</span>
+<span class="sd">    bbox_input : geopandas.GeoDataFrame or tuple or shapely.geometry, optional</span>
+<span class="sd">        Spatial extent. Tuple should be ``(xmin, ymin, xmax, ymax)`` in</span>
+<span class="sd">        EPSG:4326. Defaults to global extent if ``None``.</span>
 <span class="sd">    resolution : int, optional</span>
-<span class="sd">        The resolution of the DEM, either 30 or 90 meters. Default is 30.</span>
+<span class="sd">        DEM resolution in metres. Either ``30`` or ``90``. Default is ``30``.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    xarray.DataArray</span>
-<span class="sd">        A DataArray containing the Copernicus DEM data for the specified area.</span>
+<span class="sd">        Elevation DataArray in metres (EPSG:4326).</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        If the resolution is not 30 or 90 meters.</span>
+<span class="sd">        If *resolution* is not ``30`` or ``90``.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
-<span class="sd">    The Copernicus DEM is a Digital Surface Model (DSM) derived from the WorldDEM, with additional</span>
-<span class="sd">    editing applied to water bodies, coastlines, and other special features.</span>
+<span class="sd">    The Copernicus DEM is a Digital Surface Model (DSM) derived from the</span>
+<span class="sd">    WorldDEM with additional editing applied to water bodies and coastlines.</span>
 
 <span class="sd">    Data citation:</span>
-<span class="sd">    European Space Agency, Sinergise (2021). Copernicus Global Digital Elevation Model.</span>
-<span class="sd">    Distributed by OpenTopography. https://doi.org/10.5069/G9028PQB. Accessed: 2024-03-18</span>
+<span class="sd">        European Space Agency, Sinergise (2021). Copernicus Global Digital</span>
+<span class="sd">        Elevation Model. Distributed by OpenTopography.</span>
+<span class="sd">        https://doi.org/10.5069/G9028PQB</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">resolution</span> <span class="o">!=</span> <span class="mi">30</span> <span class="ow">and</span> <span class="n">resolution</span> <span class="o">!=</span> <span class="mi">90</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Copernicus DEM resolution is available in 30m and 90m. Please select either 30 or 90.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">resolution</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">90</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Copernicus DEM is available at 30 m and 90 m only, got </span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s2"> m.&quot;</span>
+        <span class="p">)</span>
 
-    <span class="c1"># Convert the input to a GeoDataFrame if it&#39;s not already one</span>
-    <span class="n">bbox_gdf</span> <span class="o">=</span>  <span class="n">convert_bbox_to_geodataframe</span><span class="p">(</span><span class="n">bbox_input</span><span class="p">)</span>
+    <span class="n">bbox_gdf</span> <span class="o">=</span> <span class="n">convert_bbox_to_geodataframe</span><span class="p">(</span><span class="n">bbox_input</span><span class="p">)</span>
 
-    <span class="n">catalog</span> <span class="o">=</span> <span class="n">pystac_client</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;https://planetarycomputer.microsoft.com/api/stac/v1&quot;</span><span class="p">,</span><span class="n">modifier</span><span class="o">=</span><span class="n">planetary_computer</span><span class="o">.</span><span class="n">sign_inplace</span><span class="p">)</span>
-    <span class="n">search</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">collections</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;cop-dem-glo-</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span><span class="n">bbox</span><span class="o">=</span><span class="n">bbox_gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">)</span>
-    <span class="n">cop_dem_da</span> <span class="o">=</span> <span class="n">odc</span><span class="o">.</span><span class="n">stac</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">search</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span><span class="n">bbox</span><span class="o">=</span><span class="n">bbox_gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">,</span><span class="n">chunks</span><span class="o">=</span><span class="p">{})[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
-    <span class="n">cop_dem_da</span> <span class="o">=</span> <span class="n">cop_dem_da</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">write_nodata</span><span class="p">(</span><span class="o">-</span><span class="mi">32767</span><span class="p">,</span><span class="n">encoded</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">catalog</span> <span class="o">=</span> <span class="n">pystac_client</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
+        <span class="s2">&quot;https://planetarycomputer.microsoft.com/api/stac/v1&quot;</span><span class="p">,</span>
+        <span class="n">modifier</span><span class="o">=</span><span class="n">planetary_computer</span><span class="o">.</span><span class="n">sign_inplace</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">search</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+        <span class="n">collections</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;cop-dem-glo-</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span> <span class="n">bbox</span><span class="o">=</span><span class="n">bbox_gdf</span><span class="o">.</span><span class="n">total_bounds</span>
+    <span class="p">)</span>
+    <span class="n">cop_dem_da</span> <span class="o">=</span> <span class="n">odc</span><span class="o">.</span><span class="n">stac</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">search</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">bbox</span><span class="o">=</span><span class="n">bbox_gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="p">{})[</span>
+        <span class="s2">&quot;data&quot;</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+    <span class="n">cop_dem_da</span> <span class="o">=</span> <span class="n">cop_dem_da</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">write_nodata</span><span class="p">(</span><span class="o">-</span><span class="mi">32767</span><span class="p">,</span> <span class="n">encoded</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+    <span class="n">cop_dem_da</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;data_citation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;European Space Agency, Sinergise (2021). Copernicus Global Digital &quot;</span>
+        <span class="s2">&quot;Elevation Model. Distributed by OpenTopography. &quot;</span>
+        <span class="s2">&quot;https://doi.org/10.5069/G9028PQB. Accessed: 2024-03-18&quot;</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">cop_dem_da</span>
-</code></pre></div>
-        </details>
+</code></pre></div></td></tr></table></div>
+            </details>
     </div>
 
-  </div>
-
-
-
+</div>
 
 
 
@@ -1179,7 +1805,7 @@ infrastructure, and vegetation.</p>
 
     </div>
 
-  </div>
+</div>
 
 
 
@@ -1202,7 +1828,7 @@ infrastructure, and vegetation.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="September 12, 2025 01:12:08 UTC"><span class="timeago" datetime="2025-09-12T01:12:08+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="September 12, 2025 01:12:08 UTC">2025-09-12</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="September 26, 2024 19:52:25 UTC"><span class="timeago" datetime="2024-09-26T19:52:25+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="September 26, 2024 19:52:25 UTC">2024-09-26</span>
   </span>
 
     
@@ -1212,7 +1838,7 @@ infrastructure, and vegetation.</p>
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="September 12, 2025 01:12:08 UTC"><span class="timeago" datetime="2025-09-12T01:12:08+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="September 12, 2025 01:12:08 UTC">2025-09-12</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="April 1, 2024 00:10:05 UTC"><span class="timeago" datetime="2024-04-01T00:10:05+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="April 1, 2024 00:10:05 UTC">2024-04-01</span>
   </span>
 
     
@@ -1248,7 +1874,7 @@ infrastructure, and vegetation.</p>
       <div class="md-copyright">
   
     <div class="md-copyright__highlight">
-      Copyright &copy; 2024 - 2024 Eric Gagliano
+      Copyright &copy; 2024 Eric Gagliano
     </div>
   
   
@@ -1271,10 +1897,11 @@ infrastructure, and vegetation.</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.top", "search.highlight", "search.share"], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.top", "navigation.sections", "search.highlight", "search.share", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.92b07e13.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
         <script src="../js/timeago.min.js"></script>
       
