@@ -1,4 +1,4 @@
-[project]
+[workspace]
 name = "easysnowdata"
 version = "0.0.21"
 description = "A Python package to easily retrieve data relevant to snow science"
@@ -47,7 +47,7 @@ mkdocstrings = "*"
 mkdocstrings-python = "*"
 pygments = "*"
 pymdown-extensions = "*"
-build = "*"
+python-build = "*"
 bump-my-version = "*"
 twine = "*"
 codespell = "*"
