@@ -2,7 +2,7 @@
 
 __author__ = "Eric Gagliano"
 __email__ = "egagli@uw.edu"
-__version__ = "0.0.21"
+__version__ = "0.0.22"
 __all__ = [
     "utils",
     "remote_sensing",
