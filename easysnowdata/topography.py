@@ -21,7 +21,11 @@ import xarray as xr
 
 odc.stac.configure_rio(cloud_defaults=True)
 
-from easysnowdata.utils import convert_bbox_to_geodataframe, get_stac_cfg, requires_earthengine
+from easysnowdata.utils import (
+    convert_bbox_to_geodataframe,
+    get_stac_cfg,
+    requires_earthengine,
+)
 
 __all__ = ["get_copernicus_dem", "get_chili"]
 
@@ -29,7 +33,10 @@ _logger = logging.getLogger(__name__)
 
 
 def get_copernicus_dem(
-    bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
+    bbox_input: gpd.GeoDataFrame
+    | tuple
+    | shapely.geometry.base.BaseGeometry
+    | None = None,
     resolution: int = 30,
 ) -> xr.DataArray:
     """Fetch the Copernicus Global DEM for a bounding box.
@@ -76,9 +83,9 @@ def get_copernicus_dem(
     search = catalog.search(
         collections=[f"cop-dem-glo-{resolution}"], bbox=bbox_gdf.total_bounds
     )
-    cop_dem_da = odc.stac.load(
-        search.items(), bbox=bbox_gdf.total_bounds, chunks={}
-    )["data"].squeeze()
+    cop_dem_da = odc.stac.load(search.items(), bbox=bbox_gdf.total_bounds, chunks={})[
+        "data"
+    ].squeeze()
     cop_dem_da = cop_dem_da.rio.write_nodata(-32767, encoded=True)
 
     cop_dem_da.attrs["data_citation"] = (
@@ -91,7 +98,10 @@ def get_copernicus_dem(
 
 @requires_earthengine
 def get_chili(
-    bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
+    bbox_input: gpd.GeoDataFrame
+    | tuple
+    | shapely.geometry.base.BaseGeometry
+    | None = None,
     initialize_ee: bool = True,
 ) -> xr.DataArray:
     """Fetch CHILI (Continuous Heat-Insolation Load Index) for a bounding box.

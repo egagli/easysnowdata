@@ -73,7 +73,9 @@ class TestKoppenGeiger:
 # ---------------------------------------------------------------------------
 class TestGrdcMajorRiverBasins:
     def test_returns_geodataframe(self):
-        from easysnowdata.hydroclimatology import get_grdc_major_river_basins_of_the_world
+        from easysnowdata.hydroclimatology import (
+            get_grdc_major_river_basins_of_the_world,
+        )
 
         result = get_grdc_major_river_basins_of_the_world(bbox_input=TEST_BBOX)
         assert isinstance(result, gpd.GeoDataFrame)

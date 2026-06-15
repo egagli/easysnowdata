@@ -30,14 +30,10 @@ def pytest_configure(config: pytest.Config) -> None:
 def pytest_runtest_setup(item: pytest.Item) -> None:
     for _ in item.iter_markers("requires_earthengine"):
         if not os.getenv("EARTHENGINE_TOKEN"):
-            pytest.skip(
-                "Skipping: EARTHENGINE_TOKEN environment variable is not set."
-            )
+            pytest.skip("Skipping: EARTHENGINE_TOKEN environment variable is not set.")
     for _ in item.iter_markers("requires_earthaccess"):
         if not (os.getenv("EARTHDATA_USERNAME") and os.getenv("EARTHDATA_PASSWORD")):
-            pytest.skip(
-                "Skipping: EARTHDATA_USERNAME / EARTHDATA_PASSWORD not set."
-            )
+            pytest.skip("Skipping: EARTHDATA_USERNAME / EARTHDATA_PASSWORD not set.")
 
 
 @pytest.fixture(scope="session")
