@@ -100,7 +100,9 @@ def update_readme(table: str, readme_path: Path) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Update README data-source status table.")
+    parser = argparse.ArgumentParser(
+        description="Update README data-source status table."
+    )
     parser.add_argument("--history", default="data_status/history.json")
     parser.add_argument("--readme", default="README.md")
     args = parser.parse_args()

@@ -97,7 +97,12 @@ def authenticate_all():
     _logger.info("Google Earth Engine: done. Call ee.Initialize() before use.")
 
 
-def get_forest_cover_fraction(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None, mask_nodata: bool = False,
+def get_forest_cover_fraction(
+    bbox_input: gpd.GeoDataFrame
+    | tuple
+    | shapely.geometry.base.BaseGeometry
+    | None = None,
+    mask_nodata: bool = False,
 ) -> xr.DataArray:
     """
     Fetches ~100m forest cover fraction data for a given bounding box.
@@ -124,13 +129,13 @@ def get_forest_cover_fraction(bbox_input: gpd.GeoDataFrame | tuple | shapely.geo
     --------
     >>> import geopandas as gpd
     >>> from easysnowdata import remote_sensing
-    >>> 
+    >>>
     >>> # Define a bounding box for an area of interest
     >>> bbox = (-122.5, 47.0, -121.5, 48.0)
-    >>> 
+    >>>
     >>> # Fetch forest cover fraction data
     >>> forest_cover = remote_sensing.get_forest_cover_fraction(bbox)
-    >>> 
+    >>>
     >>> # Plot the data using the example plot function
     >>> f, ax = forest_cover.attrs['example_plot'](forest_cover)
 
@@ -147,17 +152,19 @@ def get_forest_cover_fraction(bbox_input: gpd.GeoDataFrame | tuple | shapely.geo
         else:
             f = ax.get_figure()
 
-        cmap = matplotlib.colormaps.get_cmap('Greens').copy()
-        cmap.set_over('white')  # Set values over 100 (i.e., 255) to white
+        cmap = matplotlib.colormaps.get_cmap("Greens").copy()
+        cmap.set_over("white")  # Set values over 100 (i.e., 255) to white
 
         im = self.plot.imshow(ax=ax, cmap=cmap, vmin=0, vmax=100, add_colorbar=False)
-        
-        cbar = plt.colorbar(im, ax=ax, extend='max')
-        cbar.set_label('Forest Cover Fraction (%)')
+
+        cbar = plt.colorbar(im, ax=ax, extend="max")
+        cbar.set_label("Forest Cover Fraction (%)")
 
         ax.set_xlabel("Longitude")
         ax.set_ylabel("Latitude")
-        ax.set_title("Copernicus Global Land Service Forest Cover Fraction\nLand Cover 100m: collection 3: epoch 2019")
+        ax.set_title(
+            "Copernicus Global Land Service Forest Cover Fraction\nLand Cover 100m: collection 3: epoch 2019"
+        )
         f.tight_layout(pad=1.5, w_pad=1.5, h_pad=1.5)
         f.dpi = 300
 
@@ -172,17 +179,22 @@ def get_forest_cover_fraction(bbox_input: gpd.GeoDataFrame | tuple | shapely.geo
         mask_and_scale=mask_nodata,
     )
 
-    fcf_da = fcf_da.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs).squeeze()
+    fcf_da = fcf_da.rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs).squeeze()
 
-
-
-    fcf_da.attrs['example_plot'] = plot_forest_cover
-    fcf_da.attrs['data_citation'] = "Marcel Buchhorn, Bruno Smets, Luc Bertels, Bert De Roo, Myroslava Lesiv, Nandin-Erdene Tsendbazar, Martin Herold, & Steffen Fritz. (2020). Copernicus Global Land Service: Land Cover 100m: collection 3: epoch 2019: Globe (V3.0.1) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.3939050"
+    fcf_da.attrs["example_plot"] = plot_forest_cover
+    fcf_da.attrs["data_citation"] = (
+        "Marcel Buchhorn, Bruno Smets, Luc Bertels, Bert De Roo, Myroslava Lesiv, Nandin-Erdene Tsendbazar, Martin Herold, & Steffen Fritz. (2020). Copernicus Global Land Service: Land Cover 100m: collection 3: epoch 2019: Globe (V3.0.1) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.3939050"
+    )
 
     return fcf_da
 
 
-def get_seasonal_snow_classification(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None, mask_nodata: bool = False,
+def get_seasonal_snow_classification(
+    bbox_input: gpd.GeoDataFrame
+    | tuple
+    | shapely.geometry.base.BaseGeometry
+    | None = None,
+    mask_nodata: bool = False,
 ) -> xr.DataArray:
     """
     Fetches 10arcsec (~300m) Sturm & Liston 2021 seasonal snow classification data for a given bounding box.
@@ -209,13 +221,13 @@ def get_seasonal_snow_classification(bbox_input: gpd.GeoDataFrame | tuple | shap
     --------
     >>> import geopandas as gpd
     >>> import easysnowdata
-    >>> 
+    >>>
     >>> # Define a bounding box for an area of interest
     >>> bbox = (-120.0, 40.0, -118.0, 42.0)
-    >>> 
+    >>>
     >>> # Fetch seasonal snow classification data
     >>> snow_classification_da = easysnowdata.remote_sensing.get_seasonal_snow_classification(bbox)
-    >>> 
+    >>>
     >>> # Plot the data using the example plot function
     >>> f,ax = snow_classification_da.attrs['example_plot'](snow_classification_da)
 
@@ -245,7 +257,7 @@ def get_seasonal_snow_classification(bbox_input: gpd.GeoDataFrame | tuple | shap
             [classes[key]["color"] for key in classes.keys()]
         )
         return cmap
-    
+
     def plot_classes(self, ax=None, figsize=(8, 10), legend_kwargs=None):
         if ax is None:
             f, ax = plt.subplots(figsize=figsize)
@@ -254,20 +266,24 @@ def get_seasonal_snow_classification(bbox_input: gpd.GeoDataFrame | tuple | shap
 
         class_values = sorted(list(self.attrs["class_info"].keys()))
         bounds = [
-            (class_values[i] + class_values[i + 1]) / 2 for i in range(len(class_values) - 1)
+            (class_values[i] + class_values[i + 1]) / 2
+            for i in range(len(class_values) - 1)
         ]
         bounds = [class_values[0] - 0.5] + bounds + [class_values[-1] + 0.5]
         norm = matplotlib.colors.BoundaryNorm(bounds, self.attrs["cmap"].N)
 
-        im = self.plot.imshow(ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False)
-        #ax.set_aspect("equal")
-
+        im = self.plot.imshow(
+            ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False
+        )
+        # ax.set_aspect("equal")
 
         legend_handles = []
         class_names = []
         for class_value, class_info in self.attrs["class_info"].items():
             legend_handles.append(
-                plt.Rectangle((0, 0), 1, 1, facecolor=class_info["color"], edgecolor="black")
+                plt.Rectangle(
+                    (0, 0), 1, 1, facecolor=class_info["color"], edgecolor="black"
+                )
             )
             class_names.append(class_info["name"])
 
@@ -291,7 +307,7 @@ def get_seasonal_snow_classification(bbox_input: gpd.GeoDataFrame | tuple | shap
         f.dpi = 300
 
         return f, ax
-    
+
     # Convert the input to a GeoDataFrame if it's not already one
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
 
@@ -300,9 +316,9 @@ def get_seasonal_snow_classification(bbox_input: gpd.GeoDataFrame | tuple | shap
         chunks=True,
         mask_and_scale=mask_nodata,
     )
-    snow_classification_da = (
-        snow_classification_da.rio.clip_box(*bbox_gdf.total_bounds,crs=bbox_gdf.crs).squeeze()
-    )
+    snow_classification_da = snow_classification_da.rio.clip_box(
+        *bbox_gdf.total_bounds, crs=bbox_gdf.crs
+    ).squeeze()
 
     if mask_nodata:
         snow_classification_da.rio.write_nodata(9, encoded=True, inplace=True)
@@ -310,16 +326,25 @@ def get_seasonal_snow_classification(bbox_input: gpd.GeoDataFrame | tuple | shap
         snow_classification_da.rio.set_nodata(9, inplace=True)
 
     snow_classification_da.attrs["class_info"] = get_class_info()
-    snow_classification_da.attrs["cmap"] = get_class_cmap(snow_classification_da.attrs["class_info"])
-    snow_classification_da.attrs['data_citation'] = "Liston, G. E. and M. Sturm. (2021). Global Seasonal-Snow Classification, Version 1 [Data Set]. Boulder, Colorado USA. National Snow and Ice Data Center. https://doi.org/10.5067/99FTCYYYLAQ0. Date Accessed 03-06-2024."
-    
-    snow_classification_da.attrs['example_plot'] = plot_classes
+    snow_classification_da.attrs["cmap"] = get_class_cmap(
+        snow_classification_da.attrs["class_info"]
+    )
+    snow_classification_da.attrs["data_citation"] = (
+        "Liston, G. E. and M. Sturm. (2021). Global Seasonal-Snow Classification, Version 1 [Data Set]. Boulder, Colorado USA. National Snow and Ice Data Center. https://doi.org/10.5067/99FTCYYYLAQ0. Date Accessed 03-06-2024."
+    )
+
+    snow_classification_da.attrs["example_plot"] = plot_classes
 
     return snow_classification_da
 
 
 def get_seasonal_mountain_snow_mask(
-    bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None, data_product: str = "mountain_snow", mask_nodata: bool = False,
+    bbox_input: gpd.GeoDataFrame
+    | tuple
+    | shapely.geometry.base.BaseGeometry
+    | None = None,
+    data_product: str = "mountain_snow",
+    mask_nodata: bool = False,
 ) -> xr.DataArray:
     """
     Fetches ~1km static global seasonal (mountain snow / snow) mask for a given bounding box.
@@ -348,13 +373,13 @@ def get_seasonal_mountain_snow_mask(
     --------
     >>> import geopandas as gpd
     >>> import easysnowdata
-    >>> 
+    >>>
     >>> # Define a bounding box for a mountainous area
     >>> bbox = (-106.0, 39.0, -105.0, 40.0)
-    >>> 
+    >>>
     >>> # Fetch mountain snow mask data
     >>> mountain_snow_da = easysnowdata.remote_sensing.get_seasonal_mountain_snow_mask(bbox)
-    >>> 
+    >>>
     >>> # Plot the data using the example plot function
     >>> f, ax = mountain_snow_da.attrs['example_plot'](mountain_snow_da)
 
@@ -383,7 +408,9 @@ def get_seasonal_mountain_snow_mask(
                 255: {"name": "Fill", "color": "#ffffff"},
             }
         else:
-            raise ValueError('Invalid data_product. Choose from "snow" or "mountain_snow".')
+            raise ValueError(
+                'Invalid data_product. Choose from "snow" or "mountain_snow".'
+            )
         return classes
 
     def get_class_cmap(classes):
@@ -391,7 +418,7 @@ def get_seasonal_mountain_snow_mask(
             [classes[key]["color"] for key in classes.keys()]
         )
         return cmap
-    
+
     def plot_classes(self, ax=None, figsize=(8, 10), legend_kwargs=None):
         if ax is None:
             f, ax = plt.subplots(figsize=figsize)
@@ -400,19 +427,24 @@ def get_seasonal_mountain_snow_mask(
 
         class_values = sorted(list(self.attrs["class_info"].keys()))
         bounds = [
-            (class_values[i] + class_values[i + 1]) / 2 for i in range(len(class_values) - 1)
+            (class_values[i] + class_values[i + 1]) / 2
+            for i in range(len(class_values) - 1)
         ]
         bounds = [class_values[0] - 0.5] + bounds + [class_values[-1] + 0.5]
         norm = matplotlib.colors.BoundaryNorm(bounds, self.attrs["cmap"].N)
 
-        im = self.plot.imshow(ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False)
-        #ax.set_aspect("equal")
+        im = self.plot.imshow(
+            ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False
+        )
+        # ax.set_aspect("equal")
 
         legend_handles = []
         class_names = []
         for class_value, class_info in self.attrs["class_info"].items():
             legend_handles.append(
-                plt.Rectangle((0, 0), 1, 1, facecolor=class_info["color"], edgecolor="black")
+                plt.Rectangle(
+                    (0, 0), 1, 1, facecolor=class_info["color"], edgecolor="black"
+                )
             )
             class_names.append(class_info["name"])
 
@@ -431,23 +463,29 @@ def get_seasonal_mountain_snow_mask(
 
         ax.set_xlabel("Longitude")
         ax.set_ylabel("Latitude")
-        ax.set_title(f"Global seasonal {'mountain ' if data_product == 'mountain_snow' else ''}snow mask\nfrom Wrzesien et al 2019")
+        ax.set_title(
+            f"Global seasonal {'mountain ' if data_product == 'mountain_snow' else ''}snow mask\nfrom Wrzesien et al 2019"
+        )
         f.tight_layout(pad=5.5, w_pad=5.5, h_pad=1.5)
         f.dpi = 300
 
         return f, ax
 
-    print(f'This function takes a moment, getting zipped file from zenodo...')
+    print(f"This function takes a moment, getting zipped file from zenodo...")
     # Convert the input to a GeoDataFrame if it's not already one
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
 
     url = f"zip+https://zenodo.org/records/2626737/files/MODIS_{'mtnsnow' if data_product == 'mountain_snow' else 'snow'}_classes.zip!/MODIS_{'mtnsnow' if data_product == 'mountain_snow' else 'snow'}_classes.tif"
 
-    mountain_snow_da = rxr.open_rasterio(
-        url,
-        chunks=True,
-        mask_and_scale=mask_nodata,
-    ).rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs).squeeze()
+    mountain_snow_da = (
+        rxr.open_rasterio(
+            url,
+            chunks=True,
+            mask_and_scale=mask_nodata,
+        )
+        .rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs)
+        .squeeze()
+    )
 
     # looks like the creators accidently set no data to 256 and 265 instead of 255, therefore unmasked the data is of type uint32 :(
     # attempt to fix this by setting all invalid values to 255, then converting types
@@ -455,23 +493,32 @@ def get_seasonal_mountain_snow_mask(
     mountain_snow_da = mountain_snow_da.where(~mask, 255)
 
     if mask_nodata:
-        mountain_snow_da = mountain_snow_da.astype("float32").rio.write_nodata(255, encoded=True)
+        mountain_snow_da = mountain_snow_da.astype("float32").rio.write_nodata(
+            255, encoded=True
+        )
     else:
         mountain_snow_da = mountain_snow_da.astype("uint8").rio.set_nodata(255)
 
-
     mountain_snow_da.attrs["class_info"] = get_class_info(data_product)
-    mountain_snow_da.attrs["cmap"] = get_class_cmap(mountain_snow_da.attrs["class_info"])
-    mountain_snow_da.attrs['data_citation'] = "Wrzesien, M., Pavelsky, T., Durand, M., Lundquist, J., & Dozier, J. (2019). Global Seasonal Mountain Snow Mask from MODIS MOD10A2 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.2626737"
-    
-    mountain_snow_da.attrs['example_plot'] = plot_classes
+    mountain_snow_da.attrs["cmap"] = get_class_cmap(
+        mountain_snow_da.attrs["class_info"]
+    )
+    mountain_snow_da.attrs["data_citation"] = (
+        "Wrzesien, M., Pavelsky, T., Durand, M., Lundquist, J., & Dozier, J. (2019). Global Seasonal Mountain Snow Mask from MODIS MOD10A2 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.2626737"
+    )
+
+    mountain_snow_da.attrs["example_plot"] = plot_classes
 
     return mountain_snow_da
 
 
 def get_esa_worldcover(
-    bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
-    version: str = "v200", mask_nodata: bool = False,
+    bbox_input: gpd.GeoDataFrame
+    | tuple
+    | shapely.geometry.base.BaseGeometry
+    | None = None,
+    version: str = "v200",
+    mask_nodata: bool = False,
 ) -> xr.DataArray:
     """
     Fetches 10m ESA WorldCover global land cover data (2020 v100 or 2021 v200) for a given bounding box.
@@ -500,13 +547,13 @@ def get_esa_worldcover(
     --------
     >>> import geopandas as gpd
     >>> import easysnowdata
-    >>> 
+    >>>
     >>> # Define a bounding box for Mount Rainier
     >>> bbox = (-121.94, 46.72, -121.54, 46.99)
-    >>> 
+    >>>
     >>> # Fetch WorldCover data for the area
     >>> worldcover_da = easysnowdata.remote_sensing.get_esa_worldcover(bbox)
-    >>> 
+    >>>
     >>> # Plot the data using the example plot function
     >>> f, ax = worldcover_da.attrs['example_plot'](worldcover_da)
 
@@ -539,7 +586,7 @@ def get_esa_worldcover(
             [classes[key]["color"] for key in classes.keys()]
         )
         return cmap
-    
+
     def plot_classes(self, ax=None, figsize=(8, 10), legend_kwargs=None):
         if ax is None:
             f, ax = plt.subplots(figsize=figsize)
@@ -548,19 +595,24 @@ def get_esa_worldcover(
 
         class_values = sorted(list(self.attrs["class_info"].keys()))
         bounds = [
-            (class_values[i] + class_values[i + 1]) / 2 for i in range(len(class_values) - 1)
+            (class_values[i] + class_values[i + 1]) / 2
+            for i in range(len(class_values) - 1)
         ]
         bounds = [class_values[0] - 0.5] + bounds + [class_values[-1] + 0.5]
         norm = matplotlib.colors.BoundaryNorm(bounds, self.attrs["cmap"].N)
 
-        im = self.plot.imshow(ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False)
-        #ax.set_aspect("equal")
+        im = self.plot.imshow(
+            ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False
+        )
+        # ax.set_aspect("equal")
 
         legend_handles = []
         class_names = []
         for class_value, class_info in self.attrs["class_info"].items():
             legend_handles.append(
-                plt.Rectangle((0, 0), 1, 1, facecolor=class_info["color"], edgecolor="black")
+                plt.Rectangle(
+                    (0, 0), 1, 1, facecolor=class_info["color"], edgecolor="black"
+                )
             )
             class_names.append(class_info["name"])
 
@@ -609,28 +661,35 @@ def get_esa_worldcover(
     )
 
     if mask_nodata:
-        worldcover_da = worldcover_da.where(worldcover_da>0)
+        worldcover_da = worldcover_da.where(worldcover_da > 0)
         worldcover_da.rio.write_nodata(0, encoded=True, inplace=True)
 
     worldcover_da.attrs["class_info"] = get_class_info()
     worldcover_da.attrs["cmap"] = get_class_cmap(worldcover_da.attrs["class_info"])
-    worldcover_da.attrs['data_citation'] = "Zanaga, D., Van De Kerchove, R., De Keersmaecker, W., Souverijns, N., Brockmann, C., Quast, R., Wevers, J., Grosu, A., Paccini, A., Vergnaud, S., Cartus, O., Santoro, M., Fritz, S., Georgieva, I., Lesiv, M., Carter, S., Herold, M., Li, Linlin, Tsendbazar, N.E., Ramoino, F., Arino, O. (2021). ESA WorldCover 10 m 2020 v100. doi:10.5281/zenodo.5571936."
-    
-    worldcover_da.attrs['example_plot'] = plot_classes
+    worldcover_da.attrs["data_citation"] = (
+        "Zanaga, D., Van De Kerchove, R., De Keersmaecker, W., Souverijns, N., Brockmann, C., Quast, R., Wevers, J., Grosu, A., Paccini, A., Vergnaud, S., Cartus, O., Santoro, M., Fritz, S., Georgieva, I., Lesiv, M., Carter, S., Herold, M., Li, Linlin, Tsendbazar, N.E., Ramoino, F., Arino, O. (2021). ESA WorldCover 10 m 2020 v100. doi:10.5281/zenodo.5571936."
+    )
+
+    worldcover_da.attrs["example_plot"] = plot_classes
 
     return worldcover_da
 
 
 @requires_earthengine
-def get_nlcd_landcover(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.base.BaseGeometry | None = None,
-             layer: str = 'landcover',
-             initialize_ee: bool = True) -> xr.DataArray:
+def get_nlcd_landcover(
+    bbox_input: gpd.GeoDataFrame
+    | tuple
+    | shapely.geometry.base.BaseGeometry
+    | None = None,
+    layer: str = "landcover",
+    initialize_ee: bool = True,
+) -> xr.DataArray:
     """
     Fetches National Land Cover Database (NLCD) data for a given bounding box.
 
     Description:
-    The National Land Cover Database (NLCD) provides nationwide data on land cover and land cover change 
-    at a 30m resolution. The dataset includes various layers such as land cover classification, 
+    The National Land Cover Database (NLCD) provides nationwide data on land cover and land cover change
+    at a 30m resolution. The dataset includes various layers such as land cover classification,
     impervious surfaces, and urban intensity. Projection is an albers equal area conic projection.
 
     Parameters
@@ -660,13 +719,13 @@ def get_nlcd_landcover(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.b
     --------
     >>> import geopandas as gpd
     >>> import easysnowdata
-    >>> 
+    >>>
     >>> # Define a bounding box for an area of interest
     >>> bbox = (-122.5, 47.0, -121.5, 48.0)
-    >>> 
+    >>>
     >>> # Fetch NLCD land cover data
     >>> nlcd_landcover_da = easysnowdata.remote_sensing.get_nlcd_landcover(bbox, layer='landcover')
-    >>> 
+    >>>
     >>> # Plot the data
     >>> nlcd_landcover_da.attrs['example_plot'](nlcd_landcover_da)
 
@@ -685,76 +744,80 @@ def get_nlcd_landcover(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.b
     """
     # Initialize Earth Engine with high-volume endpoint
     if initialize_ee:
-        ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
+        ee.Initialize(opt_url="https://earthengine-highvolume.googleapis.com")
     else:
-        _logger.info("Earth Engine initialization skipped. Ensure EE is already initialized.")
+        _logger.info(
+            "Earth Engine initialization skipped. Ensure EE is already initialized."
+        )
 
     # Convert the input to a GeoDataFrame if it's not already one
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
 
-    image_collection = ee.ImageCollection('USGS/NLCD_RELEASES/2021_REL/NLCD')
+    image_collection = ee.ImageCollection("USGS/NLCD_RELEASES/2021_REL/NLCD")
     image = image_collection.first()
-    
+
     projection = image.select(0).projection()
-    
-    ds = xr.open_dataset(
-        image_collection, 
-        engine='ee', 
-        geometry=tuple(bbox_gdf.total_bounds), 
-        projection=projection,
-        chunks={},
-    ).squeeze().transpose().rename({'X':'x','Y':'y'}).rio.set_spatial_dims(x_dim='x', y_dim='y').astype('uint8')
-    
+
+    ds = (
+        xr.open_dataset(
+            image_collection,
+            engine="ee",
+            geometry=tuple(bbox_gdf.total_bounds),
+            projection=projection,
+            chunks={},
+        )
+        .squeeze()
+        .transpose()
+        .rename({"X": "x", "Y": "y"})
+        .rio.set_spatial_dims(x_dim="x", y_dim="y")
+        .astype("uint8")
+    )
+
     nlcd_da = ds[layer]
 
     # would be nice for them to come in as ints
     # https://github.com/google/Xee/issues/86
     # https://github.com/google/Xee/issues/146
-    
-    
+
     def get_class_info():
-        info = image.getInfo()['properties']
-        
-        if layer == 'landcover':
+        info = image.getInfo()["properties"]
+
+        if layer == "landcover":
             return {
-                value: {
-                    "name": name.split(':')[0],
-                    "color": f"#{palette}"
-                } for value, name, palette in zip(
-                    info['landcover_class_values'],
-                    info['landcover_class_names'],
-                    info['landcover_class_palette']
+                value: {"name": name.split(":")[0], "color": f"#{palette}"}
+                for value, name, palette in zip(
+                    info["landcover_class_values"],
+                    info["landcover_class_names"],
+                    info["landcover_class_palette"],
                 )
             }
-        elif layer == 'impervious':
-            return None  
-        elif layer == 'impervious_descriptor':
+        elif layer == "impervious":
+            return None
+        elif layer == "impervious_descriptor":
             return {
-                value: {
-                    "name": name.split('.')[0],
-                    "color": f"#{palette}"
-                } for value, name, palette in zip(
-                    info['impervious_descriptor_class_values'],
-                    info['impervious_descriptor_class_names'],
-                    info['impervious_descriptor_class_palette']
+                value: {"name": name.split(".")[0], "color": f"#{palette}"}
+                for value, name, palette in zip(
+                    info["impervious_descriptor_class_values"],
+                    info["impervious_descriptor_class_names"],
+                    info["impervious_descriptor_class_palette"],
                 )
             }
-        elif layer.startswith('science_products'):
+        elif layer.startswith("science_products"):
             return {
-                value: {
-                    "name": name,
-                    "color": f"#{palette}"
-                } for value, name, palette in zip(
-                    info[f'{layer}_class_values'],
-                    info[f'{layer}_class_names'],
-                    info[f'{layer}_class_palette']
+                value: {"name": name, "color": f"#{palette}"}
+                for value, name, palette in zip(
+                    info[f"{layer}_class_values"],
+                    info[f"{layer}_class_names"],
+                    info[f"{layer}_class_palette"],
                 )
             }
 
     def get_class_cmap(classes):
-        if classes is None: 
+        if classes is None:
             return plt.cm.YlOrRd
-        return plt.cm.colors.ListedColormap([classes[key]["color"] for key in classes.keys()])
+        return plt.cm.colors.ListedColormap(
+            [classes[key]["color"] for key in classes.keys()]
+        )
 
     def plot_classes(self, ax=None, figsize=(8, 10), legend_kwargs=None):
         if ax is None:
@@ -762,19 +825,26 @@ def get_nlcd_landcover(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.b
         else:
             f = ax.get_figure()
 
-        if self.name != 'impervious':
+        if self.name != "impervious":
             class_values = sorted(list(self.attrs["class_info"].keys()))
-            bounds = [(class_values[i] + class_values[i + 1]) / 2 for i in range(len(class_values) - 1)]
+            bounds = [
+                (class_values[i] + class_values[i + 1]) / 2
+                for i in range(len(class_values) - 1)
+            ]
             bounds = [class_values[0] - 0.5] + bounds + [class_values[-1] + 0.5]
             norm = matplotlib.colors.BoundaryNorm(bounds, self.attrs["cmap"].N)
 
-            im = self.plot.imshow(ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False)
+            im = self.plot.imshow(
+                ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False
+            )
 
             legend_handles = []
             class_names = []
             for class_value, class_info in self.attrs["class_info"].items():
                 legend_handles.append(
-                    plt.Rectangle((0, 0), 1, 1, facecolor=class_info["color"], edgecolor="black")
+                    plt.Rectangle(
+                        (0, 0), 1, 1, facecolor=class_info["color"], edgecolor="black"
+                    )
                 )
                 class_names.append(class_info["name"])
 
@@ -790,15 +860,15 @@ def get_nlcd_landcover(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.b
             legend_kwargs = {**default_legend_kwargs, **legend_kwargs}
             ax.legend(legend_handles, class_names, **legend_kwargs)
 
-        else: 
+        else:
             im = self.plot.imshow(ax=ax, cmap=self.attrs["cmap"], add_colorbar=False)
-            f.colorbar(im, ax=ax, label='Percent impervious surface [%]')
+            f.colorbar(im, ax=ax, label="Percent impervious surface [%]")
 
         ax.set_xlabel("x")
         ax.set_ylabel("y")
-        #ax.axis('equal')
+        # ax.axis('equal')
         ax.set_title(f"NLCD {self.name.title()} (2021)")
-        #f.tight_layout(pad=0, w_pad=0, h_pad=0)
+        # f.tight_layout(pad=0, w_pad=0, h_pad=0)
         f.dpi = 300
 
         return f, ax
@@ -808,10 +878,12 @@ def get_nlcd_landcover(bbox_input: gpd.GeoDataFrame | tuple | shapely.geometry.b
     nlcd_da.attrs["cmap"] = get_class_cmap(class_info)
     nlcd_da.attrs["example_plot"] = plot_classes
 
-    nlcd_da.attrs['data_citation'] = "Dewitz, J., 2023, National Land Cover Database (NLCD) 2021 Products: U.S. Geological Survey data release, doi:10.5066/P9JZ7AO3"
-
+    nlcd_da.attrs["data_citation"] = (
+        "Dewitz, J., 2023, National Land Cover Database (NLCD) 2021 Products: U.S. Geological Survey data release, doi:10.5066/P9JZ7AO3"
+    )
 
     return nlcd_da
+
 
 class Sentinel2:
     """
@@ -900,7 +972,7 @@ class Sentinel2:
         start_date="2014-01-01",
         end_date=today,
         catalog_choice="planetarycomputer",
-        collection= "sentinel-2-l2a", # could also choose "sentinel-2-c1-l2a" once published to https://github.com/Element84/earth-search
+        collection="sentinel-2-l2a",  # could also choose "sentinel-2-c1-l2a" once published to https://github.com/Element84/earth-search
         bands=None,
         resolution=None,
         crs=None,
@@ -1093,10 +1165,12 @@ class Sentinel2:
                     self.harmonize_to_old = True
                 elif self.collection == "sentinel-2-l2a":
                     self.harmonize_to_old = False
-                    print(f"Since {self.collection} on {self.catalog_choice} is used, harmonization step is not needed.")
+                    print(
+                        f"Since {self.collection} on {self.catalog_choice} is used, harmonization step is not needed."
+                    )
                 else:
                     raise ValueError(f"Unknown collection: {self.collection}")
-                
+
         if self.harmonize_to_old:
             self.harmonize_to_old_inplace()
 
@@ -1105,21 +1179,22 @@ class Sentinel2:
 
         self.get_metadata()
 
-
-
         # Add the plot_scl method as an attribute to the SCL data variable
-        if 'scl' in self.data.data_vars:
-            self.data.scl.attrs['example_plot'] = self.plot_scl
-            self.data.scl.attrs['class_info'] = self.scl_class_info
-            self.data.scl.attrs['cmap'] = self.scl_cmap
+        if "scl" in self.data.data_vars:
+            self.data.scl.attrs["example_plot"] = self.plot_scl
+            self.data.scl.attrs["class_info"] = self.scl_class_info
+            self.data.scl.attrs["cmap"] = self.scl_cmap
 
     def plot_scl(self, scl_data, ax=None, figsize=None, col_wrap=5, legend_kwargs=None):
-        
+
         if figsize is None:
             figsize = (8, 10) if scl_data.time.size == 1 else (12, 7)
 
         class_values = sorted(list(self.scl_class_info.keys()))
-        bounds = [(class_values[i] + class_values[i + 1]) / 2 for i in range(len(class_values) - 1)]
+        bounds = [
+            (class_values[i] + class_values[i + 1]) / 2
+            for i in range(len(class_values) - 1)
+        ]
         bounds = [class_values[0] - 0.5] + bounds + [class_values[-1] + 0.5]
         norm = matplotlib.colors.BoundaryNorm(bounds, self.scl_cmap.N)
 
@@ -1130,37 +1205,53 @@ class Sentinel2:
             else:
                 f = ax.get_figure()
 
-            im = scl_data.plot.imshow(ax=ax, cmap=self.scl_cmap, norm=norm, add_colorbar=False)
+            im = scl_data.plot.imshow(
+                ax=ax, cmap=self.scl_cmap, norm=norm, add_colorbar=False
+            )
             ax.set_aspect("equal")
 
-            local_time = pd.to_datetime(scl_data.time.values).tz_localize('UTC').tz_convert('America/Los_Angeles')
-            ax.set_title(f"Sentinel-2 Scene Classification Layer (SCL)\n{local_time.strftime('%B %d, %Y')}\n{local_time.strftime('%I:%M%p')}")
+            local_time = (
+                pd.to_datetime(scl_data.time.values)
+                .tz_localize("UTC")
+                .tz_convert("America/Los_Angeles")
+            )
+            ax.set_title(
+                f"Sentinel-2 Scene Classification Layer (SCL)\n{local_time.strftime('%B %d, %Y')}\n{local_time.strftime('%I:%M%p')}"
+            )
 
         else:
             # Multiple images plot
             f = scl_data.plot.imshow(
-                col='time',
+                col="time",
                 col_wrap=col_wrap,
                 cmap=self.scl_cmap,
                 norm=matplotlib.colors.BoundaryNorm(bounds, self.scl_cmap.N),
                 add_colorbar=False,
-                #figsize=figsize
+                # figsize=figsize
             )
 
             for ax, time in zip(f.axs.flat, scl_data.time.values):
-                local_time = pd.to_datetime(time).tz_localize('UTC').tz_convert('America/Los_Angeles')
-                ax.set_title(f'{local_time.strftime("%B %d, %Y")}\n{local_time.strftime("%I:%M%p")}')
-                ax.axis('off')
-                ax.set_aspect('equal')
+                local_time = (
+                    pd.to_datetime(time)
+                    .tz_localize("UTC")
+                    .tz_convert("America/Los_Angeles")
+                )
+                ax.set_title(
+                    f"{local_time.strftime('%B %d, %Y')}\n{local_time.strftime('%I:%M%p')}"
+                )
+                ax.axis("off")
+                ax.set_aspect("equal")
 
-            f.fig.suptitle('Sentinel-2 SCL time series', fontsize=16, y=1.02)
+            f.fig.suptitle("Sentinel-2 SCL time series", fontsize=16, y=1.02)
 
         # Add legend
         legend_handles = []
         class_names = []
         for class_value, class_info in self.scl_class_info.items():
             legend_handles.append(
-                plt.Rectangle((0, 0), 1, 1, facecolor=class_info["color"], edgecolor="black")
+                plt.Rectangle(
+                    (0, 0), 1, 1, facecolor=class_info["color"], edgecolor="black"
+                )
             )
             class_names.append(class_info["name"])
 
@@ -1290,13 +1381,17 @@ class Sentinel2:
             nodata_value = None
             nodata_value = self.data[band].attrs.get("nodata")
             if nodata_value is not None:
-                #print(f"Removing nodata {nodata_value} values for band {band}...")
+                # print(f"Removing nodata {nodata_value} values for band {band}...")
                 self.data[band] = self.data[band].where(self.data[band] != nodata_value)
                 data_removed = True
         if data_removed:
-            print(f"Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False.")
+            print(
+                f"Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False."
+            )
         else:
-            print(f"Tried to remove nodata values and set them to nans, but no nodata values found in the data.")
+            print(
+                f"Tried to remove nodata values and set them to nans, but no nodata values found in the data."
+            )
 
     def mask_data(
         self,
@@ -1416,16 +1511,29 @@ class Sentinel2:
             scale_factor = self.data[band].attrs.get("scale")
 
             if scale_factor is None:
-                scale_factor = next((info['scale'] for name, info in self.band_info.items() if info['name'] == band), None)
+                scale_factor = next(
+                    (
+                        info["scale"]
+                        for name, info in self.band_info.items()
+                        if info["name"] == band
+                    ),
+                    None,
+                )
 
-            scale_factor = int(scale_factor) if scale_factor == '1' else float(scale_factor)
+            scale_factor = (
+                int(scale_factor) if scale_factor == "1" else float(scale_factor)
+            )
             self.data[band] = self.data[band] * scale_factor
 
         print(
             f"Data scaled to float reflectance. To turn this behavior off, set scale_data=False."
         )
 
-    def get_rgb(self, percentile_kwargs={'lower': 2, 'upper': 98}, clahe_kwargs={'clip_limit': 0.03, 'nbins': 256, 'kernel_size': None}):
+    def get_rgb(
+        self,
+        percentile_kwargs={"lower": 2, "upper": 98},
+        clahe_kwargs={"clip_limit": 0.03, "nbins": 256, "kernel_size": None},
+    ):
         """
         Retrieve RGB data with optional percentile-based contrast stretching and CLAHE enhancement.
 
@@ -1456,16 +1564,22 @@ class Sentinel2:
         - .rgb_clahe: CLAHE-enhanced RGB data
         """
 
-        rgba_da = self.data.odc.to_rgba(bands=('red','green','blue'),vmin=0, vmax=1.7)
+        rgba_da = self.data.odc.to_rgba(
+            bands=("red", "green", "blue"), vmin=0, vmax=1.7
+        )
         self.rgba = rgba_da
 
-        rgb_da = rgba_da.isel(band=slice(0, 3))  #.where(self.data.scl>=0, other=255) if we want to make no data white
+        rgb_da = rgba_da.isel(
+            band=slice(0, 3)
+        )  # .where(self.data.scl>=0, other=255) if we want to make no data white
         self.rgb = rgb_da
 
         self.rgb_percentile = self.get_rgb_percentile(**percentile_kwargs)
         self.rgb_clahe = self.get_rgb_clahe(**clahe_kwargs)
 
-        print(f"RGB data retrieved.\nAccess with the following attributes:\n.rgb for raw RGB,\n.rgba for RGBA,\n.rgb_percentile for percentile RGB,\n.rgb_clahe for CLAHE RGB.\nYou can pass in percentile_kwargs and clahe_kwargs to adjust RGB calculations, check documentation for options.")
+        print(
+            f"RGB data retrieved.\nAccess with the following attributes:\n.rgb for raw RGB,\n.rgba for RGBA,\n.rgb_percentile for percentile RGB,\n.rgb_clahe for CLAHE RGB.\nYou can pass in percentile_kwargs and clahe_kwargs to adjust RGB calculations, check documentation for options."
+        )
 
     def get_rgb_percentile(self, **percentile_kwargs):
         """
@@ -1489,21 +1603,23 @@ class Sentinel2:
         -----
         The function clips values to the range [0, 1] and masks areas where SCL < 0.
         """
-        lower_percentile = percentile_kwargs.get('lower', 2)
-        upper_percentile = percentile_kwargs.get('upper', 98)
+        lower_percentile = percentile_kwargs.get("lower", 2)
+        upper_percentile = percentile_kwargs.get("upper", 98)
 
         def stretch_percentile(da):
-            p_low, p_high = np.nanpercentile(da.values, [lower_percentile, upper_percentile])
+            p_low, p_high = np.nanpercentile(
+                da.values, [lower_percentile, upper_percentile]
+            )
             return (da - p_low) / (p_high - p_low)
 
         rgb_da = self.rgb
-        
+
         template = xr.zeros_like(rgb_da)
         rgb_percentile_da = xr.map_blocks(stretch_percentile, rgb_da, template=template)
-        rgb_percentile_da = rgb_percentile_da.clip(0, 1).where(self.data.scl>=0)
+        rgb_percentile_da = rgb_percentile_da.clip(0, 1).where(self.data.scl >= 0)
 
         return rgb_percentile_da
-    
+
     def get_rgb_clahe(self, **kwargs):
         """
         Apply Contrast Limited Adaptive Histogram Equalization (CLAHE) to RGB bands.
@@ -1533,17 +1649,19 @@ class Sentinel2:
         def equalize_adapthist_da(da, **kwargs):
             # Apply the CLAHE function from skimage
             result = skimage.exposure.equalize_adapthist(da.values, **kwargs)
-            #new_coords = {k: v for k, v in da.coords.items() if k != 'band' or len(v) == 3}
+            # new_coords = {k: v for k, v in da.coords.items() if k != 'band' or len(v) == 3}
 
             # Convert the result back to a DataArray, preserving the original metadata
             return xr.DataArray(result, dims=da.dims, coords=da.coords, attrs=da.attrs)
-        
+
         rgb_da = self.rgb
-        
-        #template = rgb_da.copy(data=np.empty_like(rgb_da).data)
+
+        # template = rgb_da.copy(data=np.empty_like(rgb_da).data)
         template = xr.zeros_like(rgb_da)
-        rgb_clahe_da = xr.map_blocks(equalize_adapthist_da, rgb_da, template=template, kwargs=kwargs)
-        rgb_clahe_da = rgb_clahe_da.where(self.data.scl>=0)
+        rgb_clahe_da = xr.map_blocks(
+            equalize_adapthist_da, rgb_da, template=template, kwargs=kwargs
+        )
+        rgb_clahe_da = rgb_clahe_da.where(self.data.scl >= 0)
 
         return rgb_clahe_da
 
@@ -1702,11 +1820,11 @@ class Sentinel1:
         end_date=today,
         catalog_choice="planetarycomputer",
         bands=None,
-        units='dB', # linear power or dB
+        units="dB",  # linear power or dB
         resolution=None,
         crs=None,
         groupby="sat:absolute_orbit",
-        chunks={}, # {"x": 512, "y": 512} or # {"x": 512, "y": 512, "time": -1}
+        chunks={},  # {"x": 512, "y": 512} or # {"x": 512, "y": 512, "time": -1}
         remove_border_noise=True,
     ):
         """
@@ -1734,7 +1852,7 @@ class Sentinel1:
         self.groupby = groupby
         self.remove_border_noise = remove_border_noise
 
-        #if not self.geobox:
+        # if not self.geobox:
         self.bbox_gdf = convert_bbox_to_geodataframe(self.bbox_input)
 
         if self.crs is None:
@@ -1754,10 +1872,12 @@ class Sentinel1:
         if self.remove_border_noise:
             self.remove_bad_scenes_and_border_noise()
         self.add_orbit_info()
-        if units == 'dB':
+        if units == "dB":
             self.linear_to_db()
         else:
-            print('Units remain in linear power. Convert to dB using the .linear_to_db() method.')
+            print(
+                "Units remain in linear power. Convert to dB using the .linear_to_db() method."
+            )
 
     def search_data(self):
         """
@@ -1844,18 +1964,18 @@ class Sentinel1:
     #     print(f"Border noise removed from the data.")
 
     def remove_bad_scenes_and_border_noise(self, threshold=0.001):
-        cutoff_date = np.datetime64('2018-03-14')
-        
+        cutoff_date = np.datetime64("2018-03-14")
+
         original_crs = self.data.rio.crs
-        
+
         result = xr.where(
             self.data.time < cutoff_date,
             self.data.where(self.data > threshold),
-            self.data.where(self.data > 0)
+            self.data.where(self.data > 0),
         )
-        
+
         result.rio.write_crs(original_crs, inplace=True)
-        
+
         self.data = result
         print(f"Falsely low scenes and border noise removed from the data.")
 
@@ -1905,15 +2025,15 @@ class Sentinel1:
     def local_incidence_angle_data(self):
         """
         Property to access local incidence angle data.
-        
+
         Returns
         -------
         xarray.DataArray
             DataArray containing local incidence angle values aligned to the same grid as the primary data.
-            
+
         Notes
         -----
-        On first access, this property calculates local incidence angles using Sentinel-1 data and 
+        On first access, this property calculates local incidence angles using Sentinel-1 data and
         Copernicus 30m DEM. Results are cached for subsequent accesses.
         """
         if self._local_incidence_angle_data is None:
@@ -1931,13 +2051,13 @@ class Sentinel1:
             Desired resolution in meters for the calculation. Defaults to self.resolution if set, or 30m.
         initialize_ee : bool, optional
             Whether to initialize Earth Engine. Default is True.
-            
+
         Returns
         -------
         xarray.DataArray
             DataArray containing local incidence angle values with dimensions (sat:relative_orbit, y, x),
             aligned to the same grid as the primary data.
-            
+
         Notes
         -----
         Requires Google Earth Engine authentication. Run ``ee.Authenticate()`` and
@@ -1956,224 +2076,254 @@ class Sentinel1:
 
         # Initialize Earth Engine with high-volume endpoint
         if initialize_ee:
-            ee.Initialize(opt_url='https://earthengine-highvolume.googleapis.com')
+            ee.Initialize(opt_url="https://earthengine-highvolume.googleapis.com")
         else:
-            _logger.info("Earth Engine initialization skipped. Ensure EE is already initialized.")
+            _logger.info(
+                "Earth Engine initialization skipped. Ensure EE is already initialized."
+            )
 
         # Convert bbox to Earth Engine geometry
         bbox = tuple(self.bbox_gdf.total_bounds)
         ee_bbox = ee.Geometry.Rectangle(bbox)
-        
+
         # Filter Sentinel-1 collection
-        collection = ee.ImageCollection('COPERNICUS/S1_GRD') \
-            .filterBounds(ee_bbox) \
-            .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VV')) \
-            .filter(ee.Filter.eq('instrumentMode', 'IW'))
-        
+        collection = (
+            ee.ImageCollection("COPERNICUS/S1_GRD")
+            .filterBounds(ee_bbox)
+            .filter(ee.Filter.listContains("transmitterReceiverPolarisation", "VV"))
+            .filter(ee.Filter.eq("instrumentMode", "IW"))
+        )
+
         # Get distinct orbit numbers
-        distinct_orbits = collection.aggregate_array('relativeOrbitNumber_start').distinct()
+        distinct_orbits = collection.aggregate_array(
+            "relativeOrbitNumber_start"
+        ).distinct()
         orbit_list = distinct_orbits.getInfo()
-        
+
         if not orbit_list:
             raise ValueError("No Sentinel-1 data found for the specified bounding box.")
-        
+
         print(f"Found {len(orbit_list)} unique relative orbits: {orbit_list}")
-        
+
         # Find the most common projection among the orbits
         orbit_projections = {}
         print("Analyzing orbit projections to find the most common one...")
-        
+
         for orbit in orbit_list:
-            orbit_image = collection \
-                .filter(ee.Filter.eq('relativeOrbitNumber_start', orbit)) \
-                .first()
-            
+            orbit_image = collection.filter(
+                ee.Filter.eq("relativeOrbitNumber_start", orbit)
+            ).first()
+
             if orbit_image:
                 # Get projection info
                 proj_info = orbit_image.select(0).projection().getInfo()
-                crs = proj_info['crs']
+                crs = proj_info["crs"]
                 orbit_projections[orbit] = {
-                    'crs': crs,
-                    'transform': proj_info['transform']
+                    "crs": crs,
+                    "transform": proj_info["transform"],
                 }
                 print(f"Orbit {orbit} uses {crs}")
-        
+
         # Count CRS frequencies
-        crs_counts = Counter([info['crs'] for info in orbit_projections.values()])
+        crs_counts = Counter([info["crs"] for info in orbit_projections.values()])
         most_common_crs = crs_counts.most_common(1)[0][0]
-        
-        print(f"Most common CRS: {most_common_crs} (used by {crs_counts[most_common_crs]} of {len(orbit_list)} orbits)")
-        
+
+        print(
+            f"Most common CRS: {most_common_crs} (used by {crs_counts[most_common_crs]} of {len(orbit_list)} orbits)"
+        )
+
         # Function to calculate local incidence angle using Copernicus 30m DEM
         def calculate_local_incidence_angle(image):
             img_geom = image.geometry()
-            
+
             # Use Copernicus 30m DEM with proper reprojection
-            dem_collection = ee.ImageCollection('COPERNICUS/DEM/GLO30')
-            dem = dem_collection.select('DEM').mosaic().clip(img_geom)
-            
+            dem_collection = ee.ImageCollection("COPERNICUS/DEM/GLO30")
+            dem = dem_collection.select("DEM").mosaic().clip(img_geom)
+
             # Reproject DEM to the most common CRS with the specified resolution
             projection = ee.Projection(most_common_crs).atScale(calc_resolution)
             dem = dem.reproject(projection)
-            
-            # 2.1.1 Radar geometry 
-            theta_i = image.select('angle')
-            phi_i = ee.Terrain.aspect(theta_i) \
-                .reduceRegion(ee.Reducer.mean(), theta_i.get('system:footprint'), 1000) \
-                .get('aspect')
-            
+
+            # 2.1.1 Radar geometry
+            theta_i = image.select("angle")
+            phi_i = (
+                ee.Terrain.aspect(theta_i)
+                .reduceRegion(ee.Reducer.mean(), theta_i.get("system:footprint"), 1000)
+                .get("aspect")
+            )
+
             # 2.1.2 Terrain geometry
-            alpha_s = ee.Terrain.slope(dem).select('slope')
-            phi_s = ee.Terrain.aspect(dem).select('aspect')
-            
+            alpha_s = ee.Terrain.slope(dem).select("slope")
+            phi_s = ee.Terrain.aspect(dem).select("aspect")
+
             # 2.1.3 Model geometry
             # reduce to 3 angle
             phi_r = ee.Image.constant(phi_i).subtract(phi_s)
-            
+
             # convert all to radians
             phi_rRad = phi_r.multiply(math.pi / 180)
             alpha_sRad = alpha_s.multiply(math.pi / 180)
             theta_iRad = theta_i.multiply(math.pi / 180)
             ninetyRad = ee.Image.constant(90).multiply(math.pi / 180)
-            
+
             # slope steepness in range (eq. 2)
             alpha_r = (alpha_sRad.tan().multiply(phi_rRad.cos())).atan()
-            
+
             # slope steepness in azimuth (eq 3)
             alpha_az = (alpha_sRad.tan().multiply(phi_rRad.sin())).atan()
-            
+
             # local incidence angle (eq. 4)
-            cos_theta_lia = (alpha_az.cos().multiply((theta_iRad.subtract(alpha_r)).cos()))
-            
+            cos_theta_lia = alpha_az.cos().multiply(
+                (theta_iRad.subtract(alpha_r)).cos()
+            )
+
             # Ensure valid range for acos
             cos_theta_lia = cos_theta_lia.clamp(-1, 1)
-            
+
             theta_lia = cos_theta_lia.acos()
             theta_liaDeg = theta_lia.multiply(180 / math.pi)
-            
-            return image.addBands(theta_liaDeg.rename('local_incidence_angle'))
-        
+
+            return image.addBands(theta_liaDeg.rename("local_incidence_angle"))
+
         # Create list to store DataArrays for each orbit
         orbit_arrays = []
-        
+
         # Create standard projection based on the most common CRS
         standard_projection = ee.Projection(most_common_crs).atScale(calc_resolution)
-        
+
         # Process each orbit
         for orbit in orbit_list:
             # Get images for this orbit
-            orbit_images = collection \
-                .filter(ee.Filter.eq('relativeOrbitNumber_start', orbit)) \
-                .sort('system:time_start', True) \
+            orbit_images = (
+                collection.filter(ee.Filter.eq("relativeOrbitNumber_start", orbit))
+                .sort("system:time_start", True)
                 .limit(3)
-            
+            )
+
             if orbit_images.size().getInfo() > 0:
                 # Calculate LIA for each image
                 lia_images = orbit_images.map(calculate_local_incidence_angle)
-                
+
                 # Calculate median LIA
-                median_lia = lia_images.select('local_incidence_angle').median()
-                
+                median_lia = lia_images.select("local_incidence_angle").median()
+
                 # Set properties on the median image
-                timestamp = orbit_images.first().get('system:time_start')
-                median_lia = median_lia.set({
-                    'relativeOrbitNumber_start': orbit,
-                    'system:time_start': timestamp
-                })
-                
+                timestamp = orbit_images.first().get("system:time_start")
+                median_lia = median_lia.set(
+                    {"relativeOrbitNumber_start": orbit, "system:time_start": timestamp}
+                )
+
                 # Create a single-image collection for xee
                 orbit_collection = ee.ImageCollection([median_lia])
-                
+
                 # Use xee to convert to xarray
                 try:
                     ds = xr.open_dataset(
-                        orbit_collection, 
-                        engine='ee',
+                        orbit_collection,
+                        engine="ee",
                         geometry=bbox,
                         projection=standard_projection,
                         chunks={},
                     )
-                    
+
                     # Extract the DataArray
-                    da = ds['local_incidence_angle']
-                    
+                    da = ds["local_incidence_angle"]
+
                     # Remove the time dimension if present
-                    if 'time' in da.dims:
+                    if "time" in da.dims:
                         da = da.isel(time=0, drop=True)
-                    
+
                     # Add orbit as a coordinate
-                    da = da.assign_coords({'sat:relative_orbit': orbit})
-                    
+                    da = da.assign_coords({"sat:relative_orbit": orbit})
+
                     # Check for NaN values
                     nan_percentage = np.isnan(da.values).mean() * 100
-                    print(f"Orbit {orbit} - Shape: {da.shape}, NaN percentage: {nan_percentage:.1f}%")
-                    
+                    print(
+                        f"Orbit {orbit} - Shape: {da.shape}, NaN percentage: {nan_percentage:.1f}%"
+                    )
+
                     if nan_percentage < 100:  # Only keep arrays with some valid data
                         # Store in list
                         orbit_arrays.append(da)
                         print(f"Successfully processed orbit {orbit}")
                     else:
                         print(f"Skipping orbit {orbit} - all values are NaN")
-                        
+
                 except Exception as e:
                     print(f"Error processing orbit {orbit}: {e}")
-        
+
         if orbit_arrays:
             # Ensure all arrays have the same shape before concatenating
             shapes = [da.shape for da in orbit_arrays]
             if len(set(shapes)) > 1:
                 print(f"Warning: Arrays have different shapes: {shapes}")
-                
+
                 # Take the shape with the most non-NaN values as template
-                best_da_idx = np.argmax([~np.isnan(da.values).sum() for da in orbit_arrays])
+                best_da_idx = np.argmax(
+                    [~np.isnan(da.values).sum() for da in orbit_arrays]
+                )
                 template_da = orbit_arrays[best_da_idx]
-                
+
                 for i in range(len(orbit_arrays)):
                     if i != best_da_idx and orbit_arrays[i].shape != template_da.shape:
                         orbit_num = orbit_arrays[i].sat_relative_orbit.values[0]
-                        print(f"Resampling orbit {orbit_num} to match template shape {template_da.shape}")
+                        print(
+                            f"Resampling orbit {orbit_num} to match template shape {template_da.shape}"
+                        )
                         orbit_arrays[i] = orbit_arrays[i].reindex_like(template_da)
-            
-            # Combine all orbits into a single DataArray
-            lia_da = xr.concat(orbit_arrays, dim='sat:relative_orbit')
-            
-            # Add attributes
-            lia_da.attrs.update({
-                'long_name': 'Sentinel-1 Local Incidence Angle',
-                'units': 'degrees',
-                'description': 'Local incidence angle calculated from Sentinel-1 data and Copernicus 30m DEM',
-                'source': 'Sentinel-1 GRD'
-            })
 
-            lia_da = lia_da.transpose("sat:relative_orbit",'Y','X').rename({'X':'x', 'Y':'y'}).rio.set_spatial_dims(x_dim='x', y_dim='y')
-            lia_da = lia_da.sortby('sat:relative_orbit')
+            # Combine all orbits into a single DataArray
+            lia_da = xr.concat(orbit_arrays, dim="sat:relative_orbit")
+
+            # Add attributes
+            lia_da.attrs.update(
+                {
+                    "long_name": "Sentinel-1 Local Incidence Angle",
+                    "units": "degrees",
+                    "description": "Local incidence angle calculated from Sentinel-1 data and Copernicus 30m DEM",
+                    "source": "Sentinel-1 GRD",
+                }
+            )
+
+            lia_da = (
+                lia_da.transpose("sat:relative_orbit", "Y", "X")
+                .rename({"X": "x", "Y": "y"})
+                .rio.set_spatial_dims(x_dim="x", y_dim="y")
+            )
+            lia_da = lia_da.sortby("sat:relative_orbit")
             # should be in range from 0 to 90
-            #lia_da = lia_da.where(lambda x: (x >= 0) & (x <= 90))
-            
+            # lia_da = lia_da.where(lambda x: (x >= 0) & (x <= 90))
+
             # Reproject to match data grid exactly using bilinear interpolation
             if self.data is not None:
                 # Get reference grid from first data variable
                 ref_da = self.data[list(self.data.data_vars)[0]].isel(time=0)
-                
+
                 # Ensure lia_da has CRS information
                 if not lia_da.rio.crs and ref_da.rio.crs:
                     lia_da.rio.write_crs(ref_da.rio.crs, inplace=True)
-                
+
                 # Reproject to match data grid using bilinear interpolation, careful with nodata
                 lia_da = lia_da.rio.reproject_match(
                     ref_da,
                     resampling=rio.warp.Resampling.bilinear,
                     nodata=np.nan,
                 )
-                
-                print("Local incidence angle data reprojected to match main data grid using bilinear resampling.")
-            
+
+                print(
+                    "Local incidence angle data reprojected to match main data grid using bilinear resampling."
+                )
+
             self._local_incidence_angle_data = lia_da
-            print("Local incidence angle calculation complete. Access via the .local_incidence_angle_data attribute.")
-            
-            #return self._local_incidence_angle_data
+            print(
+                "Local incidence angle calculation complete. Access via the .local_incidence_angle_data attribute."
+            )
+
+            # return self._local_incidence_angle_data
         else:
-            raise ValueError("No valid Sentinel-1 data found for the specified bounding box.")
+            raise ValueError(
+                "No valid Sentinel-1 data found for the specified bounding box."
+            )
 
 
 class HLS:
@@ -2302,7 +2452,7 @@ class HLS:
             self.crs = self.bbox_gdf.estimate_utm_crs()
 
         # Define the band information
-        self.band_info = { # https://github.com/stac-extensions/eo#common-band-names
+        self.band_info = {  # https://github.com/stac-extensions/eo#common-band-names
             "coastal": {
                 "landsat_band": "B01",
                 "sentinel_band": "B01",
@@ -2600,17 +2750,20 @@ class HLS:
         """
         The method to remove no data values from the data.
         """
-        data_removed=False
+        data_removed = False
         for band in self.data.data_vars:
             nodata_value = self.data[band].attrs.get("nodata")
             if nodata_value is not None:
                 self.data[band] = self.data[band].where(self.data[band] != nodata_value)
-                data_removed=True
+                data_removed = True
         if data_removed:
-            print(f"Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False.")
+            print(
+                f"Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False."
+            )
         else:
-            print(f"Tried to remove nodata values and set them to nans, but no nodata values found in the data.")
-
+            print(
+                f"Tried to remove nodata values and set them to nans, but no nodata values found in the data."
+            )
 
     def mask_data(
         self,
@@ -2854,8 +3007,11 @@ class HLS:
 
     #     print(f"RGB data retrieved. Access with the .rgb attribute.")
 
-
-    def get_rgb(self, percentile_kwargs={'lower': 2, 'upper': 98}, clahe_kwargs={'clip_limit': 0.03, 'nbins': 256, 'kernel_size': None}):
+    def get_rgb(
+        self,
+        percentile_kwargs={"lower": 2, "upper": 98},
+        clahe_kwargs={"clip_limit": 0.03, "nbins": 256, "kernel_size": None},
+    ):
         """
         Retrieve RGB data with optional percentile-based contrast stretching and CLAHE enhancement.
 
@@ -2886,16 +3042,22 @@ class HLS:
         - .rgb_clahe: CLAHE-enhanced RGB data
         """
 
-        rgba_da = self.data.odc.to_rgba(bands=('red','green','blue'),vmin=-0.30, vmax=1.35)
+        rgba_da = self.data.odc.to_rgba(
+            bands=("red", "green", "blue"), vmin=-0.30, vmax=1.35
+        )
         self.rgba = rgba_da
 
-        rgb_da = rgba_da.isel(band=slice(0, 3)) # .where(self.data.scl>=0, other=255) if we want to make no data white
+        rgb_da = rgba_da.isel(
+            band=slice(0, 3)
+        )  # .where(self.data.scl>=0, other=255) if we want to make no data white
         self.rgb = rgb_da
 
         self.rgb_percentile = self.get_rgb_percentile(**percentile_kwargs)
         self.rgb_clahe = self.get_rgb_clahe(**clahe_kwargs)
 
-        print(f"RGB data retrieved.\nAccess with the following attributes:\n.rgb for raw RGB,\n.rgba for RGBA,\n.rgb_percentile for percentile RGB,\n.rgb_clahe for CLAHE RGB.\nYou can pass in percentile_kwargs and clahe_kwargs to adjust RGB calculations, check documentation for options.")
+        print(
+            f"RGB data retrieved.\nAccess with the following attributes:\n.rgb for raw RGB,\n.rgba for RGBA,\n.rgb_percentile for percentile RGB,\n.rgb_clahe for CLAHE RGB.\nYou can pass in percentile_kwargs and clahe_kwargs to adjust RGB calculations, check documentation for options."
+        )
 
     def get_rgb_percentile(self, **percentile_kwargs):
         """
@@ -2919,21 +3081,23 @@ class HLS:
         -----
         The function clips values to the range [0, 1] and masks areas where SCL < 0.
         """
-        lower_percentile = percentile_kwargs.get('lower', 2)
-        upper_percentile = percentile_kwargs.get('upper', 98)
+        lower_percentile = percentile_kwargs.get("lower", 2)
+        upper_percentile = percentile_kwargs.get("upper", 98)
 
         def stretch_percentile(da):
-            p_low, p_high = np.nanpercentile(da.values, [lower_percentile, upper_percentile])
+            p_low, p_high = np.nanpercentile(
+                da.values, [lower_percentile, upper_percentile]
+            )
             return (da - p_low) / (p_high - p_low)
 
-        rgb_da = self.rgb.where(self.rgba.isel(band=-1)==255)
-        
+        rgb_da = self.rgb.where(self.rgba.isel(band=-1) == 255)
+
         template = xr.zeros_like(rgb_da)
         rgb_percentile_da = xr.map_blocks(stretch_percentile, rgb_da, template=template)
-        rgb_percentile_da = rgb_percentile_da.clip(0, 1)#.where(self.data.scl>=0)
+        rgb_percentile_da = rgb_percentile_da.clip(0, 1)  # .where(self.data.scl>=0)
 
         return rgb_percentile_da
-    
+
     def get_rgb_clahe(self, **kwargs):
         """
         Apply Contrast Limited Adaptive Histogram Equalization (CLAHE) to RGB bands.
@@ -2963,17 +3127,21 @@ class HLS:
         def equalize_adapthist_da(da, **kwargs):
             # Apply the CLAHE function from skimage
             result = skimage.exposure.equalize_adapthist(da.values, **kwargs)
-            #new_coords = {k: v for k, v in da.coords.items() if k != 'band' or len(v) == 3}
+            # new_coords = {k: v for k, v in da.coords.items() if k != 'band' or len(v) == 3}
 
             # Convert the result back to a DataArray, preserving the original metadata
             return xr.DataArray(result, dims=da.dims, coords=da.coords, attrs=da.attrs)
-        
+
         rgb_da = self.rgb
-        
-        #template = rgb_da.copy(data=np.empty_like(rgb_da).data)
+
+        # template = rgb_da.copy(data=np.empty_like(rgb_da).data)
         template = xr.zeros_like(rgb_da)
-        rgb_clahe_da = xr.map_blocks(equalize_adapthist_da, rgb_da, template=template, kwargs=kwargs)
-        rgb_clahe_da = rgb_clahe_da.where(self.rgba.isel(band=-1)==255)#.where(self.data.scl>=0)
+        rgb_clahe_da = xr.map_blocks(
+            equalize_adapthist_da, rgb_da, template=template, kwargs=kwargs
+        )
+        rgb_clahe_da = rgb_clahe_da.where(
+            self.rgba.isel(band=-1) == 255
+        )  # .where(self.data.scl>=0)
 
         return rgb_clahe_da
 
@@ -3144,7 +3312,6 @@ class MODIS_snow:
     def get_data(self):
 
         if self.data_product == "MOD10A1" or self.data_product == "MOD10A2":
-
             load_params = {
                 "items": self.search.item_collection(),
                 "chunks": {"time": 1, "x": 512, "y": 512},
@@ -3176,7 +3343,6 @@ class MODIS_snow:
                 self.search, temp_download_fp
             )  # can i suppress the print output? https://earthaccess.readthedocs.io/en/latest/user-reference/api/api/
 
-
             if self.clip_to_bbox:
                 modis_snow = xr.concat(
                     [
@@ -3184,7 +3350,9 @@ class MODIS_snow:
                             file, variable="CGF_NDSI_Snow_Cover", chunks={}
                         )["CGF_NDSI_Snow_Cover"]
                         .squeeze()
-                        .rio.clip_box(*self.bbox_gdf.total_bounds,crs=self.bbox_gdf.crs)
+                        .rio.clip_box(
+                            *self.bbox_gdf.total_bounds, crs=self.bbox_gdf.crs
+                        )
                         .assign_coords(
                             time=pd.to_datetime(
                                 rxr.open_rasterio(
@@ -3249,14 +3417,12 @@ class MODIS_snow:
     def get_binary_snow(self):
 
         if self.data_product == "MOD10A2":
-            self.binary_snow = xr.where(self.data["Maximum_Snow_Extent"] == 200, 1, 0).rio.write_crs(self.data.rio.crs)
+            self.binary_snow = xr.where(
+                self.data["Maximum_Snow_Extent"] == 200, 1, 0
+            ).rio.write_crs(self.data.rio.crs)
             print("Binary snow map calculated. Access with the .binary_snow attribute.")
         else:
             print("This method is only available for the MOD10A2 product.")
-
-
-
-
 
 
 # palsar2
