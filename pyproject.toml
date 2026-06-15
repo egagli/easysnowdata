@@ -1,6 +1,6 @@
 [project]
 name = "easysnowdata"
-version = "0.0.22"
+version = "0.0.23"
 description = "A Python package to easily retrieve data relevant to snow science"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -55,7 +55,7 @@ include = ["easysnowdata*"]
 exclude = ["docs*", "tests*", "scripts*"]
 
 [tool.bumpversion]
-current_version = "0.0.22"
+current_version = "0.0.23"
 commit = true
 tag = true
 
