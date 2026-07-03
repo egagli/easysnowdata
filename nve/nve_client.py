@@ -97,6 +97,28 @@ _RESOLUTION_HOURLY = 60
 # Sildre station URL template
 _SILDRE_URL = "https://sildre.nve.no/station/{station_id}"
 
+# Coordinate overrides for stations whose HydAPI-reported positions are
+# known to be wrong.  NVE's Nepal cooperation stations (drainage-basin
+# group 1977, SnowAMP project with ICIMOD/DHM) are served with
+# longitudes exactly 60° west of reality — they render in Africa.  For
+# the Langtang stations the corrected positions are corroborated by the
+# SnowAMP literature (Ganja La AWS at 4962 m on the southern side of
+# Ganja La Pass; Langtang catchment at 28.2°N, 85.5°E).  The Mustang
+# positions apply the same documented +60° longitude correction but are
+# not independently verified.  Overrides are applied only when the
+# reported position is far from the known one, so an upstream fix in
+# HydAPI automatically takes precedence.
+_COORD_OVERRIDES: dict[str, tuple[float, float]] = {
+    "1977.1.1": (28.19214, 85.57043),  # Langtang - Lower
+    "1977.1.4": (28.15441, 85.5625),   # Langtang - GangaLa (Ganja La)
+    "1977.2.1": (28.13995, 84.54465),  # Mustang - Upper Snow Station
+    "1977.2.2": (28.13093, 84.54485),  # Mustang - Lower snow station
+}
+
+# Reported coords further than this from a known override are considered
+# wrong and replaced.
+_COORD_OVERRIDE_TOLERANCE_DEG = 0.1
+
 _NVE_DATA_SOURCE = "NVE HydAPI v1 — https://hydapi.nve.no/api/v1/Observations"
 
 # ── Public variable / flag tables ────────────────────────────────────────────
@@ -275,6 +297,23 @@ def _enrich_station(raw: dict) -> dict:
     # Normalise lat/lon (NVE may return as float or null)
     lat = _normalize_value(raw.get("latitude"))
     lon = _normalize_value(raw.get("longitude"))
+    # Detect known-wrong coordinates and fall back to hardcoded positions
+    coords_overridden = False
+    override = _COORD_OVERRIDES.get(sid)
+    if override is not None:
+        o_lat, o_lon = override
+        if (
+            lat is None or lon is None
+            or abs(lat - o_lat) > _COORD_OVERRIDE_TOLERANCE_DEG
+            or abs(lon - o_lon) > _COORD_OVERRIDE_TOLERANCE_DEG
+        ):
+            logger.info(
+                "Station %s: HydAPI coordinates (%s, %s) are known to be "
+                "wrong — using override (%s, %s)",
+                sid, lat, lon, o_lat, o_lon,
+            )
+            lat, lon = o_lat, o_lon
+            coords_overridden = True
     # Elevation: NVE reports in metres
     elev = _normalize_value(raw.get("elevation"))
 
@@ -313,6 +352,7 @@ def _enrich_station(raw: dict) -> dict:
         "station_url": _SILDRE_URL.format(station_id=sid) if sid else "",
         "parameters": sorted(param_ids),
         "daily_parameters": sorted(daily_param_ids),
+        "coordinates_overridden": coords_overridden,
     }
 
 
