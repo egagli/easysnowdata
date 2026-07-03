@@ -759,9 +759,28 @@ class NVEClient:
         # the requested resolution and since when, so we only request
         # observations that exist, clipped to their actual data start and
         # chunked into bounded windows.
-        series_index = self._series_index(
-            {param_id for _, param_id, _ in var_jobs}, set(ids), resolution
+        wanted_params = {param_id for _, param_id, _ in var_jobs}
+        series_index = self._series_index(wanted_params, set(ids), resolution)
+        n_pairs = len(ids) * len(var_jobs)
+        logger.info(
+            "NVE series index: %d of %d requested station+parameter pairs "
+            "have a series at resolution %d",
+            len(series_index), n_pairs, resolution,
         )
+        if not series_index and ids:
+            # /Series listed nothing for stations that our own inventory
+            # says have data — distrust the index rather than silently
+            # return no records.  Blind requests are noisier (missing
+            # series 404 with a verbose body) but self-diagnosing.
+            logger.warning(
+                "/Series matched none of the %d requested stations at "
+                "resolution %d — falling back to direct observation "
+                "requests for all of them",
+                len(ids), resolution,
+            )
+            series_index = {
+                (sid, pid): "" for sid in ids for pid in wanted_params
+            }
 
         records: list[dict] = []
         request_count = 0
