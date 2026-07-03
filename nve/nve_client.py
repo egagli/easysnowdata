@@ -15,10 +15,11 @@ Authentication    : API key required — pass via X-API-Key header.
                    Set the NVE_API_KEY environment variable or pass
                    ``api_key`` to NVEClient().
 
-Key parameters
+Key parameters (verified against GET /Parameters, 2026-07-03)
 --------------
-- Parameter 2001 : Snow depth (cm)
-- Parameter 2002 : Snow Water Equivalent / SWE (mm)
+- Parameter 2002 : Snow depth / "Snødybde" (cm)
+- Parameter 2003 : Snow Water Equivalent / "Snøens vannekvivalent" (m)
+- (Parameter 2001 is soil water / "Markfuktighet" — NOT snow depth)
 - ResolutionTime 1440 : Daily (1440 min)
 - ResolutionTime 60   : Hourly (60 min)
 
@@ -30,9 +31,11 @@ Each station has a public page on the NVE Sildre portal:
 Design principles
 -----------------
 - Returns plain Python objects (dicts / lists).
-- Metric-first: SWE returned in cm (converted from mm ÷ 10). Snow depth
-  returned in cm as-is. All other variables in their native SI units.
-- Missing / sentinel values (None, -9999, NaN) are normalised to ``None``.
+- Metric-first: SWE returned in cm (converted from native metres × 100).
+  Snow depth returned in cm as-is.
+- Missing / sentinel values (None, -9999, NaN) are normalised to ``None``,
+  as are physically implausible snow values (negative or > 15 m) that
+  slip through NVE's own quality control.
 - ``include_flags=True`` on ``get_data()`` adds a ``flag`` key to each
   value record.
 - HTTP retry logic is applied to all requests.
@@ -75,9 +78,17 @@ _SERIES_PER_STATION_MAX = 10
 # Sentinel / missing value used by some NVE responses
 _MISSING_VALUES = {-9999, -9999.0}
 
+# Plausibility bound for converted snow values (cm).  The NVE archive
+# contains glitches that pass its own quality control (e.g. station
+# 123.93.0 reports ~145 m SWE flagged "secondary controlled" in Jan
+# 2018); world-record snow depth is ~11.8 m.  Values outside
+# [0, _MAX_PLAUSIBLE_CM] are normalised to None, matching the DataBC
+# client's negative-value handling.
+_MAX_PLAUSIBLE_CM = 1500.0
+
 # NVE parameter IDs for snow variables
-_PARAM_SWE   = 2002  # Snow Water Equivalent (mm)
-_PARAM_SNWD  = 2001  # Snow depth (cm)
+_PARAM_SWE   = 2003  # Snow Water Equivalent, "Snøens vannekvivalent" (m)
+_PARAM_SNWD  = 2002  # Snow depth, "Snødybde" (cm)
 
 # Temporal resolution in minutes
 _RESOLUTION_DAILY  = 1440
@@ -92,36 +103,36 @@ _NVE_DATA_SOURCE = "NVE HydAPI v1 — https://hydapi.nve.no/api/v1/Observations"
 
 #: Known NVE hydrological parameters relevant to snow monitoring.
 VARIABLES: dict[str, dict] = {
-    "swe_mm": {
+    "swe_m": {
         "name": "Snow Water Equivalent",
         "type": "swe",
         "units": "cm",
-        "source": _NVE_DATA_SOURCE + " (ParameterId=2002)",
+        "source": _NVE_DATA_SOURCE + " (ParameterId=2003)",
         "description": (
             "Snow water equivalent from automated snow pillow. "
-            "Native API unit is mm; returned here in cm (÷ 10)."
+            "Native API unit is metres; returned here in cm (× 100)."
         ),
-        "notes": "Parameter ID 2002. Native units: mm.",
+        "notes": "Parameter ID 2003 (Snøens vannekvivalent). Native units: m.",
     },
     "snwd_cm": {
         "name": "Snow Depth",
         "type": "snwd",
         "units": "cm",
-        "source": _NVE_DATA_SOURCE + " (ParameterId=2001)",
+        "source": _NVE_DATA_SOURCE + " (ParameterId=2002)",
         "description": "Snow depth from automated sensor. Native API unit is cm.",
-        "notes": "Parameter ID 2001. Native units: cm.",
+        "notes": "Parameter ID 2002 (Snødybde). Native units: cm.",
     },
 }
 
 #: Mapping from standardized type → NVE variable key(s) (priority order).
 _TYPE_TO_NVE_VARS: dict[str, list[str]] = {
-    "swe":  ["swe_mm"],
+    "swe":  ["swe_m"],
     "snwd": ["snwd_cm"],
 }
 
 #: Mapping from NVE parameter ID → variable key.
 _PARAM_TO_VAR: dict[int, str] = {
-    _PARAM_SWE:  "swe_mm",
+    _PARAM_SWE:  "swe_m",
     _PARAM_SNWD: "snwd_cm",
 }
 
@@ -142,12 +153,10 @@ _RESOLUTION_TO_INTERVAL: dict[int, str] = {
 
 #: NVE data quality flags returned in the ``quality`` field of observations.
 DATA_FLAGS: dict[str, str] = {
-    "0": "No flag / good data",
-    "1": "Interpolated",
-    "2": "Estimated / corrected",
-    "3": "Dubious",
-    "4": "Missing",
-    "9": "No data",
+    "0": "Unknown — quality status not determined",
+    "1": "Uncontrolled",
+    "2": "Primary controlled",
+    "3": "Secondary controlled (quality assured)",
 }
 
 
@@ -627,9 +636,8 @@ class NVEClient:
         Returns
         -------
         list[dict]
-            Raw observation records as returned by the API (one per timestamp),
-            each with at least ``time``, ``value``, and optionally
-            ``quality`` fields.
+            Observation records (one per timestamp), each with ``time``,
+            ``value``, ``correction`` and ``quality`` fields.
 
         Raises
         ------
@@ -651,7 +659,14 @@ class NVEClient:
             params["ReferenceTime"] = f"{start}/{end}"
 
         raw = self._get("Observations", params)
-        return raw.get("data") or []
+        # ``data`` items are per-series wrappers ({stationId, parameter,
+        # unit, observationCount, observations: [...]}) — flatten to the
+        # actual observation records.
+        return [
+            obs
+            for serie in raw.get("data") or []
+            for obs in serie.get("observations") or []
+        ]
 
     def get_data(
         self,
@@ -672,7 +687,7 @@ class NVEClient:
             NVE station ID(s), e.g. ``"2.11.0"``.
             Required unless ``bbox`` is provided.
         variables : list[str] or str or None
-            NVE variable key(s) (e.g. ``"swe_mm"``) **or** standardized
+            NVE variable key(s) (e.g. ``"swe_m"``) **or** standardized
             types (e.g. ``"swe"``).  ``None`` returns all snow variables
             (SWE and snow depth).
         bbox : tuple, optional
@@ -696,9 +711,9 @@ class NVEClient:
                 {
                     "station_id": "2.11.0",
                     "date": "2024-01-15",
-                    "variable": "swe_mm",
+                    "variable": "swe_m",
                     "type": "swe",
-                    "value": 12.5,   # cm (converted from mm ÷ 10)
+                    "value": 12.5,   # cm (converted from m × 100)
                     "units": "cm",
                     "interval": "daily",
                     # "flag": "0"  (only present when include_flags=True)
@@ -706,11 +721,11 @@ class NVEClient:
 
         Notes
         -----
-        SWE values (parameter 2002) are stored by NVE in mm.  This method
-        converts them to cm (÷ 10) so that ``"units"`` is always ``"cm"``
-        for type ``"swe"``.
+        SWE values (parameter 2003) are stored by NVE in metres.  This
+        method converts them to cm (× 100) so that ``"units"`` is always
+        ``"cm"`` for type ``"swe"``.
 
-        Snow depth values (parameter 2001) are stored by NVE in cm and are
+        Snow depth values (parameter 2002) are stored by NVE in cm and are
         returned as-is.
 
         Raises
@@ -822,6 +837,10 @@ class NVEClient:
                 for obs in obs_list:
                     raw_val = _normalize_value(obs.get("value"))
                     value = converter(raw_val) if raw_val is not None else None
+                    if value is not None and not (
+                        0 <= value <= _MAX_PLAUSIBLE_CM
+                    ):
+                        value = None
                     # Extract date part from ISO timestamp
                     ts = str(obs.get("time") or obs.get("dateTime") or "")
                     date_str = ts[:10] if ts else ""
@@ -971,16 +990,16 @@ def _resolve_variables(
     Parameters
     ----------
     variables : list[str] or str or None
-        Variable key(s) (e.g. ``"swe_mm"``) or standardized type(s)
+        Variable key(s) (e.g. ``"swe_m"``) or standardized type(s)
         (e.g. ``"swe"``).  ``None`` returns all snow variables.
 
     Returns
     -------
     list of (var_key, param_id, converter) tuples
     """
-    # Converters: swe is mm → cm (÷ 10); snwd is cm → cm (identity)
+    # Converters: swe is m → cm (× 100); snwd is cm → cm (identity)
     _converters: dict[str, Any] = {
-        "swe_mm":  lambda x: round(x / 10.0, 3),
+        "swe_m":   lambda x: round(x * 100.0, 3),
         "snwd_cm": lambda x: round(x, 3),
     }
 
@@ -988,7 +1007,7 @@ def _resolve_variables(
         # Default: all snow variables
         return [
             (vk, _VAR_TO_PARAM[vk], _converters[vk])
-            for vk in ["swe_mm", "snwd_cm"]
+            for vk in ["swe_m", "snwd_cm"]
         ]
 
     raw_vars = [variables] if isinstance(variables, str) else list(variables)
@@ -1008,5 +1027,5 @@ def _resolve_variables(
             logger.warning("Unknown variable %r — skipping", v)
     return jobs or [
         (vk, _VAR_TO_PARAM[vk], _converters[vk])
-        for vk in ["swe_mm", "snwd_cm"]
+        for vk in ["swe_m", "snwd_cm"]
     ]
