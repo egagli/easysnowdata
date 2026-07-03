@@ -43,7 +43,7 @@ from __future__ import annotations
 import logging
 import os
 import time
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Any
 
 import requests
@@ -61,6 +61,16 @@ _DEFAULT_BACKOFF = 4
 # NVE HydAPI rate limit: 5 requests per second per API key.
 # A small inter-request delay keeps us safely under the limit.
 _REQUEST_DELAY = 0.25  # seconds between Observations requests
+
+# The API caps the number of data points one Observations request may
+# return ("the request will terminate with an error if the query reaches
+# this limit" — the exact cap is not documented).  Long date ranges are
+# split into windows sized to stay under this budget.
+_MAX_POINTS_PER_REQUEST = 20_000
+
+# When get_data() targets at most this many stations, series availability
+# is looked up per station instead of via nationwide per-parameter lists.
+_SERIES_PER_STATION_MAX = 10
 
 # Sentinel / missing value used by some NVE responses
 _MISSING_VALUES = {-9999, -9999.0}
@@ -159,6 +169,53 @@ def _date_str(d: str | date | datetime) -> str:
     return d.isoformat()
 
 
+def _reference_windows(
+    begin_date: str | date | None,
+    end_date: str | date | None,
+    data_from: str,
+    resolution: int,
+) -> list[tuple[str | None, str | None]]:
+    """
+    Split a requested observation period into ReferenceTime windows.
+
+    Clips the requested begin to the series' actual data start
+    (``data_from``, ISO date string from /Series, may be empty) and splits
+    the period into windows small enough to stay under
+    ``_MAX_POINTS_PER_REQUEST`` data points at the given resolution.
+    The end is never clipped to the series' ``dataToTime``: that metadata
+    can lag the newest observations.
+
+    Returns a list of ``(begin, end)`` ISO-date tuples.  ``(None, None)``
+    means "omit ReferenceTime" (the API then returns the most recent
+    observation), preserving the no-dates behaviour of ``get_data``.
+    An empty list means the requested period is empty.
+    """
+    if begin_date is None and end_date is None:
+        return [(None, None)]
+
+    begin = _date_str(begin_date) if begin_date is not None else (data_from or None)
+    if begin is None:
+        # Open start ("/end") — cannot chunk without a start date.
+        return [(None, _date_str(end_date))]
+
+    if data_from and begin < data_from:
+        begin = data_from
+    end = _date_str(end_date) if end_date is not None else date.today().isoformat()
+    if begin > end:
+        return []
+
+    # e.g. daily (1440 min): 20 000-day windows; hourly (60 min): 833 days
+    step_days = max(1, _MAX_POINTS_PER_REQUEST * resolution // 1440)
+    windows: list[tuple[str | None, str | None]] = []
+    cur = date.fromisoformat(begin)
+    stop = date.fromisoformat(end)
+    while cur <= stop:
+        win_end = min(cur + timedelta(days=step_days - 1), stop)
+        windows.append((cur.isoformat(), win_end.isoformat()))
+        cur = win_end + timedelta(days=1)
+    return windows
+
+
 def _filter_by_bbox(
     stations: list[dict],
     bbox: tuple[float, float, float, float],
@@ -203,7 +260,7 @@ def _enrich_station(raw: dict) -> dict:
         Normalised station record with keys:
         ``station_id``, ``name``, ``latitude``, ``longitude``,
         ``elevation_m``, ``drainage_basin_key``, ``status``,
-        ``station_url``, ``parameters``.
+        ``station_url``, ``parameters``, ``daily_parameters``.
     """
     sid = str(raw.get("stationId") or "")
     # Normalise lat/lon (NVE may return as float or null)
@@ -216,11 +273,25 @@ def _enrich_station(raw: dict) -> dict:
     active = raw.get("active", True)
     status = "Active" if active else "Inactive"
 
-    # Build list of parameter IDs available at this station
+    # Build parameter availability from seriesList.  Each entry is a
+    # SerieShort whose parameter ID lives under the key ``parameter``
+    # (NOT ``parameterId``), with a ``resolutionList`` of supported time
+    # resolutions (resTime in minutes: 0/60/1440).
     series_list = raw.get("seriesList") or []
-    param_ids: list[int] = sorted(
-        {int(s["parameterId"]) for s in series_list if s.get("parameterId") is not None}
-    )
+    param_ids: set[int] = set()
+    daily_param_ids: set[int] = set()
+    for s in series_list:
+        pid = s.get("parameter")
+        if pid is None:
+            continue
+        pid = int(pid)
+        param_ids.add(pid)
+        resolutions = s.get("resolutionList") or []
+        if any(
+            _normalize_value(r.get("resTime")) == _RESOLUTION_DAILY
+            for r in resolutions
+        ):
+            daily_param_ids.add(pid)
 
     return {
         "station_id": sid,
@@ -231,7 +302,8 @@ def _enrich_station(raw: dict) -> dict:
         "drainage_basin_key": raw.get("drainageBasinKey") or "",
         "status": status,
         "station_url": _SILDRE_URL.format(station_id=sid) if sid else "",
-        "parameters": param_ids,
+        "parameters": sorted(param_ids),
+        "daily_parameters": sorted(daily_param_ids),
     }
 
 
@@ -241,7 +313,9 @@ class NVEClient:
     """
     Client for the NVE HydAPI (Norwegian hydrological data service).
 
-    No authentication is required.  All endpoints are publicly accessible.
+    An API key is required for all endpoints — set the ``NVE_API_KEY``
+    environment variable or pass ``api_key``.  Register for a free key
+    at https://hydapi.nve.no/.
 
     Parameters
     ----------
@@ -278,6 +352,12 @@ class NVEClient:
         }
         if resolved_key:
             headers["X-API-Key"] = resolved_key
+        else:
+            logger.warning(
+                "No NVE API key configured (NVE_API_KEY unset and no "
+                "api_key given) — all HydAPI requests will fail with "
+                "HTTP 401. Register for a free key at https://hydapi.nve.no/"
+            )
         self._session.headers.update(headers)
 
     # ── Public API — station lists ────────────────────────────────────────────
@@ -332,9 +412,8 @@ class NVEClient:
                 for item in raw.get("data") or []:
                     sta = _enrich_station(item)
                     if sta["station_id"]:
-                        # The API may omit seriesList when filtering by
-                        # ParameterId, leaving parameters=[]. Guarantee the
-                        # queried parameter is present.
+                        # Safety net: guarantee the queried parameter is
+                        # present even if seriesList is missing/unparseable.
                         if pid not in sta["parameters"]:
                             sta["parameters"] = sorted(
                                 set(sta["parameters"]) | {pid}
@@ -415,6 +494,109 @@ class NVEClient:
         sta["series_list"] = data[0].get("seriesList") or []
         return sta
 
+    def get_series(
+        self,
+        parameter: int | None = None,
+        station_id: str | None = None,
+    ) -> list[dict]:
+        """
+        List time series available in HydAPI (GET /Series).
+
+        A *series* is one (station, parameter, version) combination with a
+        list of supported time resolutions and the data range covered at
+        each resolution.
+
+        Parameters
+        ----------
+        parameter : int, optional
+            NVE parameter ID (e.g. 2002 for SWE, 2001 for snow depth).
+            The endpoint accepts a single parameter per request.
+        station_id : str, optional
+            NVE station ID, e.g. ``"2.11.0"``.
+
+        Returns
+        -------
+        list[dict]
+            One dict per series with keys: ``station_id``, ``station_name``,
+            ``parameter``, ``parameter_name``, ``version_no``, ``unit``,
+            ``serie_from``, ``serie_to``, ``resolutions``.  ``resolutions``
+            is the raw ``resolutionList`` — each entry has ``resTime``
+            (minutes: 0/60/1440), ``dataFromTime`` and ``dataToTime``.
+        """
+        params: dict[str, Any] = {}
+        if parameter is not None:
+            params["Parameter"] = parameter
+        if station_id is not None:
+            params["StationId"] = station_id
+        raw = self._get("Series", params)
+        series: list[dict] = []
+        for item in raw.get("data") or []:
+            series.append({
+                "station_id": str(item.get("stationId") or ""),
+                "station_name": item.get("stationName") or "",
+                "parameter": item.get("parameter"),
+                "parameter_name": item.get("parameterName") or "",
+                "version_no": item.get("versionNo"),
+                "unit": item.get("unit") or "",
+                "serie_from": item.get("serieFrom") or "",
+                "serie_to": item.get("serieTo") or "",
+                "resolutions": item.get("resolutionList") or [],
+            })
+        return series
+
+    def _series_index(
+        self,
+        param_ids: set[int],
+        station_ids: set[str],
+        resolution: int,
+    ) -> dict[tuple[str, int], str]:
+        """
+        Map ``(station_id, param_id)`` → earliest ``dataFromTime`` date
+        string (``""`` when unknown) for series that exist at
+        ``resolution``.  For a handful of stations the /Series lookups go
+        by station; for large batches one nationwide /Series call per
+        parameter is cheaper.
+
+        Raises
+        ------
+        NVEError
+            If a /Series request fails (after retries) — a silent partial
+            index would make ``get_data`` skip every affected station and
+            look like "no data".
+        """
+        index: dict[tuple[str, int], str] = {}
+
+        def _ingest(series: list[dict]) -> None:
+            for serie in series:
+                sid = serie["station_id"]
+                pid = serie["parameter"]
+                if sid not in station_ids or pid not in param_ids:
+                    continue
+                for res in serie["resolutions"]:
+                    if _normalize_value(res.get("resTime")) != resolution:
+                        continue
+                    frm = str(res.get("dataFromTime") or "")[:10]
+                    prev = index.get((sid, pid))
+                    if prev is not None:
+                        # Merge versions: unknown start ("") wins, else earliest
+                        frm = min(frm, prev) if (frm and prev) else ""
+                    index[(sid, pid)] = frm
+
+        try:
+            if len(station_ids) <= _SERIES_PER_STATION_MAX:
+                for i, sid in enumerate(sorted(station_ids)):
+                    if i > 0:
+                        time.sleep(_REQUEST_DELAY)
+                    _ingest(self.get_series(station_id=sid))
+            else:
+                for i, pid in enumerate(sorted(param_ids)):
+                    if i > 0:
+                        time.sleep(_REQUEST_DELAY)
+                    _ingest(self.get_series(parameter=pid))
+        except NVEError as exc:
+            raise NVEError(f"Failed to list available series: {exc}") from exc
+        return index
+
     # ── Public API — time-series data ─────────────────────────────────────────
 
     def get_observations(
@@ -454,17 +636,12 @@ class NVEClient:
         NVEError
             On request failure.
         """
-        # ResolutionTime accepts string names ("day", "hour") or equivalent
-        # numeric strings ("1440", "60").  Map our integer constant to the name.
-        _resolution_name = {
-            _RESOLUTION_DAILY: "day",
-            _RESOLUTION_HOURLY: "hour",
-        }.get(resolution, str(resolution))
-
         params: dict[str, Any] = {
             "StationId": station_id,
             "Parameter": parameter_id,
-            "ResolutionTime": _resolution_name,
+            # Minutes as a string ("1440"/"60"), matching NVE's reference
+            # client (github.com/NVE/HydAPI).
+            "ResolutionTime": str(resolution),
         }
         # The Observations endpoint uses ReferenceTime in ISO-8601 interval
         # format ("start/end"), NOT separate StartDate/EndDate parameters.
@@ -575,6 +752,17 @@ class NVEClient:
         resolution = _INTERVAL_TO_RESOLUTION.get(interval.lower(), _RESOLUTION_DAILY)
         std_interval = _RESOLUTION_TO_INTERVAL.get(resolution, interval.lower())
 
+        # ── Discover which series actually exist ──────────────────────────
+        # Requesting a series that does not exist returns HTTP 404, and a
+        # very long ReferenceTime window can exceed the API's per-request
+        # data-point limit.  /Series tells us which stations have data at
+        # the requested resolution and since when, so we only request
+        # observations that exist, clipped to their actual data start and
+        # chunked into bounded windows.
+        series_index = self._series_index(
+            {param_id for _, param_id, _ in var_jobs}, set(ids), resolution
+        )
+
         records: list[dict] = []
         request_count = 0
         for sid in ids:
@@ -582,23 +770,35 @@ class NVEClient:
                 var_info = VARIABLES[var_key]
                 std_type = var_info["type"]
                 units = var_info["units"]
-                if request_count > 0:
-                    time.sleep(_REQUEST_DELAY)
-                request_count += 1
-                try:
-                    obs_list = self.get_observations(
-                        station_id=sid,
-                        parameter_id=param_id,
-                        begin_date=begin_date,
-                        end_date=end_date,
-                        resolution=resolution,
-                    )
-                except NVEError as exc:
-                    logger.warning(
-                        "Failed to fetch %s for station %s: %s",
-                        var_key, sid, exc,
+
+                if (sid, param_id) not in series_index:
+                    logger.debug(
+                        "Station %s has no %s series at resolution %d — skipping",
+                        sid, var_key, resolution,
                     )
                     continue
+                data_from = series_index[(sid, param_id)]
+
+                obs_list: list[dict] = []
+                for win_begin, win_end in _reference_windows(
+                    begin_date, end_date, data_from, resolution
+                ):
+                    if request_count > 0:
+                        time.sleep(_REQUEST_DELAY)
+                    request_count += 1
+                    try:
+                        obs_list.extend(self.get_observations(
+                            station_id=sid,
+                            parameter_id=param_id,
+                            begin_date=win_begin,
+                            end_date=win_end,
+                            resolution=resolution,
+                        ))
+                    except NVEError as exc:
+                        logger.warning(
+                            "Failed to fetch %s for station %s (%s/%s): %s",
+                            var_key, sid, win_begin, win_end, exc,
+                        )
 
                 for obs in obs_list:
                     raw_val = _normalize_value(obs.get("value"))
@@ -683,7 +883,30 @@ class NVEClient:
                 raise NVEError(f"HTTP 400 Bad Request: {msg}")
 
             if response.status_code == 404:
-                raise NVEError(f"HTTP 404 Not Found: {url}")
+                # The API 404s e.g. when a requested series does not exist;
+                # the body explains which — keep it in the error.
+                raise NVEError(
+                    f"HTTP 404 Not Found: {url} "
+                    f"(params={params!r}): {response.text[:300]}"
+                )
+
+            # Rate limited — honour Retry-After if present, then retry
+            if response.status_code == 429:
+                if attempt < self.max_retries:
+                    try:
+                        delay = float(response.headers.get("Retry-After", ""))
+                    except ValueError:
+                        delay = float(self.backoff * attempt)
+                    logger.warning(
+                        "HTTP 429 from %s (attempt %d/%d) — retrying in %.1fs",
+                        url, attempt, self.max_retries, delay,
+                    )
+                    time.sleep(delay)
+                    continue
+                raise NVEError(
+                    f"HTTP 429 Too Many Requests from {url} "
+                    f"after {self.max_retries} attempts"
+                )
 
             # Retryable server errors (5xx)
             if response.status_code >= 500:
