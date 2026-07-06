@@ -20,10 +20,10 @@ formats wherever possible.
 ## Data Source Status
 
 <!-- DATA_STATUS_START -->
-_Last updated: 2026-06-29 09:40 UTC_  
+_Last updated: 2026-07-06 09:25 UTC_  
 _⚠️ = skipped (credentials not available in this run)_
 
-| Data Source | Latest (Jun 29) | Jun 22 | Jun 15 | Jun 8 |
+| Data Source | Latest (Jul 6) | Jun 29 | Jun 22 | Jun 15 |
 | :---------- | :------: | :------: | :------: | :------: |
 | SNOTEL/CCSS station list (GitHub) | ✅ | ✅ | ✅ | ✅ |
 | SNOTEL/CCSS station CSV (GitHub) | ✅ | ✅ | ✅ | ✅ |
