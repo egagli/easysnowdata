@@ -132,7 +132,7 @@ def check_koppen_geiger_figshare() -> None:
 
 
 def check_snow_classification_azure() -> None:
-    url = "https://snowmelt.blob.core.windows.net/snowmelt/eric/snow_classification/SnowClass_GL_300m_10.0arcsec_2021_v01.0.tif"
+    url = "https://uwcryo.blob.core.windows.net/snowmelt/eric/snow_classification/SnowClass_GL_300m_10.0arcsec_2021_v01.0.tif"
     ok, reason = _head_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
