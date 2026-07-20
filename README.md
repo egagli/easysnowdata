@@ -20,10 +20,10 @@ formats wherever possible.
 ## Data Source Status
 
 <!-- DATA_STATUS_START -->
-_Last updated: 2026-07-13 09:08 UTC_  
+_Last updated: 2026-07-20 09:06 UTC_  
 _⚠️ = skipped (credentials not available in this run)_
 
-| Data Source | Latest (Jul 13) | Jul 6 | Jun 29 | Jun 22 |
+| Data Source | Latest (Jul 20) | Jul 13 | Jul 6 | Jun 29 |
 | :---------- | :------: | :------: | :------: | :------: |
 | SNOTEL/CCSS station list (GitHub) | ✅ | ✅ | ✅ | ✅ |
 | SNOTEL/CCSS station CSV (GitHub) | ✅ | ✅ | ✅ | ✅ |
@@ -31,7 +31,7 @@ _⚠️ = skipped (credentials not available in this run)_
 | GRDC major river basins (World Bank) | ✅ | ✅ | ✅ | ✅ |
 | GRDC WMO basins | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> |
 | Köppen-Geiger classification (figshare) | ✅ | ✅ | ✅ | ✅ |
-| Sturm & Liston snow classification (Azure) | ✅ | <abbr title="RuntimeError: Unreachable: HTTPSConnectionPool(host='snowmelt.blob.core.windows.">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTPSConnectionPool(host='snowmelt.blob.core.windows.">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTPSConnectionPool(host='snowmelt.blob.core.windows.">❌</abbr> |
+| Sturm & Liston snow classification (Azure) | ✅ | ✅ | <abbr title="RuntimeError: Unreachable: HTTPSConnectionPool(host='snowmelt.blob.core.windows.">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTPSConnectionPool(host='snowmelt.blob.core.windows.">❌</abbr> |
 | Forest cover fraction (Zenodo) | ✅ | ✅ | ✅ | ✅ |
 | Mountain snow mask (Zenodo) | ✅ | ✅ | ✅ | ✅ |
 | ARCO-ERA5 (GCS anonymous) | ✅ | ✅ | ✅ | ✅ |
