@@ -14,8 +14,9 @@ time-series data.
 3. [CDECClient — California Data Exchange Center](#3-cdecclient)
 4. [DataBCClient — BC Data Catalogue](#4-databcclient)
 5. [NVEClient — NVE HydAPI (Norway)](#5-nveclient)
-6. [Error Handling](#6-error-handling)
-7. [Adding a New Client](#7-adding-a-new-client)
+6. [YukonClient — Yukon Water Data / AquaCache](#6-yukonclient)
+7. [Error Handling](#7-error-handling)
+8. [Adding a New Client](#8-adding-a-new-client)
 
 ---
 
@@ -144,7 +145,9 @@ norms = client.get_normals("303:CO:SNTL", ["WTEQ"], normal_period="1991-2020")
 - **500k value limit:** `n_stations × n_elements × n_days ≤ 500,000`.  The
   client auto-splits requests.
 - **Triplet format:** `{stationId}:{stateCode}:{networkCode}` — case-sensitive.
-- **BC/AB/YK stations:** Accessible with state codes `BC`, `AB`, `YK`.
+- **Canadian stations:** Accessible with state codes `BC` and `AB` (58 and 16
+  snow stations respectively).  AWDB returns **no** Yukon stations with snow
+  elements — for Yukon coverage use the [Yukon client](#6-yukonclient).
 - **Missing values:** `None` in parsed response.
 - **WTEQ/SNWD units:** Converted from inches to cm automatically.
 
@@ -715,7 +718,265 @@ Base URL: `https://hydapi.nve.no/api/v1`
 
 ---
 
-## 6. Error Handling
+## 6. YukonClient
+
+**Module:** `clients.yukon.yukon_client`
+**Class:** `YukonClient`
+**API:** [AquaCache API v1](https://service.yukon.ca/water-data/api/v1/openapi.json)
+**Operator:** Yukon Government Department of Environment, Water Science and
+Stewardship
+
+The public data service behind the Government of Yukon
+[Water Data Explorer](https://service.yukon.ca/water-data/shiny/).  No
+authentication is required — the API is fully open and self-describes at
+`/openapi.json`.
+
+```python
+from clients.yukon import YukonClient
+client = YukonClient()
+```
+
+### Networks and station types
+
+| Station type | `networkCode` | Count | Description |
+|---|---|---|---|
+| `SC` | `YSS` | 92 | Manual snow courses — 10-point surveys, records from 1964, target dates Feb 1 / Mar 1 / Apr 1 / May 1 / May 15.  **Periodic**, so excluded from `all_daily_snow_stations.geojson`. |
+| `AWS` | `YSS` | 9 | Automated snow-weather stations — snow-pillow SWE at hourly to 3-hourly resolution, earliest record 1980-02-25. |
+| `ECCC` | `YKEC` | 8 | Environment and Climate Change Canada climate stations mirrored into AquaCache, with daily snow depth.  Reaches the Arctic coast (Herschel Island 69.57°N; Komakuk Beach from 1963). |
+
+17 stations (AWS + ECCC) carry a continuous series and appear in the merged
+daily inventory.
+
+### Key data variables
+
+```python
+from clients.yukon.yukon_client import VARIABLES, DATA_FLAGS, SNOW_VARIABLES
+```
+
+| Key | `type` | Native | Emitted |
+|---|---|---|---|
+| `swe_mm` | `swe` | mm | **cm** (÷ 10) |
+| `snwd_cm` | `snwd` | cm | cm |
+| `air_temp_degc` | `temp` | °C | °C |
+| `air_temp_max_degc` | `temp_max` | °C | °C |
+| `air_temp_min_degc` | `temp_min` | °C | °C |
+| `precip_total_mm` | `precip` | mm | mm |
+| `precip_rain_mm` | `precip` | mm | mm |
+| `precip_snow_cm` | `precip` | cm | cm |
+| `rel_humidity_pct` | `rh` | % | % |
+| `wind_spd_kmh` | `wind_spd` | km/h | km/h |
+| `wind_dir_deg` | `wind_dir` | degrees | degrees |
+| `baro_press_kpa` | `baro` | kPa | kPa |
+| `soil_moisture_pct` | `other` | % | % |
+
+Unlike the other clients, `VARIABLES[key]["units"]` is the **native** unit and
+`["output_units"]` is what `get_data()` emits, so callers and the GeoJSON
+builder read one source of truth.  Only SWE is converted; as in the DataBC
+client, other met variables keep their native units.
+
+### Constructor
+
+```python
+YukonClient(
+    base_url: str = "https://service.yukon.ca/water-data/api/v1",
+    timeout: int = 120,
+    max_retries: int = 3,
+    backoff: int = 4,
+    session: requests.Session | None = None,
+)
+```
+
+### Key methods
+
+#### `get_locations(location_types, networks, bbox)` → `list[dict]`
+
+All 390 AquaCache monitoring locations, optionally filtered.
+
+```python
+courses = client.get_locations(location_types="snowpack")   # 92
+```
+
+#### `get_timeseries(location_ids, variables, publicly_visible_only)` → `list[dict]`
+
+The continuous-series catalogue.  Only series whose parameter appears in
+`VARIABLES` are returned — the endpoint also lists water flow, water level,
+groundwater and water-quality series that have no place in a snow archive.
+This is the source of truth for per-station variable inventories, so period of
+record and interval always reflect what the API currently serves.
+
+#### `get_snow_course_stations(active_only, bbox)` → `list[dict]`
+
+The 92 manual snow courses, built from `/locations` and enriched from
+`/snow-survey/metadata` (first/last survey, per-target-date survey counts,
+Snow Bulletin sub-basin).
+
+#### `get_automated_stations(active_only, bbox, networks)` → `list[dict]`
+
+Locations with a continuous SWE or snow-depth series, each carrying a
+populated `series` list.
+
+#### `get_all_stations(active_only, bbox)` → `list[dict]`
+
+Courses + automated + ECCC, sorted by `station_id` (109 stations).
+
+#### `get_snow_survey_data(station_ids, begin_date, end_date, include_flags)` → `list[dict]`
+
+The manual snow course archive (~22,000 measurements).  The endpoint takes no
+query parameters and returns the whole archive in one ~2 MB response, so
+filtering happens client-side and the response is cached on the instance.
+
+```python
+rows = client.get_snow_survey_data(station_ids=["08AA-SC01"], include_flags=True)
+apr1 = [r for r in rows if r["survey_period"] == "01-Apr"]
+```
+
+Records carry `date` (true sample date), `target_date`, `survey_period`
+(`"01-Apr"`-style, matching the DataBC client), `year` and `month`.
+
+#### `get_snow_survey_stats()` / `get_snow_survey_trends()` → `list[dict]`
+
+Per-course summary statistics (record length, missing years, max/mean/median
+SWE and depth) and Mann-Kendall trend analysis (p-values, Sen's slopes,
+estimated annual percent change).  Useful as an independent cross-check on
+course metadata.
+
+#### `get_daily_measurements(timeseries_ids, begin_date, end_date, stats)` → `list[dict]`
+
+Raw daily aggregates.  `stats=True` adds historical percentiles and 30-year
+normals.
+
+#### `get_measurements(timeseries_ids, begin_date, end_date)` → `list[dict]`
+
+Raw instantaneous values with grade, approval and qualifier columns.
+
+#### `get_data(station_ids, variables, bbox, begin_date, end_date, interval, include_flags)` → `list[dict]`
+
+Standardized data fetch — returns a **flat** list of observation records.
+`interval="daily"` reads daily aggregates, `"hourly"` / `"sub_daily"` reads
+instantaneous values, and `"periodic"` reads the manual snow course archive
+(as `DataBCClient` does for MSS).
+
+```python
+records = client.get_data(
+    station_ids=["09AA-M1"],       # Tagish Meteorological
+    variables=["swe", "snwd"],
+    interval="daily",
+    begin_date="2024-01-01",
+)
+# records[0]
+# → {"station_id": "09AA-M1", "date": "2024-01-01",
+#    "variable": "swe_mm", "type": "swe", "value": 8.088,
+#    "units": "cm", "interval": "daily",
+#    "aggregation": "instantaneous", "timeseries_id": "20"}
+```
+
+`aggregation` and `timeseries_id` are extra keys that disambiguate locations
+holding several series of the same parameter — ECCC daily air temperature
+exists as `minimum`, `maximum` and `(min+max)/2`.  Sub-daily records
+additionally carry `datetime`.
+
+#### `get_station_image_url(station_id)` → `None`
+
+Always `None`.  The API exposes no station imagery and the Water Data Explorer
+that would host it sits behind a Cloudflare JS challenge.  The method exists
+so callers can treat every client alike.
+
+### Station dict schema
+
+| Key | Type | Description |
+|---|---|---|
+| `station_id` | str | AquaCache `location_code` (e.g. `"09AA-M1"`, `"08AA-SC01"`) |
+| `location_id` | str | Numeric AquaCache ID, used by `/timeseries` |
+| `name` | str | Station name |
+| `latitude`, `longitude` | float | WGS-84 |
+| `elevation_m` | float | Elevation in metres |
+| `state` | str | `"YT"`, `"BC"` or `"AK"` — see below |
+| `station_type` | str | `"SC"`, `"AWS"` or `"ECCC"` |
+| `network`, `network_code` | str | AquaCache network name and `networkCode` |
+| `operator` | str | Operating agency |
+| `status` | str | `"Active"` or `"Inactive"` |
+| `variables` | list[str] | `VARIABLES` keys available at this station |
+| `series` | list[dict] | Continuous series (empty for courses) |
+| `station_url`, `dataset_url` | str | Water Data Explorer and Open Yukon links |
+
+Courses additionally carry `first_survey`, `last_survey`, `survey_counts`,
+`sub_basin` and `has_survey_metadata`.
+
+### Data flags
+
+Four vocabularies, exported separately and unioned into `DATA_FLAGS`:
+
+| Export | Source | Applies to |
+|---|---|---|
+| `SNOW_SURVEY_FLAGS` | `/snow-survey/data` | `interval="periodic"` — `"Actual"` vs `"Estimated SWE"` (depth measured, SWE inferred from historical density) |
+| `DAILY_FLAGS` | `/timeseries/measurementsDaily` | `interval="daily"` — `"imputed"` or `""` |
+| `GRADE_FLAGS` | `GET /grades` | instantaneous, prefixed `grade:` |
+| `APPROVAL_FLAGS` | `GET /approvals` | instantaneous, prefixed `approval:` |
+| `QUALIFIER_FLAGS` | `GET /qualifiers` | instantaneous, prefixed `qualifier:` |
+
+### Endpoints used
+
+| Purpose | Endpoint |
+|---|---|
+| Locations | `GET /locations` |
+| Series catalogue | `GET /timeseries` |
+| Daily aggregates | `GET /timeseries/measurementsDaily` |
+| Instantaneous values | `GET /timeseries/measurements` |
+| Course metadata | `GET /snow-survey/metadata` |
+| Course archive | `GET /snow-survey/data` |
+| Course statistics | `GET /snow-survey/stats` |
+| Course trends | `GET /snow-survey/trends` |
+| Flag vocabularies | `GET /grades`, `/approvals`, `/qualifiers` |
+
+Base URL: `https://service.yukon.ca/water-data/api/v1`
+
+### Notes and gotchas
+
+- **`state` is not blanket `"YT"`.**  The Yukon Snow Survey operates seven
+  stations outside Yukon: `09AA-SC03` and `09AA-SC04` (named "Log Cabin
+  (B.C.)" and "Atlin (B.C.)"), `09EC-SC02` ("Boundary (Alaska)"), plus
+  `08AC-SC01`, `08AK-SC01`, `08AK-SC02` and `09AA-M2`, whose names do not
+  declare a jurisdiction.  `_station_state()` resolves the jurisdiction
+  declared in the name first, then the Yukon bounding box, then an explicit
+  override table — so an upstream naming fix automatically supersedes the
+  overrides.
+- **`measurementsDaily.value` is a daily *mean***, computed over the local day
+  given by `day_timezone` (UTC-07 for Yukon Snow Survey sites), not an
+  instantaneous snapshot.  Verified by reconstructing 2024-03-01 for
+  timeseries 20 from `/timeseries/measurements`.
+- **Empty results arrive as a status envelope, not an empty CSV.**  A query
+  matching nothing returns `status,message` with one informational row.
+  `_parse_csv()` recognises and drops it so it never surfaces as data.
+- **`/snow-survey/*` CSVs have a quoted comment header** whose block ends with
+  a line containing exactly `""`.  Filtering on `line.strip()` alone treats
+  that line as content and makes it the CSV header — see
+  `_strip_api_comments()`.
+- **`/snow-survey/data` leaves `units` empty for snow depth.**  It is cm,
+  corroborated by the `/snow-survey/stats` field name `max_DEPTH_cm`.  The
+  unit always comes from `VARIABLES`, never from the response.
+- **Array columns are Postgres literals.**  `networks` and `projects` arrive as
+  `{"Yukon Snow Survey Network","..."}` or `{NULL}` — see `_parse_pg_array()`.
+- **Snow-survey `month` includes `5.5`** (meaning May 15), so it must be parsed
+  as a float, not an int.
+- **Low elevations are real, not sentinels.**  Herschel Island reports 1.2 m,
+  Komakuk Beach 13.2 m and Fishing Branch River 0 m.
+- **`09DC-SC01` (Mayo Airport) is a composite record** present in `/locations`
+  but absent from `/snow-survey/metadata`, with no survey rows of its own — its
+  constituents `09DC-SC01A`/`B` hold the data.  Courses are therefore built
+  from `/locations` so composites are not silently dropped.
+- **ECCC snow depth is sparse in places.**  Herschel Island reports roughly one
+  value per month in the late 2000s, so short date windows can legitimately
+  return nothing.
+- **`/organizations` and `/csw-layer` are slow** and are never on the critical
+  path.
+- **Provenance overlap.**  The `YKEC` stations are a Yukon-Government mirror of
+  ECCC data.  A future direct ECCC client would need lat/lon + name dedup
+  against them, the same way BC and CCSS sites intentionally duplicate between
+  `awdb` and their native clients.
+
+---
+
+## 7. Error Handling
 
 | Client | Exception | Scenarios |
 |---|---|---|
@@ -723,6 +984,7 @@ Base URL: `https://hydapi.nve.no/api/v1`
 | CDECClient | `CDECError` | HTTP 4xx/5xx, network timeout, HTML parse failure |
 | DataBCClient | `DataBCError` | HTTP 4xx/5xx, network timeout, malformed CSV |
 | NVEClient | `NVEError` | HTTP 4xx/5xx, network timeout, station not found |
+| YukonClient | `YukonError` | HTTP 4xx/5xx, network timeout, malformed CSV |
 
 All exceptions are subclasses of `Exception` with descriptive messages.
 
@@ -731,6 +993,7 @@ from clients.awdb import AWDBClient, AWDBError
 from clients.cdec import CDECClient, CDECError
 from clients.databc import DataBCClient, DataBCError
 from clients.nve import NVEClient, NVEError
+from clients.yukon import YukonClient, YukonError
 
 try:
     data = AWDBClient().get_data(station_ids=["303:CO:SNTL"], variables=["swe"])
@@ -743,9 +1006,9 @@ with linear backoff up to `max_retries` attempts.
 
 ---
 
-## 7. Adding a New Client
+## 8. Adding a New Client
 
-To add support for a new data source (e.g. GHCND, Environment Canada):
+To add support for a new data source (e.g. GHCND, Alberta Environment):
 
 1. Create `clients/{source}/` directory with `__init__.py` and
    `{source}_client.py`.
@@ -765,7 +1028,9 @@ To add support for a new data source (e.g. GHCND, Environment Canada):
      - `name` — station name
      - `latitude`, `longitude` — WGS-84
      - `elevation_m` — elevation in metres
-     - `networkCode` — short code used by the live map (e.g. `"BCSS"`)
+     - `networkCode` — short code used by the live map (e.g. `"BCSS"`).
+       A client may emit more than one (the Yukon client uses `"YSS"` and
+       `"YKEC"` to separate Yukon-operated sites from mirrored ECCC ones)
      - `Operator` — operating agency
      - `client` — source client name (e.g. `"databc"`)
      - `station_url` — link to official station page
