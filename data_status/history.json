@@ -4,6 +4,116 @@
       "source": "SNOTEL/CCSS station list (GitHub)",
       "status": "pass",
       "error": null,
+      "checked_at": "2026-07-27T09:09:25Z"
+    },
+    {
+      "source": "SNOTEL/CCSS station CSV (GitHub)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-07-27T09:09:25Z"
+    },
+    {
+      "source": "HydroATLAS basins (figshare)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-07-27T09:09:25Z"
+    },
+    {
+      "source": "GRDC major river basins (World Bank)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-07-27T09:09:27Z"
+    },
+    {
+      "source": "GRDC WMO basins",
+      "status": "fail",
+      "error": "RuntimeError: Unreachable: HTTP 404",
+      "checked_at": "2026-07-27T09:09:27Z"
+    },
+    {
+      "source": "K\u00f6ppen-Geiger classification (figshare)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-07-27T09:09:29Z"
+    },
+    {
+      "source": "Sturm & Liston snow classification (Azure)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-07-27T09:09:30Z"
+    },
+    {
+      "source": "Forest cover fraction (Zenodo)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-07-27T09:09:31Z"
+    },
+    {
+      "source": "Mountain snow mask (Zenodo)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-07-27T09:09:32Z"
+    },
+    {
+      "source": "ARCO-ERA5 (GCS anonymous)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-07-27T09:09:32Z"
+    },
+    {
+      "source": "Copernicus DEM (Planetary Computer)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-07-27T09:09:34Z"
+    },
+    {
+      "source": "ESA WorldCover (Planetary Computer)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-07-27T09:09:35Z"
+    },
+    {
+      "source": "HUC geometries (GEE/USGS WBD)",
+      "status": "fail",
+      "error": "RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_description': 'Bad Request'})",
+      "checked_at": "2026-07-27T09:09:36Z"
+    },
+    {
+      "source": "SNODAS (GEE/Climate Engine)",
+      "status": "fail",
+      "error": "RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_description': 'Bad Request'})",
+      "checked_at": "2026-07-27T09:09:36Z"
+    },
+    {
+      "source": "ERA5 (Google Earth Engine)",
+      "status": "fail",
+      "error": "RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_description': 'Bad Request'})",
+      "checked_at": "2026-07-27T09:09:36Z"
+    },
+    {
+      "source": "CHILI (GEE/CSP ERGo)",
+      "status": "fail",
+      "error": "RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_description': 'Bad Request'})",
+      "checked_at": "2026-07-27T09:09:36Z"
+    },
+    {
+      "source": "NLCD (GEE/USGS)",
+      "status": "fail",
+      "error": "RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_description': 'Bad Request'})",
+      "checked_at": "2026-07-27T09:09:36Z"
+    },
+    {
+      "source": "UCLA Snow Reanalysis (NASA NSIDC)",
+      "status": "skip",
+      "error": "Missing env vars: EARTHDATA_USERNAME, EARTHDATA_PASSWORD",
+      "checked_at": "2026-07-27T09:09:36Z"
+    }
+  ],
+  [
+    {
+      "source": "SNOTEL/CCSS station list (GitHub)",
+      "status": "pass",
+      "error": null,
       "checked_at": "2026-07-20T09:05:56Z"
     },
     {
