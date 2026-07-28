@@ -74,8 +74,6 @@ _STATION_ID_RE = re.compile(r"^[A-Z0-9]{2,5}$")
 # ── Public sensor / flag / duration tables ───────────────────────────────────
 
 #: Known snow-relevant CDEC sensors.
-_CDEC_DATA_SOURCE = "CDEC JSONDataServlet — {BASE_URL}/dynamicapp/req/JSONDataServlet"
-
 SENSORS: dict[int, dict[str, str]] = {
     3: {
         "name": "Snow Water Content",
@@ -169,6 +167,8 @@ def _resolve_variables_to_cdec_sensors(
     var_list = (
         [variables] if isinstance(variables, str) else list(variables)
     )
+    if not var_list:
+        return list(SENSORS.keys())
     # Build reverse lookups
     short_name_to_num = {
         v["short_name"]: k for k, v in SENSORS.items()
@@ -190,7 +190,15 @@ def _resolve_variables_to_cdec_sensors(
             if snum not in seen:
                 sensors.append(snum)
                 seen.add(snum)
-    return sensors or list(SENSORS.keys())
+        else:
+            # No silent fallback (DESIGN.md §3.6): an unknown variable
+            # must not quietly expand into "fetch everything".
+            raise CDECError(
+                f"Unknown variable {v!r} for CDEC — expected a "
+                f"standardized type ({sorted(_TYPE_TO_SENSORS)}) or a "
+                f"sensor short name ({sorted(short_name_to_num)})."
+            )
+    return sensors
 
 
 # ── Client ───────────────────────────────────────────────────────────────────
@@ -473,8 +481,9 @@ class CDECClient:
         dict
             Keys: ``station_id``, ``name``, ``elevation_ft``, ``river_basin``,
             ``county``, ``hydrologic_area``, ``nearby_city``, ``latitude``,
-            ``longitude``, ``operator``, ``maintenance``, ``sensors``
-            (list of sensor inventory dicts), ``station_url``.
+            ``longitude``, ``operator``, ``maintenance``,
+            ``sensor_inventory`` (list of sensor inventory dicts),
+            ``station_url``.
         """
         url = f"{BASE_URL}/dynamicapp/staMeta"
         html = self._get_html(url, params={"station_id": station_id})
@@ -747,9 +756,17 @@ class CDECClient:
 
         # Resolve variables → sensor numbers
         sensors = _resolve_variables_to_cdec_sensors(variables)
-        cdec_duration = _INTERVAL_TO_CDEC_DURATION.get(
-            interval.lower(), "D"
-        )
+        try:
+            cdec_duration = _INTERVAL_TO_CDEC_DURATION[interval.lower()]
+        except KeyError:
+            raise CDECError(
+                f"Unsupported interval {interval!r} for CDEC — expected "
+                f"one of {sorted(_INTERVAL_TO_CDEC_DURATION)}."
+            ) from None
+        # Sub-daily durations keep their timestamps; records get a
+        # 'datetime' key and SWE priority resolves per timestamp, not per
+        # calendar date (which used to collapse hourly data silently).
+        sub_daily = cdec_duration in ("H", "E")
 
         raw = self._get_data_cdec(
             ids, sensors, cdec_duration, begin_date, end_date,
@@ -760,8 +777,8 @@ class CDECClient:
         records: list[dict] = []
         for station_data in raw:
             sid = station_data.get("stationId", "")
-            # Collect per-date SWE values by sensor priority
-            swe_by_date: dict[str, tuple[int, float | None, str | None]] = {}
+            # Highest-priority SWE value per timestamp (or date)
+            swe_by_ts: dict[str, tuple[int, float | None, str | None]] = {}
             other_records: list[dict] = []
 
             for block in station_data.get("data", []):
@@ -776,57 +793,52 @@ class CDECClient:
                 )
 
                 for rec in block.get("values", []):
-                    d = str(rec.get("date", ""))[:10]
+                    ts = str(rec.get("date", ""))
                     v = rec.get("value")
                     flag = rec.get("flag") if include_flags else None
 
                     if std_type == "swe":
-                        # Keep higher-priority sensor per date
-                        existing = swe_by_date.get(d)
-                        if existing is None or sensor_num < existing[0]:
-                            # lower sensor number = lower priority
-                            # 82 preferred over 3; store as
-                            # (-priority, sensor_num) — we want 82 to win
-                            pass
-                        # sensor 82 wins over sensor 3
-                        if existing is None:
-                            swe_by_date[d] = (sensor_num, v, flag)
-                        else:
-                            existing_snum = existing[0]
-                            # 82 > 3 in priority
-                            if sensor_num == 82 or (
-                                sensor_num != 3 or existing_snum != 82
-                            ):
-                                if existing_snum != 82:
-                                    swe_by_date[d] = (sensor_num, v, flag)
+                        key = ts if sub_daily else ts[:10]
+                        existing = swe_by_ts.get(key)
+                        # Sensor 82 (SNO ADJ, calibration-adjusted) always
+                        # beats sensor 3 (raw pillow reading).
+                        if (
+                            existing is None
+                            or existing[0] != 82
+                            or sensor_num == 82
+                        ):
+                            swe_by_ts[key] = (sensor_num, v, flag)
                     else:
                         r: dict = {
                             "station_id": sid,
-                            "date": d,
+                            "date": ts[:10],
                             "variable": short_name,
                             "type": std_type,
                             "value": v,
                             "units": "cm",
                             "interval": std_interval,
                         }
+                        if sub_daily:
+                            r["datetime"] = ts
                         if include_flags:
                             r["flag"] = flag
                         other_records.append(r)
 
             # Emit SWE records (priority-resolved)
-            for d, (snum, v, flag) in sorted(swe_by_date.items()):
+            std_interval_out = _CDEC_DURATION_TO_INTERVAL[cdec_duration]
+            for key, (snum, v, flag) in sorted(swe_by_ts.items()):
                 sinfo = SENSORS.get(snum, {})
                 r = {
                     "station_id": sid,
-                    "date": d,
+                    "date": key[:10],
                     "variable": sinfo.get("short_name", str(snum)),
                     "type": "swe",
                     "value": v,
                     "units": "cm",
-                    "interval": _CDEC_DURATION_TO_INTERVAL.get(
-                        cdec_duration, cdec_duration
-                    ),
+                    "interval": std_interval_out,
                 }
+                if sub_daily:
+                    r["datetime"] = key
                 if include_flags:
                     r["flag"] = flag
                 records.append(r)
@@ -1151,17 +1163,24 @@ def _parse_sta_meta_html(station_id: str, html: str) -> dict:
 # ── Utility helpers ───────────────────────────────────────────────────────────
 
 def _normalise_cdec_date(date_str: str) -> str:
-    """Convert CDEC date strings like '2023-1-1 00:00' to 'YYYY-MM-DD'."""
-    s = date_str.strip().split(" ")[0]
-    parts = s.split("-")
+    """Normalise CDEC timestamps like '2023-1-1 16:00' by zero-padding the
+    date part.  The time-of-day is PRESERVED ('YYYY-MM-DD HH:MM') so that
+    hourly and event records stay distinguishable — truncating here used
+    to collapse a day of hourly readings into one indistinguishable date."""
+    s = date_str.strip()
+    date_part, _, time_part = s.partition(" ")
+    parts = date_part.split("-")
     if len(parts) == 3:
         try:
-            return (
+            date_part = (
                 f"{int(parts[0]):04d}-{int(parts[1]):02d}-{int(parts[2]):02d}"
             )
         except ValueError:
-            pass
-    return s[:10]
+            date_part = date_part[:10]
+    else:
+        date_part = date_part[:10]
+    time_part = time_part.strip()[:5]
+    return f"{date_part} {time_part}" if time_part else date_part
 
 
 def _date_str(d: str | date | datetime) -> str:
