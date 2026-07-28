@@ -15,12 +15,13 @@ Design principles
 - No hard-coded element codes or network codes — everything is parameterized.
 - The 500,000 value-per-request API limit is enforced automatically; the
   client splits requests and re-assembles the results transparently.
-- Metric-first outputs: AWDB values that are known to be imperial are converted
-    in-client; specifically WTEQ and SNWD are returned in centimeters.
+- Metric-first outputs (DESIGN.md §3.5): imperial AWDB values are converted
+  in-client — WTEQ/SNWD in centimetres, temperatures in °C, precipitation
+  in mm, wind speeds in km/h.
 
 Intended usage
 --------------
-    from global_snow_point_obs.clients import AWDBClient
+    from clients.awdb import AWDBClient
 
     client = AWDBClient()
 
@@ -34,15 +35,14 @@ Intended usage
         durations=["DAILY"],
     )
 
-    # Fetch daily SWE for WY2024
-    data = client.get_data(
-        triplets=["303:CO:SNTL"],
-        elements=["WTEQ"],
-        duration="DAILY",
+    # Fetch daily SWE for WY2024 (values in centimetres)
+    records = client.get_data(
+        station_ids=["303:CO:SNTL"],
+        variables=["swe"],
+        interval="daily",
         begin_date="2023-10-01",
         end_date="2024-09-30",
     )
-    # WTEQ values are returned in centimeters.
 """
 
 from __future__ import annotations
@@ -51,7 +51,6 @@ import logging
 import time
 from datetime import date, datetime
 from typing import Any
-from urllib.parse import urlencode
 
 import numpy as np
 import requests
@@ -70,31 +69,56 @@ _DEFAULT_TIMEOUT = 180      # seconds
 _DEFAULT_RETRIES = 3
 _DEFAULT_BACKOFF = 6        # seconds (multiplied by attempt number)
 
-# AWDB commonly serves snow values in inches; normalize to metric at source.
-_CM_CONVERSIONS: dict[str, float] = {
-    "WTEQ": 2.54,
-    "SNWD": 2.54,
-}
-
 #: Known AWDB element codes with standardized type and unit metadata.
 #: Elements not listed here are returned with ``type="other"``.
+#: ``units`` is the native unit AWDB serves; ``output_units`` is what
+#: :meth:`AWDBClient.get_data` emits after in-client conversion
+#: (DESIGN.md §3.5 — fully metric, no imperial passthrough).
 _AWDB_DATA_SOURCE = "USDA NRCS AWDB REST API v1 — /data endpoint"
 
 VARIABLES: dict[str, dict] = {
-    "WTEQ":   {"name": "Snow Water Equivalent",          "type": "swe",       "units": "cm",      "description": "Snow water equivalent. Converted in-client from inches to cm.", "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "SNWD":   {"name": "Snow Depth",                     "type": "snwd",      "units": "cm",      "description": "Snow depth. Converted in-client from inches to cm.",            "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "TOBS":   {"name": "Air Temperature (observed)",     "type": "temp",      "units": "°F",      "description": "Instantaneous air temperature at observation time.",             "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "TMAX":   {"name": "Maximum Air Temperature",        "type": "temp_max",  "units": "°F",      "description": "Daily maximum air temperature.",                                "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "TMIN":   {"name": "Minimum Air Temperature",        "type": "temp_min",  "units": "°F",      "description": "Daily minimum air temperature.",                                "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "PREC":   {"name": "Precipitation Accumulation",     "type": "precip",    "units": "in",      "description": "Cumulative seasonal precipitation accumulation.",                "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "PRCP":   {"name": "Precipitation Increment",        "type": "precip",    "units": "in",      "description": "Precipitation increment since last observation.",               "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "PRCPSA": {"name": "Precipitation Accumulation (storm)", "type": "precip","units": "in",      "description": "Storm-period precipitation accumulation.",                     "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "RHUM":   {"name": "Relative Humidity",              "type": "rh",        "units": "%",       "description": "Relative humidity percentage.",                                 "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "WSPDV":  {"name": "Wind Speed Average",             "type": "wind_spd",  "units": "mph",     "description": "Average wind speed.",                                           "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "WSPDX":  {"name": "Wind Speed Maximum (Gust)",      "type": "wind_gust", "units": "mph",     "description": "Maximum (gust) wind speed.",                                   "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "WDIRV":  {"name": "Wind Direction",                 "type": "wind_dir",  "units": "degrees", "description": "Wind direction in degrees from north (0–360).",                "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "SRADV":  {"name": "Solar Radiation Average",        "type": "solar",     "units": "W/m²",    "description": "Average solar radiation.",                                      "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "WTEQ":   {"name": "Snow Water Equivalent",          "type": "swe",       "units": "in",      "output_units": "cm",      "description": "Snow water equivalent. Converted in-client from inches to cm.", "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "SNWD":   {"name": "Snow Depth",                     "type": "snwd",      "units": "in",      "output_units": "cm",      "description": "Snow depth. Converted in-client from inches to cm.",            "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "TOBS":   {"name": "Air Temperature (observed)",     "type": "temp",      "units": "°F",      "output_units": "°C",      "description": "Instantaneous air temperature at observation time. Converted in-client to °C.", "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "TMAX":   {"name": "Maximum Air Temperature",        "type": "temp_max",  "units": "°F",      "output_units": "°C",      "description": "Daily maximum air temperature. Converted in-client to °C.",     "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "TMIN":   {"name": "Minimum Air Temperature",        "type": "temp_min",  "units": "°F",      "output_units": "°C",      "description": "Daily minimum air temperature. Converted in-client to °C.",     "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "PREC":   {"name": "Precipitation Accumulation",     "type": "precip",    "units": "in",      "output_units": "mm",      "description": "Cumulative seasonal precipitation accumulation. Converted in-client to mm.", "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "PRCP":   {"name": "Precipitation Increment",        "type": "precip",    "units": "in",      "output_units": "mm",      "description": "Precipitation increment since last observation. Converted in-client to mm.", "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "PRCPSA": {"name": "Precipitation Accumulation (storm)", "type": "precip","units": "in",      "output_units": "mm",      "description": "Storm-period precipitation accumulation. Converted in-client to mm.", "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "RHUM":   {"name": "Relative Humidity",              "type": "rh",        "units": "%",       "output_units": "%",       "description": "Relative humidity percentage.",                                 "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "WSPDV":  {"name": "Wind Speed Average",             "type": "wind_spd",  "units": "mph",     "output_units": "km/h",    "description": "Average wind speed. Converted in-client to km/h.",              "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "WSPDX":  {"name": "Wind Speed Maximum (Gust)",      "type": "wind_gust", "units": "mph",     "output_units": "km/h",    "description": "Maximum (gust) wind speed. Converted in-client to km/h.",       "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "WDIRV":  {"name": "Wind Direction",                 "type": "wind_dir",  "units": "degrees", "output_units": "degrees", "description": "Wind direction in degrees from north (0–360).",                "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "SRADV":  {"name": "Solar Radiation Average",        "type": "solar",     "units": "W/m²",    "output_units": "W/m²",    "description": "Average solar radiation.",                                      "notes": "",  "source": _AWDB_DATA_SOURCE},
 }
+
+# In-client metric conversions (DESIGN.md §3.5), keyed by element code.
+# (transform, emitted unit).  Elements not listed pass through with their
+# registry output_units (they are already metric).
+_METRIC_CONVERSIONS: dict[str, tuple] = {
+    "WTEQ":   (lambda v: v * 2.54, "cm"),
+    "SNWD":   (lambda v: v * 2.54, "cm"),
+    "TOBS":   (lambda v: (v - 32.0) * 5.0 / 9.0, "°C"),
+    "TMAX":   (lambda v: (v - 32.0) * 5.0 / 9.0, "°C"),
+    "TMIN":   (lambda v: (v - 32.0) * 5.0 / 9.0, "°C"),
+    "PREC":   (lambda v: v * 25.4, "mm"),
+    "PRCP":   (lambda v: v * 25.4, "mm"),
+    "PRCPSA": (lambda v: v * 25.4, "mm"),
+    "WSPDV":  (lambda v: v * 1.609344, "km/h"),
+    "WSPDX":  (lambda v: v * 1.609344, "km/h"),
+}
+
+# Unit codes that mean the payload is ALREADY metric — if AWDB ever serves
+# these for a convertible element, the transform must be skipped.
+_ALREADY_METRIC_UNIT_CODES = {
+    "cm", "mm", "m", "degC", "°C", "km/h", "kph", "metric",
+}
+
+#: The AWDB REST API v1 does not return per-value QC flags, so this
+#: registry is empty.  It exists so the documented
+#: ``from clients.awdb.awdb_client import DATA_FLAGS`` pattern works
+#: uniformly across all clients.
+DATA_FLAGS: dict[str, str] = {}
 
 # Standardized interval → AWDB duration name
 _INTERVAL_TO_AWDB_DURATION: dict[str, str] = {
@@ -137,7 +161,12 @@ def _resolve_variables_to_awdb(variables: list[str] | str | None) -> list[str]:
         return list(VARIABLES.keys())
     elems: list[str] = []
     seen: set[str] = set()
-    for v in (_coerce_list(variables) if isinstance(variables, str) else variables):
+    var_list = (
+        _coerce_list(variables) if isinstance(variables, str) else list(variables)
+    )
+    if not var_list:
+        return list(VARIABLES.keys())
+    for v in var_list:
         if v in VARIABLES:
             if v not in seen:
                 elems.append(v)
@@ -147,7 +176,15 @@ def _resolve_variables_to_awdb(variables: list[str] | str | None) -> list[str]:
                 if e not in seen:
                     elems.append(e)
                     seen.add(e)
-    return elems or list(VARIABLES.keys())
+        else:
+            # No silent fallback (DESIGN.md §3.6): an unknown variable
+            # must not quietly expand into "fetch everything".
+            raise AWDBError(
+                f"Unknown variable {v!r} for AWDB — expected an element "
+                f"code ({sorted(VARIABLES)}) or a standardized type "
+                f"({sorted(_TYPE_TO_ELEMENTS)})."
+            )
+    return elems
 
 
 def _filter_by_bbox(
@@ -494,7 +531,7 @@ class AWDBClient:
 
         Example
         -------
-        >>> data = client.get_data(
+        >>> data = client._get_data_awdb(
         ...     triplets=["303:CO:SNTL", "713:CO:SNTL"],
         ...     elements=["WTEQ", "SNWD"],
         ...     begin_date="2023-10-01",
@@ -555,39 +592,56 @@ class AWDBClient:
         return list(results_by_triplet.values())
 
     def _convert_data_response_to_metric(self, station_blocks: list[dict]) -> None:
-        """Convert in-place AWDB /data payloads to metric where applicable."""
+        """Convert in-place AWDB /data payloads to metric (DESIGN.md §3.5).
+
+        Every convertible element (snow in inches, temperature in °F,
+        precipitation in inches, wind in mph) is transformed; elements
+        already metric pass through.  Snow elements use cm (archive
+        convention) rather than mm.
+        """
         for station_data in station_blocks:
             for data_block in station_data.get("data", []):
                 station_element = data_block.get("stationElement", {})
-                element_code = station_element.get("elementCode")
-                factor = _CM_CONVERSIONS.get(str(element_code or ""))
-                if factor is None:
+                element_code = str(station_element.get("elementCode") or "")
+                conversion = _METRIC_CONVERSIONS.get(element_code)
+                if conversion is None:
                     continue
+                # Guard: skip if AWDB reports the payload already metric.
+                unit_code = str(
+                    station_element.get("storedUnitCode")
+                    or station_element.get("originalUnitCode")
+                    or ""
+                )
+                if unit_code in _ALREADY_METRIC_UNIT_CODES:
+                    continue
+                transform, out_unit = conversion
 
                 values = data_block.get("values", [])
                 if values and isinstance(values[0], dict):
                     for rec in values:
-                        self._convert_value_record(rec, factor)
+                        self._convert_value_record(rec, transform)
                 elif values:
-                    converted: list[float | None] = []
-                    for v in values:
-                        converted.append(self._convert_scalar_value(v, factor))
-                    data_block["values"] = converted
+                    data_block["values"] = [
+                        self._convert_scalar_value(v, transform)
+                        for v in values
+                    ]
 
                 if station_element.get("originalUnitCode"):
-                    station_element["originalUnitCode"] = "cm"
+                    station_element["originalUnitCode"] = out_unit
                 if station_element.get("storedUnitCode"):
-                    station_element["storedUnitCode"] = "cm"
-                station_element["convertedUnitCode"] = "cm"
+                    station_element["storedUnitCode"] = out_unit
+                station_element["convertedUnitCode"] = out_unit
 
     @staticmethod
-    def _convert_value_record(rec: dict, factor: float) -> None:
+    def _convert_value_record(rec: dict, transform) -> None:
         for key in ("value", "average", "median"):
             if key in rec:
-                rec[key] = AWDBClient._convert_scalar_value(rec.get(key), factor)
+                rec[key] = AWDBClient._convert_scalar_value(
+                    rec.get(key), transform
+                )
 
     @staticmethod
-    def _convert_scalar_value(value: Any, factor: float) -> float | None:
+    def _convert_scalar_value(value: Any, transform) -> float | None:
         if value is None:
             return None
         try:
@@ -596,7 +650,7 @@ class AWDBClient:
             return None
         if np.isnan(fval):
             return None
-        return round(fval * factor, 3)
+        return round(transform(fval), 3)
 
     def get_data_by_water_year(
         self,
@@ -621,12 +675,13 @@ class AWDBClient:
             The water year integer (e.g., 2024).
         duration : str
         **kwargs
-            Additional keyword arguments passed to :meth:`get_data`.
+            Additional keyword arguments passed to :meth:`_get_data_awdb`.
 
         Returns
         -------
         list[dict]
-            Same structure as :meth:`get_data`.
+            Same structure as :meth:`_get_data_awdb` (nested AWDB payload,
+            not the flat records of :meth:`get_data`).
         """
         begin = f"{water_year - 1}-10-01"
         end   = f"{water_year}-09-30"
@@ -665,8 +720,9 @@ class AWDBClient:
         Returns
         -------
         list[dict]
-            Same structure as :meth:`get_data` with ``median``/``average``
-            fields alongside ``value`` in the values list.
+            Same structure as :meth:`_get_data_awdb` (nested AWDB payload)
+            with ``median``/``average`` fields alongside ``value`` in the
+            values list.
 
         Example
         -------
@@ -778,7 +834,14 @@ class AWDBClient:
             return []
 
         elements = _resolve_variables_to_awdb(variables)
-        duration = _INTERVAL_TO_AWDB_DURATION.get(interval.lower(), "DAILY")
+        try:
+            duration = _INTERVAL_TO_AWDB_DURATION[interval.lower()]
+        except KeyError:
+            raise AWDBError(
+                f"Unsupported interval {interval!r} for AWDB — expected "
+                f"one of {sorted(_INTERVAL_TO_AWDB_DURATION)}."
+            ) from None
+        sub_daily = duration == "HOURLY"
         raw = self._get_data_awdb(ids, elements, duration, begin_date, end_date)
 
         records: list[dict] = []
@@ -790,26 +853,30 @@ class AWDBClient:
                 dur_name = str(
                     elem_info.get("durationName") or "DAILY"
                 ).upper()
+                var_info = VARIABLES.get(elem_code, {})
                 units = str(
                     elem_info.get("convertedUnitCode")
+                    or var_info.get("output_units")
                     or elem_info.get("originalUnitCode")
                     or ""
                 )
                 std_interval = _AWDB_DURATION_TO_INTERVAL.get(
                     dur_name, dur_name.lower()
                 )
-                var_info = VARIABLES.get(elem_code, {})
                 std_type = var_info.get("type", "other")
                 for rec in block.get("values", []):
+                    ts = str(rec.get("date", ""))
                     r: dict = {
                         "station_id": triplet,
-                        "date": str(rec.get("date", ""))[:10],
+                        "date": ts[:10],
                         "variable": elem_code,
                         "type": std_type,
                         "value": rec.get("value"),
                         "units": units,
                         "interval": std_interval,
                     }
+                    if sub_daily:
+                        r["datetime"] = ts
                     if include_flags:
                         r["flag"] = None
                     records.append(r)
