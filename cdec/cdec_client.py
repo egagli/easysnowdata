@@ -47,13 +47,18 @@ from __future__ import annotations
 import io
 import logging
 import re
-import time
 from datetime import date, datetime
 from typing import Any
 
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+
+from clients._common import (
+    date_str as _date_str,
+    request_with_retries,
+    to_float as _to_float,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -871,55 +876,11 @@ class CDECClient:
         url: str,
         params: dict[str, str] | None = None,
     ) -> requests.Response:
-        for attempt in range(1, self.max_retries + 1):
-            try:
-                resp = self._session.request(
-                    method, url, params=params, timeout=self.timeout
-                )
-            except requests.exceptions.RequestException as exc:
-                logger.warning(
-                    "Request failed (attempt %d/%d): %s",
-                    attempt,
-                    self.max_retries,
-                    exc,
-                )
-                if attempt == self.max_retries:
-                    raise CDECError(
-                        f"Request to {url} failed after "
-                        f"{self.max_retries} attempts: {exc}"
-                    ) from exc
-                time.sleep(self.backoff * attempt)
-                continue
-
-            if resp.ok:
-                return resp
-
-            if resp.status_code in (400, 404):
-                raise CDECError(
-                    f"HTTP {resp.status_code} from {url}: {resp.text[:200]}"
-                )
-
-            if resp.status_code >= 500:
-                logger.warning(
-                    "HTTP %d from %s (attempt %d/%d)",
-                    resp.status_code,
-                    url,
-                    attempt,
-                    self.max_retries,
-                )
-                if attempt < self.max_retries:
-                    time.sleep(self.backoff * attempt)
-                    continue
-                raise CDECError(
-                    f"HTTP {resp.status_code} from {url} after "
-                    f"{self.max_retries} attempts"
-                )
-
-            raise CDECError(
-                f"HTTP {resp.status_code} from {url}: {resp.text[:200]}"
-            )
-
-        raise CDECError(f"Exhausted retries for {url}")
+        return request_with_retries(
+            self._session, url, params=params, method=method,
+            error_cls=CDECError, timeout=self.timeout,
+            max_retries=self.max_retries, backoff=self.backoff,
+        )
 
 
 # ── Exception ─────────────────────────────────────────────────────────────────
@@ -1181,24 +1142,6 @@ def _normalise_cdec_date(date_str: str) -> str:
         date_part = date_part[:10]
     time_part = time_part.strip()[:5]
     return f"{date_part} {time_part}" if time_part else date_part
-
-
-def _date_str(d: str | date | datetime) -> str:
-    if isinstance(d, str):
-        return d[:10]
-    if isinstance(d, datetime):
-        return d.date().isoformat()
-    return d.isoformat()
-
-
-def _to_float(val: Any) -> float | None:
-    if val is None:
-        return None
-    try:
-        f = float(str(val).replace(",", "").strip())
-        return None if (f != f) else f  # NaN check
-    except (ValueError, TypeError):
-        return None
 
 
 def _str(val: Any) -> str:

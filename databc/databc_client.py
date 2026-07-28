@@ -112,11 +112,15 @@ import io
 import logging
 import math
 import re
-import time
 from typing import Any
 
 import pandas as pd
 import requests
+
+from clients._common import (
+    request_with_retries,
+    to_float as _to_float,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -1744,55 +1748,11 @@ class DataBCClient:
         url: str,
         params: dict[str, str] | None = None,
     ) -> requests.Response:
-        for attempt in range(1, self.max_retries + 1):
-            try:
-                resp = self._session.get(
-                    url, params=params, timeout=self.timeout
-                )
-            except requests.exceptions.RequestException as exc:
-                logger.warning(
-                    "Request failed (attempt %d/%d): %s",
-                    attempt,
-                    self.max_retries,
-                    exc,
-                )
-                if attempt == self.max_retries:
-                    raise DataBCError(
-                        f"Request to {url} failed after "
-                        f"{self.max_retries} attempts: {exc}"
-                    ) from exc
-                time.sleep(self.backoff * attempt)
-                continue
-
-            if resp.ok:
-                return resp
-
-            if resp.status_code in (400, 404):
-                raise DataBCError(
-                    f"HTTP {resp.status_code} from {url}: {resp.text[:200]}"
-                )
-
-            if resp.status_code >= 500:
-                logger.warning(
-                    "HTTP %d from %s (attempt %d/%d)",
-                    resp.status_code,
-                    url,
-                    attempt,
-                    self.max_retries,
-                )
-                if attempt < self.max_retries:
-                    time.sleep(self.backoff * attempt)
-                    continue
-                raise DataBCError(
-                    f"HTTP {resp.status_code} from {url} after "
-                    f"{self.max_retries} attempts"
-                )
-
-            raise DataBCError(
-                f"HTTP {resp.status_code} from {url}: {resp.text[:200]}"
-            )
-
-        raise DataBCError(f"Exhausted retries for {url}")
+        return request_with_retries(
+            self._session, url, params=params, error_cls=DataBCError,
+            timeout=self.timeout, max_retries=self.max_retries,
+            backoff=self.backoff,
+        )
 
 
 # ── Exception ─────────────────────────────────────────────────────────────────
@@ -1803,11 +1763,3 @@ class DataBCError(Exception):
 
 # ── Utility ───────────────────────────────────────────────────────────────────
 
-def _to_float(val: Any) -> float | None:
-    if val is None:
-        return None
-    try:
-        f = float(str(val).replace(",", "").strip())
-        return None if (f != f) else f  # NaN check
-    except (ValueError, TypeError):
-        return None

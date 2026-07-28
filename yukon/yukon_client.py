@@ -93,6 +93,15 @@ from typing import Any
 
 import requests
 
+from clients._common import (
+    chunk as _chunked,
+    coerce_list as _coerce_list,
+    date_str as _date_str,
+    filter_by_bbox as _filter_by_bbox,
+    request_with_retries,
+    to_float as _to_float,
+)
+
 logger = logging.getLogger(__name__)
 
 # ── Constants ────────────────────────────────────────────────────────────────
@@ -512,35 +521,6 @@ DATA_FLAGS: dict[str, str] = {
 
 # ── Helper functions ─────────────────────────────────────────────────────────
 
-def _coerce_list(value: list | str | int) -> list[str]:
-    """Ensure value is a list of strings."""
-    if isinstance(value, (str, int)):
-        return [str(value)]
-    return [str(v) for v in value]
-
-
-def _date_str(d: str | date | datetime) -> str:
-    """Normalize a date-like object to a ``YYYY-MM-DD`` string."""
-    if isinstance(d, str):
-        return d[:10]
-    if isinstance(d, datetime):
-        return d.date().isoformat()
-    return d.isoformat()
-
-
-def _to_float(value: Any) -> float | None:
-    """Parse a CSV field to float, returning ``None`` when not numeric."""
-    if value is None:
-        return None
-    text = str(value).strip()
-    if text == "" or text.upper() in {"NA", "NAN", "NULL", "NONE"}:
-        return None
-    try:
-        return float(text)
-    except ValueError:
-        return None
-
-
 def _to_bool(value: Any) -> bool:
     """Parse an AquaCache ``TRUE``/``FALSE`` CSV field."""
     return str(value).strip().upper() == "TRUE"
@@ -669,24 +649,6 @@ def _parse_pg_array(value: Any) -> list[str]:
     return [p.strip() for p in parts if p.strip() and p.strip().upper() != "NULL"]
 
 
-def _filter_by_bbox(
-    stations: list[dict],
-    bbox: tuple[float, float, float, float] | None,
-) -> list[dict]:
-    """Filter stations to those inside ``(min_lon, min_lat, max_lon, max_lat)``."""
-    if bbox is None:
-        return stations
-    min_lon, min_lat, max_lon, max_lat = bbox
-    kept: list[dict] = []
-    for sta in stations:
-        lat, lon = sta.get("latitude"), sta.get("longitude")
-        if lat is None or lon is None:
-            continue
-        if min_lat <= lat <= max_lat and min_lon <= lon <= max_lon:
-            kept.append(sta)
-    return kept
-
-
 def _series_variable_key(parameter: str, aggregation: str) -> str | None:
     """
     Map an AquaCache ``(parameter_name, aggregation_type)`` pair to a
@@ -798,11 +760,6 @@ def _course_status(last_survey: str | None) -> str:
         if year >= date.today().year - _COURSE_ACTIVE_WINDOW_YEARS
         else "Inactive"
     )
-
-
-def _chunked(items: list[Any], size: int) -> list[list[Any]]:
-    """Split a list into consecutive chunks of at most ``size`` items."""
-    return [items[i:i + size] for i in range(0, len(items), size)]
 
 
 # ── Client ───────────────────────────────────────────────────────────────────
@@ -1883,80 +1840,12 @@ class YukonClient:
             On non-retryable HTTP errors or after all retries are exhausted.
         """
         url = f"{self.base_url}/{endpoint}"
-
-        for attempt in range(1, self.max_retries + 1):
-            try:
-                response = self._session.get(
-                    url, params=params, timeout=self.timeout
-                )
-            except requests.exceptions.RequestException as exc:
-                logger.warning(
-                    "Request failed (attempt %d/%d): %s",
-                    attempt, self.max_retries, exc,
-                )
-                if attempt == self.max_retries:
-                    raise YukonError(
-                        f"Request to {url} failed after "
-                        f"{self.max_retries} attempts: {exc}"
-                    ) from exc
-                time.sleep(self.backoff * attempt)
-                continue
-
-            if response.ok:
-                return response.text
-
-            # Non-retryable client errors
-            if response.status_code == 400:
-                raise YukonError(
-                    f"HTTP 400 Bad Request: {url} "
-                    f"(params={params!r}): {response.text[:500]}"
-                )
-
-            if response.status_code == 404:
-                raise YukonError(
-                    f"HTTP 404 Not Found: {url} "
-                    f"(params={params!r}): {response.text[:300]}"
-                )
-
-            # Rate limited — honour Retry-After if present, then retry
-            if response.status_code == 429:
-                if attempt < self.max_retries:
-                    try:
-                        delay = float(response.headers.get("Retry-After", ""))
-                    except ValueError:
-                        delay = float(self.backoff * attempt)
-                    logger.warning(
-                        "HTTP 429 from %s (attempt %d/%d) — retrying in %.1fs",
-                        url, attempt, self.max_retries, delay,
-                    )
-                    time.sleep(delay)
-                    continue
-                raise YukonError(
-                    f"HTTP 429 Too Many Requests from {url} "
-                    f"after {self.max_retries} attempts"
-                )
-
-            # Retryable server errors (5xx)
-            if response.status_code >= 500:
-                logger.warning(
-                    "HTTP %d from %s (attempt %d/%d) — retrying in %ds",
-                    response.status_code, url,
-                    attempt, self.max_retries, self.backoff * attempt,
-                )
-                if attempt < self.max_retries:
-                    time.sleep(self.backoff * attempt)
-                    continue
-                raise YukonError(
-                    f"HTTP {response.status_code} from {url} "
-                    f"after {self.max_retries} attempts"
-                )
-
-            # Other errors (401, 403, etc.)
-            raise YukonError(
-                f"HTTP {response.status_code} from {url}: {response.text[:200]}"
-            )
-
-        raise YukonError(f"Exhausted retries for {url}")  # should not reach here
+        response = request_with_retries(
+            self._session, url, params=params, error_cls=YukonError,
+            timeout=self.timeout, max_retries=self.max_retries,
+            backoff=self.backoff,
+        )
+        return response.text
 
 
 # ── Exception ────────────────────────────────────────────────────────────────

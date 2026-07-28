@@ -55,6 +55,14 @@ from typing import Any
 import numpy as np
 import requests
 
+from clients._common import (
+    chunk as _chunk,
+    coerce_list as _coerce_list,
+    date_str as _date_str,
+    filter_by_bbox as _filter_by_bbox,
+    request_with_retries,
+)
+
 logger = logging.getLogger(__name__)
 
 # ── Constants ────────────────────────────────────────────────────────────────
@@ -185,22 +193,6 @@ def _resolve_variables_to_awdb(variables: list[str] | str | None) -> list[str]:
                 f"({sorted(_TYPE_TO_ELEMENTS)})."
             )
     return elems
-
-
-def _filter_by_bbox(
-    stations: list[dict],
-    bbox: tuple[float, float, float, float],
-    lat_key: str = "latitude",
-    lon_key: str = "longitude",
-) -> list[dict]:
-    """Return stations whose lat/lon fall within (min_lon, min_lat, max_lon, max_lat)."""
-    min_lon, min_lat, max_lon, max_lat = bbox
-    return [
-        s for s in stations
-        if s.get(lat_key) is not None and s.get(lon_key) is not None
-        and min_lat <= float(s[lat_key]) <= max_lat
-        and min_lon <= float(s[lon_key]) <= max_lon
-    ]
 
 
 # ── Client ───────────────────────────────────────────────────────────────────
@@ -906,49 +898,12 @@ class AWDBClient:
             On non-retryable HTTP errors or after all retries are exhausted.
         """
         url = f"{self.base_url}/{endpoint}"
-
-        for attempt in range(1, self.max_retries + 1):
-            try:
-                response = self._session.get(url, params=params, timeout=self.timeout)
-            except requests.exceptions.RequestException as exc:
-                logger.warning("Request failed (attempt %d/%d): %s", attempt, self.max_retries, exc)
-                if attempt == self.max_retries:
-                    raise AWDBError(f"Request to {url} failed after {self.max_retries} attempts: {exc}") from exc
-                time.sleep(self.backoff * attempt)
-                continue
-
-            if response.ok:
-                return response.json()
-
-            # Non-retryable client errors
-            if response.status_code == 400:
-                try:
-                    msg = response.json().get("message", response.text[:200])
-                except Exception:
-                    msg = response.text[:200]
-                raise AWDBError(f"HTTP 400 Bad Request: {msg}")
-
-            if response.status_code == 404:
-                raise AWDBError(f"HTTP 404 Not Found: {url}")
-
-            # Retryable server errors (5xx)
-            if response.status_code >= 500:
-                logger.warning(
-                    "HTTP %d from %s (attempt %d/%d) — retrying in %ds",
-                    response.status_code, url, attempt, self.max_retries,
-                    self.backoff * attempt,
-                )
-                if attempt < self.max_retries:
-                    time.sleep(self.backoff * attempt)
-                    continue
-                raise AWDBError(
-                    f"HTTP {response.status_code} from {url} after {self.max_retries} attempts"
-                )
-
-            # Other errors (e.g. 401, 403)
-            raise AWDBError(f"HTTP {response.status_code} from {url}: {response.text[:200]}")
-
-        raise AWDBError(f"Exhausted retries for {url}")  # should not reach here
+        response = request_with_retries(
+            self._session, url, params=params, error_cls=AWDBError,
+            timeout=self.timeout, max_retries=self.max_retries,
+            backoff=self.backoff,
+        )
+        return response.json()
 
 
 # ── Exceptions ────────────────────────────────────────────────────────────────
@@ -985,28 +940,11 @@ def _enrich_awdb_station(sta: dict) -> None:
                 sta["elevation_m"] = round(float(elev_ft) * 0.3048, 1)
             except (TypeError, ValueError):
                 pass
-    # status — Active if no endDate, else Inactive
+    # status — AWDB marks active stations with a far-future endDate
+    # sentinel (2100-01-01), so "no endDate" is the wrong test.
     if "status" not in sta:
-        sta["status"] = "Active" if not sta.get("endDate") else "Inactive"
-
-
-def _coerce_list(value: list | str) -> list[str]:
-    """Ensure value is a list of strings."""
-    if isinstance(value, str):
-        return [value]
-    return list(value)
-
-
-def _chunk(lst: list, size: int):
-    """Yield successive sublists of at most ``size`` items."""
-    for i in range(0, len(lst), size):
-        yield lst[i: i + size]
-
-
-def _date_str(d: str | date | datetime) -> str:
-    """Normalize a date-like object to ``YYYY-MM-DD`` string."""
-    if isinstance(d, str):
-        return d[:10]
-    if isinstance(d, datetime):
-        return d.date().isoformat()
-    return d.isoformat()
+        end = str(sta.get("endDate") or "")[:10]
+        sta["status"] = (
+            "Active" if not end or end >= date.today().isoformat()
+            else "Inactive"
+        )
