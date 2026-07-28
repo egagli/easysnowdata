@@ -140,6 +140,19 @@ _DEFAULT_BACKOFF = 5
 # The 16:00 UTC daily reading time used as the canonical daily value
 _DAILY_UTC_HOUR = "16:00"
 
+# Variables that can never be negative — for these, any negative reading
+# is a sensor/sentinel artefact and is nulled.  Air temperature is NOT in
+# this set: sub-zero readings are real data (DESIGN.md §3.6 requires
+# per-type clamps, never blanket "negative = invalid" filters).
+_NON_NEGATIVE_VARS = {
+    "swe_mm", "snwd_cm", "precip_cumul_mm", "rh_pct",
+    "wind_dir_deg", "wind_spd_kmh", "wind_spd_peak_kmh", "wind_run_km",
+    "baro_press_hpa", "snow_line_m", "density_pct",
+}
+
+# Coldest plausible air temperature (°C) — below this is a sentinel.
+_MIN_PLAUSIBLE_TEMP_C = -90.0
+
 
 # ── Public variable / flag tables ─────────────────────────────────────────────
 
@@ -459,8 +472,12 @@ class DataBCClient:
         begin_date, end_date : str or None
             Date range (``"YYYY-MM-DD"``).
         interval : str
-            ``"daily"`` fetches ASWS data; ``"periodic"`` fetches MSS
-            survey data; ``"hourly"`` fetches hourly ASWS sensor data.
+            ``"daily"`` fetches ASWS daily data (16:00 UTC canonical
+            reading; SWE from the pre-aggregated ``SWDaily.csv``);
+            ``"hourly"`` / ``"sub_daily"`` fetch all hourly ASWS
+            readings (records carry a ``datetime`` key); ``"periodic"``
+            fetches MSS survey data.  Any other value raises
+            :class:`DataBCError`.
         include_flags : bool
             If True, MSS survey codes are included as ``"flag"`` field.
 
@@ -506,6 +523,14 @@ class DataBCClient:
         else:
             raise ValueError("Provide station_ids or bbox.")
 
+        interval_key = str(interval).lower()
+        if interval_key not in ("daily", "hourly", "sub_daily", "periodic"):
+            raise DataBCError(
+                f"Unsupported interval {interval!r} for DataBC — "
+                "expected 'daily', 'hourly', 'sub_daily', or 'periodic'."
+            )
+        hourly = interval_key in ("hourly", "sub_daily")
+
         # Resolve variables list
         var_list: list[str] | None = None
         if variables is not None:
@@ -524,7 +549,7 @@ class DataBCClient:
 
         records: list[dict] = []
 
-        if interval in ("daily", "sub_daily"):
+        if interval_key in ("daily", "hourly", "sub_daily"):
             # ASWS stations — filter to IDs ending in 'P'
             asws_ids = (
                 [i for i in ids if str(i).upper().endswith("P")]
@@ -532,73 +557,87 @@ class DataBCClient:
             )
             if asws_ids is None or asws_ids:
                 # Map variable key → (fetch method, value col, type,
-                # units, converter)
+                # units, converter, method accepts daily_only kwarg).
+                # SWE has dedicated daily (SWDaily.csv) and hourly
+                # (SW.csv) sources, so its method is picked by interval.
                 _var_methods: list[tuple] = [
                     (
-                        "swe_mm", self.get_asws_daily_data,
+                        "swe_mm",
+                        self.get_asws_sw_hourly_data
+                        if hourly else self.get_asws_daily_data,
                         "swe_mm", "swe", "cm",
                         lambda x: round(x / 10.0, 3),
+                        False,
                     ),
                     (
                         "snwd_cm", self.get_asws_sd_data,
                         "snwd_cm", "snwd", "cm",
-                        lambda x: x,
+                        lambda x: x, True,
                     ),
                     (
                         "air_temp_degc", self.get_asws_ta_data,
                         "air_temp_degc", "temp", "\u00b0C",
-                        lambda x: x,
+                        lambda x: x, True,
                     ),
                     (
                         "precip_cumul_mm", self.get_asws_pc_data,
                         "precip_cumul_mm", "precip", "mm",
-                        lambda x: x,
+                        lambda x: x, True,
                     ),
                     (
                         "baro_press_hpa", self.get_asws_pa_data,
                         "baro_press_hpa", "baro", "hPa",
-                        lambda x: x,
+                        lambda x: x, True,
                     ),
                     (
                         "wind_dir_deg", self.get_asws_ud_data,
                         "wind_dir_deg", "wind_dir", "degrees",
-                        lambda x: x,
+                        lambda x: x, True,
                     ),
                     (
                         "wind_spd_kmh", self.get_asws_us_data,
                         "wind_spd_kmh", "wind_spd", "km/h",
-                        lambda x: x,
+                        lambda x: x, True,
                     ),
                     (
                         "wind_spd_peak_kmh", self.get_asws_up_data,
                         "wind_spd_peak_kmh", "wind_gust", "km/h",
-                        lambda x: x,
+                        lambda x: x, True,
                     ),
                     (
                         "wind_run_km", self.get_asws_ur_data,
                         "wind_run_km", "wind_run", "km",
-                        lambda x: x,
+                        lambda x: x, True,
                     ),
                     (
                         "rh_pct", self.get_asws_xr_data,
                         "rh_pct", "rh", "%",
-                        lambda x: x,
+                        lambda x: x, True,
                     ),
                 ]
+                emit_interval = "hourly" if hourly else "daily"
+                time_col = "datetime" if hourly else "date"
                 emit_vars = set(var_list) if var_list else None
                 for (
                     var_key, method, val_col,
-                    std_type, units, converter
+                    std_type, units, converter, has_daily_only
                 ) in _var_methods:
                     if emit_vars and var_key not in emit_vars:
                         continue
+                    kwargs: dict = {
+                        "location_ids": asws_ids,
+                        "begin_date": begin_date,
+                        "end_date": end_date,
+                    }
+                    if has_daily_only:
+                        kwargs["daily_only"] = not hourly
                     try:
-                        df = method(
-                            location_ids=asws_ids,
-                            begin_date=begin_date,
-                            end_date=end_date,
+                        df = method(**kwargs)
+                    except DataBCError as exc:
+                        logger.warning(
+                            "get_data: %s fetch failed: %s",
+                            var_key, exc,
                         )
-                    except Exception:
                         continue
                     if df.empty or val_col not in df.columns:
                         continue
@@ -614,25 +653,26 @@ class DataBCClient:
                                 value = converter(float(raw_val))
                             except (TypeError, ValueError):
                                 value = None
+                        ts = str(row.get(time_col, ""))
                         r: dict = {
                             "station_id": str(
                                 row.get("location_id", "")
                             ),
-                            "date": str(
-                                row.get("date", "")
-                            )[:10],
+                            "date": ts[:10],
                             "variable": var_key,
                             "type": std_type,
                             "value": value,
                             "units": units,
-                            "interval": "daily",
+                            "interval": emit_interval,
                         }
+                        if hourly:
+                            r["datetime"] = ts
                         if include_flags:
                             r["flag"] = None
                         records.append(r)
 
-        if interval in ("periodic", "monthly") or (
-            interval == "daily"
+        if interval_key == "periodic" or (
+            interval_key == "daily"
             and ids is not None
             and any(not str(i).upper().endswith("P") for i in ids)
         ):
@@ -711,7 +751,6 @@ class DataBCClient:
         begin_date: str | None = None,
         end_date: str | None = None,
         archive: bool = True,
-        include_flags: bool = False,
     ) -> pd.DataFrame:
         """
         Get daily SWE data from Automated Snow Weather Stations.
@@ -732,9 +771,6 @@ class DataBCClient:
         archive : bool
             If True, also load the historical archive CSV (larger file).
             Recommended for full period-of-record retrieval.
-        include_flags : bool
-            Reserved for future use; ASWS CSV data does not currently
-            include per-value quality flags.
 
         Returns
         -------
@@ -1273,8 +1309,12 @@ class DataBCClient:
         df = df.dropna(subset=["date"])
         df = df.sort_values("date").reset_index(drop=True)
 
-        for num_col in ("swe_mm", "snwd_cm", "air_temp_degc", "precip_cumul_mm"):
+        for num_col in ("swe_mm", "snwd_cm", "precip_cumul_mm"):
             df.loc[df[num_col] < 0, num_col] = float("nan")
+        # Air temperature is legitimately negative; null only sentinels.
+        df.loc[
+            df["air_temp_degc"] < _MIN_PLAUSIBLE_TEMP_C, "air_temp_degc"
+        ] = float("nan")
 
         return df[_cols]
 
@@ -1634,8 +1674,13 @@ class DataBCClient:
         df_long[value_col] = pd.to_numeric(
             df_long[value_col], errors="coerce"
         )
-        # Remove clearly invalid values (negative, -99999 sentinel)
-        df_long.loc[df_long[value_col] < 0, value_col] = float("nan")
+        # Null sentinel / physically impossible values, scoped per type
+        if value_col in _NON_NEGATIVE_VARS:
+            df_long.loc[df_long[value_col] < 0, value_col] = float("nan")
+        else:
+            df_long.loc[
+                df_long[value_col] < _MIN_PLAUSIBLE_TEMP_C, value_col
+            ] = float("nan")
 
         return df_long[[time_col, "location_id", value_col]]
 
