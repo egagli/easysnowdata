@@ -48,8 +48,7 @@ Intended usage
 from __future__ import annotations
 
 import logging
-import time
-from datetime import date, datetime
+from datetime import date
 from typing import Any
 
 import numpy as np
@@ -128,24 +127,31 @@ _ALREADY_METRIC_UNIT_CODES = {
 #: uniformly across all clients.
 DATA_FLAGS: dict[str, str] = {}
 
+#: Snow elements — the default when ``get_data(variables=None)``
+#: (DESIGN.md §3.4: None means all *snow* variables, not everything).
+SNOW_ELEMENTS: tuple[str, ...] = ("WTEQ", "SNWD")
+
 # Standardized interval → AWDB duration name
 _INTERVAL_TO_AWDB_DURATION: dict[str, str] = {
-    "daily":        "DAILY",
-    "hourly":       "HOURLY",
-    "monthly":      "MONTHLY",
-    "semi_monthly": "SEMIMONTHLY",
-    "annual":       "ANNUAL",
-    "sub_daily":    "HOURLY",
+    "daily":         "DAILY",
+    "hourly":        "HOURLY",
+    "monthly":       "MONTHLY",
+    "semi_monthly":  "SEMIMONTHLY",
+    "annual":        "ANNUAL",
+    "sub_daily":     "HOURLY",
+    "instantaneous": "INSTANTANEOUS",
 }
 # AWDB duration name → standardized interval
 _AWDB_DURATION_TO_INTERVAL: dict[str, str] = {
-    "DAILY":        "daily",
-    "HOURLY":       "hourly",
-    "MONTHLY":      "monthly",
-    "SEMIMONTHLY":  "semi_monthly",
-    "ANNUAL":       "annual",
-    "WATER_YEAR":   "annual",
-    "EVENT":        "sub_daily",
+    "DAILY":         "daily",
+    "HOURLY":        "hourly",
+    "MONTHLY":       "monthly",
+    "SEMIMONTHLY":   "semi_monthly",
+    "ANNUAL":        "annual",
+    "CALENDAR_YEAR": "annual",
+    "WATER_YEAR":    "annual",
+    "EVENT":         "sub_daily",
+    "INSTANTANEOUS": "instantaneous",
 }
 # Standardized type → AWDB element code(s)
 _TYPE_TO_ELEMENTS: dict[str, list[str]] = {
@@ -164,16 +170,19 @@ _TYPE_TO_ELEMENTS: dict[str, list[str]] = {
 
 
 def _resolve_variables_to_awdb(variables: list[str] | str | None) -> list[str]:
-    """Translate a variables list (native codes or types) to AWDB element codes."""
+    """Translate a variables list (native codes or types) to AWDB element codes.
+
+    ``None`` means the snow variables (DESIGN.md §3.4), not everything.
+    """
     if variables is None:
-        return list(VARIABLES.keys())
+        return list(SNOW_ELEMENTS)
     elems: list[str] = []
     seen: set[str] = set()
     var_list = (
         _coerce_list(variables) if isinstance(variables, str) else list(variables)
     )
     if not var_list:
-        return list(VARIABLES.keys())
+        return list(SNOW_ELEMENTS)
     for v in var_list:
         if v in VARIABLES:
             if v not in seen:
