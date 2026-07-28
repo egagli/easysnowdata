@@ -294,9 +294,8 @@ Also supplements with the snow course and pillow lists to set `is_snow_course`,
 # All stations with any snow sensor
 stations = client.get_stations(sensors=(3, 18, 82))
 
-# Filter to those with daily data (use GeoJSON dailySWE/dailySnowDepth in
-# create_all_stations_geojson.py; has_daily_swe/has_daily_snwd available on
-# station dicts from get_stations() for direct client use)
+# Filter to those with daily data — these station-dict flags are what the
+# combined inventory's advertised has_daily_swe/has_daily_snwd are built from
 daily = [s for s in stations if s["has_daily_swe"] or s["has_daily_snwd"]]
 ```
 
@@ -756,7 +755,7 @@ client = YukonClient()
 
 ### Networks and station types
 
-| Station type | `networkCode` | Count | Description |
+| Station type | `network_code` | Count | Description |
 |---|---|---|---|
 | `SC` | `YSS` | 92 | Manual snow courses — 10-point surveys, records from 1964, target dates Feb 1 / Mar 1 / Apr 1 / May 1 / May 15.  **Periodic**, so `daily_or_better: false` in `all_snow_stations.geojson`. |
 | `AWS` | `YSS` | 9 | Automated snow-weather stations — snow-pillow SWE at hourly to 3-hourly resolution, earliest record 1980-02-25. |
@@ -915,7 +914,7 @@ so callers can treat every client alike.
 | `elevation_m` | float | Elevation in metres |
 | `state` | str | `"YT"`, `"BC"` or `"AK"` — see below |
 | `station_type` | str | `"SC"`, `"AWS"` or `"ECCC"` |
-| `network`, `network_code` | str | AquaCache network name and `networkCode` |
+| `network`, `network_code` | str | AquaCache network name and short network code (`YSS` / `YKEC`) |
 | `operator` | str | Operating agency |
 | `status` | str | `"Active"` or `"Inactive"` |
 | `variables` | list[str] | `VARIABLES` keys available at this station |
@@ -1050,31 +1049,37 @@ In brief, to add support for a new data source:
 6. Export the class from `clients/{source}/__init__.py`.
 7. Add to `clients/__init__.py`.
 8. Add to `scripts/create_all_stations_geojson.py`:
-   - Add `run_{source}_workflow()` that returns `(all_features, daily_features)`.
-   - In `databc_station_to_feature()` (or its equivalent), set these required
-     GeoJSON properties on every feature:
-     - `code` — native station identifier
-     - `name` — station name
-     - `latitude`, `longitude` — WGS-84
-     - `elevation_m` — elevation in metres
-     - `networkCode` — short code used by the live map (e.g. `"BCSS"`).
-       A client may emit more than one (the Yukon client uses `"YSS"` and
-       `"YKEC"` to separate Yukon-operated sites from mirrored ECCC ones)
-     - `Operator` — operating agency
-     - `client` — source client name (e.g. `"databc"`)
-     - `station_url` — link to official station page
-     - `station_image_url` — station photo URL (where available; used by
-       the live map popup).  Fetch this from the source portal even if it
-       requires an extra HTTP request — the live map is the primary user
-       interface and station images significantly improve UX.
-     - `data_variables` — list of dicts describing every variable the
-       station reports: `{name, type, interval, units, description, notes}`.
-       `type` must use the standardized vocabulary (`"swe"`, `"snwd"`, etc.).
-     - `dailySWE` — boolean derived from `data_variables`; `True` if any
-       entry has `type="swe"` and `interval` in `{"daily","sub_daily","hourly"}`.
-     - `dailySnowDepth` — same for `type="snwd"`.
-     - `variables_daily` — derived from `data_variables`; comma-separated
-       names of variables with a daily-class interval (used by map popup).
+   - Add `run_{source}_workflow()` that returns `(all_features, daily_features)`,
+     where `daily_features` is filtered on the advertised `has_daily_swe` /
+     `has_daily_snwd` flags (the combined inventory keeps *every* feature;
+     the daily list is for logging and counts).
+   - Add a `{source}_station_to_feature()` that builds a properties dict and
+     passes it through `make_feature()`, which enforces the universal schema
+     (DESIGN.md §6.1) — every universal field present, `null` when the source
+     has nothing. Fields the builder must actually populate:
+     - `code`, `name`, `latitude`, `longitude`, `elevation_m`, `state`
+     - `network_code` — the source's network label, verbatim; must match a
+       `NET_LABELS` key in the live map. A client may emit more than one
+       (the Yukon client uses `"YSS"` and `"YKEC"` to separate
+       Yukon-operated sites from mirrored ECCC ones)
+     - `operator` — only when certain; otherwise leave it `None`
+       (DESIGN.md §5)
+     - `client`, `data_provider` — the access path (e.g. `"databc"`) and the
+       organization/portal behind it (e.g. `"BC Data Catalogue"`)
+     - `station_url`, `station_image_url`, `station_camera_url` — station
+       page / photo / live camera links where the source offers them.
+       Fetch these even if it requires an extra HTTP request — the live map
+       is the primary user interface and station images significantly
+       improve UX.
+     - `data_variables` — list of dicts describing every series the station
+       reports: `{name, type, interval, units, description, notes,
+       begin_date, end_date, n_obs}` (the last three `None` where the
+       source doesn't say). `type` uses the standardized vocabulary;
+       `interval` uses the shared enum from `clients/_common.py`.
+     - the daily candidate flags — set via `_daily_candidate_props(data_vars)`,
+       which derives `has_daily_swe` / `has_daily_snwd` (advertised) and
+       initializes `daily_or_better` / `daily_verified` / `daily_provenance`
+       for the probe in `get_all_stations_data.py` to verify (DESIGN.md §4).
 9. Add to `scripts/get_all_stations_data.py` with a `refresh_{source}()`.
 10. Add the network to `scripts/generate_live_map.py`:
     - Add an entry in `NET_LABELS` (`"CODE": "Human Name"`)
@@ -1090,7 +1095,8 @@ In brief, to add support for a new data source:
 
 - All `get_data()` methods return a **flat** list of observation records with
   keys `station_id`, `date`, `variable`, `type`, `value`, `units`, `interval`
-  (plus optional `flag`), so pipeline scripts can route data uniformly.
+  (plus `datetime` on sub-daily records and optional `flag`), so pipeline
+  scripts can route data uniformly.
 - `station_image_url` must be a direct URL that can be used in an `<img src>`
   tag without authentication.
-- `networkCode` in the GeoJSON must match the `NET_LABELS` key in the live map.
+- `network_code` in the GeoJSON must match a `NET_LABELS` key in the live map.
