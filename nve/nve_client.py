@@ -46,7 +46,7 @@ from __future__ import annotations
 import logging
 import os
 import time
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from typing import Any
 
 import requests
@@ -135,7 +135,8 @@ VARIABLES: dict[str, dict] = {
     "swe_m": {
         "name": "Snow Water Equivalent",
         "type": "swe",
-        "units": "cm",
+        "units": "m",
+        "output_units": "cm",
         "source": _NVE_DATA_SOURCE + " (ParameterId=2003)",
         "description": (
             "Snow water equivalent from automated snow pillow. "
@@ -147,6 +148,7 @@ VARIABLES: dict[str, dict] = {
         "name": "Snow Depth",
         "type": "snwd",
         "units": "cm",
+        "output_units": "cm",
         "source": _NVE_DATA_SOURCE + " (ParameterId=2002)",
         "description": "Snow depth from automated sensor. Native API unit is cm.",
         "notes": "Parameter ID 2002 (Snødybde). Native units: cm.",
@@ -827,7 +829,7 @@ class NVEClient:
             for var_key, param_id, converter in var_jobs:
                 var_info = VARIABLES[var_key]
                 std_type = var_info["type"]
-                units = var_info["units"]
+                units = var_info["output_units"]
 
                 if (sid, param_id) not in series_index:
                     logger.debug(
