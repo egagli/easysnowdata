@@ -424,8 +424,9 @@ class NVEClient:
         ----------
         parameter_ids : list[int] or int, optional
             NVE parameter ID(s) to filter stations by.
-            - 2001 : Snow depth
-            - 2002 : Snow Water Equivalent (SWE)
+            - 2002 : Snow depth (Snødybde)
+            - 2003 : Snow Water Equivalent (Snøens vannekvivalent)
+            (2001 is soil water — NOT a snow parameter.)
             Defaults to no parameter filter (all stations).
         active_only : bool
             If True, return only currently active stations.
@@ -492,8 +493,8 @@ class NVEClient:
         Get all NVE stations with snow parameters (SWE and/or snow depth).
 
         This is the recommended entry point for discovering snow monitoring
-        stations.  It fetches stations with parameter 2002 (SWE) and
-        parameter 2001 (snow depth) and deduplicates.
+        stations.  It fetches stations with parameter 2003 (SWE) and
+        parameter 2002 (snow depth) and deduplicates.
 
         Parameters
         ----------
@@ -558,7 +559,7 @@ class NVEClient:
         Parameters
         ----------
         parameter : int, optional
-            NVE parameter ID (e.g. 2002 for SWE, 2001 for snow depth).
+            NVE parameter ID (e.g. 2003 for SWE, 2002 for snow depth).
             The endpoint accepts a single parameter per request.
         station_id : str, optional
             NVE station ID, e.g. ``"2.11.0"``.
@@ -664,7 +665,7 @@ class NVEClient:
         station_id : str
             NVE station ID, e.g. ``"2.11.0"``.
         parameter_id : int
-            NVE parameter ID (e.g. 2002 for SWE, 2001 for snow depth).
+            NVE parameter ID (e.g. 2003 for SWE, 2002 for snow depth).
         begin_date : str or date, optional
             Start of the observation window (``"YYYY-MM-DD"``).
         end_date : str or date, optional
@@ -804,8 +805,15 @@ class NVEClient:
         # ── Resolve variables → (var_key, param_id, converter) tuples ─────
         var_jobs = _resolve_variables(variables)
 
-        resolution = _INTERVAL_TO_RESOLUTION.get(interval.lower(), _RESOLUTION_DAILY)
-        std_interval = _RESOLUTION_TO_INTERVAL.get(resolution, interval.lower())
+        try:
+            resolution = _INTERVAL_TO_RESOLUTION[interval.lower()]
+        except KeyError:
+            raise NVEError(
+                f"Unsupported interval {interval!r} for NVE — expected "
+                f"one of {sorted(_INTERVAL_TO_RESOLUTION)}."
+            ) from None
+        std_interval = _RESOLUTION_TO_INTERVAL[resolution]
+        sub_daily = resolution != _RESOLUTION_DAILY
 
         # ── Discover which series actually exist ──────────────────────────
         # Requesting a series that does not exist returns HTTP 404, and a
@@ -895,6 +903,10 @@ class NVEClient:
                         "units": units,
                         "interval": std_interval,
                     }
+                    if sub_daily:
+                        # Keep the full timestamp so hourly records stay
+                        # distinguishable (DESIGN.md §3.4).
+                        rec["datetime"] = ts
                     if include_flags:
                         rec["flag"] = str(obs.get("quality") or obs.get("flag") or "")
                     records.append(rec)
@@ -1051,6 +1063,11 @@ def _resolve_variables(
         ]
 
     raw_vars = [variables] if isinstance(variables, str) else list(variables)
+    if not raw_vars:
+        return [
+            (vk, _VAR_TO_PARAM[vk], _converters[vk])
+            for vk in ["swe_m", "snwd_cm"]
+        ]
     jobs: list[tuple[str, int, Any]] = []
     seen: set[str] = set()
     for v in raw_vars:
@@ -1064,8 +1081,10 @@ def _resolve_variables(
                     jobs.append((vk, _VAR_TO_PARAM[vk], _converters[vk]))
                     seen.add(vk)
         else:
-            logger.warning("Unknown variable %r — skipping", v)
-    return jobs or [
-        (vk, _VAR_TO_PARAM[vk], _converters[vk])
-        for vk in ["swe_m", "snwd_cm"]
-    ]
+            # No silent fallback (DESIGN.md §3.6)
+            raise NVEError(
+                f"Unknown variable {v!r} for NVE — expected one of "
+                f"{sorted(_VAR_TO_PARAM)} or a standardized type "
+                f"({sorted(_TYPE_TO_NVE_VARS)})."
+            )
+    return jobs
