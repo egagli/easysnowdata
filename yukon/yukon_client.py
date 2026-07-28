@@ -1604,12 +1604,23 @@ class YukonClient:
         if not var_keys:
             return []
 
+        interval_key = str(interval or "daily").lower()
+        if interval_key not in ("daily", "hourly", "sub_daily",
+                                "instantaneous", "periodic"):
+            # No silent fallback (DESIGN.md §3.6): anything unrecognised
+            # used to be routed to the instantaneous endpoint.
+            raise YukonError(
+                f"Unsupported interval {interval!r} for Yukon — expected "
+                "'daily', 'hourly', 'sub_daily', 'instantaneous', or "
+                "'periodic'."
+            )
+
         return self._get_data_yukon(
             codes=codes,
             var_keys=var_keys,
             begin_date=begin_date,
             end_date=end_date,
-            interval=(interval or "daily").lower(),
+            interval=interval_key,
             include_flags=include_flags,
         )
 
@@ -1977,6 +1988,8 @@ def _resolve_variables(variables: list[str] | str | None) -> list[str]:
         return list(SNOW_VARIABLES)
 
     raw_vars = [variables] if isinstance(variables, str) else list(variables)
+    if not raw_vars:
+        return list(SNOW_VARIABLES)
     keys: list[str] = []
     seen: set[str] = set()
     for var in raw_vars:
@@ -1990,5 +2003,10 @@ def _resolve_variables(variables: list[str] | str | None) -> list[str]:
                     keys.append(key)
                     seen.add(key)
         else:
-            logger.warning("Unknown variable %r — skipping", var)
-    return keys or list(SNOW_VARIABLES)
+            # No silent fallback (DESIGN.md §3.6)
+            raise YukonError(
+                f"Unknown variable {var!r} for Yukon — expected one of "
+                f"{sorted(VARIABLES)} or a standardized type "
+                f"({sorted(_TYPE_TO_YUKON_VARS)})."
+            )
+    return keys
