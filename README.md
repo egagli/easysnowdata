@@ -758,7 +758,7 @@ client = YukonClient()
 
 | Station type | `networkCode` | Count | Description |
 |---|---|---|---|
-| `SC` | `YSS` | 92 | Manual snow courses — 10-point surveys, records from 1964, target dates Feb 1 / Mar 1 / Apr 1 / May 1 / May 15.  **Periodic**, so excluded from `all_daily_snow_stations.geojson`. |
+| `SC` | `YSS` | 92 | Manual snow courses — 10-point surveys, records from 1964, target dates Feb 1 / Mar 1 / Apr 1 / May 1 / May 15.  **Periodic**, so `daily_or_better: false` in `all_snow_stations.geojson`. |
 | `AWS` | `YSS` | 9 | Automated snow-weather stations — snow-pillow SWE at hourly to 3-hourly resolution, earliest record 1980-02-25. |
 | `ECCC` | `YKEC` | 8 | Environment and Climate Change Canada climate stations mirrored into AquaCache, with daily snow depth.  Reaches the Arctic coast (Herschel Island 69.57°N; Komakuk Beach from 1963). |
 
