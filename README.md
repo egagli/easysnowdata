@@ -77,6 +77,8 @@ client = AWDBClient()
 | Manual SNOTEL | `MSNT` | Legacy / transitional sites (includes some BC and CCSS) |
 | SCAN | `SCAN` | Soil climate network with snow sensors |
 | COOP | `COOP` | NWS cooperative observer snow sites |
+| Snow Course | `SNOW` | Manual snow courses (~2,700, semi-monthly/monthly WTEQ+SNWD, incl. partner courses) |
+| Aerial Marker | `MPRC` | Aerial snow markers (~260, periodic depth readings) |
 
 ### Key data variables
 
@@ -206,6 +208,12 @@ from clients.cdec.cdec_client import SENSORS, DATA_FLAGS, DURATION_CODES
 | 3 | SNOW WC | `swe_raw` | Raw SWE from snow pillow (inches → cm) |
 | 18 | SNOW DP | `snwd` | Snow depth, ultrasonic (inches → cm) |
 | 82 | SNO ADJ | `swe` | **Preferred SWE** — quality-controlled, offset-adjusted version of sensor 3 |
+
+The registry also covers the met suite at CCSS stations (all converted to
+metric in-client): precipitation 2/45/16 (in → mm), air temperature
+4/30/31/32 (°F → °C), relative humidity 12, wind 9 (mph → km/h) / 10,
+solar 103, and soil moisture 283/310/286/287.
+`get_data(variables=None)` defaults to the snow sensors.
 
 **SWE vs. SNO ADJ:** Sensor 82 (SNO ADJ) is the revised version of sensor 3
 (raw SWE), with a calibration offset applied after manual QC.  Both represent
@@ -385,30 +393,30 @@ from clients.databc.databc_client import VARIABLES, DATA_FLAGS
 
 All ASWS variables share the same wide-format CSV structure.  The **16:00 UTC
 reading** is used as the canonical daily value (~08:00 PST / 09:00 PDT).
-Pass `daily_only=False` to the ASWS DataFrame methods that accept it to
+Pass `daily_only=False` to the private ASWS DataFrame methods that accept it to
 retrieve all hourly readings instead (a `datetime` column rather than
 `date`).  Two methods have no `daily_only` parameter because they are
-interval-specific: `get_asws_daily_data()` (always daily, SWDaily.csv) and
-`get_asws_sw_hourly_data()` (always hourly, SW.csv).
+interval-specific: `_get_asws_daily_data()` (always daily, SWDaily.csv)
+and `_get_asws_sw_hourly_data()` (always hourly, SW.csv).
 
 | Variable | Units | Method | Archive? | Notes |
 |---|---|---|---|---|
-| `swe_mm` | mm | `get_asws_daily_data()` | Yes | Daily pre-aggregated (SWDaily.csv) |
-| `swe_mm` | mm | `get_asws_sw_hourly_data()` | Yes | Hourly raw pillow (SW.csv) |
-| `snwd_cm` | cm | `get_asws_sd_data()` | Yes | Snow depth sensor (SD.csv) |
-| `air_temp_degc` | °C | `get_asws_ta_data()` | Yes | Air temperature (TA.csv) |
-| `precip_cumul_mm` | mm | `get_asws_pc_data()` | Yes | Cumulative precipitation (PC.csv) |
-| `baro_press_hpa` | hPa | `get_asws_pa_data()` | **No** | Barometric pressure (PA.csv) |
-| `wind_dir_deg` | ° | `get_asws_ud_data()` | **No** | Wind direction (UD.csv) |
-| `wind_spd_kmh` | km/h | `get_asws_us_data()` | **No** | Wind speed (US.csv) |
-| `wind_spd_peak_kmh` | km/h | `get_asws_up_data()` | **No** | Wind gust speed (UP.csv) |
-| `wind_run_km` | km | `get_asws_ur_data()` | **No** | Cumulative wind run (UR.csv) |
-| `rh_pct` | % | `get_asws_xr_data()` | **No** | Relative humidity (XR.csv) |
-| `swe_mm` + `snwd_cm` + `air_temp_degc` + `precip_cumul_mm` | mixed | `get_asws_combined_data(id)` | — | Per-station combined file (SnowAll/) |
-| `swe_mm` | mm | `get_mss_survey_data()` | Yes | MSS periodic survey (Water Equiv.) |
-| `snwd_cm` | cm | `get_mss_survey_data()` | Yes | MSS periodic survey (Snow Depth) |
-| `density_pct` | % | `get_mss_survey_data()` | Yes | MSS periodic only |
-| `snow_line_m` | m | `get_mss_survey_data()` | Yes | MSS periodic only |
+| `swe_mm` | mm | `_get_asws_daily_data()` | Yes | Daily pre-aggregated (SWDaily.csv) |
+| `swe_mm` | mm | `_get_asws_sw_hourly_data()` | Yes | Hourly raw pillow (SW.csv) |
+| `snwd_cm` | cm | `_get_asws_sd_data()` | Yes | Snow depth sensor (SD.csv) |
+| `air_temp_degc` | °C | `_get_asws_ta_data()` | Yes | Air temperature (TA.csv) |
+| `precip_cumul_mm` | mm | `_get_asws_pc_data()` | Yes | Cumulative precipitation (PC.csv) |
+| `baro_press_hpa` | hPa | `_get_asws_pa_data()` | **No** | Barometric pressure (PA.csv) |
+| `wind_dir_deg` | ° | `_get_asws_ud_data()` | **No** | Wind direction (UD.csv) |
+| `wind_spd_kmh` | km/h | `_get_asws_us_data()` | **No** | Wind speed (US.csv) |
+| `wind_spd_peak_kmh` | km/h | `_get_asws_up_data()` | **No** | Wind gust speed (UP.csv) |
+| `wind_run_km` | km | `_get_asws_ur_data()` | **No** | Cumulative wind run (UR.csv) |
+| `rh_pct` | % | `_get_asws_xr_data()` | **No** | Relative humidity (XR.csv) |
+| `swe_mm` + `snwd_cm` + `air_temp_degc` + `precip_cumul_mm` | mixed | `_get_asws_combined_data(id)` | — | Per-station combined file (SnowAll/) |
+| `swe_mm` | mm | `_get_mss_survey_data()` | Yes | MSS periodic survey (Water Equiv.) |
+| `snwd_cm` | cm | `_get_mss_survey_data()` | Yes | MSS periodic survey (Snow Depth) |
+| `density_pct` | % | `_get_mss_survey_data()` | Yes | MSS periodic only |
+| `snow_line_m` | m | `_get_mss_survey_data()` | Yes | MSS periodic only |
 
 "No archive" variables have only current-season data (the archive files do
 not exist for PA, UD, US, UP, UR, XR).
@@ -490,80 +498,27 @@ records = client.get_data(
 #    "units": "cm", "interval": "daily"}
 ```
 
-#### `get_asws_daily_data(location_ids, begin_date, end_date, archive)` → `pd.DataFrame`
+#### Private DataFrame layer (`_get_asws_*`, `_get_mss_survey_data`)
 
-Fetches daily ASWS SWE data from the pre-aggregated `SWDaily.csv` files.
-Returns columns: `date`, `location_id`, `swe_mm`.
+The bulk CSV parsing lives in private per-variable DataFrame methods
+(`_get_asws_daily_data`, `_get_asws_sw_hourly_data`, `_get_asws_sd_data`,
+`_get_asws_ta_data`, `_get_asws_pc_data`, `_get_asws_pa_data`,
+`_get_asws_ud_data`, `_get_asws_us_data`, `_get_asws_up_data`,
+`_get_asws_ur_data`, `_get_asws_xr_data`, `_get_asws_combined_data`,
+`_get_mss_survey_data`).  `get_data()` is the public contract
+(DESIGN.md §3.4); the private layer feeds it.  Notable sizes: the
+TA archive is ~75 MB and SD ~37 MB — `get_data` for long hourly
+periods loads them in full.
+
+MSS surveys via the public API:
 
 ```python
-df = client.get_asws_daily_data(
-    location_ids=["1A01P", "1E08P"],
-    begin_date="2022-10-01",
-    archive=True,
+records = client.get_data(
+    station_ids=["1A06A", "1A10"],
+    variables=["swe", "snwd", "density", "snow_line"],
+    interval="periodic",
+    include_flags=True,   # survey_code quality flag
 )
-```
-
-Archive file (`SW_DailyArchive.csv`) is ~5 MB.
-
-#### `get_asws_sw_hourly_data(location_ids, begin_date, end_date, archive)` → `pd.DataFrame`
-
-Fetches raw hourly SWE from `SW.csv` / `SW_Archive.csv`.
-Returns columns: `datetime` (UTC, `"YYYY-MM-DD HH:MM"`), `location_id`, `swe_mm`.
-
-#### `get_asws_sd_data(location_ids, begin_date, end_date, archive, daily_only)` → `pd.DataFrame`
-
-Fetches snow depth from `SD.csv` / `SD_Archive.csv`.
-Returns columns: `date`/`datetime`, `location_id`, `snwd_cm`.
-Archive file is ~37 MB.
-
-#### `get_asws_ta_data(location_ids, begin_date, end_date, archive, daily_only)` → `pd.DataFrame`
-
-Fetches air temperature from `TA.csv` / `TA_Archive.csv`.
-Returns columns: `date`/`datetime`, `location_id`, `air_temp_degc`.
-Archive file is ~75 MB.
-
-#### `get_asws_pc_data(location_ids, begin_date, end_date, archive, daily_only)` → `pd.DataFrame`
-
-Fetches cumulative precipitation from `PC.csv` / `PC_Archive.csv`.
-Returns columns: `date`/`datetime`, `location_id`, `precip_cumul_mm`.
-Archive file is ~63 MB.
-
-#### `get_asws_pa_data(location_ids, begin_date, end_date, daily_only)` → `pd.DataFrame`
-
-Fetches barometric pressure from `PA.csv` (current season only).
-Returns columns: `date`/`datetime`, `location_id`, `baro_press_hpa`.
-
-#### `get_asws_ud_data(...)` / `get_asws_us_data(...)` / `get_asws_up_data(...)` / `get_asws_ur_data(...)` / `get_asws_xr_data(...)` → `pd.DataFrame`
-
-Fetch wind direction, wind speed, wind gust, wind run, and relative humidity
-respectively from the corresponding current-season-only CSV files.
-All return columns: `date`/`datetime`, `location_id`, `{variable}`.
-
-```python
-# Example: fetch all met variables for a station, hourly
-df_ta = client.get_asws_ta_data(["1E08P"], daily_only=False)
-df_rh = client.get_asws_xr_data(["1E08P"], daily_only=False)
-df_ws = client.get_asws_us_data(["1E08P"], daily_only=False)
-```
-
-#### `get_asws_combined_data(location_id)` → `pd.DataFrame`
-
-Fetches the per-station combined archive from `SnowAll/{id}.csv`.
-Contains SWE, snow depth, air temperature, and precipitation in one file.
-Uses 16:00 UTC as canonical daily value.
-Returns columns: `date`, `swe_mm`, `snwd_cm`, `air_temp_degc`, `precip_cumul_mm`.
-
-#### `get_mss_survey_data(location_ids, begin_date, end_date, archive, include_flags)` → `pd.DataFrame`
-
-Fetches periodic manual snow survey data from `allmss_current.csv` /
-`allmss_archive.csv`.
-
-Returns: `date`, `location_id`, `name`, `swe_mm`, `snwd_cm`,
-`density_pct`, `snow_line_m`, `survey_period`, optionally `survey_code`.
-
-```python
-df = client.get_mss_survey_data(archive=True, include_flags=True)
-apr1 = df[df["survey_period"] == "01-Apr"]
 ```
 
 #### `get_station_image_url(location_id)` → `str | None`
