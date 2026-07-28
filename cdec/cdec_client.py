@@ -47,7 +47,7 @@ from __future__ import annotations
 import io
 import logging
 import re
-from datetime import date, datetime
+from datetime import date
 from typing import Any
 
 import pandas as pd
@@ -70,7 +70,6 @@ _DEFAULT_TIMEOUT = 60
 _DEFAULT_RETRIES = 3
 _DEFAULT_BACKOFF = 4
 _MISSING = -9999
-_INCHES_TO_CM = 2.54
 
 # Regex for valid CDEC station IDs (2–5 uppercase alphanumeric characters)
 _STATION_ID_RE = re.compile(r"^[A-Z0-9]{2,5}$")
@@ -78,47 +77,153 @@ _STATION_ID_RE = re.compile(r"^[A-Z0-9]{2,5}$")
 
 # ── Public sensor / flag / duration tables ───────────────────────────────────
 
-#: Known snow-relevant CDEC sensors.
+_CDEC_SRC = "CDEC JSONDataServlet (SensorNums={n})"
+
+
+def _sensor(name, short_name, stype, units, output_units, variable,
+            n, description, notes=""):
+    return {
+        "name": name,
+        "short_name": short_name,
+        "type": stype,
+        "units": units,
+        "output_units": output_units,
+        "variable": variable,
+        "source": _CDEC_SRC.format(n=n),
+        "description": description,
+        "notes": notes,
+    }
+
+
+#: Known CDEC sensors at CCSS snow stations (numbers verified against
+#: live staMeta inventories, 2026-07).  ``units`` is native;
+#: ``output_units`` is what :meth:`CDECClient.get_data` emits after
+#: in-client conversion (DESIGN.md §3.5).
 SENSORS: dict[int, dict[str, str]] = {
-    3: {
-        "name": "Snow Water Content",
-        "short_name": "SNOW WC",
-        "type": "swe",
-        "units": "in",
-        "variable": "swe_raw",
-        "source": "CDEC JSONDataServlet (SensorNums=3, dur_code=D)",
-        "description": "Raw snow pillow reading (SWE, inches). Converted to cm by client.",
-        "notes": "Prefer sensor 82 (SNO ADJ) when available.",
-    },
-    18: {
-        "name": "Snow Depth",
-        "short_name": "SNOW DP",
-        "type": "snwd",
-        "units": "in",
-        "variable": "snwd",
-        "source": "CDEC JSONDataServlet (SensorNums=18, dur_code=D)",
-        "description": "Ultrasonic snow depth sensor (inches). Converted to cm by client.",
-        "notes": "",
-    },
-    82: {
-        "name": "Snow Water Content (Adjusted)",
-        "short_name": "SNO ADJ",
-        "type": "swe",
-        "units": "in",
-        "variable": "swe",
-        "source": "CDEC JSONDataServlet (SensorNums=82, dur_code=D)",
-        "description": (
-            "Quality-controlled SWE with calibration offset applied "
-            "(preferred over sensor 3). Converted to cm by client."
-        ),
-        "notes": "Preferred SWE sensor for CCSS automated pillows.",
-    },
+    3: _sensor(
+        "Snow Water Content", "SNOW WC", "swe", "in", "cm", "swe_raw", 3,
+        "Raw snow pillow reading (SWE, inches). Converted to cm by client.",
+        "Prefer sensor 82 (SNO ADJ) when available.",
+    ),
+    18: _sensor(
+        "Snow Depth", "SNOW DP", "snwd", "in", "cm", "snwd", 18,
+        "Ultrasonic snow depth sensor (inches). Converted to cm by client.",
+    ),
+    82: _sensor(
+        "Snow Water Content (Adjusted)", "SNO ADJ", "swe", "in", "cm",
+        "swe", 82,
+        "Quality-controlled SWE with calibration offset applied "
+        "(preferred over sensor 3). Converted to cm by client.",
+        "Preferred SWE sensor for CCSS automated pillows.",
+    ),
+    2: _sensor(
+        "Precipitation, Accumulated", "RAIN", "precip", "in", "mm",
+        "precip_accum", 2,
+        "Accumulated precipitation (inches). Converted to mm by client.",
+    ),
+    45: _sensor(
+        "Precipitation, Incremental", "PPT INC", "precip", "in", "mm",
+        "precip_incr", 45,
+        "Incremental precipitation (inches). Converted to mm by client.",
+    ),
+    16: _sensor(
+        "Precipitation, Tipping Bucket", "PPT TB", "precip", "in", "mm",
+        "precip_tb", 16,
+        "Tipping-bucket precipitation (inches). Converted to mm by client.",
+    ),
+    4: _sensor(
+        "Temperature, Air", "TEMP", "temp", "°F", "°C", "air_temp", 4,
+        "Instantaneous air temperature (°F). Converted to °C by client.",
+    ),
+    30: _sensor(
+        "Temperature, Air Average", "TEMP AV", "temp", "°F", "°C",
+        "air_temp_avg", 30,
+        "Daily average air temperature (°F). Converted to °C by client.",
+    ),
+    31: _sensor(
+        "Temperature, Air Maximum", "TEMP MX", "temp_max", "°F", "°C",
+        "air_temp_max", 31,
+        "Daily maximum air temperature (°F). Converted to °C by client.",
+    ),
+    32: _sensor(
+        "Temperature, Air Minimum", "TEMP MN", "temp_min", "°F", "°C",
+        "air_temp_min", 32,
+        "Daily minimum air temperature (°F). Converted to °C by client.",
+    ),
+    12: _sensor(
+        "Relative Humidity", "REL HUM", "rh", "%", "%", "rh", 12,
+        "Relative humidity (percent).",
+    ),
+    9: _sensor(
+        "Wind Speed", "WIND SP", "wind_spd", "mph", "km/h", "wind_spd", 9,
+        "Wind speed (mph). Converted to km/h by client.",
+    ),
+    10: _sensor(
+        "Wind Direction", "WIND DR", "wind_dir", "degrees", "degrees",
+        "wind_dir", 10,
+        "Wind direction (degrees from north).",
+    ),
+    103: _sensor(
+        "Solar Radiation Average", "SOLAR AV", "solar", "W/m²", "W/m²",
+        "solar_avg", 103,
+        "Average incoming solar radiation (W/m²).",
+    ),
+    283: _sensor(
+        "Soil Moisture, 10 cm", "SOIL M10", "soil_moisture", "%", "%",
+        "soil_moisture_10cm", 283,
+        "Volumetric soil moisture at 10 cm depth (percent).",
+    ),
+    310: _sensor(
+        "Soil Moisture, 25 cm", "SOIL M25", "soil_moisture", "%", "%",
+        "soil_moisture_25cm", 310,
+        "Volumetric soil moisture at 25 cm depth (percent).",
+    ),
+    286: _sensor(
+        "Soil Moisture, 50 cm", "SOIL M50", "soil_moisture", "%", "%",
+        "soil_moisture_50cm", 286,
+        "Volumetric soil moisture at 50 cm depth (percent).",
+    ),
+    287: _sensor(
+        "Soil Moisture, 100 cm", "SOIL M100", "soil_moisture", "%", "%",
+        "soil_moisture_100cm", 287,
+        "Volumetric soil moisture at 100 cm depth (percent).",
+    ),
+}
+
+#: Snow sensors — the default when ``get_data(variables=None)``
+#: (DESIGN.md §3.4: None means all *snow* variables, not everything).
+SNOW_SENSORS: tuple[int, ...] = (3, 18, 82)
+
+# In-client metric conversions keyed by sensor number
+# (transform, emitted unit).  Sensors not listed pass through unchanged
+# with their registry output_units (already metric).
+_SENSOR_CONVERSIONS: dict[int, Any] = {
+    3: lambda v: v * 2.54,                  # in → cm
+    18: lambda v: v * 2.54,
+    82: lambda v: v * 2.54,
+    2: lambda v: v * 25.4,                  # in → mm
+    45: lambda v: v * 25.4,
+    16: lambda v: v * 25.4,
+    4: lambda v: (v - 32.0) * 5.0 / 9.0,    # °F → °C
+    30: lambda v: (v - 32.0) * 5.0 / 9.0,
+    31: lambda v: (v - 32.0) * 5.0 / 9.0,
+    32: lambda v: (v - 32.0) * 5.0 / 9.0,
+    9: lambda v: v * 1.609344,              # mph → km/h
 }
 
 # Standardized type → CDEC sensor number(s) in priority order
 _TYPE_TO_SENSORS: dict[str, list[int]] = {
-    "swe":  [82, 3],
-    "snwd": [18],
+    "swe":           [82, 3],
+    "snwd":          [18],
+    "precip":        [2, 45, 16],
+    "temp":          [4, 30],
+    "temp_max":      [31],
+    "temp_min":      [32],
+    "rh":            [12],
+    "wind_spd":      [9],
+    "wind_dir":      [10],
+    "solar":         [103],
+    "soil_moisture": [283, 310, 286, 287],
 }
 # CDEC duration code → standardized interval
 _CDEC_DURATION_TO_INTERVAL: dict[str, str] = {
@@ -166,14 +271,14 @@ def _resolve_variables_to_cdec_sensors(
 ) -> list[int]:
     """Translate a variables list (short names or types) to sensor numbers."""
     if variables is None:
-        return list(SENSORS.keys())
+        return list(SNOW_SENSORS)
     sensors: list[int] = []
     seen: set[int] = set()
     var_list = (
         [variables] if isinstance(variables, str) else list(variables)
     )
     if not var_list:
-        return list(SENSORS.keys())
+        return list(SNOW_SENSORS)
     # Build reverse lookups
     short_name_to_num = {
         v["short_name"]: k for k, v in SENSORS.items()
@@ -597,25 +702,29 @@ class CDECClient:
                 sensor_num = int(record.get("SENSOR_NUM", 0))
                 raw_val = record.get("value")
 
-                # Normalise missing value and convert inches → cm
+                # Normalise missing values and convert to metric using
+                # the per-sensor transform (DESIGN.md §3.5) — inches were
+                # previously ×2.54'd for every sensor, °F included.
+                transform = _SENSOR_CONVERSIONS.get(sensor_num)
                 if raw_val is None or raw_val == _MISSING:
-                    value_cm: float | None = None
+                    value: float | None = None
                 else:
                     try:
                         fv = float(raw_val)
-                        value_cm = (
-                            None
-                            if fv == _MISSING
-                            else round(fv * _INCHES_TO_CM, 3)
-                        )
+                        if fv == _MISSING:
+                            value = None
+                        elif transform is not None:
+                            value = round(transform(fv), 3)
+                        else:
+                            value = fv
                     except (TypeError, ValueError):
-                        value_cm = None
+                        value = None
 
                 v: dict[str, Any] = {
                     "date": _normalise_cdec_date(
                         str(record.get("date", ""))
                     ),
-                    "value": value_cm,
+                    "value": value,
                 }
                 if include_flags:
                     v["flag"] = str(record.get("dataFlag", "")).strip()
@@ -635,7 +744,7 @@ class CDECClient:
                             "durationName": DURATION_CODES.get(
                                 duration, duration
                             ),
-                            "units": "cm",
+                            "units": si.get("output_units", ""),
                         },
                         "values": [],
                     }
@@ -820,7 +929,7 @@ class CDECClient:
                             "variable": short_name,
                             "type": std_type,
                             "value": v,
-                            "units": "cm",
+                            "units": sensor_info.get("output_units", ""),
                             "interval": std_interval,
                         }
                         if sub_daily:
@@ -839,7 +948,7 @@ class CDECClient:
                     "variable": sinfo.get("short_name", str(snum)),
                     "type": "swe",
                     "value": v,
-                    "units": "cm",
+                    "units": sinfo.get("output_units", "cm"),
                     "interval": std_interval_out,
                 }
                 if sub_daily:
