@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1549,8 +1549,8 @@ xarray Datasets (multiple stations).</p>
 <span class="normal">2</span>
 <span class="normal">3</span>
 <span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">sc</span> <span class="o">=</span> <span class="n">StationCollection</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sc</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">stations</span><span class="o">=</span><span class="s2">&quot;679_WA_SNTL&quot;</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;WTEQ&quot;</span><span class="p">,</span> <span class="s2">&quot;SNWD&quot;</span><span class="p">],</span>
-<span class="gp">... </span>            <span class="n">start_date</span><span class="o">=</span><span class="s2">&quot;2020-10-01&quot;</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="s2">&quot;2021-09-30&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sc</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">stations</span><span class="o">=</span><span class="s2">"679_WA_SNTL"</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">"WTEQ"</span><span class="p">,</span> <span class="s2">"SNWD"</span><span class="p">],</span>
+<span class="gp">... </span>            <span class="n">start_date</span><span class="o">=</span><span class="s2">"2020-10-01"</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="s2">"2021-09-30"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sc</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
     <p>Multi-station retrieval (returns an xarray Dataset):</p>
@@ -1559,9 +1559,9 @@ xarray Datasets (multiple stations).</p>
 <span class="normal">3</span>
 <span class="normal">4</span>
 <span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">sc</span> <span class="o">=</span> <span class="n">StationCollection</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sc</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">stations</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;679_WA_SNTL&quot;</span><span class="p">,</span> <span class="s2">&quot;680_WA_SNTL&quot;</span><span class="p">],</span>
-<span class="gp">... </span>            <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;WTEQ&quot;</span><span class="p">],</span>
-<span class="gp">... </span>            <span class="n">start_date</span><span class="o">=</span><span class="s2">&quot;2022-01-01&quot;</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="s2">&quot;2022-03-31&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sc</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">stations</span><span class="o">=</span><span class="p">[</span><span class="s2">"679_WA_SNTL"</span><span class="p">,</span> <span class="s2">"680_WA_SNTL"</span><span class="p">],</span>
+<span class="gp">... </span>            <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">"WTEQ"</span><span class="p">],</span>
+<span class="gp">... </span>            <span class="n">start_date</span><span class="o">=</span><span class="s2">"2022-01-01"</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="s2">"2022-03-31"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sc</span><span class="o">.</span><span class="n">data</span>
 </code></pre></div></td></tr></table></div>
 
@@ -1732,20 +1732,20 @@ filtered from <code>all_stations</code>.</p>
 <span class="normal">168</span>
 <span class="normal">169</span>
 <span class="normal">170</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">choose_stations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stations_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Select a subset of stations by code string, list of codes, or GeoDataFrame.</span>
+<span class="w">    </span><span class="sd">"""Select a subset of stations by code string, list of codes, or GeoDataFrame.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    stations_input : str, list of str, or geopandas.GeoDataFrame</span>
-<span class="sd">        Station code(s) to select (e.g. ``&quot;679_WA_SNTL&quot;`` or</span>
-<span class="sd">        ``[&quot;679_WA_SNTL&quot;, &quot;680_WA_SNTL&quot;]``), or a GeoDataFrame already</span>
+<span class="sd">        Station code(s) to select (e.g. ``"679_WA_SNTL"`` or</span>
+<span class="sd">        ``["679_WA_SNTL", "680_WA_SNTL"]``), or a GeoDataFrame already</span>
 <span class="sd">        filtered from ``all_stations``.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    None</span>
 <span class="sd">        Sets ``self.stations``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stations_input</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_stations</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">stations_input</span><span class="p">]]</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stations_input</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -1829,7 +1829,7 @@ to <code>sortby_dist_to_geom</code> if provided.</p>
 <span class="normal">146</span>
 <span class="normal">147</span>
 <span class="normal">148</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_all_stations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch all station metadata from GitHub and populate ``all_stations``.</span>
+<span class="w">    </span><span class="sd">"""Fetch all station metadata from GitHub and populate ``all_stations``.</span>
 
 <span class="sd">    Optionally filters to stations with data files and sorts by distance</span>
 <span class="sd">    to ``sortby_dist_to_geom`` if provided.</span>
@@ -1838,26 +1838,26 @@ to <code>sortby_dist_to_geom</code> if provided.</p>
 <span class="sd">    -------</span>
 <span class="sd">    None</span>
 <span class="sd">        Sets ``self.all_stations``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">all_stations_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">_STATION_GEOJSON_URL</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;code&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">all_stations_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">_STATION_GEOJSON_URL</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"code"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_available</span><span class="p">:</span>
-        <span class="n">all_stations_gdf</span> <span class="o">=</span> <span class="n">all_stations_gdf</span><span class="p">[</span><span class="n">all_stations_gdf</span><span class="p">[</span><span class="s2">&quot;csvData&quot;</span><span class="p">]]</span>
+        <span class="n">all_stations_gdf</span> <span class="o">=</span> <span class="n">all_stations_gdf</span><span class="p">[</span><span class="n">all_stations_gdf</span><span class="p">[</span><span class="s2">"csvData"</span><span class="p">]]</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sortby_dist_to_geom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Sorting stations by distance to provided geometry.&quot;</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Sorting stations by distance to provided geometry."</span><span class="p">)</span>
         <span class="n">geom_gdf</span> <span class="o">=</span> <span class="n">convert_bbox_to_geodataframe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sortby_dist_to_geom</span><span class="p">)</span>
-        <span class="n">proj</span> <span class="o">=</span> <span class="s2">&quot;EPSG:32611&quot;</span>
-        <span class="n">all_stations_gdf</span><span class="p">[</span><span class="s2">&quot;dist_km&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">proj</span> <span class="o">=</span> <span class="s2">"EPSG:32611"</span>
+        <span class="n">all_stations_gdf</span><span class="p">[</span><span class="s2">"dist_km"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">all_stations_gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">proj</span><span class="p">)</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span>
                 <span class="n">geom_gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">proj</span><span class="p">)</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="p">)</span>
             <span class="o">/</span> <span class="mi">1000</span>
         <span class="p">)</span>
-        <span class="n">all_stations_gdf</span> <span class="o">=</span> <span class="n">all_stations_gdf</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;dist_km&quot;</span><span class="p">)</span>
+        <span class="n">all_stations_gdf</span> <span class="o">=</span> <span class="n">all_stations_gdf</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"dist_km"</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">all_stations</span> <span class="o">=</span> <span class="n">all_stations_gdf</span>
-    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loaded </span><span class="si">%d</span><span class="s2"> stations into all_stations.&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_stations</span><span class="p">))</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Loaded </span><span class="si">%d</span><span class="s2"> stations into all_stations."</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_stations</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1868,7 +1868,7 @@ to <code>sortby_dist_to_geom</code> if provided.</p>
 
 
 <h3 id="easysnowdata.automatic_weather_stations.StationCollection.get_data" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_data</span><span class="p">(</span><span class="n">stations</span><span class="o">=</span><span class="s1">&#39;679_WA_SNTL&#39;</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="s1">&#39;1900-01-01&#39;</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">get_data</span><span class="p">(</span><span class="n">stations</span><span class="o">=</span><span class="s1">'679_WA_SNTL'</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="s1">'1900-01-01'</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#easysnowdata.automatic_weather_stations.StationCollection.get_data" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -2038,12 +2038,12 @@ station, or <code>WTEQ</code> for multiple stations.</p>
 <span class="normal">220</span>
 <span class="normal">221</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_data</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
-    <span class="n">stations</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">=</span> <span class="s2">&quot;679_WA_SNTL&quot;</span><span class="p">,</span>
+    <span class="n">stations</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">=</span> <span class="s2">"679_WA_SNTL"</span><span class="p">,</span>
     <span class="n">variables</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;1900-01-01&quot;</span><span class="p">,</span>
+    <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"1900-01-01"</span><span class="p">,</span>
     <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch data for the given stations and variables.</span>
+<span class="w">    </span><span class="sd">"""Fetch data for the given stations and variables.</span>
 
 <span class="sd">    Dispatches to :meth:`get_single_station_data` or</span>
 <span class="sd">    :meth:`get_multiple_station_data` based on the number of stations</span>
@@ -2052,23 +2052,23 @@ station, or <code>WTEQ</code> for multiple stations.</p>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    stations : str, list of str, or GeoDataFrame, optional</span>
-<span class="sd">        Station code(s) to fetch. Default is ``&quot;679_WA_SNTL&quot;``</span>
+<span class="sd">        Station code(s) to fetch. Default is ``"679_WA_SNTL"``</span>
 <span class="sd">        (Paradise, WA SNOTEL).</span>
 <span class="sd">    variables : str or list of str, optional</span>
 <span class="sd">        Variable(s) to fetch. Defaults to all variables for a single</span>
 <span class="sd">        station, or ``WTEQ`` for multiple stations.</span>
 <span class="sd">    start_date : str, optional</span>
-<span class="sd">        ISO date string ``&quot;YYYY-MM-DD&quot;``. Default is ``&quot;1900-01-01&quot;``.</span>
+<span class="sd">        ISO date string ``"YYYY-MM-DD"``. Default is ``"1900-01-01"``.</span>
 <span class="sd">    end_date : str, optional</span>
-<span class="sd">        ISO date string. Default is today&#39;s date.</span>
+<span class="sd">        ISO date string. Default is today's date.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    None</span>
 <span class="sd">        Sets ``self.data``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">end_date</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">end_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">end_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">choose_stations</span><span class="p">(</span><span class="n">stations</span><span class="p">)</span>
 
@@ -2079,10 +2079,10 @@ station, or <code>WTEQ</code> for multiple stations.</p>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Multiple stations chosen with variables=None — defaulting to WTEQ.&quot;</span>
+                <span class="s2">"Multiple stations chosen with variables=None — defaulting to WTEQ."</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">get_multiple_station_data</span><span class="p">(</span>
-            <span class="n">variables</span><span class="o">=</span><span class="n">variables</span> <span class="ow">or</span> <span class="s2">&quot;WTEQ&quot;</span><span class="p">,</span>
+            <span class="n">variables</span><span class="o">=</span><span class="n">variables</span> <span class="ow">or</span> <span class="s2">"WTEQ"</span><span class="p">,</span>
             <span class="n">start_date</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span>
             <span class="n">end_date</span><span class="o">=</span><span class="n">end_date</span><span class="p">,</span>
         <span class="p">)</span>
@@ -2096,7 +2096,7 @@ station, or <code>WTEQ</code> for multiple stations.</p>
 
 
 <h3 id="easysnowdata.automatic_weather_stations.StationCollection.get_entire_data_archive" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_entire_data_archive</span><span class="p">(</span><span class="n">refresh</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">temp_dir</span><span class="o">=</span><span class="s1">&#39;/tmp/&#39;</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">get_entire_data_archive</span><span class="p">(</span><span class="n">refresh</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">temp_dir</span><span class="o">=</span><span class="s1">'/tmp/'</span><span class="p">)</span></code>
 
 <a href="#easysnowdata.automatic_weather_stations.StationCollection.get_entire_data_archive" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -2247,9 +2247,9 @@ download and decompression on first run.</p>
 <span class="normal">382</span>
 <span class="normal">383</span>
 <span class="normal">384</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_entire_data_archive</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span> <span class="n">refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">temp_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;/tmp/&quot;</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">temp_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"/tmp/"</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download, decompress, and assemble the full station data archive.</span>
+<span class="w">    </span><span class="sd">"""Download, decompress, and assemble the full station data archive.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -2257,7 +2257,7 @@ download and decompression on first run.</p>
 <span class="sd">        Re-download the archive even if it already exists locally.</span>
 <span class="sd">        Default is ``True``.</span>
 <span class="sd">    temp_dir : str, optional</span>
-<span class="sd">        Local directory for the downloaded archive. Default is ``&quot;/tmp/&quot;``.</span>
+<span class="sd">        Local directory for the downloaded archive. Default is ``"/tmp/"``.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -2269,29 +2269,29 @@ download and decompression on first run.</p>
 <span class="sd">    -----</span>
 <span class="sd">    The compressed archive is ~several hundred MB; allow a few minutes for</span>
 <span class="sd">    download and decompression on first run.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">compressed_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="s2">&quot;all_station_data.tar.lzma&quot;</span><span class="p">)</span>
-    <span class="n">decompressed_dir</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">compressed_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="s2">"all_station_data.tar.lzma"</span><span class="p">)</span>
+    <span class="n">decompressed_dir</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="s2">"data"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">compressed_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">or</span> <span class="n">refresh</span><span class="p">:</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Downloading archive to </span><span class="si">%s</span><span class="s2"> …&quot;</span><span class="p">,</span> <span class="n">compressed_path</span><span class="p">)</span>
-        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;wget&quot;</span><span class="p">,</span> <span class="s2">&quot;-q&quot;</span><span class="p">,</span> <span class="s2">&quot;-P&quot;</span><span class="p">,</span> <span class="n">temp_dir</span><span class="p">,</span> <span class="n">_ARCHIVE_URL</span><span class="p">],</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Downloading archive to </span><span class="si">%s</span><span class="s2"> …"</span><span class="p">,</span> <span class="n">compressed_path</span><span class="p">)</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">"wget"</span><span class="p">,</span> <span class="s2">"-q"</span><span class="p">,</span> <span class="s2">"-P"</span><span class="p">,</span> <span class="n">temp_dir</span><span class="p">,</span> <span class="n">_ARCHIVE_URL</span><span class="p">],</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">decompressed_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">or</span> <span class="n">refresh</span><span class="p">:</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Decompressing archive …&quot;</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Decompressing archive …"</span><span class="p">)</span>
         <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-            <span class="p">[</span><span class="s2">&quot;tar&quot;</span><span class="p">,</span> <span class="s2">&quot;--lzma&quot;</span><span class="p">,</span> <span class="s2">&quot;-xf&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">compressed_path</span><span class="p">),</span> <span class="s2">&quot;-C&quot;</span><span class="p">,</span> <span class="n">temp_dir</span><span class="p">],</span>
+            <span class="p">[</span><span class="s2">"tar"</span><span class="p">,</span> <span class="s2">"--lzma"</span><span class="p">,</span> <span class="s2">"-xf"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">compressed_path</span><span class="p">),</span> <span class="s2">"-C"</span><span class="p">,</span> <span class="n">temp_dir</span><span class="p">],</span>
             <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Building xarray.Dataset from decompressed CSVs …&quot;</span><span class="p">)</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Building xarray.Dataset from decompressed CSVs …"</span><span class="p">)</span>
     <span class="n">datasets</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">csv_file</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">decompressed_dir</span> <span class="o">/</span> <span class="s2">&quot;*.csv&quot;</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">csv_file</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">decompressed_dir</span> <span class="o">/</span> <span class="s2">"*.csv"</span><span class="p">)):</span>
         <span class="n">station_name</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
         <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="s2">&quot;time&quot;</span><span class="p">})</span>
-            <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"datetime"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">})</span>
+            <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)</span>
             <span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
         <span class="p">)</span>
         <span class="n">station_ds</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">station</span><span class="o">=</span><span class="n">station_name</span><span class="p">)</span>
@@ -2299,13 +2299,13 @@ download and decompression on first run.</p>
             <span class="n">station_ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_stations</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">station_name</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>
         <span class="n">datasets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station_ds</span><span class="p">)</span>
 
-    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;station&quot;</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
-    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;WY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">datetime_to_WY</span><span class="p">))</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;DOWY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">datetime_to_DOWY</span><span class="p">))</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">"station"</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="s2">"all"</span><span class="p">)</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"WY"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">datetime_to_WY</span><span class="p">))</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"DOWY"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">datetime_to_DOWY</span><span class="p">))</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">entire_data_archive</span> <span class="o">=</span> <span class="n">ds</span>
-    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Full archive loaded (</span><span class="si">%d</span><span class="s2"> stations).&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">))</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Full archive loaded (</span><span class="si">%d</span><span class="s2"> stations)."</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">ds</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2317,7 +2317,7 @@ download and decompression on first run.</p>
 
 
 <h3 id="easysnowdata.automatic_weather_stations.StationCollection.get_multiple_station_data" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_multiple_station_data</span><span class="p">(</span><span class="n">variables</span><span class="o">=</span><span class="s1">&#39;WTEQ&#39;</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="s1">&#39;1900-01-01&#39;</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">get_multiple_station_data</span><span class="p">(</span><span class="n">variables</span><span class="o">=</span><span class="s1">'WTEQ'</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="s1">'1900-01-01'</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#easysnowdata.automatic_weather_stations.StationCollection.get_multiple_station_data" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -2482,18 +2482,18 @@ coordinates <code>WY</code> and <code>DOWY</code>.</p>
 <span class="normal">321</span>
 <span class="normal">322</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_multiple_station_data</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
-    <span class="n">variables</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;WTEQ&quot;</span><span class="p">,</span>
-    <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;1900-01-01&quot;</span><span class="p">,</span>
+    <span class="n">variables</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"WTEQ"</span><span class="p">,</span>
+    <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"1900-01-01"</span><span class="p">,</span>
     <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch one or more variables for all currently selected stations.</span>
+<span class="w">    </span><span class="sd">"""Fetch one or more variables for all currently selected stations.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    variables : str or list of str, optional</span>
-<span class="sd">        Variable(s) to retrieve. Default is ``&quot;WTEQ&quot;``.</span>
+<span class="sd">        Variable(s) to retrieve. Default is ``"WTEQ"``.</span>
 <span class="sd">    start_date : str, optional</span>
-<span class="sd">        ISO date string. Default ``&quot;1900-01-01&quot;``.</span>
+<span class="sd">        ISO date string. Default ``"1900-01-01"``.</span>
 <span class="sd">    end_date : str, optional</span>
 <span class="sd">        ISO date string. Defaults to today.</span>
 
@@ -2502,9 +2502,9 @@ coordinates <code>WY</code> and <code>DOWY</code>.</p>
 <span class="sd">    None</span>
 <span class="sd">        Sets ``self.data`` to an :class:`xarray.Dataset` with water-year</span>
 <span class="sd">        coordinates ``WY`` and ``DOWY``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">end_date</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">end_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">end_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">variables</span><span class="p">]</span>
 
@@ -2513,14 +2513,14 @@ coordinates <code>WY</code> and <code>DOWY</code>.</p>
         <span class="n">station_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="o">.</span><span class="n">tqdm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="n">variable</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_STATION_DATA_BASE_URL</span><span class="si">}{</span><span class="n">station</span><span class="si">}</span><span class="s2">.csv&quot;</span>
-                <span class="n">tmp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="s2">&quot;datetime&quot;</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">_STATION_DATA_BASE_URL</span><span class="si">}{</span><span class="n">station</span><span class="si">}</span><span class="s2">.csv"</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="s2">"datetime"</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span>
                     <span class="n">variable</span>
                 <span class="p">]</span>
                 <span class="n">station_dict</span><span class="p">[</span><span class="n">station</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="s2">&quot;Failed to retrieve </span><span class="si">%s</span><span class="s2"> for </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">station</span><span class="p">,</span> <span class="n">exc</span>
+                    <span class="s2">"Failed to retrieve </span><span class="si">%s</span><span class="s2"> for </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">station</span><span class="p">,</span> <span class="n">exc</span>
                 <span class="p">)</span>
 
         <span class="n">station_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">station_dict</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">start_date</span><span class="p">:</span><span class="n">end_date</span><span class="p">]</span>
@@ -2528,23 +2528,23 @@ coordinates <code>WY</code> and <code>DOWY</code>.</p>
 
         <span class="n">da</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">station_df</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">to_dataarray</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;station&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">to_dataarray</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"station"</span><span class="p">)</span>
             <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="s2">&quot;time&quot;</span><span class="p">})</span>
+            <span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">"datetime"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">})</span>
         <span class="p">)</span>
         <span class="n">dataarrays</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
 
     <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">dataarrays</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="n">col</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;station&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="p">[</span><span class="n">col</span><span class="p">])})</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="n">col</span><span class="p">:</span> <span class="p">(</span><span class="s2">"station"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="p">[</span><span class="n">col</span><span class="p">])})</span>
 
-    <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;WY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">datetime_to_WY</span><span class="p">))</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;DOWY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">datetime_to_DOWY</span><span class="p">))</span>
+    <span class="n">ds</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"WY"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">datetime_to_WY</span><span class="p">))</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"DOWY"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">datetime_to_DOWY</span><span class="p">))</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">ds</span>
-    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loaded </span><span class="si">%s</span><span class="s2"> for </span><span class="si">%d</span><span class="s2"> stations.&quot;</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="p">))</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Loaded </span><span class="si">%s</span><span class="s2"> for </span><span class="si">%d</span><span class="s2"> stations."</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2555,7 +2555,7 @@ coordinates <code>WY</code> and <code>DOWY</code>.</p>
 
 
 <h3 id="easysnowdata.automatic_weather_stations.StationCollection.get_single_station_data" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_single_station_data</span><span class="p">(</span><span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="s1">&#39;1900-01-01&#39;</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">get_single_station_data</span><span class="p">(</span><span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="s1">'1900-01-01'</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#easysnowdata.automatic_weather_stations.StationCollection.get_single_station_data" class="headerlink" title="Permanent link">&para;</a></h3>
 
@@ -2689,17 +2689,17 @@ coordinates <code>WY</code> and <code>DOWY</code>.</p>
 <span class="normal">256</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_single_station_data</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">variables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;1900-01-01&quot;</span><span class="p">,</span>
+    <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"1900-01-01"</span><span class="p">,</span>
     <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch all (or selected) variables for the currently selected single station.</span>
+<span class="w">    </span><span class="sd">"""Fetch all (or selected) variables for the currently selected single station.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    variables : list of str, optional</span>
 <span class="sd">        Variable columns to keep. Defaults to all available variables.</span>
 <span class="sd">    start_date : str, optional</span>
-<span class="sd">        ISO date string. Default ``&quot;1900-01-01&quot;``.</span>
+<span class="sd">        ISO date string. Default ``"1900-01-01"``.</span>
 <span class="sd">    end_date : str, optional</span>
 <span class="sd">        ISO date string. Defaults to today.</span>
 
@@ -2707,19 +2707,19 @@ coordinates <code>WY</code> and <code>DOWY</code>.</p>
 <span class="sd">    -------</span>
 <span class="sd">    None</span>
 <span class="sd">        Sets ``self.data`` to a :class:`pandas.DataFrame`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">end_date</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">end_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">end_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;WTEQ&quot;</span><span class="p">,</span> <span class="s2">&quot;SNWD&quot;</span><span class="p">,</span> <span class="s2">&quot;PRCPSA&quot;</span><span class="p">,</span> <span class="s2">&quot;TAVG&quot;</span><span class="p">,</span> <span class="s2">&quot;TMIN&quot;</span><span class="p">,</span> <span class="s2">&quot;TMAX&quot;</span><span class="p">]</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"WTEQ"</span><span class="p">,</span> <span class="s2">"SNWD"</span><span class="p">,</span> <span class="s2">"PRCPSA"</span><span class="p">,</span> <span class="s2">"TAVG"</span><span class="p">,</span> <span class="s2">"TMIN"</span><span class="p">,</span> <span class="s2">"TMAX"</span><span class="p">]</span>
 
     <span class="n">station_code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_STATION_DATA_BASE_URL</span><span class="si">}{</span><span class="n">station_code</span><span class="si">}</span><span class="s2">.csv&quot;</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="s2">&quot;datetime&quot;</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">_STATION_DATA_BASE_URL</span><span class="si">}{</span><span class="n">station_code</span><span class="si">}</span><span class="s2">.csv"</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="s2">"datetime"</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">drop_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">]</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">drop_cols</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">start_date</span><span class="p">:</span><span class="n">end_date</span><span class="p">]</span>
-    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loaded data for station </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">station_code</span><span class="p">)</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Loaded data for station </span><span class="si">%s</span><span class="s2">."</span><span class="p">,</span> <span class="n">station_code</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2837,7 +2837,7 @@ coordinates <code>WY</code> and <code>DOWY</code>.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.top", "navigation.sections", "search.highlight", "search.share", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../js/timeago.min.js"></script>
       
