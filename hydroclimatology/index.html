@@ -1420,7 +1420,7 @@
 
 
 <h2 id="easysnowdata.hydroclimatology.get_era5" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_era5</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s1">'ERA5'</span><span class="p">,</span> <span class="n">cadence</span><span class="o">=</span><span class="s1">'HOURLY'</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s1">'auto'</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initialize_ee</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">get_era5</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s1">'ERA5'</span><span class="p">,</span> <span class="n">cadence</span><span class="o">=</span><span class="s1">'HOURLY'</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s1">'auto'</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initialize_ee</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
 <a href="#easysnowdata.hydroclimatology.get_era5" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -1576,6 +1576,24 @@ and GEE for everything else.</p>
                   <code>True</code>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>**kwargs</code>
+            </td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Additional keyword arguments passed to the underlying loader:
+<code>xarray.open_zarr</code> for the GCS source, or <code>xarray.open_dataset</code> with
+<code>engine="ee"</code> for the GEE source (e.g. <code>chunks={"time": 24}</code>). These
+take precedence over the defaults used here (<code>chunks=None</code>).</p>
+              </div>
+            </td>
+            <td>
+                  <code>{}</code>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -1664,24 +1682,7 @@ are needed.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/hydroclimatology.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">366</span>
-<span class="normal">367</span>
-<span class="normal">368</span>
-<span class="normal">369</span>
-<span class="normal">370</span>
-<span class="normal">371</span>
-<span class="normal">372</span>
-<span class="normal">373</span>
-<span class="normal">374</span>
-<span class="normal">375</span>
-<span class="normal">376</span>
-<span class="normal">377</span>
-<span class="normal">378</span>
-<span class="normal">379</span>
-<span class="normal">380</span>
-<span class="normal">381</span>
-<span class="normal">382</span>
-<span class="normal">383</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">383</span>
 <span class="normal">384</span>
 <span class="normal">385</span>
 <span class="normal">386</span>
@@ -1904,7 +1905,35 @@ are needed.</p>
 <span class="normal">603</span>
 <span class="normal">604</span>
 <span class="normal">605</span>
-<span class="normal">606</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_era5</span><span class="p">(</span>
+<span class="normal">606</span>
+<span class="normal">607</span>
+<span class="normal">608</span>
+<span class="normal">609</span>
+<span class="normal">610</span>
+<span class="normal">611</span>
+<span class="normal">612</span>
+<span class="normal">613</span>
+<span class="normal">614</span>
+<span class="normal">615</span>
+<span class="normal">616</span>
+<span class="normal">617</span>
+<span class="normal">618</span>
+<span class="normal">619</span>
+<span class="normal">620</span>
+<span class="normal">621</span>
+<span class="normal">622</span>
+<span class="normal">623</span>
+<span class="normal">624</span>
+<span class="normal">625</span>
+<span class="normal">626</span>
+<span class="normal">627</span>
+<span class="normal">628</span>
+<span class="normal">629</span>
+<span class="normal">630</span>
+<span class="normal">631</span>
+<span class="normal">632</span>
+<span class="normal">633</span>
+<span class="normal">634</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_era5</span><span class="p">(</span>
     <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
     <span class="o">|</span> <span class="nb">tuple</span>
     <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span>
@@ -1916,6 +1945,7 @@ are needed.</p>
     <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">variables</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">initialize_ee</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Retrieves ERA5 reanalysis data using optimal source selection.</span>
@@ -1946,6 +1976,11 @@ are needed.</p>
 <span class="sd">        Variable(s) to select. If None, returns all variables. Only applicable for GEE source.</span>
 <span class="sd">    initialize_ee : bool, optional</span>
 <span class="sd">        Whether to initialize Earth Engine. Default is True. Only applicable for GEE source.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional keyword arguments passed to the underlying loader:</span>
+<span class="sd">        ``xarray.open_zarr`` for the GCS source, or ``xarray.open_dataset`` with</span>
+<span class="sd">        ``engine="ee"`` for the GEE source (e.g. ``chunks={"time": 24}``). These</span>
+<span class="sd">        take precedence over the defaults used here (``chunks=None``).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -2021,10 +2056,14 @@ are needed.</p>
                 <span class="sa">f</span><span class="s2">"GCS source only supports ERA5 hourly data, not </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">cadence</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
 
+        <span class="n">open_params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"chunks"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">"storage_options"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="s2">"anon"</span><span class="p">),</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">}</span>
         <span class="n">era5_ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_zarr</span><span class="p">(</span>
             <span class="s2">"gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3"</span><span class="p">,</span>
-            <span class="n">chunks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">storage_options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="s2">"anon"</span><span class="p">),</span>
+            <span class="o">**</span><span class="n">open_params</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Apply time filtering if specified</span>
@@ -2121,13 +2160,14 @@ are needed.</p>
         <span class="n">grid</span> <span class="o">=</span> <span class="n">get_ee_grid_params</span><span class="p">(</span><span class="n">image_collection</span><span class="o">.</span><span class="n">first</span><span class="p">(),</span> <span class="n">bbox_gdf</span><span class="p">)</span>
 
         <span class="c1"># Load dataset (xee &gt;= 0.1 returns dims ordered (time, y, x))</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">image_collection</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">"ee"</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">grid</span><span class="p">)</span>
+        <span class="n">open_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"engine"</span><span class="p">:</span> <span class="s2">"ee"</span><span class="p">,</span> <span class="s2">"chunks"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">grid</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">}</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">image_collection</span><span class="p">,</span> <span class="o">**</span><span class="n">open_params</span><span class="p">)</span>
 
         <span class="c1"># Clean up coordinate names</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">ds</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">"y"</span><span class="p">:</span> <span class="s2">"latitude"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">:</span> <span class="s2">"longitude"</span><span class="p">})</span>
             <span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">set_spatial_dims</span><span class="p">(</span><span class="n">x_dim</span><span class="o">=</span><span class="s2">"longitude"</span><span class="p">,</span> <span class="n">y_dim</span><span class="o">=</span><span class="s2">"latitude"</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">write_crs</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="s2">"crs"</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">write_crs</span><span class="p">(</span><span class="n">open_params</span><span class="p">[</span><span class="s2">"crs"</span><span class="p">])</span>
         <span class="p">)</span>
 
         <span class="c1"># Add metadata</span>
@@ -2155,7 +2195,7 @@ are needed.</p>
 
 
 <h2 id="easysnowdata.hydroclimatology.get_grdc_major_river_basins_of_the_world" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_grdc_major_river_basins_of_the_world</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">get_grdc_major_river_basins_of_the_world</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
 <a href="#easysnowdata.hydroclimatology.get_grdc_major_river_basins_of_the_world" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -2194,6 +2234,22 @@ drainage (inland sinks/lakes) systems.</p>
             </td>
             <td>
                   <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>**kwargs</code>
+            </td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Additional keyword arguments passed to <code>geopandas.read_file</code> (e.g.
+<code>columns=[...]</code>, <code>rows=...</code>, <code>engine="pyogrio"</code>).</p>
+              </div>
+            </td>
+            <td>
+                  <code>{}</code>
             </td>
           </tr>
       </tbody>
@@ -2249,16 +2305,7 @@ Koblenz: Federal Institute of Hydrology (BfG).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/hydroclimatology.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">213</span>
-<span class="normal">214</span>
-<span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">222</span>
 <span class="normal">223</span>
 <span class="normal">224</span>
 <span class="normal">225</span>
@@ -2317,11 +2364,25 @@ Koblenz: Federal Institute of Hydrology (BfG).</p>
 <span class="normal">278</span>
 <span class="normal">279</span>
 <span class="normal">280</span>
-<span class="normal">281</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_grdc_major_river_basins_of_the_world</span><span class="p">(</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_grdc_major_river_basins_of_the_world</span><span class="p">(</span>
     <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
     <span class="o">|</span> <span class="nb">tuple</span>
     <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span>
     <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Retrieves GRDC Major River Basins of the World dataset.</span>
@@ -2335,6 +2396,9 @@ Koblenz: Federal Institute of Hydrology (BfG).</p>
 <span class="sd">    ----------</span>
 <span class="sd">    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional</span>
 <span class="sd">        The bounding box for spatial subsetting. If None, the entire global dataset is returned.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional keyword arguments passed to ``geopandas.read_file`` (e.g.</span>
+<span class="sd">        ``columns=[...]``, ``rows=...``, ``engine="pyogrio"``).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -2372,7 +2436,7 @@ Koblenz: Federal Institute of Hydrology (BfG).</p>
     <span class="p">)</span>
 
     <span class="c1"># Load the data</span>
-    <span class="n">basins_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">"zip+"</span> <span class="o">+</span> <span class="n">url</span><span class="p">)</span>
+    <span class="n">basins_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">"zip+"</span> <span class="o">+</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="c1"># Clip to bbox if provided</span>
     <span class="k">if</span> <span class="n">bbox_gdf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2396,7 +2460,7 @@ Koblenz: Federal Institute of Hydrology (BfG).</p>
 
 
 <h2 id="easysnowdata.hydroclimatology.get_grdc_wmo_basins" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_grdc_wmo_basins</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">get_grdc_wmo_basins</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
 <a href="#easysnowdata.hydroclimatology.get_grdc_wmo_basins" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -2435,6 +2499,22 @@ endorheic drainage (inland sinks/lakes).</p>
             </td>
             <td>
                   <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>**kwargs</code>
+            </td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Additional keyword arguments passed to <code>geopandas.read_file</code> (e.g.
+<code>columns=[...]</code>, <code>rows=...</code>, <code>engine="pyogrio"</code>).</p>
+              </div>
+            </td>
+            <td>
+                  <code>{}</code>
             </td>
           </tr>
       </tbody>
@@ -2501,20 +2581,7 @@ Koblenz, Germany: Federal Institute of Hydrology (BfG).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/hydroclimatology.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">284</span>
-<span class="normal">285</span>
-<span class="normal">286</span>
-<span class="normal">287</span>
-<span class="normal">288</span>
-<span class="normal">289</span>
-<span class="normal">290</span>
-<span class="normal">291</span>
-<span class="normal">292</span>
-<span class="normal">293</span>
-<span class="normal">294</span>
-<span class="normal">295</span>
-<span class="normal">296</span>
-<span class="normal">297</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">297</span>
 <span class="normal">298</span>
 <span class="normal">299</span>
 <span class="normal">300</span>
@@ -2580,11 +2647,29 @@ Koblenz, Germany: Federal Institute of Hydrology (BfG).</p>
 <span class="normal">360</span>
 <span class="normal">361</span>
 <span class="normal">362</span>
-<span class="normal">363</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_grdc_wmo_basins</span><span class="p">(</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_grdc_wmo_basins</span><span class="p">(</span>
     <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
     <span class="o">|</span> <span class="nb">tuple</span>
     <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span>
     <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Retrieves WMO Basins and Sub-Basins dataset.</span>
@@ -2598,6 +2683,9 @@ Koblenz, Germany: Federal Institute of Hydrology (BfG).</p>
 <span class="sd">    ----------</span>
 <span class="sd">    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional</span>
 <span class="sd">        The bounding box for spatial subsetting. If None, the entire global dataset is returned.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional keyword arguments passed to ``geopandas.read_file`` (e.g.</span>
+<span class="sd">        ``columns=[...]``, ``rows=...``, ``engine="pyogrio"``).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -2646,7 +2734,7 @@ Koblenz, Germany: Federal Institute of Hydrology (BfG).</p>
         <span class="n">convert_bbox_to_geodataframe</span><span class="p">(</span><span class="n">bbox_input</span><span class="p">)</span> <span class="k">if</span> <span class="n">bbox_input</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
     <span class="p">)</span>
 
-    <span class="n">basins_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">"zip+"</span> <span class="o">+</span> <span class="n">url</span><span class="p">)</span>
+    <span class="n">basins_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">"zip+"</span> <span class="o">+</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="c1"># Clip to bbox if provided</span>
     <span class="k">if</span> <span class="n">bbox_gdf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2949,7 +3037,7 @@ https://doi.org/10.3133/tm11A3</p>
 
 
 <h2 id="easysnowdata.hydroclimatology.get_hydroBASINS" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_hydroBASINS</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">get_hydroBASINS</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
 <a href="#easysnowdata.hydroclimatology.get_hydroBASINS" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -3004,6 +3092,24 @@ finer subdivisions. Default is 5.</p>
             </td>
             <td>
                   <code>5</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>**kwargs</code>
+            </td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Additional keyword arguments passed to <code>geopandas.read_file</code> (e.g.
+<code>columns=[...]</code>, <code>rows=...</code>, <code>engine="pyogrio"</code>). These take
+precedence over the defaults used here (<code>layer</code> and, when a bbox is
+given, <code>mask</code>).</p>
+              </div>
+            </td>
+            <td>
+                  <code>{}</code>
             </td>
           </tr>
       </tbody>
@@ -3143,12 +3249,22 @@ Scientific Data 6: 283. doi: 10.1038/s41597-019-0300-6</p>
 <span class="normal">207</span>
 <span class="normal">208</span>
 <span class="normal">209</span>
-<span class="normal">210</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_hydroBASINS</span><span class="p">(</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_hydroBASINS</span><span class="p">(</span>
     <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
     <span class="o">|</span> <span class="nb">tuple</span>
     <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span>
     <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Retrieves HydroATLAS sub-basin boundaries at specified hierarchical level.</span>
@@ -3164,6 +3280,11 @@ Scientific Data 6: 283. doi: 10.1038/s41597-019-0300-6</p>
 <span class="sd">    level : int, optional</span>
 <span class="sd">        The hierarchical level (1-12) of sub-basin delineation. Higher levels represent</span>
 <span class="sd">        finer subdivisions. Default is 5.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional keyword arguments passed to ``geopandas.read_file`` (e.g.</span>
+<span class="sd">        ``columns=[...]``, ``rows=...``, ``engine="pyogrio"``). These take</span>
+<span class="sd">        precedence over the defaults used here (``layer`` and, when a bbox is</span>
+<span class="sd">        given, ``mask``).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -3211,11 +3332,14 @@ Scientific Data 6: 283. doi: 10.1038/s41597-019-0300-6</p>
     <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Loading HydroATLAS level </span><span class="si">{level}</span><span class="s2"> basins..."</span><span class="p">)</span>
 
     <span class="c1"># Load the data with optional spatial masking</span>
+    <span class="n">read_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"layer"</span><span class="p">:</span> <span class="n">layer_name</span><span class="p">}</span>
     <span class="k">if</span> <span class="n">bbox_gdf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">basins_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">"zip+"</span> <span class="o">+</span> <span class="n">url</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">bbox_gdf</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="n">layer_name</span><span class="p">)</span>
+        <span class="n">read_params</span><span class="p">[</span><span class="s2">"mask"</span><span class="p">]</span> <span class="o">=</span> <span class="n">bbox_gdf</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Loading global dataset (this may take a while)..."</span><span class="p">)</span>
-        <span class="n">basins_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">"zip+"</span> <span class="o">+</span> <span class="n">url</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="n">layer_name</span><span class="p">)</span>
+    <span class="c1"># User-supplied kwargs take precedence over the defaults above</span>
+    <span class="n">read_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">basins_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">"zip+"</span> <span class="o">+</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">read_params</span><span class="p">)</span>
 
     <span class="c1"># Add citation to attributes</span>
     <span class="n">basins_gdf</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"data_citation"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
@@ -3236,7 +3360,7 @@ Scientific Data 6: 283. doi: 10.1038/s41597-019-0300-6</p>
 
 
 <h2 id="easysnowdata.hydroclimatology.get_koppen_geiger_classes" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_koppen_geiger_classes</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="s1">'0.1 degree'</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">get_koppen_geiger_classes</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="s1">'0.1 degree'</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
 <a href="#easysnowdata.hydroclimatology.get_koppen_geiger_classes" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -3293,6 +3417,22 @@ Default is "0.1 degree".</p>
                   <code>&#39;0.1 degree&#39;</code>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>**kwargs</code>
+            </td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Additional keyword arguments passed to <code>rioxarray.open_rasterio</code> (e.g.
+<code>chunks={"x": 1024, "y": 1024}</code> to load lazily with dask).</p>
+              </div>
+            </td>
+            <td>
+                  <code>{}</code>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -3345,45 +3485,7 @@ https://doi.org/10.1038/s41597-023-02549-6</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/hydroclimatology.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 898</span>
-<span class="normal"> 899</span>
-<span class="normal"> 900</span>
-<span class="normal"> 901</span>
-<span class="normal"> 902</span>
-<span class="normal"> 903</span>
-<span class="normal"> 904</span>
-<span class="normal"> 905</span>
-<span class="normal"> 906</span>
-<span class="normal"> 907</span>
-<span class="normal"> 908</span>
-<span class="normal"> 909</span>
-<span class="normal"> 910</span>
-<span class="normal"> 911</span>
-<span class="normal"> 912</span>
-<span class="normal"> 913</span>
-<span class="normal"> 914</span>
-<span class="normal"> 915</span>
-<span class="normal"> 916</span>
-<span class="normal"> 917</span>
-<span class="normal"> 918</span>
-<span class="normal"> 919</span>
-<span class="normal"> 920</span>
-<span class="normal"> 921</span>
-<span class="normal"> 922</span>
-<span class="normal"> 923</span>
-<span class="normal"> 924</span>
-<span class="normal"> 925</span>
-<span class="normal"> 926</span>
-<span class="normal"> 927</span>
-<span class="normal"> 928</span>
-<span class="normal"> 929</span>
-<span class="normal"> 930</span>
-<span class="normal"> 931</span>
-<span class="normal"> 932</span>
-<span class="normal"> 933</span>
-<span class="normal"> 934</span>
-<span class="normal"> 935</span>
-<span class="normal"> 936</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 936</span>
 <span class="normal"> 937</span>
 <span class="normal"> 938</span>
 <span class="normal"> 939</span>
@@ -3615,12 +3717,56 @@ https://doi.org/10.1038/s41597-023-02549-6</p>
 <span class="normal">1165</span>
 <span class="normal">1166</span>
 <span class="normal">1167</span>
-<span class="normal">1168</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_koppen_geiger_classes</span><span class="p">(</span>
+<span class="normal">1168</span>
+<span class="normal">1169</span>
+<span class="normal">1170</span>
+<span class="normal">1171</span>
+<span class="normal">1172</span>
+<span class="normal">1173</span>
+<span class="normal">1174</span>
+<span class="normal">1175</span>
+<span class="normal">1176</span>
+<span class="normal">1177</span>
+<span class="normal">1178</span>
+<span class="normal">1179</span>
+<span class="normal">1180</span>
+<span class="normal">1181</span>
+<span class="normal">1182</span>
+<span class="normal">1183</span>
+<span class="normal">1184</span>
+<span class="normal">1185</span>
+<span class="normal">1186</span>
+<span class="normal">1187</span>
+<span class="normal">1188</span>
+<span class="normal">1189</span>
+<span class="normal">1190</span>
+<span class="normal">1191</span>
+<span class="normal">1192</span>
+<span class="normal">1193</span>
+<span class="normal">1194</span>
+<span class="normal">1195</span>
+<span class="normal">1196</span>
+<span class="normal">1197</span>
+<span class="normal">1198</span>
+<span class="normal">1199</span>
+<span class="normal">1200</span>
+<span class="normal">1201</span>
+<span class="normal">1202</span>
+<span class="normal">1203</span>
+<span class="normal">1204</span>
+<span class="normal">1205</span>
+<span class="normal">1206</span>
+<span class="normal">1207</span>
+<span class="normal">1208</span>
+<span class="normal">1209</span>
+<span class="normal">1210</span>
+<span class="normal">1211</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_koppen_geiger_classes</span><span class="p">(</span>
     <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
     <span class="o">|</span> <span class="nb">tuple</span>
     <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span>
     <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">resolution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"0.1 degree"</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Retrieves Köppen-Geiger climate classification data for a given bounding box and resolution.</span>
@@ -3636,6 +3782,9 @@ https://doi.org/10.1038/s41597-023-02549-6</p>
 <span class="sd">    resolution:</span>
 <span class="sd">        The spatial resolution of the data. Options are "1 degree", "0.5 degree", "0.1 degree", or "1 km".</span>
 <span class="sd">        Default is "0.1 degree".</span>
+<span class="sd">    **kwargs:</span>
+<span class="sd">        Additional keyword arguments passed to ``rioxarray.open_rasterio`` (e.g.</span>
+<span class="sd">        ``chunks={"x": 1024, "y": 1024}`` to load lazily with dask).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -3868,7 +4017,8 @@ https://doi.org/10.1038/s41597-023-02549-6</p>
     <span class="n">resolution</span> <span class="o">=</span> <span class="n">resolution_dict</span><span class="p">[</span><span class="n">resolution</span><span class="p">]</span>
 
     <span class="n">koppen_geiger_da</span> <span class="o">=</span> <span class="n">rxr</span><span class="o">.</span><span class="n">open_rasterio</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"zip+https://figshare.com/ndownloader/files/45057352/koppen_geiger_tif.zip/1991_2020/koppen_geiger_</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s2">.tif"</span>
+        <span class="sa">f</span><span class="s2">"zip+https://figshare.com/ndownloader/files/45057352/koppen_geiger_tif.zip/1991_2020/koppen_geiger_</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s2">.tif"</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
 
     <span class="n">koppen_geiger_da</span> <span class="o">=</span> <span class="n">koppen_geiger_da</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">clip_box</span><span class="p">(</span>
@@ -3896,7 +4046,7 @@ https://doi.org/10.1038/s41597-023-02549-6</p>
 
 
 <h2 id="easysnowdata.hydroclimatology.get_snodas" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_snodas</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="s1">'2003-10-01'</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initialize_ee</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">get_snodas</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="s1">'2003-10-01'</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initialize_ee</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
 <a href="#easysnowdata.hydroclimatology.get_snodas" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -4002,6 +4152,23 @@ If None, returns all variables.</p>
                   <code>True</code>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>**kwargs</code>
+            </td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Additional keyword arguments passed to <code>xarray.open_dataset</code> with
+<code>engine="ee"</code> (e.g. <code>chunks={"time": 1, "x": 512, "y": 512}</code>).
+These take precedence over the defaults used here (<code>chunks=None</code>).</p>
+              </div>
+            </td>
+            <td>
+                  <code>{}</code>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -4097,35 +4264,7 @@ National Snow and Ice Data Center. 19 pp.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/hydroclimatology.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">609</span>
-<span class="normal">610</span>
-<span class="normal">611</span>
-<span class="normal">612</span>
-<span class="normal">613</span>
-<span class="normal">614</span>
-<span class="normal">615</span>
-<span class="normal">616</span>
-<span class="normal">617</span>
-<span class="normal">618</span>
-<span class="normal">619</span>
-<span class="normal">620</span>
-<span class="normal">621</span>
-<span class="normal">622</span>
-<span class="normal">623</span>
-<span class="normal">624</span>
-<span class="normal">625</span>
-<span class="normal">626</span>
-<span class="normal">627</span>
-<span class="normal">628</span>
-<span class="normal">629</span>
-<span class="normal">630</span>
-<span class="normal">631</span>
-<span class="normal">632</span>
-<span class="normal">633</span>
-<span class="normal">634</span>
-<span class="normal">635</span>
-<span class="normal">636</span>
-<span class="normal">637</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">637</span>
 <span class="normal">638</span>
 <span class="normal">639</span>
 <span class="normal">640</span>
@@ -4280,7 +4419,41 @@ National Snow and Ice Data Center. 19 pp.</p>
 <span class="normal">789</span>
 <span class="normal">790</span>
 <span class="normal">791</span>
-<span class="normal">792</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@requires_earthengine</span>
+<span class="normal">792</span>
+<span class="normal">793</span>
+<span class="normal">794</span>
+<span class="normal">795</span>
+<span class="normal">796</span>
+<span class="normal">797</span>
+<span class="normal">798</span>
+<span class="normal">799</span>
+<span class="normal">800</span>
+<span class="normal">801</span>
+<span class="normal">802</span>
+<span class="normal">803</span>
+<span class="normal">804</span>
+<span class="normal">805</span>
+<span class="normal">806</span>
+<span class="normal">807</span>
+<span class="normal">808</span>
+<span class="normal">809</span>
+<span class="normal">810</span>
+<span class="normal">811</span>
+<span class="normal">812</span>
+<span class="normal">813</span>
+<span class="normal">814</span>
+<span class="normal">815</span>
+<span class="normal">816</span>
+<span class="normal">817</span>
+<span class="normal">818</span>
+<span class="normal">819</span>
+<span class="normal">820</span>
+<span class="normal">821</span>
+<span class="normal">822</span>
+<span class="normal">823</span>
+<span class="normal">824</span>
+<span class="normal">825</span>
+<span class="normal">826</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@requires_earthengine</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_snodas</span><span class="p">(</span>
     <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
     <span class="o">|</span> <span class="nb">tuple</span>
@@ -4290,6 +4463,7 @@ National Snow and Ice Data Center. 19 pp.</p>
     <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">variables</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">initialize_ee</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Retrieves SNODAS (Snow Data Assimilation System) data for a given bounding box and time range.</span>
@@ -4312,6 +4486,10 @@ National Snow and Ice Data Center. 19 pp.</p>
 <span class="sd">        If None, returns all variables.</span>
 <span class="sd">    initialize_ee : bool, optional</span>
 <span class="sd">        Whether to initialize Earth Engine. Default is True.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional keyword arguments passed to ``xarray.open_dataset`` with</span>
+<span class="sd">        ``engine="ee"`` (e.g. ``chunks={"time": 1, "x": 512, "y": 512}``).</span>
+<span class="sd">        These take precedence over the defaults used here (``chunks=None``).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -4411,7 +4589,8 @@ National Snow and Ice Data Center. 19 pp.</p>
     <span class="n">grid</span> <span class="o">=</span> <span class="n">get_ee_grid_params</span><span class="p">(</span><span class="n">image_collection</span><span class="o">.</span><span class="n">first</span><span class="p">(),</span> <span class="n">bbox_gdf</span><span class="p">)</span>
 
     <span class="c1"># Load dataset using xee (xee &gt;= 0.1 returns dims ordered (time, y, x))</span>
-    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">image_collection</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">"ee"</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">grid</span><span class="p">)</span>
+    <span class="n">open_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"engine"</span><span class="p">:</span> <span class="s2">"ee"</span><span class="p">,</span> <span class="s2">"chunks"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">grid</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">}</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">image_collection</span><span class="p">,</span> <span class="o">**</span><span class="n">open_params</span><span class="p">)</span>
 
     <span class="c1"># Clean up coordinate names</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">"y"</span><span class="p">:</span> <span class="s2">"latitude"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">:</span> <span class="s2">"longitude"</span><span class="p">})</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">set_spatial_dims</span><span class="p">(</span>
@@ -4419,7 +4598,7 @@ National Snow and Ice Data Center. 19 pp.</p>
     <span class="p">)</span>
 
     <span class="c1"># Set coordinate reference system</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">write_crs</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="s2">"crs"</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">write_crs</span><span class="p">(</span><span class="n">open_params</span><span class="p">[</span><span class="s2">"crs"</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># Add variable attributes</span>
     <span class="k">if</span> <span class="s2">"Snow_Depth"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
@@ -4474,7 +4653,7 @@ National Snow and Ice Data Center. 19 pp.</p>
 
 
 <h2 id="easysnowdata.hydroclimatology.get_ucla_snow_reanalysis" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_ucla_snow_reanalysis</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="s1">'SWE_Post'</span><span class="p">,</span> <span class="n">stats</span><span class="o">=</span><span class="s1">'mean'</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="s1">'1984-10-01'</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="s1">'2021-09-30'</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">get_ucla_snow_reanalysis</span><span class="p">(</span><span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="s1">'SWE_Post'</span><span class="p">,</span> <span class="n">stats</span><span class="o">=</span><span class="s1">'mean'</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="s1">'1984-10-01'</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="s1">'2021-09-30'</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
 <a href="#easysnowdata.hydroclimatology.get_ucla_snow_reanalysis" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -4580,6 +4759,22 @@ The data is then clipped to the specified bounding box and returned as an xarray
                   <code>&#39;2021-09-30&#39;</code>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>**kwargs</code>
+            </td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Additional keyword arguments passed to <code>xarray.open_mfdataset</code> (e.g.
+<code>chunks={"Day": 30}</code> or <code>parallel=True</code>).</p>
+              </div>
+            </td>
+            <td>
+                  <code>{}</code>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -4631,41 +4826,7 @@ once, or call <code>easysnowdata.authenticate_all()</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/hydroclimatology.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">795</span>
-<span class="normal">796</span>
-<span class="normal">797</span>
-<span class="normal">798</span>
-<span class="normal">799</span>
-<span class="normal">800</span>
-<span class="normal">801</span>
-<span class="normal">802</span>
-<span class="normal">803</span>
-<span class="normal">804</span>
-<span class="normal">805</span>
-<span class="normal">806</span>
-<span class="normal">807</span>
-<span class="normal">808</span>
-<span class="normal">809</span>
-<span class="normal">810</span>
-<span class="normal">811</span>
-<span class="normal">812</span>
-<span class="normal">813</span>
-<span class="normal">814</span>
-<span class="normal">815</span>
-<span class="normal">816</span>
-<span class="normal">817</span>
-<span class="normal">818</span>
-<span class="normal">819</span>
-<span class="normal">820</span>
-<span class="normal">821</span>
-<span class="normal">822</span>
-<span class="normal">823</span>
-<span class="normal">824</span>
-<span class="normal">825</span>
-<span class="normal">826</span>
-<span class="normal">827</span>
-<span class="normal">828</span>
-<span class="normal">829</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">829</span>
 <span class="normal">830</span>
 <span class="normal">831</span>
 <span class="normal">832</span>
@@ -4731,7 +4892,45 @@ once, or call <code>easysnowdata.authenticate_all()</code>.</p>
 <span class="normal">892</span>
 <span class="normal">893</span>
 <span class="normal">894</span>
-<span class="normal">895</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@requires_earthaccess</span>
+<span class="normal">895</span>
+<span class="normal">896</span>
+<span class="normal">897</span>
+<span class="normal">898</span>
+<span class="normal">899</span>
+<span class="normal">900</span>
+<span class="normal">901</span>
+<span class="normal">902</span>
+<span class="normal">903</span>
+<span class="normal">904</span>
+<span class="normal">905</span>
+<span class="normal">906</span>
+<span class="normal">907</span>
+<span class="normal">908</span>
+<span class="normal">909</span>
+<span class="normal">910</span>
+<span class="normal">911</span>
+<span class="normal">912</span>
+<span class="normal">913</span>
+<span class="normal">914</span>
+<span class="normal">915</span>
+<span class="normal">916</span>
+<span class="normal">917</span>
+<span class="normal">918</span>
+<span class="normal">919</span>
+<span class="normal">920</span>
+<span class="normal">921</span>
+<span class="normal">922</span>
+<span class="normal">923</span>
+<span class="normal">924</span>
+<span class="normal">925</span>
+<span class="normal">926</span>
+<span class="normal">927</span>
+<span class="normal">928</span>
+<span class="normal">929</span>
+<span class="normal">930</span>
+<span class="normal">931</span>
+<span class="normal">932</span>
+<span class="normal">933</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@requires_earthaccess</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_ucla_snow_reanalysis</span><span class="p">(</span>
     <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
     <span class="o">|</span> <span class="nb">tuple</span>
@@ -4741,6 +4940,7 @@ once, or call <code>easysnowdata.authenticate_all()</code>.</p>
     <span class="n">stats</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"mean"</span><span class="p">,</span>
     <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"1984-10-01"</span><span class="p">,</span>
     <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"2021-09-30"</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Fetches the Margulis UCLA snow reanalysis product for a specified bounding box and time range.</span>
@@ -4763,6 +4963,9 @@ once, or call <code>easysnowdata.authenticate_all()</code>.</p>
 <span class="sd">        The start date for the data retrieval in 'YYYY-MM-DD' format. Default is '1984-10-01'.</span>
 <span class="sd">    end_date : str, optional</span>
 <span class="sd">        The end date for the data retrieval in 'YYYY-MM-DD' format. Default is '2021-09-30'.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional keyword arguments passed to ``xarray.open_mfdataset`` (e.g.</span>
+<span class="sd">        ``chunks={"Day": 30}`` or ``parallel=True``).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -4801,7 +5004,7 @@ once, or call <code>easysnowdata.authenticate_all()</code>.</p>
     <span class="n">files</span> <span class="o">=</span> <span class="n">earthaccess</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
         <span class="n">search</span>
     <span class="p">)</span>  <span class="c1"># cant disable progress bar yet https://github.com/nsidc/earthaccess/issues/612</span>
-    <span class="n">snow_reanalysis_ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_mfdataset</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+    <span class="n">snow_reanalysis_ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_mfdataset</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
 
     <span class="n">url</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>
     <span class="n">date_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"\d</span><span class="si">{4}</span><span class="s2">\.\d</span><span class="si">{2}</span><span class="s2">\.\d</span><span class="si">{2}</span><span class="s2">"</span>
