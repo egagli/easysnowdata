@@ -2605,7 +2605,11 @@ once, or call <code>easysnowdata.authenticate_all()</code>.</p>
 
                   <details class="mkdocstrings-source">
                     <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2451</span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2447</span>
+<span class="normal">2448</span>
+<span class="normal">2449</span>
+<span class="normal">2450</span>
+<span class="normal">2451</span>
 <span class="normal">2452</span>
 <span class="normal">2453</span>
 <span class="normal">2454</span>
@@ -2851,11 +2855,7 @@ once, or call <code>easysnowdata.authenticate_all()</code>.</p>
 <span class="normal">2694</span>
 <span class="normal">2695</span>
 <span class="normal">2696</span>
-<span class="normal">2697</span>
-<span class="normal">2698</span>
-<span class="normal">2699</span>
-<span class="normal">2700</span>
-<span class="normal">2701</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">2697</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">bbox_input</span><span class="p">,</span>
     <span class="n">start_date</span><span class="o">=</span><span class="s2">"2014-01-01"</span><span class="p">,</span>
@@ -2904,7 +2904,7 @@ once, or call <code>easysnowdata.authenticate_all()</code>.</p>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">bbox_gdf</span> <span class="o">=</span> <span class="n">convert_bbox_to_geodataframe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bbox_input</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">crs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbox_gdf</span><span class="o">.</span><span class="n">estimate_utm_crs</span><span class="p">()</span>
 
     <span class="c1"># Define the band information</span>
@@ -3138,7 +3138,11 @@ once, or call <code>easysnowdata.authenticate_all()</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2730</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2726</span>
+<span class="normal">2727</span>
+<span class="normal">2728</span>
+<span class="normal">2729</span>
+<span class="normal">2730</span>
 <span class="normal">2731</span>
 <span class="normal">2732</span>
 <span class="normal">2733</span>
@@ -3203,11 +3207,7 @@ once, or call <code>easysnowdata.authenticate_all()</code>.</p>
 <span class="normal">2792</span>
 <span class="normal">2793</span>
 <span class="normal">2794</span>
-<span class="normal">2795</span>
-<span class="normal">2796</span>
-<span class="normal">2797</span>
-<span class="normal">2798</span>
-<span class="normal">2799</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">2795</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to get the data.</span>
 <span class="sd">    """</span>
@@ -3301,7 +3301,11 @@ once, or call <code>easysnowdata.authenticate_all()</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">3202</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">3198</span>
+<span class="normal">3199</span>
+<span class="normal">3200</span>
+<span class="normal">3201</span>
+<span class="normal">3202</span>
 <span class="normal">3203</span>
 <span class="normal">3204</span>
 <span class="normal">3205</span>
@@ -3310,11 +3314,7 @@ once, or call <code>easysnowdata.authenticate_all()</code>.</p>
 <span class="normal">3208</span>
 <span class="normal">3209</span>
 <span class="normal">3210</span>
-<span class="normal">3211</span>
-<span class="normal">3212</span>
-<span class="normal">3213</span>
-<span class="normal">3214</span>
-<span class="normal">3215</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ndvi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">3211</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ndvi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to get the NDVI data.</span>
 
@@ -3327,7 +3327,7 @@ once, or call <code>easysnowdata.authenticate_all()</code>.</p>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">ndvi</span> <span class="o">=</span> <span class="n">ndvi_da</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"NDVI data calculated. Access with the .ndvi attribute."</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"NDVI data calculated. Access with the .ndvi attribute."</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3434,7 +3434,11 @@ once, or call <code>easysnowdata.authenticate_all()</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">3062</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">3058</span>
+<span class="normal">3059</span>
+<span class="normal">3060</span>
+<span class="normal">3061</span>
+<span class="normal">3062</span>
 <span class="normal">3063</span>
 <span class="normal">3064</span>
 <span class="normal">3065</span>
@@ -3480,11 +3484,7 @@ once, or call <code>easysnowdata.authenticate_all()</code>.</p>
 <span class="normal">3105</span>
 <span class="normal">3106</span>
 <span class="normal">3107</span>
-<span class="normal">3108</span>
-<span class="normal">3109</span>
-<span class="normal">3110</span>
-<span class="normal">3111</span>
-<span class="normal">3112</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_rgb</span><span class="p">(</span>
+<span class="normal">3108</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_rgb</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">percentile_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"lower"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"upper"</span><span class="p">:</span> <span class="mi">98</span><span class="p">},</span>
     <span class="n">clahe_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"clip_limit"</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">,</span> <span class="s2">"nbins"</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span> <span class="s2">"kernel_size"</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
@@ -3533,7 +3533,7 @@ once, or call <code>easysnowdata.authenticate_all()</code>.</p>
     <span class="bp">self</span><span class="o">.</span><span class="n">rgb_clahe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rgb_clahe</span><span class="p">(</span><span class="o">**</span><span class="n">clahe_kwargs</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"RGB data retrieved.</span><span class="se">\n</span><span class="s2">Access with the following attributes:</span><span class="se">\n</span><span class="s2">.rgb for raw RGB,</span><span class="se">\n</span><span class="s2">.rgba for RGBA,</span><span class="se">\n</span><span class="s2">.rgb_percentile for percentile RGB,</span><span class="se">\n</span><span class="s2">.rgb_clahe for CLAHE RGB.</span><span class="se">\n</span><span class="s2">You can pass in percentile_kwargs and clahe_kwargs to adjust RGB calculations, check documentation for options."</span>
+        <span class="s2">"RGB data retrieved.</span><span class="se">\n</span><span class="s2">Access with the following attributes:</span><span class="se">\n</span><span class="s2">.rgb for raw RGB,</span><span class="se">\n</span><span class="s2">.rgba for RGBA,</span><span class="se">\n</span><span class="s2">.rgb_percentile for percentile RGB,</span><span class="se">\n</span><span class="s2">.rgb_clahe for CLAHE RGB.</span><span class="se">\n</span><span class="s2">You can pass in percentile_kwargs and clahe_kwargs to adjust RGB calculations, check documentation for options."</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3621,7 +3621,11 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">3153</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">3149</span>
+<span class="normal">3150</span>
+<span class="normal">3151</span>
+<span class="normal">3152</span>
+<span class="normal">3153</span>
 <span class="normal">3154</span>
 <span class="normal">3155</span>
 <span class="normal">3156</span>
@@ -3662,11 +3666,7 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
 <span class="normal">3191</span>
 <span class="normal">3192</span>
 <span class="normal">3193</span>
-<span class="normal">3194</span>
-<span class="normal">3195</span>
-<span class="normal">3196</span>
-<span class="normal">3197</span>
-<span class="normal">3198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_rgb_clahe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="normal">3194</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_rgb_clahe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Apply Contrast Limited Adaptive Histogram Equalization (CLAHE) to RGB bands.</span>
 
@@ -3796,7 +3796,11 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">3114</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">3110</span>
+<span class="normal">3111</span>
+<span class="normal">3112</span>
+<span class="normal">3113</span>
+<span class="normal">3114</span>
 <span class="normal">3115</span>
 <span class="normal">3116</span>
 <span class="normal">3117</span>
@@ -3829,11 +3833,7 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
 <span class="normal">3144</span>
 <span class="normal">3145</span>
 <span class="normal">3146</span>
-<span class="normal">3147</span>
-<span class="normal">3148</span>
-<span class="normal">3149</span>
-<span class="normal">3150</span>
-<span class="normal">3151</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_rgb_percentile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">percentile_kwargs</span><span class="p">):</span>
+<span class="normal">3147</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_rgb_percentile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">percentile_kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Apply percentile-based contrast stretching to the RGB bands of the Sentinel-2 data.</span>
 
@@ -3904,7 +3904,11 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2820</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2816</span>
+<span class="normal">2817</span>
+<span class="normal">2818</span>
+<span class="normal">2819</span>
+<span class="normal">2820</span>
 <span class="normal">2821</span>
 <span class="normal">2822</span>
 <span class="normal">2823</span>
@@ -3986,11 +3990,7 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
 <span class="normal">2899</span>
 <span class="normal">2900</span>
 <span class="normal">2901</span>
-<span class="normal">2902</span>
-<span class="normal">2903</span>
-<span class="normal">2904</span>
-<span class="normal">2905</span>
-<span class="normal">2906</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mask_data</span><span class="p">(</span>
+<span class="normal">2902</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mask_data</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">remove_cirrus</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">remove_cloud</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -4072,9 +4072,9 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
     <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"WARNING: The cloud masking is pretty bad over snow and ice. Use with caution."</span>
+        <span class="s2">"WARNING: The cloud masking is pretty bad over snow and ice. Use with caution."</span>
     <span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Data masked. Using Fmask, removed pixels classified as:"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Data masked. Using Fmask, removed pixels classified as:"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">mask_list</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Fmask_mask_info</span><span class="p">[</span><span class="n">val</span><span class="p">][</span><span class="s2">"name"</span><span class="p">])</span>
 </code></pre></div></td></tr></table></div>
@@ -4099,7 +4099,11 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2801</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2797</span>
+<span class="normal">2798</span>
+<span class="normal">2799</span>
+<span class="normal">2800</span>
+<span class="normal">2801</span>
 <span class="normal">2802</span>
 <span class="normal">2803</span>
 <span class="normal">2804</span>
@@ -4112,11 +4116,7 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
 <span class="normal">2811</span>
 <span class="normal">2812</span>
 <span class="normal">2813</span>
-<span class="normal">2814</span>
-<span class="normal">2815</span>
-<span class="normal">2816</span>
-<span class="normal">2817</span>
-<span class="normal">2818</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">remove_nodata_inplace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">2814</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">remove_nodata_inplace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to remove no data values from the data.</span>
 <span class="sd">    """</span>
@@ -4128,11 +4128,11 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
             <span class="n">data_removed</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="n">data_removed</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False."</span>
+            <span class="s2">"Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False."</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"Tried to remove nodata values and set them to nans, but no nodata values found in the data."</span>
+            <span class="s2">"Tried to remove nodata values and set them to nans, but no nodata values found in the data."</span>
         <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4156,7 +4156,11 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">3027</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">3023</span>
+<span class="normal">3024</span>
+<span class="normal">3025</span>
+<span class="normal">3026</span>
+<span class="normal">3027</span>
 <span class="normal">3028</span>
 <span class="normal">3029</span>
 <span class="normal">3030</span>
@@ -4172,11 +4176,7 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
 <span class="normal">3040</span>
 <span class="normal">3041</span>
 <span class="normal">3042</span>
-<span class="normal">3043</span>
-<span class="normal">3044</span>
-<span class="normal">3045</span>
-<span class="normal">3046</span>
-<span class="normal">3047</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">scale_data_inplace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">3043</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">scale_data_inplace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to scale the data.</span>
 <span class="sd">    """</span>
@@ -4195,7 +4195,7 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
     <span class="c1"># Apply the function to each data variable in the Dataset</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">scale_var</span><span class="p">,</span> <span class="n">keep_attrs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"Data scaled to reflectance. Access with the .data attribute. To turn this behavior off, set scale_data=False."</span>
+        <span class="s2">"Data scaled to reflectance. Access with the .data attribute. To turn this behavior off, set scale_data=False."</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4219,7 +4219,11 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2703</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2699</span>
+<span class="normal">2700</span>
+<span class="normal">2701</span>
+<span class="normal">2702</span>
+<span class="normal">2703</span>
 <span class="normal">2704</span>
 <span class="normal">2705</span>
 <span class="normal">2706</span>
@@ -4240,11 +4244,7 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
 <span class="normal">2721</span>
 <span class="normal">2722</span>
 <span class="normal">2723</span>
-<span class="normal">2724</span>
-<span class="normal">2725</span>
-<span class="normal">2726</span>
-<span class="normal">2727</span>
-<span class="normal">2728</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">search_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">2724</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">search_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to search the data.</span>
 <span class="sd">    """</span>
@@ -4268,7 +4268,7 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
     <span class="bp">self</span><span class="o">.</span><span class="n">search_landsat</span> <span class="o">=</span> <span class="n">landsat_search</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">search_sentinel</span> <span class="o">=</span> <span class="n">sentinel_search</span>
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"Data searched. Access the returned seach with the .search_landsat or .search_sentinel attribute."</span>
+        <span class="s2">"Data searched. Access the returned seach with the .search_landsat or .search_sentinel attribute."</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4610,7 +4610,11 @@ MOD10A2: Hall, D. K. and G. A. Riggs. (2021). MODIS/Terra Snow Cover 8-Day L3 Gl
 
                   <details class="mkdocstrings-source">
                     <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">3290</span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">3286</span>
+<span class="normal">3287</span>
+<span class="normal">3288</span>
+<span class="normal">3289</span>
+<span class="normal">3290</span>
 <span class="normal">3291</span>
 <span class="normal">3292</span>
 <span class="normal">3293</span>
@@ -4646,11 +4650,7 @@ MOD10A2: Hall, D. K. and G. A. Riggs. (2021). MODIS/Terra Snow Cover 8-Day L3 Gl
 <span class="normal">3323</span>
 <span class="normal">3324</span>
 <span class="normal">3325</span>
-<span class="normal">3326</span>
-<span class="normal">3327</span>
-<span class="normal">3328</span>
-<span class="normal">3329</span>
-<span class="normal">3330</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">3326</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">bbox_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">clip_to_bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -5090,7 +5090,9 @@ functionality requires google earth engine initialization, and is based on https
 
                   <details class="mkdocstrings-source">
                     <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1851</span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1849</span>
+<span class="normal">1850</span>
+<span class="normal">1851</span>
 <span class="normal">1852</span>
 <span class="normal">1853</span>
 <span class="normal">1854</span>
@@ -5155,9 +5157,7 @@ functionality requires google earth engine initialization, and is based on https
 <span class="normal">1913</span>
 <span class="normal">1914</span>
 <span class="normal">1915</span>
-<span class="normal">1916</span>
-<span class="normal">1917</span>
-<span class="normal">1918</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">1916</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">bbox_input</span><span class="p">,</span>
     <span class="n">start_date</span><span class="o">=</span><span class="s2">"2014-01-01"</span><span class="p">,</span>
@@ -5308,7 +5308,9 @@ Copernicus 30m DEM. Results are cached for subsequent accesses.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2042</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2040</span>
+<span class="normal">2041</span>
+<span class="normal">2042</span>
 <span class="normal">2043</span>
 <span class="normal">2044</span>
 <span class="normal">2045</span>
@@ -5324,11 +5326,7 @@ Copernicus 30m DEM. Results are cached for subsequent accesses.</p>
 <span class="normal">2055</span>
 <span class="normal">2056</span>
 <span class="normal">2057</span>
-<span class="normal">2058</span>
-<span class="normal">2059</span>
-<span class="normal">2060</span>
-<span class="normal">2061</span>
-<span class="normal">2062</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_orbit_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">2058</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_orbit_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to add the relative orbit number to the data.</span>
 <span class="sd">    """</span>
@@ -5346,9 +5344,7 @@ Copernicus 30m DEM. Results are cached for subsequent accesses.</p>
             <span class="p">)</span>
         <span class="p">}</span>
     <span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"Added relative orbit number and orbit state as coordinates to the data."</span>
-    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Added relative orbit number and orbit state as coordinates to the data."</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -5371,22 +5367,22 @@ Copernicus 30m DEM. Results are cached for subsequent accesses.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2032</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2030</span>
+<span class="normal">2031</span>
+<span class="normal">2032</span>
 <span class="normal">2033</span>
 <span class="normal">2034</span>
 <span class="normal">2035</span>
 <span class="normal">2036</span>
 <span class="normal">2037</span>
-<span class="normal">2038</span>
-<span class="normal">2039</span>
-<span class="normal">2040</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">db_to_linear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">2038</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">db_to_linear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to convert the dB data to linear power.</span>
 <span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"linear power"</span>
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"dB converted to linear power units. Convert back to dB using the .linear_to_db() method."</span>
+        <span class="s2">"dB converted to linear power units. Convert back to dB using the .linear_to_db() method."</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -5410,7 +5406,9 @@ Copernicus 30m DEM. Results are cached for subsequent accesses.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1955</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1953</span>
+<span class="normal">1954</span>
+<span class="normal">1955</span>
 <span class="normal">1956</span>
 <span class="normal">1957</span>
 <span class="normal">1958</span>
@@ -5434,9 +5432,7 @@ Copernicus 30m DEM. Results are cached for subsequent accesses.</p>
 <span class="normal">1976</span>
 <span class="normal">1977</span>
 <span class="normal">1978</span>
-<span class="normal">1979</span>
-<span class="normal">1980</span>
-<span class="normal">1981</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">1979</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to get the data.</span>
 <span class="sd">    """</span>
@@ -5564,7 +5560,11 @@ stores the results in the local_incidence_angle_data attribute.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2083</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2079</span>
+<span class="normal">2080</span>
+<span class="normal">2081</span>
+<span class="normal">2082</span>
+<span class="normal">2083</span>
 <span class="normal">2084</span>
 <span class="normal">2085</span>
 <span class="normal">2086</span>
@@ -5845,11 +5845,7 @@ stores the results in the local_incidence_angle_data attribute.</p>
 <span class="normal">2361</span>
 <span class="normal">2362</span>
 <span class="normal">2363</span>
-<span class="normal">2364</span>
-<span class="normal">2365</span>
-<span class="normal">2366</span>
-<span class="normal">2367</span>
-<span class="normal">2368</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@requires_earthengine</span>
+<span class="normal">2364</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@requires_earthengine</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_local_incidence_angle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initialize_ee</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Calculate local incidence angle for Sentinel-1 data within a bounding box.</span>
@@ -6157,15 +6153,15 @@ stores the results in the local_incidence_angle_data attribute.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1983</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1981</span>
+<span class="normal">1982</span>
+<span class="normal">1983</span>
 <span class="normal">1984</span>
 <span class="normal">1985</span>
 <span class="normal">1986</span>
 <span class="normal">1987</span>
 <span class="normal">1988</span>
-<span class="normal">1989</span>
-<span class="normal">1990</span>
-<span class="normal">1991</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">1989</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to get the metadata.</span>
 <span class="sd">    """</span>
@@ -6173,7 +6169,7 @@ stores the results in the local_incidence_angle_data attribute.</p>
     <span class="n">metadata_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="o">.</span><span class="n">from_features</span><span class="p">(</span><span class="n">stac_json</span><span class="p">,</span> <span class="s2">"epsg:4326"</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata_gdf</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Metadata retrieved. Access with the .metadata attribute."</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Metadata retrieved. Access with the .metadata attribute."</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -6196,22 +6192,22 @@ stores the results in the local_incidence_angle_data attribute.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2022</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">2020</span>
+<span class="normal">2021</span>
+<span class="normal">2022</span>
 <span class="normal">2023</span>
 <span class="normal">2024</span>
 <span class="normal">2025</span>
 <span class="normal">2026</span>
 <span class="normal">2027</span>
-<span class="normal">2028</span>
-<span class="normal">2029</span>
-<span class="normal">2030</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">linear_to_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">2028</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">linear_to_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to convert the linear power data to dB.</span>
 <span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"dB"</span>
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"Linear power units converted to dB. Convert back to linear power units using the .db_to_linear() method."</span>
+        <span class="s2">"Linear power units converted to dB. Convert back to linear power units using the .db_to_linear() method."</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -6235,7 +6231,9 @@ stores the results in the local_incidence_angle_data attribute.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1920</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1918</span>
+<span class="normal">1919</span>
+<span class="normal">1920</span>
 <span class="normal">1921</span>
 <span class="normal">1922</span>
 <span class="normal">1923</span>
@@ -6266,9 +6264,7 @@ stores the results in the local_incidence_angle_data attribute.</p>
 <span class="normal">1948</span>
 <span class="normal">1949</span>
 <span class="normal">1950</span>
-<span class="normal">1951</span>
-<span class="normal">1952</span>
-<span class="normal">1953</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">search_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">1951</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">search_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to search the data.</span>
 <span class="sd">    """</span>
@@ -6301,7 +6297,7 @@ stores the results in the local_incidence_angle_data attribute.</p>
     <span class="c1">#     )</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">search</span> <span class="o">=</span> <span class="n">search</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Data searched. Access the returned seach with the .search attribute."</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Data searched. Access the returned seach with the .search attribute."</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -6782,7 +6778,9 @@ the defaults used by <code>get_data()</code>.</p>
 
                   <details class="mkdocstrings-source">
                     <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 996</span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 994</span>
+<span class="normal"> 995</span>
+<span class="normal"> 996</span>
 <span class="normal"> 997</span>
 <span class="normal"> 998</span>
 <span class="normal"> 999</span>
@@ -7000,9 +6998,7 @@ the defaults used by <code>get_data()</code>.</p>
 <span class="normal">1211</span>
 <span class="normal">1212</span>
 <span class="normal">1213</span>
-<span class="normal">1214</span>
-<span class="normal">1215</span>
-<span class="normal">1216</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">1214</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">bbox_input</span><span class="p">,</span>
     <span class="n">start_date</span><span class="o">=</span><span class="s2">"2014-01-01"</span><span class="p">,</span>
@@ -7049,7 +7045,7 @@ the defaults used by <code>get_data()</code>.</p>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">bbox_gdf</span> <span class="o">=</span> <span class="n">convert_bbox_to_geodataframe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bbox_input</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">crs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbox_gdf</span><span class="o">.</span><span class="n">estimate_utm_crs</span><span class="p">()</span>
 
     <span class="c1"># Define the band information</span>
@@ -7255,7 +7251,9 @@ the defaults used by <code>get_data()</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1354</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1352</span>
+<span class="normal">1353</span>
+<span class="normal">1354</span>
 <span class="normal">1355</span>
 <span class="normal">1356</span>
 <span class="normal">1357</span>
@@ -7287,9 +7285,7 @@ the defaults used by <code>get_data()</code>.</p>
 <span class="normal">1383</span>
 <span class="normal">1384</span>
 <span class="normal">1385</span>
-<span class="normal">1386</span>
-<span class="normal">1387</span>
-<span class="normal">1388</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">1386</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to get the data.</span>
 <span class="sd">    """</span>
@@ -7349,7 +7345,9 @@ S2 EVI definition: 2.5 * (B08 - B04) / (B08 + 6 * B04 - 7.5 * B02 + 1) [https://
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1751</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1749</span>
+<span class="normal">1750</span>
+<span class="normal">1751</span>
 <span class="normal">1752</span>
 <span class="normal">1753</span>
 <span class="normal">1754</span>
@@ -7363,9 +7361,7 @@ S2 EVI definition: 2.5 * (B08 - B04) / (B08 + 6 * B04 - 7.5 * B02 + 1) [https://
 <span class="normal">1762</span>
 <span class="normal">1763</span>
 <span class="normal">1764</span>
-<span class="normal">1765</span>
-<span class="normal">1766</span>
-<span class="normal">1767</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_evi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">1765</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_evi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to get the EVI data.</span>
 <span class="sd">    S2 EVI definition: 2.5 * (B08 - B04) / (B08 + 6 * B04 - 7.5 * B02 + 1) [https://www.indexdatabase.de/db/si-single.php?sensor_id=96&amp;rsindex_id=16]</span>
@@ -7381,7 +7377,7 @@ S2 EVI definition: 2.5 * (B08 - B04) / (B08 + 6 * B04 - 7.5 * B02 + 1) [https://
 
     <span class="bp">self</span><span class="o">.</span><span class="n">evi</span> <span class="o">=</span> <span class="n">evi_da</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"EVI data calculated. Access with the .evi attribute."</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"EVI data calculated. Access with the .evi attribute."</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -7404,7 +7400,9 @@ S2 EVI definition: 2.5 * (B08 - B04) / (B08 + 6 * B04 - 7.5 * B02 + 1) [https://
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1390</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1388</span>
+<span class="normal">1389</span>
+<span class="normal">1390</span>
 <span class="normal">1391</span>
 <span class="normal">1392</span>
 <span class="normal">1393</span>
@@ -7417,9 +7415,7 @@ S2 EVI definition: 2.5 * (B08 - B04) / (B08 + 6 * B04 - 7.5 * B02 + 1) [https://
 <span class="normal">1400</span>
 <span class="normal">1401</span>
 <span class="normal">1402</span>
-<span class="normal">1403</span>
-<span class="normal">1404</span>
-<span class="normal">1405</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">1403</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to get the metadata.</span>
 <span class="sd">    """</span>
@@ -7434,7 +7430,7 @@ S2 EVI definition: 2.5 * (B08 - B04) / (B08 + 6 * B04 - 7.5 * B02 + 1) [https://
         <span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata_gdf</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Metadata retrieved. Access with the .metadata attribute."</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Metadata retrieved. Access with the .metadata attribute."</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -7460,7 +7456,9 @@ S2 NDBI definition: (B08 - B12) / (B08 + B12)</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1769</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1767</span>
+<span class="normal">1768</span>
+<span class="normal">1769</span>
 <span class="normal">1770</span>
 <span class="normal">1771</span>
 <span class="normal">1772</span>
@@ -7472,9 +7470,7 @@ S2 NDBI definition: (B08 - B12) / (B08 + B12)</p>
 <span class="normal">1778</span>
 <span class="normal">1779</span>
 <span class="normal">1780</span>
-<span class="normal">1781</span>
-<span class="normal">1782</span>
-<span class="normal">1783</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ndbi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">1781</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ndbi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to get the NDBI data.</span>
 <span class="sd">    S2 NDBI definition: (B08 - B12) / (B08 + B12)</span>
@@ -7488,7 +7484,7 @@ S2 NDBI definition: (B08 - B12) / (B08 + B12)</p>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">ndbi</span> <span class="o">=</span> <span class="n">ndbi_da</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"NDBI data calculated. Access with the .ndbi attribute."</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"NDBI data calculated. Access with the .ndbi attribute."</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -7514,7 +7510,9 @@ S2 NDSI definition: (B03 - B11) / (B03 + B11)</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1719</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1717</span>
+<span class="normal">1718</span>
+<span class="normal">1719</span>
 <span class="normal">1720</span>
 <span class="normal">1721</span>
 <span class="normal">1722</span>
@@ -7526,9 +7524,7 @@ S2 NDSI definition: (B03 - B11) / (B03 + B11)</p>
 <span class="normal">1728</span>
 <span class="normal">1729</span>
 <span class="normal">1730</span>
-<span class="normal">1731</span>
-<span class="normal">1732</span>
-<span class="normal">1733</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ndsi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">1731</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ndsi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to get the NDSI data.</span>
 <span class="sd">    S2 NDSI definition: (B03 - B11) / (B03 + B11)</span>
@@ -7542,7 +7538,7 @@ S2 NDSI definition: (B03 - B11) / (B03 + B11)</p>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">ndsi</span> <span class="o">=</span> <span class="n">ndsi_da</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"NDSI data calculated. Access with the .ndsi attribute."</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"NDSI data calculated. Access with the .ndsi attribute."</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -7568,7 +7564,9 @@ S2 NDVI definition: (B08 - B04) / (B08 + B04) [https://www.indexdatabase.de/db/i
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1703</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1701</span>
+<span class="normal">1702</span>
+<span class="normal">1703</span>
 <span class="normal">1704</span>
 <span class="normal">1705</span>
 <span class="normal">1706</span>
@@ -7580,9 +7578,7 @@ S2 NDVI definition: (B08 - B04) / (B08 + B04) [https://www.indexdatabase.de/db/i
 <span class="normal">1712</span>
 <span class="normal">1713</span>
 <span class="normal">1714</span>
-<span class="normal">1715</span>
-<span class="normal">1716</span>
-<span class="normal">1717</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ndvi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">1715</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ndvi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to get the NDVI data.</span>
 <span class="sd">    S2 NDVI definition: (B08 - B04) / (B08 + B04) [https://www.indexdatabase.de/db/i-single.php?id=58]</span>
@@ -7596,7 +7592,7 @@ S2 NDVI definition: (B08 - B04) / (B08 + B04) [https://www.indexdatabase.de/db/i
 
     <span class="bp">self</span><span class="o">.</span><span class="n">ndvi</span> <span class="o">=</span> <span class="n">ndvi_da</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"NDVI data calculated. Access with the .ndvi attribute."</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"NDVI data calculated. Access with the .ndvi attribute."</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -7622,7 +7618,9 @@ S2 NDWI definition: (B03 - B08) / (B03 + B08)</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1735</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1733</span>
+<span class="normal">1734</span>
+<span class="normal">1735</span>
 <span class="normal">1736</span>
 <span class="normal">1737</span>
 <span class="normal">1738</span>
@@ -7634,9 +7632,7 @@ S2 NDWI definition: (B03 - B08) / (B03 + B08)</p>
 <span class="normal">1744</span>
 <span class="normal">1745</span>
 <span class="normal">1746</span>
-<span class="normal">1747</span>
-<span class="normal">1748</span>
-<span class="normal">1749</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ndwi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">1747</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_ndwi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to get the NDWI data.</span>
 <span class="sd">    S2 NDWI definition: (B03 - B08) / (B03 + B08)</span>
@@ -7650,7 +7646,7 @@ S2 NDWI definition: (B03 - B08) / (B03 + B08)</p>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">ndwi</span> <span class="o">=</span> <span class="n">ndwi_da</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"NDWI data calculated. Access with the .ndwi attribute."</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"NDWI data calculated. Access with the .ndwi attribute."</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -7757,7 +7753,9 @@ S2 NDWI definition: (B03 - B08) / (B03 + B08)</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1564</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1562</span>
+<span class="normal">1563</span>
+<span class="normal">1564</span>
 <span class="normal">1565</span>
 <span class="normal">1566</span>
 <span class="normal">1567</span>
@@ -7805,9 +7803,7 @@ S2 NDWI definition: (B03 - B08) / (B03 + B08)</p>
 <span class="normal">1609</span>
 <span class="normal">1610</span>
 <span class="normal">1611</span>
-<span class="normal">1612</span>
-<span class="normal">1613</span>
-<span class="normal">1614</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_rgb</span><span class="p">(</span>
+<span class="normal">1612</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_rgb</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">percentile_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"lower"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"upper"</span><span class="p">:</span> <span class="mi">98</span><span class="p">},</span>
     <span class="n">clahe_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"clip_limit"</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">,</span> <span class="s2">"nbins"</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span> <span class="s2">"kernel_size"</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
@@ -7856,7 +7852,7 @@ S2 NDWI definition: (B03 - B08) / (B03 + B08)</p>
     <span class="bp">self</span><span class="o">.</span><span class="n">rgb_clahe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rgb_clahe</span><span class="p">(</span><span class="o">**</span><span class="n">clahe_kwargs</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"RGB data retrieved.</span><span class="se">\n</span><span class="s2">Access with the following attributes:</span><span class="se">\n</span><span class="s2">.rgb for raw RGB,</span><span class="se">\n</span><span class="s2">.rgba for RGBA,</span><span class="se">\n</span><span class="s2">.rgb_percentile for percentile RGB,</span><span class="se">\n</span><span class="s2">.rgb_clahe for CLAHE RGB.</span><span class="se">\n</span><span class="s2">You can pass in percentile_kwargs and clahe_kwargs to adjust RGB calculations, check documentation for options."</span>
+        <span class="s2">"RGB data retrieved.</span><span class="se">\n</span><span class="s2">Access with the following attributes:</span><span class="se">\n</span><span class="s2">.rgb for raw RGB,</span><span class="se">\n</span><span class="s2">.rgba for RGBA,</span><span class="se">\n</span><span class="s2">.rgb_percentile for percentile RGB,</span><span class="se">\n</span><span class="s2">.rgb_clahe for CLAHE RGB.</span><span class="se">\n</span><span class="s2">You can pass in percentile_kwargs and clahe_kwargs to adjust RGB calculations, check documentation for options."</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -7944,7 +7940,9 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1655</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1653</span>
+<span class="normal">1654</span>
+<span class="normal">1655</span>
 <span class="normal">1656</span>
 <span class="normal">1657</span>
 <span class="normal">1658</span>
@@ -7985,9 +7983,7 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
 <span class="normal">1693</span>
 <span class="normal">1694</span>
 <span class="normal">1695</span>
-<span class="normal">1696</span>
-<span class="normal">1697</span>
-<span class="normal">1698</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_rgb_clahe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="normal">1696</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_rgb_clahe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Apply Contrast Limited Adaptive Histogram Equalization (CLAHE) to RGB bands.</span>
 
@@ -8115,7 +8111,9 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1616</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1614</span>
+<span class="normal">1615</span>
+<span class="normal">1616</span>
 <span class="normal">1617</span>
 <span class="normal">1618</span>
 <span class="normal">1619</span>
@@ -8150,9 +8148,7 @@ https://scikit-image.org/docs/stable/api/skimage.exposure.html#skimage.exposure.
 <span class="normal">1648</span>
 <span class="normal">1649</span>
 <span class="normal">1650</span>
-<span class="normal">1651</span>
-<span class="normal">1652</span>
-<span class="normal">1653</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_rgb_percentile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">percentile_kwargs</span><span class="p">):</span>
+<span class="normal">1651</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_rgb_percentile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">percentile_kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Apply percentile-based contrast stretching to the RGB bands of the Sentinel-2 data.</span>
 
@@ -8237,7 +8233,9 @@ processing baseline.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1496</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1494</span>
+<span class="normal">1495</span>
+<span class="normal">1496</span>
 <span class="normal">1497</span>
 <span class="normal">1498</span>
 <span class="normal">1499</span>
@@ -8275,9 +8273,7 @@ processing baseline.</p>
 <span class="normal">1531</span>
 <span class="normal">1532</span>
 <span class="normal">1533</span>
-<span class="normal">1534</span>
-<span class="normal">1535</span>
-<span class="normal">1536</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">harmonize_to_old_inplace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">1534</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">harmonize_to_old_inplace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Harmonize new Sentinel-2 data to the old baseline.</span>
 <span class="sd">    Adapted from: https://planetarycomputer.microsoft.com/dataset/sentinel-2-l2a#Baseline-Change</span>
@@ -8316,7 +8312,7 @@ processing baseline.</p>
     <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"Data acquired after January 25th, 2022 harmonized to old baseline. To override this behavior, set harmonize_to_old=False."</span>
+        <span class="s2">"Data acquired after January 25th, 2022 harmonized to old baseline. To override this behavior, set harmonize_to_old=False."</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -8353,7 +8349,9 @@ processing baseline.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1428</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1426</span>
+<span class="normal">1427</span>
+<span class="normal">1428</span>
 <span class="normal">1429</span>
 <span class="normal">1430</span>
 <span class="normal">1431</span>
@@ -8417,9 +8415,7 @@ processing baseline.</p>
 <span class="normal">1489</span>
 <span class="normal">1490</span>
 <span class="normal">1491</span>
-<span class="normal">1492</span>
-<span class="normal">1493</span>
-<span class="normal">1494</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mask_data</span><span class="p">(</span>
+<span class="normal">1492</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mask_data</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">remove_nodata</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">remove_saturated_defective</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -8479,12 +8475,12 @@ processing baseline.</p>
     <span class="k">if</span> <span class="n">remove_snow_ice</span><span class="p">:</span>
         <span class="n">mask_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Removed pixels with the following scene classification values:"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Removed pixels with the following scene classification values:"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">mask_list</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scl_class_info</span><span class="p">[</span><span class="n">val</span><span class="p">][</span><span class="s2">"name"</span><span class="p">])</span>
 
     <span class="n">scl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">scl</span>
-    <span class="n">mask</span> <span class="o">=</span> <span class="n">scl</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">scl</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">mask_list</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">scl</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">scl</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">mask_list</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -8508,7 +8504,9 @@ processing baseline.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1407</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1405</span>
+<span class="normal">1406</span>
+<span class="normal">1407</span>
 <span class="normal">1408</span>
 <span class="normal">1409</span>
 <span class="normal">1410</span>
@@ -8525,9 +8523,7 @@ processing baseline.</p>
 <span class="normal">1421</span>
 <span class="normal">1422</span>
 <span class="normal">1423</span>
-<span class="normal">1424</span>
-<span class="normal">1425</span>
-<span class="normal">1426</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">remove_nodata_inplace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">1424</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">remove_nodata_inplace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to remove no data values from the data.</span>
 <span class="sd">    """</span>
@@ -8541,11 +8537,11 @@ processing baseline.</p>
             <span class="n">data_removed</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="n">data_removed</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False."</span>
+            <span class="s2">"Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False."</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"Tried to remove nodata values and set them to nans, but no nodata values found in the data."</span>
+            <span class="s2">"Tried to remove nodata values and set them to nans, but no nodata values found in the data."</span>
         <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -8569,7 +8565,9 @@ processing baseline.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1538</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1536</span>
+<span class="normal">1537</span>
+<span class="normal">1538</span>
 <span class="normal">1539</span>
 <span class="normal">1540</span>
 <span class="normal">1541</span>
@@ -8591,9 +8589,7 @@ processing baseline.</p>
 <span class="normal">1557</span>
 <span class="normal">1558</span>
 <span class="normal">1559</span>
-<span class="normal">1560</span>
-<span class="normal">1561</span>
-<span class="normal">1562</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">scale_data_inplace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">1560</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">scale_data_inplace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to scale the data.</span>
 <span class="sd">    """</span>
@@ -8616,7 +8612,7 @@ processing baseline.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">band</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">band</span><span class="p">]</span> <span class="o">*</span> <span class="n">scale_factor</span>
 
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"Data scaled to float reflectance. To turn this behavior off, set scale_data=False."</span>
+        <span class="s2">"Data scaled to float reflectance. To turn this behavior off, set scale_data=False."</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -8640,7 +8636,9 @@ processing baseline.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1323</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1321</span>
+<span class="normal">1322</span>
+<span class="normal">1323</span>
 <span class="normal">1324</span>
 <span class="normal">1325</span>
 <span class="normal">1326</span>
@@ -8667,9 +8665,7 @@ processing baseline.</p>
 <span class="normal">1347</span>
 <span class="normal">1348</span>
 <span class="normal">1349</span>
-<span class="normal">1350</span>
-<span class="normal">1351</span>
-<span class="normal">1352</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">search_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">1350</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">search_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The method to search the data.</span>
 <span class="sd">    """</span>
@@ -8698,7 +8694,7 @@ processing baseline.</p>
         <span class="n">datetime</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">search</span> <span class="o">=</span> <span class="n">search</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Data searched. Access the returned seach with the .search attribute."</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Data searched. Access the returned seach with the .search attribute."</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -8743,7 +8739,9 @@ stored in <code>~/.netrc</code> (EarthData) and
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">74</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
 <span class="normal">75</span>
 <span class="normal">76</span>
 <span class="normal">77</span>
@@ -8766,9 +8764,7 @@ stored in <code>~/.netrc</code> (EarthData) and
 <span class="normal">94</span>
 <span class="normal">95</span>
 <span class="normal">96</span>
-<span class="normal">97</span>
-<span class="normal">98</span>
-<span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">authenticate_all</span><span class="p">():</span>
+<span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">authenticate_all</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">"""Interactively authenticate with all credentialed data providers.</span>
 
 <span class="sd">    Runs the one-time credential setup for NASA EarthData and Google Earth</span>
@@ -8957,7 +8953,9 @@ Tsendbazar, N.E., Ramoino, F., Arino, O. (2021). ESA WorldCover 10 m 2020 v100. 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">529</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">527</span>
+<span class="normal">528</span>
+<span class="normal">529</span>
 <span class="normal">530</span>
 <span class="normal">531</span>
 <span class="normal">532</span>
@@ -9124,9 +9122,7 @@ Tsendbazar, N.E., Ramoino, F., Arino, O. (2021). ESA WorldCover 10 m 2020 v100. 
 <span class="normal">693</span>
 <span class="normal">694</span>
 <span class="normal">695</span>
-<span class="normal">696</span>
-<span class="normal">697</span>
-<span class="normal">698</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_esa_worldcover</span><span class="p">(</span>
+<span class="normal">696</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_esa_worldcover</span><span class="p">(</span>
     <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
     <span class="o">|</span> <span class="nb">tuple</span>
     <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span>
@@ -9442,7 +9438,9 @@ Copernicus Global Land Service: Land Cover 100m: collection 3: epoch 2019: Globe
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">102</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
 <span class="normal">103</span>
 <span class="normal">104</span>
 <span class="normal">105</span>
@@ -9534,9 +9532,7 @@ Copernicus Global Land Service: Land Cover 100m: collection 3: epoch 2019: Globe
 <span class="normal">191</span>
 <span class="normal">192</span>
 <span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_forest_cover_fraction</span><span class="p">(</span>
+<span class="normal">194</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_forest_cover_fraction</span><span class="p">(</span>
     <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
     <span class="o">|</span> <span class="nb">tuple</span>
     <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span>
@@ -9807,7 +9803,9 @@ Dewitz, J., 2023, National Land Cover Database (NLCD) 2021 Products: U.S. Geolog
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">701</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">699</span>
+<span class="normal">700</span>
+<span class="normal">701</span>
 <span class="normal">702</span>
 <span class="normal">703</span>
 <span class="normal">704</span>
@@ -10012,9 +10010,7 @@ Dewitz, J., 2023, National Land Cover Database (NLCD) 2021 Products: U.S. Geolog
 <span class="normal">903</span>
 <span class="normal">904</span>
 <span class="normal">905</span>
-<span class="normal">906</span>
-<span class="normal">907</span>
-<span class="normal">908</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@requires_earthengine</span>
+<span class="normal">906</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@requires_earthengine</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_nlcd_landcover</span><span class="p">(</span>
     <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
     <span class="o">|</span> <span class="nb">tuple</span>
@@ -10384,7 +10380,9 @@ Global Seasonal Mountain Snow Mask from MODIS MOD10A2 [Data set]. Zenodo. https:
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">353</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
 <span class="normal">354</span>
 <span class="normal">355</span>
 <span class="normal">356</span>
@@ -10555,9 +10553,7 @@ Global Seasonal Mountain Snow Mask from MODIS MOD10A2 [Data set]. Zenodo. https:
 <span class="normal">521</span>
 <span class="normal">522</span>
 <span class="normal">523</span>
-<span class="normal">524</span>
-<span class="normal">525</span>
-<span class="normal">526</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_seasonal_mountain_snow_mask</span><span class="p">(</span>
+<span class="normal">524</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_seasonal_mountain_snow_mask</span><span class="p">(</span>
     <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
     <span class="o">|</span> <span class="nb">tuple</span>
     <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span>
@@ -10695,7 +10691,7 @@ Global Seasonal Mountain Snow Mask from MODIS MOD10A2 [Data set]. Zenodo. https:
 
         <span class="k">return</span> <span class="n">f</span><span class="p">,</span> <span class="n">ax</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"This function takes a moment, getting zipped file from zenodo..."</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"This function takes a moment, getting zipped file from zenodo..."</span><span class="p">)</span>
     <span class="c1"># Convert the input to a GeoDataFrame if it's not already one</span>
     <span class="n">bbox_gdf</span> <span class="o">=</span> <span class="n">convert_bbox_to_geodataframe</span><span class="p">(</span><span class="n">bbox_input</span><span class="p">)</span>
 
@@ -10877,7 +10873,9 @@ Boulder, Colorado USA. National Snow and Ice Data Center. https://doi.org/10.506
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/remote_sensing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">199</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
 <span class="normal">200</span>
 <span class="normal">201</span>
 <span class="normal">202</span>
@@ -11026,9 +11024,7 @@ Boulder, Colorado USA. National Snow and Ice Data Center. https://doi.org/10.506
 <span class="normal">345</span>
 <span class="normal">346</span>
 <span class="normal">347</span>
-<span class="normal">348</span>
-<span class="normal">349</span>
-<span class="normal">350</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_seasonal_snow_classification</span><span class="p">(</span>
+<span class="normal">348</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_seasonal_snow_classification</span><span class="p">(</span>
     <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
     <span class="o">|</span> <span class="nb">tuple</span>
     <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span>

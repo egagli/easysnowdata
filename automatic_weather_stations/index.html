@@ -1576,7 +1576,7 @@ loading the station metadata GeoJSON (e.g. <code>columns=[...]</code>,
 <span class="normal">3</span>
 <span class="normal">4</span>
 <span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">sc</span> <span class="o">=</span> <span class="n">StationCollection</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sc</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">stations</span><span class="o">=</span><span class="p">[</span><span class="s2">"679_WA_SNTL"</span><span class="p">,</span> <span class="s2">"680_WA_SNTL"</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sc</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">stations</span><span class="o">=</span><span class="p">[</span><span class="s2">"679_WA_SNTL"</span><span class="p">,</span> <span class="s2">"642_WA_SNTL"</span><span class="p">],</span>
 <span class="gp">... </span>            <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">"WTEQ"</span><span class="p">],</span>
 <span class="gp">... </span>            <span class="n">start_date</span><span class="o">=</span><span class="s2">"2022-01-01"</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="s2">"2022-03-31"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sc</span><span class="o">.</span><span class="n">data</span>
@@ -1597,7 +1597,8 @@ loading the station metadata GeoJSON (e.g. <code>columns=[...]</code>,
 
                   <details class="mkdocstrings-source">
                     <summary>Source code in <code>easysnowdata/automatic_weather_stations.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">100</span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 99</span>
+<span class="normal">100</span>
 <span class="normal">101</span>
 <span class="normal">102</span>
 <span class="normal">103</span>
@@ -1619,8 +1620,7 @@ loading the station metadata GeoJSON (e.g. <code>columns=[...]</code>,
 <span class="normal">119</span>
 <span class="normal">120</span>
 <span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">122</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">data_available</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">sortby_dist_to_geom</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1695,7 +1695,7 @@ loading the station metadata GeoJSON (e.g. <code>columns=[...]</code>,
             <td>
               <div class="doc-md-description">
                 <p>Station code(s) to select (e.g. <code>"679_WA_SNTL"</code> or
-<code>["679_WA_SNTL", "680_WA_SNTL"]</code>), or a GeoDataFrame already
+<code>["679_WA_SNTL", "642_WA_SNTL"]</code>), or a GeoDataFrame already
 filtered from <code>all_stations</code>.</p>
               </div>
             </td>
@@ -1732,7 +1732,8 @@ filtered from <code>all_stations</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/automatic_weather_stations.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">159</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">158</span>
+<span class="normal">159</span>
 <span class="normal">160</span>
 <span class="normal">161</span>
 <span class="normal">162</span>
@@ -1751,15 +1752,14 @@ filtered from <code>all_stations</code>.</p>
 <span class="normal">175</span>
 <span class="normal">176</span>
 <span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">choose_stations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stations_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">178</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">choose_stations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stations_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Select a subset of stations by code string, list of codes, or GeoDataFrame.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    stations_input : str, list of str, or geopandas.GeoDataFrame</span>
 <span class="sd">        Station code(s) to select (e.g. ``"679_WA_SNTL"`` or</span>
-<span class="sd">        ``["679_WA_SNTL", "680_WA_SNTL"]``), or a GeoDataFrame already</span>
+<span class="sd">        ``["679_WA_SNTL", "642_WA_SNTL"]``), or a GeoDataFrame already</span>
 <span class="sd">        filtered from ``all_stations``.</span>
 
 <span class="sd">    Returns</span>
@@ -1821,7 +1821,8 @@ constructor are forwarded to <code>geopandas.read_file</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/automatic_weather_stations.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">125</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">124</span>
+<span class="normal">125</span>
 <span class="normal">126</span>
 <span class="normal">127</span>
 <span class="normal">128</span>
@@ -1852,8 +1853,7 @@ constructor are forwarded to <code>geopandas.read_file</code>.</p>
 <span class="normal">153</span>
 <span class="normal">154</span>
 <span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_all_stations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">156</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_all_stations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Fetch all station metadata from GitHub and populate ``all_stations``.</span>
 
 <span class="sd">    Optionally filters to stations with data files and sorts by distance</span>
@@ -2033,7 +2033,8 @@ used here (<code>index_col="datetime"</code>, <code>parse_dates=True</code>).</p
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/automatic_weather_stations.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">181</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">180</span>
+<span class="normal">181</span>
 <span class="normal">182</span>
 <span class="normal">183</span>
 <span class="normal">184</span>
@@ -2091,8 +2092,7 @@ used here (<code>index_col="datetime"</code>, <code>parse_dates=True</code>).</p
 <span class="normal">236</span>
 <span class="normal">237</span>
 <span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_data</span><span class="p">(</span>
+<span class="normal">239</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_data</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">stations</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">=</span> <span class="s2">"679_WA_SNTL"</span><span class="p">,</span>
     <span class="n">variables</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2269,7 +2269,8 @@ download and decompression on first run.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/automatic_weather_stations.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">353</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">352</span>
+<span class="normal">353</span>
 <span class="normal">354</span>
 <span class="normal">355</span>
 <span class="normal">356</span>
@@ -2333,8 +2334,7 @@ download and decompression on first run.</p>
 <span class="normal">414</span>
 <span class="normal">415</span>
 <span class="normal">416</span>
-<span class="normal">417</span>
-<span class="normal">418</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_entire_data_archive</span><span class="p">(</span>
+<span class="normal">417</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_entire_data_archive</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">temp_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"/tmp/"</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Download, decompress, and assemble the full station data archive.</span>
@@ -2526,7 +2526,8 @@ coordinates <code>WY</code> and <code>DOWY</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/automatic_weather_stations.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">283</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">282</span>
+<span class="normal">283</span>
 <span class="normal">284</span>
 <span class="normal">285</span>
 <span class="normal">286</span>
@@ -2593,8 +2594,7 @@ coordinates <code>WY</code> and <code>DOWY</code>.</p>
 <span class="normal">347</span>
 <span class="normal">348</span>
 <span class="normal">349</span>
-<span class="normal">350</span>
-<span class="normal">351</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_multiple_station_data</span><span class="p">(</span>
+<span class="normal">350</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_multiple_station_data</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">variables</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"WTEQ"</span><span class="p">,</span>
     <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"1900-01-01"</span><span class="p">,</span>
@@ -2788,7 +2788,8 @@ take precedence over the defaults used here (<code>index_col="datetime"</code>,
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>easysnowdata/automatic_weather_stations.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">242</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">241</span>
+<span class="normal">242</span>
 <span class="normal">243</span>
 <span class="normal">244</span>
 <span class="normal">245</span>
@@ -2826,8 +2827,7 @@ take precedence over the defaults used here (<code>index_col="datetime"</code>,
 <span class="normal">277</span>
 <span class="normal">278</span>
 <span class="normal">279</span>
-<span class="normal">280</span>
-<span class="normal">281</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_single_station_data</span><span class="p">(</span>
+<span class="normal">280</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_single_station_data</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">variables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"1900-01-01"</span><span class="p">,</span>
