@@ -131,6 +131,7 @@ def get_hydroBASINS(
     | shapely.geometry.base.BaseGeometry
     | None = None,
     level: int = 5,
+    **kwargs,
 ) -> gpd.GeoDataFrame:
     """
     Retrieves HydroATLAS sub-basin boundaries at specified hierarchical level.
@@ -146,6 +147,11 @@ def get_hydroBASINS(
     level : int, optional
         The hierarchical level (1-12) of sub-basin delineation. Higher levels represent
         finer subdivisions. Default is 5.
+    **kwargs
+        Additional keyword arguments passed to ``geopandas.read_file`` (e.g.
+        ``columns=[...]``, ``rows=...``, ``engine="pyogrio"``). These take
+        precedence over the defaults used here (``layer`` and, when a bbox is
+        given, ``mask``).
 
     Returns
     -------
@@ -193,11 +199,14 @@ def get_hydroBASINS(
     _logger.info("Loading HydroATLAS level {level} basins...")
 
     # Load the data with optional spatial masking
+    read_params = {"layer": layer_name}
     if bbox_gdf is not None:
-        basins_gdf = gpd.read_file("zip+" + url, mask=bbox_gdf, layer=layer_name)
+        read_params["mask"] = bbox_gdf
     else:
         _logger.info("Loading global dataset (this may take a while)...")
-        basins_gdf = gpd.read_file("zip+" + url, layer=layer_name)
+    # User-supplied kwargs take precedence over the defaults above
+    read_params.update(kwargs)
+    basins_gdf = gpd.read_file("zip+" + url, **read_params)
 
     # Add citation to attributes
     basins_gdf.attrs["data_citation"] = (
@@ -215,6 +224,7 @@ def get_grdc_major_river_basins_of_the_world(
     | tuple
     | shapely.geometry.base.BaseGeometry
     | None = None,
+    **kwargs,
 ) -> gpd.GeoDataFrame:
     """
     Retrieves GRDC Major River Basins of the World dataset.
@@ -228,6 +238,9 @@ def get_grdc_major_river_basins_of_the_world(
     ----------
     bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional
         The bounding box for spatial subsetting. If None, the entire global dataset is returned.
+    **kwargs
+        Additional keyword arguments passed to ``geopandas.read_file`` (e.g.
+        ``columns=[...]``, ``rows=...``, ``engine="pyogrio"``).
 
     Returns
     -------
@@ -265,7 +278,7 @@ def get_grdc_major_river_basins_of_the_world(
     )
 
     # Load the data
-    basins_gdf = gpd.read_file("zip+" + url)
+    basins_gdf = gpd.read_file("zip+" + url, **kwargs)
 
     # Clip to bbox if provided
     if bbox_gdf is not None:
@@ -286,6 +299,7 @@ def get_grdc_wmo_basins(
     | tuple
     | shapely.geometry.base.BaseGeometry
     | None = None,
+    **kwargs,
 ) -> gpd.GeoDataFrame:
     """
     Retrieves WMO Basins and Sub-Basins dataset.
@@ -299,6 +313,9 @@ def get_grdc_wmo_basins(
     ----------
     bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional
         The bounding box for spatial subsetting. If None, the entire global dataset is returned.
+    **kwargs
+        Additional keyword arguments passed to ``geopandas.read_file`` (e.g.
+        ``columns=[...]``, ``rows=...``, ``engine="pyogrio"``).
 
     Returns
     -------
@@ -347,7 +364,7 @@ def get_grdc_wmo_basins(
         convert_bbox_to_geodataframe(bbox_input) if bbox_input is not None else None
     )
 
-    basins_gdf = gpd.read_file("zip+" + url)
+    basins_gdf = gpd.read_file("zip+" + url, **kwargs)
 
     # Clip to bbox if provided
     if bbox_gdf is not None:
@@ -375,6 +392,7 @@ def get_era5(
     end_date: str | None = None,
     variables: str | list | None = None,
     initialize_ee: bool = True,
+    **kwargs,
 ) -> xr.Dataset:
     """
     Retrieves ERA5 reanalysis data using optimal source selection.
@@ -405,6 +423,11 @@ def get_era5(
         Variable(s) to select. If None, returns all variables. Only applicable for GEE source.
     initialize_ee : bool, optional
         Whether to initialize Earth Engine. Default is True. Only applicable for GEE source.
+    **kwargs
+        Additional keyword arguments passed to the underlying loader:
+        ``xarray.open_zarr`` for the GCS source, or ``xarray.open_dataset`` with
+        ``engine="ee"`` for the GEE source (e.g. ``chunks={"time": 24}``). These
+        take precedence over the defaults used here (``chunks=None``).
 
     Returns
     -------
@@ -480,10 +503,14 @@ def get_era5(
                 f"GCS source only supports ERA5 hourly data, not {version} {cadence}"
             )
 
+        open_params = {
+            "chunks": None,
+            "storage_options": dict(token="anon"),
+            **kwargs,
+        }
         era5_ds = xr.open_zarr(
             "gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3",
-            chunks=None,
-            storage_options=dict(token="anon"),
+            **open_params,
         )
 
         # Apply time filtering if specified
@@ -580,13 +607,14 @@ def get_era5(
         grid = get_ee_grid_params(image_collection.first(), bbox_gdf)
 
         # Load dataset (xee >= 0.1 returns dims ordered (time, y, x))
-        ds = xr.open_dataset(image_collection, engine="ee", chunks=None, **grid)
+        open_params = {"engine": "ee", "chunks": None, **grid, **kwargs}
+        ds = xr.open_dataset(image_collection, **open_params)
 
         # Clean up coordinate names
         ds = (
             ds.rename({"y": "latitude", "x": "longitude"})
             .rio.set_spatial_dims(x_dim="longitude", y_dim="latitude")
-            .rio.write_crs(grid["crs"])
+            .rio.write_crs(open_params["crs"])
         )
 
         # Add metadata
@@ -616,6 +644,7 @@ def get_snodas(
     end_date: str = None,
     variables: str | list | None = None,
     initialize_ee: bool = True,
+    **kwargs,
 ) -> xr.Dataset:
     """
     Retrieves SNODAS (Snow Data Assimilation System) data for a given bounding box and time range.
@@ -638,6 +667,10 @@ def get_snodas(
         If None, returns all variables.
     initialize_ee : bool, optional
         Whether to initialize Earth Engine. Default is True.
+    **kwargs
+        Additional keyword arguments passed to ``xarray.open_dataset`` with
+        ``engine="ee"`` (e.g. ``chunks={"time": 1, "x": 512, "y": 512}``).
+        These take precedence over the defaults used here (``chunks=None``).
 
     Returns
     -------
@@ -737,7 +770,8 @@ def get_snodas(
     grid = get_ee_grid_params(image_collection.first(), bbox_gdf)
 
     # Load dataset using xee (xee >= 0.1 returns dims ordered (time, y, x))
-    ds = xr.open_dataset(image_collection, engine="ee", chunks=None, **grid)
+    open_params = {"engine": "ee", "chunks": None, **grid, **kwargs}
+    ds = xr.open_dataset(image_collection, **open_params)
 
     # Clean up coordinate names
     ds = ds.rename({"y": "latitude", "x": "longitude"}).rio.set_spatial_dims(
@@ -745,7 +779,7 @@ def get_snodas(
     )
 
     # Set coordinate reference system
-    ds.rio.write_crs(grid["crs"], inplace=True)
+    ds.rio.write_crs(open_params["crs"], inplace=True)
 
     # Add variable attributes
     if "Snow_Depth" in ds.data_vars:
@@ -802,6 +836,7 @@ def get_ucla_snow_reanalysis(
     stats: str = "mean",
     start_date: str = "1984-10-01",
     end_date: str = "2021-09-30",
+    **kwargs,
 ) -> xr.DataArray:
     """
     Fetches the Margulis UCLA snow reanalysis product for a specified bounding box and time range.
@@ -824,6 +859,9 @@ def get_ucla_snow_reanalysis(
         The start date for the data retrieval in 'YYYY-MM-DD' format. Default is '1984-10-01'.
     end_date : str, optional
         The end date for the data retrieval in 'YYYY-MM-DD' format. Default is '2021-09-30'.
+    **kwargs
+        Additional keyword arguments passed to ``xarray.open_mfdataset`` (e.g.
+        ``chunks={"Day": 30}`` or ``parallel=True``).
 
     Returns
     -------
@@ -862,7 +900,7 @@ def get_ucla_snow_reanalysis(
     files = earthaccess.open(
         search
     )  # cant disable progress bar yet https://github.com/nsidc/earthaccess/issues/612
-    snow_reanalysis_ds = xr.open_mfdataset(files).transpose()
+    snow_reanalysis_ds = xr.open_mfdataset(files, **kwargs).transpose()
 
     url = files[0].path
     date_pattern = r"\d{4}\.\d{2}\.\d{2}"
@@ -901,6 +939,7 @@ def get_koppen_geiger_classes(
     | shapely.geometry.base.BaseGeometry
     | None = None,
     resolution: str = "0.1 degree",
+    **kwargs,
 ) -> xr.DataArray:
     """
     Retrieves Köppen-Geiger climate classification data for a given bounding box and resolution.
@@ -916,6 +955,9 @@ def get_koppen_geiger_classes(
     resolution:
         The spatial resolution of the data. Options are "1 degree", "0.5 degree", "0.1 degree", or "1 km".
         Default is "0.1 degree".
+    **kwargs:
+        Additional keyword arguments passed to ``rioxarray.open_rasterio`` (e.g.
+        ``chunks={"x": 1024, "y": 1024}`` to load lazily with dask).
 
     Returns
     -------
@@ -1148,7 +1190,8 @@ def get_koppen_geiger_classes(
     resolution = resolution_dict[resolution]
 
     koppen_geiger_da = rxr.open_rasterio(
-        f"zip+https://figshare.com/ndownloader/files/45057352/koppen_geiger_tif.zip/1991_2020/koppen_geiger_{resolution}.tif"
+        f"zip+https://figshare.com/ndownloader/files/45057352/koppen_geiger_tif.zip/1991_2020/koppen_geiger_{resolution}.tif",
+        **kwargs,
     ).squeeze()
 
     koppen_geiger_da = koppen_geiger_da.rio.clip_box(

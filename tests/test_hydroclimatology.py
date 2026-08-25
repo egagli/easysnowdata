@@ -37,6 +37,13 @@ class TestGetHydroBasins:
         with pytest.raises(ValueError):
             get_hydroBASINS(bbox_input=TEST_BBOX, level=15)
 
+    def test_kwargs_forwarded_to_read_file(self):
+        from easysnowdata.hydroclimatology import get_hydroBASINS
+
+        # rows= is a geopandas.read_file argument; it must reach the reader
+        result = get_hydroBASINS(bbox_input=TEST_BBOX, level=5, rows=1)
+        assert len(result) == 1
+
 
 # ---------------------------------------------------------------------------
 # Köppen-Geiger (figshare — no credentials required)
@@ -67,6 +74,15 @@ class TestKoppenGeiger:
         result = get_koppen_geiger_classes(bbox_input=TEST_BBOX, resolution="1 degree")
         assert callable(result.attrs.get("example_plot"))
 
+    def test_kwargs_forwarded_to_open_rasterio(self):
+        from easysnowdata.hydroclimatology import get_koppen_geiger_classes
+
+        # Default load is not dask-backed; chunks= must make it so
+        result = get_koppen_geiger_classes(
+            bbox_input=TEST_BBOX, resolution="1 degree", chunks={"x": 90, "y": 90}
+        )
+        assert result.chunks is not None
+
 
 # ---------------------------------------------------------------------------
 # GRDC basins (World Bank / GRDC — no credentials required)
@@ -79,6 +95,24 @@ class TestGrdcMajorRiverBasins:
 
         result = get_grdc_major_river_basins_of_the_world(bbox_input=TEST_BBOX)
         assert isinstance(result, gpd.GeoDataFrame)
+
+    def test_kwargs_forwarded_to_read_file(self):
+        from easysnowdata.hydroclimatology import (
+            get_grdc_major_river_basins_of_the_world,
+        )
+
+        # rows= is a geopandas.read_file argument; it must reach the reader
+        result = get_grdc_major_river_basins_of_the_world(bbox_input=None, rows=5)
+        assert len(result) == 5
+
+
+class TestGrdcWmoBasins:
+    def test_kwargs_forwarded_to_read_file(self):
+        from easysnowdata.hydroclimatology import get_grdc_wmo_basins
+
+        result = get_grdc_wmo_basins(bbox_input=None, rows=5)
+        assert isinstance(result, gpd.GeoDataFrame)
+        assert len(result) == 5
 
 
 # ---------------------------------------------------------------------------
@@ -107,6 +141,19 @@ class TestEra5Gcs:
 
         with pytest.raises(ValueError):
             get_era5(bbox_input=TEST_BBOX, source="GCS", version="ERA5_LAND")
+
+    def test_kwargs_forwarded_to_open_zarr(self):
+        from easysnowdata.hydroclimatology import get_era5
+
+        # Default is chunks=None (lazy, not dask); chunks= must make it dask-backed
+        result = get_era5(
+            bbox_input=TEST_BBOX,
+            source="GCS",
+            start_date="2020-01-01",
+            end_date="2020-01-02",
+            chunks={"time": 24},
+        )
+        assert result["2m_temperature"].chunks is not None
 
 
 # ---------------------------------------------------------------------------
@@ -148,6 +195,23 @@ class TestSnodas:
                 end_date="2020-01-03",
                 variables=["NotAVariable"],
             )
+
+    @pytest.mark.requires_earthengine
+    def test_kwargs_forwarded_to_open_dataset(self):
+        from easysnowdata.hydroclimatology import get_snodas
+
+        # Default is chunks=None (lazy, not dask); chunks= must make it dask-backed
+        result = get_snodas(
+            bbox_input=TEST_BBOX,
+            start_date="2020-01-01",
+            end_date="2020-01-03",
+            variables="SWE",
+            chunks={"time": 1, "x": 64, "y": 64},
+        )
+        swe = result["SWE"]
+        assert swe.chunks is not None
+        assert max(swe.chunks[swe.get_axis_num("longitude")]) <= 64
+        assert max(swe.chunks[swe.get_axis_num("latitude")]) <= 64
 
 
 class TestEra5Gee:

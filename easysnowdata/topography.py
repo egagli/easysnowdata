@@ -40,6 +40,7 @@ def get_copernicus_dem(
     | shapely.geometry.base.BaseGeometry
     | None = None,
     resolution: int = 30,
+    **kwargs,
 ) -> xr.DataArray:
     """Fetch the Copernicus Global DEM for a bounding box.
 
@@ -50,6 +51,10 @@ def get_copernicus_dem(
         EPSG:4326. Defaults to global extent if ``None``.
     resolution : int, optional
         DEM resolution in metres. Either ``30`` or ``90``. Default is ``30``.
+    **kwargs
+        Additional keyword arguments passed to ``odc.stac.load`` (e.g.
+        ``chunks={"x": 1024, "y": 1024}``). These take precedence over the
+        defaults used here (``chunks={}``).
 
     Returns
     -------
@@ -85,9 +90,8 @@ def get_copernicus_dem(
     search = catalog.search(
         collections=[f"cop-dem-glo-{resolution}"], bbox=bbox_gdf.total_bounds
     )
-    cop_dem_da = odc.stac.load(search.items(), bbox=bbox_gdf.total_bounds, chunks={})[
-        "data"
-    ].squeeze()
+    load_params = {"bbox": bbox_gdf.total_bounds, "chunks": {}, **kwargs}
+    cop_dem_da = odc.stac.load(search.items(), **load_params)["data"].squeeze()
     cop_dem_da = cop_dem_da.rio.write_nodata(-32767, encoded=True)
 
     cop_dem_da.attrs["data_citation"] = (
@@ -105,6 +109,7 @@ def get_chili(
     | shapely.geometry.base.BaseGeometry
     | None = None,
     initialize_ee: bool = True,
+    **kwargs,
 ) -> xr.DataArray:
     """Fetch CHILI (Continuous Heat-Insolation Load Index) for a bounding box.
 
@@ -119,6 +124,10 @@ def get_chili(
     initialize_ee : bool, optional
         Initialise Earth Engine before fetching. Default ``True``. Set to
         ``False`` if EE is already initialised in the calling script.
+    **kwargs
+        Additional keyword arguments passed to ``xarray.open_dataset`` with
+        ``engine="ee"`` (e.g. ``chunks={"time": 1, "x": 512, "y": 512}``).
+        These take precedence over the defaults used here.
 
     Returns
     -------
@@ -147,16 +156,18 @@ def get_chili(
     # Match CHILI's native ~90 m grid, cropped to the bbox
     grid = get_ee_grid_params(image, bbox_gdf)
 
+    open_params = {"engine": "ee", **grid, **kwargs}
     chili_da = (
-        xr.open_dataset(ee.ImageCollection(image), engine="ee", **grid)
+        xr.open_dataset(ee.ImageCollection(image), **open_params)
         .isel(time=0, drop=True)["constant"]
         .rename({"y": "lat", "x": "lon"})
         .rio.set_spatial_dims(x_dim="lon", y_dim="lat")
-        .rio.write_crs(grid["crs"])
+        .rio.write_crs(open_params["crs"])
     )
     chili_da = chili_da.rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs)
 
-    if chili_da.isnull().all().item():
+    # bool() computes for dask-backed arrays too (e.g. when chunks= is passed)
+    if bool(chili_da.isnull().all()):
         _logger.warning(
             "No CHILI data for this location. CHILI is only available 70°N–70°S."
         )

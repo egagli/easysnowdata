@@ -44,6 +44,23 @@ class TestCopernicusDem:
         # Mount Rainier area — should include values > 1000 m
         assert float(result.max()) > 1000
 
+    def test_kwargs_forwarded_to_odc_stac_load(self):
+        from easysnowdata.topography import get_copernicus_dem
+
+        result = get_copernicus_dem(
+            bbox_input=TEST_BBOX, resolution=90, chunks={"x": 128, "y": 128}
+        )
+        assert result.chunks is not None
+        # odc names dims latitude/longitude in EPSG:4326, so check every dim
+        assert all(max(sizes) <= 128 for sizes in result.chunks)
+
+    def test_kwargs_override_defaults(self):
+        from easysnowdata.topography import get_copernicus_dem
+
+        # Built-in default is chunks={} (dask); chunks=None must win and load eagerly
+        result = get_copernicus_dem(bbox_input=TEST_BBOX, resolution=90, chunks=None)
+        assert result.chunks is None
+
 
 class TestChili:
     @pytest.mark.requires_earthengine
@@ -78,3 +95,13 @@ class TestChili:
         result = get_chili(bbox_input=TEST_BBOX)
         assert result.dims == ("lat", "lon")
         assert result.rio.crs is not None
+
+    @pytest.mark.requires_earthengine
+    def test_kwargs_forwarded_to_open_dataset(self):
+        from easysnowdata.topography import get_chili
+
+        # Default load is not dask-backed; chunks= must make it so
+        result = get_chili(bbox_input=TEST_BBOX, chunks={"x": 64, "y": 64})
+        assert result.chunks is not None
+        assert max(result.chunks[result.get_axis_num("lon")]) <= 64
+        assert max(result.chunks[result.get_axis_num("lat")]) <= 64

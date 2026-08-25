@@ -105,6 +105,7 @@ def get_forest_cover_fraction(
     | shapely.geometry.base.BaseGeometry
     | None = None,
     mask_nodata: bool = False,
+    **kwargs,
 ) -> xr.DataArray:
     """
     Fetches ~100m forest cover fraction data for a given bounding box.
@@ -121,6 +122,10 @@ def get_forest_cover_fraction(
         Whether to mask no data values. Default is False.
         If False: (dtype=uint8, rio.nodata=255, rio.encoded_nodata=None)
         If True: (dtype=float32, rio.nodata=nan, rio.encoded_nodata=255)
+    **kwargs
+        Additional keyword arguments passed to ``rioxarray.open_rasterio`` (e.g.
+        ``chunks={"x": 1024, "y": 1024}``). These take precedence over the
+        defaults used here (``chunks=True``, ``mask_and_scale=mask_nodata``).
 
     Returns
     -------
@@ -175,10 +180,10 @@ def get_forest_cover_fraction(
     # Convert the input to a GeoDataFrame if it's not already one
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
 
+    open_params = {"chunks": True, "mask_and_scale": mask_nodata, **kwargs}
     fcf_da = rxr.open_rasterio(
         "https://zenodo.org/record/3939050/files/PROBAV_LC100_global_v3.0.1_2019-nrt_Tree-CoverFraction-layer_EPSG-4326.tif",
-        chunks=True,
-        mask_and_scale=mask_nodata,
+        **open_params,
     )
 
     fcf_da = fcf_da.rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs).squeeze()
@@ -197,6 +202,7 @@ def get_seasonal_snow_classification(
     | shapely.geometry.base.BaseGeometry
     | None = None,
     mask_nodata: bool = False,
+    **kwargs,
 ) -> xr.DataArray:
     """
     Fetches 10arcsec (~300m) Sturm & Liston 2021 seasonal snow classification data for a given bounding box.
@@ -213,6 +219,10 @@ def get_seasonal_snow_classification(
         Whether to mask no data values. Default is False.
         If False: (dtype=uint8, rio.nodata=9, rio.encoded_nodata=None)
         If True: (dtype=float32, rio.nodata=nan, rio.encoded_nodata=9)
+    **kwargs
+        Additional keyword arguments passed to ``rioxarray.open_rasterio`` (e.g.
+        ``chunks={"x": 1024, "y": 1024}``). These take precedence over the
+        defaults used here (``chunks=True``, ``mask_and_scale=mask_nodata``).
 
     Returns
     -------
@@ -313,10 +323,10 @@ def get_seasonal_snow_classification(
     # Convert the input to a GeoDataFrame if it's not already one
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
 
+    open_params = {"chunks": True, "mask_and_scale": mask_nodata, **kwargs}
     snow_classification_da = rxr.open_rasterio(
         "https://uwcryo.blob.core.windows.net/snowmelt/eric/snow_classification/SnowClass_GL_300m_10.0arcsec_2021_v01.0.tif",
-        chunks=True,
-        mask_and_scale=mask_nodata,
+        **open_params,
     )
     snow_classification_da = snow_classification_da.rio.clip_box(
         *bbox_gdf.total_bounds, crs=bbox_gdf.crs
@@ -347,6 +357,7 @@ def get_seasonal_mountain_snow_mask(
     | None = None,
     data_product: str = "mountain_snow",
     mask_nodata: bool = False,
+    **kwargs,
 ) -> xr.DataArray:
     """
     Fetches ~1km static global seasonal (mountain snow / snow) mask for a given bounding box.
@@ -365,6 +376,10 @@ def get_seasonal_mountain_snow_mask(
         Whether to mask no data values. Default is False.
         If False: (dtype=uint8, rio.nodata=255, rio.encoded_nodata=None)
         If True: (dtype=float32, rio.nodata=nan, rio.encoded_nodata=255)
+    **kwargs
+        Additional keyword arguments passed to ``rioxarray.open_rasterio`` (e.g.
+        ``chunks={"x": 1024, "y": 1024}``). These take precedence over the
+        defaults used here (``chunks=True``, ``mask_and_scale=mask_nodata``).
 
     Returns
     -------
@@ -479,12 +494,9 @@ def get_seasonal_mountain_snow_mask(
 
     url = f"zip+https://zenodo.org/records/2626737/files/MODIS_{'mtnsnow' if data_product == 'mountain_snow' else 'snow'}_classes.zip!/MODIS_{'mtnsnow' if data_product == 'mountain_snow' else 'snow'}_classes.tif"
 
+    open_params = {"chunks": True, "mask_and_scale": mask_nodata, **kwargs}
     mountain_snow_da = (
-        rxr.open_rasterio(
-            url,
-            chunks=True,
-            mask_and_scale=mask_nodata,
-        )
+        rxr.open_rasterio(url, **open_params)
         .rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs)
         .squeeze()
     )
@@ -521,6 +533,7 @@ def get_esa_worldcover(
     | None = None,
     version: str = "v200",
     mask_nodata: bool = False,
+    **kwargs,
 ) -> xr.DataArray:
     """
     Fetches 10m ESA WorldCover global land cover data (2020 v100 or 2021 v200) for a given bounding box.
@@ -539,6 +552,10 @@ def get_esa_worldcover(
         Whether to mask no data values. Default is False.
         If False: (dtype=uint8, rio.nodata=0, rio.encoded_nodata=None)
         If True: (dtype=float32, rio.nodata=nan, rio.encoded_nodata=0)
+    **kwargs
+        Additional keyword arguments passed to ``odc.stac.load`` (e.g.
+        ``chunks={"x": 1024, "y": 1024}``). These take precedence over the
+        defaults used here (``bands="map"``, ``chunks={}``).
 
     Returns
     -------
@@ -654,10 +671,14 @@ def get_esa_worldcover(
         modifier=planetary_computer.sign_inplace,
     )
     search = catalog.search(collections=["esa-worldcover"], bbox=bbox_gdf.total_bounds)
+    load_params = {
+        "bbox": bbox_gdf.total_bounds,
+        "bands": "map",
+        "chunks": {},
+        **kwargs,
+    }
     worldcover_da = (
-        odc.stac.load(
-            search.items(), bbox=bbox_gdf.total_bounds, bands="map", chunks={}
-        )["map"]
+        odc.stac.load(search.items(), **load_params)["map"]
         .sel(time=version_year)
         .squeeze()
     )
@@ -685,6 +706,7 @@ def get_nlcd_landcover(
     | None = None,
     layer: str = "landcover",
     initialize_ee: bool = True,
+    **kwargs,
 ) -> xr.DataArray:
     """
     Fetches National Land Cover Database (NLCD) data for a given bounding box.
@@ -711,6 +733,10 @@ def get_nlcd_landcover(
         Default is 'landcover'.
     initialize_ee : bool, optional
         Whether to initialize Earth Engine. Default is True.
+    **kwargs
+        Additional keyword arguments passed to ``xarray.open_dataset`` with
+        ``engine="ee"`` (e.g. ``chunks={"time": 1, "x": 512, "y": 512}``).
+        These take precedence over the defaults used here (``chunks={}``).
 
     Returns
     -------
@@ -761,11 +787,12 @@ def get_nlcd_landcover(
     # Match NLCD's native 30 m Albers grid, cropped to the bbox
     grid = get_ee_grid_params(image, bbox_gdf)
 
+    open_params = {"engine": "ee", "chunks": {}, **grid, **kwargs}
     ds = (
-        xr.open_dataset(image_collection, engine="ee", chunks={}, **grid)
+        xr.open_dataset(image_collection, **open_params)
         .squeeze()
         .rio.set_spatial_dims(x_dim="x", y_dim="y")
-        .rio.write_crs(grid["crs"])
+        .rio.write_crs(open_params["crs"])
         .astype("uint8")
     )
 
@@ -912,6 +939,10 @@ class Sentinel2:
         Whether to scale the data. Default is True.
     groupby : str, optional
         The groupby parameter for the data. Default is "solar_day".
+    **kwargs
+        Additional keyword arguments passed to ``odc.stac.load`` (e.g.
+        ``chunks={"time": 1, "x": 512, "y": 512}``). These take precedence over
+        the defaults used by ``get_data()``.
 
     Attributes
     ----------
@@ -976,6 +1007,7 @@ class Sentinel2:
         harmonize_to_old=None,
         scale_data=True,
         groupby="solar_day",
+        **kwargs,
     ):
         """
         The constructor for the Sentinel2 class.
@@ -989,6 +1021,7 @@ class Sentinel2:
             resolution (str): The resolution of the data. Defaults to native resolution, 10m.
             crs (str): The coordinate reference system. This should be a string like 'EPSG:4326'. Default CRS is UTM zone estimated from bounding box.
             groupby (str): The groupby parameter for the data. Default is "solar_day".
+            **kwargs: Additional keyword arguments passed to odc.stac.load (e.g. chunks={"time": 1, "x": 512, "y": 512}). These take precedence over the defaults used by get_data().
         """
         # Initialize the attributes
         self.bbox_input = bbox_input
@@ -1003,6 +1036,7 @@ class Sentinel2:
         self.harmonize_to_old = harmonize_to_old
         self.scale_data = scale_data
         self.groupby = groupby
+        self.load_kwargs = kwargs
 
         self.bbox_gdf = convert_bbox_to_geodataframe(self.bbox_input)
 
@@ -1337,6 +1371,8 @@ class Sentinel2:
             load_params["bands"] = [info["name"] for info in self.band_info.values()]
         if self.resolution:
             load_params["resolution"] = self.resolution
+        # User-supplied kwargs take precedence over the defaults above
+        load_params.update(self.load_kwargs)
 
         # Load the data lazily using odc.stac
         self.data = odc.stac.load(**load_params)
@@ -1778,6 +1814,9 @@ class Sentinel1:
         The chunk size for dask arrays. Default is {}.
     remove_border_noise : bool, optional
         Whether to remove border noise from the data. Default is True.
+    **kwargs
+        Additional keyword arguments passed to ``odc.stac.load``. These take
+        precedence over the defaults used by ``get_data()``.
 
     Attributes
     ----------
@@ -1822,6 +1861,7 @@ class Sentinel1:
         groupby="sat:absolute_orbit",
         chunks={},  # {"x": 512, "y": 512} or # {"x": 512, "y": 512, "time": -1}
         remove_border_noise=True,
+        **kwargs,
     ):
         """
         The constructor for the Sentinel1 class.
@@ -1835,6 +1875,7 @@ class Sentinel1:
             resolution (str): The resolution of the data. Defaults to native resolution, 10m.
             crs (str): The coordinate reference system. This should be a string like 'EPSG:4326'. Default CRS is UTM zone estimated from bounding box.
             groupby (str): The groupby parameter for the data. Default is "sat:absolute_orbit".
+            **kwargs: Additional keyword arguments passed to odc.stac.load. These take precedence over the defaults used by get_data().
         """
         # Initialize the attributes
         self.bbox_input = bbox_input
@@ -1847,6 +1888,7 @@ class Sentinel1:
         self.chunks = chunks
         self.groupby = groupby
         self.remove_border_noise = remove_border_noise
+        self.load_kwargs = kwargs
 
         # if not self.geobox:
         self.bbox_gdf = convert_bbox_to_geodataframe(self.bbox_input)
@@ -1926,6 +1968,8 @@ class Sentinel1:
         load_params["crs"] = self.crs
         load_params["bbox"] = self.bbox_gdf.total_bounds
         load_params["resolution"] = self.resolution
+        # User-supplied kwargs take precedence over the defaults above
+        load_params.update(self.load_kwargs)
 
         # Load the data lazily using odc.stac
         self.data = odc.stac.load(**load_params).sortby(
@@ -2356,6 +2400,10 @@ class HLS:
         Whether to add platform information to the data. Default is True.
     groupby : str, optional
         The groupby parameter for the data. Default is "solar_day".
+    **kwargs
+        Additional keyword arguments passed to both ``odc.stac.load`` calls
+        (Landsat and Sentinel-2). These take precedence over the defaults used
+        by ``get_data()`` (e.g. ``chunks={"time": 1, "x": 512, "y": 512}``).
 
     Attributes
     ----------
@@ -2413,6 +2461,7 @@ class HLS:
         add_metadata=True,
         add_platform=True,
         groupby="solar_day",
+        **kwargs,
     ):  #'ProducerGranuleId'
         """
         The constructor for the HLS class.
@@ -2425,6 +2474,7 @@ class HLS:
             resolution (str): The resolution of the data. Defaults to native resolution, 10m.
             crs (str): The coordinate reference system. This should be a string like 'EPSG:4326'. Default CRS is UTM zone estimated from bounding box.
             groupby (str): The groupby parameter for the data. Default is "solar_day".
+            **kwargs: Additional keyword arguments passed to odc.stac.load for both the Landsat and Sentinel-2 loads. These take precedence over the defaults used by get_data().
         """
         if not _has_earthaccess_credentials():
             raise CredentialError(
@@ -2443,6 +2493,7 @@ class HLS:
         self.add_metadata = add_metadata
         self.add_platform = add_platform
         self.groupby = groupby
+        self.load_kwargs = kwargs
 
         self.bbox_gdf = convert_bbox_to_geodataframe(self.bbox_input)
 
@@ -2702,6 +2753,8 @@ class HLS:
             load_params_landsat["resolution"] = self.resolution
         else:
             load_params_landsat["resolution"] = 30
+        # User-supplied kwargs take precedence over the defaults above
+        load_params_landsat.update(self.load_kwargs)
 
         L30_ds = odc.stac.load(**load_params_landsat)
 
@@ -2726,6 +2779,7 @@ class HLS:
             load_params_sentinel["resolution"] = self.resolution
         else:
             load_params_sentinel["resolution"] = 30
+        load_params_sentinel.update(self.load_kwargs)
 
         S30_ds = odc.stac.load(**load_params_sentinel)
 
@@ -3192,6 +3246,12 @@ class MODIS_snow:
         The horizontal tile number for MODIS data. Default is None.
     mute : bool, optional
         Whether to mute print outputs. Default is False.
+    **kwargs
+        Additional keyword arguments passed to the underlying loader:
+        ``odc.stac.load`` for ``MOD10A1`` / ``MOD10A2``, or
+        ``rioxarray.open_rasterio`` for ``MOD10A1F``. These take precedence
+        over the defaults used by ``get_data()`` (e.g.
+        ``chunks={"time": 1, "x": 512, "y": 512}``).
 
     Attributes
     ----------
@@ -3240,6 +3300,7 @@ class MODIS_snow:
         vertical_tile=None,
         horizontal_tile=None,
         mute=False,
+        **kwargs,
     ):
 
         if data_product == "MOD10A1F" and not _has_earthaccess_credentials():
@@ -3258,6 +3319,7 @@ class MODIS_snow:
         self.crs = crs
         self.vertical_tile = vertical_tile
         self.horizontal_tile = horizontal_tile
+        self.load_kwargs = kwargs
 
         if mute:
             with suppress_stdout():
@@ -3322,6 +3384,8 @@ class MODIS_snow:
                 load_params["crs"] = self.crs
             if self.resolution:
                 load_params["resolution"] = self.resolution
+            # User-supplied kwargs take precedence over the defaults above
+            load_params.update(self.load_kwargs)
 
             modis_snow = odc.stac.load(**load_params)
 
@@ -3341,21 +3405,24 @@ class MODIS_snow:
                 self.search, temp_download_fp
             )  # can i suppress the print output? https://earthaccess.readthedocs.io/en/latest/user-reference/api/api/
 
+            # User-supplied kwargs take precedence over the defaults here
+            open_params = {
+                "variable": "CGF_NDSI_Snow_Cover",
+                "chunks": {},
+                **self.load_kwargs,
+            }
+
             if self.clip_to_bbox:
                 modis_snow = xr.concat(
                     [
-                        rxr.open_rasterio(
-                            file, variable="CGF_NDSI_Snow_Cover", chunks={}
-                        )["CGF_NDSI_Snow_Cover"]
+                        rxr.open_rasterio(file, **open_params)["CGF_NDSI_Snow_Cover"]
                         .squeeze()
                         .rio.clip_box(
                             *self.bbox_gdf.total_bounds, crs=self.bbox_gdf.crs
                         )
                         .assign_coords(
                             time=pd.to_datetime(
-                                rxr.open_rasterio(
-                                    file, variable="CGF_NDSI_Snow_Cover", chunks={}
-                                )
+                                rxr.open_rasterio(file, **open_params)
                                 .squeeze()
                                 .attrs["RANGEBEGINNINGDATE"]
                             )
@@ -3369,15 +3436,11 @@ class MODIS_snow:
             else:
                 modis_snow = xr.concat(
                     [
-                        rxr.open_rasterio(
-                            file, variable="CGF_NDSI_Snow_Cover", chunks={}
-                        )["CGF_NDSI_Snow_Cover"]
+                        rxr.open_rasterio(file, **open_params)["CGF_NDSI_Snow_Cover"]
                         .squeeze()
                         .assign_coords(
                             time=pd.to_datetime(
-                                rxr.open_rasterio(
-                                    file, variable="CGF_NDSI_Snow_Cover", chunks={}
-                                )
+                                rxr.open_rasterio(file, **open_params)
                                 .squeeze()
                                 .attrs["RANGEBEGINNINGDATE"]
                             )

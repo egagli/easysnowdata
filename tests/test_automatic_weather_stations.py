@@ -39,6 +39,12 @@ class TestGetAllStations:
         assert sc.all_stations.index.name == "code"
         assert "_" in sc.all_stations.index[0]
 
+    def test_kwargs_forwarded_to_read_file(self):
+        # rows= is a geopandas.read_file argument; it must reach the reader
+        limited = StationCollection(data_available=False, rows=10)
+        assert limited.read_file_kwargs == {"rows": 10}
+        assert len(limited.all_stations) == 10
+
 
 class TestChooseStations:
     def test_choose_by_string(self, sc):
@@ -76,6 +82,29 @@ class TestGetData:
         )
         assert sc.data.index.min() >= pd.Timestamp("2021-01-01")
         assert sc.data.index.max() <= pd.Timestamp("2021-01-31")
+
+    def test_single_station_kwargs_forwarded_to_read_csv(self, sc):
+        sc.get_data(
+            stations="679_WA_SNTL",
+            variables=["WTEQ"],
+            start_date="2020-01-01",
+            end_date="2020-03-31",
+            dtype={"WTEQ": "float32"},
+        )
+        assert sc.data["WTEQ"].dtype == "float32"
+
+    def test_multiple_stations_kwargs_forwarded_to_read_csv(self, sc):
+        # Pick two WA SNOTEL stations that are guaranteed to be in the index
+        stations = [c for c in sc.all_stations.index if c.endswith("_WA_SNTL")][:2]
+        sc.get_data(
+            stations=stations,
+            variables=["WTEQ"],
+            start_date="2020-01-01",
+            end_date="2020-03-31",
+            dtype={"WTEQ": "float32"},
+        )
+        assert isinstance(sc.data, xr.Dataset)
+        assert sc.data["WTEQ"].dtype == "float32"
 
     def test_multiple_stations_returns_dataset(self, sc):
         sc.get_data(

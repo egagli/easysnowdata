@@ -58,6 +58,10 @@ class StationCollection:
     sortby_dist_to_geom : GeoDataFrame or tuple or shapely geometry, optional
         If provided, stations are sorted by distance to this geometry and a
         ``dist_km`` column is added to ``all_stations``.
+    **kwargs
+        Additional keyword arguments passed to ``geopandas.read_file`` when
+        loading the station metadata GeoJSON (e.g. ``columns=[...]``,
+        ``engine="pyogrio"``).
 
     Attributes
     ----------
@@ -97,9 +101,11 @@ class StationCollection:
         self,
         data_available: bool = True,
         sortby_dist_to_geom: gpd.GeoDataFrame | tuple | None = None,
+        **kwargs,
     ) -> None:
         self.data_available = data_available
         self.sortby_dist_to_geom = sortby_dist_to_geom
+        self.read_file_kwargs = kwargs
 
         self.all_stations: gpd.GeoDataFrame | None = None
         self.stations: gpd.GeoDataFrame | None = None
@@ -120,14 +126,17 @@ class StationCollection:
         """Fetch all station metadata from GitHub and populate ``all_stations``.
 
         Optionally filters to stations with data files and sorts by distance
-        to ``sortby_dist_to_geom`` if provided.
+        to ``sortby_dist_to_geom`` if provided. Keyword arguments given to the
+        constructor are forwarded to ``geopandas.read_file``.
 
         Returns
         -------
         None
             Sets ``self.all_stations``.
         """
-        all_stations_gdf = gpd.read_file(_STATION_GEOJSON_URL).set_index("code")
+        all_stations_gdf = gpd.read_file(
+            _STATION_GEOJSON_URL, **self.read_file_kwargs
+        ).set_index("code")
 
         if self.data_available:
             all_stations_gdf = all_stations_gdf[all_stations_gdf["csvData"]]
@@ -175,6 +184,7 @@ class StationCollection:
         variables: str | list | None = None,
         start_date: str = "1900-01-01",
         end_date: str | None = None,
+        **kwargs,
     ) -> None:
         """Fetch data for the given stations and variables.
 
@@ -194,6 +204,11 @@ class StationCollection:
             ISO date string ``"YYYY-MM-DD"``. Default is ``"1900-01-01"``.
         end_date : str, optional
             ISO date string. Default is today's date.
+        **kwargs
+            Additional keyword arguments passed to ``pandas.read_csv`` for each
+            station CSV (e.g. ``dtype={"WTEQ": "float32"}`` or
+            ``storage_options=...``). These take precedence over the defaults
+            used here (``index_col="datetime"``, ``parse_dates=True``).
 
         Returns
         -------
@@ -207,7 +222,10 @@ class StationCollection:
 
         if len(self.stations) == 1:
             self.get_single_station_data(
-                variables=variables, start_date=start_date, end_date=end_date
+                variables=variables,
+                start_date=start_date,
+                end_date=end_date,
+                **kwargs,
             )
         else:
             if variables is None:
@@ -218,6 +236,7 @@ class StationCollection:
                 variables=variables or "WTEQ",
                 start_date=start_date,
                 end_date=end_date,
+                **kwargs,
             )
 
     def get_single_station_data(
@@ -225,6 +244,7 @@ class StationCollection:
         variables: list[str] | None = None,
         start_date: str = "1900-01-01",
         end_date: str | None = None,
+        **kwargs,
     ) -> None:
         """Fetch all (or selected) variables for the currently selected single station.
 
@@ -236,6 +256,10 @@ class StationCollection:
             ISO date string. Default ``"1900-01-01"``.
         end_date : str, optional
             ISO date string. Defaults to today.
+        **kwargs
+            Additional keyword arguments passed to ``pandas.read_csv``. These
+            take precedence over the defaults used here (``index_col="datetime"``,
+            ``parse_dates=True``).
 
         Returns
         -------
@@ -249,7 +273,8 @@ class StationCollection:
 
         station_code = self.stations.index[0]
         url = f"{_STATION_DATA_BASE_URL}{station_code}.csv"
-        df = pd.read_csv(url, index_col="datetime", parse_dates=True)
+        read_params = {"index_col": "datetime", "parse_dates": True, **kwargs}
+        df = pd.read_csv(url, **read_params)
 
         drop_cols = [c for c in df.columns if c not in variables]
         self.data = df.drop(columns=drop_cols).loc[start_date:end_date]
@@ -260,6 +285,7 @@ class StationCollection:
         variables: str | list[str] = "WTEQ",
         start_date: str = "1900-01-01",
         end_date: str | None = None,
+        **kwargs,
     ) -> None:
         """Fetch one or more variables for all currently selected stations.
 
@@ -271,6 +297,10 @@ class StationCollection:
             ISO date string. Default ``"1900-01-01"``.
         end_date : str, optional
             ISO date string. Defaults to today.
+        **kwargs
+            Additional keyword arguments passed to ``pandas.read_csv`` for each
+            station CSV. These take precedence over the defaults used here
+            (``index_col="datetime"``, ``parse_dates=True``).
 
         Returns
         -------
@@ -283,15 +313,14 @@ class StationCollection:
         if isinstance(variables, str):
             variables = [variables]
 
+        read_params = {"index_col": "datetime", "parse_dates": True, **kwargs}
         dataarrays = []
         for variable in variables:
             station_dict: dict[str, pd.Series] = {}
             for station in tqdm.tqdm(self.stations.index, desc=variable):
                 try:
                     url = f"{_STATION_DATA_BASE_URL}{station}.csv"
-                    tmp = pd.read_csv(url, index_col="datetime", parse_dates=True)[
-                        variable
-                    ]
+                    tmp = pd.read_csv(url, **read_params)[variable]
                     station_dict[station] = tmp
                 except Exception as exc:
                     _logger.warning(
@@ -322,7 +351,7 @@ class StationCollection:
         _logger.info("Loaded %s for %d stations.", variables, len(self.stations))
 
     def get_entire_data_archive(
-        self, refresh: bool = True, temp_dir: str = "/tmp/"
+        self, refresh: bool = True, temp_dir: str = "/tmp/", **kwargs
     ) -> xr.Dataset:
         """Download, decompress, and assemble the full station data archive.
 
@@ -333,6 +362,10 @@ class StationCollection:
             Default is ``True``.
         temp_dir : str, optional
             Local directory for the downloaded archive. Default is ``"/tmp/"``.
+        **kwargs
+            Additional keyword arguments passed to ``pandas.read_csv`` for each
+            CSV in the archive. These take precedence over the default used
+            here (``parse_dates=True``).
 
         Returns
         -------
@@ -360,11 +393,12 @@ class StationCollection:
             )
 
         _logger.info("Building xarray.Dataset from decompressed CSVs …")
+        read_params = {"parse_dates": True, **kwargs}
         datasets = []
         for csv_file in glob.glob(str(decompressed_dir / "*.csv")):
             station_name = pathlib.Path(csv_file).stem
             df = (
-                pd.read_csv(csv_file, parse_dates=True)
+                pd.read_csv(csv_file, **read_params)
                 .rename(columns={"datetime": "time"})
                 .set_index("time")
                 .sort_index()
