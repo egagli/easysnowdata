@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
+## [v0.0.25](https://github.com/egagli/easysnowdata/releases/tag/v0.0.25) - 2026-08-25
+
+<small>[Compare with v0.0.24](https://github.com/egagli/easysnowdata/compare/v0.0.24...v0.0.25)</small>
+
+### Added
+
+- add kwargs to functions ([730fa84](https://github.com/egagli/easysnowdata/commit/730fa84e2440c2ca1cd07ef76e528d0f21646d25) by egagli).
+
+### Fixed
+
+- fix EE config stuff ([46d870c](https://github.com/egagli/easysnowdata/commit/46d870c80f622b9a6f34eb94a6b3dceefd919fa1) by egagli).
+
 ## [v0.0.24](https://github.com/egagli/easysnowdata/releases/tag/v0.0.24) - 2026-06-15
 
 <small>[Compare with v0.0.23](https://github.com/egagli/easysnowdata/compare/v0.0.23...v0.0.24)</small>
