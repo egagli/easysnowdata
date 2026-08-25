@@ -19,7 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 SENTINEL_START = "<!-- DATA_STATUS_START -->"
@@ -73,7 +73,7 @@ def build_table(history: list[list[dict]]) -> str:
                     cells.append(emoji)
         rows.append(f"| {source} | " + " | ".join(cells) + " |")
 
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    now = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
     note = f"_Last updated: {now}_  \n_⚠️ = skipped (credentials not available in this run)_\n"
 
     return "\n".join([note, header, separator] + rows) + "\n"

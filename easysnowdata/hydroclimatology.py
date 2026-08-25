@@ -21,6 +21,8 @@ import xarray as xr
 from easysnowdata.utils import (
     _has_earthengine_credentials,
     convert_bbox_to_geodataframe,
+    get_ee_grid_params,
+    initialize_earthengine,
     requires_earthaccess,
     requires_earthengine,
 )
@@ -87,7 +89,7 @@ def get_huc_geometries(
     https://doi.org/10.3133/tm11A3
     """
 
-    ee.Initialize(opt_url="https://earthengine-highvolume.googleapis.com")
+    initialize_earthengine()
 
     # Convert bounding box to feature collection to use as region for querying HUC geometries
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
@@ -535,7 +537,7 @@ def get_era5(
             )
         # Initialize Earth Engine if requested
         if initialize_ee:
-            ee.Initialize(opt_url="https://earthengine-highvolume.googleapis.com")
+            initialize_earthengine()
         else:
             _logger.info(
                 "Earth Engine initialization skipped. Please ensure EE is initialized."
@@ -574,29 +576,17 @@ def get_era5(
                 variables = [variables]
             image_collection = image_collection.select(variables)
 
-        # Get projection from first image
-        image = image_collection.first()
-        projection = image.select(0).projection()
+        # Match the collection's native grid, cropped to the bbox (if given)
+        grid = get_ee_grid_params(image_collection.first(), bbox_gdf)
 
-        # Prepare geometry for GEE
-        geometry = None
-        if bbox_gdf is not None:
-            geometry = tuple(bbox_gdf.total_bounds)
+        # Load dataset (xee >= 0.1 returns dims ordered (time, y, x))
+        ds = xr.open_dataset(image_collection, engine="ee", chunks=None, **grid)
 
-        # Load dataset
-        ds = xr.open_dataset(
-            image_collection,
-            engine="ee",
-            geometry=geometry,
-            projection=projection,
-            chunks=None,
-        )
-
-        # Clean up dimensions and coordinate names
+        # Clean up coordinate names
         ds = (
-            ds.transpose("time", "lat", "lon")
-            .rename({"lat": "latitude", "lon": "longitude"})
+            ds.rename({"y": "latitude", "x": "longitude"})
             .rio.set_spatial_dims(x_dim="longitude", y_dim="latitude")
+            .rio.write_crs(grid["crs"])
         )
 
         # Add metadata
@@ -705,7 +695,7 @@ def get_snodas(
 
     # Initialize Earth Engine if requested
     if initialize_ee:
-        ee.Initialize(opt_url="https://earthengine-highvolume.googleapis.com")
+        initialize_earthengine()
     else:
         _logger.info(
             "Earth Engine initialization skipped. Please ensure EE is initialized."
@@ -743,33 +733,19 @@ def get_snodas(
             )
         image_collection = image_collection.select(variables)
 
-    # Get projection from first image
-    image = image_collection.first()
-    projection = image.select(0).projection()
+    # Match the collection's native grid, cropped to the bbox (if given)
+    grid = get_ee_grid_params(image_collection.first(), bbox_gdf)
 
-    # Prepare geometry for GEE
-    geometry = None
-    if bbox_gdf is not None:
-        geometry = tuple(bbox_gdf.total_bounds)
+    # Load dataset using xee (xee >= 0.1 returns dims ordered (time, y, x))
+    ds = xr.open_dataset(image_collection, engine="ee", chunks=None, **grid)
 
-    # Load dataset using xee
-    ds = xr.open_dataset(
-        image_collection,
-        engine="ee",
-        geometry=geometry,
-        projection=projection,
-        chunks=None,
-    )
-
-    # Clean up dimensions and coordinate names
-    ds = (
-        ds.transpose("time", "lat", "lon")
-        .rename({"lat": "latitude", "lon": "longitude"})
-        .rio.set_spatial_dims(x_dim="longitude", y_dim="latitude")
+    # Clean up coordinate names
+    ds = ds.rename({"y": "latitude", "x": "longitude"}).rio.set_spatial_dims(
+        x_dim="longitude", y_dim="latitude"
     )
 
     # Set coordinate reference system
-    ds.rio.write_crs("EPSG:4326", inplace=True)
+    ds.rio.write_crs(grid["crs"], inplace=True)
 
     # Add variable attributes
     if "Snow_Depth" in ds.data_vars:

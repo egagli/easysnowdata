@@ -46,7 +46,9 @@ from easysnowdata.utils import (
     _EARTHACCESS_SETUP_MSG,
     _EE_SETUP_MSG,
     convert_bbox_to_geodataframe,
+    get_ee_grid_params,
     get_stac_cfg,
+    initialize_earthengine,
     requires_earthengine,
     suppress_stdout,
 )
@@ -744,7 +746,7 @@ def get_nlcd_landcover(
     """
     # Initialize Earth Engine with high-volume endpoint
     if initialize_ee:
-        ee.Initialize(opt_url="https://earthengine-highvolume.googleapis.com")
+        initialize_earthengine()
     else:
         _logger.info(
             "Earth Engine initialization skipped. Ensure EE is already initialized."
@@ -756,20 +758,14 @@ def get_nlcd_landcover(
     image_collection = ee.ImageCollection("USGS/NLCD_RELEASES/2021_REL/NLCD")
     image = image_collection.first()
 
-    projection = image.select(0).projection()
+    # Match NLCD's native 30 m Albers grid, cropped to the bbox
+    grid = get_ee_grid_params(image, bbox_gdf)
 
     ds = (
-        xr.open_dataset(
-            image_collection,
-            engine="ee",
-            geometry=tuple(bbox_gdf.total_bounds),
-            projection=projection,
-            chunks={},
-        )
+        xr.open_dataset(image_collection, engine="ee", chunks={}, **grid)
         .squeeze()
-        .transpose()
-        .rename({"X": "x", "Y": "y"})
         .rio.set_spatial_dims(x_dim="x", y_dim="y")
+        .rio.write_crs(grid["crs"])
         .astype("uint8")
     )
 
@@ -2069,14 +2065,14 @@ class Sentinel1:
         import math
         from collections import Counter
 
-        import xee
+        from xee import helpers as xee_helpers
 
         # Use object's resolution if none provided
         calc_resolution = resolution or self.resolution or 30
 
         # Initialize Earth Engine with high-volume endpoint
         if initialize_ee:
-            ee.Initialize(opt_url="https://earthengine-highvolume.googleapis.com")
+            initialize_earthengine()
         else:
             _logger.info(
                 "Earth Engine initialization skipped. Ensure EE is already initialized."
@@ -2188,8 +2184,14 @@ class Sentinel1:
         # Create list to store DataArrays for each orbit
         orbit_arrays = []
 
-        # Create standard projection based on the most common CRS
-        standard_projection = ee.Projection(most_common_crs).atScale(calc_resolution)
+        # Output grid for xee (>= 0.1 requires an explicit pixel grid): the most
+        # common CRS at the requested resolution, covering the bbox
+        grid = xee_helpers.fit_geometry(
+            shapely.geometry.box(*self.bbox_gdf.total_bounds),
+            geometry_crs=str(self.bbox_gdf.crs or "EPSG:4326"),
+            grid_crs=most_common_crs,
+            grid_scale=(calc_resolution, -calc_resolution),
+        )
 
         # Process each orbit
         for orbit in orbit_list:
@@ -2219,11 +2221,7 @@ class Sentinel1:
                 # Use xee to convert to xarray
                 try:
                     ds = xr.open_dataset(
-                        orbit_collection,
-                        engine="ee",
-                        geometry=bbox,
-                        projection=standard_projection,
-                        chunks={},
+                        orbit_collection, engine="ee", chunks={}, **grid
                     )
 
                     # Extract the DataArray
@@ -2286,9 +2284,9 @@ class Sentinel1:
             )
 
             lia_da = (
-                lia_da.transpose("sat:relative_orbit", "Y", "X")
-                .rename({"X": "x", "Y": "y"})
+                lia_da.transpose("sat:relative_orbit", "y", "x")
                 .rio.set_spatial_dims(x_dim="x", y_dim="y")
+                .rio.write_crs(grid["crs"])
             )
             lia_da = lia_da.sortby("sat:relative_orbit")
             # should be in range from 0 to 90

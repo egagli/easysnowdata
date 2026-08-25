@@ -107,3 +107,19 @@ class TestEsaWorldcover:
 
         with pytest.raises(ValueError):
             get_esa_worldcover(bbox_input=TEST_BBOX, version="v999")
+
+
+# ---------------------------------------------------------------------------
+# NLCD land cover (Google Earth Engine — EARTHENGINE_TOKEN required)
+# ---------------------------------------------------------------------------
+class TestNlcdLandcover:
+    @pytest.mark.requires_earthengine
+    def test_returns_uint8_dataarray_y_x(self):
+        from easysnowdata.remote_sensing import get_nlcd_landcover
+
+        result = get_nlcd_landcover(bbox_input=TEST_BBOX, layer="landcover")
+        assert isinstance(result, xr.DataArray)
+        assert result.dims == ("y", "x")
+        assert result.dtype == "uint8"
+        assert "class_info" in result.attrs
+        assert result.rio.crs is not None

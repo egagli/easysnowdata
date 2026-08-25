@@ -23,7 +23,9 @@ odc.stac.configure_rio(cloud_defaults=True)
 
 from easysnowdata.utils import (
     convert_bbox_to_geodataframe,
+    get_ee_grid_params,
     get_stac_cfg,
+    initialize_earthengine,
     requires_earthengine,
 )
 
@@ -137,26 +139,20 @@ def get_chili(
         https://doi.org/10.1371/journal.pone.0143619
     """
     if initialize_ee:
-        ee.Initialize(opt_url="https://earthengine-highvolume.googleapis.com")
+        initialize_earthengine()
 
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
 
     image = ee.Image("CSP/ERGo/1_0/Global/ALOS_CHILI")
-    crs = image.projection().getInfo()["crs"]
-    transform = image.projection().getInfo()["transform"]
+    # Match CHILI's native ~90 m grid, cropped to the bbox
+    grid = get_ee_grid_params(image, bbox_gdf)
 
     chili_da = (
-        xr.open_dataset(
-            ee.ImageCollection(image),
-            engine="ee",
-            geometry=tuple(bbox_gdf.total_bounds),
-            projection=ee.Projection(crs=crs, transform=transform),
-        )
-        .drop_vars("time")
-        .squeeze()["constant"]
-        .squeeze()
-        .transpose()
+        xr.open_dataset(ee.ImageCollection(image), engine="ee", **grid)
+        .isel(time=0, drop=True)["constant"]
+        .rename({"y": "lat", "x": "lon"})
         .rio.set_spatial_dims(x_dim="lon", y_dim="lat")
+        .rio.write_crs(grid["crs"])
     )
     chili_da = chili_da.rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs)
 

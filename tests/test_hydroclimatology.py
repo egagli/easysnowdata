@@ -134,6 +134,8 @@ class TestSnodas:
         )
         assert isinstance(result, xr.Dataset)
         assert "SWE" in result.data_vars or "Snow_Depth" in result.data_vars
+        assert result["SWE"].dims == ("time", "latitude", "longitude")
+        assert result.rio.crs is not None
 
     @pytest.mark.requires_earthengine
     def test_invalid_variable_raises(self):
@@ -146,6 +148,26 @@ class TestSnodas:
                 end_date="2020-01-03",
                 variables=["NotAVariable"],
             )
+
+
+class TestEra5Gee:
+    @pytest.mark.requires_earthengine
+    def test_gee_returns_dataset_time_lat_lon(self):
+        from easysnowdata.hydroclimatology import get_era5
+
+        result = get_era5(
+            bbox_input=TEST_BBOX,
+            source="GEE",
+            version="ERA5_LAND",
+            cadence="DAILY",
+            start_date="2020-01-01",
+            end_date="2020-01-03",
+            variables=["temperature_2m"],
+        )
+        assert isinstance(result, xr.Dataset)
+        assert result["temperature_2m"].dims == ("time", "latitude", "longitude")
+        assert result.sizes["time"] == 3
+        assert result.rio.crs is not None
 
 
 # ---------------------------------------------------------------------------

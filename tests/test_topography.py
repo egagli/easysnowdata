@@ -70,3 +70,11 @@ class TestChili:
 
         result = get_chili(bbox_input=TEST_BBOX)
         assert "data_citation" in result.attrs
+
+    @pytest.mark.requires_earthengine
+    def test_dims_are_lat_lon_with_crs(self):
+        from easysnowdata.topography import get_chili
+
+        result = get_chili(bbox_input=TEST_BBOX)
+        assert result.dims == ("lat", "lon")
+        assert result.rio.crs is not None

@@ -26,7 +26,7 @@ import argparse
 import json
 import os
 import traceback
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Callable
 
@@ -62,7 +62,7 @@ def _check(
     requires_env: list[str] | None = None,
 ) -> dict:
     """Run *fn* and return a result dict."""
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     if requires_env:
         missing = [v for v in requires_env if not os.getenv(v)]
         if missing:
@@ -201,20 +201,42 @@ def check_esa_worldcover_planetary_computer() -> None:
 
 
 def _init_ee_from_token() -> None:
+    """Initialise Earth Engine from EARTHENGINE_TOKEN.
+
+    Accepts a Google service-account key JSON or the JSON stored in
+    ~/.config/earthengine/credentials (client_id/client_secret/refresh_token),
+    either raw or base64-encoded. Mirrors easysnowdata.utils.initialize_earthengine.
+    """
+    import base64
+    import re
+
     import google.oauth2.credentials
     import ee
 
-    stored = json.loads(os.environ["EARTHENGINE_TOKEN"])
-    credentials = google.oauth2.credentials.Credentials(
-        None,
-        token_uri="https://oauth2.googleapis.com/token",
-        client_id=stored["client_id"],
-        client_secret=stored["client_secret"],
-        refresh_token=stored["refresh_token"],
-        quota_project_id=stored["project"],
-    )
+    raw = os.environ["EARTHENGINE_TOKEN"].strip()
+    try:
+        info = json.loads(raw)
+    except json.JSONDecodeError:
+        raw = base64.b64decode(re.sub(r"\s+", "", raw)).decode()
+        info = json.loads(raw)
+
+    if info.get("type") == "service_account":
+        credentials = ee.ServiceAccountCredentials(info["client_email"], key_data=raw)
+        project = info.get("project_id")
+    else:
+        credentials = google.oauth2.credentials.Credentials(
+            None,
+            token_uri="https://oauth2.googleapis.com/token",
+            client_id=info.get("client_id", ee.oauth.CLIENT_ID),
+            client_secret=info.get("client_secret", ee.oauth.CLIENT_SECRET),
+            refresh_token=info["refresh_token"],
+            scopes=info.get("scopes"),
+            quota_project_id=info.get("project"),
+        )
+        project = info.get("project")
     ee.Initialize(
         credentials=credentials,
+        project=project,
         opt_url="https://earthengine-highvolume.googleapis.com",
     )
 
