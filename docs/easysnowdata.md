@@ -1,4 +1,0 @@
- 
-# easysnowdata module
-
-::: easysnowdata.easysnowdata

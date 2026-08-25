@@ -10,7 +10,6 @@ import datetime
 import logging
 import os
 
-import dask
 import earthaccess
 import ee
 import geopandas as gpd
@@ -27,6 +26,19 @@ import shapely
 import skimage
 import xarray as xr
 
+from easysnowdata.utils import (
+    _EARTHACCESS_SETUP_MSG,
+    CredentialError,
+    HLS_xml_url_to_metadata_df,
+    _has_earthaccess_credentials,
+    convert_bbox_to_geodataframe,
+    get_ee_grid_params,
+    get_stac_cfg,
+    initialize_earthengine,
+    requires_earthengine,
+    suppress_stdout,
+)
+
 odc.stac.configure_rio(cloud_defaults=True)
 xr.set_options(keep_attrs=True)
 
@@ -38,20 +50,6 @@ rio_env = rio.Env(
     GDAL_HTTP_COOKIEJAR=os.path.expanduser("~/cookies.txt"),
 )
 rio_env.__enter__()
-
-from easysnowdata.utils import (
-    CredentialError,
-    HLS_xml_url_to_metadata_df,
-    _has_earthaccess_credentials,
-    _EARTHACCESS_SETUP_MSG,
-    _EE_SETUP_MSG,
-    convert_bbox_to_geodataframe,
-    get_ee_grid_params,
-    get_stac_cfg,
-    initialize_earthengine,
-    requires_earthengine,
-    suppress_stdout,
-)
 
 __all__ = [
     "authenticate_all",
@@ -488,7 +486,7 @@ def get_seasonal_mountain_snow_mask(
 
         return f, ax
 
-    print(f"This function takes a moment, getting zipped file from zenodo...")
+    print("This function takes a moment, getting zipped file from zenodo...")
     # Convert the input to a GeoDataFrame if it's not already one
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
 
@@ -1040,7 +1038,7 @@ class Sentinel2:
 
         self.bbox_gdf = convert_bbox_to_geodataframe(self.bbox_input)
 
-        if self.crs == None:
+        if self.crs is None:
             self.crs = self.bbox_gdf.estimate_utm_crs()
 
         # Define the band information
@@ -1349,7 +1347,7 @@ class Sentinel2:
             datetime=(self.start_date, self.end_date),
         )
         self.search = search
-        print(f"Data searched. Access the returned seach with the .search attribute.")
+        print("Data searched. Access the returned seach with the .search attribute.")
 
     def get_data(self):
         """
@@ -1402,7 +1400,7 @@ class Sentinel2:
             )
 
         self.metadata = metadata_gdf
-        print(f"Metadata retrieved. Access with the .metadata attribute.")
+        print("Metadata retrieved. Access with the .metadata attribute.")
 
     def remove_nodata_inplace(self):
         """
@@ -1418,11 +1416,11 @@ class Sentinel2:
                 data_removed = True
         if data_removed:
             print(
-                f"Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False."
+                "Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False."
             )
         else:
             print(
-                f"Tried to remove nodata values and set them to nans, but no nodata values found in the data."
+                "Tried to remove nodata values and set them to nans, but no nodata values found in the data."
             )
 
     def mask_data(
@@ -1485,12 +1483,12 @@ class Sentinel2:
         if remove_snow_ice:
             mask_list.append(11)
 
-        print(f"Removed pixels with the following scene classification values:")
+        print("Removed pixels with the following scene classification values:")
         for val in mask_list:
             print(self.scl_class_info[val]["name"])
 
         scl = self.data.scl
-        mask = scl.where(scl.isin(mask_list) == False, 0)
+        mask = scl.where(~scl.isin(mask_list), 0)
         self.data = self.data.where(mask != 0)
 
     def harmonize_to_old_inplace(self):
@@ -1532,7 +1530,7 @@ class Sentinel2:
         self.data = xr.concat([old, new], dim="time")
 
         print(
-            f"Data acquired after January 25th, 2022 harmonized to old baseline. To override this behavior, set harmonize_to_old=False."
+            "Data acquired after January 25th, 2022 harmonized to old baseline. To override this behavior, set harmonize_to_old=False."
         )
 
     def scale_data_inplace(self):
@@ -1558,7 +1556,7 @@ class Sentinel2:
             self.data[band] = self.data[band] * scale_factor
 
         print(
-            f"Data scaled to float reflectance. To turn this behavior off, set scale_data=False."
+            "Data scaled to float reflectance. To turn this behavior off, set scale_data=False."
         )
 
     def get_rgb(
@@ -1610,7 +1608,7 @@ class Sentinel2:
         self.rgb_clahe = self.get_rgb_clahe(**clahe_kwargs)
 
         print(
-            f"RGB data retrieved.\nAccess with the following attributes:\n.rgb for raw RGB,\n.rgba for RGBA,\n.rgb_percentile for percentile RGB,\n.rgb_clahe for CLAHE RGB.\nYou can pass in percentile_kwargs and clahe_kwargs to adjust RGB calculations, check documentation for options."
+            "RGB data retrieved.\nAccess with the following attributes:\n.rgb for raw RGB,\n.rgba for RGBA,\n.rgb_percentile for percentile RGB,\n.rgb_clahe for CLAHE RGB.\nYou can pass in percentile_kwargs and clahe_kwargs to adjust RGB calculations, check documentation for options."
         )
 
     def get_rgb_percentile(self, **percentile_kwargs):
@@ -1714,7 +1712,7 @@ class Sentinel2:
 
         self.ndvi = ndvi_da
 
-        print(f"NDVI data calculated. Access with the .ndvi attribute.")
+        print("NDVI data calculated. Access with the .ndvi attribute.")
 
     def get_ndsi(self):
         """
@@ -1730,7 +1728,7 @@ class Sentinel2:
 
         self.ndsi = ndsi_da
 
-        print(f"NDSI data calculated. Access with the .ndsi attribute.")
+        print("NDSI data calculated. Access with the .ndsi attribute.")
 
     def get_ndwi(self):
         """
@@ -1746,7 +1744,7 @@ class Sentinel2:
 
         self.ndwi = ndwi_da
 
-        print(f"NDWI data calculated. Access with the .ndwi attribute.")
+        print("NDWI data calculated. Access with the .ndwi attribute.")
 
     def get_evi(self):
         """
@@ -1764,7 +1762,7 @@ class Sentinel2:
 
         self.evi = evi_da
 
-        print(f"EVI data calculated. Access with the .evi attribute.")
+        print("EVI data calculated. Access with the .evi attribute.")
 
     def get_ndbi(self):
         """
@@ -1780,7 +1778,7 @@ class Sentinel2:
 
         self.ndbi = ndbi_da
 
-        print(f"NDBI data calculated. Access with the .ndbi attribute.")
+        print("NDBI data calculated. Access with the .ndbi attribute.")
 
 
 class Sentinel1:
@@ -1950,7 +1948,7 @@ class Sentinel1:
         #     )
 
         self.search = search
-        print(f"Data searched. Access the returned seach with the .search attribute.")
+        print("Data searched. Access the returned seach with the .search attribute.")
 
     def get_data(self):
         """
@@ -1988,7 +1986,7 @@ class Sentinel1:
         metadata_gdf = gpd.GeoDataFrame.from_features(stac_json, "epsg:4326")
 
         self.metadata = metadata_gdf
-        print(f"Metadata retrieved. Access with the .metadata attribute.")
+        print("Metadata retrieved. Access with the .metadata attribute.")
 
     # def remove_border_noise(self,threshold=0.001):
     #     """
@@ -2017,7 +2015,7 @@ class Sentinel1:
         result.rio.write_crs(original_crs, inplace=True)
 
         self.data = result
-        print(f"Falsely low scenes and border noise removed from the data.")
+        print("Falsely low scenes and border noise removed from the data.")
 
     def linear_to_db(self):
         """
@@ -2026,7 +2024,7 @@ class Sentinel1:
         self.data = 10 * np.log10(self.data)
         self.data.attrs["units"] = "dB"
         print(
-            f"Linear power units converted to dB. Convert back to linear power units using the .db_to_linear() method."
+            "Linear power units converted to dB. Convert back to linear power units using the .db_to_linear() method."
         )
 
     def db_to_linear(self):
@@ -2036,7 +2034,7 @@ class Sentinel1:
         self.data = 10 ** (self.data / 10)
         self.data.attrs["units"] = "linear power"
         print(
-            f"dB converted to linear power units. Convert back to dB using the .linear_to_db() method."
+            "dB converted to linear power units. Convert back to dB using the .linear_to_db() method."
         )
 
     def add_orbit_info(self):
@@ -2057,9 +2055,7 @@ class Sentinel1:
                 )
             }
         )
-        print(
-            f"Added relative orbit number and orbit state as coordinates to the data."
-        )
+        print("Added relative orbit number and orbit state as coordinates to the data.")
 
     @property
     def local_incidence_angle_data(self):
@@ -2497,7 +2493,7 @@ class HLS:
 
         self.bbox_gdf = convert_bbox_to_geodataframe(self.bbox_input)
 
-        if self.crs == None:
+        if self.crs is None:
             self.crs = self.bbox_gdf.estimate_utm_crs()
 
         # Define the band information
@@ -2724,7 +2720,7 @@ class HLS:
         self.search_landsat = landsat_search
         self.search_sentinel = sentinel_search
         print(
-            f"Data searched. Access the returned seach with the .search_landsat or .search_sentinel attribute."
+            "Data searched. Access the returned seach with the .search_landsat or .search_sentinel attribute."
         )
 
     def get_data(self):
@@ -2810,11 +2806,11 @@ class HLS:
                 data_removed = True
         if data_removed:
             print(
-                f"Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False."
+                "Nodata values removed from the data. In doing so, all bands converted to float32. To turn this behavior off, set remove_nodata=False."
             )
         else:
             print(
-                f"Tried to remove nodata values and set them to nans, but no nodata values found in the data."
+                "Tried to remove nodata values and set them to nans, but no nodata values found in the data."
             )
 
     def mask_data(
@@ -2899,9 +2895,9 @@ class HLS:
         self.data = self.data.where(mask == 0)
 
         print(
-            f"WARNING: The cloud masking is pretty bad over snow and ice. Use with caution."
+            "WARNING: The cloud masking is pretty bad over snow and ice. Use with caution."
         )
-        print(f"Data masked. Using Fmask, removed pixels classified as:")
+        print("Data masked. Using Fmask, removed pixels classified as:")
         for val in mask_list:
             print(self.Fmask_mask_info[val]["name"])
 
@@ -2959,7 +2955,7 @@ class HLS:
 
         self.metadata = combined_metadata_gdf
         print(
-            f"Metadata retrieved. Access with the .metadata attribute. To turn this behavior off, set add_metadata=False."
+            "Metadata retrieved. Access with the .metadata attribute. To turn this behavior off, set add_metadata=False."
         )
 
     def add_platform_inplace(self):
@@ -3021,7 +3017,7 @@ class HLS:
         )
 
         print(
-            f"Platform, geometry, cloud cover, browse URLs added to data as coordinates. Access with the .data attribute. To turn this behavior off, set add_platform=False."
+            "Platform, geometry, cloud cover, browse URLs added to data as coordinates. Access with the .data attribute. To turn this behavior off, set add_platform=False."
         )
 
     def scale_data_inplace(self):
@@ -3043,7 +3039,7 @@ class HLS:
         # Apply the function to each data variable in the Dataset
         self.data = self.data.apply(scale_var, keep_attrs=True)
         print(
-            f"Data scaled to reflectance. Access with the .data attribute. To turn this behavior off, set scale_data=False."
+            "Data scaled to reflectance. Access with the .data attribute. To turn this behavior off, set scale_data=False."
         )
 
     # def get_rgb(self):
@@ -3108,7 +3104,7 @@ class HLS:
         self.rgb_clahe = self.get_rgb_clahe(**clahe_kwargs)
 
         print(
-            f"RGB data retrieved.\nAccess with the following attributes:\n.rgb for raw RGB,\n.rgba for RGBA,\n.rgb_percentile for percentile RGB,\n.rgb_clahe for CLAHE RGB.\nYou can pass in percentile_kwargs and clahe_kwargs to adjust RGB calculations, check documentation for options."
+            "RGB data retrieved.\nAccess with the following attributes:\n.rgb for raw RGB,\n.rgba for RGBA,\n.rgb_percentile for percentile RGB,\n.rgb_clahe for CLAHE RGB.\nYou can pass in percentile_kwargs and clahe_kwargs to adjust RGB calculations, check documentation for options."
         )
 
     def get_rgb_percentile(self, **percentile_kwargs):
@@ -3212,7 +3208,7 @@ class HLS:
 
         self.ndvi = ndvi_da
 
-        print(f"NDVI data calculated. Access with the .ndvi attribute.")
+        print("NDVI data calculated. Access with the .ndvi attribute.")
 
 
 class MODIS_snow:

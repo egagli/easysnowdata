@@ -25,7 +25,6 @@ from bs4 import BeautifulSoup
 
 if TYPE_CHECKING:
     import ee
-    import xarray as xr
 
 __all__ = [
     "CredentialError",

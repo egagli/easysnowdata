@@ -13,11 +13,12 @@ __all__ = [
     "CredentialError",
 ]
 
-import easysnowdata.utils
-import easysnowdata.remote_sensing
-import easysnowdata.automatic_weather_stations
-import easysnowdata.topography
-import easysnowdata.hydroclimatology
-
-from easysnowdata.utils import CredentialError
+from easysnowdata import (
+    automatic_weather_stations,
+    hydroclimatology,
+    remote_sensing,
+    topography,
+    utils,
+)
 from easysnowdata.remote_sensing import authenticate_all
+from easysnowdata.utils import CredentialError

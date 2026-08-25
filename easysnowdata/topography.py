@@ -15,19 +15,18 @@ import geopandas as gpd
 import odc.stac
 import planetary_computer
 import pystac_client
-import rioxarray as rxr
+import rioxarray  # noqa: F401  (registers the ``.rio`` accessor used below)
 import shapely
 import xarray as xr
-
-odc.stac.configure_rio(cloud_defaults=True)
 
 from easysnowdata.utils import (
     convert_bbox_to_geodataframe,
     get_ee_grid_params,
-    get_stac_cfg,
     initialize_earthengine,
     requires_earthengine,
 )
+
+odc.stac.configure_rio(cloud_defaults=True)
 
 __all__ = ["get_copernicus_dem", "get_chili"]
 

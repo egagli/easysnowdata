@@ -33,6 +33,7 @@ dask = "*"
 zarr = "*"
 gcsfs = "*"
 fsspec = "*"
+h5netcdf = "*"
 
 [feature.dev.dependencies]
 pytest = "*"

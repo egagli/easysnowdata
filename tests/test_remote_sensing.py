@@ -76,6 +76,7 @@ class TestForestCoverFraction:
 
     def test_values_non_negative(self):
         import numpy as np
+
         from easysnowdata.remote_sensing import get_forest_cover_fraction
 
         result = get_forest_cover_fraction(bbox_input=TEST_BBOX)

@@ -19,7 +19,6 @@ import pathlib
 import subprocess
 
 import geopandas as gpd
-import numpy as np
 import pandas as pd
 import tqdm
 import xarray as xr
@@ -86,7 +85,7 @@ class StationCollection:
     Multi-station retrieval (returns an xarray Dataset):
 
     >>> sc = StationCollection()
-    >>> sc.get_data(stations=["679_WA_SNTL", "680_WA_SNTL"],
+    >>> sc.get_data(stations=["679_WA_SNTL", "642_WA_SNTL"],
     ...             variables=["WTEQ"],
     ...             start_date="2022-01-01", end_date="2022-03-31")
     >>> sc.data
@@ -163,7 +162,7 @@ class StationCollection:
         ----------
         stations_input : str, list of str, or geopandas.GeoDataFrame
             Station code(s) to select (e.g. ``"679_WA_SNTL"`` or
-            ``["679_WA_SNTL", "680_WA_SNTL"]``), or a GeoDataFrame already
+            ``["679_WA_SNTL", "642_WA_SNTL"]``), or a GeoDataFrame already
             filtered from ``all_stations``.
 
         Returns

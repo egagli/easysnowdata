@@ -41,6 +41,9 @@ dependencies = [
     "scikit-image",
     "tqdm",
     "dask",
+    "zarr",
+    "gcsfs",
+    "h5netcdf",
 ]
 
 [project.urls]
@@ -72,6 +75,17 @@ replace = 'version = "{new_version}"'
 filename = "easysnowdata/__init__.py"
 search = '__version__ = "{current_version}"'
 replace = '__version__ = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "CITATION.cff"
+search = "version: v{current_version}"
+replace = "version: v{new_version}"
+
+[[tool.bumpversion.files]]
+filename = "CITATION.cff"
+regex = true
+search = "date-released: '\\d{{4}}-\\d{{2}}-\\d{{2}}'"
+replace = "date-released: '{now:%Y-%m-%d}'"
 
 [tool.ruff]
 target-version = "py311"

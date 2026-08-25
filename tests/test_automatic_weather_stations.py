@@ -6,8 +6,8 @@ No API credentials required.
 
 from __future__ import annotations
 
-import pandas as pd
 import geopandas as gpd
+import pandas as pd
 import pytest
 import xarray as xr
 
@@ -53,7 +53,7 @@ class TestChooseStations:
         assert sc.stations.index[0] == "679_WA_SNTL"
 
     def test_choose_by_list(self, sc):
-        sc.choose_stations(["679_WA_SNTL", "680_WA_SNTL"])
+        sc.choose_stations(["679_WA_SNTL", "642_WA_SNTL"])
         assert len(sc.stations) == 2
 
     def test_choose_by_geodataframe(self, sc):
@@ -94,10 +94,8 @@ class TestGetData:
         assert sc.data["WTEQ"].dtype == "float32"
 
     def test_multiple_stations_kwargs_forwarded_to_read_csv(self, sc):
-        # Pick two WA SNOTEL stations that are guaranteed to be in the index
-        stations = [c for c in sc.all_stations.index if c.endswith("_WA_SNTL")][:2]
         sc.get_data(
-            stations=stations,
+            stations=["679_WA_SNTL", "642_WA_SNTL"],
             variables=["WTEQ"],
             start_date="2020-01-01",
             end_date="2020-03-31",
@@ -108,7 +106,7 @@ class TestGetData:
 
     def test_multiple_stations_returns_dataset(self, sc):
         sc.get_data(
-            stations=["679_WA_SNTL", "680_WA_SNTL"],
+            stations=["679_WA_SNTL", "642_WA_SNTL"],
             variables=["WTEQ"],
             start_date="2020-01-01",
             end_date="2020-03-31",
@@ -118,7 +116,7 @@ class TestGetData:
 
     def test_multiple_stations_has_wy_coord(self, sc):
         sc.get_data(
-            stations=["679_WA_SNTL", "680_WA_SNTL"],
+            stations=["679_WA_SNTL", "642_WA_SNTL"],
             variables=["WTEQ"],
             start_date="2020-01-01",
             end_date="2020-03-31",
@@ -127,7 +125,7 @@ class TestGetData:
 
     def test_multiple_stations_has_dowy_coord(self, sc):
         sc.get_data(
-            stations=["679_WA_SNTL", "680_WA_SNTL"],
+            stations=["679_WA_SNTL", "642_WA_SNTL"],
             variables=["WTEQ"],
             start_date="2020-01-01",
             end_date="2020-03-31",

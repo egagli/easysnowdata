@@ -13,13 +13,11 @@ import matplotlib.colors
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import requests
 import rioxarray as rxr
 import shapely
 import xarray as xr
 
 from easysnowdata.utils import (
-    _has_earthengine_credentials,
     convert_bbox_to_geodataframe,
     get_ee_grid_params,
     initialize_earthengine,
@@ -535,7 +533,12 @@ def get_era5(
 
         # Apply spatial subsetting if specified
         if bbox_gdf is not None:
-            era5_ds = era5_ds.rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs)
+            # 0.25° grid: a small bbox can cover a single row/column of pixels
+            era5_ds = era5_ds.rio.clip_box(
+                *bbox_gdf.total_bounds,
+                crs=bbox_gdf.crs,
+                allow_one_dimensional_raster=True,
+            )
 
         # Add metadata
         era5_ds.attrs["data_citation"] = (
@@ -553,9 +556,9 @@ def get_era5(
     # Option 2: Google Earth Engine (GEE)
     elif effective_source == "GEE":
         from easysnowdata.utils import (
+            _EE_SETUP_MSG,
             CredentialError,
             _has_earthengine_credentials,
-            _EE_SETUP_MSG,
         )  # noqa: PLC0415
 
         if not _has_earthengine_credentials():
@@ -902,9 +905,18 @@ def get_ucla_snow_reanalysis(
     )  # cant disable progress bar yet https://github.com/nsidc/earthaccess/issues/612
     snow_reanalysis_ds = xr.open_mfdataset(files, **kwargs).transpose()
 
+    # Each file holds one water year of daily data starting 1 October. Take the
+    # year from the file name (..._WY1999_...); fall back to a date embedded in
+    # the archive path (.../1999/10/01/... or the older 1999.10.01 form).
     url = files[0].path
-    date_pattern = r"\d{4}\.\d{2}\.\d{2}"
-    WY_start_date = pd.to_datetime(re.search(date_pattern, url).group())
+    if match := re.search(r"_WY(\d{4})_", url):
+        WY_start_date = pd.Timestamp(year=int(match.group(1)), month=10, day=1)
+    elif match := re.search(r"(\d{4})[./](\d{2})[./](\d{2})", url):
+        WY_start_date = pd.Timestamp(*(int(g) for g in match.groups()))
+    else:
+        raise ValueError(
+            f"Could not determine the water-year start date from file path: {url}"
+        )
 
     snow_reanalysis_ds.coords["time"] = (
         "Day",
@@ -1194,8 +1206,9 @@ def get_koppen_geiger_classes(
         **kwargs,
     ).squeeze()
 
+    # A bbox smaller than one pixel (e.g. at "1 degree") must not raise
     koppen_geiger_da = koppen_geiger_da.rio.clip_box(
-        *bbox_gdf.total_bounds, crs=bbox_gdf.crs
+        *bbox_gdf.total_bounds, crs=bbox_gdf.crs, allow_one_dimensional_raster=True
     )
 
     koppen_geiger_da.attrs["class_info"] = get_class_info()

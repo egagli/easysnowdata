@@ -25,10 +25,9 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import traceback
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Callable
 
 import requests
 
@@ -210,8 +209,8 @@ def _init_ee_from_token() -> None:
     import base64
     import re
 
-    import google.oauth2.credentials
     import ee
+    import google.oauth2.credentials
 
     raw = os.environ["EARTHENGINE_TOKEN"].strip()
     try:
