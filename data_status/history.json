@@ -4,6 +4,116 @@
       "source": "SNOTEL/CCSS station list (GitHub)",
       "status": "pass",
       "error": null,
+      "checked_at": "2026-09-14T08:16:25Z"
+    },
+    {
+      "source": "SNOTEL/CCSS station CSV (GitHub)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-09-14T08:16:25Z"
+    },
+    {
+      "source": "HydroATLAS basins (figshare)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-09-14T08:16:26Z"
+    },
+    {
+      "source": "GRDC major river basins (World Bank)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-09-14T08:16:28Z"
+    },
+    {
+      "source": "GRDC WMO basins",
+      "status": "fail",
+      "error": "RuntimeError: Unreachable: HTTP 404",
+      "checked_at": "2026-09-14T08:16:28Z"
+    },
+    {
+      "source": "K\u00f6ppen-Geiger classification (figshare)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-09-14T08:16:30Z"
+    },
+    {
+      "source": "Sturm & Liston snow classification (Azure)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-09-14T08:16:32Z"
+    },
+    {
+      "source": "Forest cover fraction (Zenodo)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-09-14T08:16:33Z"
+    },
+    {
+      "source": "Mountain snow mask (Zenodo)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-09-14T08:16:33Z"
+    },
+    {
+      "source": "ARCO-ERA5 (GCS anonymous)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-09-14T08:16:34Z"
+    },
+    {
+      "source": "Copernicus DEM (Planetary Computer)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-09-14T08:16:36Z"
+    },
+    {
+      "source": "ESA WorldCover (Planetary Computer)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-09-14T08:16:37Z"
+    },
+    {
+      "source": "HUC geometries (GEE/USGS WBD)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-09-14T08:16:39Z"
+    },
+    {
+      "source": "SNODAS (GEE/Climate Engine)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-09-14T08:16:42Z"
+    },
+    {
+      "source": "ERA5 (Google Earth Engine)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-09-14T08:16:42Z"
+    },
+    {
+      "source": "CHILI (GEE/CSP ERGo)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-09-14T08:16:43Z"
+    },
+    {
+      "source": "NLCD (GEE/USGS)",
+      "status": "pass",
+      "error": null,
+      "checked_at": "2026-09-14T08:16:44Z"
+    },
+    {
+      "source": "UCLA Snow Reanalysis (NASA NSIDC)",
+      "status": "skip",
+      "error": "Missing env vars: EARTHDATA_USERNAME, EARTHDATA_PASSWORD",
+      "checked_at": "2026-09-14T08:16:45Z"
+    }
+  ],
+  [
+    {
+      "source": "SNOTEL/CCSS station list (GitHub)",
+      "status": "pass",
+      "error": null,
       "checked_at": "2026-09-07T08:16:36Z"
     },
     {

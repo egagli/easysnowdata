@@ -20,10 +20,10 @@ formats wherever possible.
 ## Data Source Status
 
 <!-- DATA_STATUS_START -->
-_Last updated: 2026-09-07 08:16 UTC_  
+_Last updated: 2026-09-14 08:16 UTC_  
 _⚠️ = skipped (credentials not available in this run)_
 
-| Data Source | Latest (Sep 7) | Aug 31 | Aug 24 | Aug 17 |
+| Data Source | Latest (Sep 14) | Sep 7 | Aug 31 | Aug 24 |
 | :---------- | :------: | :------: | :------: | :------: |
 | SNOTEL/CCSS station list (GitHub) | ✅ | ✅ | ✅ | ✅ |
 | SNOTEL/CCSS station CSV (GitHub) | ✅ | ✅ | ✅ | ✅ |
@@ -37,11 +37,11 @@ _⚠️ = skipped (credentials not available in this run)_
 | ARCO-ERA5 (GCS anonymous) | ✅ | ✅ | ✅ | ✅ |
 | Copernicus DEM (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | ESA WorldCover (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
-| HUC geometries (GEE/USGS WBD) | ✅ | ✅ | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
-| SNODAS (GEE/Climate Engine) | ✅ | ✅ | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
-| ERA5 (Google Earth Engine) | ✅ | ✅ | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
-| CHILI (GEE/CSP ERGo) | ✅ | ✅ | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
-| NLCD (GEE/USGS) | ✅ | ✅ | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
+| HUC geometries (GEE/USGS WBD) | ✅ | ✅ | ✅ | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
+| SNODAS (GEE/Climate Engine) | ✅ | ✅ | ✅ | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
+| ERA5 (Google Earth Engine) | ✅ | ✅ | ✅ | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
+| CHILI (GEE/CSP ERGo) | ✅ | ✅ | ✅ | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
+| NLCD (GEE/USGS) | ✅ | ✅ | ✅ | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
 | UCLA Snow Reanalysis (NASA NSIDC) | ⚠️ | ⚠️ | ⚠️ | ⚠️ |
 <!-- DATA_STATUS_END -->
 
