@@ -196,8 +196,11 @@ def get_hydroBASINS(
         convert_bbox_to_geodataframe(bbox_input) if bbox_input is not None else None
     )
 
-    # Construct URL and layer name
-    url = "https://figshare.com/ndownloader/files/20082137/BasinATLAS_Data_v10.gdb.zip"
+    # Construct URL and layer name. Use the ndownloader.figshare.com host: it
+    # answers with a plain 302 to the signed S3 object, whereas
+    # figshare.com/ndownloader serves a bot-challenge page (HTTP 202) to
+    # non-browser clients such as GDAL.
+    url = "https://ndownloader.figshare.com/files/20082137/BasinATLAS_Data_v10.gdb.zip"
     layer_name = f"BasinATLAS_v10_lev{level:02d}"
 
     _logger.info("Loading HydroATLAS level {level} basins...")
@@ -1224,8 +1227,13 @@ def get_koppen_geiger_classes(
     }
     resolution = resolution_dict[resolution]
 
+    # figshare file 61012822 is the current (January 2026) release of the
+    # Beck et al. (2023) archive; 45057352 was the superseded v1 file. Read
+    # through the ndownloader.figshare.com host, which answers with a plain
+    # 302 to the signed S3 object; the figshare.com/ndownloader host serves a
+    # bot-challenge page (HTTP 202) to non-browser clients such as GDAL.
     koppen_geiger_da = rxr.open_rasterio(
-        f"zip+https://figshare.com/ndownloader/files/45057352/koppen_geiger_tif.zip/1991_2020/koppen_geiger_{resolution}.tif",
+        f"zip+https://ndownloader.figshare.com/files/61012822/koppen_geiger_tif.zip/1991_2020/koppen_geiger_{resolution}.tif",
         **kwargs,
     ).squeeze()
 

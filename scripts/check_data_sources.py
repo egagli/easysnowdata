@@ -119,7 +119,7 @@ def check_snotel_single_csv() -> None:
 
 
 def check_hydroatlas_figshare() -> None:
-    url = "https://figshare.com/ndownloader/files/20082137/BasinATLAS_Data_v10.gdb.zip"
+    url = "https://ndownloader.figshare.com/files/20082137/BasinATLAS_Data_v10.gdb.zip"
     ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
@@ -142,7 +142,8 @@ def check_grdc_wmo_basins() -> None:
 
 
 def check_koppen_geiger_figshare() -> None:
-    url = "https://figshare.com/ndownloader/files/45057352/koppen_geiger_tif.zip"
+    # Current (2026-01) release of the Beck et al. 2023 archive; 45057352 was v1.
+    url = "https://ndownloader.figshare.com/files/61012822/koppen_geiger_tif.zip"
     ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
