@@ -51,7 +51,7 @@ data formats (Zarr, COGs, STAC) wherever possible.
     git clone https://github.com/egagli/easysnowdata.git
     cd easysnowdata
     pixi install
-    pixi run test-fast   # credential-free tests
+    pixi run test-unit   # offline tests (no network, no credentials)
     ```
 
 ---

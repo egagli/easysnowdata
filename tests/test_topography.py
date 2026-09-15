@@ -13,18 +13,21 @@ TEST_BBOX = (-121.94, 46.72, -121.54, 46.99)
 
 
 class TestCopernicusDem:
+    @pytest.mark.live
     def test_30m_returns_dataarray(self):
         from easysnowdata.topography import get_copernicus_dem
 
         result = get_copernicus_dem(bbox_input=TEST_BBOX, resolution=30)
         assert isinstance(result, xr.DataArray)
 
+    @pytest.mark.live
     def test_90m_returns_dataarray(self):
         from easysnowdata.topography import get_copernicus_dem
 
         result = get_copernicus_dem(bbox_input=TEST_BBOX, resolution=90)
         assert isinstance(result, xr.DataArray)
 
+    @pytest.mark.live
     def test_has_data_citation(self):
         from easysnowdata.topography import get_copernicus_dem
 
@@ -37,6 +40,7 @@ class TestCopernicusDem:
         with pytest.raises(ValueError, match="30 m and 90 m"):
             get_copernicus_dem(bbox_input=TEST_BBOX, resolution=15)
 
+    @pytest.mark.live
     def test_values_are_elevation(self):
         from easysnowdata.topography import get_copernicus_dem
 
@@ -44,6 +48,7 @@ class TestCopernicusDem:
         # Mount Rainier area — should include values > 1000 m
         assert float(result.max()) > 1000
 
+    @pytest.mark.live
     def test_kwargs_forwarded_to_odc_stac_load(self):
         from easysnowdata.topography import get_copernicus_dem
 
@@ -54,6 +59,7 @@ class TestCopernicusDem:
         # odc names dims latitude/longitude in EPSG:4326, so check every dim
         assert all(max(sizes) <= 128 for sizes in result.chunks)
 
+    @pytest.mark.live
     def test_kwargs_override_defaults(self):
         from easysnowdata.topography import get_copernicus_dem
 
@@ -63,6 +69,8 @@ class TestCopernicusDem:
 
 
 class TestChili:
+    pytestmark = pytest.mark.live
+
     @pytest.mark.requires_earthengine
     def test_returns_dataarray(self):
         from easysnowdata.topography import get_chili

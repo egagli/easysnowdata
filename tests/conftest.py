@@ -18,6 +18,11 @@ TEST_BBOX = (-121.94, 46.72, -121.54, 46.99)
 def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line(
         "markers",
+        "live: marks tests that make network requests to a data provider; "
+        "deselected in the offline tier (pytest -m 'not live')",
+    )
+    config.addinivalue_line(
+        "markers",
         "requires_earthengine: marks tests that need Google Earth Engine "
         "credentials (EARTHENGINE_TOKEN or ~/.config/earthengine/credentials)",
     )

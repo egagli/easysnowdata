@@ -63,8 +63,8 @@ mamba install -c conda-forge easysnowdata
 git clone https://github.com/egagli/easysnowdata.git
 cd easysnowdata
 pixi install          # sets up the environment
-pixi run test-fast    # run credential-free tests
-pixi run test         # run all tests (requires API secrets)
+pixi run test-unit    # offline tests (no network, no credentials)
+pixi run test-live    # live tests against the data providers (credentialed ones skip without secrets)
 pixi run docs-serve   # preview the docs locally
 ```
 

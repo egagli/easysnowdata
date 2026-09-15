@@ -108,6 +108,7 @@ quote-style = "double"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = [
+    "live: marks tests that make network requests to a data provider (deselected in the offline tier)",
     "requires_earthengine: marks tests that need Google Earth Engine credentials (EARTHENGINE_TOKEN or ~/.config/earthengine/credentials)",
     "requires_earthaccess: marks tests that need NASA Earthdata credentials (EARTHDATA_TOKEN, EARTHDATA_USERNAME + EARTHDATA_PASSWORD, or a ~/.netrc entry)",
     "integration: marks slow integration tests that make live external API calls",

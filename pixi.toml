@@ -41,6 +41,7 @@ libgdal-hdf4 = "*"
 
 [feature.dev.dependencies]
 pytest = "*"
+pytest-socket = "*"
 ruff = "*"
 pre-commit = "*"
 ipykernel = "*"
@@ -63,8 +64,13 @@ mkdocs-git-revision-date-localized-plugin = "*"
 git-changelog = "*"
 
 [feature.dev.tasks]
+# Offline tier: deselects every test marked `live` and blocks socket use so a
+# test that quietly reaches the network fails instead of passing by accident.
+test-unit = "pytest tests/ -m 'not live' --disable-socket"
+# Live tier: one smoke test per data source; needs network and, for the
+# requires_* tests, provider credentials (otherwise they skip).
+test-live = "pytest tests/ -m live"
 test = "pytest tests/"
-test-fast = "pytest tests/ -m 'not requires_earthengine and not requires_earthaccess'"
 lint = "ruff check easysnowdata/ tests/ scripts/"
 format = "ruff format easysnowdata/ tests/ scripts/"
 docs-serve = "mkdocs serve"

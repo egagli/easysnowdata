@@ -16,6 +16,8 @@ TEST_BBOX = (-121.94, 46.72, -121.54, 46.99)
 # Seasonal snow classification (Azure Blob — no credentials required)
 # ---------------------------------------------------------------------------
 class TestSeasonalSnowClassification:
+    pytestmark = pytest.mark.live
+
     def test_returns_dataarray(self):
         from easysnowdata.remote_sensing import get_seasonal_snow_classification
 
@@ -62,6 +64,8 @@ class TestSeasonalSnowClassification:
 # Forest cover fraction (Zenodo — no credentials required)
 # ---------------------------------------------------------------------------
 class TestForestCoverFraction:
+    pytestmark = pytest.mark.live
+
     def test_returns_dataarray(self):
         from easysnowdata.remote_sensing import get_forest_cover_fraction
 
@@ -98,6 +102,8 @@ class TestForestCoverFraction:
 # Seasonal mountain snow mask (Zenodo — no credentials required)
 # ---------------------------------------------------------------------------
 class TestSeasonalMountainSnowMask:
+    pytestmark = pytest.mark.live
+
     def test_returns_dataarray(self):
         from easysnowdata.remote_sensing import get_seasonal_mountain_snow_mask
 
@@ -117,6 +123,7 @@ class TestSeasonalMountainSnowMask:
 # ESA WorldCover (Planetary Computer — anonymous access)
 # ---------------------------------------------------------------------------
 class TestEsaWorldcover:
+    @pytest.mark.live
     def test_returns_dataarray(self):
         from easysnowdata.remote_sensing import get_esa_worldcover
 
@@ -129,6 +136,7 @@ class TestEsaWorldcover:
         with pytest.raises(ValueError):
             get_esa_worldcover(bbox_input=TEST_BBOX, version="v999")
 
+    @pytest.mark.live
     def test_kwargs_forwarded_to_odc_stac_load(self):
         from easysnowdata.remote_sensing import get_esa_worldcover
 
@@ -142,6 +150,8 @@ class TestEsaWorldcover:
 # NLCD land cover (Google Earth Engine — EARTHENGINE_TOKEN required)
 # ---------------------------------------------------------------------------
 class TestNlcdLandcover:
+    pytestmark = pytest.mark.live
+
     @pytest.mark.requires_earthengine
     def test_returns_uint8_dataarray_y_x(self):
         from easysnowdata.remote_sensing import get_nlcd_landcover
@@ -169,6 +179,8 @@ class TestNlcdLandcover:
 # Sentinel-2 (Planetary Computer — anonymous access; load is lazy)
 # ---------------------------------------------------------------------------
 class TestSentinel2:
+    pytestmark = pytest.mark.live
+
     def test_kwargs_forwarded_to_odc_stac_load(self):
         from easysnowdata.remote_sensing import Sentinel2
 
@@ -194,6 +206,8 @@ class TestSentinel2:
 # MODIS snow (MOD10A2 via Planetary Computer — anonymous access; load is lazy)
 # ---------------------------------------------------------------------------
 class TestModisSnow:
+    pytestmark = pytest.mark.live
+
     def test_kwargs_forwarded_to_odc_stac_load(self):
         from easysnowdata.remote_sensing import MODIS_snow
 
@@ -215,6 +229,8 @@ class TestModisSnow:
 # MODIS snow (MOD10A1F via NSIDC/earthaccess — EARTHDATA credentials required)
 # ---------------------------------------------------------------------------
 class TestModisSnowMod10a1f:
+    pytestmark = pytest.mark.live
+
     @pytest.mark.requires_earthaccess
     def test_mod10a1f_downloads_and_stacks_by_time(self):
         from easysnowdata.remote_sensing import MODIS_snow
