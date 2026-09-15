@@ -441,7 +441,69 @@ See §9. Summary: replace the frozen `snotel_ccss_stations` CSV route with the
 `global_snow_networks` clients (AWDB REST for SNOTEL/SCAN/snow courses, CDEC, BC DataBC, NVE,
 Yukon) plus a fast reader for its pre-downloaded daily archive.
 
-### 4.9 Everything else
+### 4.9 Virtualization: where kerchunk / VirtualiZarr / `earthaccess.virtualize()` help, and where they do not
+
+Checked 2026-09-15 against the `earthaccess` 0.19 source, VirtualiZarr 2.7.3 and `virtual-tiff`
+0.5 docs, CMR granule metadata, and live `HEAD` probes for `.dmrpp` sidecars. Principle: **we
+do not build virtualization infrastructure**; we use what exists where it pays off.
+
+**How `earthaccess.virtualize()` actually behaves (0.17+).** Signature:
+`virtualize(granules, *, access="direct", load=False, group="/", concat_dim=None, preprocess=None,
+parser="DMRPPParser", reference_dir=None, reference_format="json", parallel="dask", **combine_kwargs)`.
+It appends `.dmrpp` to each granule URL; if the sidecar is missing it warns and falls back to
+`HDFParser` (a full HDF5 metadata scan per granule). Supported parsers are DMR++, HDF(5),
+NetCDF3 and kerchunk JSON/Parquet — **no HDF4 and no TIFF**. `access="direct"` uses NASA's
+temporary S3 credentials, which only work **inside us-west-2**; `access="indirect"` uses HTTPS
+range requests with an Earthdata bearer token and works anywhere. Multiple granules need a
+single `concat_dim` (`combine="nested"`), so tile × time mosaics need `preprocess` or manual
+assembly. `load=True` writes kerchunk references to `reference_dir` and opens them with
+`engine="kerchunk"` — that directory is a reusable cache as long as the upstream files do not move.
+
+**DMR++ sidecars, checked per collection** (a 303 means present, 404 absent):
+
+| Collection | Format | `.dmrpp` |
+| --- | --- | --- |
+| `WUS_UCLA_SR` v1, `HMA_SR_D` v1 (NSIDC) | NetCDF-4 | **absent** → HDFParser fallback |
+| `MOD10A1` / `MOD10A1F` / `MOD10A2` v61, `MCD43A3` v061 | HDF-EOS2 (HDF4) | **absent**, and HDF4 is not supported by `virtualize()` at all |
+| `VNP10A1F` v2 | HDF-EOS5 (`.h5`) | **absent** → HDFParser fallback, needs `group=` |
+| `Daymet_Daily_V4R1` (ORNL), `GPM_3IMERGDF` v07 (GES DISC) | NetCDF-4 | **present** (fast path works) |
+
+**Decision matrix for easysnowdata's data types:**
+
+| Data type | Does virtualization help? | What we do |
+| --- | --- | --- |
+| COGs via STAC (S1 RTC, S2, HLS, WorldCover, DEMs) | **No.** A COG is already a range-readable, tiled, overviewed chunk store; a manifest only saves the header reads odc-stac does anyway and loses GDAL warping. `virtual-tiff`'s own docs say to use stackstac/lazycogs for ad-hoc queries. | `odc-stac` / `rioxarray` |
+| Static GeoTIFF over HTTPS (snow class, Köppen, forest cover) | Marginal (one header fetch). | `rioxarray.open_rasterio("/vsicurl/…", chunks=…)` + `pooch` where a download is unavoidable |
+| Zipped GeoTIFF on Zenodo (Wrzesien) | **No.** DEFLATE members are not range-readable; VirtualiZarr's `ZippedZarrParser` is STORED-only and `.zarr.zip`-only. | download once, `pooch` cache |
+| NetCDF-4 in Earthdata Cloud (UCLA SR, HMA SR) | **Yes, partly.** `virtualize(access="indirect", concat_dim="Day", load=True, reference_dir=cache)` gives a lazily indexed multi-water-year series; cost is one HDF5 scan per granule (no DMR++), amortized by the reference cache. | adopt for long time series; keep `earthaccess.open()` + `open_mfdataset` as the simple path |
+| HDF-EOS2 MODIS snow (MOD10A1/A1F/A2) | **Not today.** `virtualize()` lacks HDF4; VirtualiZarr's `HDF4Parser` (2.7.1) is a kerchunk wrapper, root-group only, no CRS, tested on one fixture. | download + GDAL subdatasets via `rioxarray`; revisit if NSIDC publishes DMR++ or MODIS C7 moves to HDF5 |
+| HDF-EOS5 VIIRS (VNP10A1F) | Possible via HDFParser fallback, worthwhile only for long single-tile series. | same as NetCDF-4 row, low priority |
+| SNODAS `.dat.gz` tarballs | **No.** | download + small reader |
+| Already Zarr/Icechunk (ARCO-ERA5, Earthmover ERA5, CONUS404 on OSN, NLDAS-3, WeatherBench2) | N/A — already cloud-native; just add them as sources. | `xr.open_zarr` / `icechunk` |
+| Earth Engine via `xee` | **No.** | `xee` |
+| Station APIs | **No.** | clients |
+
+**Existing public virtual or Zarr stores worth wiring in as sources** (verified anonymous
+access unless noted): Earthmover Icechunk ERA5 (`s3://earthmover-icechunk-era5/icechunkV2`,
+1940–2025, quarterly; no ERA5-Land, no snow depth); WeatherBench2 ERA5 (1959–2023, **includes
+`snow_depth`**, GCS and an Icechunk copy at `data.icechunk.cloud`); CONUS404 daily/hourly Zarr
+on OSN (`usgs.osn.mghpcc.org/hytest/conus404/…`, no egress fees); NLDAS-3 beta forcing with
+kerchunk Parquet and Icechunk stores on `s3://nasa-waterinsight`; NASA EODC virtual Icechunk
+for MUR SST and IMERG (`s3://nasa-eodc-public/icechunk/`, but the referenced bytes still need
+NASA S3 credentials in us-west-2); DestinE Earth Data Hub ERA5-Land Zarr v3 (token). Do **not**
+build on `s3://hrrrzarr` — the registry says the Zarr service ends October 2026. No public Zarr
+or kerchunk exists for SNODAS, MODIS/VIIRS snow, PRISM, or any DEM; Pangeo Forge is no longer
+developed and kerchunk is in maintenance mode pointing at VirtualiZarr + Icechunk.
+
+**Icechunk as our own cache (later, optional).** The Earthmover/CNG pattern — virtualize an
+archive once, publish the small Icechunk repo (a GitHub release can host it; Icechunk reads
+over HTTP), optionally add `topozarr` multiscales — is real and needs no new infrastructure.
+Caveats that keep it out of the rewrite proper: readers still need Earthdata credentials for
+the referenced bytes (`authorize_virtual_chunk_access`), NASA reprocessing (MODIS C7, Terra
+wind-down late 2026) breaks manifests, and archives must be homogeneous. The natural first
+candidate, if ever, is the UCLA SR archive (static, WY1985–2021, never reprocessed).
+
+### 4.10 Everything else
 
 The full product list (what ships in the rewrite, what is a cheap follow-on, what stays on the
 shelf), the per-product comparison of alternative sources, and the item-by-item evaluation of
@@ -516,11 +578,10 @@ esd.auth.login("earthengine", project="my-gcp-project")
   this package already documents). The `env()` context manager sets `GDAL_HTTP_NETRC`, a
   cookie jar in the platform cache dir (not `~`), and registers the same config with
   `odc.stac.configure_rio(client=...)` when a Dask distributed client exists — this is the fix
-  for #5. Pin `earthaccess>=0.17` and use its `virtualize()` API (DMR++ sidecars by default,
-  automatic fallback to the HDF parser, `load=True` for a concrete Dask-backed Dataset) for
-  NetCDF/HDF5 collections (UCLA SR, HMA SR, Daymet) instead of `open_mfdataset` over fsspec
-  files. VirtualiZarr 2.7 also has an HDF4 parser (via kerchunk) 🔍 whether it can make the
-  MOD10/VNP10 HDF-EOS granules lazily readable without the download step.
+  for #5. Pin `earthaccess>=0.17` and use `virtualize(access="indirect", load=True,
+  reference_dir=<cache>)` for long NetCDF-4 time series (UCLA SR, HMA SR; Daymet has DMR++
+  sidecars so it is fast) — see §4.9 for why it does not apply to the HDF4 MODIS products or to
+  anything served as COGs.
 - **Products declare what they need**; the loader calls `auth.ensure(*product.requires)` and
   wraps reads in `auth.env(*product.requires)`. One code path, one error message, one test.
 - **`CredentialError`** stays, gains a `.provider` attribute and a docs URL.
@@ -851,6 +912,18 @@ live on 2026-09-15 unless noted):
 - **Stack now requires Python ≥ 3.12**: rasterio 1.5 (GDAL ≥ 3.8), rioxarray 0.23, zarr 3.3,
   numpy 2.5, earthaccess 0.18. `stackstac` last released 2024-08 — treat as legacy. Belongs on
   the per-package "Version & maintenance status" notes.
+- **`earthaccess.virtualize()` mechanics and limits** (appends `.dmrpp`, HDFParser fallback, no
+  HDF4/TIFF, `access="direct"` only inside us-west-2, single `concat_dim`); **NSIDC publishes no
+  DMR++ sidecars** for WUS_UCLA_SR, HMA_SR_D, MOD10A1(F)/A2 or VNP10A1F while ORNL Daymet and
+  GES DISC IMERG do; VirtualiZarr `HDF4Parser` (2.7.1) is a kerchunk wrapper, root-group only,
+  no CRS; `ZippedZarrParser` is STORED-only. Belongs on `icechunk-and-virtual-zarr.md` and
+  `earthdata-and-earthaccess.md`.
+- **Public Zarr/Icechunk stores found**: Earthmover ERA5 Icechunk (anon, quarterly, no
+  ERA5-Land), WeatherBench2 ERA5 with `snow_depth` (GCS + Icechunk copy), CONUS404 on OSN,
+  NLDAS-3 kerchunk/Icechunk on `nasa-waterinsight`, NASA EODC MUR/IMERG virtual Icechunk
+  (bytes still need NASA creds in-region), DestinE EDH ERA5-Land Zarr v3 (token);
+  **`s3://hrrrzarr` ends October 2026**; kerchunk is in maintenance mode and Pangeo Forge is
+  no longer developed. Belongs on `zarr-cloud-visualization-ecosystem.md` / `other-data-portals.md`.
 - The credential-provider pattern (§5) once implemented, as a worked example for
   `data-access/earthdata-and-earthaccess.md` and `gee-and-xee.md` (GDAL cookie jar + Dask
   workers is the non-obvious part).

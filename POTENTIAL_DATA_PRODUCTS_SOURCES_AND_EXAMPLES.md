@@ -194,6 +194,10 @@ products; Dynamic World listed as a source for "what is the land cover *now*".
 | Credentials | none | none | none | GEE | CDS token |
 | Note | old `1959-2022` stores still present; AWS `era5-pds` deprecated | anonymous read | — | only GEE route to ERA5-Land today | first ERA5-Land Zarr outside GEE |
 
+Also confirmed 2026-09-15: **WeatherBench2** ERA5 on GCS (1959–2023, anonymous, includes
+`snow_depth`; Icechunk copy at `data.icechunk.cloud`) and **DestinE Earth Data Hub** ERA5-Land
+Zarr v3 (0.1°, monthly updates, token) — both candidates for `source=` once there is demand.
+
 **Defaults:** ARCO-ERA5 for hourly ERA5; GEE for ERA5-Land and aggregates; CDS ARCO added when
 it leaves beta so ERA5-Land no longer requires Earth Engine.
 
@@ -242,7 +246,9 @@ audit of cloud-hosted snow datasets, and the network scoping in `global_snow_net
 | SWOT | surface water elevation | lakes/rivers, not snow | PO.DAAC | — | **shelf** |
 | RADARSAT-1 | historical C-band | pre-2014 SAR | ASF | — | **shelf** |
 | Planet | commercial 3 m imagery | licensed; basemap-only API quirks recorded in best-practices inbox | Planet API · key | — | **shelf** |
-| CONUS404, HRRR | 4 km WRF reanalysis; 3 km NWP | high-resolution forcings | USGS/HyTEST Zarr; `s3://hrrrzarr` | medium (Zarr catalogs exist) | **shelf** (Zarr already; point at HyTEST) |
+| CONUS404 | 4 km WRF reanalysis | high-resolution forcings | USGS HyTEST Zarr on OSN (`usgs.osn.mghpcc.org/hytest/conus404/…`, anonymous, verified) | low (already Zarr) | **follow-on** as a Zarr source |
+| HRRR | 3 km NWP | high-resolution forcings | `s3://hrrrzarr` — **service ends October 2026** per the AWS registry | — | **skip** |
+| NLDAS-3 (beta) | 1 km North America forcing, 2001–2023 | successor to NLDAS-2 | `s3://nasa-waterinsight` NetCDF + kerchunk Parquet + Icechunk (anonymous, verified) | low (already virtualized) | **follow-on** |
 | Sentinel-3 SYN | 300 m optical | coarse snow albedo/cover | PC NetCDF | — | **shelf** |
 | SMAP `SPL4SMGP` | soil moisture | soil-moisture pulses used in P12 validation | NSIDC · EDL | low | **shelf** (niche) |
 | MODIS albedo MCD43A3/A4 | 500 m albedo / NBAR | snow albedo, melt energy | LPCLOUD · HDF · EDL | low | **shelf** |
