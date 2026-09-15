@@ -79,9 +79,9 @@ figshare, World Bank, GRDC, a UW Azure blob), and GitHub raw CSV.
 - The **Sturm & Liston snow classification is served from `uwcryo.blob.core.windows.net`**, a UW
   Azure account whose CloudBank award expires 2026-10-26 and whose custodianship ends with Eric's
   UW appointment on 2026-12-31 (per `all_project_memory/_meta/compute-and-infrastructure.md`).
-  This is the only product the package hosts itself and it needs a new home (decided: NSIDC
-  with Earthdata Login becomes the default and the hosted COG an option; its new home is still
-  open, §12 Q8).
+  This is the only product the package hosts itself. Decided: NSIDC with Earthdata Login
+  becomes the default and the hosted COG an option; **the COG stays where it is for now** and
+  the catalog notes that its location is likely to change (§12 Q8).
 - **MODIS snow via Planetary Computer**: Eric's own note (best-practices inbox, item 31) records
   that PC stopped archiving MOD10A2 around June 2025 after Terra's decommissioning; the package
   still defaults `MODIS_snow` to PC. Live status of `modis-10A1-061` / `modis-10A2-061` could not
@@ -339,6 +339,9 @@ s2 = esd.optical.sentinel2.load(aoi, time="2024-05", mask="scl-default", harmoni
 ndsi = esd.processing.normalized_difference(s2, "green", "swir16")
 
 swe = esd.snow.snodas.load(aoi, time="2024-03", variables=["SWE"], source="nsidc")
+ucla = esd.snow.ucla_sr.load(aoi, time="1985-10/2021-09", variable="SWE_Post",
+                             virtualize="auto", access="auto")          # virtual Zarr over 36 water
+                                                                        # years; direct S3 if in us-west-2
 dem = esd.terrain.dem.load(aoi, source="copernicus-glo30")                # or "aws-cop30", "3dep"
 basins = esd.hydro.basins.load(aoi, level=8, source="usgs-wbd")           # no GEE needed
 
@@ -396,7 +399,7 @@ open, and a 2026-04 discussion reports Sentinel-2 ingestion lag).
 | MOD10A1F (cloud-gap-filled) | `earthaccess.download` to `/tmp/local_folder`, `cloud_hosted=False`, no `login()` | ⚠️ stale flags; probably broken on `earthaccess` ≥ 0.16 | Cloud-hosted since the NSIDC migration (3 M granules, `s3://nsidc-cumulus-prod-protected/MODIS/MOD10A1F/61/...`); use `cloud_hosted=True`, explicit login via `auth.earthdata`, a platform cache dir via `pooch`. `MYD10A1F` (Aqua) is available too. |
 | SNODAS | GEE community asset `projects/climate-engine/snodas/daily` (Climate Engine, not official catalog, ~1-day lag) | ⚠️ works; non-authoritative mirror, GEE creds | Add **NSIDC G02158 direct** as a second, credential-free source: `https://noaadata.apps.nsidc.org/NOAA/G02158/{masked,unmasked}/YYYY/MM_Mon/SNODAS_YYYYMMDD.tar`, each tar holding `us_ssmv1*.dat.gz` + `.txt.gz` header pairs; a small reader that streams one day's tar and builds the raster from the header. No COG/Zarr mirror exists (verified by search; GEE is the only cloud copy). Document authoritative vs convenient. |
 | UCLA WUS snow reanalysis | `earthaccess` cloud-hosted, `open_mfdataset`, no explicit `login()` | ⚠️ probably broken on `earthaccess` ≥ 0.16 (test skipped for months) | Keep the route (`WUS_UCLA_SR` v1, 27 k NetCDF granules, WY1985–2021; no v2 and no global version exist); add explicit login; add the sibling **`HMA_SR_D` v1** (High Mountain Asia) as a second region; fix the `stats=` mapping bug (`"median"` and `"25pct"` both map to index 2). |
-| Sturm & Liston 2021 snow classification | GeoTIFF on UW Azure blob | ❌ hosting expires (see §1.2) | Decided: **default source becomes NSIDC-0768 with Earthdata Login** (authoritative; not cloud-hosted, its HTTPS directory redirects to URS, so it goes through `auth.earthdata` and a `pooch` cache), with `source="hosted-cog"` as the credential-free option. The hosted COG still needs a home that outlives the `uwcryo` account — Zenodo record (DOI) or GitHub release asset; **where is still open** (§12 Q8). Class table → CF flags. |
+| Sturm & Liston 2021 snow classification | GeoTIFF on UW Azure blob | ⚠️ hosting will change (see §1.2) | Decided: **default source becomes NSIDC-0768 with Earthdata Login** (authoritative; not cloud-hosted, its HTTPS directory redirects to URS, so it goes through `auth.earthdata` and a `pooch` cache), with `source="hosted-cog"` as the credential-free option. **The hosted COG stays on the `uwcryo` blob for now** (Eric, 2026-09-15); its URL is a single catalog entry so moving it later (Zenodo record, GitHub release asset) is a one-line change plus a health-probe run. The catalog page carries a "location likely to change" note. Class table → CF flags. |
 | Wrzesien 2019 mountain snow mask | `zip+https://zenodo…` GeoTIFF | ✅ works, slow (full zip download per call) | Zenodo 2626737 verified live (`MODIS_mtnsnow_classes.zip`, `MODIS_snow_classes.zip`, `MODIS_clouds.zip`). Keep source; add `pooch` caching; expose the clouds layer; document the 256/265 nodata quirk as a `processing` fix. |
 | Snow cover from S2/HLS (#9) | not implemented | — | Backlog: NDSI + SCL/Fmask thresholds first, let-it-snow-style algorithm later, in `snow.snow_cover`. |
 
@@ -475,7 +478,7 @@ assembly. `load=True` writes kerchunk references to `reference_dir` and opens th
 | COGs via STAC (S1 RTC, S2, HLS, WorldCover, DEMs) | **No.** A COG is already a range-readable, tiled, overviewed chunk store; a manifest only saves the header reads odc-stac does anyway and loses GDAL warping. `virtual-tiff`'s own docs say to use stackstac/lazycogs for ad-hoc queries. | `odc-stac` / `rioxarray` |
 | Static GeoTIFF over HTTPS (snow class, Köppen, forest cover) | Marginal (one header fetch). | `rioxarray.open_rasterio("/vsicurl/…", chunks=…)` + `pooch` where a download is unavoidable |
 | Zipped GeoTIFF on Zenodo (Wrzesien) | **No.** DEFLATE members are not range-readable; VirtualiZarr's `ZippedZarrParser` is STORED-only and `.zarr.zip`-only. | download once, `pooch` cache |
-| NetCDF-4 in Earthdata Cloud (UCLA SR, HMA SR) | **Yes, partly.** `virtualize(access="indirect", concat_dim="Day", load=True, reference_dir=cache)` gives a lazily indexed multi-water-year series; cost is one HDF5 scan per granule (no DMR++), amortized by the reference cache. | adopt for long time series; keep `earthaccess.open()` + `open_mfdataset` as the simple path |
+| NetCDF-4 in Earthdata Cloud (UCLA SR, HMA SR) | **Yes, partly.** `virtualize(access="indirect", concat_dim="Day", load=True, reference_dir=cache)` gives a lazily indexed multi-water-year series; cost is one HDF5 scan per granule (no DMR++), amortized by the reference cache. | **exposed as a loader option** — `esd.snow.ucla_sr.load(..., virtualize="auto")`: `"auto"` virtualizes when more than a handful of granules are requested, `True`/`False` force it; `esd.config.cache_dir` holds the references. Also a gallery example (§D of the companion file). `earthaccess.open()` + `open_mfdataset` stays the path for a single water year |
 | HDF-EOS2 MODIS snow (MOD10A1/A1F/A2) | **Not today.** `virtualize()` lacks HDF4; VirtualiZarr's `HDF4Parser` (2.7.1) is a kerchunk wrapper, root-group only, no CRS, tested on one fixture. | download + GDAL subdatasets via `rioxarray`; revisit if NSIDC publishes DMR++ or MODIS C7 moves to HDF5 |
 | HDF-EOS5 VIIRS (VNP10A1F) | Possible via HDFParser fallback, worthwhile only for long single-tile series. | same as NetCDF-4 row, low priority |
 | SNODAS `.dat.gz` tarballs | **No.** | download + small reader |
@@ -495,13 +498,44 @@ build on `s3://hrrrzarr` — the registry says the Zarr service ends October 202
 or kerchunk exists for SNODAS, MODIS/VIIRS snow, PRISM, or any DEM; Pangeo Forge is no longer
 developed and kerchunk is in maintenance mode pointing at VirtualiZarr + Icechunk.
 
-**Icechunk as our own cache (later, optional).** The Earthmover/CNG pattern — virtualize an
-archive once, publish the small Icechunk repo (a GitHub release can host it; Icechunk reads
-over HTTP), optionally add `topozarr` multiscales — is real and needs no new infrastructure.
-Caveats that keep it out of the rewrite proper: readers still need Earthdata credentials for
-the referenced bytes (`authorize_virtual_chunk_access`), NASA reprocessing (MODIS C7, Terra
-wind-down late 2026) breaks manifests, and archives must be homogeneous. The natural first
-candidate, if ever, is the UCLA SR archive (static, WY1985–2021, never reprocessed).
+**Region-aware access.** NASA's temporary S3 credentials only work from inside AWS
+`us-west-2`, so `access="direct"` is a large speed-up there and an error everywhere else. The
+package detects its region cheaply and lazily (§5): environment variables and instance files at
+import, the EC2 metadata service with a 200 ms timeout on first Earthdata use. Every
+Earthdata-backed loader takes `access="auto"` (default): direct S3 in `us-west-2`, HTTPS
+otherwise. The same flag drives `earthaccess.open()`/`download()` and `virtualize()`.
+
+**Health check covers virtualization readiness (decided).** For every NetCDF/HDF source the
+weekly probe (§8) also `HEAD`s one granule's `.dmrpp` sidecar and records whether it exists and
+which parser `virtualize()` would use. When NSIDC starts publishing DMR++ for UCLA SR, HMA SR,
+VNP10A1F or the MODIS products, the status page flips and a digest issue says so — that is the
+trigger to switch the default to the fast path or (for HDF4) to re-evaluate virtualization.
+The probe also checks that any third-party virtual store we list as a source (Earthmover ERA5,
+NLDAS-3, CONUS404 on OSN) still opens and reports its latest timestamp.
+
+**If we ever publish our own virtual store (documented, not scheduled).** The Earthmover/CNG
+pattern — virtualize an archive once, persist the manifests to a small Icechunk repository,
+optionally add `topozarr` multiscales — is real and needs no new infrastructure. What it would
+entail for us, taking the UCLA SR archive as the natural first candidate (static, WY1985–2021,
+never reprocessed):
+
+1. Run `earthaccess.virtualize(..., load=False)` (or VirtualiZarr directly) over all 27 k
+   granules once, in `us-west-2` for speed, with `preprocess` adding the water-year time axis.
+2. `vds.vz.to_icechunk(repo)` into a public bucket or a GitHub release asset (Icechunk reads
+   over HTTP; the GOES-16 precedent turned 115 TB of files into ~80 GB of manifests for a
+   one-off ~$100 and under $2/month).
+3. Ship a loader `esd.snow.ucla_sr.load(source="virtual-store")` that opens the repo and calls
+   `authorize_virtual_chunk_access` with the user's Earthdata S3 credentials — so readers
+   **still need an Earthdata account and must be in `us-west-2`** for `s3://` chunk containers
+   (an HTTPS container with a bearer token is unverified in Icechunk today).
+4. Add a health probe that compares stored etags/last-modified against CMR so a NASA
+   reprocessing (MODIS Collection 7 and the Terra wind-down in late 2026 are the live examples)
+   is detected rather than silently returning stale references; rebuild the manifests when it
+   fires.
+
+Why it stays out of the rewrite: the credential and region requirements mean it only helps
+users already computing in `us-west-2`, and for them `virtualize(load=True, reference_dir=...)`
+already gives a private version of the same thing.
 
 ### 4.10 Everything else
 
@@ -543,10 +577,21 @@ esd.auth.login("earthengine", project="my-gcp-project")
   `nve`, later `cdse`), each implementing `detect() -> bool`, `login(interactive=True, persist=True)`,
   `ensure()` (initialize once, idempotent, cached), `env() -> contextmanager` (yields the GDAL /
   rasterio / fsspec configuration needed for reads), and `setup_instructions: str`.
+- **Compute-region detection (decided 2026-09-15).** `esd.config.region()` answers "am I in
+  AWS, and which region" in two stages so §2.9 holds: at import, environment variables
+  (`AWS_REGION`, `AWS_DEFAULT_REGION`, `AWS_EXECUTION_ENV`, `ECS_CONTAINER_METADATA_URI`) and
+  the DMI/hypervisor files that identify EC2 hosts (`/sys/devices/virtual/dmi/id/product_uuid`
+  starting with `ec2`); on first Earthdata use only, the EC2 instance-metadata service
+  (IMDSv2, 200 ms timeout, result cached). `EASYSNOWDATA_REGION` overrides both (useful for
+  Coiled/Kubernetes workers where IMDS is blocked). If the region is `us-west-2`, Earthdata
+  loaders default to `access="direct"` (temporary S3 credentials, no egress), `earthaccess`
+  virtualization uses direct S3, and the GDAL environment gets the in-region S3 settings;
+  everywhere else HTTPS is used. Users can force either with `access=`.
 - **Visibility (decided 2026-09-15).** `import easysnowdata` runs the cheap `detect()` checks
   (environment variables and file existence only — no network, so §2.9 still holds) and, in an
   interactive session (IPython/Jupyter or a TTY), prints one compact line, e.g.
-  `easysnowdata 0.1.0 · credentials: Earthdata ✓ (netrc) · Earth Engine ✗ · NVE ✗ — see esd.auth.status()`.
+  `easysnowdata 0.1.0 · credentials: Earthdata ✓ (netrc) · Earth Engine ✗ · NVE ✗ · compute: local (HTTPS access) — see esd.auth.status()`
+  (or `compute: AWS us-west-2 (direct S3 access)`).
   In scripts and CI the same line goes to the `easysnowdata` logger at INFO; `EASYSNOWDATA_QUIET=1`
   silences it. Calling a product whose default source needs missing credentials raises
   `CredentialError` **before any network call**, naming the provider, the setup steps, and any
@@ -679,6 +724,11 @@ Keep the mechanism (it caught the GRDC break) and fix what it does with the resu
 - **Failures open or update a GitHub issue** (label `data-source`) with the error, the product,
   the last-good date, and a link to the catalog page, and the README/docs badge turns red.
   Two consecutive failures escalate the issue title; recovery closes it. No more silent red rows.
+- **Virtualization-readiness probe** (decided): for every NetCDF/HDF source, `HEAD` one recent
+  granule's `.dmrpp` sidecar and record `dmrpp: present | absent` and the parser `virtualize()`
+  would fall back to; for third-party Zarr/Icechunk sources, open the store and record its
+  latest time. A change from absent to present opens a digest issue titled "fast virtualization
+  path now available for <product>" (§4.9).
 - **Latency probe**: for time-series products, record the latest available `datetime` per source
   each week (e.g. newest PC `sentinel-1-rtc` item, newest ARCO-ERA5 time, newest SNODAS day) and
   chart it on the status page. This is the generalization of Eric's Sentinel-1 next-overpass
@@ -828,7 +878,7 @@ with the catalog entry as the shared contract.
 | 5 | Compatibility | **Deprecation shims for one release** | §3.4, §11 |
 | 6 | Docs | **Sphinx + pydata theme + sphinx-gallery + myst-nb** | §7 |
 | 7 | Earth Engine | **Optional at run time**: credential-free defaults for HUC (WBD REST), LIA (OPERA static), SNODAS (NSIDC); GEE kept as an alternative source | §4, §10 |
-| 8 | Sturm & Liston | **NSIDC with Earthdata Login as default, hosted COG as option**. *Still open: where the COG lives after `uwcryo`* (Zenodo DOI or GitHub release asset) | §4.3 |
+| 8 | Sturm & Liston | **NSIDC with Earthdata Login as default, hosted COG as option.** The COG **stays on the `uwcryo` blob for now**; the catalog entry notes the location is likely to change (Zenodo DOI or GitHub release asset later) | §4.3 |
 | 9 | Stations | **Option B, `git subtree`, no transition period for the old CSV route** | §9 |
 | 10 | Credentials | **Env vars + native files, no config file**; **one-line credential summary on import** (interactive only, network-free) and a pre-network `CredentialError` naming alternatives | §5 |
 | 11 | New-source priorities | **VIIRS snow, NSIDC SNODAS, HLS** first; a maintained product list with per-product source comparisons lives in `POTENTIAL_DATA_PRODUCTS_SOURCES_AND_EXAMPLES.md` | §11, companion file |
