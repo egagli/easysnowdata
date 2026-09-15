@@ -64,21 +64,41 @@ figshare, World Bank, GRDC, a UW Azure blob), and GitHub raw CSV.
 **Broken or about to break**
 
 - **CI has been red on every run since at least June 2026.** The one failing test is
-  `get_grdc_wmo_basins`: `https://grdc.bafg.de/downloads/wmobb_json.zip` returns 404. The weekly
-  health check has flagged the same URL for at least four weeks, so the monitoring works but
-  nothing turns a red row into action (§8).
+  `get_grdc_wmo_basins`. The file is **not gone**: a GET of
+  `https://grdc.bafg.de/downloads/wmobb_json.zip` succeeds (verified 2026-09-15, 206,
+  `application/zip`, contains `wmobb_basins.json`), but the GRDC server answers **400 to HEAD**.
+  GDAL's `/vsicurl` and the health check's `_head_ok()` both start with HEAD, so both report the
+  file missing. Fix: fetch with GET (`pooch`/`requests`) and read locally, or set
+  `CPL_VSIL_CURL_USE_HEAD=NO` for that read. The weekly health check has flagged the row for at
+  least four weeks, so the monitoring works but nothing turns a red row into action (§8).
 - The **Sturm & Liston snow classification is served from `uwcryo.blob.core.windows.net`**, a UW
   Azure account whose CloudBank award expires 2026-10-26 and whose custodianship ends with Eric's
   UW appointment on 2026-12-31 (per `all_project_memory/_meta/compute-and-infrastructure.md`).
   This is the only product the package hosts itself and it needs a new home **[decision]**.
 - **MODIS snow via Planetary Computer**: Eric's own note (best-practices inbox, item 31) records
   that PC stopped archiving MOD10A2 around June 2025 after Terra's decommissioning; the package
-  still defaults `MODIS_snow` to PC. **[verify]** exact status of `modis-10A1-061` / `modis-10A2-061`.
-- `HLS` searches `https://cmr.earthdata.nasa.gov/stac/LPCLOUD` **[verify]** whether NASA has moved
-  cloud collections to the `cloudstac` root and renamed `HLSL30_2.0` → `HLSL30.v2.0`. Issue #6 was
-  an earlier symptom of collection metadata drifting under a hard-coded `stac_cfg`.
-- `get_nlcd_landcover` hard-codes `USGS/NLCD_RELEASES/2021_REL/NLCD` **[verify]** whether the
-  Annual NLCD release has superseded it.
+  still defaults `MODIS_snow` to PC. Live status of `modis-10A1-061` / `modis-10A2-061` could not
+  be checked on 2026-09-15 because the whole PC STAC API returned 503 during a scheduled
+  maintenance window; **the NSIDC cloud copies of MOD10A1, MOD10A1F, MOD10A2, MYD10A1(F),
+  VNP10A1 and VNP10A1F are all confirmed cloud-hosted** under provider `NSIDC_CPRD`, so the
+  `cloud_hosted=False` in the current MOD10A1F code is stale too.
+- **`earthaccess` ≥ 0.16 (Jan 2026) no longer logs in automatically**; `open()`/`download()`
+  require an explicit `earthaccess.login()`. The UCLA snow reanalysis and MOD10A1F loaders never
+  call it, and their tests have been skipped in CI for months (see the conftest note below), so
+  they are probably broken for anyone on a current `earthaccess`. Also: 0.17 replaced
+  `open_virtual_mfdataset` with `virtualize()`, 0.19 (2026-09-03) turned granule methods into
+  fields, and **0.18 dropped Python 3.11**, which this package still advertises.
+- `HLS` searches `https://cmr.earthdata.nasa.gov/stac/LPCLOUD`. Verified: both the `/stac` and
+  `/cloudstac` roots are live and the collection ids are still `HLSL30_2.0` / `HLSS30_2.0`, so
+  the search side is fine. Issue #6 was a symptom of asset metadata drifting under a hard-coded
+  `stac_cfg`.
+- `get_nlcd_landcover` hard-codes `USGS/NLCD_RELEASES/2021_REL/NLCD`. Verified: that is still
+  the newest *official* GEE asset; the 1985–2024 Annual NLCD exists only as the community asset
+  `projects/sat-io/open-datasets/USGS/ANNUAL_NLCD/LANDCOVER`. Not broken, but the annual product
+  is what users increasingly want.
+- `get_koppen_geiger_classes` reads figshare file `45057352`, which is the **v1** file; the
+  article was updated in January 2026 and the current file is `61012822` (gloh2o.org). Still
+  downloads, but silently stale.
 - `automatic_weather_stations` reads the `snotel_ccss_stations` repo, which Eric describes as
   frozen and superseded by `global_snow_networks` (`_meta/software.md`). The underlying `ulmo`
   SOAP client that built those CSVs no longer installs (best-practices inbox, item 18).
@@ -325,72 +345,78 @@ pin versions and expect signature changes).
 ## 4. Data sources: audit and modernization
 
 Legend for the "status" column: ✅ fine as is · ⚠️ works but stale/suboptimal · ❌ broken ·
-🔍 **[verify]** before deciding. The **[verify]** rows are being checked against live endpoints
-and current changelogs; this table will be updated when that check completes.
+🔍 **[verify]** before deciding. Endpoints, collection ids and versions below were checked live
+on 2026-09-15 unless marked 🔍. One caveat applies to every Planetary Computer row: the PC STAC
+API was down for scheduled maintenance during the check (HTTP 503 throughout), so PC collection
+ids are taken from the `planetary-computer-tasks` dataset folders rather than a live
+`/collections` call. Consequence for the design: the `stac` provider should validate collection
+ids against `/collections` at first use and fail with a clear message, instead of hard-coding
+assumptions (there is, for instance, still **no `sentinel-2-c1-l2a` on PC**; issue #394 there is
+open, and a 2026-04 discussion reports Sentinel-2 ingestion lag).
 
 ### 4.1 SAR
 
 | Product | Today | Status | Proposal |
 | --- | --- | --- | --- |
-| Sentinel-1 RTC | PC `sentinel-1-rtc` (10 m, 2014→, no creds, `groupby="sat:absolute_orbit"`, hand-rolled border-noise fix) | ✅ works; single route | Keep as default source. Add **OPERA RTC-S1** (ASF DAAC, 30 m, 2016→ by burst, EDL creds, searchable via ASF STAC / CMR / `earthaccess`, COGs) as a second source with a docs comparison (resolution, geometry, coverage start, credentials, burst vs scene, latency) 🔍. Expose `source=`. Move border-noise / bad-scene logic to `processing.sar`. |
-| Local incidence angle | Computed in GEE from `COPERNICUS/S1_GRD` `angle` band + GLO-30 DEM, per relative orbit (issue #10) | ⚠️ works, GEE-only, slow, 350 lines | Primary: **OPERA RTC-S1-STATIC** layers (`local_incidence_angle`, `layover_shadow_mask`, `number_of_looks`) 🔍. Secondary: pure-xarray `processing.sar.local_incidence_angle(dem, incidence, heading)` using the same equations on any DEM (no GEE) — unit-testable on a synthetic slope. Keep the GEE route only if the OPERA static layers do not cover the AOI. Also fold in `generate_sentinel1_local_incidence_angle_maps` if it has anything the two above lack. |
+| Sentinel-1 RTC | PC `sentinel-1-rtc` (10 m, 2014→, no creds, `groupby="sat:absolute_orbit"`, hand-rolled border-noise fix) | ✅ works; single route | Keep as default source. Add **OPERA RTC-S1** as a second source: ASF DAAC, 30 m, burst-based, 2016-04→present, single-band COGs per polarization + HDF5 metadata, Earthdata Login required (HTTPS via `datapool.asf.alaska.edu`, or in-region S3 with ASF temporary credentials). Search via **CMR-STAC** `https://cmr.earthdata.nasa.gov/cloudstac/ASF/collections/OPERA_L2_RTC-S1_V1_1` or `earthaccess` short name `OPERA_L2_RTC-S1_V1` — **not** `stac.asf.alaska.edu` (only two unrelated collections) and not Earth Search or PC. A third, credential-free route exists on **GEE: `OPERA/RTC/L2_V1/S1`** (VV/VH/HH/HV + mask, 30 m, daily; no incidence layers). Docs comparison: 10 m scene-based PC vs 30 m burst-based OPERA, coverage start, credentials, latency. Move border-noise / bad-scene logic to `processing.sar`. |
+| Local incidence angle | Computed in GEE from `COPERNICUS/S1_GRD` `angle` band + GLO-30 DEM, per relative orbit (issue #10) | ⚠️ works, GEE-only, slow, 350 lines | Primary: **OPERA RTC-S1-STATIC** (`OPERA_L2_RTC-S1-STATIC_V1_1` on CMR-STAC ASF; `earthaccess` short name `OPERA_L2_RTC-S1-STATIC_V1`, ~370 k granules) which ships `_local_incidence_angle.tif`, `_incidence_angle.tif`, `_mask.tif` (layover/shadow), `_number_of_looks.tif` and the gamma0→beta0/sigma0 factors as COGs, one static granule per burst. Secondary: pure-xarray `processing.sar.local_incidence_angle(dem, incidence, heading)` on any DEM (no GEE), unit-testable on a synthetic slope. Keep the GEE route only as a fallback. PC's `sentinel-1-rtc` has no incidence layer. Fold in `generate_sentinel1_local_incidence_angle_maps` if it adds anything. |
 | NISAR, PALSAR-2 | not implemented (#11) | — | Backlog. NISAR GCOV via ASF/`earthaccess` once operational data flows; PALSAR-2 ScanSAR via GEE `JAXA/ALOS/PALSAR-2/Level2_2/ScanSAR`. |
 
 ### 4.2 Optical imagery
 
 | Product | Today | Status | Proposal |
 | --- | --- | --- | --- |
-| Sentinel-2 L2A | PC `sentinel-2-l2a` (default) or Earth Search `sentinel-2-l2a` / `sentinel-2-c1-l2a`; own YAML `stac_cfg`; baseline harmonization; SCL masking; RGB percentile/CLAHE | ✅ works | Keep both catalogs as sources. Check whether the raster extension on both catalogs now supplies nodata/scale so the hand-written `stac_cfg` can shrink 🔍. Add **Copernicus Data Space / EOPF Sentinel-2 Zarr** as an experimental third source once the EOPF STAC is stable 🔍. Move harmonization, SCL mask, indices, RGB to `processing`. Keep the existing PC-vs-Earth-Search comparison notebook as a gallery example. |
-| HLS L30/S30 v2.0 | CMR-STAC `LPCLOUD`, `HLSL30_2.0`/`HLSS30_2.0`, EDL via GDAL netrc + cookie file at import, per-item XML metadata fetch | ⚠️ endpoint/collection ids drift; #5, #6 | Confirm current CMR-STAC root and ids 🔍; consider PC `hls2-l30`/`hls2-s30` as a no-credential alternative source 🔍 (issue #11 links it). Replace per-item XML scraping with STAC properties. Fmask bit decoding → `processing.optical.decode_fmask`. Auth via `auth.earthdata` context manager so Dask workers inherit GDAL config (fixes #5). |
-| Landsat C2 L2 | not implemented | — | Cheap to add via `providers.stac` (PC `landsat-c2-l2`, Earth Search `landsat-c2-l2`). Useful for pre-2015 snow cover. |
+| Sentinel-2 L2A | PC `sentinel-2-l2a` (default) or Earth Search `sentinel-2-l2a` / `sentinel-2-c1-l2a`; own YAML `stac_cfg`; baseline harmonization; SCL masking; RGB percentile/CLAHE | ✅ works | Keep both catalogs as sources. Earth Search v1 verified: `sentinel-2-l2a`, `sentinel-2-l1c`, `sentinel-2-c1-l2a`, `sentinel-2-pre-c1-l2a` (baseline < 05.00, same schema as c1). PC still has only `sentinel-2-l2a` (no Collection-1). Check whether the raster extension on both catalogs now supplies nodata/scale so the hand-written `stac_cfg` can shrink 🔍. Add **Copernicus Data Space / EOPF Sentinel-2 Zarr** as an experimental third source once its STAC is stable 🔍 (CDSE needs its own credentials). Move harmonization, SCL mask, indices, RGB to `processing`. Keep the PC-vs-Earth-Search comparison as a gallery example. |
+| HLS L30/S30 v2.0 | CMR-STAC `LPCLOUD`, `HLSL30_2.0`/`HLSS30_2.0`, EDL via GDAL netrc + cookie file at import, per-item XML metadata fetch | ⚠️ works; #5, #6 | Ids and both CMR-STAC roots verified current (also `HLSL30_VI_2.0` / `HLSS30_VI_2.0` vegetation-index products). PC has an `hls2` dataset folder in `planetary-computer-tasks` (no-credential alternative) 🔍 collection ids once PC is back. Replace per-item XML scraping with STAC properties. Fmask bit decoding → `processing.optical.decode_fmask`. Auth via `auth.earthdata` context manager so Dask workers inherit GDAL config (fixes #5). |
+| Landsat C2 L2 | not implemented | — | Cheap to add via `providers.stac`: Earth Search `landsat-c2-l2` (verified), PC `landsat-c2-l2`, or USGS `https://landsatlook.usgs.gov/stac-server` (requester-pays S3), which also has **`landsat-c2l3-fsca`, a fractional snow cover product**. Useful for pre-2015 snow cover. |
 | MODIS surface reflectance / VIIRS | not implemented (#11) | — | Backlog; VIIRS `VNP09GA` via GEE or `earthaccess`. |
 
 ### 4.3 Snow products
 
 | Product | Today | Status | Proposal |
 | --- | --- | --- | --- |
-| MODIS snow cover MOD10A1 / MOD10A2 | PC `modis-10A1-061` / `modis-10A2-061` | ❌ likely stale: PC reportedly stopped archiving MOD10A2 ~2025-06 (Eric's own finding) 🔍 | Default source → **NSIDC via `earthaccess`** (HDF4, needs download + GDAL subdataset open; cache with `pooch`) with PC as historical/optional. Add **VIIRS VNP10A1 / VNP10A1F / VJ110A1** as the successor products 🔍. `get_binary_snow` → `processing.snow.binary_snow(da, product=...)` using the class table. |
-| MOD10A1F (cloud-gap-filled) | `earthaccess.download` to `/tmp/local_folder`, `cloud_hosted=False` | ⚠️ works, hard-coded temp dir | Same `earthaccess` route with a proper cache dir; check cloud-hosted status 🔍. |
-| SNODAS | GEE community asset `projects/climate-engine/snodas/daily` | ⚠️ works; non-authoritative mirror, GEE creds | Add **NSIDC G02158 direct** (masked/unmasked `.dat.gz` daily tarballs, no credentials) as a second source with a small reader; keep GEE as the fast path. Document the difference (authoritative vs convenient). 🔍 whether any COG/Zarr mirror exists. |
-| UCLA WUS snow reanalysis | `earthaccess` cloud-hosted, `open_mfdataset` | ✅ works | Keep; check for newer version / global product 🔍; add `stats=` validation (the current dict maps `"median"` and `"25pct"` to the same index — bug). |
-| Sturm & Liston 2021 snow classification | GeoTIFF on UW Azure blob | ❌ hosting expires (see §1.2) | Re-host as a COG (Zenodo record under Eric's name, or a GitHub release asset, or read from NSIDC with EDL) **[decision]**. Class table → CF flags. |
-| Wrzesien 2019 mountain snow mask | `zip+https://zenodo…` GeoTIFF | ✅ works, slow (full zip download per call) | Keep source; add `pooch` caching; document the 256/265 nodata quirk as a `processing` fix. |
+| MODIS snow cover MOD10A1 / MOD10A2 | PC `modis-10A1-061` / `modis-10A2-061` | ❌ likely stale: PC reportedly stopped archiving MOD10A2 ~2025-06 (Eric's own finding); PC unreachable during the check 🔍 | Default source → **NSIDC via `earthaccess`**: `MOD10A1`, `MOD10A2`, `MYD10A1` v61 are all cloud-hosted (`NSIDC_CPRD`, us-west-2, HDF-EOS/HDF4 → download to a cache, open GDAL subdatasets with `rioxarray`, parse the date from `.AYYYYDDD.`). Keep PC as an optional historical source. Add **VIIRS `VNP10A1` / `VNP10A1F` v2 (375 m)** as the successor products (both cloud-hosted). `get_binary_snow` → `processing.snow.binary_snow(da, product=...)` using the class table. |
+| MOD10A1F (cloud-gap-filled) | `earthaccess.download` to `/tmp/local_folder`, `cloud_hosted=False`, no `login()` | ⚠️ stale flags; probably broken on `earthaccess` ≥ 0.16 | Cloud-hosted since the NSIDC migration (3 M granules, `s3://nsidc-cumulus-prod-protected/MODIS/MOD10A1F/61/...`); use `cloud_hosted=True`, explicit login via `auth.earthdata`, a platform cache dir via `pooch`. `MYD10A1F` (Aqua) is available too. |
+| SNODAS | GEE community asset `projects/climate-engine/snodas/daily` (Climate Engine, not official catalog, ~1-day lag) | ⚠️ works; non-authoritative mirror, GEE creds | Add **NSIDC G02158 direct** as a second, credential-free source: `https://noaadata.apps.nsidc.org/NOAA/G02158/{masked,unmasked}/YYYY/MM_Mon/SNODAS_YYYYMMDD.tar`, each tar holding `us_ssmv1*.dat.gz` + `.txt.gz` header pairs; a small reader that streams one day's tar and builds the raster from the header. No COG/Zarr mirror exists (verified by search; GEE is the only cloud copy). Document authoritative vs convenient. |
+| UCLA WUS snow reanalysis | `earthaccess` cloud-hosted, `open_mfdataset`, no explicit `login()` | ⚠️ probably broken on `earthaccess` ≥ 0.16 (test skipped for months) | Keep the route (`WUS_UCLA_SR` v1, 27 k NetCDF granules, WY1985–2021; no v2 and no global version exist); add explicit login; add the sibling **`HMA_SR_D` v1** (High Mountain Asia) as a second region; fix the `stats=` mapping bug (`"median"` and `"25pct"` both map to index 2). |
+| Sturm & Liston 2021 snow classification | GeoTIFF on UW Azure blob | ❌ hosting expires (see §1.2) | NSIDC-0768 is **not cloud-hosted and its HTTPS directory redirects to Earthdata Login**, so the credential-free copy is genuinely valuable. Re-host as a COG (Zenodo record under Eric's name gives a DOI and outlives UW; a GitHub release asset is the zero-cost fallback) **[decision]**, and offer the NSIDC route (EDL) as the authoritative second source. Class table → CF flags. |
+| Wrzesien 2019 mountain snow mask | `zip+https://zenodo…` GeoTIFF | ✅ works, slow (full zip download per call) | Zenodo 2626737 verified live (`MODIS_mtnsnow_classes.zip`, `MODIS_snow_classes.zip`, `MODIS_clouds.zip`). Keep source; add `pooch` caching; expose the clouds layer; document the 256/265 nodata quirk as a `processing` fix. |
 | Snow cover from S2/HLS (#9) | not implemented | — | Backlog: NDSI + SCL/Fmask thresholds first, let-it-snow-style algorithm later, in `snow.snow_cover`. |
 
 ### 4.4 Land cover and vegetation
 
 | Product | Today | Status | Proposal |
 | --- | --- | --- | --- |
-| ESA WorldCover v100/v200 | PC `esa-worldcover` | ✅ | Keep. Class table → CF flags. Consider `io-lulc-annual-v02` (PC) and Dynamic World (GEE) as alternative land-cover sources 🔍. |
-| NLCD | GEE `USGS/NLCD_RELEASES/2021_REL/NLCD` | ⚠️ likely superseded by Annual NLCD 🔍 | Update asset; check for a no-GEE route (MRLC COGs) 🔍. |
-| Forest cover fraction | Zenodo PROBA-V LC100 2019 GeoTIFF | ✅ works | Keep; check newer epoch / COG mirror (PC or GEE `COPERNICUS/Landcover/100m/Proba-V-C3/Global`) 🔍. |
+| ESA WorldCover v100/v200 | PC `esa-worldcover` | ✅ | Keep. WorldCover ended at v200 (2021); ESA names **Copernicus LCFM** (10 m, 2020 released 2025-06, later years planned, on CDSE) as the successor. Add the public AWS bucket `esa-worldcover` (eu-central-1, `v100/`, `v200/`) as a no-signing second source. Class table → CF flags. Alternatives for *annual* land cover: GEE `GOOGLE/DYNAMICWORLD/V1` (current to today), PC `io-lulc-annual-v02` 🔍. |
+| NLCD | GEE `USGS/NLCD_RELEASES/2021_REL/NLCD` | ⚠️ official asset is current but frozen at 2021 | Add **Annual NLCD 1985–2024** via the community asset `projects/sat-io/open-datasets/USGS/ANNUAL_NLCD/LANDCOVER` as the default `source="annual"`, keep `2021_REL` for the science products; check MRLC for a direct COG route (no GEE) 🔍. |
+| Forest cover fraction | Zenodo PROBA-V LC100 2019 GeoTIFF | ✅ works | Keep (verified live; CGLS-LC100 v3.0.1 has no epoch after 2019; GEE `COPERNICUS/Landcover/100m/Proba-V-C3/Global` covers 2015–2019). Add **Hansen GFC `UMD/hansen/global_forest_change_2025_v1_13`** (GEE) as a tree-cover alternative with change/loss years. |
 
 ### 4.5 Terrain
 
 | Product | Today | Status | Proposal |
 | --- | --- | --- | --- |
-| Copernicus DEM GLO-30/90 | PC `cop-dem-glo-30/90` | ✅ | Keep default; add **AWS Open Data `copernicus-dem-30m`** (public S3, no signing) as second source. |
-| CHILI | GEE `CSP/ERGo/1_0/Global/ALOS_CHILI`, min-max normalized in the AOI | ⚠️ normalization makes values AOI-dependent | Keep GEE source; **stop rescaling by default** (return native 0–255 or documented 0–1) with `normalize=` opt-in; add a local `processing.terrain.heat_load_index(dem)` implementation later. |
-| 3DEP, NASADEM | `py3dep` is a declared dependency but unused | — | Add 3DEP via PC `3dep-seamless` or `py3dep`; NASADEM via PC `nasadem`. Drop the unused dependency until then. |
+| Copernicus DEM GLO-30/90 | PC `cop-dem-glo-30/90` | ✅ | Keep default; add **AWS Open Data `copernicus-dem-30m` / `-90m`** (public COG, unsigned listing verified; 2021 release) and **Earth Search `cop-dem-glo-30` / `-90`** (verified) as credential-free sources. Note in docs that the newer **GLO-30 2024_1** release is on GEE (`COPERNICUS/DEM/GLO30_2024_1`) and CDSE (`cop-dem-glo-30-dged-cog`, CDSE credentials). |
+| CHILI | GEE `CSP/ERGo/1_0/Global/ALOS_CHILI`, min-max normalized in the AOI | ⚠️ normalization makes values AOI-dependent | Keep GEE source; **stop rescaling by default** (return native values) with `normalize=` opt-in; add a local `processing.terrain.heat_load_index(dem)` implementation later. |
+| 3DEP, NASADEM | `py3dep` is a declared dependency but unused | — | 3DEP seamless 1/3″ is public on S3 (`s3://prd-tnm/StagedProducts/Elevation/13/TIFF/current/`, verified) and on PC `3dep-seamless`; 3DEP lidar via the public EPT STAC. NASADEM via LPCLOUD `NASADEM_HGT_001` (EDL), PC `nasadem`, or GEE `NASA/NASADEM_HGT/001`. Drop the unused `py3dep` dependency until a loader exists. |
 | Slope/aspect/hillshade | — | — | `processing.terrain` on any DEM (`xdem`/`xrspatial` or numpy). Needed by the LIA fallback. |
 
 ### 4.6 Climate and reanalysis
 
 | Product | Today | Status | Proposal |
 | --- | --- | --- | --- |
-| ERA5 hourly | ARCO-ERA5 Zarr on GCS (`full_37-1h-0p25deg-chunk-1.zarr-v3`) | ✅ works | Keep; verify current path and end date/latency 🔍; note that it lags the CDS. |
-| ERA5 / ERA5-Land daily/monthly | GEE `ECMWF/ERA5*` collections via xee | ✅ works, GEE creds | Keep; investigate a no-GEE ERA5-Land route (ECMWF ARCO access notebook linked in #11) 🔍. |
-| Köppen-Geiger (Beck 2023) | figshare zip GeoTIFF | ✅ | Keep; `pooch` cache; CF flags. |
-| Daymet, PRISM, gridMET, CONUS404 | — (#11) | — | Backlog: Daymet is on PC as Zarr (`daymet-daily-na`); PRISM on GEE. |
+| ERA5 hourly | ARCO-ERA5 Zarr on GCS (`full_37-1h-0p25deg-chunk-1.zarr-v3`) | ✅ works | Verified live: public, Zarr v2 with consolidated metadata, `valid_time_start` 1940-01-01, final ERA5 to 2026-05-31, **ERA5T to 2026-09-09**, `last_updated` 2026-09-15 (so ~1 week latency via ERA5T, ~3 months for final). Keep as default; expose the ERA5/ERA5T boundary in attrs. Alternatives worth listing as sources: **Earthmover Icechunk ERA5** (`s3://earthmover-icechunk-era5/icechunkV2`, anonymous, 1940–2025, quarterly updates), **NCAR ERA5 on AWS** (`s3://nsf-ncar-era5`, NetCDF, 3–4 month lag; the old `era5-pds` is deprecated). |
+| ERA5 / ERA5-Land daily/monthly | GEE `ECMWF/ERA5*` collections via xee | ✅ works, GEE creds | Keep. No-GEE ERA5-Land route: the **CDS ARCO Zarr data lake (beta since 2026-06-30)** serves ERA5 single-levels and **ERA5-Land hourly** with a CDS token; ARCO-ERA5 on GCS has no ERA5-Land. Add as `source="cds-arco"` behind a `cds` auth provider once out of beta 🔍. |
+| Köppen-Geiger (Beck 2023) | figshare file `45057352` (v1) zip GeoTIFF | ⚠️ stale file id | Switch to the current file **`61012822`** (article updated 2026-01-14; periods 1901–1930 … 1991–2020 plus 2041–2070 / 2071–2099 projections — expose `period=`); fetch via `ndownloader.figshare.com` (the `figshare.com/ndownloader` host returns a bot-challenge page to non-browser clients); `pooch` cache; CF flags. |
+| Daymet, PRISM, gridMET, CONUS404, NLDAS, HRRR | — (#11) | — | Backlog. Daymet V4R1 is cloud-hosted at ORNL (`Daymet_Daily_V4R1`, EDL) and on PC as Zarr (`daymet-daily-na` 🔍); gridMET on GEE `IDAHO_EPSCOR/GRIDMET` and PC; PRISM on GEE `OREGONSTATE/PRISM/AN81d`; NLDAS on GEE; HRRR as public Zarr on `s3://hrrrzarr`. |
 
 ### 4.7 Hydrography
 
 | Product | Today | Status | Proposal |
 | --- | --- | --- | --- |
-| HUC boundaries | GEE `USGS/WBD/2017/HUC*` via `ee.data.listFeatures` | ⚠️ works, needs GEE for a public vector dataset | Default → **USGS WBD ArcGIS REST** (`hydro.nationalmap.gov/arcgis/rest/services/wbd`) or `pynhd.WaterData("wbd08")` from HyRiver; keep GEE as a source. The module already contains a commented sketch of the REST call. |
-| HydroBASINS / BasinATLAS | figshare `BasinATLAS_Data_v10.gdb.zip` read with `mask=` | ✅ works, large download | Keep; check for a GeoParquet mirror; note GEE `WWF/HydroATLAS/v1/Basins/level0X` as alternative 🔍. |
-| GRDC major river basins | World Bank zip | ✅ | Keep. |
-| GRDC / WMO basins | `grdc.bafg.de/downloads/wmobb_json.zip` | ❌ 404 | Find the new GRDC URL 🔍 or vendor a small GeoParquet copy (license permitting). This is the Phase 0 fix. |
+| HUC boundaries | GEE `USGS/WBD/2017/HUC*` via `ee.data.listFeatures` | ⚠️ works, needs GEE for a public vector dataset | Default → **USGS WBD ArcGIS REST** (`hydro.nationalmap.gov/arcgis/rest/services/wbd`) or `pynhd.WaterData("wbd08")` from HyRiver; keep GEE (`USGS/WBD/2017/HUC02`–`HUC12`, verified, still the newest there) as a source. The module already contains a commented sketch of the REST call. |
+| HydroBASINS / BasinATLAS | figshare `BasinATLAS_Data_v10.gdb.zip` (2.7 GB) read with `mask=` | ✅ works, large download | Keep, but use the `ndownloader.figshare.com` host (302 to signed S3; the other host bot-challenges non-browsers). Add **HydroSHEDS direct** (`data.hydrosheds.org/file/HydroBASINS/standard/hybas_<region>_lev01-12_v1c.zip`, per-region, much smaller) and **GEE `WWF/HydroATLAS/v1/Basins/level01`–`12`** (verified) as sources. No GeoParquet mirror found 🔍. |
+| GRDC major river basins | World Bank zip | ✅ verified | Keep. |
+| GRDC / WMO basins | `grdc.bafg.de/downloads/wmobb_json.zip` | ❌ fails only because the server rejects HEAD | File verified live (GET 206, zip contains `wmobb_basins.json`; siblings `wmobb_shp.zip`, `wmobb_lkp.zip`, `wmobb_tab.zip`). Fix: GET to a `pooch` cache then read, or `CPL_VSIL_CURL_USE_HEAD=NO`; make the health probe GET-first. **This is the Phase 0 fix.** |
 
 ### 4.8 Stations
 
@@ -398,11 +424,19 @@ See §9. Summary: replace the frozen `snotel_ccss_stations` CSV route with the
 `global_snow_networks` clients (AWDB REST for SNOTEL/SCAN/snow courses, CDEC, BC DataBC, NVE,
 Yukon) plus a fast reader for its pre-downloaded daily archive.
 
-### 4.9 Backlog from issue #11 (not scheduled; ranked when Eric picks) **[decision]**
+### 4.9 Backlog (not scheduled; ranked when Eric picks) **[decision]**
 
-GOES LST (#8, via `goes-ortho`), VIIRS surface reflectance, SWOT, RADARSAT-1, PALSAR-2, Planet,
-NASADEM/3DEP, PRISM, CONUS404, Sentinel-3 SYN, MetPy/metloom/hydrocloud gauges, geoBoundaries,
-census, EOPF Zarr, GIBS. Each is a catalog entry + provider call once §3 exists.
+From issue #11: GOES LST (#8, via `goes-ortho`), VIIRS surface reflectance, SWOT, RADARSAT-1,
+PALSAR-2, Planet, PRISM, CONUS404, Sentinel-3 SYN, MetPy/metloom/hydrocloud gauges,
+geoBoundaries, census, EOPF Zarr, GIBS.
+
+Snow-relevant cloud-native sources confirmed on 2026-09-15 that the package does not have:
+ICESat-2 `ATL06`/`ATL08` v007 (NSIDC cloud); **ASO lidar `ASO_50M_SD` / `ASO_50M_SWE`** (NSIDC
+cloud, the obvious validation dataset for anything SWE); SnowEx `SNEX21_TS_SP`, `SNEX23_SSA`;
+AMSR SWE `AU_DySno`; MODIS albedo `MCD43A3_061` / `MCD43A4_061` (LPCLOUD); GPM IMERG
+`GPM_3IMERGDF` v07; SMAP `SPL4SMGP`; USGS Landsat `landsat-c2l3-fsca` fractional snow cover;
+Canada MSC GeoMet OGC API (`api.weather.gc.ca`, incl. `ltce-snowfall`, `climate-daily`); the
+Swiss SLF IMIS public measurement API. Each is a catalog entry + provider call once §3 exists.
 
 ---
 
@@ -444,10 +478,14 @@ esd.auth.login("earthengine", project="my-gcp-project")
   require/derive a project id (`EARTHENGINE_PROJECT` → token `project` → credentials file →
   error with instructions). Initialize exactly once per process on the high-volume endpoint;
   delete the per-function `initialize_ee=` arguments.
-- **Earthdata**: delegate detection and login to `earthaccess.login(strategy=...)`; the `env()`
-  context manager sets `GDAL_HTTP_NETRC`, a cookie jar in the platform cache dir (not `~`), and
-  registers the same config with `odc.stac.configure_rio(client=...)` when a Dask distributed
-  client exists — this is the fix for #5.
+- **Earthdata**: delegate detection and login to `earthaccess.login(strategy=...)` and call it
+  **explicitly** before any `open()`/`download()` (auto-login was removed in `earthaccess`
+  0.16; `EARTHDATA_TOKEN` takes precedence over username/password since then, matching what
+  this package already documents). The `env()` context manager sets `GDAL_HTTP_NETRC`, a
+  cookie jar in the platform cache dir (not `~`), and registers the same config with
+  `odc.stac.configure_rio(client=...)` when a Dask distributed client exists — this is the fix
+  for #5. Pin `earthaccess>=0.17` and use its `virtualize()` API for NetCDF/HDF5 collections
+  (UCLA SR, Daymet) instead of `open_mfdataset` over fsspec files.
 - **Products declare what they need**; the loader calls `auth.ensure(*product.requires)` and
   wraps reads in `auth.env(*product.requires)`. One code path, one error message, one test.
 - **`CredentialError`** stays, gains a `.provider` attribute and a docs URL.
@@ -608,7 +646,9 @@ before the docs rewrite (so the stations gallery examples are written once).
   contextily, mapclassify), `[all]`. Core: xarray, rioxarray, odc-stac, odc-geo, pystac-client,
   planetary-computer, geopandas, pyogrio, shapely, pandas, numpy, dask, zarr, gcsfs/s3fs,
   fsspec, pooch, requests, pyyaml (declared this time). **[decision]**
-- **Python support** per SPEC 0: 3.11–3.13 today, add 3.14 when the stack has wheels.
+- **Python support**: **3.12–3.14**. `earthaccess` dropped 3.11 in 0.18 (May 2026) and added
+  3.14 in 0.19, and `global_snow_networks` already requires ≥ 3.12; keeping 3.11 would pin us to
+  an `earthaccess` without the explicit-login and `virtualize()` APIs this plan relies on.
 - **Lint/format/type**: ruff with a broader rule set (`B`, `SIM`, `PL`, `RUF`, `D` for public
   API), `mypy --strict` on `aoi`, `auth`, `catalog`, `processing` (the pure parts), `codespell`,
   pre-commit kept.
@@ -626,7 +666,7 @@ before the docs rewrite (so the stations gallery examples are written once).
 
 | Phase | Scope | Exit criteria | Rough size |
 | --- | --- | --- | --- |
-| **0 Stabilize** | Fix GRDC URL; mark live tests; split `test`/`test-live` pixi tasks; CI runs offline tests on push, live tests weekly; declare `pyyaml`/`requests`; drop unused deps; fix UCLA `stats` mapping; fix conftest to honour `EARTHDATA_TOKEN`; release 0.0.26 | CI green on `main`; README status table has no long-standing red rows without an issue | days |
+| **0 Stabilize** | GRDC: GET-then-read and GET-first health probe; add explicit `earthaccess.login()` to UCLA SR and MOD10A1F and set `cloud_hosted=True`; switch Köppen to file `61012822`; fix UCLA `stats` mapping; fix conftest to honour `EARTHDATA_TOKEN`; mark live tests and split `test`/`test-live` pixi tasks; CI runs offline tests on push, live tests weekly; declare `pyyaml`/`requests`, drop unused deps; `requires-python>=3.12`; release 0.0.26 | CI green on `main`; README status table has no long-standing red rows without an issue | days |
 | **1 Foundations** | `aoi`, `auth`, `catalog`, `providers`, `processing`, `plotting`, logging; no import side effects; deprecation shim mechanism; unit + recorded test tiers; pixi in CI | 100% offline coverage of the new modules; old public API unchanged and still passing live smoke tests | 2–3 weeks |
 | **2 Products** | Migrate theme by theme in this order: terrain → land → snow (static) → hydro → climate → optical → SAR → snow (time series). Each product: catalog entry, loader on providers, source modernization from §4, one recorded test, one live smoke test, one gallery script | old modules are shims only; every product has all four artefacts (§2.11) | 4–6 weeks, parallelizable by theme |
 | **3 Stations** | §9 steps 1–6 | `global_snow_networks` pipeline runs against `easysnowdata.stations.clients`; `StationCollection` shim passes its old tests | 1–2 weeks |
@@ -683,9 +723,36 @@ For `all_project_memory/INBOX.md`:
 - `global_snow_networks` → `easysnowdata.stations` merge plan (§9) as the concrete form of the
   2026-09-15 decision recorded in `_meta/software.md`.
 
-For `geospatial_data_and_visualization_best_practices/TO_BE_INCORPORATED.md`:
-- Whatever the live verification of PC/CMR-STAC/OPERA/xee/earthaccess status turns up (§4 🔍
-  rows), as dated facts for the `data-access/` pages.
+For `geospatial_data_and_visualization_best_practices/TO_BE_INCORPORATED.md` (all verified
+live on 2026-09-15 unless noted):
+- **OPERA RTC-S1 is searchable via CMR-STAC (`cloudstac/ASF`, ids `OPERA_L2_RTC-S1_V1_1`,
+  `OPERA_L2_RTC-S1-STATIC_V1_1`) and `earthaccess`, not via `stac.asf.alaska.edu`** (which has
+  only two unrelated collections); the static product ships local-incidence-angle,
+  layover/shadow-mask and number-of-looks COGs; a credential-free mirror without those layers
+  exists on GEE (`OPERA/RTC/L2_V1/S1`). Belongs on `alaska-satellite-facility.md`.
+- **A server that rejects HEAD looks like a 404 to GDAL `/vsicurl` and to `requests.head`**
+  (GRDC `grdc.bafg.de` returns 400 to HEAD, 206 to GET). Health probes should be GET-first;
+  `CPL_VSIL_CURL_USE_HEAD=NO` is the GDAL escape hatch. Belongs on `gdal.md` / the
+  COG page.
+- **`earthaccess` 0.16–0.19 breaking changes**: explicit `login()` required, `EARTHDATA_TOKEN`
+  precedence, `virtualize()` replaces `open_virtual_mfdataset`, granule methods → fields, Python
+  3.11 dropped in 0.18. Belongs on `earthdata-and-earthaccess.md`.
+- **NSIDC MODIS/VIIRS snow (MOD10A1, MOD10A1F, MOD10A2, MYD10A1(F), VNP10A1, VNP10A1F) are all
+  cloud-hosted under `NSIDC_CPRD`**; Sturm & Liston NSIDC-0768 is not, and its HTTPS directory
+  redirects to Earthdata Login. Belongs on `nsidc.md`.
+- **ARCO-ERA5 status**: final ERA5 to 2026-05-31, ERA5T to 2026-09-09 as of 2026-09-15; no
+  ERA5-Land; the CDS ARCO Zarr data lake (beta 2026-06-30) is the first ERA5-Land Zarr route;
+  AWS `era5-pds` is deprecated in favour of `nsf-ncar-era5`; Earthmover publishes an anonymous
+  Icechunk ERA5. Belongs on `other-data-portals.md` or a new reanalysis page.
+- **Planetary Computer**: scheduled maintenance 2026-09-15 took the STAC API down (503) for
+  hours — a reminder that PC-only pipelines need a fallback; still no `sentinel-2-c1-l2a` on PC
+  (issue #394 open). Belongs on `microsoft-planetary-computer.md`.
+- **figshare**: use `ndownloader.figshare.com/files/<id>` (302 to signed S3); the
+  `figshare.com/ndownloader/...` host serves a bot-challenge HTML page to non-browser clients.
+  Köppen-Geiger (Beck 2023) current file is `61012822`, not `45057352`.
+- **xee 0.1.x** (0.1.2, 2026-07-14): `scale`/`geometry` removed in favour of `crs` /
+  `crs_transform` / `shape_2d`; dims now `(time, y, x)`; helpers `extract_grid_params`,
+  `fit_geometry`. Belongs on `gee-and-xee.md` (which still says "confirm stable install path").
 - The credential-provider pattern (§5) once implemented, as a worked example for
   `data-access/earthdata-and-earthaccess.md` and `gee-and-xee.md` (GDAL cookie jar + Dask
   workers is the non-obvious part).
