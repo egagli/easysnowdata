@@ -268,6 +268,14 @@ Why this shape:
   means the harmonization step can be driven by metadata instead of a hard-coded cutoff date
   wherever the catalog provides it.
 - `processing/` and `plotting/` become testable without network.
+- **Why `optical` and not `multispectral`.** Every sensor in that theme (Sentinel-2, Landsat
+  8/9, HLS, MODIS, VIIRS) is multispectral, so the word distinguishes nothing inside the
+  package, and it would exclude products that belong with them: thermal-only (GOES LST, Landsat
+  TIRS) and hyperspectral (EMIT, PRISMA). `optical` names the sensing modality — passive,
+  visible through SWIR and thermal — and pairs with `sar` (active microwave) the way the
+  best-practices wiki pairs `optical.md` with `sar.md` while treating `multispectral.md` as a
+  property of sensors. The subpackage docstring states this scope; band-math and mask helpers
+  live in `processing.optical`. Decided 2026-09-15.
 
 ### 3.2 Option B: minimal renames (not chosen)
 
@@ -733,16 +741,70 @@ Keep the mechanism (it caught the GRDC break) and fix what it does with the resu
   each week (e.g. newest PC `sentinel-1-rtc` item, newest ARCO-ERA5 time, newest SNODAS day) and
   chart it on the status page. This is the generalization of Eric's Sentinel-1 next-overpass
   latency tool and would have exposed the MOD10A2 archiving stop immediately.
-- **Upstream watch** (the "check forums, changelogs, release notes periodically" ask): a
-  `WATCHLIST.toml` listing the fast-moving dependencies (xarray, zarr, odc-stac, odc-geo,
-  rioxarray, rasterio/GDAL, pystac-client, planetary-computer, earthaccess, earthengine-api,
-  xee, geopandas/pyogrio, dask, icechunk, virtualizarr) and the catalogs we depend on. A weekly
-  workflow diffs PyPI/GitHub release feeds and STAC collection metadata (item counts, temporal
-  extent) against the last run and opens a single digest issue with links to the changelogs
-  and to the forum/blog URLs on the watchlist (Pangeo Discourse categories, CarbonPlan,
-  Earthmover, earthaccess discussions). **GitHub Actions only (decided)** — the digest issue is
-  the hand-off point; reading and acting on it is a human or ad-hoc agent task, not a scheduled
-  routine.
+- **Upstream watch** (the "check forums, changelogs, release notes periodically" ask), as a
+  weekly GitHub Action (**Actions only, decided**) driven by a `WATCHLIST.toml`. Each entry has
+  a `kind`, a URL or identifier, and optional keywords; the job fetches everything, diffs
+  against the snapshot from the previous run (stored in `data_status/watch/`), classifies each
+  new item, and opens **one digest issue** with a section per category. The digest is the
+  hand-off point; reading and acting on it is a human or ad-hoc agent task.
+
+  *What it looks for* — every new item is tagged with one or more of: **removal / retirement**
+  ("decommission", "retire", "end of life", "no longer", "archived"), **deprecation /
+  migration** ("deprecat", "superseded", "migrate", "moved to"), **reprocessing / new version**
+  ("reprocess", "collection 7", "v2.0", "version", "baseline"), **extent or coverage change**
+  ("extended", "now available for", "added years", "expanded"), **stations added or removed**
+  (station-count deltas from the `stations` clients), **new dataset** (new collection id, new
+  catalog entry, new short name matching our keyword list: snow, SWE, SNOTEL, Sentinel-1,
+  Sentinel-2, HLS, MODIS, VIIRS, ERA5, DEM, land cover, reanalysis), **outage / access change**
+  ("outage", "maintenance", "credentials", "token", "URS", "S3", "CloudFront"). Items that
+  match none are listed at the end under "other", never dropped.
+
+  *Programmatic checks* (no text parsing; these catch changes before any changelog mentions them):
+  - **CMR collections** we depend on: `revision_date`, `version_id`, granule count and
+    temporal extent per collection (`/search/collections.umm_json?short_name=…`) — a version or
+    revision bump is how reprocessing shows up.
+  - **STAC collections** (Planetary Computer, Earth Search, CMR-STAC ASF/LPCLOUD): presence in
+    `/collections`, `extent.temporal`, and latest item datetime — catches a collection quietly
+    disappearing (the MOD10A2 case) or stopping (latency).
+  - **GEE assets**: existence and `system:version`/date range of each asset id in the catalog,
+    plus the community-catalog entries we use (SNODAS, Annual NLCD).
+  - **Static files** (Zenodo, figshare, GRDC, World Bank, the hosted COG): ETag / Last-Modified
+    / Content-Length via GET-first.
+  - **Station inventories**: counts per network from the clients, so added or retired stations
+    (NRCS adds SNOTEL sites every year; Eric's "new snotel station" commit was exactly this) show
+    up as a delta.
+  - **Dependencies**: PyPI JSON for the watchlist packages (xarray, zarr, odc-stac, odc-geo,
+    rioxarray, rasterio/GDAL, pystac-client, planetary-computer, earthaccess, earthengine-api,
+    xee, geopandas/pyogrio, dask, icechunk, virtualizarr, asf_search), with links to changelogs.
+
+  *Pages and feeds on the watchlist* (fetched, diffed, keyword-tagged):
+  - Google Earth Engine data catalog release notes —
+    https://developers.google.com/earth-engine/docs/data-catalog/release-notes
+  - Planetary Computer changelog history — https://planetarycomputer.microsoft.com/docs/changelogs/history
+    and the PC GitHub discussions/announcements feed
+  - NASA Earthdata alerts and outages — https://www.earthdata.nasa.gov/data/alerts-outages
+  - NSIDC DAAC data updates — https://nsidc.org/data/data-programs/nsidc-daac/data-updates
+    (the canonical URL behind the UW off-campus proxy link)
+  - ASF DAAC pages — https://www.earthdata.nasa.gov/centers/asf-daac and
+    https://www.earthdata.nasa.gov/centers/asf-daac/data-access-tools ; `asf_search` changelog —
+    https://github.com/asfadmin/Discovery-asf_search/blob/master/CHANGELOG.md
+  - NRCS Snow Survey and Water Supply Forecasting program —
+    https://www.nrcs.usda.gov/programs-initiatives/sswsf-snow-survey-and-water-supply-forecasting-program
+    and the AWDB REST API announcements page
+  - Added by this plan: LP DAAC news (HLS, NASADEM, MCD43), ORNL DAAC news (Daymet), GES DISC
+    news (IMERG), NOHRSC/SNODAS notices, CDEC news, Element 84 Earth Search changelog/blog,
+    Copernicus Data Space Ecosystem news (Sentinel reprocessing, EOPF Zarr rollout), ESA
+    WorldCover/LCFM news, USGS EROS Landsat news, `gee-community-catalog` changelog, ECMWF
+    forum ARCO thread and CDS news, USGS HyTEST catalog commits, JPL OPERA product announcements,
+    plus the community forums (Pangeo Discourse categories, earthaccess discussions,
+    CarbonPlan and Earthmover blogs).
+
+  *Digest format*: one issue per week titled with the date, sections "Action needed" (removal,
+  deprecation, reprocessing, outage affecting a catalog source), "Worth adding" (new datasets
+  matching keywords, with a pre-filled row for the companion file's §C table), "Changed"
+  (extent, version, station deltas), "Dependency releases", "Other". Each item links to its
+  source and to the affected catalog entry. If nothing changed, no issue is opened. Health
+  failures (above) post into the same issue so there is one place to look.
 - **Dependabot/Renovate** for the CI actions and the lockfile, so version drift is a PR, not a
   surprise.
 
