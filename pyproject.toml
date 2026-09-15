@@ -3,7 +3,7 @@ name = "easysnowdata"
 version = "0.0.25"
 description = "A Python package to easily retrieve data relevant to snow science"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 license = { text = "MIT License" }
 authors = [{ name = "Eric Gagliano", email = "egagli@uw.edu" }]
 keywords = ["snow", "hydrology", "remote-sensing", "climate", "geospatial"]
@@ -11,7 +11,6 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: GIS",
@@ -32,12 +31,10 @@ dependencies = [
     "earthengine-api",
     "xee>=0.1",
     "beautifulsoup4",
-    "py3dep",
     "earthaccess",
     "pooch",
-    "contextily",
-    "folium",
-    "mapclassify",
+    "pyyaml",
+    "requests",
     "lxml",
     "scikit-image",
     "tqdm",
@@ -89,7 +86,7 @@ search = "date-released: '\\d{{4}}-\\d{{2}}-\\d{{2}}'"
 replace = "date-released: '{now:%Y-%m-%d}'"
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py312"
 line-length = 88
 
 [tool.ruff.lint]

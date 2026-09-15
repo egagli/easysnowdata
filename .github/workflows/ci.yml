@@ -40,8 +40,6 @@ jobs:
         # Full Python matrix on Ubuntu; spot-check on macOS and Windows
         include:
           - os: ubuntu-latest
-            python-version: "3.11"
-          - os: ubuntu-latest
             python-version: "3.12"
           - os: ubuntu-latest
             python-version: "3.13"
