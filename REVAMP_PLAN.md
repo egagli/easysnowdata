@@ -107,8 +107,10 @@ figshare, World Bank, GRDC, a UW Azure blob), and GitHub raw CSV.
 
 - **Import-time side effects**: `remote_sensing` enters a global `rasterio.Env` (with a cookie
   jar path under `~`), calls `odc.stac.configure_rio`, and sets `xr.set_options(keep_attrs=True)`
-  for the user's whole session; `today` is evaluated once at import and baked into default
-  arguments. Importing the package changes the behaviour of unrelated user code.
+  for the user's whole session (redundant since xarray 2025.11.0 made `keep_attrs=True` the
+  default, and harmful if a user had set it to `False`); `today` is evaluated once at import
+  and baked into default arguments. Importing the package changes the behaviour of unrelated
+  user code.
 - **Constructors that do everything**: `Sentinel2(...)`, `Sentinel1(...)`, `HLS(...)`,
   `MODIS_snow(...)` search, load, remove nodata, harmonize, scale, fetch metadata and print in
   `__init__`. There is no way to search without loading, to load without post-processing, or to
@@ -248,6 +250,14 @@ Why this shape:
   citation. That is the fix for "functions too specifically tailored": the *generic* entry
   points (`providers.stac.load("sentinel-2-l2a", aoi, time, bands=...)`) are public too, so a
   user can reach any collection on any supported catalog without waiting for a wrapper.
+- Two stack facts shape `providers/stac.py`: `odc-stac` (0.5.3) reads the `proj`, `raster` and
+  `eo` extensions automatically, so the hand-written `stac_cfg` YAML is only needed as a
+  fallback for catalogs whose items lack `raster:bands` (Planetary Computer Sentinel-2,
+  historically); and **`odc-stac` deliberately ignores `raster:bands` `scale`/`offset`**, so
+  `processing.scale_offset(ds)` must apply them from the item metadata. Earth Search's
+  `sentinel-2-c1-l2a` items already carry `offset: -0.1` (the post-2022 baseline offset), which
+  means the harmonization step can be driven by metadata instead of a hard-coded cutoff date
+  wherever the catalog provides it.
 - `processing/` and `plotting/` become testable without network.
 
 ### 3.2 Option B: minimal renames
@@ -366,7 +376,7 @@ open, and a 2026-04 discussion reports Sentinel-2 ingestion lag).
 
 | Product | Today | Status | Proposal |
 | --- | --- | --- | --- |
-| Sentinel-2 L2A | PC `sentinel-2-l2a` (default) or Earth Search `sentinel-2-l2a` / `sentinel-2-c1-l2a`; own YAML `stac_cfg`; baseline harmonization; SCL masking; RGB percentile/CLAHE | ✅ works | Keep both catalogs as sources. Earth Search v1 verified: `sentinel-2-l2a`, `sentinel-2-l1c`, `sentinel-2-c1-l2a`, `sentinel-2-pre-c1-l2a` (baseline < 05.00, same schema as c1). PC still has only `sentinel-2-l2a` (no Collection-1). Check whether the raster extension on both catalogs now supplies nodata/scale so the hand-written `stac_cfg` can shrink 🔍. Add **Copernicus Data Space / EOPF Sentinel-2 Zarr** as an experimental third source once its STAC is stable 🔍 (CDSE needs its own credentials). Move harmonization, SCL mask, indices, RGB to `processing`. Keep the PC-vs-Earth-Search comparison as a gallery example. |
+| Sentinel-2 L2A | PC `sentinel-2-l2a` (default) or Earth Search `sentinel-2-l2a` / `sentinel-2-c1-l2a`; own YAML `stac_cfg`; baseline harmonization; SCL masking; RGB percentile/CLAHE | ✅ works | Keep both catalogs as sources. Earth Search v1 verified: `sentinel-2-l2a`, `sentinel-2-l1c`, `sentinel-2-c1-l2a`, `sentinel-2-pre-c1-l2a` (baseline < 05.00, same schema as c1); its items carry `raster:bands` (`nodata 0`, `uint16`, `scale 0.0001`, `offset -0.1`) and `eo:bands.common_name`, so **no `stac_cfg` is needed there** and scale/offset can be applied from metadata. PC still has only `sentinel-2-l2a` (no Collection-1) and could not be checked live; historically its items lack `raster:bands`, so keep the `stac_cfg` fallback for PC only. Add **Copernicus Data Space / EOPF Sentinel-2 Zarr** as an experimental third source once its STAC is stable 🔍 (CDSE needs its own credentials). Move harmonization, SCL mask, indices, RGB to `processing`. Keep the PC-vs-Earth-Search comparison as a gallery example. |
 | HLS L30/S30 v2.0 | CMR-STAC `LPCLOUD`, `HLSL30_2.0`/`HLSS30_2.0`, EDL via GDAL netrc + cookie file at import, per-item XML metadata fetch | ⚠️ works; #5, #6 | Ids and both CMR-STAC roots verified current (also `HLSL30_VI_2.0` / `HLSS30_VI_2.0` vegetation-index products). PC has an `hls2` dataset folder in `planetary-computer-tasks` (no-credential alternative) 🔍 collection ids once PC is back. Replace per-item XML scraping with STAC properties. Fmask bit decoding → `processing.optical.decode_fmask`. Auth via `auth.earthdata` context manager so Dask workers inherit GDAL config (fixes #5). |
 | Landsat C2 L2 | not implemented | — | Cheap to add via `providers.stac`: Earth Search `landsat-c2-l2` (verified), PC `landsat-c2-l2`, or USGS `https://landsatlook.usgs.gov/stac-server` (requester-pays S3), which also has **`landsat-c2l3-fsca`, a fractional snow cover product**. Useful for pre-2015 snow cover. |
 | MODIS surface reflectance / VIIRS | not implemented (#11) | — | Backlog; VIIRS `VNP09GA` via GEE or `earthaccess`. |
@@ -474,18 +484,31 @@ esd.auth.login("earthengine", project="my-gcp-project")
   only if a TTY is present and `interactive=True`. CI sets env vars; humans use the native files.
   No new config file format of our own unless Eric wants one for the EE project id **[decision]**.
 - **Earth Engine**: keep accepting `EARTHENGINE_TOKEN` (service-account JSON or OAuth JSON, raw or
-  base64) because CI already depends on it, but also honour `GOOGLE_APPLICATION_CREDENTIALS` and
-  require/derive a project id (`EARTHENGINE_PROJECT` → token `project` → credentials file →
-  error with instructions). Initialize exactly once per process on the high-volume endpoint;
-  delete the per-function `initialize_ee=` arguments.
+  base64) because CI already depends on it and `geemap` uses the same variable name, but also
+  honour Application Default Credentials (`GOOGLE_APPLICATION_CREDENTIALS` / Workload Identity
+  Federation, Google's recommended CI route) and require/derive a project id (`EE_PROJECT_ID`
+  as `geemap` spells it, with `EARTHENGINE_PROJECT` as an alias → token `project` → credentials
+  file → error with instructions; `ee.Initialize` now raises `no project found` without one).
+  Initialize exactly once per process on the high-volume endpoint; delete the per-function
+  `initialize_ee=` arguments; pass `ee_init_if_necessary=True, ee_init_kwargs=...` to `xee` so
+  Dask workers re-initialize themselves.
+- **GDAL defaults** applied inside every provider's `env()` via `odc.stac.configure_rio`:
+  `cloud_defaults=True`, `GDAL_HTTP_MAX_RETRY` (GDAL's default is 0 retries) with
+  `GDAL_HTTP_RETRY_DELAY` and `GDAL_HTTP_RETRY_CODES`, `AWS_NO_SIGN_REQUEST` for public
+  buckets, `CPL_VSIL_CURL_USE_HEAD=NO` only where a server rejects HEAD (GRDC). GDAL ≥ 3.13
+  also handles 302-on-HEAD and retries range reads on 429/5xx, so the floor matters (rasterio
+  1.5 wheels bundle GDAL 3.12; conda-forge has 3.13).
 - **Earthdata**: delegate detection and login to `earthaccess.login(strategy=...)` and call it
   **explicitly** before any `open()`/`download()` (auto-login was removed in `earthaccess`
   0.16; `EARTHDATA_TOKEN` takes precedence over username/password since then, matching what
   this package already documents). The `env()` context manager sets `GDAL_HTTP_NETRC`, a
   cookie jar in the platform cache dir (not `~`), and registers the same config with
   `odc.stac.configure_rio(client=...)` when a Dask distributed client exists — this is the fix
-  for #5. Pin `earthaccess>=0.17` and use its `virtualize()` API for NetCDF/HDF5 collections
-  (UCLA SR, Daymet) instead of `open_mfdataset` over fsspec files.
+  for #5. Pin `earthaccess>=0.17` and use its `virtualize()` API (DMR++ sidecars by default,
+  automatic fallback to the HDF parser, `load=True` for a concrete Dask-backed Dataset) for
+  NetCDF/HDF5 collections (UCLA SR, HMA SR, Daymet) instead of `open_mfdataset` over fsspec
+  files. VirtualiZarr 2.7 also has an HDF4 parser (via kerchunk) 🔍 whether it can make the
+  MOD10/VNP10 HDF-EOS granules lazily readable without the download step.
 - **Products declare what they need**; the loader calls `auth.ensure(*product.requires)` and
   wraps reads in `auth.env(*product.requires)`. One code path, one error message, one test.
 - **`CredentialError`** stays, gains a `.provider` attribute and a docs URL.
@@ -533,10 +556,20 @@ re-run). Rendering them needs credentials the docs workflow does not have, which
 
 ### 7.2 Proposal
 
-- **Keep `mkdocs-material` + `mkdocstrings`** (they work, the theme is good, the workflow is
-  green) and add **`mkdocs-gallery`** (the mkdocs port of sphinx-gallery) 🔍 maintenance status.
-  Fallback if it is unmaintained: **Sphinx + `pydata-sphinx-theme` + `sphinx-gallery` +
-  `myst-nb`**, the pangeo/pydata norm. **[decision]**
+Two viable tool chains, checked on 2026-09-15:
+
+| | A. Stay on mkdocs | B. Move to Sphinx |
+| --- | --- | --- |
+| Stack | `mkdocs-material` 9.7 + `mkdocstrings-python` 2.0 + `mkdocs-jupyter` 0.26 (`execute: true`, `execute_ignore` for credentialed notebooks — exactly what `earthaccess` does) | `sphinx` 9 + `pydata-sphinx-theme` 0.21 + **`sphinx-gallery` 0.21** + `myst-nb` 1.4 (jupyter-cache) — what xarray, geopandas, pystac-client, rioxarray and odc-stac use |
+| Gallery | `mkdocs-gallery` is **dormant** (0.10.4, no release since 2024-09), so the gallery index and thumbnails would need a ~100-line script of our own (nbconvert to pull the first figure per executed notebook, write `gallery.md`) | sphinx-gallery does it all: executes `plot_*.py`, makes thumbnails, index pages, downloadable `.ipynb`, and **back-references** ("examples using `easysnowdata.snow.snodas.load`") on every API page |
+| Incremental execution | `mkdocs-jupyter` has no cache (issue #161) — every build re-executes or nothing does | `run_stale_examples`/`filename_pattern` (gallery) and jupyter-cache (myst-nb) rebuild only what changed |
+| Cost | keep the working workflow; write the gallery script | ~2 days to port config, nav, and the API pages |
+
+**Recommendation: B.** The back-references alone deliver half of the catalog-page goal for
+free, incremental execution is what makes a credentialed gallery buildable in CI, and it is the
+convention users of this stack already know. Option A is acceptable if you prefer the mkdocs
+look; the rest of this section applies to either. **[decision]**
+
 - **One small script per product** in `examples/<theme>/plot_<product>.py` (~30 lines: load,
   one plot, one sentence). The gallery tool executes them, captures the figure as the thumbnail,
   writes the rendered page, and offers a downloadable `.ipynb`. The gallery index is generated
@@ -546,9 +579,11 @@ re-run). Rendering them needs credentials the docs workflow does not have, which
   `examples/howto/plot_*.py` or paired `.md` via jupytext — executed the same way, **no outputs
   in git**.
 - **Execution in CI**: a scheduled `docs-build` workflow with the same secrets as the live tests
-  executes the gallery and deploys; PR builds run with `run_stale_examples: false` so they only
-  rebuild what changed and never need credentials. Rendered outputs live on the `gh-pages`
-  branch, not `main`.
+  executes the gallery and deploys; PR builds execute only the credential-free subset
+  (`filename_pattern` / `execute_ignore`) and reuse cached outputs for the rest, so they never
+  need secrets. Rendered outputs live on the `gh-pages` branch (or a build cache artifact), not
+  `main`. This matches the norm the stack projects follow: pre-render heavy or credentialed
+  notebooks, re-execute a small no-auth subset on every PR.
 - **Catalog pages** generated from the registry (§3.3) with a health badge and the list of
   gallery examples using that product.
 - **README gallery GIF** regenerated by a script that tiles the gallery thumbnails (`montage` or
@@ -638,9 +673,27 @@ before the docs rewrite (so the stations gallery examples are written once).
 
 ## 10. Packaging, tooling, and release
 
-- **`pyproject.toml`** as the single manifest; move pixi config into `[tool.pixi]` so there is
-  one dependency list (pixi resolves conda-forge first, PyPI second). Version from git tags
-  (`setuptools_scm` or `hatch-vcs`) — drop `bump-my-version`'s four-file search/replace.
+### 10.1 Dependency floors this plan assumes (checked 2026-09-15)
+
+| Package | Current | Floor to adopt | Why |
+| --- | --- | --- | --- |
+| Python | — | **3.12** (support 3.12–3.14) | SPEC 0; rasterio 1.5, rioxarray 0.23, zarr 3.3, numpy 2.5, earthaccess 0.18+ all require ≥ 3.12 |
+| xarray | 2026.7.0 | ≥ 2026.2 | `keep_attrs=True` default, zarr-3 minimum, `__dask_exprs__`; rioxarray 0.23 needs it |
+| zarr | 3.3.0 | ≥ 3.1 | v3 default format, `FsspecStore`/`ObjectStore`, auto-detects v2 stores (ARCO-ERA5 is v2 with consolidated metadata) |
+| odc-stac / odc-geo | 0.5.3 / 0.5.3 | ≥ 0.5 | raster extension v2, `fuse_func`, auxiliary bands, `GeoBox` |
+| pystac-client / pystac | 0.9.0 / 1.15.2 | ≥ 0.8 | `CollectionSearch`, CQL2 handling |
+| rioxarray / rasterio | 0.23.0 / 1.5.1 | ≥ 0.22 / ≥ 1.5 | GeoZarr `spatial:`/`proj:` conventions, `thread_safe=True`, GDAL ≥ 3.8 |
+| geopandas / pyogrio | 1.1.4 / 0.13.0 | ≥ 1.1 / ≥ 0.12 | pyogrio default engine, `use_arrow`, GeoParquet bbox pushdown |
+| earthaccess | 0.19.0 | ≥ 0.17 | explicit `login()`, `EARTHDATA_TOKEN`, `virtualize()` |
+| earthengine-api / xee | 1.7.43 / 0.1.2 | ≥ 1.6.12 / ≥ 0.1 | project-required init; `crs`/`crs_transform`/`shape_2d` API the code already uses |
+| dask | 2026.8.0 | ≥ 2025.1 | dataframe expressions merged; array expressions still opt-in |
+| icechunk / virtualizarr | 2.2.0 / 2.7.3 | optional extra | future Zarr-store outputs and virtual NetCDF access |
+| pooch | 1.9.0 | new dependency | hashed, cached downloads of the static GeoTIFF/zip products |
+
+- **`pyproject.toml`** as the single manifest with **hatchling + hatch-vcs** (the Scientific
+  Python guide default; version from git tags), pixi config in `[tool.pixi.*]` so there is one
+  dependency list (pixi resolves conda-forge first, PyPI second; `pixi` 0.81 supports this
+  fully). Drop `bump-my-version`'s four-file search/replace.
 - **Optional extras** to shrink the default install: `easysnowdata[earthengine]` (earthengine-api,
   xee), `[earthdata]` (earthaccess, h5netcdf), `[stations]`, `[plot]` (matplotlib, folium,
   contextily, mapclassify), `[all]`. Core: xarray, rioxarray, odc-stac, odc-geo, pystac-client,
@@ -649,14 +702,21 @@ before the docs rewrite (so the stations gallery examples are written once).
 - **Python support**: **3.12–3.14**. `earthaccess` dropped 3.11 in 0.18 (May 2026) and added
   3.14 in 0.19, and `global_snow_networks` already requires ≥ 3.12; keeping 3.11 would pin us to
   an `earthaccess` without the explicit-login and `virtualize()` APIs this plan relies on.
-- **Lint/format/type**: ruff with a broader rule set (`B`, `SIM`, `PL`, `RUF`, `D` for public
-  API), `mypy --strict` on `aoi`, `auth`, `catalog`, `processing` (the pure parts), `codespell`,
-  pre-commit kept.
-- **Publishing**: PyPI **trusted publishing (OIDC)** in `pypi.yml` instead of a stored password;
-  build sdist+wheel with `python -m build`; `git-changelog` kept but generated from conventional
-  commits on release, not pushed to `main` from CI with `[skip ci]`.
+- **Lint/format/type**: ruff (weekly releases; 0.16 now) with the Scientific Python guide's
+  `extend-select` set (`ARG B C4 EM EXE FURB G ICN ISC LOG NPY PD PERF PGH PL PT PTH PYI Q RET
+  RSE RUF SIM SLOT T10 T20 TC TRY UP`, ignoring `PLR09`/`PLR2004`) plus `D` for the public API
+  — `T20` alone catches every stray `print`; `mypy --strict` (2.x) on `aoi`, `auth`, `catalog`,
+  `processing` (the pure parts), with `pyrefly`/`ty` as optional fast checkers; `codespell`;
+  `pre-commit` kept (or `prek`, its Rust drop-in).
+- **Publishing**: PyPI **trusted publishing (OIDC)** via `pypa/gh-action-pypi-publish` ≥ 1.11
+  (attestations on by default) instead of a stored password; build sdist+wheel with
+  `python -m build`; `git-changelog` kept but generated from conventional commits on release,
+  not pushed to `main` from CI with `[skip ci]`.
 - **conda-forge**: feedstock update for the new dependency split; `easysnowdata` metapackage
-  pulling `[all]` equivalents.
+  pulling `[all]` equivalents; enable bot automerge on the feedstock.
+- **Outputs**: rioxarray 0.23 writes the GeoZarr `spatial:`/`proj:` conventions (now an OGC
+  SWG spec, also read by GDAL 3.13), so `to_zarr()` from any easysnowdata result should
+  round-trip CRS without extra work — one more reason attrs must stay serializable (§2.5).
 - **Repo hygiene**: remove `MANIFEST.in` (setuptools reads pyproject), `.editorconfig` keep,
   `CITATION.cff` updated on release via the same tag workflow, `CHANGELOG.md` kept.
 
@@ -690,8 +750,9 @@ with the catalog entry as the shared contract.
 4. **Nodata default**: raw sentinel + `rio.nodata` (categorical) and NaN-masked (continuous), or
    one rule for all? (§2.5)
 5. **Backward compatibility**: deprecation shims for one release, or clean break at 0.1.0?
-6. **Docs tooling**: stay on mkdocs + `mkdocs-gallery`, or move to Sphinx + sphinx-gallery +
-   myst-nb (the pangeo norm)? Quarto is the third option if you want `.qmd`.
+6. **Docs tooling**: move to Sphinx + pydata theme + sphinx-gallery + myst-nb (recommended;
+   `mkdocs-gallery` is dormant), or stay on mkdocs-material + mkdocs-jupyter with a home-grown
+   gallery index? Quarto (`freeze: auto`) is the third option if you want `.qmd`.
 7. **Earth Engine as optional**: OK to make GEE an extra and to move HUC, LIA, and SNODAS
    defaults to non-GEE routes (WBD REST, OPERA static, NSIDC), keeping GEE as an alternative
    source?
@@ -709,7 +770,12 @@ with the catalog entry as the shared contract.
     `pyproject.toml`? Trusted publishing (needs a one-time PyPI setting)?
 14. **Scope guard**: which issue-#11 items, if any, must land in the rewrite rather than after?
 15. **Plotting**: drop the `example_plot`-in-attrs pattern entirely in favour of
-    `esd.plotting.categorical(da)` (proposed), or keep a convenience `da.esd.plot()` accessor?
+    `esd.plotting.categorical(da)` (proposed), or keep a convenience `da.esd.plot()` accessor
+    (the rioxarray/odc-geo/cf-xarray pattern; cheap to add later)?
+16. **Water-year helpers**: keep the pandas-based `datetime_to_WY`/`DOWY` functions (also
+    duplicated in `global_snow_networks/utils`), or standardize on xarray idioms
+    (`resample(time="YS-OCT")`, a `water_year` coordinate + `UniqueGrouper`) with the
+    functions kept as thin wrappers?
 
 ---
 
@@ -752,7 +818,20 @@ live on 2026-09-15 unless noted):
   Köppen-Geiger (Beck 2023) current file is `61012822`, not `45057352`.
 - **xee 0.1.x** (0.1.2, 2026-07-14): `scale`/`geometry` removed in favour of `crs` /
   `crs_transform` / `shape_2d`; dims now `(time, y, x)`; helpers `extract_grid_params`,
-  `fit_geometry`. Belongs on `gee-and-xee.md` (which still says "confirm stable install path").
+  `fit_geometry`; `ee_init_if_necessary`/`ee_init_kwargs` for Dask workers. Belongs on
+  `gee-and-xee.md` (which still says "confirm stable install path").
+- **`odc-stac` ignores `raster:bands` scale/offset** (stackstac applies them); Earth Search
+  Sentinel-2 items carry `scale 0.0001, offset -0.1` so `stac_cfg` is unnecessary there.
+  Belongs on `odc-stac-and-odc-geo.md`.
+- **xarray `keep_attrs=True` is the default since 2025.11.0**, zarr ≥ 3 is the minimum since
+  2026.04, default netCDF engine flipped to h5netcdf and back (2025.09.1 → 2025.10.1: pass
+  `engine=` explicitly). Belongs on `xarray.md`.
+- **`mkdocs-gallery` is dormant (no release since 2024-09); `sphinx-gallery` is the only
+  maintained thumbnail gallery; `mkdocs-jupyter` has no execution cache.** Belongs on
+  `environment-and-package-management.md` or a new docs-tooling page.
+- **Stack now requires Python ≥ 3.12**: rasterio 1.5 (GDAL ≥ 3.8), rioxarray 0.23, zarr 3.3,
+  numpy 2.5, earthaccess 0.18. `stackstac` last released 2024-08 — treat as legacy. Belongs on
+  the per-package "Version & maintenance status" notes.
 - The credential-provider pattern (§5) once implemented, as a worked example for
   `data-access/earthdata-and-earthaccess.md` and `gee-and-xee.md` (GDAL cookie jar + Dask
   workers is the non-obvious part).
