@@ -16,9 +16,11 @@ endpoint is reachable and returns data:
 * earthaccess.search_data() for NASA NSIDC sources.
 
 Credentials are read from environment variables:
-    EARTHENGINE_TOKEN     — Google Earth Engine (JSON string)
-    EARTHDATA_USERNAME    — NASA EarthData username
-    EARTHDATA_PASSWORD    — NASA EarthData password
+    EARTHENGINE_TOKEN     — Google Earth Engine (service-account or OAuth JSON,
+                            raw or base64)
+    EARTHDATA_TOKEN       — NASA Earthdata Login bearer token (preferred), or
+    EARTHDATA_USERNAME +
+    EARTHDATA_PASSWORD    — NASA Earthdata username and password
 """
 
 from __future__ import annotations
@@ -70,21 +72,40 @@ def _url_ok(url: str) -> tuple[bool, str]:
         return False, str(exc)
 
 
+def _env_satisfied(requires_env: list[str] | list[list[str]]) -> tuple[bool, str]:
+    """Return (ok, reason) for an env-var requirement.
+
+    *requires_env* is either a flat list (every variable must be set) or a
+    list of alternative groups, any one of which suffices; e.g.
+    ``[["EARTHDATA_TOKEN"], ["EARTHDATA_USERNAME", "EARTHDATA_PASSWORD"]]``.
+    """
+    groups: list[list[str]] = (
+        [list(requires_env)]  # type: ignore[arg-type]
+        if requires_env and isinstance(requires_env[0], str)
+        else [list(g) for g in requires_env]  # type: ignore[union-attr]
+    )
+    for group in groups:
+        if all(os.getenv(v) for v in group):
+            return True, ""
+    wanted = " or ".join(" + ".join(g) for g in groups)
+    return False, f"Missing env vars: {wanted}"
+
+
 def _check(
     name: str,
     fn: Callable[[], None],
     *,
-    requires_env: list[str] | None = None,
+    requires_env: list[str] | list[list[str]] | None = None,
 ) -> dict:
     """Run *fn* and return a result dict."""
     now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     if requires_env:
-        missing = [v for v in requires_env if not os.getenv(v)]
-        if missing:
+        ok, reason = _env_satisfied(requires_env)
+        if not ok:
             return {
                 "source": name,
                 "status": "skip",
-                "error": f"Missing env vars: {', '.join(missing)}",
+                "error": reason,
                 "checked_at": now,
             }
     try:
@@ -313,11 +334,13 @@ def check_nlcd_gee() -> None:
 def check_ucla_snow_reanalysis_earthaccess() -> None:
     import earthaccess
 
-    earthaccess.login(
-        strategy="environment",
-        username=os.environ["EARTHDATA_USERNAME"],
-        password=os.environ["EARTHDATA_PASSWORD"],
-    )
+    # The "environment" strategy reads EARTHDATA_TOKEN first and falls back to
+    # EARTHDATA_USERNAME + EARTHDATA_PASSWORD (earthaccess >= 0.16).
+    auth = earthaccess.login(strategy="environment")
+    if not auth.authenticated:
+        raise RuntimeError(
+            "Earthdata Login rejected the credentials in the environment."
+        )
     results = earthaccess.search_data(
         short_name="WUS_UCLA_SR",
         cloud_hosted=True,
@@ -392,7 +415,10 @@ CHECKS: list[dict] = [
     {
         "name": "UCLA Snow Reanalysis (NASA NSIDC)",
         "fn": check_ucla_snow_reanalysis_earthaccess,
-        "requires_env": ["EARTHDATA_USERNAME", "EARTHDATA_PASSWORD"],
+        "requires_env": [
+            ["EARTHDATA_TOKEN"],
+            ["EARTHDATA_USERNAME", "EARTHDATA_PASSWORD"],
+        ],
     },
 ]
 

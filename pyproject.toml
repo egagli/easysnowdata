@@ -108,8 +108,8 @@ quote-style = "double"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = [
-    "requires_earthengine: marks tests that require a valid EARTHENGINE_TOKEN env var",
-    "requires_earthaccess: marks tests that require EARTHDATA_USERNAME and EARTHDATA_PASSWORD env vars",
+    "requires_earthengine: marks tests that need Google Earth Engine credentials (EARTHENGINE_TOKEN or ~/.config/earthengine/credentials)",
+    "requires_earthaccess: marks tests that need NASA Earthdata credentials (EARTHDATA_TOKEN, EARTHDATA_USERNAME + EARTHDATA_PASSWORD, or a ~/.netrc entry)",
     "integration: marks slow integration tests that make live external API calls",
 ]
 filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]

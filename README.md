@@ -74,8 +74,8 @@ Some data sources need free accounts and credentials passed as environment varia
 
 | Service | Env vars | Sign-up |
 |---------|----------|---------|
-| Google Earth Engine | `EARTHENGINE_TOKEN` | [earthengine.google.com](https://earthengine.google.com) |
-| NASA EarthData | `EARTHDATA_USERNAME`, `EARTHDATA_PASSWORD` | [urs.earthengine.nasa.gov](https://urs.earthdata.nasa.gov) |
+| Google Earth Engine | `EARTHENGINE_TOKEN` (or `~/.config/earthengine/credentials` from `ee.Authenticate()`) | [earthengine.google.com](https://earthengine.google.com) |
+| NASA Earthdata | `EARTHDATA_TOKEN` (recommended), or `EARTHDATA_USERNAME` + `EARTHDATA_PASSWORD`, or a `~/.netrc` entry from `earthaccess.login(persist=True)` | [urs.earthdata.nasa.gov](https://urs.earthdata.nasa.gov) |
 
 Planetary Computer and anonymous GCS access require no credentials.
 
