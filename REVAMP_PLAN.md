@@ -398,6 +398,7 @@ open, and a 2026-04 discussion reports Sentinel-2 ingestion lag).
 | HLS L30/S30 v2.0 | CMR-STAC `LPCLOUD`, `HLSL30_2.0`/`HLSS30_2.0`, EDL via GDAL netrc + cookie file at import, per-item XML metadata fetch | ⚠️ works; #5, #6 | Ids and both CMR-STAC roots verified current (also `HLSL30_VI_2.0` / `HLSS30_VI_2.0` vegetation-index products). PC has an `hls2` dataset folder in `planetary-computer-tasks` (no-credential alternative) 🔍 collection ids once PC is back. Replace per-item XML scraping with STAC properties. Fmask bit decoding → `processing.optical.decode_fmask`. Auth via `auth.earthdata` context manager so Dask workers inherit GDAL config (fixes #5). |
 | Landsat C2 L2 | not implemented | — | Cheap to add via `providers.stac`: Earth Search `landsat-c2-l2` (verified), PC `landsat-c2-l2`, or USGS `https://landsatlook.usgs.gov/stac-server` (requester-pays S3), which also has **`landsat-c2l3-fsca`, a fractional snow cover product**. Useful for pre-2015 snow cover. |
 | MODIS surface reflectance / VIIRS | not implemented (#11) | — | Backlog; VIIRS `VNP09GA` via GEE or `earthaccess`. |
+| **PlanetScope (PSScene, 3 m, 4/8-band) and SkySat (50 cm)** — Planet Labs | not in the package. A rough `PlanetData` class lives in the untracked `docs/examples/sandbox.ipynb` (Data API v1 quick-search with geometry/date/cloud filters → per-item asset activation and polling → `rioxarray.open_rasterio` on the full-scene GeoTIFF → `clip_box` → `xr.concat` over time, plus a folium preview using the `tiles.planet.com` XYZ endpoint), and six `ortho_analytic_4b` scenes it downloaded (3.6 GB, untracked, 2023-07-01 over the Rainier AOI: 4-band uint16, EPSG:32610, 3 m, COG layout, nodata 0, 555–675 MB each) | 🆕 asked for on 2026-09-15 (§12 Q17); nothing to break yet | Ship in Phase 2 as `optical.planetscope` on a new `providers.planet` built on the **`planet` SDK 3.x** (3.6.0 on PyPI and conda-forge, checked 2026-09-15; sync `Planet()` client with `.data`, `.orders`, `.subscriptions`, `.features`, `.mosaics`). **Search** with the Data API (`pl.data.search(item_types=["PSScene"], search_filter=...)`; return the items as a GeoDataFrame like every other `search_*`). **Load** by default through the **Orders API with the `clip` tool** (plus `harmonize`/`composite` on request), so Planet delivers COGs cut to the AOI: the sandbox route activates and streams whole 600 MB strips to clip a 0.4°×0.3° box, which is what burns an Education & Research quota and is where its `ChunkedEncodingError`s came from. Keep the Data API asset read as `source="data-api"` for single-scene quick looks. Decode the **UDM2** usable-data mask (it has clear/snow/shadow/haze/cloud bands) in `processing.optical.decode_udm2` — the snow band is directly useful. Analysis-Ready PlanetScope (daily, harmonized) and Planetary Variables come through the Subscriptions API and stay Tier 3 until there is a use. Credentials via the `planet` auth provider (§5). Tests: recorded Data API responses for the unit tier; the live smoke test only *searches* (free) behind `requires_planet`; ordering tests are manual because they spend quota. Health probe: an authenticated `GET https://api.planet.com/data/v1/` (no quota). Licence: Planet imagery is not redistributable, so no scene crops go in git unless the E&R licence allows it `[needs Eric]`; the local scenes can seed a synthetic fixture instead. Companion §B.11 compares the access routes. |
 
 ### 4.3 Snow products
 
@@ -569,6 +570,7 @@ Five providers, five mechanisms, and the package currently glues them together i
 | Planetary Computer | none; optional `PC_SDK_SUBSCRIPTION_KEY` for higher rate limits | env var | signed hrefs (handled by `planetary-computer`) |
 | Earth Search / AWS Open Data / GCS anonymous | none | — | `AWS_NO_SIGN_REQUEST=YES`, `GDAL_DISABLE_READDIR_ON_OPEN=EMPTY_DIR` |
 | NVE HydAPI (Norway stations, from `global_snow_networks`) | free API key | `NVE_API_KEY` | — |
+| Planet (PlanetScope, SkySat, basemaps) | a Planet account with data access (Eric's is through the Education & Research program `[needs Eric: quota, licence terms]`); the `planet` SDK 3.x accepts an **OAuth2 user session** (`planet auth login`, browser or device-code flow), a **legacy API key** (`PL_API_KEY` for `Auth.from_env()`, `PL_AUTH_API_KEY` for the default session), or an **OAuth2 machine-to-machine client** (`PL_AUTH_CLIENT_ID` + `PL_AUTH_CLIENT_SECRET`); `PL_AUTH_PROFILE` selects a saved profile — all read from the SDK source, 2026-09-15 | `~/.planet.json` (legacy) and `~/.planet/` (OAuth2 profiles) written by the `planet` CLI; env vars in CI (no `PL_API_KEY` secret exists yet `[needs Eric]`) | none — the Orders/Data APIs hand out signed download URLs; nothing to configure in GDAL |
 | Copernicus CDS / CDSE (future) | key/token | `~/.cdsapirc` / env | — |
 
 ### 5.2 Proposal: `easysnowdata.auth`
@@ -582,7 +584,7 @@ esd.auth.login("earthengine", project="my-gcp-project")
 ```
 
 - **One `Provider` class per credentialed service** (`earthdata`, `earthengine`, `planetary_computer`,
-  `nve`, later `cdse`), each implementing `detect() -> bool`, `login(interactive=True, persist=True)`,
+  `planet`, `nve`, later `cdse`), each implementing `detect() -> bool`, `login(interactive=True, persist=True)`,
   `ensure()` (initialize once, idempotent, cached), `env() -> contextmanager` (yields the GDAL /
   rasterio / fsspec configuration needed for reads), and `setup_instructions: str`.
 - **Compute-region detection (decided 2026-09-15).** `esd.config.region()` answers "am I in
@@ -598,7 +600,7 @@ esd.auth.login("earthengine", project="my-gcp-project")
 - **Visibility (decided 2026-09-15).** `import easysnowdata` runs the cheap `detect()` checks
   (environment variables and file existence only — no network, so §2.9 still holds) and, in an
   interactive session (IPython/Jupyter or a TTY), prints one compact line, e.g.
-  `easysnowdata 0.1.0 · credentials: Earthdata ✓ (netrc) · Earth Engine ✗ · NVE ✗ · compute: local (HTTPS access) — see esd.auth.status()`
+  `easysnowdata 0.1.0 · credentials: Earthdata ✓ (netrc) · Earth Engine ✗ · Planet ✗ · NVE ✗ · compute: local (HTTPS access) — see esd.auth.status()`
   (or `compute: AWS us-west-2 (direct S3 access)`).
   In scripts and CI the same line goes to the `easysnowdata` logger at INFO; `EASYSNOWDATA_QUIET=1`
   silences it. Calling a product whose default source needs missing credentials raises
@@ -625,6 +627,16 @@ esd.auth.login("earthengine", project="my-gcp-project")
   buckets, `CPL_VSIL_CURL_USE_HEAD=NO` only where a server rejects HEAD (GRDC). GDAL ≥ 3.13
   also handles 302-on-HEAD and retries range reads on 429/5xx, so the floor matters (rasterio
   1.5 wheels bundle GDAL 3.12; conda-forge has 3.13).
+- **Planet**: delegate everything to the `planet` SDK's own auth stack (`planet.Auth.from_user_default_session()`,
+  which already applies the SDK's precedence: env vars, then `~/.planet.json` / `~/.planet/`, then
+  built-in defaults). `detect()` checks `PL_API_KEY` / `PL_AUTH_API_KEY` / `PL_AUTH_CLIENT_ID` +
+  `PL_AUTH_CLIENT_SECRET` and the existence of those files — no network; `login()` runs the SDK's
+  interactive OAuth2 flow (`planet auth login`) and never stores a key in a file of our own;
+  `ensure()` builds one `planet.Planet` client per process; `env()` is a no-op because the APIs
+  return signed URLs. `CredentialError` names the account page and the E&R program. Because every
+  order spends quota, the provider also exposes the account's remaining quota when the Quota API
+  lands in the SDK (listed as a future API in the SDK README), and loaders refuse to order without
+  an AOI.
 - **Earthdata**: delegate detection and login to `earthaccess.login(strategy=...)` and call it
   **explicitly** before any `open()`/`download()` (auto-login was removed in `earthaccess`
   0.16; `EARTHDATA_TOKEN` takes precedence over username/password since then, matching what
@@ -653,7 +665,7 @@ esd.auth.login("earthengine", project="my-gcp-project")
 | --- | --- | --- | --- | --- |
 | unit | (none) | no | every push/PR, all OSes | AOI parsing (tuple/geometry/gdf/GeoBox, CRS round-trips, antimeridian), water-year helpers, catalog validation, CF flag tables, `processing.*` on synthetic arrays (SCL/Fmask masks, S2 harmonization offsets, scaling, dB round-trip, indices, RGB stretch shapes/ranges, LIA on a synthetic plane and slope), `auth` detection with monkeypatched env/files, plotting smoke with the Agg backend, deprecation shims |
 | recorded | `recorded` | no (cassettes/fixtures) | every push/PR | STAC searches replayed with `pytest-recording` (vcrpy) cassettes; loaders exercised against tiny local COGs/Zarr/GeoParquet fixtures generated by a script in `tests/fixtures/`; Earth Engine calls mocked at the `providers.gee` boundary |
-| live | `live` + `requires_earthdata` / `requires_earthengine` | yes | nightly or weekly schedule, `workflow_dispatch`, and on release branches | one smoke test per product source: search returns items, load returns the documented dims/dtype/CRS, a small `.compute()` succeeds |
+| live | `live` + `requires_earthdata` / `requires_earthengine` / `requires_planet` | yes | nightly or weekly schedule, `workflow_dispatch`, and on release branches | one smoke test per product source: search returns items, load returns the documented dims/dtype/CRS, a small `.compute()` succeeds |
 
 Skips are driven by `auth.status()`, so a CI runner with an Earthdata token no longer skips
 Earthdata tests (today's conftest ignores `EARTHDATA_TOKEN`).
@@ -917,8 +929,8 @@ before the docs rewrite (so the stations gallery examples are written once).
 | Phase | Scope | Exit criteria | Rough size |
 | --- | --- | --- | --- |
 | **0 Stabilize** | GRDC: GET-then-read and GET-first health probe; add explicit `earthaccess.login()` to UCLA SR and MOD10A1F and set `cloud_hosted=True`; switch Köppen to file `61012822`; fix UCLA `stats` mapping; fix conftest to honour `EARTHDATA_TOKEN`; mark live tests and split `test`/`test-live` pixi tasks; CI runs offline tests on push, live tests weekly; declare `pyyaml`/`requests`, drop unused deps; `requires-python>=3.12`; release 0.0.26 | CI green on `main`; README status table has no long-standing red rows without an issue | days |
-| **1 Foundations** | `aoi`, `auth`, `catalog`, `providers`, `processing`, `plotting`, logging; no import side effects; deprecation shim mechanism; unit + recorded test tiers; pixi in CI | 100% offline coverage of the new modules; old public API unchanged and still passing live smoke tests | 2–3 weeks |
-| **2 Products** | Migrate theme by theme: terrain → land → snow (static) → hydro → climate → optical → SAR → snow (time series). Eric's three priorities land inside this phase as the first *new* routes: **VIIRS snow (VNP10A1/VNP10A1F) with the MODIS→NSIDC switch, NSIDC direct SNODAS, and the HLS modernization**; OPERA RTC-S1 + static incidence layers follow in the SAR step. Each product: catalog entry, loader on providers, source modernization from §4, one recorded test, one live smoke test, one gallery script | old modules are shims only; every product has all four artefacts (§2.11) | 4–6 weeks, parallelizable by theme |
+| **1 Foundations** | `aoi`, `auth` (Earthdata, Earth Engine, Planet, NVE providers), `catalog`, `providers`, `processing`, `plotting`, logging; no import side effects; deprecation shim mechanism; unit + recorded test tiers; pixi in CI | 100% offline coverage of the new modules; old public API unchanged and still passing live smoke tests | 2–3 weeks |
+| **2 Products** | Migrate theme by theme: terrain → land → snow (static) → hydro → climate → optical → SAR → snow (time series). Eric's three priorities land inside this phase as the first *new* routes: **VIIRS snow (VNP10A1/VNP10A1F) with the MODIS→NSIDC switch, NSIDC direct SNODAS, and the HLS modernization**; OPERA RTC-S1 + static incidence layers follow in the SAR step; **PlanetScope via the `planet` SDK (Data API search, Orders API clip) is the first key-gated commercial source and lands in the optical step** (§4.2, §12 Q17). Each product: catalog entry, loader on providers, source modernization from §4, one recorded test, one live smoke test, one gallery script | old modules are shims only; every product has all four artefacts (§2.11) | 4–6 weeks, parallelizable by theme |
 | **3 Stations** | §9 steps 1–6 | `global_snow_networks` pipeline runs against `easysnowdata.stations.clients`; `StationCollection` shim passes its old tests | 1–2 weeks |
 | **4 Docs & automation** | mkdocs-gallery (or fallback), catalog pages, credentials page, README gallery montage, health→issue, latency probe, watch digest, routine prompt | site builds in CI from examples without committed outputs; weekly digest issue appears | 2 weeks |
 | **5 Release 0.1 → 1.0** | remove shims after one minor cycle; conda-forge feedstock; Zenodo version; announce | API frozen; docs and health green | after 2–3 months of use |
@@ -949,6 +961,7 @@ with the catalog entry as the shared contract.
 | 14 | Idea dump | **Evaluate each item in a table** (why it matters, access, verdict); include in the rewrite only what earns it | companion file §C |
 | 15 | Plotting | **`esd.plotting.categorical(da)`**, no callables in attrs | §2.7 |
 | 16 | Water-year helpers | Asked for the trade-offs — see below; recommendation: keep the function names, reimplement vectorized on top of the `global_snow_networks` `utils` implementation, add `processing.time.add_water_year_coords()`, and document the `resample(time="YS-OCT")` idiom | §2.6 |
+| 17 | Planet | **Integrate Planet data access and authentication into the plan** (asked 2026-09-15 while Phase 0 ran). The rough `PlanetData` class in `docs/examples/sandbox.ipynb` is the seed; PlanetScope moves from the companion's Tier 3 shelf to Tier 2 and ships in Phase 2 behind a `planet` auth provider. No code lands in Phase 0 (no new modules, no public API) | §4.2, §5, §11; companion §A, §B.11, §C, §E.1 |
 
 ### 12.1 Water-year helpers: trade-offs (Q16)
 
@@ -980,6 +993,10 @@ For `all_project_memory/INBOX.md`:
   blob — same expiry problem as the P3 store; needs re-hosting before 2026-10-26 / 2026-12-31.
 - `global_snow_networks` → `easysnowdata.stations` merge plan (§9) as the concrete form of the
   2026-09-15 decision recorded in `_meta/software.md`.
+- Planet is now in the easysnowdata plan (§12 Q17): PlanetScope/SkySat via the `planet` SDK,
+  Phase 2. Connects to the P2 note "near-daily binary snow mask (e.g., PlanetScope)" and the
+  snow-ideas item "use planet imagery to confirm snowmelt (tested over Mill Creek)". The
+  3.6 GB of PlanetScope scenes under `docs/examples/planet_data/` are untracked and licence-bound.
 
 For `geospatial_data_and_visualization_best_practices/TO_BE_INCORPORATED.md` (all verified
 live on 2026-09-15 unless noted):
@@ -1036,6 +1053,14 @@ live on 2026-09-15 unless noted):
   (bytes still need NASA creds in-region), DestinE EDH ERA5-Land Zarr v3 (token);
   **`s3://hrrrzarr` ends October 2026**; kerchunk is in maintenance mode and Pangeo Forge is
   no longer developed. Belongs on `zarr-cloud-visualization-ecosystem.md` / `other-data-portals.md`.
+- **Planet SDK 3.x auth model** (checked 2026-09-15 from the SDK source, 3.6.0): OAuth2 is the
+  default (`planet auth login`, sessions under `~/.planet/`), API keys are legacy but still read
+  (`PL_API_KEY` by `Auth.from_env()`, `PL_AUTH_API_KEY` by the default session), M2M clients use
+  `PL_AUTH_CLIENT_ID`/`PL_AUTH_CLIENT_SECRET`; 2.x is in maintenance since 2025-08. Access
+  pattern: search with the Data API, **clip with the Orders API** rather than streaming
+  full-scene GeoTIFFs and clipping locally (quota is charged by area; whole PSScene strips are
+  550–675 MB). Belongs on a new `planet.md` data-access page next to the basemap-API quirks
+  already in the inbox.
 - The credential-provider pattern (§5) once implemented, as a worked example for
   `data-access/earthdata-and-earthaccess.md` and `gee-and-xee.md` (GDAL cookie jar + Dask
   workers is the non-obvious part).

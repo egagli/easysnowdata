@@ -57,6 +57,7 @@ Login) / GEE (Earth Engine) / key.
 | --- | --- | --- | --- |
 | optical | Landsat Collection 2 Level-2 | Earth Search / PC `landsat-c2-l2` (none); USGS `landsatlook` STAC (requester-pays) | pre-2015 snow cover; the USGS catalog also has `landsat-c2l3-fsca` fractional snow cover |
 | optical | VIIRS daily surface reflectance VNP09GA | GEE `NASA/VIIRS/002/VNP09GA` (GEE); LPCLOUD (EDL) | the reflectance behind VIIRS snow; issue #11 |
+| optical | 🆕 PlanetScope PSScene 3 m (4/8-band, SR, UDM2) and SkySat 50 cm | Planet Data API search + Orders API clip via the `planet` SDK 3.x (Planet account: OAuth2 session or API key; E&R quota) | Eric's ask (plan §12 Q17): near-daily 3 m snow-covered area and snow-disappearance dates at hillslope scale, validation chips for MODIS/VIIRS/S2 products; the UDM2 mask has a snow band; a rough `PlanetData` class already exists in `docs/examples/sandbox.ipynb`; see B.11 |
 | snow | ASO lidar snow depth / SWE 50 m | NSIDC `ASO_50M_SD`, `ASO_50M_SWE` (EDL, cloud) | the validation dataset for any SWE product; also the subject of P21 |
 | snow | AMSR daily SWE | NSIDC `AU_DySno` (EDL, cloud) | only passive-microwave SWE in the set; coarse but global and daily |
 | snow | ICESat-2 ATL06 / ATL08 | NSIDC v007 (EDL, cloud) | snow depth by differencing; `icepyx`/`sliderule` exist — wrap, don't rewrite |
@@ -74,7 +75,7 @@ Login) / GEE (Earth Engine) / key.
 
 ### Tier 3 — on the shelf (see C for why)
 
-GOES LST (#8), SWOT, RADARSAT-1, PALSAR-2, NISAR GCOV, Planet, HRRR Zarr (service ending),
+GOES LST (#8), SWOT, RADARSAT-1, PALSAR-2, NISAR GCOV, HRRR Zarr (service ending),
 Sentinel-3 SYN, SMAP, MODIS albedo (MCD43), SnowEx campaign data, stream gauges, geoBoundaries,
 census/TIGER, GIBS/Worldview, declassified imagery, EOPF Zarr (watch).
 
@@ -221,6 +222,37 @@ listed as sources for reproducibility (versioned Icechunk snapshots) and for `sn
 **Defaults:** WBD REST for HUCs (drops the GEE requirement for a public dataset); BasinATLAS for
 attributes with HydroSHEDS regional zips as the lighter route; GEE as alternatives.
 
+### B.11 PlanetScope / SkySat (Planet Labs)
+
+Added 2026-09-15 (plan §12 Q17). What exists locally: the untracked `docs/examples/sandbox.ipynb`
+holds a `PlanetData` class written against the Data API v1 with `requests` (quick-search with
+geometry / `acquired` / `cloud_cover` filters → per-item asset activation and polling →
+`rioxarray.open_rasterio` on the activated full-scene GeoTIFF → `clip_box` → `xr.concat` over
+`time`, plus a folium preview that overlays `https://tiles.planet.com/data/v1/{item_type}/{item_id}/{z}/{x}/{y}.png`),
+and `docs/examples/planet_data/` holds the six `PSScene` `ortho_analytic_4b` strips it fetched for
+2023-07-01 over the Rainier AOI (4-band uint16 blue/green/red/nir, EPSG:32610, 3 m, 256-px tiles
+with 3/9/27 overviews, nodata 0, 12–13 k × 8.7–9.4 k px, 555–675 MB each — 3.6 GB to clip a
+0.4° × 0.27° box). That is the argument for the default below.
+
+| | Data API (search) + direct asset read | **Orders API with `clip`** | Subscriptions API | Sentinel Hub / Planet Insights Platform | Basemaps (Mosaics API) |
+| --- | --- | --- | --- | --- | --- |
+| What you get | item metadata; activated full-scene assets (`ortho_analytic_4b`, `_8b`, `_sr`, `ortho_udm2`, `ortho_visual`) as signed URLs | the same assets **cut to the AOI**, optionally `harmonize`d (to Sentinel-2 or Dove-Classic) and `composite`d, delivered as COGs to a zip or a cloud bucket | recurring delivery of new scenes or **Analysis-Ready PlanetScope** (daily, harmonized) / Planetary Variables to a bucket | STAC-style Catalog API + processing API over PlanetScope, S2, Landsat via `sentinelhub-py`; the SDK plans to absorb it | monthly/quarterly mosaics incl. NICFI tropics; quad tiles |
+| AOI clipping | client-side after streaming the whole strip (the sandbox route) | server-side | server-side | server-side (processing API) | quad-level |
+| Quota / cost | activation of a full scene charges the full scene area against an E&R quota; streaming 600 MB per scene | charged for the clipped area only | subscription-level | processing units | basemap licence |
+| Credentials | Planet account (OAuth2 session, API key, or M2M client) | same | same | Sentinel Hub OAuth client | same as Data API |
+| Fits the design contract | `search_*` returns a GeoDataFrame — yes; `load` lazy over signed URLs — yes but wasteful | `search` → `order` → `load` from delivered COGs (lazy, `odc-geo` grid) — yes; an order is an explicit, quota-spending step, so `load(..., order=True)` or a separate `order()` call | not an on-demand loader | different auth stack; later | different product |
+| Verified 2026-09-15 | SDK 3.6.0 on PyPI/conda-forge; env-var names from the SDK source; the sandbox route worked in 2024-10 (files on disk) | SDK README lists Orders as supported; tool names from the Planet docs 🔍 re-check against the SDK guide when implementing | SDK README lists Subscriptions | SDK README notes unification work | SDK README lists Mosaics |
+
+**Default:** Data API for search and quick-look tiles, **Orders API `clip` for anything that is
+loaded as an array**; `source="data-api"` keeps the direct-read route for single-scene checks.
+UDM2 decoding (`clear`, `snow`, `shadow`, `light haze`, `heavy haze`, `cloud`, `confidence`,
+`unusable` bands 🔍 confirm band order) goes to `processing.optical.decode_udm2`. Item types to
+support first: `PSScene` (3 m, 2016→, 4- and 8-band), then `SkySatCollect` (50 cm); RapidEye
+(`REOrthoTile`, ended 2020) only if a historical need appears. Tests: recorded Data API JSON for
+the unit tier; the live smoke test searches only (free); ordering stays a manual gallery step.
+Health probe: authenticated `GET https://api.planet.com/data/v1/`. Licence: Planet imagery is
+not redistributable — no real-scene crops in git without checking the E&R terms `[needs Eric]`.
+
 ---
 
 ## C. Evaluation of every product idea collected so far
@@ -260,7 +292,7 @@ re-implement · **reference** = not a product; kept in §E as an access pattern 
 | NISAR GCOV | L-band RTC | Eric's postdoc focus | ASF · HDF5 · EDL | medium; wait for operational data | **shelf** |
 | SWOT | surface water elevation, river/lake | lakes/reservoirs downstream of snowmelt; PO.DAAC S3 tutorials are a good access-pattern reference | PO.DAAC · NetCDF · EDL | medium | **shelf** (P5/P22 relevance later) |
 | RADARSAT-1 | historical C-band SAR 1995–2013 | pre-Sentinel-1 SAR record | ASF · EDL | medium | **shelf** |
-| Planet | commercial 3 m imagery, basemaps | validation chips; basemap-only API quirks recorded in best-practices inbox | Planet API · key/licence | medium | **shelf** |
+| Planet (PlanetScope, SkySat) | commercial 3 m daily imagery (PSScene, 4/8-band + UDM2), 50 cm SkySat, basemaps | near-daily 3 m snow-covered area and snow-disappearance timing at hillslope scale; validation chips for MODIS/VIIRS/S2 snow products (P2 lists a near-daily binary snow mask as the fix for MODIS's resolution); basemap-only API quirks already in the best-practices inbox | Planet Data + Orders APIs via the `planet` SDK 3.x · COG · Planet account (OAuth2/API key), E&R quota, non-redistributable licence | medium (SDK does search/order/download; our part is the AOI→order→COG→xarray glue, UDM2 decoding, and the `planet` auth provider) | **follow-on** (Tier 2, B.11) — asked for 2026-09-15, plan §12 Q17 |
 | HRRR | 3 km NWP | high-resolution forcings | `s3://hrrrzarr` — **service ends October 2026** per the AWS registry | — | **shelf** (do not build on the Zarr; native GRIB on `noaa-hrrr-bdp-pds` remains) |
 | Sentinel-3 SYNERGY VG1/V10 | 300 m / 1 km vegetation products | coarse snow-free/vegetation context; PC NetCDF example notebooks | PC · NetCDF · none | medium | **shelf** |
 | SMAP `SPL4SMGP` | soil moisture | soil-moisture pulses used in P12 validation | NSIDC · EDL | low | **shelf** (niche) |
@@ -299,6 +331,10 @@ sphinx-gallery), plus multi-source and access-pattern how-tos under `examples/ho
   the vectorized water-year helpers.
 - `plot_credentials_and_region.py` — what `esd.auth.status()` and `esd.config.region()` report,
   and how a `CredentialError` names the alternative source.
+- `plot_planetscope_vs_s2.py` — one PlanetScope order clipped to the AOI next to the same-day
+  Sentinel-2 scene, NDSI from both and the UDM2 snow band alongside (B.11); needs Planet
+  credentials and spends quota, so it lives in the credentialed gallery subset and is executed
+  only by the scheduled docs build.
 
 Each how-to doubles as a live integration test of two sources agreeing, and its thumbnail
 feeds the README gallery montage.
@@ -329,7 +365,9 @@ in the best-practices wiki rather than this package (**wiki**). Nothing is dropp
 | https://developers.google.com/earth-engine/datasets/catalog/NASA_NASADEM_HGT_001 | NASADEM on GEE | alternative DEM | **product**, Tier 2 (GEE source) |
 | https://planetarycomputer.microsoft.com/dataset/group/3dep-lidar | 3DEP lidar products on PC | US 1 m–10 m terrain from lidar | **product**, Tier 2 |
 | https://developers.google.com/earth-engine/datasets/tags/3dep | 3DEP on GEE | same, GEE route | **product**, Tier 2 (GEE source) |
-| https://github.com/planetlabs/notebooks/tree/master ; https://github.com/planetlabs/notebooks/blob/master/jupyter-notebooks/Data-API/planet_python_client_introduction.ipynb ; https://github.com/planetlabs/notebooks/tree/master/jupyter-notebooks | Planet API notebooks | commercial imagery access; licensing limits use | **product**, Tier 3; **access pattern** reference (per-mosaic probe gotcha already in the wiki) |
+| https://github.com/planetlabs/notebooks/tree/master ; https://github.com/planetlabs/notebooks/blob/master/jupyter-notebooks/Data-API/planet_python_client_introduction.ipynb ; https://github.com/planetlabs/notebooks/tree/master/jupyter-notebooks | Planet API notebooks | commercial imagery access; licensing limits use | **product**, Tier 2 (B.11); **access pattern** reference (per-mosaic probe gotcha already in the wiki) |
+| https://github.com/planetlabs/planet-client-python ; https://planet-sdk-for-python.readthedocs.io/en/latest/ ; https://planet-sdk-for-python.readthedocs.io/en/latest/auth/auth-overview/ | `planet` SDK 3.x repository, docs, client-authentication guide | the search/order/download client and the auth stack `providers.planet` and `auth.planet` delegate to | **access pattern** yes (B.11, plan §5) |
+| https://developers.planet.com/docs/data/psscene/ ; https://developers.planet.com/docs/data/analysis-ready-ps/ ; https://developers.planet.com/docs/subscriptions/imagery-subs/ ; https://developers.planet.com/docs/subscriptions/pvs-subs/ ; https://github.com/planetlabs/notebooks/blob/master/jupyter-notebooks/Data-API/search_and_preview_quickstart.ipynb | PSScene item/asset spec; Analysis-Ready PlanetScope; imagery and Planetary Variables subscriptions; search-and-preview quickstart (the links at the top of the sandbox `PlanetData` cell) | asset names and UDM2 definition for the catalog entry; ARPS/PV are the Tier 3 subscription products | **docs** (catalog page) + **reference** |
 | https://www.hydrocloud.org/station-list.html | hydrocloud stream-gauge station list | runoff validation for P2–P5 | **wrap** HyRiver; **reference** |
 | https://github.com/Unidata/MetPy | MetPy | unit-aware meteorological calculations | **reference**; possible backing for units in `processing` |
 | https://github.com/M3Works/metloom | metloom | peer station client (SNOTEL, CDEC, Mesowest) | **reference** for `stations` API design; not a dependency |
