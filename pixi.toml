@@ -35,6 +35,9 @@ zarr = "*"
 gcsfs = "*"
 fsspec = "*"
 h5netcdf = "*"
+# GDAL HDF4 driver (conda-forge splits it out of libgdal-core); needed to read
+# the MOD10A1F HDF-EOS2 granules. Not a Python package, so pixi-only.
+libgdal-hdf4 = "*"
 
 [feature.dev.dependencies]
 pytest = "*"

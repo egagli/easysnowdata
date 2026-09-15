@@ -110,6 +110,52 @@ def _has_earthaccess_credentials() -> bool:
         return False
 
 
+def _earthaccess_login() -> None:
+    """Log in to NASA Earthdata through ``earthaccess`` if not already done.
+
+    ``earthaccess`` >= 0.16 no longer logs in implicitly, so ``open()`` and
+    ``download()`` need an explicit ``earthaccess.login()`` first. The
+    strategy follows the package's credential-detection order: environment
+    variables (``EARTHDATA_TOKEN``, or ``EARTHDATA_USERNAME`` +
+    ``EARTHDATA_PASSWORD``) first, then ``~/.netrc``. It never prompts.
+
+    Raises
+    ------
+    CredentialError
+        If no credentials are found or Earthdata Login rejects them.
+    """
+    import earthaccess  # noqa: PLC0415
+
+    auth = getattr(earthaccess, "__auth__", None)
+    if auth is not None and getattr(auth, "authenticated", False):
+        return
+
+    if os.environ.get("EARTHDATA_TOKEN") or (
+        os.environ.get("EARTHDATA_USERNAME") and os.environ.get("EARTHDATA_PASSWORD")
+    ):
+        strategy = "environment"
+    elif _has_earthaccess_credentials():
+        strategy = "netrc"
+    else:
+        raise CredentialError(
+            f"NASA EarthData credentials are required.\n\n{_EARTHACCESS_SETUP_MSG}"
+        )
+
+    _logger.debug("Logging in to NASA Earthdata with strategy %r.", strategy)
+    try:
+        auth = earthaccess.login(strategy=strategy)
+    except Exception as exc:
+        raise CredentialError(
+            f"NASA EarthData login failed (strategy {strategy!r}): {exc}\n\n"
+            f"{_EARTHACCESS_SETUP_MSG}"
+        ) from exc
+    if not getattr(auth, "authenticated", False):
+        raise CredentialError(
+            f"NASA EarthData login failed (strategy {strategy!r}).\n\n"
+            f"{_EARTHACCESS_SETUP_MSG}"
+        )
+
+
 # ── Earth Engine initialisation ───────────────────────────────────────────────
 
 _EE_HIGH_VOLUME_URL = "https://earthengine-highvolume.googleapis.com"

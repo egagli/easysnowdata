@@ -18,6 +18,7 @@ import shapely
 import xarray as xr
 
 from easysnowdata.utils import (
+    _earthaccess_login,
     _fetch_to_cache,
     convert_bbox_to_geodataframe,
     get_ee_grid_params,
@@ -38,6 +39,10 @@ __all__ = [
 ]
 
 _logger = logging.getLogger(__name__)
+
+# Position of each ensemble statistic along the ``Stats`` dimension of the
+# WUS_UCLA_SR files: mean, standard deviation, median, 25th and 75th percentile.
+_UCLA_SR_STATS_INDEX = {"mean": 0, "std": 1, "median": 2, "25pct": 3, "75pct": 4}
 
 
 @requires_earthengine
@@ -893,15 +898,26 @@ def get_ucla_snow_reanalysis(
 
     Notes
     -----
-    Requires NASA EarthData authentication. Run ``earthaccess.login(persist=True)``
-    once, or call ``easysnowdata.authenticate_all()``.
+    Requires NASA EarthData credentials: ``EARTHDATA_TOKEN``, or
+    ``EARTHDATA_USERNAME`` + ``EARTHDATA_PASSWORD``, or a ``~/.netrc`` entry
+    (``earthaccess.login(persist=True)`` writes one). The function logs in
+    through ``earthaccess`` itself before opening any file.
 
     Data citation:
 
     Fang, Y., Liu, Y. & Margulis, S. A. (2022). Western United States UCLA Daily Snow Reanalysis. (WUS_UCLA_SR, Version 1). [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/PP7T2GBI52I2
     """
 
+    if stats not in _UCLA_SR_STATS_INDEX:
+        raise ValueError(
+            f"stats must be one of {list(_UCLA_SR_STATS_INDEX)}, got {stats!r}."
+        )
+    stats_index = _UCLA_SR_STATS_INDEX[stats]
+
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
+
+    # earthaccess >= 0.16 requires an explicit login before open()/download().
+    _earthaccess_login()
 
     search = earthaccess.search_data(
         short_name="WUS_UCLA_SR",
@@ -935,9 +951,6 @@ def get_ucla_snow_reanalysis(
     snow_reanalysis_ds = snow_reanalysis_ds.swap_dims({"Day": "time"})
 
     snow_reanalysis_ds = snow_reanalysis_ds.sel(time=slice(start_date, end_date))
-
-    stats_dictionary = {"mean": 0, "std": 1, "median": 2, "25pct": 2, "75pct": 3}
-    stats_index = stats_dictionary[stats]
 
     snow_reanalysis_da = snow_reanalysis_ds[variable].sel(Stats=stats_index)
     snow_reanalysis_da = snow_reanalysis_da.rio.set_spatial_dims(

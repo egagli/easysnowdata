@@ -235,6 +235,43 @@ class TestEra5Gee:
 
 
 # ---------------------------------------------------------------------------
+# UCLA snow reanalysis — offline checks of the ensemble-statistic mapping
+# ---------------------------------------------------------------------------
+class TestUclaSnowReanalysisStatsMapping:
+    def test_stats_indices_are_distinct_and_in_file_order(self):
+        from easysnowdata.hydroclimatology import _UCLA_SR_STATS_INDEX
+
+        # Regression: "median" and "25pct" used to share index 2.
+        assert _UCLA_SR_STATS_INDEX == {
+            "mean": 0,
+            "std": 1,
+            "median": 2,
+            "25pct": 3,
+            "75pct": 4,
+        }
+        assert len(set(_UCLA_SR_STATS_INDEX.values())) == len(_UCLA_SR_STATS_INDEX)
+
+    def test_invalid_stats_raises_before_any_network_call(self, monkeypatch):
+        from easysnowdata import hydroclimatology
+
+        monkeypatch.setattr(
+            "easysnowdata.utils._has_earthaccess_credentials", lambda: True
+        )
+        monkeypatch.setattr(
+            hydroclimatology, "_earthaccess_login", lambda: pytest.fail("login")
+        )
+        monkeypatch.setattr(
+            hydroclimatology.earthaccess,
+            "search_data",
+            lambda **kwargs: pytest.fail("network"),
+        )
+        with pytest.raises(ValueError, match="stats must be one of"):
+            hydroclimatology.get_ucla_snow_reanalysis(
+                bbox_input=TEST_BBOX, stats="mode"
+            )
+
+
+# ---------------------------------------------------------------------------
 # earthaccess-backed functions (EARTHDATA credentials required)
 # ---------------------------------------------------------------------------
 class TestUclaSnowReanalysis:
@@ -249,3 +286,18 @@ class TestUclaSnowReanalysis:
         )
         assert isinstance(result, xr.DataArray)
         assert "data_citation" in result.attrs
+
+    @pytest.mark.requires_earthaccess
+    def test_percentiles_bracket_the_median(self):
+        from easysnowdata.hydroclimatology import get_ucla_snow_reanalysis
+
+        kwargs = dict(
+            bbox_input=TEST_BBOX, start_date="2020-03-01", end_date="2020-03-02"
+        )
+        q25 = get_ucla_snow_reanalysis(stats="25pct", **kwargs).compute()
+        med = get_ucla_snow_reanalysis(stats="median", **kwargs).compute()
+        q75 = get_ucla_snow_reanalysis(stats="75pct", **kwargs).compute()
+        # Distinct Stats slices: the percentiles must differ from the median
+        # somewhere and be ordered where they do.
+        assert not med.equals(q25)
+        assert bool((q25 <= med).all()) and bool((med <= q75).all())

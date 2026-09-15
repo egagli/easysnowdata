@@ -209,3 +209,25 @@ class TestModisSnow:
         assert da.chunks is not None
         assert max(da.chunks[da.get_axis_num("x")]) <= 64
         assert max(da.chunks[da.get_axis_num("y")]) <= 64
+
+
+# ---------------------------------------------------------------------------
+# MODIS snow (MOD10A1F via NSIDC/earthaccess — EARTHDATA credentials required)
+# ---------------------------------------------------------------------------
+class TestModisSnowMod10a1f:
+    @pytest.mark.requires_earthaccess
+    def test_mod10a1f_downloads_and_stacks_by_time(self):
+        from easysnowdata.remote_sensing import MODIS_snow
+
+        modis = MODIS_snow(
+            TEST_BBOX,
+            start_date="2023-01-01",
+            end_date="2023-01-02",
+            data_product="MOD10A1F",
+            mute=True,
+        )
+        da = modis.data
+        assert isinstance(da, xr.DataArray)
+        assert "time" in da.dims
+        assert da.sizes["time"] >= 1
+        assert da.rio.crs is not None
