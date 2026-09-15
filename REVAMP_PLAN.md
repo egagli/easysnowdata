@@ -4,7 +4,12 @@ _Drafted 2026-09-15 from a full read of this repository (code, tests, docs, work
 CI history), the companion repos `global_snow_networks` and `snotel_ccss_stations`, and the two
 knowledge bases (`geospatial_data_and_visualization_best_practices`, `all_project_memory`).
 Items marked **[verify]** rest on memory or second-hand notes and need a live check before they
-are acted on. Items marked **[decision]** are collected in §12 for Eric._
+are acted on. Items marked **[decision]** were put to Eric; **his answers of 2026-09-15 are
+recorded in §12 and applied throughout** — where a section below states a choice without
+hedging, that is why. The companion file
+[`POTENTIAL_DATA_PRODUCTS_SOURCES_AND_EXAMPLES.md`](POTENTIAL_DATA_PRODUCTS_SOURCES_AND_EXAMPLES.md)
+holds the product list, the per-product source comparisons, and the evaluation of every
+product idea collected so far._
 
 ---
 
@@ -74,7 +79,9 @@ figshare, World Bank, GRDC, a UW Azure blob), and GitHub raw CSV.
 - The **Sturm & Liston snow classification is served from `uwcryo.blob.core.windows.net`**, a UW
   Azure account whose CloudBank award expires 2026-10-26 and whose custodianship ends with Eric's
   UW appointment on 2026-12-31 (per `all_project_memory/_meta/compute-and-infrastructure.md`).
-  This is the only product the package hosts itself and it needs a new home **[decision]**.
+  This is the only product the package hosts itself and it needs a new home (decided: NSIDC
+  with Earthdata Login becomes the default and the hosted COG an option; its new home is still
+  open, §12 Q8).
 - **MODIS snow via Planetary Computer**: Eric's own note (best-practices inbox, item 31) records
   that PC stopped archiving MOD10A2 around June 2025 after Terra's decommissioning; the package
   still defaults `MODIS_snow` to PC. Live status of `modis-10A1-061` / `modis-10A2-061` could not
@@ -158,7 +165,7 @@ figshare, World Bank, GRDC, a UW Azure blob), and GitHub raw CSV.
 | #8 GOES | new provider (AWS NetCDF/Zarr) | §4 backlog; out of scope for the rewrite proper |
 | #9 S2/HLS snow cover beyond NDSI | let-it-snow / Theia style algorithms | §4 `snow.snow_cover` backlog |
 | #10 Sentinel-1 local incidence angle | now exists via GEE; OPERA static layers supersede it | §4 SAR |
-| #11 product wish-list | PALSAR-2, VIIRS, SWOT, 3DEP, NASADEM, PRISM, CONUS404, Sentinel-3, EOPF Zarr, ... | §4 backlog, prioritized **[decision]** |
+| #11 product wish-list | PALSAR-2, VIIRS, SWOT, 3DEP, NASADEM, PRISM, CONUS404, Sentinel-3, EOPF Zarr, ... | evaluated item by item in `POTENTIAL_DATA_PRODUCTS_SOURCES_AND_EXAMPLES.md` §C |
 | #6, #7, #12, #17 (closed) | band alias drift, `write_nodata(encoded=True)` bug, py3.10 import, kwargs pass-through | regressions to pin with tests in §6 |
 
 ---
@@ -180,17 +187,19 @@ point is that a contributor (or an agent) can add a product without re-deciding 
 4. **Search and load are separate.** `search_*` returns a `GeoDataFrame` of items/granules
    (STAC-GeoParquet columns where available) that can be inspected, filtered, and handed to
    `load_*`. Nothing prints.
-5. **Output conventions.** Dims are `time`, `y`, `x` **[decision]**; CRS is attached with both
-   `.rio` and `.odc` accessors (they read the same metadata); nodata is stored as the source's
-   sentinel with `rio.nodata` set, and `mask=True` (default for float products, off for
-   categorical) converts to NaN with `encoded_nodata` preserved. Categorical products carry
+5. **Output conventions.** Dims are `time`, `y`, `x` for projected grids and `time`,
+   `latitude`, `longitude` for geographic (EPSG:4326) grids — the odc-stac convention, and the
+   one users expect from ERA5-style data (decided). CRS is always written with both the
+   `.rio` and `.odc` accessors (they read the same metadata). Nodata: **categorical products
+   keep the source sentinel with `rio.nodata` set; continuous products are NaN-masked with
+   `encoded_nodata` preserved** (decided); `mask=` overrides either way. Categorical products carry
    CF-style `flag_values`, `flag_meanings`, plus `flag_colors` and `long_name` as plain strings;
    nothing in `.attrs` is a Python object. Every product carries `source`, `source_url`,
    `product_id`, `data_citation`, `license`, and `easysnowdata_version` attrs. Units are metric.
 6. **Processing is pure.** Masking, scaling, baseline harmonization, dB conversion, indices,
-   RGB stretches, and the LIA computation are standalone functions in `easysnowdata.processing`
-   that take and return xarray objects and have no I/O. Loaders may *call* them via keyword
-   options but the user can always get the raw product.
+   RGB stretches, water-year coordinates, and the LIA computation are standalone functions in
+   `easysnowdata.processing` that take and return xarray objects and have no I/O. Loaders may
+   *call* them via keyword options but the user can always get the raw product.
 7. **Plotting is separate and optional.** `easysnowdata.plotting` reads the CF flag attrs to draw
    legends and registers named colormaps. No callables in attrs.
 8. **Credentials are lazy and uniform.** A product declares `requires=("earthdata",)`; the
@@ -260,13 +269,12 @@ Why this shape:
   wherever the catalog provides it.
 - `processing/` and `plotting/` become testable without network.
 
-### 3.2 Option B: minimal renames
+### 3.2 Option B: minimal renames (not chosen)
 
 Keep five top-level modules but rename and re-home: `stations`, `imagery` (S1, S2, HLS, MODIS,
 VIIRS), `snow` (everything snow-specific), `land_terrain` (land cover, forest, DEM, CHILI),
 `climate_hydro` (ERA5, Köppen, basins). Less churn, but `imagery` still mixes optical and SAR,
-and there is no natural home for providers/processing. Not recommended, listed for
-completeness. **[decision]**
+and there is no natural home for providers/processing. **Eric chose Option A (2026-09-15).**
 
 ### 3.3 The catalog: one declarative entry per product
 
@@ -343,12 +351,11 @@ obs = esd.stations.load(inv.index[:5], variables=["swe", "snwd"],
 esd.plotting.categorical(esd.snow.snow_classification.load(aoi))
 ```
 
-Backward compatibility: keep `easysnowdata.remote_sensing`, `hydroclimatology`, `topography`,
-`automatic_weather_stations`, `utils` as thin shim modules for one minor release that call the
-new functions and emit `DeprecationWarning`. The old classes become factory functions returning
-the loaded `Dataset` plus a `.metadata` GeoDataFrame in attrs-free form. **[decision]** whether
-to ship shims at all or make 0.1.0 a clean break (the best-practices wiki already tells users to
-pin versions and expect signature changes).
+Backward compatibility (decided): keep `easysnowdata.remote_sensing`, `hydroclimatology`,
+`topography`, `automatic_weather_stations`, `utils` as thin shim modules **for one minor
+release** that call the new functions and emit `DeprecationWarning`. The old classes become
+factory functions returning the loaded `Dataset` plus a `.metadata` GeoDataFrame in attrs-free
+form. Shims are removed in the following minor release (§11 Phase 5).
 
 ---
 
@@ -389,7 +396,7 @@ open, and a 2026-04 discussion reports Sentinel-2 ingestion lag).
 | MOD10A1F (cloud-gap-filled) | `earthaccess.download` to `/tmp/local_folder`, `cloud_hosted=False`, no `login()` | ⚠️ stale flags; probably broken on `earthaccess` ≥ 0.16 | Cloud-hosted since the NSIDC migration (3 M granules, `s3://nsidc-cumulus-prod-protected/MODIS/MOD10A1F/61/...`); use `cloud_hosted=True`, explicit login via `auth.earthdata`, a platform cache dir via `pooch`. `MYD10A1F` (Aqua) is available too. |
 | SNODAS | GEE community asset `projects/climate-engine/snodas/daily` (Climate Engine, not official catalog, ~1-day lag) | ⚠️ works; non-authoritative mirror, GEE creds | Add **NSIDC G02158 direct** as a second, credential-free source: `https://noaadata.apps.nsidc.org/NOAA/G02158/{masked,unmasked}/YYYY/MM_Mon/SNODAS_YYYYMMDD.tar`, each tar holding `us_ssmv1*.dat.gz` + `.txt.gz` header pairs; a small reader that streams one day's tar and builds the raster from the header. No COG/Zarr mirror exists (verified by search; GEE is the only cloud copy). Document authoritative vs convenient. |
 | UCLA WUS snow reanalysis | `earthaccess` cloud-hosted, `open_mfdataset`, no explicit `login()` | ⚠️ probably broken on `earthaccess` ≥ 0.16 (test skipped for months) | Keep the route (`WUS_UCLA_SR` v1, 27 k NetCDF granules, WY1985–2021; no v2 and no global version exist); add explicit login; add the sibling **`HMA_SR_D` v1** (High Mountain Asia) as a second region; fix the `stats=` mapping bug (`"median"` and `"25pct"` both map to index 2). |
-| Sturm & Liston 2021 snow classification | GeoTIFF on UW Azure blob | ❌ hosting expires (see §1.2) | NSIDC-0768 is **not cloud-hosted and its HTTPS directory redirects to Earthdata Login**, so the credential-free copy is genuinely valuable. Re-host as a COG (Zenodo record under Eric's name gives a DOI and outlives UW; a GitHub release asset is the zero-cost fallback) **[decision]**, and offer the NSIDC route (EDL) as the authoritative second source. Class table → CF flags. |
+| Sturm & Liston 2021 snow classification | GeoTIFF on UW Azure blob | ❌ hosting expires (see §1.2) | Decided: **default source becomes NSIDC-0768 with Earthdata Login** (authoritative; not cloud-hosted, its HTTPS directory redirects to URS, so it goes through `auth.earthdata` and a `pooch` cache), with `source="hosted-cog"` as the credential-free option. The hosted COG still needs a home that outlives the `uwcryo` account — Zenodo record (DOI) or GitHub release asset; **where is still open** (§12 Q8). Class table → CF flags. |
 | Wrzesien 2019 mountain snow mask | `zip+https://zenodo…` GeoTIFF | ✅ works, slow (full zip download per call) | Zenodo 2626737 verified live (`MODIS_mtnsnow_classes.zip`, `MODIS_snow_classes.zip`, `MODIS_clouds.zip`). Keep source; add `pooch` caching; expose the clouds layer; document the 256/265 nodata quirk as a `processing` fix. |
 | Snow cover from S2/HLS (#9) | not implemented | — | Backlog: NDSI + SCL/Fmask thresholds first, let-it-snow-style algorithm later, in `snow.snow_cover`. |
 
@@ -434,19 +441,14 @@ See §9. Summary: replace the frozen `snotel_ccss_stations` CSV route with the
 `global_snow_networks` clients (AWDB REST for SNOTEL/SCAN/snow courses, CDEC, BC DataBC, NVE,
 Yukon) plus a fast reader for its pre-downloaded daily archive.
 
-### 4.9 Backlog (not scheduled; ranked when Eric picks) **[decision]**
+### 4.9 Everything else
 
-From issue #11: GOES LST (#8, via `goes-ortho`), VIIRS surface reflectance, SWOT, RADARSAT-1,
-PALSAR-2, Planet, PRISM, CONUS404, Sentinel-3 SYN, MetPy/metloom/hydrocloud gauges,
-geoBoundaries, census, EOPF Zarr, GIBS.
-
-Snow-relevant cloud-native sources confirmed on 2026-09-15 that the package does not have:
-ICESat-2 `ATL06`/`ATL08` v007 (NSIDC cloud); **ASO lidar `ASO_50M_SD` / `ASO_50M_SWE`** (NSIDC
-cloud, the obvious validation dataset for anything SWE); SnowEx `SNEX21_TS_SP`, `SNEX23_SSA`;
-AMSR SWE `AU_DySno`; MODIS albedo `MCD43A3_061` / `MCD43A4_061` (LPCLOUD); GPM IMERG
-`GPM_3IMERGDF` v07; SMAP `SPL4SMGP`; USGS Landsat `landsat-c2l3-fsca` fractional snow cover;
-Canada MSC GeoMet OGC API (`api.weather.gc.ca`, incl. `ltce-snowfall`, `climate-daily`); the
-Swiss SLF IMIS public measurement API. Each is a catalog entry + provider call once §3 exists.
+The full product list (what ships in the rewrite, what is a cheap follow-on, what stays on the
+shelf), the per-product comparison of alternative sources, and the item-by-item evaluation of
+the idea dump from issue #11 and the 2026-09-15 source audit live in
+[`POTENTIAL_DATA_PRODUCTS_SOURCES_AND_EXAMPLES.md`](POTENTIAL_DATA_PRODUCTS_SOURCES_AND_EXAMPLES.md).
+That file is meant to be maintained alongside the catalog; this plan only fixes the order of
+work (§11).
 
 ---
 
@@ -479,10 +481,20 @@ esd.auth.login("earthengine", project="my-gcp-project")
   `nve`, later `cdse`), each implementing `detect() -> bool`, `login(interactive=True, persist=True)`,
   `ensure()` (initialize once, idempotent, cached), `env() -> contextmanager` (yields the GDAL /
   rasterio / fsspec configuration needed for reads), and `setup_instructions: str`.
+- **Visibility (decided 2026-09-15).** `import easysnowdata` runs the cheap `detect()` checks
+  (environment variables and file existence only — no network, so §2.9 still holds) and, in an
+  interactive session (IPython/Jupyter or a TTY), prints one compact line, e.g.
+  `easysnowdata 0.1.0 · credentials: Earthdata ✓ (netrc) · Earth Engine ✗ · NVE ✗ — see esd.auth.status()`.
+  In scripts and CI the same line goes to the `easysnowdata` logger at INFO; `EASYSNOWDATA_QUIET=1`
+  silences it. Calling a product whose default source needs missing credentials raises
+  `CredentialError` **before any network call**, naming the provider, the setup steps, and any
+  credential-free alternative source for that product (`source="hosted-cog"`, `source="gee"`,
+  …) — it never falls back silently.
 - **Detection order is fixed and documented**: explicit call arguments → environment variables
   → provider's native file (`.netrc`, `~/.config/earthengine/credentials`) → interactive prompt
   only if a TTY is present and `interactive=True`. CI sets env vars; humans use the native files.
-  No new config file format of our own unless Eric wants one for the EE project id **[decision]**.
+  No config file of our own (decided); the EE project id comes from `EE_PROJECT_ID` /
+  `EARTHENGINE_PROJECT` or the token/credentials file.
 - **Earth Engine**: keep accepting `EARTHENGINE_TOKEN` (service-account JSON or OAuth JSON, raw or
   base64) because CI already depends on it and `geemap` uses the same variable name, but also
   honour Application Default Credentials (`GOOGLE_APPLICATION_CREDENTIALS` / Workload Identity
@@ -568,7 +580,7 @@ Two viable tool chains, checked on 2026-09-15:
 **Recommendation: B.** The back-references alone deliver half of the catalog-page goal for
 free, incremental execution is what makes a credentialed gallery buildable in CI, and it is the
 convention users of this stack already know. Option A is acceptable if you prefer the mkdocs
-look; the rest of this section applies to either. **[decision]**
+look; the rest of this section applies to either. **Eric chose B (2026-09-15).**
 
 - **One small script per product** in `examples/<theme>/plot_<product>.py` (~30 lines: load,
   one plot, one sentence). The gallery tool executes them, captures the figure as the thumbnail,
@@ -615,11 +627,11 @@ Keep the mechanism (it caught the GRDC break) and fix what it does with the resu
   rioxarray, rasterio/GDAL, pystac-client, planetary-computer, earthaccess, earthengine-api,
   xee, geopandas/pyogrio, dask, icechunk, virtualizarr) and the catalogs we depend on. A weekly
   workflow diffs PyPI/GitHub release feeds and STAC collection metadata (item counts, temporal
-  extent) against the last run and opens a single digest issue with links to the changelogs.
-  The human/agent step — reading Pangeo Discourse, CarbonPlan/Earthmover posts, earthaccess
-  discussions — is written as a **Claude routine prompt** (the pattern `all_project_memory`
-  already uses) that reads the digest issue and proposes changes as a PR, never pushes to main.
-  **[decision]** GitHub Action only vs Action + routine.
+  extent) against the last run and opens a single digest issue with links to the changelogs
+  and to the forum/blog URLs on the watchlist (Pangeo Discourse categories, CarbonPlan,
+  Earthmover, earthaccess discussions). **GitHub Actions only (decided)** — the digest issue is
+  the hand-off point; reading and acting on it is a human or ad-hoc agent task, not a scheduled
+  routine.
 - **Dependabot/Renovate** for the CI actions and the lockfile, so version drift is a PR, not a
   surprise.
 
@@ -643,10 +655,12 @@ tests), layer 2 archive pipeline (GeoJSON inventory + per-station daily CSVs + `
 | B. Move `clients/` into `easysnowdata.stations`; `global_snow_networks` pins easysnowdata for its pipeline and map | data access in the library; data + map in the app | matches DESIGN.md §2 and Eric's stated end state ("global snow networks will just utilise easysnowdata"); one place for auth (NVE key), retries, units, tests | one-time move; must keep the dict-record API for the pipeline while adding xarray/GeoDataFrame returns for library users |
 | C. Both repos import a third package (`snow_station_clients`) | neutral home | clean separation | a third repo to maintain for one maintainer |
 
-**Recommendation: B.** Concretely:
+**Decided: B, with history preserved via `git subtree`, and no transition period for the
+`snotel_ccss_stations` CSV route** (the shim in step 4 simply reads from the new clients).
+Concretely:
 
 1. `easysnowdata/stations/clients/` receives `clients/` **verbatim** (history preserved with
-   `git subtree` or `git filter-repo`), including tests, keeping the `get_all_stations` /
+   `git subtree add --prefix`), including tests, keeping the `get_all_stations` /
    `get_data` / `get_metadata` dict-record contract from DESIGN.md §3.4 so the pipeline keeps
    working unchanged after a one-line import change.
 2. A thin **adapter layer** `easysnowdata.stations` on top: `inventory(aoi=..., networks=...,
@@ -694,11 +708,14 @@ before the docs rewrite (so the stations gallery examples are written once).
   Python guide default; version from git tags), pixi config in `[tool.pixi.*]` so there is one
   dependency list (pixi resolves conda-forge first, PyPI second; `pixi` 0.81 supports this
   fully). Drop `bump-my-version`'s four-file search/replace.
-- **Optional extras** to shrink the default install: `easysnowdata[earthengine]` (earthengine-api,
-  xee), `[earthdata]` (earthaccess, h5netcdf), `[stations]`, `[plot]` (matplotlib, folium,
-  contextily, mapclassify), `[all]`. Core: xarray, rioxarray, odc-stac, odc-geo, pystac-client,
-  planetary-computer, geopandas, pyogrio, shapely, pandas, numpy, dask, zarr, gcsfs/s3fs,
-  fsspec, pooch, requests, pyyaml (declared this time). **[decision]**
+- **One install, no extras (decided).** All runtime dependencies stay required: xarray,
+  rioxarray, odc-stac, odc-geo, pystac-client, planetary-computer, geopandas, pyogrio, shapely,
+  pandas, numpy, dask, zarr, gcsfs, s3fs, fsspec, pooch, requests, pyyaml, earthaccess,
+  h5netcdf, earthengine-api, xee, matplotlib, tqdm, scikit-image, beautifulsoup4/lxml. The
+  notebook-only packages (`folium`, `contextily`, `mapclassify`, `py3dep`) move to the docs
+  environment. "Earth Engine optional" (§12 Q7) therefore means *optional at run time* —
+  credential-free default routes, `import ee`/`import xee` deferred inside `providers.gee` so
+  import stays fast and a broken Google auth stack cannot break `import easysnowdata`.
 - **Python support**: **3.12–3.14**. `earthaccess` dropped 3.11 in 0.18 (May 2026) and added
   3.14 in 0.19, and `global_snow_networks` already requires ≥ 3.12; keeping 3.11 would pin us to
   an `earthaccess` without the explicit-login and `virtualize()` APIs this plan relies on.
@@ -728,7 +745,7 @@ before the docs rewrite (so the stations gallery examples are written once).
 | --- | --- | --- | --- |
 | **0 Stabilize** | GRDC: GET-then-read and GET-first health probe; add explicit `earthaccess.login()` to UCLA SR and MOD10A1F and set `cloud_hosted=True`; switch Köppen to file `61012822`; fix UCLA `stats` mapping; fix conftest to honour `EARTHDATA_TOKEN`; mark live tests and split `test`/`test-live` pixi tasks; CI runs offline tests on push, live tests weekly; declare `pyyaml`/`requests`, drop unused deps; `requires-python>=3.12`; release 0.0.26 | CI green on `main`; README status table has no long-standing red rows without an issue | days |
 | **1 Foundations** | `aoi`, `auth`, `catalog`, `providers`, `processing`, `plotting`, logging; no import side effects; deprecation shim mechanism; unit + recorded test tiers; pixi in CI | 100% offline coverage of the new modules; old public API unchanged and still passing live smoke tests | 2–3 weeks |
-| **2 Products** | Migrate theme by theme in this order: terrain → land → snow (static) → hydro → climate → optical → SAR → snow (time series). Each product: catalog entry, loader on providers, source modernization from §4, one recorded test, one live smoke test, one gallery script | old modules are shims only; every product has all four artefacts (§2.11) | 4–6 weeks, parallelizable by theme |
+| **2 Products** | Migrate theme by theme: terrain → land → snow (static) → hydro → climate → optical → SAR → snow (time series). Eric's three priorities land inside this phase as the first *new* routes: **VIIRS snow (VNP10A1/VNP10A1F) with the MODIS→NSIDC switch, NSIDC direct SNODAS, and the HLS modernization**; OPERA RTC-S1 + static incidence layers follow in the SAR step. Each product: catalog entry, loader on providers, source modernization from §4, one recorded test, one live smoke test, one gallery script | old modules are shims only; every product has all four artefacts (§2.11) | 4–6 weeks, parallelizable by theme |
 | **3 Stations** | §9 steps 1–6 | `global_snow_networks` pipeline runs against `easysnowdata.stations.clients`; `StationCollection` shim passes its old tests | 1–2 weeks |
 | **4 Docs & automation** | mkdocs-gallery (or fallback), catalog pages, credentials page, README gallery montage, health→issue, latency probe, watch digest, routine prompt | site builds in CI from examples without committed outputs; weekly digest issue appears | 2 weeks |
 | **5 Release 0.1 → 1.0** | remove shims after one minor cycle; conda-forge feedstock; Zenodo version; announce | API frozen; docs and health green | after 2–3 months of use |
@@ -739,43 +756,45 @@ with the catalog entry as the shared contract.
 
 ---
 
-## 12. Decisions needed from Eric
+## 12. Decisions (recorded 2026-09-15)
 
-1. **Layout**: Option A (theme subpackages + providers) or B (minimal renames)? (§3)
-2. **API style**: module-level `search`/`load` functions with `source=` (proposed) vs keeping
-   classes (`Sentinel2(...)`) as the primary interface? Name for the generic entry point:
-   `esd.load("product-id", ...)` in addition to `esd.<theme>.<product>.load(...)`?
-3. **Dims and CRS**: always `time/y/x` (odc convention) even for EPSG:4326 products, or keep
-   `latitude/longitude` for geographic grids? Always write CRS with both `.rio` and `.odc`?
-4. **Nodata default**: raw sentinel + `rio.nodata` (categorical) and NaN-masked (continuous), or
-   one rule for all? (§2.5)
-5. **Backward compatibility**: deprecation shims for one release, or clean break at 0.1.0?
-6. **Docs tooling**: move to Sphinx + pydata theme + sphinx-gallery + myst-nb (recommended;
-   `mkdocs-gallery` is dormant), or stay on mkdocs-material + mkdocs-jupyter with a home-grown
-   gallery index? Quarto (`freeze: auto`) is the third option if you want `.qmd`.
-7. **Earth Engine as optional**: OK to make GEE an extra and to move HUC, LIA, and SNODAS
-   defaults to non-GEE routes (WBD REST, OPERA static, NSIDC), keeping GEE as an alternative
-   source?
-8. **Sturm & Liston hosting**: Zenodo COG under your name, GitHub release asset, or NSIDC with
-   Earthdata login? (Zenodo gives a DOI and outlives UW.)
-9. **Stations merge**: Option B as recommended? Preserve `clients/` git history via subtree?
-   Keep the `snotel_ccss_stations` CSV route alive during transition?
-10. **Credential storage**: env vars + native files only (proposed), or also an
-    `~/.config/easysnowdata/config.toml` for the EE project id and cache dir?
-11. **Source priorities** for new routes: OPERA RTC-S1 (+ static LIA), VIIRS snow, NSIDC SNODAS,
-    AWS Copernicus DEM, WBD REST, Landsat C2, 3DEP, Daymet, PC HLS — rank the first five.
-12. **Watch mechanism**: GitHub Action digest issue only, or also a scheduled Claude routine
-    that reads it and proposes PRs? Who is assigned the issues?
-13. **Python versions and packaging**: extras split as proposed? Move pixi config into
-    `pyproject.toml`? Trusted publishing (needs a one-time PyPI setting)?
-14. **Scope guard**: which issue-#11 items, if any, must land in the rewrite rather than after?
-15. **Plotting**: drop the `example_plot`-in-attrs pattern entirely in favour of
-    `esd.plotting.categorical(da)` (proposed), or keep a convenience `da.esd.plot()` accessor
-    (the rioxarray/odc-geo/cf-xarray pattern; cheap to add later)?
-16. **Water-year helpers**: keep the pandas-based `datetime_to_WY`/`DOWY` functions (also
-    duplicated in `global_snow_networks/utils`), or standardize on xarray idioms
-    (`resample(time="YS-OCT")`, a `water_year` coordinate + `UniqueGrouper`) with the
-    functions kept as thin wrappers?
+| # | Question | Eric's decision | Applied in |
+| --- | --- | --- | --- |
+| 1 | Layout | **Option A**: theme subpackages over a `providers` layer | §3 |
+| 2 | API style | **Module-level `search`/`load` functions with `source=`**; classes become shims | §3.4 |
+| 3 | Dims and CRS | **`latitude`/`longitude` for geographic grids, `y`/`x` for projected**; always write CRS with both `.rio` and `.odc` | §2.5 |
+| 4 | Nodata | **Sentinel + `rio.nodata` for categorical, NaN-masked for continuous** | §2.5 |
+| 5 | Compatibility | **Deprecation shims for one release** | §3.4, §11 |
+| 6 | Docs | **Sphinx + pydata theme + sphinx-gallery + myst-nb** | §7 |
+| 7 | Earth Engine | **Optional at run time**: credential-free defaults for HUC (WBD REST), LIA (OPERA static), SNODAS (NSIDC); GEE kept as an alternative source | §4, §10 |
+| 8 | Sturm & Liston | **NSIDC with Earthdata Login as default, hosted COG as option**. *Still open: where the COG lives after `uwcryo`* (Zenodo DOI or GitHub release asset) | §4.3 |
+| 9 | Stations | **Option B, `git subtree`, no transition period for the old CSV route** | §9 |
+| 10 | Credentials | **Env vars + native files, no config file**; **one-line credential summary on import** (interactive only, network-free) and a pre-network `CredentialError` naming alternatives | §5 |
+| 11 | New-source priorities | **VIIRS snow, NSIDC SNODAS, HLS** first; a maintained product list with per-product source comparisons lives in `POTENTIAL_DATA_PRODUCTS_SOURCES_AND_EXAMPLES.md` | §11, companion file |
+| 12 | Watch | **GitHub Actions only** | §8 |
+| 13 | Packaging | **One install, no extras; drop Python 3.11; pixi config in `pyproject.toml`; trusted publishing** | §10 |
+| 14 | Idea dump | **Evaluate each item in a table** (why it matters, access, verdict); include in the rewrite only what earns it | companion file §C |
+| 15 | Plotting | **`esd.plotting.categorical(da)`**, no callables in attrs | §2.7 |
+| 16 | Water-year helpers | Asked for the trade-offs — see below; recommendation: keep the function names, reimplement vectorized on top of the `global_snow_networks` `utils` implementation, add `processing.time.add_water_year_coords()`, and document the `resample(time="YS-OCT")` idiom | §2.6 |
+
+### 12.1 Water-year helpers: trade-offs (Q16)
+
+Today `datetime_to_WY` / `datetime_to_DOWY` are scalar functions applied with
+`pd.Index.map`, i.e. a Python call per timestamp, and they return `np.nan` on parse failure.
+`global_snow_networks/utils/utils.py` already has vectorized `water_year()` /
+`day_of_water_year()` / `add_wy_coords()` that accept scalars, arrays, Series and xarray
+objects. The options:
+
+| | Keep the current functions | Standardize on xarray idioms (`resample(time="YS-OCT")`, `water_year` coord + `UniqueGrouper`) |
+| --- | --- | --- |
+| Benefits | Familiar names; used in every notebook; trivial to explain | Vectorized and Dask-aware (no per-element Python); water-year *aggregation* becomes one line (`ds.resample(time="YS-OCT").max()`); composes with flox-accelerated groupby; no custom code to maintain for the aggregation case |
+| Drawbacks | O(n) Python loop on long station records; silent `nan` on bad input; duplicated in two repos; not Dask-aware | `YS-OCT` is a pandas anchored offset, so the southern-hemisphere start (`YS-APR`) must be passed explicitly; **day-of-water-year has no pandas primitive** and still needs a computed coordinate; `SeasonResampler` with a single 12-month season is unverified; less discoverable for newcomers |
+
+Recommendation: do both, cheaply. Keep `water_year()` / `day_of_water_year()` as public,
+vectorized functions (adopt the `global_snow_networks` implementation as the single copy when
+§9 lands), add `processing.time.add_water_year_coords(obj, hemisphere="northern")` that attaches
+`water_year` and `dowy` coordinates, and teach the `resample(time="YS-OCT")` idiom in the
+Concepts page for aggregation. The old names stay as aliases through the shim release.
 
 ---
 
