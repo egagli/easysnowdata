@@ -10,6 +10,11 @@ on:
     # check runs on Mondays).
     - cron: "0 8 * * 2"
   workflow_dispatch:
+    inputs:
+      run_live:
+        description: "Also run the live tier (needs the repository secrets)"
+        type: boolean
+        default: true
 
 jobs:
   # ── Linting ────────────────────────────────────────────────────────────────
@@ -80,7 +85,7 @@ jobs:
   # One smoke test per data source against the real providers, with the
   # repository secrets. Tests whose credentials are missing skip.
   test-live:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_live)
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
