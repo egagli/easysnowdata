@@ -34,6 +34,7 @@ dependencies = [
     "beautifulsoup4",
     "py3dep",
     "earthaccess",
+    "pooch",
     "contextily",
     "folium",
     "mapclassify",

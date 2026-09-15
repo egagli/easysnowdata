@@ -7,8 +7,9 @@ Usage
 Each check performs the minimal request necessary to confirm that an
 endpoint is reachable and returns data:
 
-* HTTP HEAD/GET for static file hosts (figshare, Zenodo, World Bank, GRDC,
-  GitHub, Azure Blob).
+* HTTP GET (first byte only) for static file hosts (figshare, Zenodo, World
+  Bank, GRDC, GitHub, Azure Blob). GET comes first because some servers
+  (GRDC) answer HEAD with HTTP 400 even though the file is there.
 * Zarr metadata read for ARCO-ERA5 on GCS (anonymous).
 * STAC catalog search for Planetary Computer endpoints.
 * GEE ImageCollection.first() for Earth Engine-backed sources.
@@ -38,18 +39,33 @@ import requests
 TIMEOUT = 20  # seconds for HTTP requests
 
 
-def _head_ok(url: str) -> tuple[bool, str]:
-    """Return (True, '') if the URL responds 200–399, else (False, reason)."""
+def _url_ok(url: str) -> tuple[bool, str]:
+    """Return (True, '') if a GET of the URL yields file bytes, else (False, reason).
+
+    The probe is GET-first: it asks for the first byte only (``Range:
+    bytes=0-0``, streamed and closed immediately) so that servers which
+    reject HEAD (GRDC answers 400) are still reported correctly. Redirects
+    are followed, and only a final 200 or 206 counts as success: figshare's
+    ``figshare.com/ndownloader`` host answers 202 with a bot-challenge page
+    to non-browser clients, which GDAL cannot read. HEAD is tried only as a
+    fallback when the GET itself fails.
+    """
     try:
-        r = requests.head(url, timeout=TIMEOUT, allow_redirects=True)
-        if r.status_code < 400:
+        r = requests.get(
+            url,
+            timeout=TIMEOUT,
+            stream=True,
+            allow_redirects=True,
+            headers={"Range": "bytes=0-0"},
+        )
+        status = r.status_code
+        r.close()
+        if status in (200, 206):
             return True, ""
-        # Some servers reject HEAD; fall back to GET with stream
-        r2 = requests.get(url, timeout=TIMEOUT, stream=True)
-        r2.close()
-        if r2.status_code < 400:
+        r2 = requests.head(url, timeout=TIMEOUT, allow_redirects=True)
+        if r2.status_code in (200, 206):
             return True, ""
-        return False, f"HTTP {r2.status_code}"
+        return False, f"HTTP {status}"
     except Exception as exc:
         return False, str(exc)
 
@@ -90,63 +106,65 @@ def _check(
 
 def check_snotel_station_list() -> None:
     url = "https://github.com/egagli/snotel_ccss_stations/raw/main/all_stations.geojson"
-    ok, reason = _head_ok(url)
+    ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
 
 
 def check_snotel_single_csv() -> None:
     url = "https://raw.githubusercontent.com/egagli/snotel_ccss_stations/main/data/679_WA_SNTL.csv"
-    ok, reason = _head_ok(url)
+    ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
 
 
 def check_hydroatlas_figshare() -> None:
     url = "https://figshare.com/ndownloader/files/20082137/BasinATLAS_Data_v10.gdb.zip"
-    ok, reason = _head_ok(url)
+    ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
 
 
 def check_grdc_major_river_basins() -> None:
     url = "https://datacatalogfiles.worldbank.org/ddh-published/0041426/DR0051689/major_basins_of_the_world_0_0_0.zip"
-    ok, reason = _head_ok(url)
+    ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
 
 
 def check_grdc_wmo_basins() -> None:
-    url = "https://grdc.bafg.de/downloads/wmobb_json.zip/wmobb_basins.json"
-    ok, reason = _head_ok(url)
+    # Probe the archive itself; the "/wmobb_basins.json" suffix used by the
+    # GDAL zip path is not a real URL on the GRDC server (it returns 404).
+    url = "https://grdc.bafg.de/downloads/wmobb_json.zip"
+    ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
 
 
 def check_koppen_geiger_figshare() -> None:
     url = "https://figshare.com/ndownloader/files/45057352/koppen_geiger_tif.zip"
-    ok, reason = _head_ok(url)
+    ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
 
 
 def check_snow_classification_azure() -> None:
     url = "https://uwcryo.blob.core.windows.net/snowmelt/eric/snow_classification/SnowClass_GL_300m_10.0arcsec_2021_v01.0.tif"
-    ok, reason = _head_ok(url)
+    ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
 
 
 def check_forest_cover_zenodo() -> None:
     url = "https://zenodo.org/record/3939050/files/PROBAV_LC100_global_v3.0.1_2019-nrt_Tree-CoverFraction-layer_EPSG-4326.tif"
-    ok, reason = _head_ok(url)
+    ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
 
 
 def check_mountain_snow_mask_zenodo() -> None:
     url = "https://zenodo.org/records/2626737/files/MODIS_mtnsnow_classes.zip"
-    ok, reason = _head_ok(url)
+    ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
 

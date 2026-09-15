@@ -18,6 +18,7 @@ import shapely
 import xarray as xr
 
 from easysnowdata.utils import (
+    _fetch_to_cache,
     convert_bbox_to_geodataframe,
     get_ee_grid_params,
     initialize_earthengine,
@@ -335,6 +336,10 @@ def get_grdc_wmo_basins(
 
     Notes
     -----
+    The GRDC archive (about 380 MB) is downloaded once into the easysnowdata
+    cache directory (``~/.cache/easysnowdata/grdc`` on Linux; override with
+    ``EASYSNOWDATA_CACHE_DIR``) and re-used on later calls.
+
     This dataset incorporates data from the HydroSHEDS database which is © World Wildlife Fund, Inc.
     (2006-2013) and has been used under license.
 
@@ -355,14 +360,19 @@ def get_grdc_wmo_basins(
     Koblenz, Germany: Federal Institute of Hydrology (BfG).
     """
 
-    url = "https://grdc.bafg.de/downloads/wmobb_json.zip/wmobb_basins.json"
+    url = "https://grdc.bafg.de/downloads/wmobb_json.zip"
 
     # Convert bbox to GeoDataFrame if provided
     bbox_gdf = (
         convert_bbox_to_geodataframe(bbox_input) if bbox_input is not None else None
     )
 
-    basins_gdf = gpd.read_file("zip+" + url, **kwargs)
+    # The GRDC server answers HTTP 400 to HEAD requests, which GDAL's /vsicurl
+    # sends before any range read, so a remote "zip+https://" read fails even
+    # though the file is there. Fetch the archive once with a plain GET into
+    # the user cache directory (~380 MB) and read the basins layer locally.
+    zip_path = _fetch_to_cache(url, fname="wmobb_json.zip", subdir="grdc")
+    basins_gdf = gpd.read_file(f"zip://{zip_path}!wmobb_basins.json", **kwargs)
 
     # Clip to bbox if provided
     if bbox_gdf is not None:

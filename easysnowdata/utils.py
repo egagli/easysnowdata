@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+import pooch
 import requests
 import shapely
 import yaml
@@ -205,6 +206,39 @@ def initialize_earthengine(**kwargs) -> None:
         kwargs["credentials"] = _ee_credentials_from_token(info["_raw"])
         kwargs.setdefault("project", info.get("project") or info.get("project_id"))
     ee.Initialize(**kwargs)
+
+
+# ── Local cache ───────────────────────────────────────────────────────────────
+
+
+def _cache_dir(*subdirs: str) -> Path:
+    """Return (and create) the easysnowdata cache directory.
+
+    Defaults to the platform user cache dir (``~/.cache/easysnowdata`` on
+    Linux, ``~/Library/Caches/easysnowdata`` on macOS,
+    ``%LOCALAPPDATA%\\easysnowdata\\cache`` on Windows). Set the
+    ``EASYSNOWDATA_CACHE_DIR`` environment variable to override the root.
+    """
+    root = os.environ.get("EASYSNOWDATA_CACHE_DIR") or pooch.os_cache("easysnowdata")
+    path = Path(root).expanduser().joinpath(*subdirs)
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _fetch_to_cache(
+    url: str, fname: str, subdir: str | None = None, progressbar: bool = True
+) -> Path:
+    """Download *url* into the cache with a plain GET and return the local path.
+
+    The download is skipped when the file is already present. Used for static
+    archives whose hosts do not support range requests or reject the HEAD
+    request that GDAL's ``/vsicurl`` sends first (e.g. GRDC).
+    """
+    path = _cache_dir(*([subdir] if subdir else []))
+    local = pooch.retrieve(
+        url, known_hash=None, fname=fname, path=path, progressbar=progressbar
+    )
+    return Path(local)
 
 
 # ── Auth decorators ───────────────────────────────────────────────────────────
