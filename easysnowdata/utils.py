@@ -12,6 +12,7 @@ import math
 import netrc
 import os
 import re
+import time
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -126,8 +127,14 @@ def _earthaccess_login() -> None:
     """
     import earthaccess  # noqa: PLC0415
 
+    # Logged in already? Require the Store too: with EARTHDATA_TOKEN earthaccess
+    # marks the Auth authenticated before it contacts Earthdata Login, and if
+    # the Store creation then fails (e.g. a transient network error) the
+    # module is left with authenticated=True but __store__ is None, which
+    # makes the next open()/download() fail with a bare AttributeError.
     auth = getattr(earthaccess, "__auth__", None)
-    if auth is not None and getattr(auth, "authenticated", False):
+    store = getattr(earthaccess, "__store__", None)
+    if auth is not None and getattr(auth, "authenticated", False) and store is not None:
         return
 
     if os.environ.get("EARTHDATA_TOKEN") or (
@@ -142,18 +149,29 @@ def _earthaccess_login() -> None:
         )
 
     _logger.debug("Logging in to NASA Earthdata with strategy %r.", strategy)
-    try:
-        auth = earthaccess.login(strategy=strategy)
-    except Exception as exc:
-        raise CredentialError(
-            f"NASA EarthData login failed (strategy {strategy!r}): {exc}\n\n"
-            f"{_EARTHACCESS_SETUP_MSG}"
-        ) from exc
-    if not getattr(auth, "authenticated", False):
-        raise CredentialError(
-            f"NASA EarthData login failed (strategy {strategy!r}).\n\n"
-            f"{_EARTHACCESS_SETUP_MSG}"
-        )
+    last_exc: Exception | None = None
+    for attempt in (1, 2):  # one retry for transient connection errors
+        try:
+            auth = earthaccess.login(strategy=strategy)
+        except Exception as exc:
+            last_exc = exc
+            if auth is not None:
+                auth.authenticated = False  # do not leave half-initialised state
+            if attempt == 1:
+                _logger.warning("Earthdata login attempt failed (%s); retrying.", exc)
+                time.sleep(2)
+            continue
+        if getattr(auth, "authenticated", False) and (
+            getattr(earthaccess, "__store__", None) is not None
+        ):
+            return
+        last_exc = None
+        break
+    detail = f": {last_exc}" if last_exc is not None else ""
+    raise CredentialError(
+        f"NASA EarthData login failed (strategy {strategy!r}){detail}\n\n"
+        f"{_EARTHACCESS_SETUP_MSG}"
+    ) from last_exc
 
 
 # ── Earth Engine initialisation ───────────────────────────────────────────────
