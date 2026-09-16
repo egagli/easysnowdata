@@ -23,6 +23,7 @@ import pandas as pd
 import tqdm
 import xarray as xr
 
+from easysnowdata import providers
 from easysnowdata.utils import (
     convert_bbox_to_geodataframe,
     datetime_to_DOWY,
@@ -133,7 +134,7 @@ class StationCollection:
         None
             Sets ``self.all_stations``.
         """
-        all_stations_gdf = gpd.read_file(
+        all_stations_gdf = providers.vector_http.read(
             _STATION_GEOJSON_URL, **self.read_file_kwargs
         ).set_index("code")
 

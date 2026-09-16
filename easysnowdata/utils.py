@@ -11,14 +11,12 @@ import contextlib
 import functools
 import io
 import logging
-import math
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import pooch
 import requests
 import shapely
 import yaml
@@ -121,11 +119,9 @@ def _fetch_to_cache(
     archives whose hosts do not support range requests or reject the HEAD
     request that GDAL's ``/vsicurl`` sends first (e.g. GRDC).
     """
-    path = _cache_dir(*([subdir] if subdir else []))
-    local = pooch.retrieve(
-        url, known_hash=None, fname=fname, path=path, progressbar=progressbar
-    )
-    return Path(local)
+    from easysnowdata.providers import raster_http  # noqa: PLC0415
+
+    return raster_http.fetch(url, fname, subdir=subdir, progressbar=progressbar)
 
 
 # ── Auth decorators ───────────────────────────────────────────────────────────
@@ -213,66 +209,14 @@ def get_ee_grid_params(
 ) -> dict:
     """Build the pixel-grid kwargs required by ``xarray.open_dataset(engine="ee")``.
 
-    xee >= 0.1 no longer accepts ``geometry`` / ``scale`` / ``projection``; the
-    output grid must instead be given explicitly as ``crs``, ``crs_transform``
-    and ``shape_2d``. This helper derives those from the *native* grid of an
-    Earth Engine object and, optionally, crops the grid to a bounding box.
-
-    Parameters
-    ----------
-    ee_obj : ee.Image or ee.ImageCollection
-        Object whose native projection defines the grid. For a collection the
-        first band of the first image is used (via
-        ``xee.helpers.extract_grid_params``).
-    bbox_gdf : geopandas.GeoDataFrame, optional
-        Area of interest, in any CRS. The grid is cropped to the smallest block
-        of native pixels that fully covers it, so the returned pixels are exact
-        native values rather than a resampled copy. ``None`` returns the full
-        native grid.
-
-    Returns
-    -------
-    dict
-        ``{"crs": str, "crs_transform": tuple, "shape_2d": (width, height)}`` —
-        unpack directly into ``xarray.open_dataset(..., engine="ee", **grid)``.
+    Delegates to :func:`easysnowdata.providers.gee.grid_params`: the *native*
+    grid of an Earth Engine object (``crs``, ``crs_transform``, ``shape_2d``),
+    optionally cropped to the smallest block of native pixels covering
+    *bbox_gdf* (any CRS). ``None`` returns the full native grid.
     """
-    from xee import helpers as xee_helpers  # noqa: PLC0415
+    from easysnowdata.providers import gee  # noqa: PLC0415
 
-    native = xee_helpers.extract_grid_params(ee_obj)
-    if bbox_gdf is None:
-        return dict(native)
-
-    a, b, c, d, e, f = native["crs_transform"][:6]
-    if b or d:
-        raise ValueError("Rotated Earth Engine grids are not supported.")
-
-    geom = bbox_gdf.geometry
-    if geom.crs is None:
-        geom = geom.set_crs("EPSG:4326")
-    # Densify the outline so curved edges survive reprojection to projected CRSs.
-    xmin0, ymin0, xmax0, ymax0 = geom.total_bounds
-    seg = max(xmax0 - xmin0, ymax0 - ymin0) / 100 or 1.0
-    x_min, y_min, x_max, y_max = geom.segmentize(seg).to_crs(native["crs"]).total_bounds
-
-    # Pixel indices of the bbox edges on the native grid, expanded outward.
-    eps = 1e-9  # tolerate float noise when an edge sits exactly on a pixel boundary
-    cols = ((x_min - c) / a, (x_max - c) / a)
-    rows = ((y_min - f) / e, (y_max - f) / e)
-    col0 = math.floor(min(cols) + eps)
-    col1 = math.ceil(max(cols) - eps)
-    row0 = math.floor(min(rows) + eps)
-    row1 = math.ceil(max(rows) - eps)
-
-    # Pixels outside the asset footprint come back as NaN (as with xee < 0.1),
-    # so the grid is not clamped to the native extent; just guarantee >= 1 pixel.
-    col1 = max(col1, col0 + 1)
-    row1 = max(row1, row0 + 1)
-
-    return {
-        "crs": native["crs"],
-        "crs_transform": (a, 0.0, c + col0 * a, 0.0, e, f + row0 * e),
-        "shape_2d": (col1 - col0, row1 - row0),
-    }
+    return gee.grid_params(ee_obj, bbox_gdf)
 
 
 def get_stac_cfg(sensor: str = "sentinel-2-l2a") -> dict:
@@ -429,49 +373,27 @@ def get_stac_cfg(sensor: str = "sentinel-2-l2a") -> dict:
 def get_water_year_start(date: pd.Timestamp, hemisphere: str) -> pd.Timestamp:
     """Return the start date of the water year containing *date*.
 
-    Parameters
-    ----------
-    date : pandas.Timestamp
-        Any date within the water year of interest.
-    hemisphere : str
-        ``"northern"`` (water year starts Oct 1) or
-        ``"southern"`` (water year starts Apr 1).
-
-    Returns
-    -------
-    pandas.Timestamp
-        The first day of the corresponding water year.
+    Delegates to :func:`easysnowdata.processing.wateryear.water_year_start`
+    (``"northern"`` starts 1 October, ``"southern"`` 1 April).
     """
-    year = date.year
-    month = 10 if hemisphere == "northern" else 4
-    if (hemisphere == "northern" and date.month < 10) or (
-        hemisphere == "southern" and date.month < 4
-    ):
-        year -= 1
-    return pd.Timestamp(year=year, month=month, day=1)
+    from easysnowdata.processing import wateryear  # noqa: PLC0415
+
+    return wateryear.water_year_start(pd.Timestamp(date), hemisphere)
 
 
 def datetime_to_DOWY(
     date: pd.Timestamp | str, hemisphere: str = "northern"
 ) -> int | float:
-    """Convert a date to the day-of-water-year (DOWY).
+    """Convert a date to the day-of-water-year (DOWY), 1-indexed.
 
-    Parameters
-    ----------
-    date : pandas.Timestamp or str
-        The date to convert. Strings are parsed by :func:`pandas.to_datetime`.
-    hemisphere : str, optional
-        ``"northern"`` or ``"southern"``. Default is ``"northern"``.
-
-    Returns
-    -------
-    int or float
-        Day of the water year (1-indexed), or ``np.nan`` on parse failure.
+    Scalar wrapper around the vectorized
+    :func:`easysnowdata.processing.wateryear.day_of_water_year`; returns
+    ``np.nan`` when *date* cannot be parsed.
     """
+    from easysnowdata.processing import wateryear  # noqa: PLC0415
+
     try:
-        date = pd.to_datetime(date)
-        start = get_water_year_start(date, hemisphere)
-        return (date - start).days + 1
+        return int(wateryear.day_of_water_year(pd.to_datetime(date), hemisphere))
     except Exception as exc:
         _logger.warning("Could not compute DOWY for %s: %s", date, exc)
         return np.nan
@@ -482,27 +404,15 @@ def datetime_to_WY(
 ) -> int | float:
     """Convert a date to its water year (WY).
 
-    Parameters
-    ----------
-    date : pandas.Timestamp or str
-        The date to convert. Strings are parsed by :func:`pandas.to_datetime`.
-    hemisphere : str, optional
-        ``"northern"`` or ``"southern"``. Default is ``"northern"``.
-
-    Returns
-    -------
-    int or float
-        The water year as a calendar year integer, or ``np.nan`` on failure.
-
-    Notes
-    -----
-    For the northern hemisphere, the water year is the calendar year in which
-    the water year *ends* (i.e. WY 2021 runs Oct 1 2020 – Sep 30 2021).
+    Scalar wrapper around the vectorized
+    :func:`easysnowdata.processing.wateryear.water_year`; returns ``np.nan``
+    when *date* cannot be parsed. For the northern hemisphere the water year is
+    the calendar year in which it *ends* (WY 2021 runs 2020-10-01 – 2021-09-30).
     """
+    from easysnowdata.processing import wateryear  # noqa: PLC0415
+
     try:
-        date = pd.to_datetime(date)
-        start = get_water_year_start(date, hemisphere)
-        return start.year + (1 if hemisphere == "northern" else 0)
+        return int(wateryear.water_year(pd.to_datetime(date), hemisphere))
     except Exception as exc:
         _logger.warning("Could not compute WY for %s: %s", date, exc)
         return np.nan

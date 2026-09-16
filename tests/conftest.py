@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import os
+import subprocess
+import sys
+from pathlib import Path
+
 import geopandas as gpd
 import pytest
 import shapely
@@ -70,6 +75,25 @@ def pytest_runtest_setup(item: pytest.Item) -> None:
                 f"Skipping: no {provider.title} credentials "
                 f"({', '.join(provider.env_vars + provider.files)})."
             )
+
+
+@pytest.fixture(scope="session")
+def fixtures_dir(tmp_path_factory) -> Path:
+    """Tiny local COG / Zarr / GeoParquet / GeoJSON fixtures for the offline tier.
+
+    Generated once per session by ``tests/fixtures/make_fixtures.py`` in a
+    subprocess (see the note in that module about import order).
+    """
+    target = tmp_path_factory.mktemp("fixtures")
+    script = Path(__file__).parent / "fixtures" / "make_fixtures.py"
+    env = {**os.environ, "PYTHONPATH": str(Path(__file__).parent.parent)}
+    subprocess.run(
+        [sys.executable, str(script), str(target)],
+        check=True,
+        capture_output=True,
+        env=env,
+    )
+    return target
 
 
 @pytest.fixture(scope="session")

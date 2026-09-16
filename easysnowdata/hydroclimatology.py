@@ -6,20 +6,17 @@ import json
 import logging
 import re
 
-import earthaccess
 import ee
 import geopandas as gpd
 import matplotlib.colors
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import rioxarray as rxr
 import shapely
 import xarray as xr
 
+from easysnowdata import providers
 from easysnowdata.utils import (
-    _earthaccess_login,
-    _fetch_to_cache,
     convert_bbox_to_geodataframe,
     get_ee_grid_params,
     initialize_earthengine,
@@ -213,7 +210,7 @@ def get_hydroBASINS(
         _logger.info("Loading global dataset (this may take a while)...")
     # User-supplied kwargs take precedence over the defaults above
     read_params.update(kwargs)
-    basins_gdf = gpd.read_file("zip+" + url, **read_params)
+    basins_gdf = providers.vector_http.read("zip+" + url, **read_params)
 
     # Add citation to attributes
     basins_gdf.attrs["data_citation"] = (
@@ -285,7 +282,7 @@ def get_grdc_major_river_basins_of_the_world(
     )
 
     # Load the data
-    basins_gdf = gpd.read_file("zip+" + url, **kwargs)
+    basins_gdf = providers.vector_http.read("zip+" + url, **kwargs)
 
     # Clip to bbox if provided
     if bbox_gdf is not None:
@@ -379,8 +376,10 @@ def get_grdc_wmo_basins(
     # sends before any range read, so a remote "zip+https://" read fails even
     # though the file is there. Fetch the archive once with a plain GET into
     # the user cache directory (~380 MB) and read the basins layer locally.
-    zip_path = _fetch_to_cache(url, fname="wmobb_json.zip", subdir="grdc")
-    basins_gdf = gpd.read_file(f"zip://{zip_path}!wmobb_basins.json", **kwargs)
+    zip_path = providers.raster_http.fetch(url, "wmobb_json.zip", subdir="grdc")
+    basins_gdf = providers.vector_http.read(
+        f"zip://{zip_path}!wmobb_basins.json", **kwargs
+    )
 
     # Clip to bbox if provided
     if bbox_gdf is not None:
@@ -524,7 +523,7 @@ def get_era5(
             "storage_options": dict(token="anon"),
             **kwargs,
         }
-        era5_ds = xr.open_zarr(
+        era5_ds = providers.zarr_cloud.open(
             "gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3",
             **open_params,
         )
@@ -629,7 +628,7 @@ def get_era5(
 
         # Load dataset (xee >= 0.1 returns dims ordered (time, y, x))
         open_params = {"engine": "ee", "chunks": None, **grid, **kwargs}
-        ds = xr.open_dataset(image_collection, **open_params)
+        ds = providers.gee.open_dataset(image_collection, grid={}, **open_params)
 
         # Clean up coordinate names
         ds = (
@@ -792,7 +791,7 @@ def get_snodas(
 
     # Load dataset using xee (xee >= 0.1 returns dims ordered (time, y, x))
     open_params = {"engine": "ee", "chunks": None, **grid, **kwargs}
-    ds = xr.open_dataset(image_collection, **open_params)
+    ds = providers.gee.open_dataset(image_collection, grid={}, **open_params)
 
     # Clean up coordinate names
     ds = ds.rename({"y": "latitude", "x": "longitude"}).rio.set_spatial_dims(
@@ -919,17 +918,15 @@ def get_ucla_snow_reanalysis(
 
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
 
-    # earthaccess >= 0.16 requires an explicit login before open()/download().
-    _earthaccess_login()
-
-    search = earthaccess.search_data(
-        short_name="WUS_UCLA_SR",
+    # The earthdata provider logs in explicitly (earthaccess >= 0.16) first.
+    search = providers.earthdata.search(
+        "WUS_UCLA_SR",
         cloud_hosted=True,
         bounding_box=tuple(bbox_gdf.total_bounds),
         temporal=(start_date, end_date),
     )
 
-    files = earthaccess.open(
+    files = providers.earthdata.open(
         search
     )  # cant disable progress bar yet https://github.com/nsidc/earthaccess/issues/612
     snow_reanalysis_ds = xr.open_mfdataset(files, **kwargs).transpose()
@@ -1232,9 +1229,10 @@ def get_koppen_geiger_classes(
     # through the ndownloader.figshare.com host, which answers with a plain
     # 302 to the signed S3 object; the figshare.com/ndownloader host serves a
     # bot-challenge page (HTTP 202) to non-browser clients such as GDAL.
-    koppen_geiger_da = rxr.open_rasterio(
+    koppen_geiger_da = providers.raster_http.open(
         f"zip+https://ndownloader.figshare.com/files/61012822/koppen_geiger_tif.zip/1991_2020/koppen_geiger_{resolution}.tif",
-        **kwargs,
+        squeeze=False,
+        **{"chunks": None, **kwargs},
     ).squeeze()
 
     # A bbox smaller than one pixel (e.g. at "1 degree") must not raise

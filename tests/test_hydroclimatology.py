@@ -274,13 +274,17 @@ class TestUclaSnowReanalysisStatsMapping:
         monkeypatch.setattr(
             "easysnowdata.utils._has_earthaccess_credentials", lambda: True
         )
+        # The loader now searches through the earthdata provider (which logs
+        # in first); neither may be reached for an invalid `stats`.
         monkeypatch.setattr(
-            hydroclimatology, "_earthaccess_login", lambda: pytest.fail("login")
+            hydroclimatology.providers.earthdata,
+            "search",
+            lambda *args, **kwargs: pytest.fail("network"),
         )
         monkeypatch.setattr(
-            hydroclimatology.earthaccess,
-            "search_data",
-            lambda **kwargs: pytest.fail("network"),
+            hydroclimatology.providers.earthdata,
+            "ensure",
+            lambda: pytest.fail("login"),
         )
         with pytest.raises(ValueError, match="stats must be one of"):
             hydroclimatology.get_ucla_snow_reanalysis(

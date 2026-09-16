@@ -12,21 +12,17 @@ import logging
 
 import ee
 import geopandas as gpd
-import odc.stac
-import planetary_computer
-import pystac_client
 import rioxarray  # noqa: F401  (registers the ``.rio`` accessor used below)
 import shapely
 import xarray as xr
 
+from easysnowdata import providers
 from easysnowdata.utils import (
     convert_bbox_to_geodataframe,
     get_ee_grid_params,
     initialize_earthengine,
     requires_earthengine,
 )
-
-odc.stac.configure_rio(cloud_defaults=True)
 
 __all__ = ["get_copernicus_dem", "get_chili"]
 
@@ -82,15 +78,14 @@ def get_copernicus_dem(
 
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
 
-    catalog = pystac_client.Client.open(
-        "https://planetarycomputer.microsoft.com/api/stac/v1",
-        modifier=planetary_computer.sign_inplace,
-    )
+    catalog = providers.stac.open_catalog("planetary-computer")
     search = catalog.search(
         collections=[f"cop-dem-glo-{resolution}"], bbox=bbox_gdf.total_bounds
     )
     load_params = {"bbox": bbox_gdf.total_bounds, "chunks": {}, **kwargs}
-    cop_dem_da = odc.stac.load(search.items(), **load_params)["data"].squeeze()
+    cop_dem_da = providers.stac.odc_load(
+        search.items(), catalog="planetary-computer", **load_params
+    )["data"].squeeze()
     cop_dem_da = cop_dem_da.rio.write_nodata(-32767, encoded=True)
 
     cop_dem_da.attrs["data_citation"] = (
@@ -157,7 +152,7 @@ def get_chili(
 
     open_params = {"engine": "ee", **grid, **kwargs}
     chili_da = (
-        xr.open_dataset(ee.ImageCollection(image), **open_params)
+        providers.gee.open_dataset(ee.ImageCollection(image), grid={}, **open_params)
         .isel(time=0, drop=True)["constant"]
         .rename({"y": "lat", "x": "lon"})
         .rio.set_spatial_dims(x_dim="lon", y_dim="lat")

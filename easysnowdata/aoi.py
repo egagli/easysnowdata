@@ -345,7 +345,7 @@ class AOI:
 def parse_aoi(
     aoi: Any,
     *,
-    clip: bool = True,
+    clip: bool | None = None,
     crs: Any = None,
     resolution: float | tuple[float, float] | Resolution | None = None,
 ) -> AOI:
@@ -362,7 +362,9 @@ def parse_aoi(
         the whole globe.
     clip
         Stored on the AOI for loaders (§2.1: ``clip=False`` returns covering
-        tiles or granules instead of a clipped result).
+        tiles or granules instead of a clipped result). ``None`` (default)
+        keeps the flag of an existing :class:`AOI` and means ``True`` for
+        every other input.
     crs, resolution
         When both are given, a target GeoBox is attached (see
         :meth:`AOI.to_geobox`). ``crs="utm"`` picks the UTM zone.
@@ -374,8 +376,10 @@ def parse_aoi(
     ValueError
         For malformed bounds or empty geometries.
     """
+    keep = clip is None
+    clip = True if clip is None else bool(clip)
     if isinstance(aoi, AOI):
-        result = aoi.with_clip(clip)
+        result = aoi if keep else aoi.with_clip(clip)
     elif aoi is None:
         result = AOI(
             footprint=gpd.GeoDataFrame(

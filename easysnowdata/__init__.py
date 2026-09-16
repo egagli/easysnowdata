@@ -8,6 +8,8 @@ __all__ = [
     "auth",
     "catalog",
     "config",
+    "providers",
+    "temporal",
     "AOI",
     "parse_aoi",
     "utils",
@@ -26,7 +28,9 @@ from easysnowdata import (
     catalog,
     config,
     hydroclimatology,
+    providers,
     remote_sensing,
+    temporal,
     topography,
     utils,
 )

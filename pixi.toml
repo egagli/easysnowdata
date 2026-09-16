@@ -71,7 +71,9 @@ git-changelog = "*"
 [feature.dev.tasks]
 # Offline tier: deselects every test marked `live` and blocks socket use so a
 # test that quietly reaches the network fails instead of passing by accident.
-test-unit = "pytest tests/ -m 'not live' --disable-socket"
+# --allow-unix-socket keeps the network blocked but lets asyncio (zarr 3, fsspec)
+# create its event-loop socketpair.
+test-unit = "pytest tests/ -m 'not live' --disable-socket --allow-unix-socket"
 # Live tier: one smoke test per data source; needs network and, for the
 # requires_* tests, provider credentials (otherwise they skip).
 test-live = "pytest tests/ -m live"

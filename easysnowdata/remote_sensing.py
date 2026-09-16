@@ -8,30 +8,23 @@ from __future__ import annotations
 
 import datetime
 import logging
-import os
 
-import earthaccess
 import ee
 import geopandas as gpd
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-import odc.stac
 import pandas as pd
-import planetary_computer
-import pystac_client
 import rasterio as rio
-import rioxarray as rxr
 import shapely
 import skimage
 import xarray as xr
 
+from easysnowdata import auth, providers, temporal
 from easysnowdata.utils import (
     _EARTHACCESS_SETUP_MSG,
     CredentialError,
     HLS_xml_url_to_metadata_df,
-    _cache_dir,
-    _earthaccess_login,
     _has_earthaccess_credentials,
     convert_bbox_to_geodataframe,
     get_ee_grid_params,
@@ -41,17 +34,9 @@ from easysnowdata.utils import (
     suppress_stdout,
 )
 
-odc.stac.configure_rio(cloud_defaults=True)
-xr.set_options(keep_attrs=True)
-
-rio_env = rio.Env(
-    GDAL_DISABLE_READDIR_ON_OPEN="TRUE",
-    CPL_VSIL_CURL_USE_HEAD="FALSE",
-    GDAL_HTTP_NETRC="TRUE",
-    GDAL_HTTP_COOKIEFILE=os.path.expanduser("~/cookies.txt"),
-    GDAL_HTTP_COOKIEJAR=os.path.expanduser("~/cookies.txt"),
-)
-rio_env.__enter__()
+# No import-time side effects (design contract §2.9): GDAL options are applied
+# inside the providers' context managers, xarray options are never set
+# globally, and "today" is computed when a class is instantiated.
 
 __all__ = [
     "authenticate_all",
@@ -68,7 +53,13 @@ __all__ = [
 
 _logger = logging.getLogger(__name__)
 
-today = datetime.datetime.now().strftime("%Y-%m-%d")
+
+def __getattr__(name: str) -> str:
+    # ``remote_sensing.today`` used to be a module constant frozen at import;
+    # it is now computed on access so long-running sessions get the real date.
+    if name == "today":
+        return temporal.today()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def authenticate_all():
@@ -90,13 +81,11 @@ def authenticate_all():
     """
     _logger.info("Starting interactive credential setup for all providers.")
 
-    _logger.info("Authenticating with NASA EarthData...")
-    earthaccess.login(persist=True)
+    auth.login("earthdata", persist=True)
     _logger.info("NASA EarthData: done.")
 
-    _logger.info("Authenticating with Google Earth Engine...")
-    ee.Authenticate()
-    _logger.info("Google Earth Engine: done. Call ee.Initialize() before use.")
+    auth.login("earthengine")
+    _logger.info("Google Earth Engine: done.")
 
 
 def get_forest_cover_fraction(
@@ -181,8 +170,9 @@ def get_forest_cover_fraction(
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
 
     open_params = {"chunks": True, "mask_and_scale": mask_nodata, **kwargs}
-    fcf_da = rxr.open_rasterio(
+    fcf_da = providers.raster_http.open(
         "https://zenodo.org/record/3939050/files/PROBAV_LC100_global_v3.0.1_2019-nrt_Tree-CoverFraction-layer_EPSG-4326.tif",
+        squeeze=False,
         **open_params,
     )
 
@@ -324,8 +314,9 @@ def get_seasonal_snow_classification(
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
 
     open_params = {"chunks": True, "mask_and_scale": mask_nodata, **kwargs}
-    snow_classification_da = rxr.open_rasterio(
+    snow_classification_da = providers.raster_http.open(
         "https://uwcryo.blob.core.windows.net/snowmelt/eric/snow_classification/SnowClass_GL_300m_10.0arcsec_2021_v01.0.tif",
+        squeeze=False,
         **open_params,
     )
     snow_classification_da = snow_classification_da.rio.clip_box(
@@ -496,7 +487,7 @@ def get_seasonal_mountain_snow_mask(
 
     open_params = {"chunks": True, "mask_and_scale": mask_nodata, **kwargs}
     mountain_snow_da = (
-        rxr.open_rasterio(url, **open_params)
+        providers.raster_http.open(url, squeeze=False, **open_params)
         .rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs)
         .squeeze()
     )
@@ -666,10 +657,7 @@ def get_esa_worldcover(
     else:
         raise ValueError("Incorrect version number. Please provide 'v100' or 'v200'.")
 
-    catalog = pystac_client.Client.open(
-        "https://planetarycomputer.microsoft.com/api/stac/v1",
-        modifier=planetary_computer.sign_inplace,
-    )
+    catalog = providers.stac.open_catalog("planetary-computer")
     search = catalog.search(collections=["esa-worldcover"], bbox=bbox_gdf.total_bounds)
     load_params = {
         "bbox": bbox_gdf.total_bounds,
@@ -678,7 +666,9 @@ def get_esa_worldcover(
         **kwargs,
     }
     worldcover_da = (
-        odc.stac.load(search.items(), **load_params)["map"]
+        providers.stac.odc_load(
+            search.items(), catalog="planetary-computer", **load_params
+        )["map"]
         .sel(time=version_year)
         .squeeze()
     )
@@ -789,7 +779,7 @@ def get_nlcd_landcover(
 
     open_params = {"engine": "ee", "chunks": {}, **grid, **kwargs}
     ds = (
-        xr.open_dataset(image_collection, **open_params)
+        providers.gee.open_dataset(image_collection, grid={}, **open_params)
         .squeeze()
         .rio.set_spatial_dims(x_dim="x", y_dim="y")
         .rio.write_crs(open_params["crs"])
@@ -997,7 +987,7 @@ class Sentinel2:
         self,
         bbox_input,
         start_date="2014-01-01",
-        end_date=today,
+        end_date=None,
         catalog_choice="planetarycomputer",
         collection="sentinel-2-l2a",  # could also choose "sentinel-2-c1-l2a" once published to https://github.com/Element84/earth-search
         bands=None,
@@ -1026,7 +1016,7 @@ class Sentinel2:
         # Initialize the attributes
         self.bbox_input = bbox_input
         self.start_date = start_date
-        self.end_date = end_date
+        self.end_date = end_date if end_date is not None else temporal.today()
         self.catalog_choice = catalog_choice
         self.collection = collection
         self.bands = bands
@@ -1327,16 +1317,11 @@ class Sentinel2:
 
         # Choose the catalog URL based on catalog_choice
         if self.catalog_choice == "planetarycomputer":
-            catalog_url = "https://planetarycomputer.microsoft.com/api/stac/v1"
-            catalog = pystac_client.Client.open(
-                catalog_url, modifier=planetary_computer.sign_inplace
-            )
+            catalog = providers.stac.open_catalog("planetary-computer")
         elif self.catalog_choice == "earthsearch":
-            os.environ["AWS_REGION"] = "us-west-2"
-            os.environ["GDAL_DISABLE_READDIR_ON_OPEN"] = "EMPTY_DIR"
-            os.environ["AWS_NO_SIGN_REQUEST"] = "YES"
-            catalog_url = "https://earth-search.aws.element84.com/v1"
-            catalog = pystac_client.Client.open(catalog_url)
+            # Unsigned S3 reads are configured per read by providers.stac
+            # (AWS_NO_SIGN_REQUEST / AWS_REGION) instead of mutating os.environ.
+            catalog = providers.stac.open_catalog("earth-search")
         else:
             raise ValueError(
                 "Invalid catalog_choice. Choose either 'planetarycomputer' or 'earthsearch'."
@@ -1374,8 +1359,15 @@ class Sentinel2:
         # User-supplied kwargs take precedence over the defaults above
         load_params.update(self.load_kwargs)
 
-        # Load the data lazily using odc.stac
-        self.data = odc.stac.load(**load_params)
+        # Load the data lazily using odc.stac (GDAL options applied per read)
+        catalog_name = (
+            "planetary-computer"
+            if self.catalog_choice == "planetarycomputer"
+            else "earth-search"
+        )
+        self.data = providers.stac.odc_load(
+            load_params.pop("items"), catalog=catalog_name, **load_params
+        )
 
         self.data.attrs["band_info"] = self.band_info
         self.data.attrs["scl_class_info"] = self.scl_class_info
@@ -1852,7 +1844,7 @@ class Sentinel1:
         self,
         bbox_input,
         start_date="2014-01-01",
-        end_date=today,
+        end_date=None,
         catalog_choice="planetarycomputer",
         bands=None,
         units="dB",  # linear power or dB
@@ -1880,7 +1872,7 @@ class Sentinel1:
         # Initialize the attributes
         self.bbox_input = bbox_input
         self.start_date = start_date
-        self.end_date = end_date
+        self.end_date = end_date if end_date is not None else temporal.today()
         self.catalog_choice = catalog_choice
         self.bands = bands
         self.resolution = resolution
@@ -1924,10 +1916,7 @@ class Sentinel1:
 
         # Choose the catalog URL based on catalog_choice
         if self.catalog_choice == "planetarycomputer":
-            catalog_url = "https://planetarycomputer.microsoft.com/api/stac/v1"
-            catalog = pystac_client.Client.open(
-                catalog_url, modifier=planetary_computer.sign_inplace
-            )
+            catalog = providers.stac.open_catalog("planetary-computer")
         # elif self.catalog_choice == "aws":
         #     catalog_url = indigo
         #     catalog = pystac_client.Client.open(catalog_url)
@@ -1972,7 +1961,9 @@ class Sentinel1:
         load_params.update(self.load_kwargs)
 
         # Load the data lazily using odc.stac
-        self.data = odc.stac.load(**load_params).sortby(
+        self.data = providers.stac.odc_load(
+            load_params.pop("items"), catalog="planetary-computer", **load_params
+        ).sortby(
             "time"
         )  # sorting by time because of known issue in s1 mpc stac catalog
         self.data.attrs["units"] = "linear power"
@@ -2262,8 +2253,8 @@ class Sentinel1:
 
                 # Use xee to convert to xarray
                 try:
-                    ds = xr.open_dataset(
-                        orbit_collection, engine="ee", chunks={}, **grid
+                    ds = providers.gee.open_dataset(
+                        orbit_collection, grid={}, engine="ee", chunks={}, **grid
                     )
 
                     # Extract the DataArray
@@ -2450,7 +2441,7 @@ class HLS:
         self,
         bbox_input,
         start_date="2014-01-01",
-        end_date=datetime.datetime.now().strftime("%Y-%m-%d"),
+        end_date=None,
         bands=None,
         resolution=None,
         crs="utm",
@@ -2482,7 +2473,7 @@ class HLS:
         # Initialize the attributes
         self.bbox_input = bbox_input
         self.start_date = start_date
-        self.end_date = end_date
+        self.end_date = end_date if end_date is not None else temporal.today()
         self.bands = bands
         self.resolution = resolution
         self.crs = crs
@@ -2703,9 +2694,7 @@ class HLS:
         The method to search the data.
         """
 
-        catalog = pystac_client.Client.open(
-            "https://cmr.earthdata.nasa.gov/stac/LPCLOUD"
-        )
+        catalog = providers.stac.open_catalog("cmr-lpcloud")
 
         # Search for items within the specified bbox and date range
         landsat_search = catalog.search(
@@ -2754,7 +2743,13 @@ class HLS:
         # User-supplied kwargs take precedence over the defaults above
         load_params_landsat.update(self.load_kwargs)
 
-        L30_ds = odc.stac.load(**load_params_landsat)
+        # EDL-protected COGs: the earthdata provider's env() (netrc + cookie
+        # jar, or a bearer token) is registered for the lazy reads.
+        L30_ds = providers.stac.odc_load(
+            load_params_landsat.pop("items"),
+            catalog="cmr-lpcloud",
+            **load_params_landsat,
+        )
 
         load_params_sentinel = {
             "items": self.search_sentinel.item_collection(),
@@ -2779,7 +2774,11 @@ class HLS:
             load_params_sentinel["resolution"] = 30
         load_params_sentinel.update(self.load_kwargs)
 
-        S30_ds = odc.stac.load(**load_params_sentinel)
+        S30_ds = providers.stac.odc_load(
+            load_params_sentinel.pop("items"),
+            catalog="cmr-lpcloud",
+            **load_params_sentinel,
+        )
 
         # Load the data lazily using odc.stac
         self.data = xr.concat((L30_ds, S30_ds), dim="time", fill_value=-9999).sortby(
@@ -3294,7 +3293,7 @@ class MODIS_snow:
         bbox_input=None,
         clip_to_bbox=True,
         start_date="2000-01-01",
-        end_date=today,
+        end_date=None,
         data_product="MOD10A2",
         bands=None,
         resolution=None,
@@ -3314,7 +3313,7 @@ class MODIS_snow:
         self.bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
         self.clip_to_bbox = clip_to_bbox
         self.start_date = start_date
-        self.end_date = end_date
+        self.end_date = end_date if end_date is not None else temporal.today()
         self.data_product = data_product
         self.bands = bands
         self.resolution = resolution
@@ -3334,10 +3333,7 @@ class MODIS_snow:
     def search_data(self):
 
         if self.data_product == "MOD10A1" or self.data_product == "MOD10A2":
-            catalog = pystac_client.Client.open(
-                "https://planetarycomputer.microsoft.com/api/stac/v1",
-                modifier=planetary_computer.sign_inplace,
-            )
+            catalog = providers.stac.open_catalog("planetary-computer")
 
             if self.bbox_input is not None:
                 search = catalog.search(
@@ -3357,11 +3353,10 @@ class MODIS_snow:
                 )
 
         elif self.data_product == "MOD10A1F":
-            # earthaccess >= 0.16 requires an explicit login before download().
-            _earthaccess_login()
-            # MOD10A1F v61 is cloud-hosted at NSIDC (provider NSIDC_CPRD).
-            search = earthaccess.search_data(
-                short_name="MOD10A1F",
+            # MOD10A1F v61 is cloud-hosted at NSIDC (provider NSIDC_CPRD); the
+            # provider logs in explicitly (earthaccess >= 0.16) before searching.
+            search = providers.earthdata.search(
+                "MOD10A1F",
                 cloud_hosted=True,
                 bounding_box=tuple(self.bbox_gdf.total_bounds),
                 temporal=(self.start_date, self.end_date),
@@ -3392,29 +3387,21 @@ class MODIS_snow:
             # User-supplied kwargs take precedence over the defaults above
             load_params.update(self.load_kwargs)
 
-            modis_snow = odc.stac.load(**load_params)
+            modis_snow = providers.stac.odc_load(
+                load_params.pop("items"), catalog="planetary-computer", **load_params
+            )
 
         elif self.data_product == "MOD10A1F":
             # The granules are HDF-EOS2 (HDF4) files. Check for the driver
             # before downloading anything: rasterio's PyPI wheels ship GDAL
             # without HDF4 (verified for rasterio 1.5.1 / GDAL 3.12.4), while
             # conda-forge provides it as the separate libgdal-hdf4 package.
-            with rio.Env() as env:
-                has_hdf4 = "HDF4" in env.drivers()
-            if not has_hdf4:
-                raise RuntimeError(
-                    "MOD10A1F granules are HDF4 (HDF-EOS2) files, but this GDAL "
-                    "build has no HDF4 driver. rasterio's PyPI wheels omit it; "
-                    "install easysnowdata from conda-forge (which pulls in "
-                    "libgdal-hdf4), or `conda install -c conda-forge libgdal-hdf4` "
-                    "into a conda environment that provides GDAL."
-                )
+            providers.earthdata.require_hdf4("MOD10A1F")
             # HDF4 cannot be read through fsspec file objects either, so
             # download the granules once into the easysnowdata cache directory
             # (~/.cache/easysnowdata/MOD10A1F on Linux; override with
             # EASYSNOWDATA_CACHE_DIR). earthaccess skips files already present.
-            download_dir = _cache_dir("MOD10A1F")
-            files = earthaccess.download(self.search, download_dir)
+            files = providers.earthdata.download(self.search, "MOD10A1F")
 
             # User-supplied kwargs take precedence over the defaults here
             open_params = {
@@ -3426,14 +3413,18 @@ class MODIS_snow:
             if self.clip_to_bbox:
                 modis_snow = xr.concat(
                     [
-                        rxr.open_rasterio(file, **open_params)["CGF_NDSI_Snow_Cover"]
+                        providers.raster_http.open(file, squeeze=False, **open_params)[
+                            "CGF_NDSI_Snow_Cover"
+                        ]
                         .squeeze()
                         .rio.clip_box(
                             *self.bbox_gdf.total_bounds, crs=self.bbox_gdf.crs
                         )
                         .assign_coords(
                             time=pd.to_datetime(
-                                rxr.open_rasterio(file, **open_params)
+                                providers.raster_http.open(
+                                    file, squeeze=False, **open_params
+                                )
                                 .squeeze()
                                 .attrs["RANGEBEGINNINGDATE"]
                             )
@@ -3447,11 +3438,15 @@ class MODIS_snow:
             else:
                 modis_snow = xr.concat(
                     [
-                        rxr.open_rasterio(file, **open_params)["CGF_NDSI_Snow_Cover"]
+                        providers.raster_http.open(file, squeeze=False, **open_params)[
+                            "CGF_NDSI_Snow_Cover"
+                        ]
                         .squeeze()
                         .assign_coords(
                             time=pd.to_datetime(
-                                rxr.open_rasterio(file, **open_params)
+                                providers.raster_http.open(
+                                    file, squeeze=False, **open_params
+                                )
                                 .squeeze()
                                 .attrs["RANGEBEGINNINGDATE"]
                             )
