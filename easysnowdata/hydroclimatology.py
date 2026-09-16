@@ -8,9 +8,6 @@ import re
 
 import ee
 import geopandas as gpd
-import matplotlib.colors
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import shapely
 import xarray as xr
@@ -756,6 +753,16 @@ def get_ucla_snow_reanalysis(
     return snow_reanalysis_da
 
 
+@deprecated(
+    "easysnowdata.climate.koppen_geiger.load",
+    since="0.1.0",
+    remove_in="0.2.0",
+    extra=(
+        "The new loader adds period= and scenario= (the archive's other 30-year periods "
+        "and CMIP6 projections) and returns CF flag attrs instead of class_info/cmap/"
+        "example_plot; plot it with easysnowdata.plotting.categorical()."
+    ),
+)
 def get_koppen_geiger_classes(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -764,281 +771,17 @@ def get_koppen_geiger_classes(
     resolution: str = "0.1 degree",
     **kwargs,
 ) -> xr.DataArray:
+    """Deprecated alias of :func:`easysnowdata.climate.koppen_geiger.load`.
+
+    Returns the 1991-2020 classes at *resolution*, as before. The
+    ``class_info``, ``cmap`` and ``example_plot`` attrs are gone (design
+    contract §2.5: nothing in ``.attrs`` is a Python object); the classes are
+    now CF ``flag_values`` / ``flag_meanings`` / ``flag_colors`` and
+    ``easysnowdata.plotting.categorical`` draws the legend.
     """
-    Retrieves Köppen-Geiger climate classification data for a given bounding box and resolution.
+    from easysnowdata.climate import koppen_geiger as _koppen  # noqa: PLC0415
 
-    This function fetches global Köppen-Geiger climate classification data from a high-resolution dataset
-    based on constrained CMIP6 projections. It allows for optional spatial subsetting and provides
-    multiple resolution options. The returned DataArray includes a custom plotting function as an attribute.
-
-    Parameters
-    ----------
-    bbox_input:
-        The bounding box for spatial subsetting. If None, the entire global dataset is returned.
-    resolution:
-        The spatial resolution of the data. Options are "1 degree", "0.5 degree", "0.1 degree", or "1 km".
-        Default is "0.1 degree".
-    **kwargs:
-        Additional keyword arguments passed to ``rioxarray.open_rasterio`` (e.g.
-        ``chunks={"x": 1024, "y": 1024}`` to load lazily with dask).
-
-    Returns
-    -------
-    xarray.DataArray
-        A DataArray containing the Köppen-Geiger climate classification data, with class information,
-        color map, data citation, and a custom plotting function included as attributes.
-
-    Examples
-    --------
-    Get Köppen-Geiger climate classification data for the entire globe with a 1-degree resolution, use custom plotting function:
-    >>> koppen_data = get_koppen_geiger_classes(bbox_input=None, resolution="1 degree")
-    >>> koppen_data.attrs['example_plot'](koppen_data)
-    Get Köppen-Geiger climate classification data for a specific region with a 1 km resolution, plot using xarray's built-in plotting function
-    >>> koppen_geiger_da = get_koppen_geiger_classes(bbox_input=(-121.94224976, 46.72842173, -121.54136001, 46.99728203), resolution="1 km")
-    >>> koppen_data.plot(cmap=koppen_data.attrs["cmap"])
-
-    Notes
-    -----
-    Data citation:
-
-    Beck, H.E., McVicar, T.R., Vergopolan, N. et al. High-resolution (1 km) Köppen-Geiger maps
-    for 1901–2099 based on constrained CMIP6 projections. Sci Data 10, 724 (2023).
-    https://doi.org/10.1038/s41597-023-02549-6
-    """
-
-    def get_class_info():
-        classes = {
-            1: {
-                "name": "Af",
-                "description": "Tropical, rainforest",
-                "color": [0, 0, 255],
-            },
-            2: {
-                "name": "Am",
-                "description": "Tropical, monsoon",
-                "color": [0, 120, 255],
-            },
-            3: {
-                "name": "Aw",
-                "description": "Tropical, savannah",
-                "color": [70, 170, 250],
-            },
-            4: {
-                "name": "BWh",
-                "description": "Arid, desert, hot",
-                "color": [255, 0, 0],
-            },
-            5: {
-                "name": "BWk",
-                "description": "Arid, desert, cold",
-                "color": [255, 150, 150],
-            },
-            6: {
-                "name": "BSh",
-                "description": "Arid, steppe, hot",
-                "color": [245, 165, 0],
-            },
-            7: {
-                "name": "BSk",
-                "description": "Arid, steppe, cold",
-                "color": [255, 220, 100],
-            },
-            8: {
-                "name": "Csa",
-                "description": "Temperate, dry summer, hot summer",
-                "color": [255, 255, 0],
-            },
-            9: {
-                "name": "Csb",
-                "description": "Temperate, dry summer, warm summer",
-                "color": [200, 200, 0],
-            },
-            10: {
-                "name": "Csc",
-                "description": "Temperate, dry summer, cold summer",
-                "color": [150, 150, 0],
-            },
-            11: {
-                "name": "Cwa",
-                "description": "Temperate, dry winter, hot summer",
-                "color": [150, 255, 150],
-            },
-            12: {
-                "name": "Cwb",
-                "description": "Temperate, dry winter, warm summer",
-                "color": [100, 200, 100],
-            },
-            13: {
-                "name": "Cwc",
-                "description": "Temperate, dry winter, cold summer",
-                "color": [50, 150, 50],
-            },
-            14: {
-                "name": "Cfa",
-                "description": "Temperate, no dry season, hot summer",
-                "color": [200, 255, 80],
-            },
-            15: {
-                "name": "Cfb",
-                "description": "Temperate, no dry season, warm summer",
-                "color": [100, 255, 80],
-            },
-            16: {
-                "name": "Cfc",
-                "description": "Temperate, no dry season, cold summer",
-                "color": [50, 200, 0],
-            },
-            17: {
-                "name": "Dsa",
-                "description": "Cold, dry summer, hot summer",
-                "color": [255, 0, 255],
-            },
-            18: {
-                "name": "Dsb",
-                "description": "Cold, dry summer, warm summer",
-                "color": [200, 0, 200],
-            },
-            19: {
-                "name": "Dsc",
-                "description": "Cold, dry summer, cold summer",
-                "color": [150, 50, 150],
-            },
-            20: {
-                "name": "Dsd",
-                "description": "Cold, dry summer, very cold winter",
-                "color": [150, 100, 150],
-            },
-            21: {
-                "name": "Dwa",
-                "description": "Cold, dry winter, hot summer",
-                "color": [170, 175, 255],
-            },
-            22: {
-                "name": "Dwb",
-                "description": "Cold, dry winter, warm summer",
-                "color": [90, 120, 220],
-            },
-            23: {
-                "name": "Dwc",
-                "description": "Cold, dry winter, cold summer",
-                "color": [75, 80, 180],
-            },
-            24: {
-                "name": "Dwd",
-                "description": "Cold, dry winter, very cold winter",
-                "color": [50, 0, 135],
-            },
-            25: {
-                "name": "Dfa",
-                "description": "Cold, no dry season, hot summer",
-                "color": [0, 255, 255],
-            },
-            26: {
-                "name": "Dfb",
-                "description": "Cold, no dry season, warm summer",
-                "color": [55, 200, 255],
-            },
-            27: {
-                "name": "Dfc",
-                "description": "Cold, no dry season, cold summer",
-                "color": [0, 125, 125],
-            },
-            28: {
-                "name": "Dfd",
-                "description": "Cold, no dry season, very cold winter",
-                "color": [0, 70, 95],
-            },
-            29: {
-                "name": "ET",
-                "description": "Polar, tundra",
-                "color": [178, 178, 178],
-            },
-            30: {"name": "EF", "description": "Polar, frost", "color": [102, 102, 102]},
-        }
-        return classes
-
-    def get_class_cmap(classes):
-        colors = {k: [c / 255 for c in v["color"]] for k, v in classes.items()}
-        return matplotlib.colors.ListedColormap([colors[i] for i in range(1, 31)])
-
-    def plot_classes(self, ax=None, figsize=(8, 10), cbar_orientation="horizontal"):
-        if ax is None:
-            f, ax = plt.subplots(figsize=figsize)
-        else:
-            f = ax.get_figure()
-
-        bounds = np.arange(0.5, 31.5, 1)
-        norm = matplotlib.colors.BoundaryNorm(bounds, self.attrs["cmap"].N)
-
-        im = self.plot(ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False)
-
-        ax.set_aspect("equal")
-
-        cbar = f.colorbar(im, ax=ax, orientation=cbar_orientation, aspect=30, pad=0.08)
-
-        cbar.set_ticks(np.arange(1, 31))
-        cbar.set_ticklabels(
-            [
-                f"{v['name']}: {v['description']}"
-                for k, v in self.attrs["class_info"].items()
-            ],
-            fontsize=8,
-        )
-
-        if cbar_orientation == "horizontal":
-            plt.setp(
-                cbar.ax.get_xticklabels(),
-                rotation=60,
-                ha="right",
-                rotation_mode="anchor",
-            )
-        else:
-            plt.setp(cbar.ax.get_yticklabels(), rotation=0, ha="right")
-
-        ax.set_xlabel("Longitude")
-        ax.set_ylabel("Latitude")
-        ax.set_title("Köppen-Geiger climate classification")
-        f.tight_layout(pad=1.5, w_pad=1.5, h_pad=1.5)
-
-        return f, ax
-
-    bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
-
-    resolution_dict = {
-        "1 degree": "1p0",
-        "0.5 degree": "0p5",
-        "0.1 degree": "0p1",
-        "1 km": "0p00833333",
-    }
-    resolution = resolution_dict[resolution]
-
-    # figshare file 61012822 is the current (January 2026) release of the
-    # Beck et al. (2023) archive; 45057352 was the superseded v1 file. Read
-    # through the ndownloader.figshare.com host, which answers with a plain
-    # 302 to the signed S3 object; the figshare.com/ndownloader host serves a
-    # bot-challenge page (HTTP 202) to non-browser clients such as GDAL.
-    koppen_geiger_da = providers.raster_http.open(
-        f"zip+https://ndownloader.figshare.com/files/61012822/koppen_geiger_tif.zip/1991_2020/koppen_geiger_{resolution}.tif",
-        squeeze=False,
-        **{"chunks": None, **kwargs},
-    ).squeeze()
-
-    # A bbox smaller than one pixel (e.g. at "1 degree") must not raise
-    koppen_geiger_da = koppen_geiger_da.rio.clip_box(
-        *bbox_gdf.total_bounds, crs=bbox_gdf.crs, allow_one_dimensional_raster=True
-    )
-
-    koppen_geiger_da.attrs["class_info"] = get_class_info()
-    koppen_geiger_da.attrs["cmap"] = get_class_cmap(
-        koppen_geiger_da.attrs["class_info"]
-    )
-    koppen_geiger_da.attrs["data_citation"] = (
-        "Beck, H.E., McVicar, T.R., Vergopolan, N. et al. High-resolution (1 km) Köppen-Geiger maps for 1901–2099 based on constrained CMIP6 projections. Sci Data 10, 724 (2023). https://doi.org/10.1038/s41597-023-02549-6"
-    )
-
-    koppen_geiger_da.attrs["example_plot"] = plot_classes
-
-    return koppen_geiger_da
+    return _koppen.load(bbox_input, resolution=resolution, **{"chunks": None, **kwargs})
 
 
 # huc map, from gee?

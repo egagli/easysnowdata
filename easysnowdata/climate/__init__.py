@@ -7,6 +7,6 @@ on import.
 
 from __future__ import annotations
 
-from easysnowdata.climate import era5
+from easysnowdata.climate import era5, koppen_geiger
 
-__all__ = ["era5"]
+__all__ = ["era5", "koppen_geiger"]
