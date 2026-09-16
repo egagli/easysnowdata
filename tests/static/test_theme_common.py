@@ -110,7 +110,10 @@ def test_theme_packages_are_exported():
         assert set(modules) <= set(theme.__all__)
         for name in modules:
             assert hasattr(theme, name)
-        assert theme.__doc__ and "Products" in theme.__doc__
+        # The theme docstring names every product module it exports.
+        assert theme.__doc__
+        for name in theme.__all__:
+            assert name in theme.__doc__
     assert {"terrain", "land", "snow", "hydro"} <= set(esd.__all__)
 
 

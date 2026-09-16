@@ -90,8 +90,7 @@ class TestRegistryContents:
         # still point at the Phase 1 functions until their own migration.
         assert catalog.get("copernicus-dem").resolve_loader() is esd.terrain.dem.load
         assert (
-            catalog.get("sentinel-2-l2a").resolve_loader()
-            is esd.remote_sensing.Sentinel2
+            catalog.get("sentinel-2-l2a").resolve_loader() is esd.optical.sentinel2.load
         )
 
     def test_get_unknown(self):
@@ -134,9 +133,13 @@ class TestQueries:
         assert set(catalog.list(requires="earthengine").index) >= {
             "chili",
             "nlcd",
-            "snodas",
         }
         assert "huc" in catalog.list(credential_free=True).index
+        # SNODAS moved to the credential-free NSIDC archive in Phase 2b; Earth
+        # Engine is still one of its sources, just no longer the default one
+        assert "snodas" not in catalog.list(requires="earthengine").index
+        assert "snodas" in catalog.list(provider="gee").index
+        assert "snodas" in catalog.list(credential_free=True).index
         assert "chili" not in catalog.list(credential_free=True).index
         assert "era5" in catalog.list(credential_free=True).index
         assert catalog.list(theme="nope").empty

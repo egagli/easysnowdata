@@ -4,6 +4,8 @@
   Computer, Earth Search, CMR-STAC)
 * :mod:`~easysnowdata.providers.earthdata` — earthaccess search / open / download
 * :mod:`~easysnowdata.providers.gee` — Earth Engine via xee at the native grid
+* :mod:`~easysnowdata.providers.planet` — Planet Data and Orders APIs via the
+  ``planet`` SDK
 * :mod:`~easysnowdata.providers.raster_http` — COGs and zipped GeoTIFFs over
   HTTPS, with a pooch cache
 * :mod:`~easysnowdata.providers.zarr_cloud` — anonymous cloud Zarr stores
@@ -21,6 +23,7 @@ from easysnowdata._gdal import CLOUD_DEFAULTS, gdal_env
 from easysnowdata.providers import (
     earthdata,
     gee,
+    planet,
     raster_http,
     stac,
     vector_http,
@@ -33,6 +36,7 @@ __all__ = [
     "stac",
     "earthdata",
     "gee",
+    "planet",
     "raster_http",
     "zarr_cloud",
     "vector_http",

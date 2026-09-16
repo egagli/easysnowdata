@@ -211,50 +211,63 @@ class TestNlcdLandcover:
 # Sentinel-2 (Planetary Computer — anonymous access; load is lazy)
 # ---------------------------------------------------------------------------
 class TestSentinel2:
+    """The old ``Sentinel2`` class is now a factory for optical.sentinel2.load."""
+
     pytestmark = pytest.mark.live
 
-    def test_kwargs_forwarded_to_odc_stac_load(self):
+    def test_returns_dataset_and_forwards_kwargs(self):
         from easysnowdata.remote_sensing import Sentinel2
 
         chunks = {"time": 1, "x": 256, "y": 256}
-        s2 = Sentinel2(
-            TEST_BBOX,
-            start_date="2023-08-01",
-            end_date="2023-08-10",
-            bands=["red", "scl"],
-            remove_nodata=False,
-            harmonize_to_old=False,
-            scale_data=False,
-            chunks=chunks,
-        )
-        assert s2.load_kwargs == {"chunks": chunks}
-        red = s2.data["red"]
+        with pytest.warns(DeprecationWarning):
+            s2 = Sentinel2(
+                TEST_BBOX,
+                start_date="2023-08-01",
+                end_date="2023-08-10",
+                bands=["red", "scl"],
+                remove_nodata=False,
+                harmonize_to_old=False,
+                scale_data=False,
+                resolution=60,
+                chunks=chunks,
+            )
+        assert isinstance(s2, xr.Dataset)
+        red = s2["red"]
+        assert red.dims == ("time", "y", "x")
         assert red.chunks is not None
         assert max(red.chunks[red.get_axis_num("x")]) <= 256
         assert max(red.chunks[red.get_axis_num("y")]) <= 256
+        assert s2.attrs["product_id"] == "sentinel-2-l2a"
 
 
 # ---------------------------------------------------------------------------
 # MODIS snow (MOD10A2 via Planetary Computer — anonymous access; load is lazy)
 # ---------------------------------------------------------------------------
 class TestModisSnow:
+    """The old ``MODIS_snow`` class is now a factory for snow.modis.load."""
+
     pytestmark = pytest.mark.live
 
-    def test_kwargs_forwarded_to_odc_stac_load(self):
+    def test_returns_dataset_and_forwards_kwargs(self):
         from easysnowdata.remote_sensing import MODIS_snow
 
-        modis = MODIS_snow(
-            TEST_BBOX,
-            start_date="2023-01-01",
-            end_date="2023-01-20",
-            data_product="MOD10A2",
-            mute=True,
-            chunks={"time": 1, "x": 64, "y": 64},
-        )
-        da = modis.data["Maximum_Snow_Extent"]
+        with pytest.warns(DeprecationWarning):
+            modis = MODIS_snow(
+                TEST_BBOX,
+                start_date="2023-01-01",
+                end_date="2023-01-20",
+                data_product="MOD10A2",
+                mute=True,
+                chunks={"time": 1, "x": 64, "y": 64},
+            )
+        assert isinstance(modis, xr.Dataset)
+        da = modis["Maximum_Snow_Extent"]
         assert da.chunks is not None
         assert max(da.chunks[da.get_axis_num("x")]) <= 64
         assert max(da.chunks[da.get_axis_num("y")]) <= 64
+        # MOD10A2 keeps its Planetary Computer route through the shim
+        assert modis.attrs["source_id"] == "planetary-computer"
+        assert modis.attrs["modis_product"] == "MOD10A2"
 
 
 # ---------------------------------------------------------------------------
