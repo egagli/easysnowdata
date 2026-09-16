@@ -129,12 +129,31 @@ class TestEsaWorldcover:
 
         result = get_esa_worldcover(bbox_input=TEST_BBOX)
         assert isinstance(result, xr.DataArray)
+        # The class table is CF flag attrs now, not class_info/cmap/example_plot.
+        assert result.attrs["flag_values"][0] == 10
+        assert result.rio.nodata == 0
 
     def test_invalid_version_raises(self):
         from easysnowdata.remote_sensing import get_esa_worldcover
 
         with pytest.raises(ValueError):
             get_esa_worldcover(bbox_input=TEST_BBOX, version="v999")
+
+    def test_old_name_warns_and_forwards(self, monkeypatch):
+        from easysnowdata import _deprecation
+        from easysnowdata.land import landcover
+        from easysnowdata.remote_sensing import get_esa_worldcover
+
+        _deprecation.reset_warnings()
+        seen = {}
+        monkeypatch.setattr(
+            landcover, "load", lambda aoi, **kw: seen.update(aoi=aoi, **kw) or "lc"
+        )
+        with pytest.warns(
+            _deprecation.EasysnowdataDeprecationWarning, match="landcover.load"
+        ):
+            assert get_esa_worldcover(TEST_BBOX, mask_nodata=True) == "lc"
+        assert seen == {"aoi": TEST_BBOX, "version": "v200", "mask": True}
 
     @pytest.mark.live
     def test_kwargs_forwarded_to_odc_stac_load(self):

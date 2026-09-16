@@ -38,10 +38,19 @@ def static_fixtures(tmp_path_factory) -> dict[str, Path]:
     return paths
 
 
+def _item_collection(path: Path):
+    import pystac
+
+    return pystac.ItemCollection([pystac.Item.from_dict(json.loads(path.read_text()))])
+
+
+@pytest.fixture
+def worldcover_items(static_fixtures) -> object:
+    """An ``ItemCollection`` for the local WorldCover fixture tile."""
+    return _item_collection(static_fixtures["worldcover_item"])
+
+
 @pytest.fixture
 def dem_items(static_fixtures) -> object:
     """An ``ItemCollection`` with one item pointing at the local DEM fixture."""
-    import pystac
-
-    item = json.loads(static_fixtures["dem_item"].read_text())
-    return pystac.ItemCollection([pystac.Item.from_dict(item)])
+    return _item_collection(static_fixtures["dem_item"])

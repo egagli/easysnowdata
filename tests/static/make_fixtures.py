@@ -126,6 +126,48 @@ def make_stac_item(
     }
 
 
+def make_categorical_cog(
+    path: Path,
+    values: list[int],
+    *,
+    nodata: int = 0,
+    dtype: str = "uint8",
+    bounds: tuple[float, float, float, float] = RAINIER,
+    size: int = 48,
+) -> Path:
+    """A COG whose pixels cycle through *values*, with a nodata corner."""
+    data = np.resize(np.array(values, dtype=dtype), (size, size))
+    data[:4, :4] = nodata
+    return _write_cog(path, data, nodata=nodata, bounds=bounds)
+
+
+def make_worldcover_tiles(directory: Path) -> tuple[Path, Path, Path]:
+    """Two side-by-side WorldCover-like tiles plus a grid GeoJSON naming them."""
+    import geopandas as gpd
+    import shapely
+
+    west, south, east, north = RAINIER
+    middle = (west + east) / 2
+    classes = [10, 30, 60, 80, 70]
+    left = make_categorical_cog(
+        directory / "worldcover_left.tif", classes, bounds=(west, south, middle, north)
+    )
+    right = make_categorical_cog(
+        directory / "worldcover_right.tif", classes, bounds=(middle, south, east, north)
+    )
+    grid = gpd.GeoDataFrame(
+        {"ll_tile": ["N45W123", "N45W120"]},
+        geometry=[
+            shapely.box(west, south, middle, north),
+            shapely.box(middle, south, east, north),
+        ],
+        crs="EPSG:4326",
+    )
+    path = directory / "worldcover_grid.geojson"
+    grid.to_file(path, driver="GeoJSON")
+    return left, right, path
+
+
 def make_all(directory: Path) -> dict[str, Path]:
     """Write every fixture into *directory* and return the paths by name."""
     directory = Path(directory)
@@ -134,6 +176,23 @@ def make_all(directory: Path) -> dict[str, Path]:
     item = make_stac_item(out["dem_cog"], nodata=-32767.0)
     out["dem_item"] = directory / "dem_item.json"
     out["dem_item"].write_text(json.dumps(item))
+
+    left, right, grid = make_worldcover_tiles(directory)
+    out["worldcover_left"] = left
+    out["worldcover_right"] = right
+    out["worldcover_grid"] = grid
+    worldcover_item = make_stac_item(
+        left,
+        item_id="ESA_WorldCover_10m_2021_v200_N45W123",
+        collection="esa-worldcover",
+        datetime="2021-01-01T00:00:00Z",
+        asset="map",
+        nodata=0,
+    )
+    worldcover_item["properties"]["esa_worldcover:product_version"] = "2.0.0"
+    worldcover_item["properties"]["start_datetime"] = "2021-01-01T00:00:00Z"
+    out["worldcover_item"] = directory / "worldcover_item.json"
+    out["worldcover_item"].write_text(json.dumps(worldcover_item))
     return out
 
 
