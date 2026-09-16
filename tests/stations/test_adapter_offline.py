@@ -400,3 +400,12 @@ def test_the_bbox_helper_ignores_a_global_aoi():
     assert _adapter._bbox(None) is None
     assert _adapter._bbox((-180.0, -90.0, 180.0, 90.0)) is None
     assert _adapter._bbox(RAINIER) == pytest.approx(RAINIER)
+
+
+def test_metadata_unwraps_the_awdb_clients_one_element_list():
+    """DESIGN.md §3.4 says get_metadata returns a dict; AWDB returns a list."""
+    assert _adapter._one_metadata([{"a": 1}], "awdb", PARADISE_TRIPLET) == {"a": 1}
+    assert _adapter._one_metadata({"a": 1}, "cdec", "QUA") == {"a": 1}
+    # more than one record is not something to silently pick from
+    two = [{"a": 1}, {"a": 2}]
+    assert _adapter._one_metadata(two, "awdb", PARADISE_TRIPLET) == two

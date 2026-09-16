@@ -57,6 +57,11 @@ def test_sensors_types_are_valid():
         "baro",
         "density",
         "snow_line",
+        # Four CDEC sensors are soil moisture, and DESIGN.md §3.2 lists the
+        # type; the vocabulary here was simply missing it. Carried over from
+        # global_snow_networks and corrected here; the same fix is owed
+        # upstream.
+        "soil_moisture",
         "other",
     }
     for num, info in SENSORS.items():

@@ -270,8 +270,15 @@ def test_resolve_variables_accepts_types_and_native_keys():
     assert _resolve_variables(None) == list(SNOW_VARIABLES)
 
 
-def test_resolve_variables_skips_unknown_and_falls_back():
-    assert _resolve_variables(["not_a_variable"]) == list(SNOW_VARIABLES)
+def test_resolve_variables_raises_on_an_unknown_name():
+    """DESIGN.md §3.6: an unknown variable raises, never "fetch everything".
+
+    This test used to assert the opposite, and was left behind when the
+    client stopped falling back silently. Carried over from
+    global_snow_networks and corrected here; the same fix is owed upstream.
+    """
+    with pytest.raises(YukonError, match="Unknown variable 'not_a_variable'"):
+        _resolve_variables(["not_a_variable"])
 
 
 # ── get_locations / get_timeseries ────────────────────────────────────────────

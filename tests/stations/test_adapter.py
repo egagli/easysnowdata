@@ -450,7 +450,10 @@ def test_live_load_from_an_aoi_picks_its_own_stations():
 def test_live_metadata_carries_the_variable_inventory():
     meta = esd.stations.metadata(PARADISE_CODE)
     assert PARADISE_CODE in meta
+    # The AWDB client answers with a one-element list rather than the dict
+    # DESIGN.md §3.4 specifies; the adapter unwraps it so callers see one shape.
     assert isinstance(meta[PARADISE_CODE], dict)
+    assert meta[PARADISE_CODE]["stationTriplet"] == PARADISE_TRIPLET
 
 
 # ── credentials (§9 step 5) ──────────────────────────────────────────────────

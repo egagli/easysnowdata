@@ -234,7 +234,7 @@ def _advertised_daily(stations: list[dict], network: str) -> list[Any]:
 def metadata(stations: Any, *, networks: Any = None) -> dict[str, Any]:
     """Full per-station metadata from the owning network's API.
 
-    A thin pass-through to each client's ``get_metadata``; returns
+    A near-pass-through to each client's ``get_metadata``; returns
     ``{code: metadata dict}``, including the station's variable inventory.
     """
     grouped = _split(stations, networks)
@@ -243,8 +243,31 @@ def metadata(stations: Any, *, networks: Any = None) -> dict[str, Any]:
         client = _client(net)
         with auth.env(*_nets.get(net).requires):
             for station_id in ids:
-                out[_nets.to_code(station_id, net)] = client.get_metadata(station_id)
+                out[_nets.to_code(station_id, net)] = _one_metadata(
+                    client.get_metadata(station_id), net, station_id
+                )
     return out
+
+
+def _one_metadata(value: Any, network: str, station_id: str) -> Any:
+    """One station's metadata as a dict, whatever shape the client used.
+
+    DESIGN.md §3.4 says ``get_metadata(station_id) -> dict``, and four of the
+    five clients do that. The AWDB client returns a one-element list instead,
+    so it is unwrapped here rather than leaking two shapes to callers. The fix
+    belongs upstream; unwrapping is harmless once it lands.
+    """
+    if isinstance(value, list):
+        if len(value) == 1:
+            return value[0]
+        _logger.warning(
+            "%s returned %d metadata records for %s; DESIGN.md §3.4 expects "
+            "one dict, so the list is passed through unchanged.",
+            network,
+            len(value),
+            station_id,
+        )
+    return value
 
 
 def _split(stations: Any, names: Any) -> dict[str, list[str]]:
