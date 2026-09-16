@@ -21,7 +21,7 @@ Design principles
 
 Intended usage
 --------------
-    from clients.awdb import AWDBClient
+    from easysnowdata.stations.clients.awdb import AWDBClient
 
     client = AWDBClient()
 
@@ -54,7 +54,7 @@ from typing import Any
 import numpy as np
 import requests
 
-from clients._common import (
+from .._common import (
     chunk as _chunk,
     coerce_list as _coerce_list,
     date_str as _date_str,
@@ -123,7 +123,7 @@ _ALREADY_METRIC_UNIT_CODES = {
 
 #: The AWDB REST API v1 does not return per-value QC flags, so this
 #: registry is empty.  It exists so the documented
-#: ``from clients.awdb.awdb_client import DATA_FLAGS`` pattern works
+#: ``from easysnowdata.stations.clients.awdb.awdb_client import DATA_FLAGS`` pattern works
 #: uniformly across all clients.
 DATA_FLAGS: dict[str, str] = {}
 

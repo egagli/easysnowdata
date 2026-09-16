@@ -116,6 +116,11 @@ replace = "date-released: '{now:%Y-%m-%d}'"
 [tool.ruff]
 target-version = "py312"
 line-length = 88
+# The network clients under easysnowdata/stations/clients/ are vendored from
+# global_snow_networks with `git subtree` (§9 step 1) and stay byte-identical
+# to that repo, so `git subtree pull` keeps working and the two copies can be
+# diffed. Reformatting them here would make every future sync a conflict.
+extend-exclude = ["easysnowdata/stations/clients"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP"]
@@ -152,6 +157,9 @@ filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]
 # until Phase 2 migrates them onto providers/.
 source = ["easysnowdata"]
 omit = [
+    # Vendored from global_snow_networks (§9 step 1): ~7 000 lines exercised by
+    # that repo's own live client tests, carried over in tests/stations/.
+    "easysnowdata/stations/clients/*",
     "easysnowdata/remote_sensing.py",
     "easysnowdata/hydroclimatology.py",
     "easysnowdata/topography.py",

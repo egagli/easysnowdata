@@ -38,6 +38,7 @@ __all__ = [
     "optical",
     "sar",
     "snow",
+    "stations",
     "terrain",
 ]
 
@@ -58,6 +59,7 @@ from easysnowdata import (
     remote_sensing,
     sar,
     snow,
+    stations,
     temporal,
     terrain,
     topography,

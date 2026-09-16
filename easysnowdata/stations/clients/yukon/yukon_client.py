@@ -93,7 +93,7 @@ from typing import Any
 
 import requests
 
-from clients._common import (
+from .._common import (
     chunk as _chunked,
     coerce_list as _coerce_list,
     date_str as _date_str,

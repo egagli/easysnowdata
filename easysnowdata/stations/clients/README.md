@@ -64,7 +64,7 @@ SNOTEL, SNOLite, SCAN, COOP, Manual SNOTEL, snow courses, streamflow gauges,
 reservoirs, and more.
 
 ```python
-from clients.awdb import AWDBClient
+from easysnowdata.stations.clients.awdb import AWDBClient
 client = AWDBClient()
 ```
 
@@ -193,14 +193,14 @@ automated snow pillow stations (daily) and manual snow course sites
 (periodic).
 
 ```python
-from clients.cdec import CDECClient
+from easysnowdata.stations.clients.cdec import CDECClient
 client = CDECClient()
 ```
 
 ### Snow sensors
 
 ```python
-from clients.cdec.cdec_client import SENSORS, DATA_FLAGS, DURATION_CODES
+from easysnowdata.stations.clients.cdec.cdec_client import SENSORS, DATA_FLAGS, DURATION_CODES
 ```
 
 | Sensor | Short name | Variable | Description |
@@ -373,7 +373,7 @@ Provides access to BC snow survey data — both Automated Snow Weather Stations
 surveys).  Also fetches ASWS station photos from the AQRT BCMOE portal.
 
 ```python
-from clients.databc import DataBCClient
+from easysnowdata.stations.clients.databc import DataBCClient
 client = DataBCClient()
 ```
 
@@ -387,7 +387,7 @@ client = DataBCClient()
 ### Variables
 
 ```python
-from clients.databc.databc_client import VARIABLES, DATA_FLAGS
+from easysnowdata.stations.clients.databc.databc_client import VARIABLES, DATA_FLAGS
 ```
 
 All ASWS variables share the same wide-format CSV structure.  The **16:00 UTC
@@ -589,7 +589,7 @@ pass `api_key=` to the constructor).  Without a key the client logs a
 warning and every request fails with HTTP 401.
 
 ```python
-from clients.nve import NVEClient
+from easysnowdata.stations.clients.nve import NVEClient
 client = NVEClient()   # reads NVE_API_KEY from the environment
 ```
 
@@ -749,7 +749,7 @@ authentication is required — the API is fully open and self-describes at
 `/openapi.json`.
 
 ```python
-from clients.yukon import YukonClient
+from easysnowdata.stations.clients.yukon import YukonClient
 client = YukonClient()
 ```
 
@@ -767,7 +767,7 @@ daily inventory.
 ### Key data variables
 
 ```python
-from clients.yukon.yukon_client import VARIABLES, DATA_FLAGS, SNOW_VARIABLES
+from easysnowdata.stations.clients.yukon.yukon_client import VARIABLES, DATA_FLAGS, SNOW_VARIABLES
 ```
 
 | Key | `type` | Native | Emitted |
@@ -1011,11 +1011,11 @@ Base URL: `https://service.yukon.ca/water-data/api/v1`
 All exceptions are subclasses of `Exception` with descriptive messages.
 
 ```python
-from clients.awdb import AWDBClient, AWDBError
-from clients.cdec import CDECClient, CDECError
-from clients.databc import DataBCClient, DataBCError
-from clients.nve import NVEClient, NVEError
-from clients.yukon import YukonClient, YukonError
+from easysnowdata.stations.clients.awdb import AWDBClient, AWDBError
+from easysnowdata.stations.clients.cdec import CDECClient, CDECError
+from easysnowdata.stations.clients.databc import DataBCClient, DataBCError
+from easysnowdata.stations.clients.nve import NVEClient, NVEError
+from easysnowdata.stations.clients.yukon import YukonClient, YukonError
 
 try:
     data = AWDBClient().get_data(station_ids=["303:CO:SNTL"], variables=["swe"])

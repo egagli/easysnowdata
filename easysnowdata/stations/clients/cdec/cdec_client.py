@@ -54,7 +54,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from clients._common import (
+from .._common import (
     date_str as _date_str,
     request_with_retries,
     to_float as _to_float,

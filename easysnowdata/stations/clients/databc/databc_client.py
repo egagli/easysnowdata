@@ -117,7 +117,7 @@ from typing import Any
 import pandas as pd
 import requests
 
-from clients._common import (
+from .._common import (
     request_with_retries,
     to_float as _to_float,
 )
