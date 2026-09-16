@@ -13,7 +13,10 @@ Base URL          : https://hydapi.nve.no/api/v1
 Authentication    : API key required — pass via X-API-Key header.
                    Register for a free key at https://hydapi.nve.no/
                    Set the NVE_API_KEY environment variable or pass
-                   ``api_key`` to NVEClient().
+                   ``api_key`` to NVEClient().  Inside easysnowdata the
+                   variable is read by the ``nve`` auth provider rather
+                   than here, so a missing key raises CredentialError with
+                   the setup steps before any request is made.
 
 Key parameters (verified against GET /Parameters, 2026-07-03)
 --------------
@@ -44,7 +47,6 @@ Design principles
 from __future__ import annotations
 
 import logging
-import os
 import time
 from datetime import date, timedelta
 from typing import Any
@@ -372,20 +374,33 @@ class NVEClient:
         self.max_retries = max_retries
         self.backoff = backoff
         self._session = session or requests.Session()
-        resolved_key = api_key or os.environ.get("NVE_API_KEY", "")
-        headers: dict[str, str] = {
+        self._api_key = api_key
+        self._session.headers.update({
             "accept": "application/json",
             "User-Agent": "global-snow-networks/1.0",
-        }
-        if resolved_key:
-            headers["X-API-Key"] = resolved_key
-        else:
-            logger.warning(
-                "No NVE API key configured (NVE_API_KEY unset and no "
-                "api_key given) — all HydAPI requests will fail with "
-                "HTTP 401. Register for a free key at https://hydapi.nve.no/"
-            )
-        self._session.headers.update(headers)
+        })
+
+    def _authorize(self) -> None:
+        """Put the API key on the session, resolving it on first use.
+
+        The key comes from ``api_key`` if one was passed, otherwise from
+        easysnowdata's ``nve`` auth provider, which reads ``NVE_API_KEY``
+        (easysnowdata REVAMP_PLAN §5.2: one provider per credentialed
+        service, no ad-hoc environment reads). A missing key raises
+        ``CredentialError`` with the setup steps *before* any request goes
+        out, rather than letting HydAPI answer 401.
+
+        Resolving it here rather than in ``__init__`` keeps ``NVEClient()``
+        constructible without a key, which the offline tests rely on.
+        """
+        if "X-API-Key" in self._session.headers:
+            return
+        key = self._api_key
+        if not key:
+            from easysnowdata import auth  # noqa: PLC0415
+
+            key = auth.get("nve").ensure()
+        self._session.headers["X-API-Key"] = key
 
     # ── Public API — station lists ────────────────────────────────────────────
 
@@ -913,6 +928,7 @@ class NVEClient:
         NVEError
             On non-retryable HTTP errors or after all retries are exhausted.
         """
+        self._authorize()
         url = f"{self.base_url}/{endpoint}"
         response = request_with_retries(
             self._session, url, params=params, error_cls=NVEError,

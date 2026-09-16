@@ -451,3 +451,79 @@ def test_live_metadata_carries_the_variable_inventory():
     meta = esd.stations.metadata(PARADISE_CODE)
     assert PARADISE_CODE in meta
     assert isinstance(meta[PARADISE_CODE], dict)
+
+
+# ── credentials (§9 step 5) ──────────────────────────────────────────────────
+
+
+def test_only_the_nve_client_reads_a_credential():
+    """The other four networks are open APIs; nothing else reads a key.
+
+    DataBC fetches an anti-forgery token from a public disclaimer page, which
+    is a session mechanic rather than a credential — it needs no account.
+    """
+    import re
+    from pathlib import Path
+
+    root = Path(esd.stations.clients.__file__).parent
+    offenders = {}
+    for path in sorted(root.glob("*/*_client.py")):
+        hits = re.findall(r"os\.environ|os\.getenv|getpass|netrc", path.read_text())
+        if hits:
+            offenders[path.parent.name] = hits
+    assert offenders == {}, offenders
+
+
+def test_nve_client_is_constructible_without_a_key():
+    """Constructing must not need the key; only a request does."""
+    client = networks.get("nve").client_class()()
+    assert "X-API-Key" not in client._session.headers
+
+
+def test_nve_raises_before_the_request_when_the_key_is_missing(monkeypatch):
+    from easysnowdata.utils import CredentialError
+
+    monkeypatch.delenv("NVE_API_KEY", raising=False)
+    esd.auth.reset()
+    client = networks.get("nve").client_class()()
+    with pytest.raises(CredentialError) as excinfo:
+        client._authorize()
+    assert excinfo.value.provider == "nve"
+    assert "NVE_API_KEY" in str(excinfo.value)
+    esd.auth.reset()
+
+
+def test_the_nve_key_comes_from_the_auth_provider(monkeypatch):
+    monkeypatch.setenv("NVE_API_KEY", "a-test-key")
+    esd.auth.reset()
+    client = networks.get("nve").client_class()()
+    client._authorize()
+    assert client._session.headers["X-API-Key"] == "a-test-key"
+    # an explicitly passed key still wins over the environment
+    explicit = networks.get("nve").client_class()(api_key="explicit")
+    explicit._authorize()
+    assert explicit._session.headers["X-API-Key"] == "explicit"
+    esd.auth.reset()
+
+
+def test_loading_from_nve_without_a_key_names_the_provider(monkeypatch):
+    from easysnowdata.utils import CredentialError
+
+    monkeypatch.delenv("NVE_API_KEY", raising=False)
+    esd.auth.reset()
+    with pytest.raises(CredentialError) as excinfo:
+        esd.stations.load(["12.142.0"], variables="swe", time="2024-03")
+    assert excinfo.value.provider == "nve"
+    esd.auth.reset()
+
+
+@pytest.mark.parametrize("network", ["awdb", "cdec", "databc", "yukon"])
+def test_the_other_four_networks_need_no_provider(network, monkeypatch):
+    monkeypatch.delenv("NVE_API_KEY", raising=False)
+    esd.auth.reset()
+    # resolving the product and its credentials must not raise for these
+    from easysnowdata.catalog._access import ensure_source, resolve_source
+
+    product = catalog.get(esd.stations.PRODUCT_IDS[network])
+    assert ensure_source(product, resolve_source(product, network)) == {}
+    esd.auth.reset()
