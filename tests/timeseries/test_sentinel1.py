@@ -435,3 +435,133 @@ def test_live_local_incidence_angle_from_opera_static():
     lia = ds["local_incidence_angle"].compute()
     assert 0.0 <= float(np.nanmin(lia)) <= float(np.nanmax(lia)) <= 90.0
     assert ds["mask"].attrs["flag_meanings"].split()[2] == "layover"
+
+
+# ── the Earth Engine routes, mocked at the providers.gee boundary ────────────
+
+
+@pytest.fixture
+def fake_gee(monkeypatch, fake_credentials):
+    calls: dict[str, object] = {}
+
+    class Collection:
+        def __init__(self, asset):
+            self.asset = asset
+            self.filters: list = []
+
+        def filterDate(self, start, end):
+            calls["dates"] = (start, end)
+            return self
+
+        def filterBounds(self, geometry):
+            calls["bounds"] = geometry
+            return self
+
+        def filter(self, spec):
+            self.filters.append(spec)
+            return self
+
+        def select(self, bands):
+            calls.setdefault("selected", []).append(bands)
+            return self
+
+        def median(self):
+            calls["median"] = True
+            return self
+
+    class EEFilter:
+        @staticmethod
+        def eq(field, value):
+            return (field, value)
+
+    class FakeEE:
+        ImageCollection = Collection
+        Filter = EEFilter
+
+    def open_dataset(collection, aoi=None, **kwargs):
+        calls["open"] = (getattr(collection, "asset", collection), kwargs)
+        name = "angle" if calls.get("angle_mode") else "VV"
+        values = np.full((1, 4, 5), 38.0 if name == "angle" else 0.1, dtype="float32")
+        return xr.Dataset(
+            {name: (("time", "y", "x"), values)},
+            coords={
+                "time": pd.to_datetime(["2024-07-02"]).values,
+                "y": np.linspace(5180400.0, 5180300.0, 4),
+                "x": np.linspace(580000.0, 580400.0, 5),
+            },
+        ).rio.write_crs("EPSG:32610")
+
+    monkeypatch.setattr(sentinel1.providers.gee, "ee", lambda: FakeEE)
+    monkeypatch.setattr(sentinel1.providers.gee, "open_dataset", open_dataset)
+    monkeypatch.setattr(
+        sentinel1.providers.gee, "geometry", lambda aoi: {"type": "Polygon"}
+    )
+    return calls
+
+
+@pytest.mark.recorded
+def test_load_gee_route(fake_gee):
+    ds = sentinel1.load(RAINIER, "2024-07", source="gee", bands=["vv"])
+    asset, kwargs = fake_gee["open"]
+    assert asset == sentinel1.GEE_COLLECTION
+    assert fake_gee["selected"] == [["VV"]]
+    assert fake_gee["dates"][0] == "2024-07-01"
+    assert kwargs["chunks"] == {}
+    assert ds["vv"].dims == ("time", "y", "x")
+    assert float(ds["vv"].isel(time=0, y=0, x=0)) == pytest.approx(-10.0)  # dB
+    assert ds.attrs["source_id"] == "gee"
+
+
+@pytest.mark.recorded
+def test_local_incidence_angle_from_earth_engine(fake_gee, monkeypatch):
+    fake_gee["angle_mode"] = True
+    dem = _planar_dem(20.0, facing="west", n=4)
+    dem = dem.assign_coords(
+        y=np.linspace(5180400.0, 5180300.0, 4), x=np.linspace(580000.0, 580400.0, 4)
+    )
+    monkeypatch.setattr(sentinel1, "_copernicus_dem", lambda *args, **kwargs: dem)
+    ds = sentinel1.local_incidence_angle(
+        RAINIER, source="gee", orbit_state="descending"
+    )
+    assert set(ds.data_vars) == {"local_incidence_angle", "incidence_angle"}
+    assert ds.attrs["source_id"] == "gee"
+    assert float(ds["incidence_angle"].max()) == pytest.approx(38.0)
+    # descending looks west, so a west-facing slope tilts toward the radar
+    assert float(ds["local_incidence_angle"].mean()) < 38.0
+
+
+@pytest.mark.recorded
+def test_copernicus_dem_helper(monkeypatch, fake_credentials):
+    calls: dict[str, object] = {}
+
+    def search(catalog_id, collection, aoi=None, time=None, **kwargs):
+        calls["search"] = (catalog_id, collection)
+        return [{"id": "dem"}]
+
+    def load(items, aoi=None, **kwargs):
+        calls["load"] = kwargs
+        return xr.Dataset(
+            {
+                "data": (
+                    ("time", "y", "x"),
+                    np.full((1, 3, 3), 1500.0, dtype="float32"),
+                )
+            },
+            coords={
+                "time": pd.to_datetime(["2021-04-22"]).values,
+                "y": [5180400.0, 5180370.0, 5180340.0],
+                "x": [580000.0, 580030.0, 580060.0],
+            },
+        ).rio.write_crs("EPSG:32610")
+
+    monkeypatch.setattr(sentinel1.providers.stac, "search", search)
+    monkeypatch.setattr(sentinel1.providers.stac, "load", load)
+    dem = sentinel1._copernicus_dem(esd.parse_aoi(RAINIER), 30, "utm", None)
+    assert calls["search"] == ("planetary-computer", "cop-dem-glo-30")
+    assert calls["load"]["bands"] == ["data"]
+    assert dem.dims == ("y", "x")  # the degenerate time axis is collapsed
+    assert float(dem[0, 0]) == 1500.0
+
+    monkeypatch.setattr(sentinel1.providers.stac, "search", lambda *a, **k: [])
+    with pytest.raises(ValueError, match="No Copernicus DEM tiles"):
+        sentinel1._copernicus_dem(esd.parse_aoi(RAINIER), 30, "utm", None)

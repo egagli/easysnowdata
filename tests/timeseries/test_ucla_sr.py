@@ -298,3 +298,22 @@ def test_live_hma_sibling_is_reachable():
     assert len(gdf) >= 1
     assert gdf.attrs["short_name"] == "HMA_SR_D"
     assert isinstance(gdf, gpd.GeoDataFrame)
+
+
+@pytest.mark.recorded
+def test_granule_path_handles_every_granule_shape():
+    class WithPath:
+        path = "/cache/WY2019_20.nc"
+
+    class WithLinks:
+        def data_links(self):
+            return ["https://data.nsidc.example/WY2019_20.nc"]
+
+    class Broken:
+        def data_links(self):
+            raise RuntimeError("no links")
+
+    assert ucla_sr._granule_path(WithPath()) == "/cache/WY2019_20.nc"
+    assert ucla_sr._granule_path(WithLinks()).endswith("WY2019_20.nc")
+    assert ucla_sr._granule_path({"id": "granule-id"}) == "granule-id"
+    assert "Broken" in ucla_sr._granule_path(Broken())

@@ -23,6 +23,19 @@ _HERE = Path(__file__).parent
 
 
 @pytest.fixture(scope="module")
+def vcr_config(vcr_config) -> dict:
+    """This directory's VCR settings, on top of the shared ones.
+
+    ``allow_playback_repeats`` matters for Planetary Computer: signing asks
+    ``/api/sas/v1/token/...`` for a token and caches it per process, so the
+    number of token requests depends on what ran before. Replaying the same
+    recorded response for each of them keeps the cassettes independent of
+    test order.
+    """
+    return {**vcr_config, "allow_playback_repeats": True}
+
+
+@pytest.fixture(scope="module")
 def vcr_cassette_dir(request) -> str:
     """Keep this directory's cassettes next to its tests."""
     return str(_HERE / "cassettes" / request.module.__name__.rsplit(".", 1)[-1])

@@ -60,24 +60,23 @@ class TestKoppenGeiger:
         result = get_koppen_geiger_classes(bbox_input=TEST_BBOX, resolution="1 degree")
         assert isinstance(result, xr.DataArray)
 
-    def test_has_class_info(self):
+    def test_has_cf_flags_instead_of_class_info(self):
+        """The class table is CF flag attrs now, not a dict of Python objects.
+
+        ``class_info``, ``cmap`` and ``example_plot`` are gone by design
+        (REVAMP_PLAN §2.5: nothing in ``.attrs`` is a Python object);
+        ``easysnowdata.plotting.categorical`` draws the legend from the flags.
+        """
         from easysnowdata.hydroclimatology import get_koppen_geiger_classes
 
         result = get_koppen_geiger_classes(bbox_input=TEST_BBOX, resolution="1 degree")
-        assert "class_info" in result.attrs
-        assert len(result.attrs["class_info"]) == 30
-
-    def test_has_cmap(self):
-        from easysnowdata.hydroclimatology import get_koppen_geiger_classes
-
-        result = get_koppen_geiger_classes(bbox_input=TEST_BBOX, resolution="1 degree")
-        assert "cmap" in result.attrs
-
-    def test_has_example_plot_callable(self):
-        from easysnowdata.hydroclimatology import get_koppen_geiger_classes
-
-        result = get_koppen_geiger_classes(bbox_input=TEST_BBOX, resolution="1 degree")
-        assert callable(result.attrs.get("example_plot"))
+        assert len(result.attrs["flag_values"]) == 30
+        assert result.attrs["flag_meanings"].split()[0] == "Af"
+        assert len(result.attrs["flag_colors"].split()) == 30
+        assert "class_info" not in result.attrs
+        assert "cmap" not in result.attrs
+        assert "example_plot" not in result.attrs
+        assert all(not callable(value) for value in result.attrs.values())
 
     def test_kwargs_forwarded_to_open_rasterio(self):
         from easysnowdata.hydroclimatology import get_koppen_geiger_classes
