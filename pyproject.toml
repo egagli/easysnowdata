@@ -42,6 +42,7 @@ dependencies = [
     "zarr",
     "gcsfs",
     "h5netcdf",
+    "h5py",
 ]
 
 [project.urls]
