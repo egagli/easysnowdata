@@ -233,7 +233,16 @@ class TestModisSnowMod10a1f:
 
     @pytest.mark.requires_earthaccess
     def test_mod10a1f_downloads_and_stacks_by_time(self):
+        import rasterio
+
         from easysnowdata.remote_sensing import MODIS_snow
+
+        with rasterio.Env() as env:
+            if "HDF4" not in env.drivers():
+                pytest.skip(
+                    "GDAL build lacks the HDF4 driver needed for MOD10A1F "
+                    "(rasterio PyPI wheels omit it; conda-forge: libgdal-hdf4)."
+                )
 
         modis = MODIS_snow(
             TEST_BBOX,

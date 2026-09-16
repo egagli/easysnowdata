@@ -3395,11 +3395,24 @@ class MODIS_snow:
             modis_snow = odc.stac.load(**load_params)
 
         elif self.data_product == "MOD10A1F":
-            # The granules are HDF-EOS2 (HDF4) files, which cannot be read
-            # through fsspec file objects, so download them once into the
-            # easysnowdata cache directory (~/.cache/easysnowdata/MOD10A1F on
-            # Linux; override with EASYSNOWDATA_CACHE_DIR). earthaccess skips
-            # files that are already present.
+            # The granules are HDF-EOS2 (HDF4) files. Check for the driver
+            # before downloading anything: rasterio's PyPI wheels ship GDAL
+            # without HDF4 (verified for rasterio 1.5.1 / GDAL 3.12.4), while
+            # conda-forge provides it as the separate libgdal-hdf4 package.
+            with rio.Env() as env:
+                has_hdf4 = "HDF4" in env.drivers()
+            if not has_hdf4:
+                raise RuntimeError(
+                    "MOD10A1F granules are HDF4 (HDF-EOS2) files, but this GDAL "
+                    "build has no HDF4 driver. rasterio's PyPI wheels omit it; "
+                    "install easysnowdata from conda-forge (which pulls in "
+                    "libgdal-hdf4), or `conda install -c conda-forge libgdal-hdf4` "
+                    "into a conda environment that provides GDAL."
+                )
+            # HDF4 cannot be read through fsspec file objects either, so
+            # download the granules once into the easysnowdata cache directory
+            # (~/.cache/easysnowdata/MOD10A1F on Linux; override with
+            # EASYSNOWDATA_CACHE_DIR). earthaccess skips files already present.
             download_dir = _cache_dir("MOD10A1F")
             files = earthaccess.download(self.search, download_dir)
 
