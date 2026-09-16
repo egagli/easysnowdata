@@ -133,8 +133,12 @@ class TestQueries:
             "huc",
             "chili",
             "nlcd",
-            "snodas",
         }
+        # SNODAS moved to the credential-free NSIDC archive in Phase 2b; Earth
+        # Engine is still one of its sources, just no longer the default one
+        assert "snodas" not in catalog.list(requires="earthengine").index
+        assert "snodas" in catalog.list(provider="gee").index
+        assert "snodas" in catalog.list(credential_free=True).index
         assert "chili" not in catalog.list(credential_free=True).index
         assert "era5" in catalog.list(credential_free=True).index
         assert catalog.list(theme="nope").empty

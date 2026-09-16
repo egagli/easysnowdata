@@ -12,11 +12,10 @@ import pandas as pd
 import shapely
 import xarray as xr
 
-from easysnowdata import providers
+from easysnowdata import providers, temporal
 from easysnowdata._deprecation import deprecated
 from easysnowdata.utils import (
     convert_bbox_to_geodataframe,
-    get_ee_grid_params,
     initialize_earthengine,
     requires_earthaccess,
     requires_earthengine,
@@ -439,7 +438,16 @@ def get_era5(
     )
 
 
-@requires_earthengine
+@deprecated(
+    "easysnowdata.snow.snodas.load",
+    since="0.1.0",
+    remove_in="0.2.0",
+    extra=(
+        "The new loader defaults to the authoritative NSIDC G02158 archive, which "
+        "needs no Earth Engine account; pass source='gee-climate-engine' for the "
+        "mirror this function used."
+    ),
+)
 def get_snodas(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -451,184 +459,21 @@ def get_snodas(
     initialize_ee: bool = True,
     **kwargs,
 ) -> xr.Dataset:
+    """Deprecated alias of :func:`easysnowdata.snow.snodas.load`.
+
+    Keeps the Earth Engine route this function has always used, so the data
+    and the credentials are unchanged; ``initialize_ee`` is accepted and
+    ignored. The new default route (``source="nsidc"``) needs no account.
     """
-    Retrieves SNODAS (Snow Data Assimilation System) data for a given bounding box and time range.
+    from easysnowdata.snow import snodas as _snodas  # noqa: PLC0415
 
-    The Snow Data Assimilation System (SNODAS) is a modeling and data assimilation system
-    developed by NOHRSC that provides accurate estimations of snow cover and associated
-    parameters at 1 km spatial resolution and daily temporal resolution.
-
-    Parameters
-    ----------
-    bbox_input : geopandas.GeoDataFrame or tuple or Shapely Geometry, optional
-        GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax),
-        or a Shapely geometry. If None, returns data for the entire dataset extent.
-    start_date : str, optional
-        The start date for the data in the format 'YYYY-MM-DD'. Default is '2003-10-01'.
-    end_date : str, optional
-        The end date for the data in the format 'YYYY-MM-DD'. Default is today's date.
-    variables : str or list, optional
-        Variable(s) to select. Options are 'Snow_Depth' and 'SWE' (Snow Water Equivalent).
-        If None, returns all variables.
-    initialize_ee : bool, optional
-        Whether to initialize Earth Engine. Default is True.
-    **kwargs
-        Additional keyword arguments passed to ``xarray.open_dataset`` with
-        ``engine="ee"`` (e.g. ``chunks={"time": 1, "x": 512, "y": 512}``).
-        These take precedence over the defaults used here (``chunks=None``).
-
-    Returns
-    -------
-    xarray.Dataset
-        An xarray Dataset containing SNODAS data for the specified region and time period.
-
-    Examples
-    --------
-    Get SNODAS data for a specific region:
-
-    >>> import geopandas as gpd
-    >>> import easysnowdata
-    >>>
-    >>> # Define a bounding box for an area of interest
-    >>> bbox = (-121.94, 46.72, -121.54, 46.99)
-    >>>
-    >>> # Get SNODAS data for winter 2022
-    >>> snodas_ds = easysnowdata.hydroclimatology.get_snodas(
-    ...     bbox_input=bbox,
-    ...     start_date="2022-01-01",
-    ...     end_date="2022-03-31"
-    ... )
-    >>>
-    >>> # Plot snow water equivalent
-    >>> snodas_ds['SWE'].max(dim='time').plot(cmap='Blues')
-
-    Get only snow depth data:
-
-    >>> snow_depth_ds = easysnowdata.hydroclimatology.get_snodas(
-    ...     bbox_input=bbox,
-    ...     start_date="2022-01-01",
-    ...     end_date="2022-01-05",
-    ...     variables="Snow_Depth"
-    ... )
-    >>> snow_depth_ds['Snow_Depth'].isel(time=0).plot()
-
-    Notes
-    -----
-    Requires Google Earth Engine authentication. Run ``ee.Authenticate()`` and
-    ``ee.Initialize()`` once, or call ``easysnowdata.authenticate_all()``.
-
-    - SNODAS covers the continental United States, Alaska, and Hawaii
-    - Data is available from 2003-10-01 to present with daily updates
-    - Spatial resolution is 1 km (1/120-degree)
-
-    Data citations:
-    Barrett, Andrew. 2003. National Operational Hydrologic Remote Sensing Center Snow Data
-    Assimilation System (SNODAS) Products at NSIDC. NSIDC Special Report 11. Boulder, CO USA:
-    National Snow and Ice Data Center. 19 pp.
-
-    Barrett, A. P., R. L. Armstrong, and J. L. Smith. 2001. The Snow Data Assimilation System
-    (SNODAS): An overview. Journal of Hydrometeorology 2(3):288-306.
-    """
-    import datetime
-
-    # Initialize Earth Engine if requested
-    if initialize_ee:
-        initialize_earthengine()
-    else:
-        _logger.info(
-            "Earth Engine initialization skipped. Please ensure EE is initialized."
-        )
-
-    # Set default end date to today if not provided
-    if end_date is None:
-        end_date = datetime.datetime.now().strftime("%Y-%m-%d")
-
-    # Convert bbox to GeoDataFrame if provided
-    bbox_gdf = (
-        convert_bbox_to_geodataframe(bbox_input) if bbox_input is not None else None
+    return _snodas.load(
+        bbox_input,
+        (start_date, end_date if end_date is not None else temporal.today()),
+        variables=variables,
+        source="gee-climate-engine",
+        **kwargs,
     )
-
-    # Initialize SNODAS image collection
-    collection_name = (
-        "projects/earthengine-legacy/assets/projects/climate-engine/snodas/daily"
-    )
-    image_collection = ee.ImageCollection(collection_name)
-
-    # Apply date filtering
-    end_date_inclusive = end_date + "T23:59:59"  # Include full end date
-    image_collection = image_collection.filterDate(start_date, end_date_inclusive)
-
-    # Apply variable selection if specified
-    available_variables = ["Snow_Depth", "SWE"]
-    if variables is not None:
-        if isinstance(variables, str):
-            variables = [variables]
-        # Validate variables
-        invalid_vars = set(variables) - set(available_variables)
-        if invalid_vars:
-            raise ValueError(
-                f"Invalid variables: {invalid_vars}. Available variables: {available_variables}"
-            )
-        image_collection = image_collection.select(variables)
-
-    # Match the collection's native grid, cropped to the bbox (if given)
-    grid = get_ee_grid_params(image_collection.first(), bbox_gdf)
-
-    # Load dataset using xee (xee >= 0.1 returns dims ordered (time, y, x))
-    open_params = {"engine": "ee", "chunks": None, **grid, **kwargs}
-    ds = providers.gee.open_dataset(image_collection, grid={}, **open_params)
-
-    # Clean up coordinate names
-    ds = ds.rename({"y": "latitude", "x": "longitude"}).rio.set_spatial_dims(
-        x_dim="longitude", y_dim="latitude"
-    )
-
-    # Set coordinate reference system
-    ds.rio.write_crs(open_params["crs"], inplace=True)
-
-    # Add variable attributes
-    if "Snow_Depth" in ds.data_vars:
-        ds["Snow_Depth"].attrs.update(
-            {
-                "long_name": "Snow Depth",
-                "units": "meters",
-                "description": "Daily snow depth from SNODAS",
-            }
-        )
-
-    if "SWE" in ds.data_vars:
-        ds["SWE"].attrs.update(
-            {
-                "long_name": "Snow Water Equivalent",
-                "units": "meters",
-                "description": "Daily snow water equivalent from SNODAS",
-            }
-        )
-
-    # Add dataset attributes
-    ds.attrs.update(
-        {
-            "title": "Snow Data Assimilation System (SNODAS)",
-            "institution": "National Operational Hydrologic Remote Sensing Center (NOHRSC)",
-            "source": "Google Earth Engine (Climate Engine Org collection)",
-            "spatial_resolution": "1 km",
-            "temporal_resolution": "Daily",
-            "coverage": "Continental United States, Alaska, and Hawaii",
-            "data_citation": (
-                "Barrett, Andrew. 2003. National Operational Hydrologic Remote Sensing Center "
-                "Snow Data Assimilation System (SNODAS) Products at NSIDC. NSIDC Special Report 11. "
-                "Boulder, CO USA: National Snow and Ice Data Center. 19 pp.; "
-                "Barrett, A. P., R. L. Armstrong, and J. L. Smith. 2001. The Snow Data Assimilation "
-                "System (SNODAS): An overview. Journal of Hydrometeorology 2(3):288-306."
-            ),
-            "license": (
-                "NOAA data, information, and products, regardless of the method of delivery, "
-                "are not subject to copyright and carry no restrictions on their subsequent use by the public."
-            ),
-        }
-    )
-
-    return ds
 
 
 @requires_earthaccess
