@@ -1,18 +1,17 @@
-"""Shared utility functions used across easysnowdata modules."""
+"""Shared utility functions used across easysnowdata modules.
+
+Credential handling lives in :mod:`easysnowdata.auth` and the cache directory
+in :mod:`easysnowdata.config`; the names kept here are thin delegates so the
+existing modules and tests keep working.
+"""
 
 from __future__ import annotations
 
-import base64
 import contextlib
 import functools
 import io
-import json
 import logging
 import math
-import netrc
-import os
-import re
-import time
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -24,6 +23,13 @@ import requests
 import shapely
 import yaml
 from bs4 import BeautifulSoup
+
+from easysnowdata import auth, config
+from easysnowdata.auth import CredentialError
+from easysnowdata.auth.earthengine import (
+    credentials_from_token as _ee_credentials_from_token,
+)
+from easysnowdata.auth.earthengine import decode_token as _decode_ee_token
 
 if TYPE_CHECKING:
     import ee
@@ -42,251 +48,68 @@ __all__ = [
     "datetime_to_WY",
     "HLS_xml_url_to_metadata_df",
 ]
+_ = (_decode_ee_token, _ee_credentials_from_token)  # re-exported for back-compat
 
 _logger = logging.getLogger(__name__)
 
-
-class CredentialError(Exception):
-    """Raised when required credentials are missing or not yet configured."""
-
-
-# ── Setup instructions ────────────────────────────────────────────────────────
-
-_EE_SETUP_MSG = """\
-Google Earth Engine credentials not found.
-
-First-time setup (run once in a terminal or notebook):
-
-    import ee
-    ee.Authenticate()   # opens a browser window — follow the prompts
-    ee.Initialize()
-
-For non-interactive / CI environments set the EARTHENGINE_TOKEN environment
-variable to the contents of a Google service-account key JSON (raw or
-base64-encoded). The JSON from ~/.config/earthengine/credentials also works.
-
-Sign up at: https://earthengine.google.com"""
-
-_EARTHACCESS_SETUP_MSG = """\
-NASA EarthData credentials not found.
-
-First-time setup (run once in a terminal or notebook):
-
-    import earthaccess
-    earthaccess.login(persist=True)   # saves to ~/.netrc — only needed once
-
-For non-interactive / CI environments use one of:
-  - EARTHDATA_TOKEN   (recommended — generate at urs.earthdata.nasa.gov)
-  - EARTHDATA_USERNAME + EARTHDATA_PASSWORD
-
-Register for a free account at: https://urs.earthdata.nasa.gov"""
+# Setup texts now live on the providers; kept under the old names.
+_EE_SETUP_MSG = auth.get("earthengine").setup_instructions
+_EARTHACCESS_SETUP_MSG = auth.get("earthdata").setup_instructions
+_EE_HIGH_VOLUME_URL = "https://earthengine-highvolume.googleapis.com"
 
 
-# ── Credential detection ──────────────────────────────────────────────────────
+# ── Credential detection (delegates to easysnowdata.auth) ─────────────────────
 
 
 def _has_earthengine_credentials() -> bool:
-    """Return True if EE credentials can be found (env var or credential file)."""
-    if os.environ.get("EARTHENGINE_TOKEN"):
-        return True
-    try:
-        import ee  # noqa: PLC0415
-
-        creds_path = Path(ee.oauth.get_credentials_path())
-        return creds_path.exists()
-    except Exception:
-        return False
+    """Return True if EE credentials can be found (env var, ADC, or credential file)."""
+    return bool(auth.detect("earthengine"))
 
 
 def _has_earthaccess_credentials() -> bool:
-    """Return True if NASA EarthData credentials can be found (env vars or ~/.netrc)."""
-    if os.environ.get("EARTHDATA_TOKEN"):
-        return True
-    if os.environ.get("EARTHDATA_USERNAME") and os.environ.get("EARTHDATA_PASSWORD"):
-        return True
-    try:
-        n = netrc.netrc()
-        return n.authenticators("urs.earthdata.nasa.gov") is not None
-    except Exception:
-        return False
+    """Return True if NASA Earthdata credentials can be found (env vars or ~/.netrc)."""
+    return bool(auth.detect("earthdata"))
 
 
-def _earthaccess_login() -> None:
+def _earthaccess_login():
     """Log in to NASA Earthdata through ``earthaccess`` if not already done.
 
-    ``earthaccess`` >= 0.16 no longer logs in implicitly, so ``open()`` and
-    ``download()`` need an explicit ``earthaccess.login()`` first. The
-    strategy follows the package's credential-detection order: environment
-    variables (``EARTHDATA_TOKEN``, or ``EARTHDATA_USERNAME`` +
-    ``EARTHDATA_PASSWORD``) first, then ``~/.netrc``. It never prompts.
+    Delegates to the ``earthdata`` auth provider (explicit ``earthaccess.login``
+    with the environment-then-netrc strategy, store check, one retry). Never
+    prompts.
 
     Raises
     ------
     CredentialError
         If no credentials are found or Earthdata Login rejects them.
     """
-    import earthaccess  # noqa: PLC0415
-
-    # Logged in already? Require the Store too: with EARTHDATA_TOKEN earthaccess
-    # marks the Auth authenticated before it contacts Earthdata Login, and if
-    # the Store creation then fails (e.g. a transient network error) the
-    # module is left with authenticated=True but __store__ is None, which
-    # makes the next open()/download() fail with a bare AttributeError.
-    auth = getattr(earthaccess, "__auth__", None)
-    store = getattr(earthaccess, "__store__", None)
-    if auth is not None and getattr(auth, "authenticated", False) and store is not None:
-        return
-
-    if os.environ.get("EARTHDATA_TOKEN") or (
-        os.environ.get("EARTHDATA_USERNAME") and os.environ.get("EARTHDATA_PASSWORD")
-    ):
-        strategy = "environment"
-    elif _has_earthaccess_credentials():
-        strategy = "netrc"
-    else:
+    if not _has_earthaccess_credentials():
         raise CredentialError(
-            f"NASA EarthData credentials are required.\n\n{_EARTHACCESS_SETUP_MSG}"
+            f"NASA EarthData credentials are required.\n\n{_EARTHACCESS_SETUP_MSG}",
+            provider="earthdata",
         )
-
-    _logger.debug("Logging in to NASA Earthdata with strategy %r.", strategy)
-    last_exc: Exception | None = None
-    for attempt in (1, 2):  # one retry for transient connection errors
-        try:
-            auth = earthaccess.login(strategy=strategy)
-        except Exception as exc:
-            last_exc = exc
-            if auth is not None:
-                auth.authenticated = False  # do not leave half-initialised state
-            if attempt == 1:
-                _logger.warning("Earthdata login attempt failed (%s); retrying.", exc)
-                time.sleep(2)
-            continue
-        if getattr(auth, "authenticated", False) and (
-            getattr(earthaccess, "__store__", None) is not None
-        ):
-            return
-        last_exc = None
-        break
-    detail = f": {last_exc}" if last_exc is not None else ""
-    raise CredentialError(
-        f"NASA EarthData login failed (strategy {strategy!r}){detail}\n\n"
-        f"{_EARTHACCESS_SETUP_MSG}"
-    ) from last_exc
-
-
-# ── Earth Engine initialisation ───────────────────────────────────────────────
-
-_EE_HIGH_VOLUME_URL = "https://earthengine-highvolume.googleapis.com"
-
-
-def _decode_ee_token(token: str | None) -> dict | None:
-    """Decode ``EARTHENGINE_TOKEN`` (raw or base64-encoded JSON) into a dict."""
-    if token is None or not token.strip():
-        return None
-    raw = token.strip()
-    try:
-        info = json.loads(raw)
-    except json.JSONDecodeError:
-        try:
-            raw = base64.b64decode(re.sub(r"\s+", "", raw), validate=True).decode()
-            info = json.loads(raw)
-        except (ValueError, UnicodeDecodeError) as exc:
-            raise ValueError(
-                "EARTHENGINE_TOKEN is neither JSON nor base64-encoded JSON."
-            ) from exc
-    if not isinstance(info, dict):
-        raise ValueError("EARTHENGINE_TOKEN must decode to a JSON object.")
-    info["_raw"] = raw
-    return info
-
-
-def _ee_credentials_from_token(token: str | None = None):
-    """Build Earth Engine credentials from ``EARTHENGINE_TOKEN``.
-
-    Accepted formats (each either raw or base64-encoded):
-
-    * a Google **service-account key** JSON (recommended for CI), or
-    * the JSON written to ``~/.config/earthengine/credentials`` by
-      ``ee.Authenticate()`` (``client_id`` / ``client_secret`` / ``refresh_token``).
-
-    Parameters
-    ----------
-    token : str, optional
-        Token string; defaults to the ``EARTHENGINE_TOKEN`` environment variable.
-
-    Returns
-    -------
-    google.auth.credentials.Credentials or None
-        ``None`` when the token is unset or empty.
-
-    Raises
-    ------
-    ValueError
-        If the token cannot be decoded or is not one of the accepted formats.
-    """
-    info = _decode_ee_token(
-        os.environ.get("EARTHENGINE_TOKEN") if token is None else token
-    )
-    if info is None:
-        return None
-    import ee  # noqa: PLC0415
-    import google.oauth2.credentials  # noqa: PLC0415
-
-    if info.get("type") == "service_account":
-        return ee.ServiceAccountCredentials(info["client_email"], key_data=info["_raw"])
-    if "refresh_token" in info:
-        # Newer ~/.config/earthengine/credentials files omit the client id/secret
-        # and rely on Earth Engine's default OAuth client, as ee.oauth does.
-        return google.oauth2.credentials.Credentials(
-            None,
-            token_uri=info.get("token_uri", "https://oauth2.googleapis.com/token"),
-            client_id=info.get("client_id", ee.oauth.CLIENT_ID),
-            client_secret=info.get("client_secret", ee.oauth.CLIENT_SECRET),
-            refresh_token=info["refresh_token"],
-            scopes=info.get("scopes"),
-            quota_project_id=info.get("project"),
-        )
-    raise ValueError(
-        "EARTHENGINE_TOKEN is neither a service-account key nor an Earth Engine "
-        "OAuth token (expected 'type': 'service_account' or a 'refresh_token')."
-    )
+    return auth.get("earthdata").ensure()
 
 
 def initialize_earthengine(**kwargs) -> None:
-    """Initialise Google Earth Engine, honouring ``EARTHENGINE_TOKEN`` if set.
+    """Initialise Google Earth Engine once, honouring ``EARTHENGINE_TOKEN`` if set.
 
-    With ``EARTHENGINE_TOKEN`` set (see :func:`_ee_credentials_from_token`) the
-    credentials it encodes are used — this is how CI authenticates. Otherwise
-    ``ee.Initialize()`` falls back to the credentials stored by
-    ``ee.Authenticate()``. Uses the high-volume endpoint unless ``opt_url`` /
-    ``url`` is given. Extra keyword arguments are passed to ``ee.Initialize``.
+    Delegates to the ``earthengine`` auth provider: token (service-account or
+    OAuth JSON, raw or base64), Application Default Credentials, or the
+    ``ee.Authenticate()`` file; high-volume endpoint unless ``opt_url``/``url``
+    is given; a Cloud project from ``EE_PROJECT_ID``/``EARTHENGINE_PROJECT``,
+    the token, or the credentials file. Extra keyword arguments are passed to
+    ``ee.Initialize`` and force a re-initialisation.
     """
-    import ee  # noqa: PLC0415
-
-    if "url" not in kwargs:
-        kwargs.setdefault("opt_url", _EE_HIGH_VOLUME_URL)
-    info = _decode_ee_token(os.environ.get("EARTHENGINE_TOKEN"))
-    if info is not None:
-        kwargs["credentials"] = _ee_credentials_from_token(info["_raw"])
-        kwargs.setdefault("project", info.get("project") or info.get("project_id"))
-    ee.Initialize(**kwargs)
+    auth.get("earthengine").ensure(**kwargs)
 
 
-# ── Local cache ───────────────────────────────────────────────────────────────
+# ── Local cache (delegates to easysnowdata.config) ────────────────────────────
 
 
 def _cache_dir(*subdirs: str) -> Path:
-    """Return (and create) the easysnowdata cache directory.
-
-    Defaults to the platform user cache dir (``~/.cache/easysnowdata`` on
-    Linux, ``~/Library/Caches/easysnowdata`` on macOS,
-    ``%LOCALAPPDATA%\\easysnowdata\\cache`` on Windows). Set the
-    ``EASYSNOWDATA_CACHE_DIR`` environment variable to override the root.
-    """
-    root = os.environ.get("EASYSNOWDATA_CACHE_DIR") or pooch.os_cache("easysnowdata")
-    path = Path(root).expanduser().joinpath(*subdirs)
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+    """Return (and create) the easysnowdata cache directory (see ``config.cache_dir``)."""
+    return config.cache_dir(*subdirs)
 
 
 def _fetch_to_cache(
@@ -315,7 +138,8 @@ def requires_earthengine(func):
     def wrapper(*args, **kwargs):
         if not _has_earthengine_credentials():
             raise CredentialError(
-                f"`{func.__qualname__}` requires Google Earth Engine.\n\n{_EE_SETUP_MSG}"
+                f"`{func.__qualname__}` requires Google Earth Engine.\n\n{_EE_SETUP_MSG}",
+                provider="earthengine",
             )
         return func(*args, **kwargs)
 
@@ -329,7 +153,8 @@ def requires_earthaccess(func):
     def wrapper(*args, **kwargs):
         if not _has_earthaccess_credentials():
             raise CredentialError(
-                f"`{func.__qualname__}` requires NASA EarthData credentials.\n\n{_EARTHACCESS_SETUP_MSG}"
+                f"`{func.__qualname__}` requires NASA EarthData credentials.\n\n{_EARTHACCESS_SETUP_MSG}",
+                provider="earthdata",
             )
         return func(*args, **kwargs)
 

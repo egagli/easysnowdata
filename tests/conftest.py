@@ -6,10 +6,7 @@ import geopandas as gpd
 import pytest
 import shapely
 
-from easysnowdata.utils import (
-    _has_earthaccess_credentials,
-    _has_earthengine_credentials,
-)
+from easysnowdata import auth
 
 # Small bbox for testing — Mount Rainier, WA (covers SNOTEL, snow products, etc.)
 TEST_BBOX = (-121.94, 46.72, -121.54, 46.99)
@@ -34,25 +31,44 @@ def pytest_configure(config: pytest.Config) -> None:
     )
     config.addinivalue_line(
         "markers",
+        "requires_planet: marks tests that need Planet credentials (PL_API_KEY, "
+        "PL_AUTH_* or a `planet auth login` session)",
+    )
+    config.addinivalue_line(
+        "markers",
+        "requires_nve: marks tests that need an NVE HydAPI key (NVE_API_KEY)",
+    )
+    config.addinivalue_line(
+        "markers",
+        "recorded: marks tests replayed from pytest-recording cassettes or run "
+        "against the tiny local fixtures (offline tier, no sockets)",
+    )
+    config.addinivalue_line(
+        "markers",
         "integration: marks slow integration tests that hit live external APIs",
     )
 
 
+_REQUIRES = {
+    "requires_earthengine": "earthengine",
+    "requires_earthaccess": "earthdata",
+    "requires_planet": "planet",
+    "requires_nve": "nve",
+}
+
+
 def pytest_runtest_setup(item: pytest.Item) -> None:
     # Skip only when *no* credential source is available. The detection is the
-    # same one the package uses, so a CI runner with EARTHDATA_TOKEN (or a
-    # developer with ~/.netrc) no longer skips the Earthdata tests.
-    for _ in item.iter_markers("requires_earthengine"):
-        if not _has_earthengine_credentials():
+    # package's own (easysnowdata.auth), so a CI runner with EARTHDATA_TOKEN or
+    # a developer with ~/.netrc runs the Earthdata tests.
+    for marker, provider_name in _REQUIRES.items():
+        if item.get_closest_marker(marker) is None:
+            continue
+        provider = auth.get(provider_name)
+        if not provider.detect():
             pytest.skip(
-                "Skipping: no Google Earth Engine credentials "
-                "(EARTHENGINE_TOKEN or ~/.config/earthengine/credentials)."
-            )
-    for _ in item.iter_markers("requires_earthaccess"):
-        if not _has_earthaccess_credentials():
-            pytest.skip(
-                "Skipping: no NASA Earthdata credentials (EARTHDATA_TOKEN, "
-                "EARTHDATA_USERNAME + EARTHDATA_PASSWORD, or ~/.netrc)."
+                f"Skipping: no {provider.title} credentials "
+                f"({', '.join(provider.env_vars + provider.files)})."
             )
 
 

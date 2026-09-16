@@ -216,7 +216,7 @@ class TestEarthaccessLogin:
         monkeypatch.setattr(earthaccess, "_auth", auth)
         monkeypatch.setattr(earthaccess, "_store", None)
         monkeypatch.setattr(earthaccess, "login", login)
-        monkeypatch.setattr("easysnowdata.utils.time.sleep", lambda s: None)
+        monkeypatch.setattr("easysnowdata.auth.earthdata.time.sleep", lambda s: None)
         return state
 
     def test_no_credentials_raises_before_calling_earthaccess(

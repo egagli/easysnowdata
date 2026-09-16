@@ -5,6 +5,8 @@ __email__ = "egagli@uw.edu"
 __version__ = "0.0.26"
 __all__ = [
     "aoi",
+    "auth",
+    "config",
     "AOI",
     "parse_aoi",
     "utils",
@@ -18,7 +20,9 @@ __all__ = [
 
 from easysnowdata import (
     aoi,
+    auth,
     automatic_weather_stations,
+    config,
     hydroclimatology,
     remote_sensing,
     topography,
@@ -27,3 +31,5 @@ from easysnowdata import (
 from easysnowdata.aoi import AOI, parse_aoi
 from easysnowdata.remote_sensing import authenticate_all
 from easysnowdata.utils import CredentialError
+
+auth._emit_import_summary()
