@@ -179,7 +179,8 @@ class TestNlcdLandcover:
         assert isinstance(result, xr.DataArray)
         assert result.dims == ("y", "x")
         assert result.dtype == "uint8"
-        assert "class_info" in result.attrs
+        # The class table is CF flag attrs now, read from the asset properties.
+        assert result.attrs["flag_values"] and result.attrs["flag_meanings"]
         assert result.rio.crs is not None
 
     @pytest.mark.requires_earthengine

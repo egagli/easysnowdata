@@ -2,6 +2,6 @@
 
 from __future__ import annotations
 
-from easysnowdata.land import landcover
+from easysnowdata.land import landcover, nlcd
 
-__all__ = ["landcover"]
+__all__ = ["landcover", "nlcd"]

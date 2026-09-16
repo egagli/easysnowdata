@@ -22,14 +22,13 @@ import xarray as xr
 
 from easysnowdata import auth, providers, temporal
 from easysnowdata._deprecation import deprecated
-from easysnowdata.land import landcover
+from easysnowdata.land import landcover, nlcd
 from easysnowdata.utils import (
     _EARTHACCESS_SETUP_MSG,
     CredentialError,
     HLS_xml_url_to_metadata_df,
     _has_earthaccess_credentials,
     convert_bbox_to_geodataframe,
-    get_ee_grid_params,
     get_stac_cfg,
     initialize_earthengine,
     requires_earthengine,
@@ -575,7 +574,16 @@ def get_esa_worldcover(
     return landcover.load(bbox_input, version=version, mask=mask_nodata, **kwargs)
 
 
-@requires_earthengine
+@deprecated(
+    "easysnowdata.land.nlcd.load",
+    since="0.1.0",
+    remove_in="0.2.0",
+    name="easysnowdata.remote_sensing.get_nlcd_landcover",
+    extra=(
+        "The new loader defaults to Annual NLCD (1985-2024); this shim keeps "
+        "the official 2021 release. Class tables are CF flag attrs now."
+    ),
+)
 def get_nlcd_landcover(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -588,10 +596,10 @@ def get_nlcd_landcover(
     """
     Fetches National Land Cover Database (NLCD) data for a given bounding box.
 
-    Description:
-    The National Land Cover Database (NLCD) provides nationwide data on land cover and land cover change
-    at a 30m resolution. The dataset includes various layers such as land cover classification,
-    impervious surfaces, and urban intensity. Projection is an albers equal area conic projection.
+    .. deprecated:: 0.1.0
+        Use :func:`easysnowdata.land.nlcd.load`. Its default source is the
+        Annual NLCD collection (1985-2024, ``time=`` selects years); pass
+        ``source="gee"`` for the official 2021 release this shim uses.
 
     Parameters
     ----------
@@ -609,180 +617,28 @@ def get_nlcd_landcover(
         - 'science_products_forest_disturbance_date'
         Default is 'landcover'.
     initialize_ee : bool, optional
-        Whether to initialize Earth Engine. Default is True.
+        Ignored: Earth Engine is initialised on first use (§2.8).
     **kwargs
-        Additional keyword arguments passed to ``xarray.open_dataset`` with
-        ``engine="ee"`` (e.g. ``chunks={"time": 1, "x": 512, "y": 512}``).
-        These take precedence over the defaults used here (``chunks={}``).
+        Additional keyword arguments passed to
+        :func:`easysnowdata.land.nlcd.load` (and on to
+        ``xarray.open_dataset(engine="ee")``).
 
     Returns
     -------
     xarray.DataArray
         NLCD DataArray for the specified region and layer.
 
-    Examples
-    --------
-    >>> import geopandas as gpd
-    >>> import easysnowdata
-    >>>
-    >>> # Define a bounding box for an area of interest
-    >>> bbox = (-122.5, 47.0, -121.5, 48.0)
-    >>>
-    >>> # Fetch NLCD land cover data
-    >>> nlcd_landcover_da = easysnowdata.remote_sensing.get_nlcd_landcover(bbox, layer='landcover')
-    >>>
-    >>> # Plot the data
-    >>> nlcd_landcover_da.attrs['example_plot'](nlcd_landcover_da)
-
-
     Notes
     -----
-    Requires Google Earth Engine authentication. Run ``ee.Authenticate()`` and
-    ``ee.Initialize()`` once, or call ``easysnowdata.authenticate_all()``.
+    Requires Google Earth Engine authentication; see ``esd.auth.status()``.
 
     - NLCD data is only available for the contiguous United States
-    - The latest version (2021) includes data from 2001-2021
     - Resolution is 30 meters
 
     Data citation:
     Dewitz, J., 2023, National Land Cover Database (NLCD) 2021 Products: U.S. Geological Survey data release, doi:10.5066/P9JZ7AO3
     """
-    # Initialize Earth Engine with high-volume endpoint
-    if initialize_ee:
-        initialize_earthengine()
-    else:
-        _logger.info(
-            "Earth Engine initialization skipped. Ensure EE is already initialized."
-        )
-
-    # Convert the input to a GeoDataFrame if it's not already one
-    bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
-
-    image_collection = ee.ImageCollection("USGS/NLCD_RELEASES/2021_REL/NLCD")
-    image = image_collection.first()
-
-    # Match NLCD's native 30 m Albers grid, cropped to the bbox
-    grid = get_ee_grid_params(image, bbox_gdf)
-
-    open_params = {"engine": "ee", "chunks": {}, **grid, **kwargs}
-    ds = (
-        providers.gee.open_dataset(image_collection, grid={}, **open_params)
-        .squeeze()
-        .rio.set_spatial_dims(x_dim="x", y_dim="y")
-        .rio.write_crs(open_params["crs"])
-        .astype("uint8")
-    )
-
-    nlcd_da = ds[layer]
-
-    # would be nice for them to come in as ints
-    # https://github.com/google/Xee/issues/86
-    # https://github.com/google/Xee/issues/146
-
-    def get_class_info():
-        info = image.getInfo()["properties"]
-
-        if layer == "landcover":
-            return {
-                value: {"name": name.split(":")[0], "color": f"#{palette}"}
-                for value, name, palette in zip(
-                    info["landcover_class_values"],
-                    info["landcover_class_names"],
-                    info["landcover_class_palette"],
-                )
-            }
-        elif layer == "impervious":
-            return None
-        elif layer == "impervious_descriptor":
-            return {
-                value: {"name": name.split(".")[0], "color": f"#{palette}"}
-                for value, name, palette in zip(
-                    info["impervious_descriptor_class_values"],
-                    info["impervious_descriptor_class_names"],
-                    info["impervious_descriptor_class_palette"],
-                )
-            }
-        elif layer.startswith("science_products"):
-            return {
-                value: {"name": name, "color": f"#{palette}"}
-                for value, name, palette in zip(
-                    info[f"{layer}_class_values"],
-                    info[f"{layer}_class_names"],
-                    info[f"{layer}_class_palette"],
-                )
-            }
-
-    def get_class_cmap(classes):
-        if classes is None:
-            return plt.cm.YlOrRd
-        return plt.cm.colors.ListedColormap(
-            [classes[key]["color"] for key in classes.keys()]
-        )
-
-    def plot_classes(self, ax=None, figsize=(8, 10), legend_kwargs=None):
-        if ax is None:
-            f, ax = plt.subplots(figsize=figsize)
-        else:
-            f = ax.get_figure()
-
-        if self.name != "impervious":
-            class_values = sorted(list(self.attrs["class_info"].keys()))
-            bounds = [
-                (class_values[i] + class_values[i + 1]) / 2
-                for i in range(len(class_values) - 1)
-            ]
-            bounds = [class_values[0] - 0.5] + bounds + [class_values[-1] + 0.5]
-            norm = matplotlib.colors.BoundaryNorm(bounds, self.attrs["cmap"].N)
-
-            im = self.plot.imshow(
-                ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False
-            )
-
-            legend_handles = []
-            class_names = []
-            for class_value, class_info in self.attrs["class_info"].items():
-                legend_handles.append(
-                    plt.Rectangle(
-                        (0, 0), 1, 1, facecolor=class_info["color"], edgecolor="black"
-                    )
-                )
-                class_names.append(class_info["name"])
-
-            legend_kwargs = legend_kwargs or {}
-            default_legend_kwargs = {
-                "bbox_to_anchor": (0.5, -0.1),
-                "loc": "upper center",
-                "ncols": 4,
-                "frameon": False,
-                "handlelength": 3.5,
-                "handleheight": 5,
-            }
-            legend_kwargs = {**default_legend_kwargs, **legend_kwargs}
-            ax.legend(legend_handles, class_names, **legend_kwargs)
-
-        else:
-            im = self.plot.imshow(ax=ax, cmap=self.attrs["cmap"], add_colorbar=False)
-            f.colorbar(im, ax=ax, label="Percent impervious surface [%]")
-
-        ax.set_xlabel("x")
-        ax.set_ylabel("y")
-        # ax.axis('equal')
-        ax.set_title(f"NLCD {self.name.title()} (2021)")
-        # f.tight_layout(pad=0, w_pad=0, h_pad=0)
-        f.dpi = 300
-
-        return f, ax
-
-    class_info = get_class_info()
-    nlcd_da.attrs["class_info"] = class_info
-    nlcd_da.attrs["cmap"] = get_class_cmap(class_info)
-    nlcd_da.attrs["example_plot"] = plot_classes
-
-    nlcd_da.attrs["data_citation"] = (
-        "Dewitz, J., 2023, National Land Cover Database (NLCD) 2021 Products: U.S. Geological Survey data release, doi:10.5066/P9JZ7AO3"
-    )
-
-    return nlcd_da
+    return nlcd.load(bbox_input, source="gee", layer=layer, **kwargs)
 
 
 class Sentinel2:
