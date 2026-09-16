@@ -4,20 +4,18 @@ from __future__ import annotations
 
 import json
 import logging
-import re
 
 import ee
 import geopandas as gpd
-import pandas as pd
 import shapely
 import xarray as xr
 
 from easysnowdata import providers, temporal
 from easysnowdata._deprecation import deprecated
+from easysnowdata.snow import ucla_sr as _ucla_sr_stats
 from easysnowdata.utils import (
     convert_bbox_to_geodataframe,
     initialize_earthengine,
-    requires_earthaccess,
     requires_earthengine,
 )
 
@@ -35,8 +33,15 @@ __all__ = [
 _logger = logging.getLogger(__name__)
 
 # Position of each ensemble statistic along the ``Stats`` dimension of the
+# WUS_UCLA_SR files. The table now lives in easysnowdata.snow.ucla_sr.STATS;
+# this module-level alias keeps the old private constant working for one
+# release (Phase 0 fixed it: "median" and "25pct" used to share index 2).
+_UCLA_SR_STATS_INDEX = dict(_ucla_sr_stats.STATS)
+
+# Position of each ensemble statistic along the ``Stats`` dimension of the
 # WUS_UCLA_SR files: mean, standard deviation, median, 25th and 75th percentile.
-_UCLA_SR_STATS_INDEX = {"mean": 0, "std": 1, "median": 2, "25pct": 3, "75pct": 4}
+# The table now lives in easysnowdata.snow.ucla_sr.STATS; this alias keeps the
+# old module constant working for one release.
 
 
 @requires_earthengine
@@ -476,7 +481,15 @@ def get_snodas(
     )
 
 
-@requires_earthaccess
+@deprecated(
+    "easysnowdata.snow.ucla_sr.load",
+    since="0.1.0",
+    remove_in="0.2.0",
+    extra=(
+        "The new loader adds region='hma' (High Mountain Asia), virtualize='auto' for "
+        "long series and access='auto' for in-region S3 reads."
+    ),
+)
 def get_ucla_snow_reanalysis(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -488,114 +501,21 @@ def get_ucla_snow_reanalysis(
     end_date: str = "2021-09-30",
     **kwargs,
 ) -> xr.DataArray:
+    """Deprecated alias of :func:`easysnowdata.snow.ucla_sr.load`.
+
+    Every old keyword still works for one release. The ensemble-statistic
+    mapping (``_UCLA_SR_STATS_INDEX``) now lives in
+    ``easysnowdata.snow.ucla_sr.STATS``.
     """
-    Fetches the Margulis UCLA snow reanalysis product for a specified bounding box and time range.
+    from easysnowdata.snow import ucla_sr as _ucla_sr  # noqa: PLC0415
 
-    This function retrieves snow reanalysis data from the UCLA dataset, allowing users to specify
-    the type of snow data variable, statistical measure, and the temporal range for the data retrieval.
-    The data is then clipped to the specified bounding box and returned as an xarray DataArray.
-
-    Parameters
-    ----------
-    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional
-        The bounding box for spatial subsetting. If None, the entire dataset is returned.
-    variable : str, optional
-        The type of snow data variable to retrieve. Options include 'SWE_Post' (Snow Water Equivalent),
-        'SCA_Post' (Snow Cover Area), and 'SD_Post' (Snow Depth). Default is 'SWE_Post'.
-    stats : str, optional
-        The ensemble statistic. Options are 'mean', 'std' (standard deviation),
-        'median', '25pct' (25th percentile), and '75pct' (75th percentile). Default is 'mean'.
-    start_date : str, optional
-        The start date for the data retrieval in 'YYYY-MM-DD' format. Default is '1984-10-01'.
-    end_date : str, optional
-        The end date for the data retrieval in 'YYYY-MM-DD' format. Default is '2021-09-30'.
-    **kwargs
-        Additional keyword arguments passed to ``xarray.open_mfdataset`` (e.g.
-        ``chunks={"Day": 30}`` or ``parallel=True``).
-
-    Returns
-    -------
-    xarray.DataArray
-        An xarray DataArray containing the requested snow reanalysis data, clipped to the specified bounding box.
-
-    Examples
-    --------
-    Get mean Snow Water Equivalent data for a specific region and time period...
-
-    >>> swe_reanalysis_da = easysnowdata.hydroclimatology.get_ucla_snow_reanalysis(bbox_input=(-121.94, 46.72, -121.54, 46.99),
-    ...                                     variable='SWE_Post',
-    ...                                     start_date='2000-01-01',
-    ...                                     end_date='2000-12-31')
-    >>> snow_reanalysis_da.isel(time=slice(0, 365, 30)).plot.imshow(col="time",col_wrap=5,cmap="Blues",vmin=0,vmax=3)
-
-    Notes
-    -----
-    Requires NASA EarthData credentials: ``EARTHDATA_TOKEN``, or
-    ``EARTHDATA_USERNAME`` + ``EARTHDATA_PASSWORD``, or a ``~/.netrc`` entry
-    (``earthaccess.login(persist=True)`` writes one). The function logs in
-    through ``earthaccess`` itself before opening any file.
-
-    Data citation:
-
-    Fang, Y., Liu, Y. & Margulis, S. A. (2022). Western United States UCLA Daily Snow Reanalysis. (WUS_UCLA_SR, Version 1). [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/PP7T2GBI52I2
-    """
-
-    if stats not in _UCLA_SR_STATS_INDEX:
-        raise ValueError(
-            f"stats must be one of {list(_UCLA_SR_STATS_INDEX)}, got {stats!r}."
-        )
-    stats_index = _UCLA_SR_STATS_INDEX[stats]
-
-    bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
-
-    # The earthdata provider logs in explicitly (earthaccess >= 0.16) first.
-    search = providers.earthdata.search(
-        "WUS_UCLA_SR",
-        cloud_hosted=True,
-        bounding_box=tuple(bbox_gdf.total_bounds),
-        temporal=(start_date, end_date),
+    return _ucla_sr.load(
+        bbox_input,
+        (start_date, end_date),
+        variable=variable,
+        stats=stats,
+        **kwargs,
     )
-
-    files = providers.earthdata.open(
-        search
-    )  # cant disable progress bar yet https://github.com/nsidc/earthaccess/issues/612
-    snow_reanalysis_ds = xr.open_mfdataset(files, **kwargs).transpose()
-
-    # Each file holds one water year of daily data starting 1 October. Take the
-    # year from the file name (..._WY1999_...); fall back to a date embedded in
-    # the archive path (.../1999/10/01/... or the older 1999.10.01 form).
-    url = files[0].path
-    if match := re.search(r"_WY(\d{4})_", url):
-        WY_start_date = pd.Timestamp(year=int(match.group(1)), month=10, day=1)
-    elif match := re.search(r"(\d{4})[./](\d{2})[./](\d{2})", url):
-        WY_start_date = pd.Timestamp(*(int(g) for g in match.groups()))
-    else:
-        raise ValueError(
-            f"Could not determine the water-year start date from file path: {url}"
-        )
-
-    snow_reanalysis_ds.coords["time"] = (
-        "Day",
-        pd.date_range(WY_start_date, periods=snow_reanalysis_ds.sizes["Day"]),
-    )
-    snow_reanalysis_ds = snow_reanalysis_ds.swap_dims({"Day": "time"})
-
-    snow_reanalysis_ds = snow_reanalysis_ds.sel(time=slice(start_date, end_date))
-
-    snow_reanalysis_da = snow_reanalysis_ds[variable].sel(Stats=stats_index)
-    snow_reanalysis_da = snow_reanalysis_da.rio.set_spatial_dims(
-        x_dim="Longitude", y_dim="Latitude"
-    )
-    snow_reanalysis_da = snow_reanalysis_da.rio.write_crs(bbox_gdf.crs)
-    snow_reanalysis_da = snow_reanalysis_da.rio.clip_box(
-        *bbox_gdf.total_bounds, crs=bbox_gdf.crs
-    )
-
-    snow_reanalysis_da.attrs["data_citation"] = (
-        "Fang, Y., Liu, Y. & Margulis, S. A. (2022). Western United States UCLA Daily Snow Reanalysis. (WUS_UCLA_SR, Version 1). [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/PP7T2GBI52I2"
-    )
-
-    return snow_reanalysis_da
 
 
 @deprecated(
