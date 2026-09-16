@@ -18,6 +18,8 @@ import shapely
 import xarray as xr
 
 from easysnowdata.utils import (
+    _earthaccess_login,
+    _fetch_to_cache,
     convert_bbox_to_geodataframe,
     get_ee_grid_params,
     initialize_earthengine,
@@ -37,6 +39,10 @@ __all__ = [
 ]
 
 _logger = logging.getLogger(__name__)
+
+# Position of each ensemble statistic along the ``Stats`` dimension of the
+# WUS_UCLA_SR files: mean, standard deviation, median, 25th and 75th percentile.
+_UCLA_SR_STATS_INDEX = {"mean": 0, "std": 1, "median": 2, "25pct": 3, "75pct": 4}
 
 
 @requires_earthengine
@@ -190,8 +196,11 @@ def get_hydroBASINS(
         convert_bbox_to_geodataframe(bbox_input) if bbox_input is not None else None
     )
 
-    # Construct URL and layer name
-    url = "https://figshare.com/ndownloader/files/20082137/BasinATLAS_Data_v10.gdb.zip"
+    # Construct URL and layer name. Use the ndownloader.figshare.com host: it
+    # answers with a plain 302 to the signed S3 object, whereas
+    # figshare.com/ndownloader serves a bot-challenge page (HTTP 202) to
+    # non-browser clients such as GDAL.
+    url = "https://ndownloader.figshare.com/files/20082137/BasinATLAS_Data_v10.gdb.zip"
     layer_name = f"BasinATLAS_v10_lev{level:02d}"
 
     _logger.info("Loading HydroATLAS level {level} basins...")
@@ -335,6 +344,10 @@ def get_grdc_wmo_basins(
 
     Notes
     -----
+    The GRDC archive (about 380 MB) is downloaded once into the easysnowdata
+    cache directory (``~/.cache/easysnowdata/grdc`` on Linux; override with
+    ``EASYSNOWDATA_CACHE_DIR``) and re-used on later calls.
+
     This dataset incorporates data from the HydroSHEDS database which is © World Wildlife Fund, Inc.
     (2006-2013) and has been used under license.
 
@@ -355,14 +368,19 @@ def get_grdc_wmo_basins(
     Koblenz, Germany: Federal Institute of Hydrology (BfG).
     """
 
-    url = "https://grdc.bafg.de/downloads/wmobb_json.zip/wmobb_basins.json"
+    url = "https://grdc.bafg.de/downloads/wmobb_json.zip"
 
     # Convert bbox to GeoDataFrame if provided
     bbox_gdf = (
         convert_bbox_to_geodataframe(bbox_input) if bbox_input is not None else None
     )
 
-    basins_gdf = gpd.read_file("zip+" + url, **kwargs)
+    # The GRDC server answers HTTP 400 to HEAD requests, which GDAL's /vsicurl
+    # sends before any range read, so a remote "zip+https://" read fails even
+    # though the file is there. Fetch the archive once with a plain GET into
+    # the user cache directory (~380 MB) and read the basins layer locally.
+    zip_path = _fetch_to_cache(url, fname="wmobb_json.zip", subdir="grdc")
+    basins_gdf = gpd.read_file(f"zip://{zip_path}!wmobb_basins.json", **kwargs)
 
     # Clip to bbox if provided
     if bbox_gdf is not None:
@@ -883,15 +901,26 @@ def get_ucla_snow_reanalysis(
 
     Notes
     -----
-    Requires NASA EarthData authentication. Run ``earthaccess.login(persist=True)``
-    once, or call ``easysnowdata.authenticate_all()``.
+    Requires NASA EarthData credentials: ``EARTHDATA_TOKEN``, or
+    ``EARTHDATA_USERNAME`` + ``EARTHDATA_PASSWORD``, or a ``~/.netrc`` entry
+    (``earthaccess.login(persist=True)`` writes one). The function logs in
+    through ``earthaccess`` itself before opening any file.
 
     Data citation:
 
     Fang, Y., Liu, Y. & Margulis, S. A. (2022). Western United States UCLA Daily Snow Reanalysis. (WUS_UCLA_SR, Version 1). [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/PP7T2GBI52I2
     """
 
+    if stats not in _UCLA_SR_STATS_INDEX:
+        raise ValueError(
+            f"stats must be one of {list(_UCLA_SR_STATS_INDEX)}, got {stats!r}."
+        )
+    stats_index = _UCLA_SR_STATS_INDEX[stats]
+
     bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
+
+    # earthaccess >= 0.16 requires an explicit login before open()/download().
+    _earthaccess_login()
 
     search = earthaccess.search_data(
         short_name="WUS_UCLA_SR",
@@ -925,9 +954,6 @@ def get_ucla_snow_reanalysis(
     snow_reanalysis_ds = snow_reanalysis_ds.swap_dims({"Day": "time"})
 
     snow_reanalysis_ds = snow_reanalysis_ds.sel(time=slice(start_date, end_date))
-
-    stats_dictionary = {"mean": 0, "std": 1, "median": 2, "25pct": 2, "75pct": 3}
-    stats_index = stats_dictionary[stats]
 
     snow_reanalysis_da = snow_reanalysis_ds[variable].sel(Stats=stats_index)
     snow_reanalysis_da = snow_reanalysis_da.rio.set_spatial_dims(
@@ -1201,8 +1227,13 @@ def get_koppen_geiger_classes(
     }
     resolution = resolution_dict[resolution]
 
+    # figshare file 61012822 is the current (January 2026) release of the
+    # Beck et al. (2023) archive; 45057352 was the superseded v1 file. Read
+    # through the ndownloader.figshare.com host, which answers with a plain
+    # 302 to the signed S3 object; the figshare.com/ndownloader host serves a
+    # bot-challenge page (HTTP 202) to non-browser clients such as GDAL.
     koppen_geiger_da = rxr.open_rasterio(
-        f"zip+https://figshare.com/ndownloader/files/45057352/koppen_geiger_tif.zip/1991_2020/koppen_geiger_{resolution}.tif",
+        f"zip+https://ndownloader.figshare.com/files/61012822/koppen_geiger_tif.zip/1991_2020/koppen_geiger_{resolution}.tif",
         **kwargs,
     ).squeeze()
 

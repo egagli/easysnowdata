@@ -108,3 +108,7 @@ ENV/
 
 # API keys
 ee_key.json
+
+# Local example downloads (multi-GB Planet scenes, earthaccess downloads)
+docs/examples/planet_data/
+docs/examples/data/

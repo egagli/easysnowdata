@@ -77,6 +77,8 @@ class TestTokenParsing:
 
 
 class TestEarthEngine:
+    pytestmark = pytest.mark.live
+
     def test_ee_initialization(self, ee_credentials):
         """Test Earth Engine initializes successfully"""
         initialize_earthengine()

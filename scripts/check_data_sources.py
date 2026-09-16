@@ -7,17 +7,20 @@ Usage
 Each check performs the minimal request necessary to confirm that an
 endpoint is reachable and returns data:
 
-* HTTP HEAD/GET for static file hosts (figshare, Zenodo, World Bank, GRDC,
-  GitHub, Azure Blob).
+* HTTP GET (first byte only) for static file hosts (figshare, Zenodo, World
+  Bank, GRDC, GitHub, Azure Blob). GET comes first because some servers
+  (GRDC) answer HEAD with HTTP 400 even though the file is there.
 * Zarr metadata read for ARCO-ERA5 on GCS (anonymous).
 * STAC catalog search for Planetary Computer endpoints.
 * GEE ImageCollection.first() for Earth Engine-backed sources.
 * earthaccess.search_data() for NASA NSIDC sources.
 
 Credentials are read from environment variables:
-    EARTHENGINE_TOKEN     — Google Earth Engine (JSON string)
-    EARTHDATA_USERNAME    — NASA EarthData username
-    EARTHDATA_PASSWORD    — NASA EarthData password
+    EARTHENGINE_TOKEN     — Google Earth Engine (service-account or OAuth JSON,
+                            raw or base64)
+    EARTHDATA_TOKEN       — NASA Earthdata Login bearer token (preferred), or
+    EARTHDATA_USERNAME +
+    EARTHDATA_PASSWORD    — NASA Earthdata username and password
 """
 
 from __future__ import annotations
@@ -38,37 +41,71 @@ import requests
 TIMEOUT = 20  # seconds for HTTP requests
 
 
-def _head_ok(url: str) -> tuple[bool, str]:
-    """Return (True, '') if the URL responds 200–399, else (False, reason)."""
+def _url_ok(url: str) -> tuple[bool, str]:
+    """Return (True, '') if a GET of the URL yields file bytes, else (False, reason).
+
+    The probe is GET-first: it asks for the first byte only (``Range:
+    bytes=0-0``, streamed and closed immediately) so that servers which
+    reject HEAD (GRDC answers 400) are still reported correctly. Redirects
+    are followed, and only a final 200 or 206 counts as success: figshare's
+    ``figshare.com/ndownloader`` host answers 202 with a bot-challenge page
+    to non-browser clients, which GDAL cannot read. HEAD is tried only as a
+    fallback when the GET itself fails.
+    """
     try:
-        r = requests.head(url, timeout=TIMEOUT, allow_redirects=True)
-        if r.status_code < 400:
+        r = requests.get(
+            url,
+            timeout=TIMEOUT,
+            stream=True,
+            allow_redirects=True,
+            headers={"Range": "bytes=0-0"},
+        )
+        status = r.status_code
+        r.close()
+        if status in (200, 206):
             return True, ""
-        # Some servers reject HEAD; fall back to GET with stream
-        r2 = requests.get(url, timeout=TIMEOUT, stream=True)
-        r2.close()
-        if r2.status_code < 400:
+        r2 = requests.head(url, timeout=TIMEOUT, allow_redirects=True)
+        if r2.status_code in (200, 206):
             return True, ""
-        return False, f"HTTP {r2.status_code}"
+        return False, f"HTTP {status}"
     except Exception as exc:
         return False, str(exc)
+
+
+def _env_satisfied(requires_env: list[str] | list[list[str]]) -> tuple[bool, str]:
+    """Return (ok, reason) for an env-var requirement.
+
+    *requires_env* is either a flat list (every variable must be set) or a
+    list of alternative groups, any one of which suffices; e.g.
+    ``[["EARTHDATA_TOKEN"], ["EARTHDATA_USERNAME", "EARTHDATA_PASSWORD"]]``.
+    """
+    groups: list[list[str]] = (
+        [list(requires_env)]  # type: ignore[arg-type]
+        if requires_env and isinstance(requires_env[0], str)
+        else [list(g) for g in requires_env]  # type: ignore[union-attr]
+    )
+    for group in groups:
+        if all(os.getenv(v) for v in group):
+            return True, ""
+    wanted = " or ".join(" + ".join(g) for g in groups)
+    return False, f"Missing env vars: {wanted}"
 
 
 def _check(
     name: str,
     fn: Callable[[], None],
     *,
-    requires_env: list[str] | None = None,
+    requires_env: list[str] | list[list[str]] | None = None,
 ) -> dict:
     """Run *fn* and return a result dict."""
     now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     if requires_env:
-        missing = [v for v in requires_env if not os.getenv(v)]
-        if missing:
+        ok, reason = _env_satisfied(requires_env)
+        if not ok:
             return {
                 "source": name,
                 "status": "skip",
-                "error": f"Missing env vars: {', '.join(missing)}",
+                "error": reason,
                 "checked_at": now,
             }
     try:
@@ -90,63 +127,66 @@ def _check(
 
 def check_snotel_station_list() -> None:
     url = "https://github.com/egagli/snotel_ccss_stations/raw/main/all_stations.geojson"
-    ok, reason = _head_ok(url)
+    ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
 
 
 def check_snotel_single_csv() -> None:
     url = "https://raw.githubusercontent.com/egagli/snotel_ccss_stations/main/data/679_WA_SNTL.csv"
-    ok, reason = _head_ok(url)
+    ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
 
 
 def check_hydroatlas_figshare() -> None:
-    url = "https://figshare.com/ndownloader/files/20082137/BasinATLAS_Data_v10.gdb.zip"
-    ok, reason = _head_ok(url)
+    url = "https://ndownloader.figshare.com/files/20082137/BasinATLAS_Data_v10.gdb.zip"
+    ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
 
 
 def check_grdc_major_river_basins() -> None:
     url = "https://datacatalogfiles.worldbank.org/ddh-published/0041426/DR0051689/major_basins_of_the_world_0_0_0.zip"
-    ok, reason = _head_ok(url)
+    ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
 
 
 def check_grdc_wmo_basins() -> None:
-    url = "https://grdc.bafg.de/downloads/wmobb_json.zip/wmobb_basins.json"
-    ok, reason = _head_ok(url)
+    # Probe the archive itself; the "/wmobb_basins.json" suffix used by the
+    # GDAL zip path is not a real URL on the GRDC server (it returns 404).
+    url = "https://grdc.bafg.de/downloads/wmobb_json.zip"
+    ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
 
 
 def check_koppen_geiger_figshare() -> None:
-    url = "https://figshare.com/ndownloader/files/45057352/koppen_geiger_tif.zip"
-    ok, reason = _head_ok(url)
+    # Current (2026-01) release of the Beck et al. 2023 archive; 45057352 was v1.
+    url = "https://ndownloader.figshare.com/files/61012822/koppen_geiger_tif.zip"
+    ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
 
 
 def check_snow_classification_azure() -> None:
     url = "https://uwcryo.blob.core.windows.net/snowmelt/eric/snow_classification/SnowClass_GL_300m_10.0arcsec_2021_v01.0.tif"
-    ok, reason = _head_ok(url)
+    ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
 
 
 def check_forest_cover_zenodo() -> None:
     url = "https://zenodo.org/record/3939050/files/PROBAV_LC100_global_v3.0.1_2019-nrt_Tree-CoverFraction-layer_EPSG-4326.tif"
-    ok, reason = _head_ok(url)
+    ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
 
 
 def check_mountain_snow_mask_zenodo() -> None:
     url = "https://zenodo.org/records/2626737/files/MODIS_mtnsnow_classes.zip"
-    ok, reason = _head_ok(url)
+    ok, reason = _url_ok(url)
     if not ok:
         raise RuntimeError(f"Unreachable: {reason}")
 
@@ -294,11 +334,13 @@ def check_nlcd_gee() -> None:
 def check_ucla_snow_reanalysis_earthaccess() -> None:
     import earthaccess
 
-    earthaccess.login(
-        strategy="environment",
-        username=os.environ["EARTHDATA_USERNAME"],
-        password=os.environ["EARTHDATA_PASSWORD"],
-    )
+    # The "environment" strategy reads EARTHDATA_TOKEN first and falls back to
+    # EARTHDATA_USERNAME + EARTHDATA_PASSWORD (earthaccess >= 0.16).
+    auth = earthaccess.login(strategy="environment")
+    if not auth.authenticated:
+        raise RuntimeError(
+            "Earthdata Login rejected the credentials in the environment."
+        )
     results = earthaccess.search_data(
         short_name="WUS_UCLA_SR",
         cloud_hosted=True,
@@ -373,7 +415,10 @@ CHECKS: list[dict] = [
     {
         "name": "UCLA Snow Reanalysis (NASA NSIDC)",
         "fn": check_ucla_snow_reanalysis_earthaccess,
-        "requires_env": ["EARTHDATA_USERNAME", "EARTHDATA_PASSWORD"],
+        "requires_env": [
+            ["EARTHDATA_TOKEN"],
+            ["EARTHDATA_USERNAME", "EARTHDATA_PASSWORD"],
+        ],
     },
 ]
 

@@ -1,9 +1,9 @@
 [project]
 name = "easysnowdata"
-version = "0.0.25"
+version = "0.0.26"
 description = "A Python package to easily retrieve data relevant to snow science"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 license = { text = "MIT License" }
 authors = [{ name = "Eric Gagliano", email = "egagli@uw.edu" }]
 keywords = ["snow", "hydrology", "remote-sensing", "climate", "geospatial"]
@@ -11,7 +11,6 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: GIS",
@@ -32,11 +31,10 @@ dependencies = [
     "earthengine-api",
     "xee>=0.1",
     "beautifulsoup4",
-    "py3dep",
     "earthaccess",
-    "contextily",
-    "folium",
-    "mapclassify",
+    "pooch",
+    "pyyaml",
+    "requests",
     "lxml",
     "scikit-image",
     "tqdm",
@@ -44,6 +42,7 @@ dependencies = [
     "zarr",
     "gcsfs",
     "h5netcdf",
+    "h5py",
 ]
 
 [project.urls]
@@ -57,7 +56,7 @@ include = ["easysnowdata*"]
 exclude = ["docs*", "tests*", "scripts*"]
 
 [tool.bumpversion]
-current_version = "0.0.25"
+current_version = "0.0.26"
 commit = true
 tag = true
 
@@ -88,7 +87,7 @@ search = "date-released: '\\d{{4}}-\\d{{2}}-\\d{{2}}'"
 replace = "date-released: '{now:%Y-%m-%d}'"
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py312"
 line-length = 88
 
 [tool.ruff.lint]
@@ -107,8 +106,9 @@ quote-style = "double"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = [
-    "requires_earthengine: marks tests that require a valid EARTHENGINE_TOKEN env var",
-    "requires_earthaccess: marks tests that require EARTHDATA_USERNAME and EARTHDATA_PASSWORD env vars",
+    "live: marks tests that make network requests to a data provider (deselected in the offline tier)",
+    "requires_earthengine: marks tests that need Google Earth Engine credentials (EARTHENGINE_TOKEN or ~/.config/earthengine/credentials)",
+    "requires_earthaccess: marks tests that need NASA Earthdata credentials (EARTHDATA_TOKEN, EARTHDATA_USERNAME + EARTHDATA_PASSWORD, or a ~/.netrc entry)",
     "integration: marks slow integration tests that make live external API calls",
 ]
 filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]

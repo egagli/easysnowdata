@@ -30,6 +30,8 @@ from easysnowdata.utils import (
     _EARTHACCESS_SETUP_MSG,
     CredentialError,
     HLS_xml_url_to_metadata_df,
+    _cache_dir,
+    _earthaccess_login,
     _has_earthaccess_credentials,
     convert_bbox_to_geodataframe,
     get_ee_grid_params,
@@ -3267,10 +3269,14 @@ class MODIS_snow:
 
     Notes
     -----
-    The ``MOD10A1F`` product requires NASA EarthData authentication. Run
-    ``earthaccess.login(persist=True)`` once, or call
-    ``easysnowdata.authenticate_all()``. The ``MOD10A1`` and ``MOD10A2``
-    products use Microsoft Planetary Computer and require no credentials.
+    The ``MOD10A1F`` product requires NASA EarthData credentials
+    (``EARTHDATA_TOKEN``, or ``EARTHDATA_USERNAME`` + ``EARTHDATA_PASSWORD``,
+    or a ``~/.netrc`` entry written by ``earthaccess.login(persist=True)``);
+    the class logs in through ``earthaccess`` itself and downloads the HDF4
+    granules into the easysnowdata cache directory. Reading them needs a GDAL
+    build with the HDF4 driver (``libgdal-hdf4`` on conda-forge). The
+    ``MOD10A1`` and ``MOD10A2`` products use Microsoft Planetary Computer and
+    require no credentials.
 
     Available data products:
     MOD10A1: Daily snow cover, 500m resolution
@@ -3351,9 +3357,12 @@ class MODIS_snow:
                 )
 
         elif self.data_product == "MOD10A1F":
+            # earthaccess >= 0.16 requires an explicit login before download().
+            _earthaccess_login()
+            # MOD10A1F v61 is cloud-hosted at NSIDC (provider NSIDC_CPRD).
             search = earthaccess.search_data(
                 short_name="MOD10A1F",
-                cloud_hosted=False,
+                cloud_hosted=True,
                 bounding_box=tuple(self.bbox_gdf.total_bounds),
                 temporal=(self.start_date, self.end_date),
             )
@@ -3386,20 +3395,26 @@ class MODIS_snow:
             modis_snow = odc.stac.load(**load_params)
 
         elif self.data_product == "MOD10A1F":
-            # files = earthaccess.open(results) # doesn't seem to work for .hdf files...
-            # https://github.com/nsidc/earthaccess/blob/main/docs/tutorials/file-access.ipynb
-            # https://github.com/nsidc/earthaccess/tree/main
-            # https://earthaccess.readthedocs.io/en/latest/tutorials/emit-earthaccess/
-            # https://nbviewer.org/urls/gist.githubusercontent.com/scottyhq/790bf19c7811b5c6243ce37aae252ca1/raw/e2632e928647fd91c797e4a23116d2ac3ff62372/0-load-hdf5.ipynb
-            # https://docs.dask.org/en/latest/array-creation.html#concatenation-and-stacking
-            # https://matthewrocklin.com/blog/work/2018/02/06/hdf-in-the-cloud
-
-            # guess we'll download instead
-            temp_download_fp = "/tmp/local_folder"  # do these auto delete, or should i delete when opened explicitly? shutil.rmtree(temp_download_fp)
-
-            files = earthaccess.download(
-                self.search, temp_download_fp
-            )  # can i suppress the print output? https://earthaccess.readthedocs.io/en/latest/user-reference/api/api/
+            # The granules are HDF-EOS2 (HDF4) files. Check for the driver
+            # before downloading anything: rasterio's PyPI wheels ship GDAL
+            # without HDF4 (verified for rasterio 1.5.1 / GDAL 3.12.4), while
+            # conda-forge provides it as the separate libgdal-hdf4 package.
+            with rio.Env() as env:
+                has_hdf4 = "HDF4" in env.drivers()
+            if not has_hdf4:
+                raise RuntimeError(
+                    "MOD10A1F granules are HDF4 (HDF-EOS2) files, but this GDAL "
+                    "build has no HDF4 driver. rasterio's PyPI wheels omit it; "
+                    "install easysnowdata from conda-forge (which pulls in "
+                    "libgdal-hdf4), or `conda install -c conda-forge libgdal-hdf4` "
+                    "into a conda environment that provides GDAL."
+                )
+            # HDF4 cannot be read through fsspec file objects either, so
+            # download the granules once into the easysnowdata cache directory
+            # (~/.cache/easysnowdata/MOD10A1F on Linux; override with
+            # EASYSNOWDATA_CACHE_DIR). earthaccess skips files already present.
+            download_dir = _cache_dir("MOD10A1F")
+            files = earthaccess.download(self.search, download_dir)
 
             # User-supplied kwargs take precedence over the defaults here
             open_params = {

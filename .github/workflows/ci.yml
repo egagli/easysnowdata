@@ -5,10 +5,21 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    # Weekly live tier: every Tuesday at 08:00 UTC (the data-source health
+    # check runs on Mondays).
+    - cron: "0 8 * * 2"
+  workflow_dispatch:
+    inputs:
+      run_live:
+        description: "Also run the live tier (needs the repository secrets)"
+        type: boolean
+        default: true
 
 jobs:
   # ── Linting ────────────────────────────────────────────────────────────────
   lint:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,16 +33,17 @@ jobs:
       - name: Check linting
         run: ruff check easysnowdata/ tests/ scripts/
 
-  # ── Tests ──────────────────────────────────────────────────────────────────
-  test:
+  # ── Offline tests (every push / PR) ────────────────────────────────────────
+  # Deselects the `live` marker and blocks sockets, so no credentials and no
+  # network are needed.
+  test-unit:
+    if: github.event_name != 'schedule'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         # Full Python matrix on Ubuntu; spot-check on macOS and Windows
         include:
-          - os: ubuntu-latest
-            python-version: "3.11"
           - os: ubuntu-latest
             python-version: "3.12"
           - os: ubuntu-latest
@@ -64,12 +76,42 @@ jobs:
       - name: Install package and dependencies
         run: |
           pip install -e .
+          pip install pytest pytest-socket
+
+      - name: Run offline tests
+        run: pytest tests/ -m "not live" --disable-socket -v --tb=short
+
+  # ── Live tests (weekly schedule and manual runs) ───────────────────────────
+  # One smoke test per data source against the real providers, with the
+  # repository secrets. Tests whose credentials are missing skip.
+  test-live:
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_live)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install GDAL
+        run: |
+          python -m pip install --upgrade pip
+          pip install --no-cache-dir Cython
+          pip install --find-links=https://girder.github.io/large_image_wheels --no-cache GDAL
+          python -c "from osgeo import gdal"
+          gdalinfo --version
+
+      - name: Install package and dependencies
+        run: |
+          pip install -e .
           pip install pytest
 
-      - name: Run tests
+      - name: Run live tests
         env:
           EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_TOKEN }}
           EARTHDATA_TOKEN: ${{ secrets.EARTHDATA_TOKEN }}
           EARTHDATA_USERNAME: ${{ secrets.EARTHDATA_USERNAME }}
           EARTHDATA_PASSWORD: ${{ secrets.EARTHDATA_PASSWORD }}
-        run: pytest tests/ -v --tb=short
+        run: pytest tests/ -m live -v --tb=short -rfEs

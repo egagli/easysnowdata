@@ -11,6 +11,7 @@ import shapely
 import easysnowdata
 from easysnowdata.utils import (
     CredentialError,
+    _earthaccess_login,
     _has_earthaccess_credentials,
     _has_earthengine_credentials,
     convert_bbox_to_geodataframe,
@@ -190,3 +191,73 @@ class TestGetStacCfg:
     def test_unknown_sensor_raises(self):
         with pytest.raises(ValueError, match="Unknown sensor"):
             get_stac_cfg("unknown-sensor")
+
+
+class TestEarthaccessLogin:
+    """Offline checks of the explicit-login helper (earthaccess is monkeypatched)."""
+
+    @pytest.fixture
+    def fake_earthaccess(self, monkeypatch):
+        import types
+
+        import earthaccess
+
+        # earthaccess exposes __auth__/__store__ through a module __getattr__
+        # that returns its private _auth/_store globals; patch those.
+        auth = types.SimpleNamespace(authenticated=False)
+        state = {"auth": auth, "calls": 0}
+
+        def login(strategy):
+            state["calls"] += 1
+            auth.authenticated = True
+            earthaccess._store = object()
+            return auth
+
+        monkeypatch.setattr(earthaccess, "_auth", auth)
+        monkeypatch.setattr(earthaccess, "_store", None)
+        monkeypatch.setattr(earthaccess, "login", login)
+        monkeypatch.setattr("easysnowdata.utils.time.sleep", lambda s: None)
+        return state
+
+    def test_no_credentials_raises_before_calling_earthaccess(
+        self, monkeypatch, fake_earthaccess
+    ):
+        for var in ("EARTHDATA_TOKEN", "EARTHDATA_USERNAME", "EARTHDATA_PASSWORD"):
+            monkeypatch.delenv(var, raising=False)
+        monkeypatch.setattr(
+            "easysnowdata.utils._has_earthaccess_credentials", lambda: False
+        )
+        with pytest.raises(CredentialError, match="credentials are required"):
+            _earthaccess_login()
+        assert fake_earthaccess["calls"] == 0
+
+    def test_token_uses_environment_strategy_once(self, monkeypatch, fake_earthaccess):
+        monkeypatch.setenv("EARTHDATA_TOKEN", "abc")
+        _earthaccess_login()
+        _earthaccess_login()  # already authenticated with a store: no second call
+        assert fake_earthaccess["calls"] == 1
+
+    def test_authenticated_without_store_logs_in_again(
+        self, monkeypatch, fake_earthaccess
+    ):
+        # State left behind when Store creation failed after a token login.
+        monkeypatch.setenv("EARTHDATA_TOKEN", "abc")
+        fake_earthaccess["auth"].authenticated = True
+        _earthaccess_login()
+        assert fake_earthaccess["calls"] == 1
+
+    def test_connection_error_is_retried_once_then_wrapped(
+        self, monkeypatch, fake_earthaccess
+    ):
+        import earthaccess
+
+        monkeypatch.setenv("EARTHDATA_TOKEN", "abc")
+
+        def failing_login(strategy):
+            fake_earthaccess["calls"] += 1
+            raise ConnectionError("Network is unreachable")
+
+        monkeypatch.setattr(earthaccess, "login", failing_login)
+        with pytest.raises(CredentialError, match="Network is unreachable"):
+            _earthaccess_login()
+        assert fake_earthaccess["calls"] == 2

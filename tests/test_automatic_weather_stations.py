@@ -13,6 +13,9 @@ import xarray as xr
 
 from easysnowdata.automatic_weather_stations import StationCollection
 
+# Every test here reads the station archive from GitHub.
+pytestmark = pytest.mark.live
+
 
 @pytest.fixture(scope="module")
 def sc() -> StationCollection:

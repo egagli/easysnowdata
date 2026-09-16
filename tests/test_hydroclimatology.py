@@ -18,6 +18,7 @@ TEST_BBOX = (-121.94, 46.72, -121.54, 46.99)
 # HydroATLAS (figshare — no credentials required)
 # ---------------------------------------------------------------------------
 class TestGetHydroBasins:
+    @pytest.mark.live
     def test_returns_geodataframe(self):
         from easysnowdata.hydroclimatology import get_hydroBASINS
 
@@ -25,6 +26,7 @@ class TestGetHydroBasins:
         assert isinstance(result, gpd.GeoDataFrame)
         assert len(result) > 0
 
+    @pytest.mark.live
     def test_has_data_citation(self):
         from easysnowdata.hydroclimatology import get_hydroBASINS
 
@@ -37,6 +39,7 @@ class TestGetHydroBasins:
         with pytest.raises(ValueError):
             get_hydroBASINS(bbox_input=TEST_BBOX, level=15)
 
+    @pytest.mark.live
     def test_kwargs_forwarded_to_read_file(self):
         from easysnowdata.hydroclimatology import get_hydroBASINS
 
@@ -49,6 +52,8 @@ class TestGetHydroBasins:
 # Köppen-Geiger (figshare — no credentials required)
 # ---------------------------------------------------------------------------
 class TestKoppenGeiger:
+    pytestmark = pytest.mark.live
+
     def test_returns_dataarray(self):
         from easysnowdata.hydroclimatology import get_koppen_geiger_classes
 
@@ -88,6 +93,8 @@ class TestKoppenGeiger:
 # GRDC basins (World Bank / GRDC — no credentials required)
 # ---------------------------------------------------------------------------
 class TestGrdcMajorRiverBasins:
+    pytestmark = pytest.mark.live
+
     def test_returns_geodataframe(self):
         from easysnowdata.hydroclimatology import (
             get_grdc_major_river_basins_of_the_world,
@@ -107,6 +114,8 @@ class TestGrdcMajorRiverBasins:
 
 
 class TestGrdcWmoBasins:
+    pytestmark = pytest.mark.live
+
     def test_kwargs_forwarded_to_read_file(self):
         from easysnowdata.hydroclimatology import get_grdc_wmo_basins
 
@@ -119,6 +128,7 @@ class TestGrdcWmoBasins:
 # ERA5 via GCS (no credentials required for anonymous Zarr access)
 # ---------------------------------------------------------------------------
 class TestEra5Gcs:
+    @pytest.mark.live
     def test_gcs_returns_dataset(self):
         from easysnowdata.hydroclimatology import get_era5
 
@@ -142,6 +152,7 @@ class TestEra5Gcs:
         with pytest.raises(ValueError):
             get_era5(bbox_input=TEST_BBOX, source="GCS", version="ERA5_LAND")
 
+    @pytest.mark.live
     def test_kwargs_forwarded_to_open_zarr(self):
         from easysnowdata.hydroclimatology import get_era5
 
@@ -160,6 +171,8 @@ class TestEra5Gcs:
 # GEE-backed functions (EARTHENGINE_TOKEN required)
 # ---------------------------------------------------------------------------
 class TestHucGeometries:
+    pytestmark = pytest.mark.live
+
     @pytest.mark.requires_earthengine
     def test_returns_geodataframe(self):
         from easysnowdata.hydroclimatology import get_huc_geometries
@@ -170,6 +183,8 @@ class TestHucGeometries:
 
 
 class TestSnodas:
+    pytestmark = pytest.mark.live
+
     @pytest.mark.requires_earthengine
     def test_returns_dataset_with_swe(self):
         from easysnowdata.hydroclimatology import get_snodas
@@ -215,6 +230,8 @@ class TestSnodas:
 
 
 class TestEra5Gee:
+    pytestmark = pytest.mark.live
+
     @pytest.mark.requires_earthengine
     def test_gee_returns_dataset_time_lat_lon(self):
         from easysnowdata.hydroclimatology import get_era5
@@ -235,9 +252,48 @@ class TestEra5Gee:
 
 
 # ---------------------------------------------------------------------------
+# UCLA snow reanalysis — offline checks of the ensemble-statistic mapping
+# ---------------------------------------------------------------------------
+class TestUclaSnowReanalysisStatsMapping:
+    def test_stats_indices_are_distinct_and_in_file_order(self):
+        from easysnowdata.hydroclimatology import _UCLA_SR_STATS_INDEX
+
+        # Regression: "median" and "25pct" used to share index 2.
+        assert _UCLA_SR_STATS_INDEX == {
+            "mean": 0,
+            "std": 1,
+            "median": 2,
+            "25pct": 3,
+            "75pct": 4,
+        }
+        assert len(set(_UCLA_SR_STATS_INDEX.values())) == len(_UCLA_SR_STATS_INDEX)
+
+    def test_invalid_stats_raises_before_any_network_call(self, monkeypatch):
+        from easysnowdata import hydroclimatology
+
+        monkeypatch.setattr(
+            "easysnowdata.utils._has_earthaccess_credentials", lambda: True
+        )
+        monkeypatch.setattr(
+            hydroclimatology, "_earthaccess_login", lambda: pytest.fail("login")
+        )
+        monkeypatch.setattr(
+            hydroclimatology.earthaccess,
+            "search_data",
+            lambda **kwargs: pytest.fail("network"),
+        )
+        with pytest.raises(ValueError, match="stats must be one of"):
+            hydroclimatology.get_ucla_snow_reanalysis(
+                bbox_input=TEST_BBOX, stats="mode"
+            )
+
+
+# ---------------------------------------------------------------------------
 # earthaccess-backed functions (EARTHDATA credentials required)
 # ---------------------------------------------------------------------------
 class TestUclaSnowReanalysis:
+    pytestmark = pytest.mark.live
+
     @pytest.mark.requires_earthaccess
     def test_returns_dataarray(self):
         from easysnowdata.hydroclimatology import get_ucla_snow_reanalysis
@@ -249,3 +305,18 @@ class TestUclaSnowReanalysis:
         )
         assert isinstance(result, xr.DataArray)
         assert "data_citation" in result.attrs
+
+    @pytest.mark.requires_earthaccess
+    def test_percentiles_bracket_the_median(self):
+        from easysnowdata.hydroclimatology import get_ucla_snow_reanalysis
+
+        kwargs = dict(
+            bbox_input=TEST_BBOX, start_date="2020-03-01", end_date="2020-03-02"
+        )
+        q25 = get_ucla_snow_reanalysis(stats="25pct", **kwargs).compute()
+        med = get_ucla_snow_reanalysis(stats="median", **kwargs).compute()
+        q75 = get_ucla_snow_reanalysis(stats="75pct", **kwargs).compute()
+        # Distinct Stats slices: the percentiles must differ from the median
+        # somewhere and be ordered where they do.
+        assert not med.equals(q25)
+        assert bool((q25 <= med).all()) and bool((med <= q75).all())
