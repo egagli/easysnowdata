@@ -41,6 +41,10 @@ from easysnowdata.processing.masks import (
 )
 from easysnowdata.processing.optical import (
     SCL_CLASSES,
+    UDM1_BITS,
+    UDM2_BANDS,
+    UDM2_BINARY_BANDS,
+    decode_udm2,
     evi,
     harmonize_s2_baseline,
     ndbi,
@@ -52,6 +56,7 @@ from easysnowdata.processing.optical import (
     scale_offset,
     stretch_clahe,
     stretch_percentile,
+    udm1_bit,
 )
 from easysnowdata.processing.sar import db_to_linear, linear_to_db, remove_border_noise
 from easysnowdata.processing.wateryear import (
@@ -71,11 +76,15 @@ __all__ = [
     "DEFAULT_SCL_REMOVE",
     "FMASK_BITS",
     "SCL_CLASSES",
+    "UDM1_BITS",
+    "UDM2_BANDS",
+    "UDM2_BINARY_BANDS",
     "add_water_year_coords",
     "apply_fmask",
     "apply_scl_mask",
     "day_of_water_year",
     "db_to_linear",
+    "decode_udm2",
     "evi",
     "flag_mask",
     "flags",
@@ -98,6 +107,7 @@ __all__ = [
     "set_flags",
     "stretch_clahe",
     "stretch_percentile",
+    "udm1_bit",
     "water_year",
     "water_year_start",
 ]

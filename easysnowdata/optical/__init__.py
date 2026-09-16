@@ -9,6 +9,6 @@ knowledge: collection ids, band aliases, nodata, scaling and citations.
 
 from __future__ import annotations
 
-from easysnowdata.optical import hls, sentinel2
+from easysnowdata.optical import hls, planetscope, sentinel2
 
-__all__ = ["hls", "sentinel2"]
+__all__ = ["hls", "planetscope", "sentinel2"]

@@ -26,6 +26,11 @@ __all__ = [
     "rgb",
     "stretch_percentile",
     "stretch_clahe",
+    "UDM2_BANDS",
+    "UDM2_BINARY_BANDS",
+    "UDM1_BITS",
+    "decode_udm2",
+    "udm1_bit",
 ]
 
 #: Sen2Cor scene classification: value → (meaning, color).
@@ -300,3 +305,102 @@ def stretch_clahe(
         attrs=composite.attrs,
     )
     return result.transpose(*composite.dims)
+
+
+#: PlanetScope UDM2 band order (Planet's "Usable Data Mask" specification).
+#: Bands 1-6 are 0/1 masks, band 7 is a percentage confidence and band 8 is
+#: the legacy UDM1 bit field (bit 0 = blackfill / no data).
+UDM2_BANDS: tuple[str, ...] = (
+    "clear",
+    "snow",
+    "shadow",
+    "light_haze",
+    "heavy_haze",
+    "cloud",
+    "confidence",
+    "unusable",
+)
+UDM2_BINARY_BANDS = UDM2_BANDS[:6]
+#: Bit meanings of the UDM1 field carried in band 8.
+UDM1_BITS: dict[str, int] = {
+    "blackfill": 0,
+    "cloud_udm1": 1,
+    "missing_blue": 2,
+    "missing_green": 3,
+    "missing_red": 4,
+    "missing_rededge": 5,
+    "missing_nir": 6,
+}
+
+
+def decode_udm2(
+    udm2: xr.DataArray | xr.Dataset, *, band_dim: str = "band"
+) -> xr.Dataset:
+    """Decode a PlanetScope UDM2 mask into named variables.
+
+    Parameters
+    ----------
+    udm2
+        The 8-band UDM2 raster as a DataArray with a band dimension (values
+        1–8 or 0-based), or a Dataset whose variables are already named
+        ``band_1`` … ``band_8``.
+    band_dim
+        Name of the band dimension on a DataArray input.
+
+    Returns
+    -------
+    xarray.Dataset
+        ``clear``, ``snow``, ``shadow``, ``light_haze``, ``heavy_haze`` and
+        ``cloud`` as ``uint8`` 0/1 masks with CF flag attributes,
+        ``confidence`` as a percentage, and ``unusable`` as the raw UDM1 bit
+        field. The snow band is the one that is directly useful here.
+
+    Notes
+    -----
+    Band order follows Planet's UDM2 specification; the file itself carries no
+    band names, so a raster with fewer than eight bands raises.
+    """
+    if isinstance(udm2, xr.Dataset):
+        layers = [udm2[name] for name in list(udm2.data_vars)[: len(UDM2_BANDS)]]
+    else:
+        if band_dim not in udm2.dims:
+            raise ValueError(
+                f"{band_dim!r} is not a dimension of the UDM2 raster; pass band_dim=."
+            )
+        layers = [
+            udm2.isel({band_dim: i}, drop=True) for i in range(udm2.sizes[band_dim])
+        ]
+    if len(layers) < len(UDM2_BANDS):
+        raise ValueError(
+            f"A UDM2 raster has {len(UDM2_BANDS)} bands ({', '.join(UDM2_BANDS)}); "
+            f"got {len(layers)}."
+        )
+    out = {}
+    for name, layer in zip(UDM2_BANDS, layers, strict=False):
+        layer = layer.rename(name)
+        if name in UDM2_BINARY_BANDS:
+            layer = layer.astype("uint8")
+            layer.attrs = {
+                "long_name": f"UDM2 {name.replace('_', ' ')} mask",
+                "flag_values": [0, 1],
+                "flag_meanings": f"not_{name} {name}",
+                "flag_colors": "#00000000 #1f78b4",
+            }
+        elif name == "confidence":
+            layer.attrs = {"long_name": "UDM2 classification confidence", "units": "%"}
+        else:
+            layer.attrs = {
+                "long_name": "UDM1 unusable-data bit field",
+                "bit_meanings": " ".join(UDM1_BITS),
+            }
+        out[name] = layer
+    dataset = xr.Dataset(out)
+    dataset.attrs["udm2_band_order"] = " ".join(UDM2_BANDS)
+    return dataset
+
+
+def udm1_bit(unusable: xr.DataArray, flag: str) -> xr.DataArray:
+    """The value (0/1) of one UDM1 bit (``"blackfill"``, ``"cloud_udm1"``, …)."""
+    if flag not in UDM1_BITS:
+        raise ValueError(f"Unknown UDM1 flag {flag!r}; known: {list(UDM1_BITS)}.")
+    return (unusable.astype("uint8") >> UDM1_BITS[flag]) & 1
