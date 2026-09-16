@@ -6,7 +6,7 @@ channels = ["conda-forge"]
 platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"]
 
 [dependencies]
-python = ">=3.12,<3.14"
+python = ">=3.12,<3.15"
 numpy = "*"
 matplotlib = "*"
 pandas = "*"
@@ -97,6 +97,24 @@ changelog = "git-changelog --output CHANGELOG.md"
 check-sources = "python scripts/check_data_sources.py"
 update-status = "python scripts/update_readme_status.py"
 
+# One feature per interpreter so CI can lock and test each Python separately.
+[feature.py312.dependencies]
+python = "3.12.*"
+
+[feature.py313.dependencies]
+python = "3.13.*"
+
+[feature.py314.dependencies]
+python = "3.14.*"
+
+# ruff only — the lint job does not need GDAL and friends.
+[feature.lint.dependencies]
+ruff = "*"
+
 [environments]
 default = { features = [], solve-group = "default" }
 dev = { features = ["dev"], solve-group = "default" }
+lint = { features = ["lint"], no-default-feature = true }
+test-py312 = { features = ["dev", "py312"] }
+test-py313 = { features = ["dev", "py313"] }
+test-py314 = { features = ["dev", "py314"] }

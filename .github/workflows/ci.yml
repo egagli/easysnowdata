@@ -16,6 +16,12 @@ on:
         type: boolean
         default: true
 
+# The environments come from pixi.lock (conda-forge), so every job sees the
+# same GDAL (with the HDF4 driver), PROJ and Python stack that users get from
+# conda-forge. `locked: true` refuses to run if the lock is out of date.
+env:
+  PIXI_VERSION: v0.65.0
+
 jobs:
   # ── Linting ────────────────────────────────────────────────────────────────
   lint:
@@ -23,95 +29,93 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: prefix-dev/setup-pixi@v0.10.2
         with:
-          python-version: "3.12"
-      - name: Install ruff
-        run: pip install ruff
+          pixi-version: ${{ env.PIXI_VERSION }}
+          environments: lint
+          locked: true
       - name: Check formatting
-        run: ruff format --check easysnowdata/ tests/ scripts/
+        run: pixi run -e lint ruff format --check easysnowdata/ tests/ scripts/
       - name: Check linting
-        run: ruff check easysnowdata/ tests/ scripts/
+        run: pixi run -e lint ruff check easysnowdata/ tests/ scripts/
 
-  # ── Offline tests (every push / PR) ────────────────────────────────────────
-  # Deselects the `live` marker and blocks sockets, so no credentials and no
-  # network are needed.
-  test-unit:
+  # ── Offline tiers: unit + recorded (every push / PR) ───────────────────────
+  # Sockets are disabled (Unix sockets allowed for zarr's asyncio loop) and
+  # cassettes replay with --record-mode=none, so no credentials or network.
+  test-offline:
     if: github.event_name != 'schedule'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        # Full Python matrix on Ubuntu; spot-check on macOS and Windows
         include:
           - os: ubuntu-latest
-            python-version: "3.12"
+            environment: test-py312
           - os: ubuntu-latest
-            python-version: "3.13"
+            environment: test-py313
+          - os: ubuntu-latest
+            environment: test-py314
           - os: macos-latest
-            python-version: "3.12"
+            environment: test-py313
           - os: windows-latest
-            python-version: "3.12"
-
+            environment: test-py313
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          fetch-depth: 0  # hatch-vcs derives the version from tags
+      - uses: prefix-dev/setup-pixi@v0.10.2
+        with:
+          pixi-version: ${{ env.PIXI_VERSION }}
+          environments: ${{ matrix.environment }}
+          locked: true
+      - name: Import without side effects
+        run: pixi run -e ${{ matrix.environment }} python -c "import easysnowdata, rasterio; assert not rasterio.env.hasenv(); print(easysnowdata.__version__)"
+        env:
+          EASYSNOWDATA_QUIET: "1"
+      - name: Run unit and recorded tiers
+        run: pixi run -e ${{ matrix.environment }} test-unit -v --tb=short
 
-      - name: Install GDAL (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          python -m pip install --upgrade pip
-          pip install --no-cache-dir Cython
-          pip install --find-links=https://girder.github.io/large_image_wheels --no-cache GDAL
-          python -c "from osgeo import gdal"
-          gdalinfo --version
-
-      - name: Install GDAL (macOS)
-        if: runner.os == 'macOS'
-        run: brew install gdal
-
-      - name: Install package and dependencies
-        run: |
-          pip install -e .
-          pip install pytest pytest-socket
-
-      - name: Run offline tests
-        run: pytest tests/ -m "not live" --disable-socket -v --tb=short
+  # ── Coverage of the new modules (one leg) ──────────────────────────────────
+  coverage:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: prefix-dev/setup-pixi@v0.10.2
+        with:
+          pixi-version: ${{ env.PIXI_VERSION }}
+          environments: test-py313
+          locked: true
+      - name: Offline tiers with coverage
+        run: pixi run -e test-py313 test-cov
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
 
   # ── Live tests (weekly schedule and manual runs) ───────────────────────────
   # One smoke test per data source against the real providers, with the
-  # repository secrets. Tests whose credentials are missing skip.
+  # repository secrets. Tests whose credentials are missing skip. Runs from the
+  # conda-forge environment, so the MOD10A1F (HDF4) test now runs in CI.
   test-live:
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_live)
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
-
-      - name: Install GDAL
-        run: |
-          python -m pip install --upgrade pip
-          pip install --no-cache-dir Cython
-          pip install --find-links=https://girder.github.io/large_image_wheels --no-cache GDAL
-          python -c "from osgeo import gdal"
-          gdalinfo --version
-
-      - name: Install package and dependencies
-        run: |
-          pip install -e .
-          pip install pytest
-
+          fetch-depth: 0
+      - uses: prefix-dev/setup-pixi@v0.10.2
+        with:
+          pixi-version: ${{ env.PIXI_VERSION }}
+          environments: test-py313
+          locked: true
       - name: Run live tests
         env:
           EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_TOKEN }}
           EARTHDATA_TOKEN: ${{ secrets.EARTHDATA_TOKEN }}
           EARTHDATA_USERNAME: ${{ secrets.EARTHDATA_USERNAME }}
           EARTHDATA_PASSWORD: ${{ secrets.EARTHDATA_PASSWORD }}
-        run: pytest tests/ -m live -v --tb=short -rfEs
+        run: pixi run -e test-py313 test-live -v --tb=short -rfEs
