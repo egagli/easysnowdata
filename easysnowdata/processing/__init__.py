@@ -58,7 +58,14 @@ from easysnowdata.processing.optical import (
     stretch_percentile,
     udm1_bit,
 )
-from easysnowdata.processing.sar import db_to_linear, linear_to_db, remove_border_noise
+from easysnowdata.processing.sar import (
+    db_to_linear,
+    linear_to_db,
+    local_incidence_angle,
+    look_azimuth,
+    remove_border_noise,
+    slope_aspect,
+)
 from easysnowdata.processing.wateryear import (
     add_water_year_coords,
     day_of_water_year,
@@ -94,6 +101,8 @@ __all__ = [
     "from_class_info",
     "harmonize_s2_baseline",
     "linear_to_db",
+    "local_incidence_angle",
+    "look_azimuth",
     "mask_nodata",
     "ndbi",
     "ndsi",
@@ -105,6 +114,7 @@ __all__ = [
     "scale_offset",
     "scl_mask",
     "set_flags",
+    "slope_aspect",
     "stretch_clahe",
     "stretch_percentile",
     "udm1_bit",

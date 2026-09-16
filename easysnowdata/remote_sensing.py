@@ -12,9 +12,7 @@ import ee
 import geopandas as gpd
 import matplotlib
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
-import rasterio as rio
 import shapely
 import xarray as xr
 
@@ -965,586 +963,58 @@ def Sentinel2(  # noqa: N802 — this was a class
     )
 
 
-class Sentinel1:
+@deprecated(
+    "easysnowdata.sar.sentinel1.load",
+    since="0.1.0",
+    remove_in="0.2.0",
+    name="easysnowdata.remote_sensing.Sentinel1",
+    extra=(
+        "The new loader adds the OPERA RTC-S1 route (source='opera-rtc-s1') and "
+        "easysnowdata.sar.sentinel1.local_incidence_angle(), which reads the OPERA "
+        "static layer or computes the angle from a DEM without Earth Engine."
+    ),
+)
+def Sentinel1(  # noqa: N802 — this was a class
+    bbox_input,
+    start_date="2014-01-01",
+    end_date=None,
+    catalog_choice="planetarycomputer",
+    bands=None,
+    units="dB",
+    resolution=None,
+    crs=None,
+    groupby="sat:absolute_orbit",
+    chunks=None,
+    remove_border_noise=True,
+    **kwargs,
+):
+    """Deprecated factory for :func:`easysnowdata.sar.sentinel1.load`.
+
+    Returns the loaded ``xarray.Dataset`` (with ``sat:orbit_state`` and
+    ``sat:relative_orbit`` coordinates) instead of a ``Sentinel1`` object.
+    The ``.local_incidence_angle_data`` property is replaced by
+    :func:`easysnowdata.sar.sentinel1.local_incidence_angle`, which no longer
+    needs Earth Engine.
     """
-    A class to handle Sentinel-1 RTC satellite data.
+    from easysnowdata.sar import sentinel1 as _sentinel1  # noqa: PLC0415
 
-    This class provides functionality to search, retrieve, and process Sentinel-1 Radiometric Terrain Corrected (RTC) data.
-    It supports various data operations including border noise removal and unit conversion.
-
-    Parameters
-    ----------
-    bbox_input : geopandas.GeoDataFrame or tuple or Shapely Geometry
-        GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
-    start_date : str, optional
-        The start date for the data in the format 'YYYY-MM-DD'. Default is '2014-01-01'.
-    end_date : str, optional
-        The end date for the data in the format 'YYYY-MM-DD'. Default is today's date.
-    catalog_choice : str, optional
-        The catalog choice for the data. Default is 'planetarycomputer'.
-    bands : list, optional
-        The bands to be used. Default is all bands.
-    units : str, optional
-        The units of the data. Can be 'dB' or 'linear power'. Default is 'dB'.
-    resolution : str, optional
-        The resolution of the data. Defaults to native resolution.
-    crs : str, optional
-        The coordinate reference system. Default is None.
-    groupby : str, optional
-        The groupby parameter for the data. Default is "sat:absolute_orbit".
-    chunks : dict, optional
-        The chunk size for dask arrays. Default is {}.
-    remove_border_noise : bool, optional
-        Whether to remove border noise from the data. Default is True.
-    **kwargs
-        Additional keyword arguments passed to ``odc.stac.load``. These take
-        precedence over the defaults used by ``get_data()``.
-
-    Attributes
-    ----------
-    data : xarray.Dataset
-        The loaded Sentinel-1 data.
-    metadata : geopandas.GeoDataFrame
-        Metadata for the retrieved Sentinel-1 scenes.
-    local_incidence_angle_data : xarray.DataArray
-        Local incidence angle values calculated from Sentinel-1 data and Copernicus DEM.
-        functionality requires google earth engine initialization, and is based on https://gis.stackexchange.com/a/352658
-
-    Methods
-    -------
-    search_data()
-        Searches for Sentinel-1 data based on the specified parameters.
-    get_data()
-        Retrieves the Sentinel-1 data based on the search results.
-    get_metadata()
-        Retrieves metadata for the Sentinel-1 scenes.
-    remove_border_noise()
-        Removes border noise from the data.
-    linear_to_db()
-        Converts linear power units to decibels (dB).
-    db_to_linear()
-        Converts decibels (dB) to linear power units.
-    add_orbit_info()
-        Adds orbit information to the data as coordinates.
-    get_local_incidence_angle()
-        Calculates and retrieves the local incidence angle for the area of interest.
-    """
-
-    def __init__(
-        self,
+    if catalog_choice != "planetarycomputer":
+        raise ValueError(
+            "Invalid catalog_choice. Choose either 'planetarycomputer' or <unimplemented>."
+        )
+    return _sentinel1.load(
         bbox_input,
-        start_date="2014-01-01",
-        end_date=None,
-        catalog_choice="planetarycomputer",
-        bands=None,
-        units="dB",  # linear power or dB
-        resolution=None,
-        crs=None,
-        groupby="sat:absolute_orbit",
-        chunks={},  # {"x": 512, "y": 512} or # {"x": 512, "y": 512, "time": -1}
-        remove_border_noise=True,
+        (start_date, end_date if end_date is not None else temporal.today()),
+        bands=bands,
+        source="planetary-computer",
+        units=units,
+        resolution=resolution,
+        crs=crs if crs is not None else "utm",
+        groupby=groupby,
+        border_noise=bool(remove_border_noise),
+        chunks=chunks if chunks else None,
         **kwargs,
-    ):
-        """
-        The constructor for the Sentinel1 class.
-
-        Parameters:
-            bbox_input (geopandas.GeoDataFrame or tuple or shapely.Geometry): GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
-            start_date (str): The start date for the data in the format 'YYYY-MM-DD'. Default is '2014-01-01'.
-            end_date (str): The end date for the data in the format 'YYYY-MM-DD'. Default is today's date.
-            catalog_choice (str): The catalog choice for the data. Can choose between 'planetarycomputer' and <unimplemented>, default is 'planetarycomputer'.
-            bands (list): The bands to be used. Default is all bands.
-            resolution (str): The resolution of the data. Defaults to native resolution, 10m.
-            crs (str): The coordinate reference system. This should be a string like 'EPSG:4326'. Default CRS is UTM zone estimated from bounding box.
-            groupby (str): The groupby parameter for the data. Default is "sat:absolute_orbit".
-            **kwargs: Additional keyword arguments passed to odc.stac.load. These take precedence over the defaults used by get_data().
-        """
-        # Initialize the attributes
-        self.bbox_input = bbox_input
-        self.start_date = start_date
-        self.end_date = end_date if end_date is not None else temporal.today()
-        self.catalog_choice = catalog_choice
-        self.bands = bands
-        self.resolution = resolution
-        self.crs = crs
-        self.chunks = chunks
-        self.groupby = groupby
-        self.remove_border_noise = remove_border_noise
-        self.load_kwargs = kwargs
-
-        # if not self.geobox:
-        self.bbox_gdf = convert_bbox_to_geodataframe(self.bbox_input)
-
-        if self.crs is None:
-            self.crs = self.bbox_gdf.estimate_utm_crs()
-
-        # if resolution == None:
-        #     self.resolution = 10
-
-        self.search = None
-        self.data = None
-        self.metadata = None
-        self._local_incidence_angle_data = None
-
-        self.search_data()
-        self.get_data()
-        self.get_metadata()
-        if self.remove_border_noise:
-            self.remove_bad_scenes_and_border_noise()
-        self.add_orbit_info()
-        if units == "dB":
-            self.linear_to_db()
-        else:
-            print(
-                "Units remain in linear power. Convert to dB using the .linear_to_db() method."
-            )
-
-    def search_data(self):
-        """
-        The method to search the data.
-        """
-
-        # Choose the catalog URL based on catalog_choice
-        if self.catalog_choice == "planetarycomputer":
-            catalog = providers.stac.open_catalog("planetary-computer")
-        # elif self.catalog_choice == "aws":
-        #     catalog_url = indigo
-        #     catalog = pystac_client.Client.open(catalog_url)
-        else:
-            raise ValueError(
-                "Invalid catalog_choice. Choose either 'planetarycomputer' or <unimplemented>."
-            )
-
-        # Search for items within the specified bbox and date range
-        search = catalog.search(
-            collections=["sentinel-1-rtc"],
-            bbox=self.bbox_gdf.total_bounds,
-            datetime=(self.start_date, self.end_date),
-        )
-        # elif self.geobox:
-        #     search = catalog.search(
-        #         collections=["sentinel-1-rtc"],
-        #         bbox=np.array(self.geobox.extent.boundingbox.to_crs('epsg:4326')),
-        #         datetime=(self.start_date, self.end_date),
-        #     )
-
-        self.search = search
-        print("Data searched. Access the returned seach with the .search attribute.")
-
-    def get_data(self):
-        """
-        The method to get the data.
-        """
-        # Prepare the parameters for odc.stac.load
-        load_params = {
-            "items": self.search.items(),
-            "nodata": -32768,
-            "chunks": self.chunks,
-            "groupby": self.groupby,
-        }
-        if self.bands:
-            load_params["bands"] = self.bands
-        load_params["crs"] = self.crs
-        load_params["bbox"] = self.bbox_gdf.total_bounds
-        load_params["resolution"] = self.resolution
-        # User-supplied kwargs take precedence over the defaults above
-        load_params.update(self.load_kwargs)
-
-        # Load the data lazily using odc.stac
-        self.data = providers.stac.odc_load(
-            load_params.pop("items"), catalog="planetary-computer", **load_params
-        ).sortby(
-            "time"
-        )  # sorting by time because of known issue in s1 mpc stac catalog
-        self.data.attrs["units"] = "linear power"
-        print(
-            f"Data retrieved. Access with the .data attribute. Data CRS: {self.bbox_gdf.estimate_utm_crs().name}."
-        )
-
-    def get_metadata(self):
-        """
-        The method to get the metadata.
-        """
-        stac_json = self.search.item_collection_as_dict()
-        metadata_gdf = gpd.GeoDataFrame.from_features(stac_json, "epsg:4326")
-
-        self.metadata = metadata_gdf
-        print("Metadata retrieved. Access with the .metadata attribute.")
-
-    # def remove_border_noise(self,threshold=0.001):
-    #     """
-    #     The method to remove border noise from the data.
-    #     https://forum.step.esa.int/t/grd-border-noise-and-thermal-noise-removal-are-not-working-anymore-since-march-13-2018/9332
-    #     https://www.mdpi.com/2072-4292/8/4/348
-    #     https://forum.step.esa.int/t/nan-appears-at-the-edge-of-the-scene-after-applying-border-noise-removal-sentinel-1-grd/40627/2
-    #     https://sentiwiki.copernicus.eu/__attachments/1673968/OI-MPC-OTH-MPC-0243%20-%20Sentinel-1%20masking%20no%20value%20pixels%20grd%20products%20note%202023%20-%202.2.pdf?inst-v=534578f3-fc04-48e9-bd69-3a45a681fe67#page=12.58
-    #     https://ieeexplore.ieee.org/document/8255846
-    #     https://www.mdpi.com/2504-3900/2/7/330
-    #     """
-    #     self.data.loc[dict(time=slice('2014-01-01','2018-03-14'))] = self.data.sel(time=slice('2014-01-01','2018-03-14')).where(lambda x: x > threshold)
-    #     print(f"Border noise removed from the data.")
-
-    def remove_bad_scenes_and_border_noise(self, threshold=0.001):
-        cutoff_date = np.datetime64("2018-03-14")
-
-        original_crs = self.data.rio.crs
-
-        result = xr.where(
-            self.data.time < cutoff_date,
-            self.data.where(self.data > threshold),
-            self.data.where(self.data > 0),
-        )
-
-        result.rio.write_crs(original_crs, inplace=True)
-
-        self.data = result
-        print("Falsely low scenes and border noise removed from the data.")
-
-    def linear_to_db(self):
-        """
-        The method to convert the linear power data to dB.
-        """
-        self.data = 10 * np.log10(self.data)
-        self.data.attrs["units"] = "dB"
-        print(
-            "Linear power units converted to dB. Convert back to linear power units using the .db_to_linear() method."
-        )
-
-    def db_to_linear(self):
-        """
-        The method to convert the dB data to linear power.
-        """
-        self.data = 10 ** (self.data / 10)
-        self.data.attrs["units"] = "linear power"
-        print(
-            "dB converted to linear power units. Convert back to dB using the .linear_to_db() method."
-        )
-
-    def add_orbit_info(self):
-        """
-        The method to add the relative orbit number to the data.
-        """
-        metadata_groupby_gdf = (
-            self.metadata.groupby([f"{self.groupby}"]).first().sort_values("datetime")
-        )
-        self.data = self.data.assign_coords(
-            {"sat:orbit_state": ("time", metadata_groupby_gdf["sat:orbit_state"])}
-        )
-        self.data = self.data.assign_coords(
-            {
-                "sat:relative_orbit": (
-                    "time",
-                    metadata_groupby_gdf["sat:relative_orbit"].astype("int16"),
-                )
-            }
-        )
-        print("Added relative orbit number and orbit state as coordinates to the data.")
-
-    @property
-    def local_incidence_angle_data(self):
-        """
-        Property to access local incidence angle data.
-
-        Returns
-        -------
-        xarray.DataArray
-            DataArray containing local incidence angle values aligned to the same grid as the primary data.
-
-        Notes
-        -----
-        On first access, this property calculates local incidence angles using Sentinel-1 data and
-        Copernicus 30m DEM. Results are cached for subsequent accesses.
-        """
-        if self._local_incidence_angle_data is None:
-            self.get_local_incidence_angle()
-        return self._local_incidence_angle_data
-
-    @requires_earthengine
-    def get_local_incidence_angle(self, resolution=None, initialize_ee=True):
-        """
-        Calculate local incidence angle for Sentinel-1 data within a bounding box.
-
-        Parameters
-        ----------
-        resolution : int or float, optional
-            Desired resolution in meters for the calculation. Defaults to self.resolution if set, or 30m.
-        initialize_ee : bool, optional
-            Whether to initialize Earth Engine. Default is True.
-
-        Returns
-        -------
-        xarray.DataArray
-            DataArray containing local incidence angle values with dimensions (sat:relative_orbit, y, x),
-            aligned to the same grid as the primary data.
-
-        Notes
-        -----
-        Requires Google Earth Engine authentication. Run ``ee.Authenticate()`` and
-        ``ee.Initialize()`` once, or call ``easysnowdata.authenticate_all()``.
-
-        This method calculates the local incidence angle using the Copernicus 30m DEM and
-        stores the results in the local_incidence_angle_data attribute.
-        """
-        import math
-        from collections import Counter
-
-        from xee import helpers as xee_helpers
-
-        # Use object's resolution if none provided
-        calc_resolution = resolution or self.resolution or 30
-
-        # Initialize Earth Engine with high-volume endpoint
-        if initialize_ee:
-            initialize_earthengine()
-        else:
-            _logger.info(
-                "Earth Engine initialization skipped. Ensure EE is already initialized."
-            )
-
-        # Convert bbox to Earth Engine geometry
-        bbox = tuple(self.bbox_gdf.total_bounds)
-        ee_bbox = ee.Geometry.Rectangle(bbox)
-
-        # Filter Sentinel-1 collection
-        collection = (
-            ee.ImageCollection("COPERNICUS/S1_GRD")
-            .filterBounds(ee_bbox)
-            .filter(ee.Filter.listContains("transmitterReceiverPolarisation", "VV"))
-            .filter(ee.Filter.eq("instrumentMode", "IW"))
-        )
-
-        # Get distinct orbit numbers
-        distinct_orbits = collection.aggregate_array(
-            "relativeOrbitNumber_start"
-        ).distinct()
-        orbit_list = distinct_orbits.getInfo()
-
-        if not orbit_list:
-            raise ValueError("No Sentinel-1 data found for the specified bounding box.")
-
-        print(f"Found {len(orbit_list)} unique relative orbits: {orbit_list}")
-
-        # Find the most common projection among the orbits
-        orbit_projections = {}
-        print("Analyzing orbit projections to find the most common one...")
-
-        for orbit in orbit_list:
-            orbit_image = collection.filter(
-                ee.Filter.eq("relativeOrbitNumber_start", orbit)
-            ).first()
-
-            if orbit_image:
-                # Get projection info
-                proj_info = orbit_image.select(0).projection().getInfo()
-                crs = proj_info["crs"]
-                orbit_projections[orbit] = {
-                    "crs": crs,
-                    "transform": proj_info["transform"],
-                }
-                print(f"Orbit {orbit} uses {crs}")
-
-        # Count CRS frequencies
-        crs_counts = Counter([info["crs"] for info in orbit_projections.values()])
-        most_common_crs = crs_counts.most_common(1)[0][0]
-
-        print(
-            f"Most common CRS: {most_common_crs} (used by {crs_counts[most_common_crs]} of {len(orbit_list)} orbits)"
-        )
-
-        # Function to calculate local incidence angle using Copernicus 30m DEM
-        def calculate_local_incidence_angle(image):
-            img_geom = image.geometry()
-
-            # Use Copernicus 30m DEM with proper reprojection
-            dem_collection = ee.ImageCollection("COPERNICUS/DEM/GLO30")
-            dem = dem_collection.select("DEM").mosaic().clip(img_geom)
-
-            # Reproject DEM to the most common CRS with the specified resolution
-            projection = ee.Projection(most_common_crs).atScale(calc_resolution)
-            dem = dem.reproject(projection)
-
-            # 2.1.1 Radar geometry
-            theta_i = image.select("angle")
-            phi_i = (
-                ee.Terrain.aspect(theta_i)
-                .reduceRegion(ee.Reducer.mean(), theta_i.get("system:footprint"), 1000)
-                .get("aspect")
-            )
-
-            # 2.1.2 Terrain geometry
-            alpha_s = ee.Terrain.slope(dem).select("slope")
-            phi_s = ee.Terrain.aspect(dem).select("aspect")
-
-            # 2.1.3 Model geometry
-            # reduce to 3 angle
-            phi_r = ee.Image.constant(phi_i).subtract(phi_s)
-
-            # convert all to radians
-            phi_rRad = phi_r.multiply(math.pi / 180)
-            alpha_sRad = alpha_s.multiply(math.pi / 180)
-            theta_iRad = theta_i.multiply(math.pi / 180)
-            ninetyRad = ee.Image.constant(90).multiply(math.pi / 180)
-
-            # slope steepness in range (eq. 2)
-            alpha_r = (alpha_sRad.tan().multiply(phi_rRad.cos())).atan()
-
-            # slope steepness in azimuth (eq 3)
-            alpha_az = (alpha_sRad.tan().multiply(phi_rRad.sin())).atan()
-
-            # local incidence angle (eq. 4)
-            cos_theta_lia = alpha_az.cos().multiply(
-                (theta_iRad.subtract(alpha_r)).cos()
-            )
-
-            # Ensure valid range for acos
-            cos_theta_lia = cos_theta_lia.clamp(-1, 1)
-
-            theta_lia = cos_theta_lia.acos()
-            theta_liaDeg = theta_lia.multiply(180 / math.pi)
-
-            return image.addBands(theta_liaDeg.rename("local_incidence_angle"))
-
-        # Create list to store DataArrays for each orbit
-        orbit_arrays = []
-
-        # Output grid for xee (>= 0.1 requires an explicit pixel grid): the most
-        # common CRS at the requested resolution, covering the bbox
-        grid = xee_helpers.fit_geometry(
-            shapely.geometry.box(*self.bbox_gdf.total_bounds),
-            geometry_crs=str(self.bbox_gdf.crs or "EPSG:4326"),
-            grid_crs=most_common_crs,
-            grid_scale=(calc_resolution, -calc_resolution),
-        )
-
-        # Process each orbit
-        for orbit in orbit_list:
-            # Get images for this orbit
-            orbit_images = (
-                collection.filter(ee.Filter.eq("relativeOrbitNumber_start", orbit))
-                .sort("system:time_start", True)
-                .limit(3)
-            )
-
-            if orbit_images.size().getInfo() > 0:
-                # Calculate LIA for each image
-                lia_images = orbit_images.map(calculate_local_incidence_angle)
-
-                # Calculate median LIA
-                median_lia = lia_images.select("local_incidence_angle").median()
-
-                # Set properties on the median image
-                timestamp = orbit_images.first().get("system:time_start")
-                median_lia = median_lia.set(
-                    {"relativeOrbitNumber_start": orbit, "system:time_start": timestamp}
-                )
-
-                # Create a single-image collection for xee
-                orbit_collection = ee.ImageCollection([median_lia])
-
-                # Use xee to convert to xarray
-                try:
-                    ds = providers.gee.open_dataset(
-                        orbit_collection, grid={}, engine="ee", chunks={}, **grid
-                    )
-
-                    # Extract the DataArray
-                    da = ds["local_incidence_angle"]
-
-                    # Remove the time dimension if present
-                    if "time" in da.dims:
-                        da = da.isel(time=0, drop=True)
-
-                    # Add orbit as a coordinate
-                    da = da.assign_coords({"sat:relative_orbit": orbit})
-
-                    # Check for NaN values
-                    nan_percentage = np.isnan(da.values).mean() * 100
-                    print(
-                        f"Orbit {orbit} - Shape: {da.shape}, NaN percentage: {nan_percentage:.1f}%"
-                    )
-
-                    if nan_percentage < 100:  # Only keep arrays with some valid data
-                        # Store in list
-                        orbit_arrays.append(da)
-                        print(f"Successfully processed orbit {orbit}")
-                    else:
-                        print(f"Skipping orbit {orbit} - all values are NaN")
-
-                except Exception as e:
-                    print(f"Error processing orbit {orbit}: {e}")
-
-        if orbit_arrays:
-            # Ensure all arrays have the same shape before concatenating
-            shapes = [da.shape for da in orbit_arrays]
-            if len(set(shapes)) > 1:
-                print(f"Warning: Arrays have different shapes: {shapes}")
-
-                # Take the shape with the most non-NaN values as template
-                best_da_idx = np.argmax(
-                    [~np.isnan(da.values).sum() for da in orbit_arrays]
-                )
-                template_da = orbit_arrays[best_da_idx]
-
-                for i in range(len(orbit_arrays)):
-                    if i != best_da_idx and orbit_arrays[i].shape != template_da.shape:
-                        orbit_num = orbit_arrays[i].sat_relative_orbit.values[0]
-                        print(
-                            f"Resampling orbit {orbit_num} to match template shape {template_da.shape}"
-                        )
-                        orbit_arrays[i] = orbit_arrays[i].reindex_like(template_da)
-
-            # Combine all orbits into a single DataArray
-            lia_da = xr.concat(orbit_arrays, dim="sat:relative_orbit")
-
-            # Add attributes
-            lia_da.attrs.update(
-                {
-                    "long_name": "Sentinel-1 Local Incidence Angle",
-                    "units": "degrees",
-                    "description": "Local incidence angle calculated from Sentinel-1 data and Copernicus 30m DEM",
-                    "source": "Sentinel-1 GRD",
-                }
-            )
-
-            lia_da = (
-                lia_da.transpose("sat:relative_orbit", "y", "x")
-                .rio.set_spatial_dims(x_dim="x", y_dim="y")
-                .rio.write_crs(grid["crs"])
-            )
-            lia_da = lia_da.sortby("sat:relative_orbit")
-            # should be in range from 0 to 90
-            # lia_da = lia_da.where(lambda x: (x >= 0) & (x <= 90))
-
-            # Reproject to match data grid exactly using bilinear interpolation
-            if self.data is not None:
-                # Get reference grid from first data variable
-                ref_da = self.data[list(self.data.data_vars)[0]].isel(time=0)
-
-                # Ensure lia_da has CRS information
-                if not lia_da.rio.crs and ref_da.rio.crs:
-                    lia_da.rio.write_crs(ref_da.rio.crs, inplace=True)
-
-                # Reproject to match data grid using bilinear interpolation, careful with nodata
-                lia_da = lia_da.rio.reproject_match(
-                    ref_da,
-                    resampling=rio.warp.Resampling.bilinear,
-                    nodata=np.nan,
-                )
-
-                print(
-                    "Local incidence angle data reprojected to match main data grid using bilinear resampling."
-                )
-
-            self._local_incidence_angle_data = lia_da
-            print(
-                "Local incidence angle calculation complete. Access via the .local_incidence_angle_data attribute."
-            )
-
-            # return self._local_incidence_angle_data
-        else:
-            raise ValueError(
-                "No valid Sentinel-1 data found for the specified bounding box."
-            )
+    )
 
 
 @deprecated(
