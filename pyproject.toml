@@ -139,12 +139,10 @@ markers = [
     "recorded: marks tests replayed from pytest-recording cassettes or run against the tiny local fixtures (offline tier)",
     "integration: marks slow integration tests that make live external API calls",
 ]
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::UserWarning",
-    # our own deprecations must stay visible in the test output
-    "default::easysnowdata._deprecation.EasysnowdataDeprecationWarning",
-]
+# Do not name an easysnowdata warning class here: pytest imports the module to
+# resolve it before pytest-cov starts, which hides every module-level line
+# from coverage. The deprecation tests assert with pytest.warns instead.
+filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]
 
 [tool.coverage.run]
 # The new modules (Phase 1); the legacy modules are covered by the live tier
