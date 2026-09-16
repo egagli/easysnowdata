@@ -1,5 +1,14 @@
 """Vectorized water-year helpers.
 
+This is the single copy of these functions (§12 Q16): the scalar
+``utils.datetime_to_WY``/``datetime_to_DOWY`` that used to be applied with
+``pd.Index.map`` and the ``global_snow_networks`` ``utils/utils.py``
+implementations are both reconciled here. The names ``wy_start``/``wy_end``
+from that repo are :func:`water_year_bounds`, ``wy_date_range`` is
+:func:`water_year_range`, ``wy_length`` is :func:`water_year_length` and
+``add_wy_coords`` is :func:`add_water_year_coords`; all of them also take a
+*hemisphere*, which the originals did not.
+
 A northern-hemisphere water year starts 1 October and is named for the
 calendar year in which it *ends* (WY 2021 = 2020-10-01 … 2021-09-30); a
 southern-hemisphere one starts 1 April and is named for the year it starts.
@@ -20,6 +29,9 @@ __all__ = [
     "water_year_start",
     "water_year",
     "day_of_water_year",
+    "water_year_bounds",
+    "water_year_range",
+    "water_year_length",
     "add_water_year_coords",
     "START_MONTH",
 ]
@@ -106,6 +118,32 @@ def day_of_water_year(times: Any, hemisphere: str = "northern") -> Any:
         (dt64.astype("datetime64[D]") - starts.astype("datetime64[D]")).astype("int64")
     ) + 1
     return _wrap(days, template, "dowy")
+
+
+def water_year_bounds(
+    year: int, hemisphere: str = "northern"
+) -> tuple[pd.Timestamp, pd.Timestamp]:
+    """First and last day of water year *year*.
+
+    >>> water_year_bounds(2024)
+    (Timestamp('2023-10-01 00:00:00'), Timestamp('2024-09-30 00:00:00'))
+    """
+    month = _start_month(hemisphere)
+    start_year = int(year) - 1 if hemisphere.lower() == "northern" else int(year)
+    start = pd.Timestamp(start_year, month, 1)
+    return start, start + pd.DateOffset(years=1) - pd.Timedelta(days=1)
+
+
+def water_year_range(year: int, hemisphere: str = "northern") -> pd.DatetimeIndex:
+    """Daily ``DatetimeIndex`` spanning water year *year* (365 or 366 days)."""
+    start, end = water_year_bounds(year, hemisphere)
+    return pd.date_range(start, end, freq="D")
+
+
+def water_year_length(year: int, hemisphere: str = "northern") -> int:
+    """Number of days in water year *year* — 366 when 29 February falls inside it."""
+    start, end = water_year_bounds(year, hemisphere)
+    return int((end - start).days) + 1
 
 
 def add_water_year_coords(
