@@ -7,6 +7,6 @@ flat-file reader are pure functions in :mod:`easysnowdata.processing.snow`.
 
 from __future__ import annotations
 
-from easysnowdata.snow import modis
+from easysnowdata.snow import modis, viirs
 
-__all__ = ["modis"]
+__all__ = ["modis", "viirs"]
