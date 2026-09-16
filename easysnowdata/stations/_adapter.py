@@ -71,6 +71,28 @@ def _client(network: str) -> Any:
     return net.client_class()()
 
 
+def _archive_lookup(codes: list[str]) -> dict[str, str]:
+    """``{code: network}`` for codes whose shape does not give the network away."""
+    from easysnowdata.stations import archive  # noqa: PLC0415
+
+    return archive.network_of(codes)
+
+
+def _metadata_frame(codes: list[str]) -> gpd.GeoDataFrame | None:
+    """Metadata for the stations being loaded, from the published inventory."""
+    from easysnowdata.stations import archive  # noqa: PLC0415
+
+    try:
+        return archive.inventory(daily_only=False).reindex(codes)
+    except Exception as exc:  # noqa: BLE001 — metadata is a nicety, not the data
+        _logger.warning(
+            "Could not read the station inventory for the metadata "
+            "coordinates (%s); the Dataset carries only `network`.",
+            exc,
+        )
+        return None
+
+
 def _version() -> str:
     from easysnowdata import __version__  # noqa: PLC0415
 
@@ -86,7 +108,7 @@ def inventory(
     networks: Any = None,
     daily_only: bool = False,
     active_only: bool = False,
-    source: str = "clients",
+    source: str = "archive",
     **kwargs: Any,
 ) -> gpd.GeoDataFrame:
     """Snow stations as a GeoDataFrame, indexed by their global station code.
@@ -101,18 +123,21 @@ def inventory(
         ``"nve"``, ``"yukon"``. ``None`` (default) means all five.
     daily_only
         Keep only stations with a daily-or-better SWE or snow-depth record.
-        The live route has no probe-verified verdict, so it filters on what
-        each network *advertises* about itself, and the frame's ``daily``
-        column and ``daily_flag`` attribute say so. The archive route (§9
-        step 3) carries the probe-verified answer instead.
+        On ``source="archive"`` this is the **probe-verified** verdict
+        (``global_snow_networks``' DESIGN.md §4: a station counts as daily
+        only once the pipeline has actually retrieved daily values). The live
+        route has no such verdict, so there it filters on what each network
+        *advertises* about itself, and the frame's ``daily`` column and
+        ``daily_flag`` attribute say so.
     active_only
         Keep only stations the network reports as active. Inactive stations
         with a long record are usually still worth having.
     source
-        ``"clients"`` (default) asks the five APIs for today's station list.
-        ``"archive"`` reads the daily-refreshed inventory
-        ``global_snow_networks`` publishes instead — one HTTP request,
-        normalized columns and probe-verified daily flags, at most a day old.
+        ``"archive"`` (default) reads the daily-refreshed inventory
+        ``global_snow_networks`` publishes: one HTTP request, normalized
+        columns and probe-verified daily flags, at most a day old.
+        ``"clients"`` asks the five APIs for today's station list instead —
+        five sweeps, slower, and NVE needs its key.
     **kwargs
         On the archive route, passed to ``geopandas.read_file`` (``rows=``,
         ``columns=``, …).
@@ -225,11 +250,11 @@ def metadata(stations: Any, *, networks: Any = None) -> dict[str, Any]:
 def _split(stations: Any, names: Any) -> dict[str, list[str]]:
     """``{network: [station_id]}`` for *stations*, honouring a pinned network."""
     if names is None:
-        return _nets.split_by_network(stations)
+        return _nets.split_by_network(stations, lookup=_archive_lookup)
     wanted = _network_ids(names)
     if len(wanted) == 1:
         return _nets.split_by_network(stations, network=wanted[0])
-    grouped = _nets.split_by_network(stations)
+    grouped = _nets.split_by_network(stations, lookup=_archive_lookup)
     return {net: ids for net, ids in grouped.items() if net in wanted}
 
 
@@ -354,6 +379,8 @@ def load(
         for network, ids in grouped.items()
         for station_id in ids
     ]
+    if inv is None:
+        inv = _metadata_frame(codes)
     ds = _frames.records_to_dataset(
         records, metadata=inv, hemisphere=hemisphere, stations=codes
     )

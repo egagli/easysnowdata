@@ -8,8 +8,9 @@
     inv = esd.stations.inventory(aoi, daily_only=True)      # GeoDataFrame
     obs = esd.stations.load(inv, variables=["swe", "snwd"],
                             time="2023-10/2024-06")         # (station, time)
+    everything = esd.stations.archive.load()                # every daily station
 
-Two layers, as ``global_snow_networks``' DESIGN.md §2 lays them out:
+Three layers, as ``global_snow_networks``' DESIGN.md §2 lays them out:
 
 :mod:`~easysnowdata.stations.clients`
     Pure access, moved here verbatim with its history: one client per network
@@ -21,6 +22,10 @@ this module
     :func:`inventory` and :func:`load`, which put those records into the
     package's own return types and take ``aoi`` and ``time`` like every other
     loader.
+:mod:`~easysnowdata.stations.archive`
+    The daily archive that repo publishes — a normalized station inventory
+    and one pre-downloaded CSV per daily-verified station — for "everything
+    daily since 1980" without hitting five APIs. SWE and snow depth only.
 
 The ``station`` × ``time`` grid comes back dense with NaN where a station has
 no observation. That is what xarray, Dask and ``groupby`` want, and a station
@@ -37,12 +42,13 @@ unique ``code`` (``"679_WA_SNTL"``) and the network's own station id
 
 from __future__ import annotations
 
-from easysnowdata.stations import _catalog, _frames, clients, networks
+from easysnowdata.stations import _catalog, _frames, archive, clients, networks
 from easysnowdata.stations._adapter import PRODUCT_IDS, inventory, load, metadata
 
 __all__ = [
     "PRODUCT_IDS",
     "_frames",
+    "archive",
     "clients",
     "inventory",
     "load",
