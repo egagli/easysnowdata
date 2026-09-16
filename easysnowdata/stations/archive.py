@@ -493,9 +493,17 @@ PRODUCT = Product(
                 "the whole archive costs one request"
             ),
             title="global_snow_networks bundled archive",
+            # These two labels are inherited from the retired
+            # `snotel-ccss-stations` entry on purpose. They are the keys
+            # data_status/history.json and the README status table have
+            # recorded weekly since 2026-06, and the route they name — a
+            # station list and a station CSV on GitHub — is still exactly
+            # what they probe, just published by global_snow_networks now.
+            # Renaming them would start two fresh rows and orphan the
+            # history.
             health=(
                 Probe(
-                    "Snow station inventory (global_snow_networks)",
+                    "SNOTEL/CCSS station list (GitHub)",
                     partial(health.http_first_byte, INVENTORY_URL),
                 ),
                 Probe(
@@ -514,7 +522,7 @@ PRODUCT = Product(
             notes="one request per station; cheaper than the bundle for a few",
             title="global_snow_networks per-station CSVs",
             health=Probe(
-                "Snow station archive CSV (global_snow_networks)",
+                "SNOTEL/CCSS station CSV (GitHub)",
                 partial(health.http_first_byte, f"{CSV_BASE}679_WA_SNTL.csv"),
             ),
         ),

@@ -58,12 +58,23 @@ class TestRegistryContents:
             "sentinel-1-rtc",
             "hls",
             "modis-snow",
-            "snotel-ccss-stations",
+            "awdb-stations",
+            "cdec-stations",
+            "databc-stations",
+            "nve-stations",
+            "yukon-stations",
+            "snow-station-archive",
         } <= ids
+        # the Phase 1 placeholder entry is gone, replaced by the six above
+        assert "snotel-ccss-stations" not in ids
         labels = [probe.label for _, _, probe in health.probes()]
         # The rows the weekly health check has been recording stay unchanged
         for label in (
+            # Both station labels outlived the entry that introduced them:
+            # they now probe the global_snow_networks archive, so the weekly
+            # history keeps one continuous row each.
             "SNOTEL/CCSS station list (GitHub)",
+            "SNOTEL/CCSS station CSV (GitHub)",
             "GRDC WMO basins",
             "Köppen-Geiger classification (figshare)",
             "ARCO-ERA5 (GCS anonymous)",
