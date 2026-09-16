@@ -3,7 +3,7 @@
 The loaders moved to :mod:`easysnowdata.terrain`:
 
 * ``get_copernicus_dem`` → :func:`easysnowdata.terrain.dem.load`
-* **CHILI** — Continuous Heat-Insolation Load Index via Google Earth Engine
+* ``get_chili`` → :func:`easysnowdata.terrain.chili.load`
 
 Every name here keeps working for one minor release and emits an
 :class:`~easysnowdata._deprecation.EasysnowdataDeprecationWarning` on first use.
@@ -13,21 +13,13 @@ from __future__ import annotations
 
 import logging
 
-import ee
 import geopandas as gpd
 import rioxarray  # noqa: F401  (registers the ``.rio`` accessor used below)
 import shapely
 import xarray as xr
 
-from easysnowdata import providers
 from easysnowdata._deprecation import deprecated
-from easysnowdata.terrain import dem
-from easysnowdata.utils import (
-    convert_bbox_to_geodataframe,
-    get_ee_grid_params,
-    initialize_earthengine,
-    requires_earthengine,
-)
+from easysnowdata.terrain import chili, dem
 
 __all__ = ["get_copernicus_dem", "get_chili"]
 
@@ -86,7 +78,16 @@ def get_copernicus_dem(
     return dem.load(bbox_input, resolution=resolution, **kwargs)
 
 
-@requires_earthengine
+@deprecated(
+    "easysnowdata.terrain.chili.load",
+    since="0.1.0",
+    remove_in="0.2.0",
+    name="easysnowdata.topography.get_chili",
+    extra=(
+        "The new loader returns native values (normalize='minmax' keeps this "
+        "AOI-relative rescaling) and names its dims latitude/longitude."
+    ),
+)
 def get_chili(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -97,31 +98,31 @@ def get_chili(
 ) -> xr.DataArray:
     """Fetch CHILI (Continuous Heat-Insolation Load Index) for a bounding box.
 
-    CHILI is a topographic index quantifying the combined effect of solar
-    radiation and surface temperature, derived from ALOS World 3D-30m (AW3D30).
-    Values range 0–1: warm (> 0.767), neutral (0.448–0.767), cool (< 0.448).
+    .. deprecated:: 0.1.0
+        Use :func:`easysnowdata.terrain.chili.load`. It returns the native
+        values by default; pass ``normalize="minmax"`` for the AOI-relative
+        rescaling this function applied, or ``normalize="index"`` for the 0-1
+        index.
 
     Parameters
     ----------
     bbox_input : geopandas.GeoDataFrame or tuple or shapely.geometry, optional
         Spatial extent. Defaults to global extent if ``None``.
     initialize_ee : bool, optional
-        Initialise Earth Engine before fetching. Default ``True``. Set to
-        ``False`` if EE is already initialised in the calling script.
+        Ignored: Earth Engine is initialised on first use (§2.8).
     **kwargs
-        Additional keyword arguments passed to ``xarray.open_dataset`` with
-        ``engine="ee"`` (e.g. ``chunks={"time": 1, "x": 512, "y": 512}``).
-        These take precedence over the defaults used here.
+        Additional keyword arguments passed to
+        :func:`easysnowdata.terrain.chili.load` (and on to
+        ``xarray.open_dataset(engine="ee")``).
 
     Returns
     -------
     xarray.DataArray
-        CHILI DataArray, min–max normalised to [0, 1].
+        CHILI DataArray, min-max normalised to [0, 1] within the AOI.
 
     Notes
     -----
-    Requires Google Earth Engine authentication. Run ``ee.Authenticate()`` and
-    ``ee.Initialize()`` once, or call ``easysnowdata.authenticate_all()``.
+    Requires Google Earth Engine authentication; see ``esd.auth.status()``.
 
     Data are only available between 70°N and 70°S.
 
@@ -131,36 +132,4 @@ def get_chili(
         Climate Adaptation Planning. PLoS ONE 10(12): e0143619.
         https://doi.org/10.1371/journal.pone.0143619
     """
-    if initialize_ee:
-        initialize_earthengine()
-
-    bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
-
-    image = ee.Image("CSP/ERGo/1_0/Global/ALOS_CHILI")
-    # Match CHILI's native ~90 m grid, cropped to the bbox
-    grid = get_ee_grid_params(image, bbox_gdf)
-
-    open_params = {"engine": "ee", **grid, **kwargs}
-    chili_da = (
-        providers.gee.open_dataset(ee.ImageCollection(image), grid={}, **open_params)
-        .isel(time=0, drop=True)["constant"]
-        .rename({"y": "lat", "x": "lon"})
-        .rio.set_spatial_dims(x_dim="lon", y_dim="lat")
-        .rio.write_crs(open_params["crs"])
-    )
-    chili_da = chili_da.rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs)
-
-    # bool() computes for dask-backed arrays too (e.g. when chunks= is passed)
-    if bool(chili_da.isnull().all()):
-        _logger.warning(
-            "No CHILI data for this location. CHILI is only available 70°N–70°S."
-        )
-
-    chili_da = (chili_da - chili_da.min()) / (chili_da.max() - chili_da.min())
-    chili_da.attrs["data_citation"] = (
-        "Theobald, D.M., Harrison-Atlas, D., Monahan, W.B., Albano, C.M. (2015). "
-        "Ecologically-Relevant Maps of Landforms and Physiographic Diversity for "
-        "Climate Adaptation Planning. PLoS ONE 10(12): e0143619. "
-        "https://doi.org/10.1371/journal.pone.0143619"
-    )
-    return chili_da
+    return chili.load(bbox_input, normalize="minmax", **kwargs)

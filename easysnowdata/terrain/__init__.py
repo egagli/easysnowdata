@@ -2,6 +2,6 @@
 
 from __future__ import annotations
 
-from easysnowdata.terrain import dem
+from easysnowdata.terrain import chili, dem
 
-__all__ = ["dem"]
+__all__ = ["chili", "dem"]
