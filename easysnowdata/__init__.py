@@ -4,6 +4,9 @@ __author__ = "Eric Gagliano"
 __email__ = "egagli@uw.edu"
 __version__ = "0.0.26"
 __all__ = [
+    "aoi",
+    "AOI",
+    "parse_aoi",
     "utils",
     "remote_sensing",
     "automatic_weather_stations",
@@ -14,11 +17,13 @@ __all__ = [
 ]
 
 from easysnowdata import (
+    aoi,
     automatic_weather_stations,
     hydroclimatology,
     remote_sensing,
     topography,
     utils,
 )
+from easysnowdata.aoi import AOI, parse_aoi
 from easysnowdata.remote_sensing import authenticate_all
 from easysnowdata.utils import CredentialError
