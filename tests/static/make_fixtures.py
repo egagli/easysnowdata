@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import sys
+import zipfile
 from pathlib import Path
 from typing import Any
 
@@ -157,6 +158,28 @@ def make_continuous_cog(
     return _write_cog(path, data, nodata=nodata)
 
 
+def make_zipped_class_tif(
+    directory: Path,
+    archive: str,
+    member: str,
+    values: list[int],
+    *,
+    nodata: int = 256,
+    dtype: str = "uint32",
+    size: int = 32,
+) -> Path:
+    """A zipped class raster shaped like the Wrzesien archives (nodata 256)."""
+    data = np.resize(np.array(values, dtype=dtype), (size, size))
+    data[:4, :4] = nodata
+    tif = directory / member
+    _write_cog(tif, data, nodata=nodata)
+    path = directory / archive
+    with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.write(tif, member)
+    tif.unlink()
+    return path
+
+
 def make_worldcover_tiles(directory: Path) -> tuple[Path, Path, Path]:
     """Two side-by-side WorldCover-like tiles plus a grid GeoJSON naming them."""
     import geopandas as gpd
@@ -199,6 +222,24 @@ def make_all(directory: Path) -> dict[str, Path]:
 
     out["snow_class_cog"] = make_categorical_cog(
         directory / "snow_class.tif", [1, 3, 4, 7], nodata=9
+    )
+
+    out["mountain_snow_zip"] = make_zipped_class_tif(
+        directory,
+        "MODIS_mtnsnow_classes.zip",
+        "MODIS_mtnsnow_classes.tif",
+        [0, 1, 2, 3],
+    )
+    out["snow_zip"] = make_zipped_class_tif(
+        directory, "MODIS_snow_classes.zip", "MODIS_snow_classes.tif", [0, 1, 2, 3]
+    )
+    out["clouds_zip"] = make_zipped_class_tif(
+        directory,
+        "MODIS_clouds.zip",
+        "MODISclouds.tif",
+        [0, 1, 2, 3, 4, 5, 6],
+        nodata=255,
+        dtype="uint8",
     )
 
     left, right, grid = make_worldcover_tiles(directory)

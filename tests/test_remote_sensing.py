@@ -120,6 +120,16 @@ class TestSeasonalMountainSnowMask:
                 bbox_input=TEST_BBOX, data_product="invalid"
             )
 
+    def test_upstream_fill_is_repaired(self):
+        import numpy as np
+
+        from easysnowdata.remote_sensing import get_seasonal_mountain_snow_mask
+
+        result = get_seasonal_mountain_snow_mask(bbox_input=TEST_BBOX)
+        # The published nodata is 256/265; the loader puts it back to 255.
+        assert result.dtype == "uint8" and result.rio.nodata == 255
+        assert set(np.unique(result.values)) <= {0, 1, 2, 3, 255}
+
 
 # ---------------------------------------------------------------------------
 # ESA WorldCover (Planetary Computer — anonymous access)

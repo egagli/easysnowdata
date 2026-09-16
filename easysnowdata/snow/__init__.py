@@ -2,6 +2,6 @@
 
 from __future__ import annotations
 
-from easysnowdata.snow import snow_classification
+from easysnowdata.snow import mountain_snow_mask, snow_classification
 
-__all__ = ["snow_classification"]
+__all__ = ["mountain_snow_mask", "snow_classification"]

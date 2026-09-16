@@ -23,7 +23,7 @@ import xarray as xr
 from easysnowdata import auth, providers, temporal
 from easysnowdata._deprecation import deprecated
 from easysnowdata.land import forest_cover, landcover, nlcd
-from easysnowdata.snow import snow_classification
+from easysnowdata.snow import mountain_snow_mask, snow_classification
 from easysnowdata.utils import (
     _EARTHACCESS_SETUP_MSG,
     CredentialError,
@@ -196,6 +196,16 @@ def get_seasonal_snow_classification(
     )
 
 
+@deprecated(
+    "easysnowdata.snow.mountain_snow_mask.load",
+    since="0.1.0",
+    remove_in="0.2.0",
+    name="easysnowdata.remote_sensing.get_seasonal_mountain_snow_mask",
+    extra=(
+        "The archive is cached after the first call, the clouds layer is "
+        "reachable with layer='clouds', and the class table is CF flag attrs."
+    ),
+)
 def get_seasonal_mountain_snow_mask(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -208,9 +218,10 @@ def get_seasonal_mountain_snow_mask(
     """
     Fetches ~1km static global seasonal (mountain snow / snow) mask for a given bounding box.
 
-    Description:
-    Seasonal Mountain Snow (SMS) mask derived from MODIS MOD10A2 snow cover extent and GTOPO30 digital elevation model
-    produced at 30 arcsecond spatial resolution.
+    .. deprecated:: 0.1.0
+        Use :func:`easysnowdata.snow.mountain_snow_mask.load`, whose ``layer=``
+        also reaches the clouds layer and which caches the Zenodo archive
+        instead of re-reading it on every call.
 
     Parameters
     ----------
@@ -223,28 +234,14 @@ def get_seasonal_mountain_snow_mask(
         If False: (dtype=uint8, rio.nodata=255, rio.encoded_nodata=None)
         If True: (dtype=float32, rio.nodata=nan, rio.encoded_nodata=255)
     **kwargs
-        Additional keyword arguments passed to ``rioxarray.open_rasterio`` (e.g.
-        ``chunks={"x": 1024, "y": 1024}``). These take precedence over the
-        defaults used here (``chunks=True``, ``mask_and_scale=mask_nodata``).
+        Additional keyword arguments passed to
+        :func:`easysnowdata.snow.mountain_snow_mask.load` (and on to
+        ``rioxarray.open_rasterio``).
 
     Returns
     -------
     xarray.DataArray
-        Mountain snow DataArray with class information in attributes.
-
-    Examples
-    --------
-    >>> import geopandas as gpd
-    >>> import easysnowdata
-    >>>
-    >>> # Define a bounding box for a mountainous area
-    >>> bbox = (-106.0, 39.0, -105.0, 40.0)
-    >>>
-    >>> # Fetch mountain snow mask data
-    >>> mountain_snow_da = easysnowdata.remote_sensing.get_seasonal_mountain_snow_mask(bbox)
-    >>>
-    >>> # Plot the data using the example plot function
-    >>> f, ax = mountain_snow_da.attrs['example_plot'](mountain_snow_da)
+        Mountain snow DataArray with CF flag attributes.
 
     Notes
     -----
@@ -252,124 +249,9 @@ def get_seasonal_mountain_snow_mask(
     Wrzesien, M., Pavelsky, T., Durand, M., Lundquist, J., & Dozier, J. (2019).
     Global Seasonal Mountain Snow Mask from MODIS MOD10A2 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.2626737
     """
-
-    def get_class_info(data_product):
-        if data_product == "snow":
-            classes = {
-                0: {"name": "Little-to-no snow", "color": "#030303"},
-                1: {"name": "Indeterminate due to clouds", "color": "#755F4A"},
-                2: {"name": "Ephemeral snow", "color": "#792B8E"},
-                3: {"name": "Seasonal snow", "color": "#679ACF"},
-                255: {"name": "Fill", "color": "#ffffff"},
-            }
-        elif data_product == "mountain_snow":
-            classes = {
-                0: {"name": "Mountains with little-to-no snow", "color": "#030303"},
-                1: {"name": "Indeterminate due to clouds", "color": "#755F4A"},
-                2: {"name": "Mountains with ephemeral snow", "color": "#792B8E"},
-                3: {"name": "Mountains with seasonal snow", "color": "#679ACF"},
-                255: {"name": "Fill", "color": "#ffffff"},
-            }
-        else:
-            raise ValueError(
-                'Invalid data_product. Choose from "snow" or "mountain_snow".'
-            )
-        return classes
-
-    def get_class_cmap(classes):
-        cmap = plt.cm.colors.ListedColormap(
-            [classes[key]["color"] for key in classes.keys()]
-        )
-        return cmap
-
-    def plot_classes(self, ax=None, figsize=(8, 10), legend_kwargs=None):
-        if ax is None:
-            f, ax = plt.subplots(figsize=figsize)
-        else:
-            f = ax.get_figure()
-
-        class_values = sorted(list(self.attrs["class_info"].keys()))
-        bounds = [
-            (class_values[i] + class_values[i + 1]) / 2
-            for i in range(len(class_values) - 1)
-        ]
-        bounds = [class_values[0] - 0.5] + bounds + [class_values[-1] + 0.5]
-        norm = matplotlib.colors.BoundaryNorm(bounds, self.attrs["cmap"].N)
-
-        im = self.plot.imshow(
-            ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False
-        )
-        # ax.set_aspect("equal")
-
-        legend_handles = []
-        class_names = []
-        for class_value, class_info in self.attrs["class_info"].items():
-            legend_handles.append(
-                plt.Rectangle(
-                    (0, 0), 1, 1, facecolor=class_info["color"], edgecolor="black"
-                )
-            )
-            class_names.append(class_info["name"])
-
-        legend_kwargs = legend_kwargs or {}
-        default_legend_kwargs = {
-            "bbox_to_anchor": (0.5, -0.1),
-            "loc": "upper center",
-            "ncol": len(class_names) // 2,
-            "frameon": False,
-            "handlelength": 3.5,
-            "handleheight": 5,
-        }
-        legend_kwargs = {**default_legend_kwargs, **legend_kwargs}
-
-        ax.legend(legend_handles, class_names, **legend_kwargs)
-
-        ax.set_xlabel("Longitude")
-        ax.set_ylabel("Latitude")
-        ax.set_title(
-            f"Global seasonal {'mountain ' if data_product == 'mountain_snow' else ''}snow mask\nfrom Wrzesien et al 2019"
-        )
-        f.tight_layout(pad=5.5, w_pad=5.5, h_pad=1.5)
-        f.dpi = 300
-
-        return f, ax
-
-    print("This function takes a moment, getting zipped file from zenodo...")
-    # Convert the input to a GeoDataFrame if it's not already one
-    bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
-
-    url = f"zip+https://zenodo.org/records/2626737/files/MODIS_{'mtnsnow' if data_product == 'mountain_snow' else 'snow'}_classes.zip!/MODIS_{'mtnsnow' if data_product == 'mountain_snow' else 'snow'}_classes.tif"
-
-    open_params = {"chunks": True, "mask_and_scale": mask_nodata, **kwargs}
-    mountain_snow_da = (
-        providers.raster_http.open(url, squeeze=False, **open_params)
-        .rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs)
-        .squeeze()
+    return mountain_snow_mask.load(
+        bbox_input, layer=data_product, mask=mask_nodata, **kwargs
     )
-
-    # looks like the creators accidently set no data to 256 and 265 instead of 255, therefore unmasked the data is of type uint32 :(
-    # attempt to fix this by setting all invalid values to 255, then converting types
-    mask = mountain_snow_da > 3
-    mountain_snow_da = mountain_snow_da.where(~mask, 255)
-
-    if mask_nodata:
-        mountain_snow_da = mountain_snow_da.astype("float32").rio.write_nodata(
-            255, encoded=True
-        )
-    else:
-        mountain_snow_da = mountain_snow_da.astype("uint8").rio.set_nodata(255)
-
-    mountain_snow_da.attrs["class_info"] = get_class_info(data_product)
-    mountain_snow_da.attrs["cmap"] = get_class_cmap(
-        mountain_snow_da.attrs["class_info"]
-    )
-    mountain_snow_da.attrs["data_citation"] = (
-        "Wrzesien, M., Pavelsky, T., Durand, M., Lundquist, J., & Dozier, J. (2019). Global Seasonal Mountain Snow Mask from MODIS MOD10A2 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.2626737"
-    )
-
-    mountain_snow_da.attrs["example_plot"] = plot_classes
-
-    return mountain_snow_da
 
 
 @deprecated(
