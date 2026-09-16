@@ -93,14 +93,16 @@ class TestLoadFromFixture:
 @pytest.mark.recorded
 @pytest.mark.vcr
 class TestSearchRecorded:
+    """Searches are recorded unsigned, so no SAS tokens land in the cassettes."""
+
     def test_search_returns_tiles(self):
-        gdf = dem.search(RAINIER, resolution=30)
+        gdf = dem.search(RAINIER, resolution=30, sign=False)
         assert isinstance(gdf, gpd.GeoDataFrame) and len(gdf) >= 1
         assert (gdf["collection"] == "cop-dem-glo-30").all()
         assert gdf.crs.to_epsg() == 4326 and "stac_item" in gdf.columns
 
     def test_search_on_earth_search(self):
-        gdf = dem.search(RAINIER, source="earth-search", resolution=90)
+        gdf = dem.search(RAINIER, source="earth-search", resolution=90, sign=False)
         assert len(gdf) >= 1 and (gdf["collection"] == "cop-dem-glo-90").all()
 
 

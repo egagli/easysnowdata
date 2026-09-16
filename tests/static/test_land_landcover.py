@@ -155,8 +155,10 @@ class TestAwsRoute:
 @pytest.mark.recorded
 @pytest.mark.vcr
 class TestSearchRecorded:
+    """Searches are recorded unsigned, so no SAS tokens land in the cassettes."""
+
     def test_search_filters_by_version(self):
-        gdf = landcover.search(RAINIER, version="v100")
+        gdf = landcover.search(RAINIER, version="v100", sign=False)
         assert len(gdf) == 1
         assert gdf["esa_worldcover:product_version"].iloc[0] == "1.0.0"
 

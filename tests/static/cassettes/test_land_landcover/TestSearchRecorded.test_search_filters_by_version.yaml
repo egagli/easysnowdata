@@ -41,7 +41,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Wed, 16 Sep 2026 16:34:05 GMT
+      - Wed, 16 Sep 2026 17:31:19 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
       X-Cache:
@@ -95,7 +95,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Wed, 16 Sep 2026 16:34:06 GMT
+      - Wed, 16 Sep 2026 17:31:20 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
       X-Cache:
@@ -193,7 +193,7 @@ interactions:
       Content-Type:
       - application/geo+json
       Date:
-      - Wed, 16 Sep 2026 16:34:06 GMT
+      - Wed, 16 Sep 2026 17:31:21 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
       X-Cache:
@@ -202,42 +202,6 @@ interactions:
       - '10134'
       vary:
       - Accept-Encoding
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate, br, zstd
-      Connection:
-      - keep-alive
-      User-Agent:
-      - python-requests/2.34.2
-    method: GET
-    uri: https://planetarycomputer.microsoft.com/api/sas/v1/token/ai4edataeuwest/esa-worldcover
-  response:
-    body:
-      string: '{"msft:expiry":"2026-09-16T17:19:07Z","token":"st=2026-09-15T16%3A34%3A07Z&se=2026-09-16T17%3A19%3A07Z&sp=rl&sv=2025-07-05&sr=c&skoid=9c8ff44a-6a2c-4dfb-b298-1c9212f64d9a&sktid=72f988bf-86f1-41af-91ab-2d7cd011db47&skt=2026-09-16T14%3A53%3A21Z&ske=2026-09-23T14%3A53%3A21Z&sks=b&skv=2025-07-05&sig=f/y55PzYg9iQi/J4zZXoeGuXW6ewpAvnTAXDtuK97c8%3D"}'
-    headers:
-      Accept-Ranges:
-      - bytes
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '345'
-      Content-Type:
-      - application/json
-      Date:
-      - Wed, 16 Sep 2026 16:34:07 GMT
-      Request-Context:
-      - appId=cid-v1:75161b1b-6883-4b66-9410-715040c44427
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains
-      X-Cache:
-      - CONFIG_NOCACHE
     status:
       code: 200
       message: OK
