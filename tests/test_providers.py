@@ -544,6 +544,7 @@ class TestGee:
 # ── raster_http ───────────────────────────────────────────────────────────────
 
 
+@pytest.mark.recorded
 class TestRasterHttp:
     def test_open_local_cog(self, fixtures_dir):
         path = fixtures_dir / "classes.tif"
@@ -605,6 +606,7 @@ class TestRasterHttp:
 # ── zarr_cloud ────────────────────────────────────────────────────────────────
 
 
+@pytest.mark.recorded
 class TestZarrCloud:
     def test_storage_options(self):
         assert zarr_cloud.storage_options_for("gs://b/s.zarr") == {"token": "anon"}
@@ -658,6 +660,7 @@ class TestZarrCloud:
 # ── vector_http ───────────────────────────────────────────────────────────────
 
 
+@pytest.mark.recorded
 class TestVectorHttp:
     def test_zip_path(self):
         assert (

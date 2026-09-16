@@ -109,9 +109,35 @@ markers = [
     "live: marks tests that make network requests to a data provider (deselected in the offline tier)",
     "requires_earthengine: marks tests that need Google Earth Engine credentials (EARTHENGINE_TOKEN or ~/.config/earthengine/credentials)",
     "requires_earthaccess: marks tests that need NASA Earthdata credentials (EARTHDATA_TOKEN, EARTHDATA_USERNAME + EARTHDATA_PASSWORD, or a ~/.netrc entry)",
+    "requires_planet: marks tests that need Planet credentials (PL_API_KEY, PL_AUTH_* or a `planet auth login` session)",
+    "requires_nve: marks tests that need an NVE HydAPI key (NVE_API_KEY)",
+    "recorded: marks tests replayed from pytest-recording cassettes or run against the tiny local fixtures (offline tier)",
     "integration: marks slow integration tests that make live external API calls",
 ]
-filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+    # our own deprecations must stay visible in the test output
+    "default::easysnowdata._deprecation.EasysnowdataDeprecationWarning",
+]
+
+[tool.coverage.run]
+# The new modules (Phase 1); the legacy modules are covered by the live tier
+# until Phase 2 migrates them onto providers/.
+source = ["easysnowdata"]
+omit = [
+    "easysnowdata/remote_sensing.py",
+    "easysnowdata/hydroclimatology.py",
+    "easysnowdata/topography.py",
+    "easysnowdata/automatic_weather_stations.py",
+    "easysnowdata/utils.py",
+    "easysnowdata/_version.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under = 95
 
 [build-system]
 requires = ["setuptools>=64", "setuptools_scm>=8"]

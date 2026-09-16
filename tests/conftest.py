@@ -77,6 +77,27 @@ def pytest_runtest_setup(item: pytest.Item) -> None:
             )
 
 
+def _scrub_response(response: dict) -> dict:
+    """Drop cookies and rate-limit tokens from recorded responses."""
+    headers = response.get("headers", {})
+    for name in list(headers):
+        if name.lower() in {"set-cookie", "x-ms-request-id", "x-azure-ref"}:
+            headers.pop(name)
+    return response
+
+
+@pytest.fixture(scope="module")
+def vcr_config() -> dict:
+    """pytest-recording defaults; the record mode comes from --record-mode (default none)."""
+    return {
+        "before_record_response": _scrub_response,
+        "filter_headers": ["authorization", "cookie", "set-cookie", "x-api-key"],
+        "filter_query_parameters": ["token", "st", "se", "sig"],
+        "decode_compressed_response": True,
+        "match_on": ["method", "scheme", "host", "port", "path", "query"],
+    }
+
+
 @pytest.fixture(scope="session")
 def fixtures_dir(tmp_path_factory) -> Path:
     """Tiny local COG / Zarr / GeoParquet / GeoJSON fixtures for the offline tier.

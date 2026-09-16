@@ -62,6 +62,10 @@ python-build = "*"
 bump-my-version = "*"
 twine = "*"
 codespell = "*"
+pytest-cov = ">=7.1.0,<8"
+pytest-recording = ">=0.13.4,<0.14"
+pytest-xdist = ">=3.8.0,<4"
+packaging = ">=26.3,<27"
 
 [feature.dev.pypi-dependencies]
 mkdocs-jupyter = ">=0.24.0"
@@ -74,6 +78,13 @@ git-changelog = "*"
 # --allow-unix-socket keeps the network blocked but lets asyncio (zarr 3, fsspec)
 # create its event-loop socketpair.
 test-unit = "pytest tests/ -m 'not live' --disable-socket --allow-unix-socket"
+# Recorded tier only: STAC searches replayed from tests/cassettes and the local
+# fixtures; --record-mode=none (the default) fails on a missing cassette.
+test-recorded = "pytest tests/ -m recorded --disable-socket --allow-unix-socket --record-mode=none"
+# Offline tier with line coverage of the new modules ([tool.coverage.*] in pyproject.toml)
+test-cov = "pytest tests/ -m 'not live' --disable-socket --allow-unix-socket --cov --cov-report=term-missing --cov-report=xml"
+# Refresh the cassettes (needs network; run before committing a changed search)
+record-cassettes = "pytest tests/test_recorded.py --record-mode=rewrite"
 # Live tier: one smoke test per data source; needs network and, for the
 # requires_* tests, provider credentials (otherwise they skip).
 test-live = "pytest tests/ -m live"
