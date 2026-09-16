@@ -6,6 +6,7 @@ __version__ = "0.0.26"
 __all__ = [
     "aoi",
     "auth",
+    "catalog",
     "config",
     "AOI",
     "parse_aoi",
@@ -22,6 +23,7 @@ from easysnowdata import (
     aoi,
     auth,
     automatic_weather_stations,
+    catalog,
     config,
     hydroclimatology,
     remote_sensing,
