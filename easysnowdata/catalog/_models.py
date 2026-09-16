@@ -147,6 +147,16 @@ class Product:
             f"available: {', '.join(s.id for s in self.sources)}."
         )
 
+    def variable(self, name: str) -> Variable:
+        """Return the variable called *name*."""
+        for var in self.variables:
+            if var.name == name:
+                return var
+        raise KeyError(
+            f"Product {self.id!r} has no variable {name!r}; "
+            f"available: {', '.join(v.name for v in self.variables)}."
+        )
+
     @property
     def requires(self) -> tuple[str, ...]:
         """Credentials the default source needs."""

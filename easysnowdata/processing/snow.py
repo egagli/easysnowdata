@@ -18,6 +18,7 @@ import numpy as np
 import xarray as xr
 
 __all__ = [
+    "repair_fill_values",
     "NDSI_FLAGS",
     "MOD10A2_CLASSES",
     "SNOW_COVER_THRESHOLD",
@@ -272,3 +273,15 @@ def snodas_array(
         "_FillValue_source": nodata,
     }
     return da.rio.write_crs("EPSG:4326")
+
+
+def repair_fill_values(
+    da: xr.DataArray, *, last_class: int = 3, fill: int = 255
+) -> xr.DataArray:
+    """Put the upstream 256/265 fill values back to 255 and return uint8.
+
+    The published rasters use nodata 256 (and 265 in places), which does not
+    fit in a byte, so GDAL widens the whole array to uint32. Everything above
+    *last_class* is fill, so it is rewritten to *fill*.
+    """
+    return da.where(da <= last_class, fill).astype("uint8")

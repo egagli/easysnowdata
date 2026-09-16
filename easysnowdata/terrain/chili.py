@@ -29,8 +29,9 @@ import xarray as xr
 
 from easysnowdata import catalog, providers
 from easysnowdata.catalog import health
+from easysnowdata.catalog._access import resolve_source
 from easysnowdata.catalog._models import Probe, Product, Source, Variable
-from easysnowdata.terrain import _common
+from easysnowdata.processing import contract
 
 __all__ = ["PRODUCT_ID", "ASSET_ID", "load"]
 
@@ -62,7 +63,7 @@ def load(
     *,
     source: str | None = None,
     normalize: bool | str = False,
-    chunks: Any = _common.DEFAULT,
+    chunks: Any = contract.DEFAULT,
     mask: bool = True,
     **kwargs: Any,
 ) -> xr.DataArray:
@@ -100,22 +101,23 @@ def load(
     easysnowdata.auth.CredentialError
         When Earth Engine is not configured (``esd.auth.login("earthengine")``).
     """
-    product, src = _common.resolve(PRODUCT_ID, source)
+    product = catalog.get(PRODUCT_ID)
+    src = resolve_source(product, source)
     ee = providers.gee.ee()
     image = ee.Image(ASSET_ID)
     grid = providers.gee.grid_params(image, aoi)
     params: dict[str, Any] = {"grid": grid}
-    if chunks is not _common.DEFAULT:
+    if chunks is not contract.DEFAULT:
         params["chunks"] = chunks
     ds = providers.gee.open_dataset(ee.ImageCollection(image), aoi, **params, **kwargs)
     da = ds[BAND]
     if "time" in da.dims:
         da = da.isel(time=0, drop=True)  # a single static image
-    da = _common.standardize(da, crs=grid["crs"])
+    da = contract.write_crs(da, grid["crs"])
     da, units = _normalized(da, normalize)
     da = da.rename("chili")
     da.attrs.update(
-        _common.attrs_for(
+        contract.provenance(
             product,
             src,
             source_url=f"https://developers.google.com/earth-engine/datasets/catalog/{ASSET_ID.replace('/', '_')}",

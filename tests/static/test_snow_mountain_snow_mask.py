@@ -52,8 +52,11 @@ class TestCatalogEntry:
             msm.load(RAINIER, layer="invalid")
 
     def test_repair_fill_values(self):
+        # The fix lives in processing.snow (§4.3); the loader applies it.
+        from easysnowdata.processing.snow import repair_fill_values
+
         da = xr.DataArray(np.array([[0, 1, 3, 256, 265]], dtype="uint32"))
-        fixed = msm.repair_fill_values(da)
+        fixed = repair_fill_values(da)
         assert fixed.dtype == "uint8"
         assert list(fixed.values[0]) == [0, 1, 3, 255, 255]
 

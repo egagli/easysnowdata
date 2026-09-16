@@ -25,8 +25,9 @@ import xarray as xr
 
 from easysnowdata import catalog, providers
 from easysnowdata.catalog import health
+from easysnowdata.catalog._access import resolve_source
 from easysnowdata.catalog._models import Probe, Product, Source, Variable
-from easysnowdata.terrain import _common
+from easysnowdata.processing import contract
 
 __all__ = ["PRODUCT_ID", "COLLECTIONS", "search", "load"]
 
@@ -76,7 +77,7 @@ def search(
     geopandas.GeoDataFrame
         One row per tile, filterable and accepted back by :func:`load`.
     """
-    _, src = _common.resolve(PRODUCT_ID, source)
+    src = resolve_source(catalog.get(PRODUCT_ID), source)
     items = providers.stac.search(src.id, _collection(resolution), aoi, **kwargs)
     return providers.stac.items_to_geodataframe(items)
 
@@ -89,7 +90,7 @@ def load(
     items: Any = None,
     crs: Any = None,
     grid_resolution: float | None = None,
-    chunks: Any = _common.DEFAULT,
+    chunks: Any = contract.DEFAULT,
     mask: bool = True,
     **kwargs: Any,
 ) -> xr.DataArray:
@@ -127,7 +128,8 @@ def load(
         ``elevation`` in metres, dims ``latitude``/``longitude`` (or ``y``/``x``
         when reprojected), lazy unless ``chunks=None``.
     """
-    product, src = _common.resolve(PRODUCT_ID, source)
+    product = catalog.get(PRODUCT_ID)
+    src = resolve_source(product, source)
     collection = _collection(resolution)
     if items is None:
         items = providers.stac.search(src.id, collection, aoi)
@@ -143,7 +145,7 @@ def load(
         bands="data",
         crs=crs,
         resolution=grid_resolution,
-        chunks=None if chunks is _common.DEFAULT else chunks,
+        chunks=None if chunks is contract.DEFAULT else chunks,
         groupby="time",  # every tile of a release shares one datetime
         catalog=src.id,
         **kwargs,
@@ -151,11 +153,15 @@ def load(
     da = ds["data"]
     if "time" in da.dims and da.sizes["time"] == 1:
         da = da.squeeze("time")  # static product: keep the date as a scalar coord
-    da = _common.standardize(da)
-    da = _common.apply_nodata(da, NODATA, mask=mask)
+    da = contract.write_crs(da, da.rio.crs)
+    da = (
+        contract.mask_continuous(da, NODATA)
+        if mask
+        else contract.set_categorical_nodata(da, NODATA)
+    )
     da = da.rename("elevation")
     da.attrs.update(
-        _common.attrs_for(
+        contract.provenance(
             product,
             src,
             source_url=f"{providers.stac.CATALOGS[src.id]['url']}/collections/{collection}",

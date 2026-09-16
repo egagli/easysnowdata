@@ -67,7 +67,11 @@ class TestLoadFromFixture:
         assert da.attrs["license"] and da.attrs["easysnowdata_version"]
         assert da.attrs["source_url"].endswith("/collections/cop-dem-glo-30")
         assert "time" in da.coords and "time" not in da.dims
-        assert all(isinstance(v, (str, int, float)) for v in da.attrs.values())
+        # rioxarray writes _FillValue as a numpy scalar; nothing is a Python object.
+        assert all(
+            isinstance(v, (str, int, float, list, np.generic))
+            for v in da.attrs.values()
+        )
 
     def test_unmasked_keeps_the_sentinel(self, dem_items):
         da = dem.load(RAINIER, items=dem_items, mask=False)

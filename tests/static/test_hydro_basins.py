@@ -147,7 +147,7 @@ class TestCatalogEntries:
     def test_output_is_always_epsg_4326(self):
         import shapely
 
-        product, src = basins._common.resolve("huc")
+        product, src = basins._resolve("huc", None)
         web_mercator = gpd.GeoDataFrame(
             geometry=[shapely.box(-13_000_000, 5_900_000, -12_900_000, 6_000_000)],
             crs="EPSG:3857",

@@ -154,7 +154,10 @@ def test_apply_variables_and_finalize():
     assert out["snow_class"].attrs["flag_values"] == [0, 1, 2, 255]
     for key in contract.PROVENANCE_KEYS:
         assert key in out.attrs, key
-    assert out.attrs["source"] == "Example host" and out.attrs["source_id"] == "src"
+    # `source` is the source id, so it goes straight back into load(source=...);
+    # the human-readable name is source_title.
+    assert out.attrs["source"] == "src" and out.attrs["source_id"] == "src"
+    assert out.attrs["source_title"] == "Example host"
     assert (
         out.attrs["source_url"] == "https://example.com"
         and out.attrs["doi"] == "10.1/x"

@@ -18,6 +18,7 @@ import xarray as xr
 from pyproj import CRS
 
 __all__ = [
+    "DEFAULT",
     "PROVENANCE_KEYS",
     "geographic_dims",
     "write_crs",
@@ -27,6 +28,10 @@ __all__ = [
     "apply_variables",
     "finalize",
 ]
+
+#: Sentinel for "the package default" on a keyword whose ``None`` means something
+#: else — ``chunks=None`` loads eagerly, as in odc-stac and rioxarray (§12.2 D).
+DEFAULT: Any = "easysnowdata-default"
 
 PROVENANCE_KEYS = (
     "source",
@@ -90,6 +95,8 @@ def write_crs(obj: xr.Dataset | xr.DataArray, crs: Any) -> xr.Dataset | xr.DataA
     """
     import odc.geo.xr  # noqa: F401, PLC0415 — registers the .odc accessor
 
+    if crs is None:
+        raise ValueError("The data carries no CRS and none was given.")
     crs_obj = _crs(crs)
     obj = geographic_dims(obj, crs_obj)
     dims = _spatial_dims(obj)
@@ -165,8 +172,11 @@ def provenance(
         source_id = getattr(source, "id", str(source))
         source_title = getattr(source, "title", None) or source_id
     attrs: dict[str, Any] = {
-        "source": source_title,
+        # `source` is the id, so it can be handed straight back to load(source=...);
+        # `source_title` is the human-readable name for display.
+        "source": source_id,
         "source_id": source_id,
+        "source_title": source_title,
         "source_url": source_url or _default_source_url(source),
         "product_id": product.id,
         "title": product.title,

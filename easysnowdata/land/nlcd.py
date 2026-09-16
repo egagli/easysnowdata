@@ -27,8 +27,9 @@ import xarray as xr
 
 from easysnowdata import catalog, providers, temporal
 from easysnowdata.catalog import health
+from easysnowdata.catalog._access import resolve_source
 from easysnowdata.catalog._models import Probe, Product, Source, Variable
-from easysnowdata.land import _common
+from easysnowdata.processing import contract
 from easysnowdata.processing.categorical import set_flags
 
 __all__ = ["PRODUCT_ID", "ANNUAL_ASSETS", "RELEASE_ASSET", "RELEASE_LAYERS", "load"]
@@ -120,7 +121,7 @@ def load(
     source: str | None = None,
     layer: str = "landcover",
     time: Any = None,
-    chunks: Any = _common.DEFAULT,
+    chunks: Any = contract.DEFAULT,
     mask: bool = False,
     **kwargs: Any,
 ) -> xr.DataArray:
@@ -160,7 +161,8 @@ def load(
     easysnowdata.auth.CredentialError
         When Earth Engine is not configured.
     """
-    product, src = _common.resolve(PRODUCT_ID, source)
+    product = catalog.get(PRODUCT_ID)
+    src = resolve_source(product, source)
     asset = _asset(src.id, layer)
     ee = providers.gee.ee()
     collection, keep_time = _collection(ee, asset, time)
@@ -170,7 +172,7 @@ def load(
         image = image.select([layer])
     grid = providers.gee.grid_params(image, aoi)
     params: dict[str, Any] = {"grid": grid}
-    if chunks is not _common.DEFAULT:
+    if chunks is not contract.DEFAULT:
         params["chunks"] = chunks
     ds = providers.gee.open_dataset(collection, aoi, **params, **kwargs)
     names = list(ds.data_vars)
@@ -185,16 +187,20 @@ def load(
     da = ds[band]
     if "time" in da.dims and (not keep_time or da.sizes["time"] == 1):
         da = da.isel(time=0)  # keep the year as a scalar coordinate
-    da = _common.standardize(da, crs=grid["crs"])
+    da = contract.write_crs(da, grid["crs"])
     table = _class_table(image, layer, band)
     if table is not None:
         da = da.astype("uint8") if da.dtype.kind == "f" and max(table[0]) < 256 else da
         da = set_flags(da, *table, long_name=f"NLCD {layer.replace('_', ' ')}")
     nodata = 0 if table is not None and 0 not in table[0] else None
-    da = _common.apply_nodata(da, nodata, mask=mask)
+    da = (
+        contract.mask_continuous(da, nodata)
+        if mask
+        else contract.set_categorical_nodata(da, nodata)
+    )
     da = da.rename(layer)
     da.attrs.update(
-        _common.attrs_for(
+        contract.provenance(
             product,
             src,
             source_url=f"https://code.earthengine.google.com/?asset={asset}",

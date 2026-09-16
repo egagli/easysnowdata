@@ -27,8 +27,9 @@ import xarray as xr
 
 from easysnowdata import catalog, providers
 from easysnowdata.catalog import health
+from easysnowdata.catalog._access import resolve_source
 from easysnowdata.catalog._models import Probe, Product, Source, Variable
-from easysnowdata.land import _common
+from easysnowdata.processing import contract
 
 __all__ = ["PRODUCT_ID", "VERSIONS", "COLLECTION", "search", "load"]
 
@@ -130,7 +131,7 @@ def search(
         STAC items for the Planetary Computer route, or the bucket's tile grid
         (``tile``, ``url``) for the AWS route. Either is accepted by :func:`load`.
     """
-    _, src = _common.resolve(PRODUCT_ID, source)
+    src = resolve_source(catalog.get(PRODUCT_ID), source)
     _year(version)
     if src.provider != "stac":
         return _tiles(aoi, version)
@@ -205,7 +206,7 @@ def load(
     items: Any = None,
     crs: Any = None,
     grid_resolution: float | None = None,
-    chunks: Any = _common.DEFAULT,
+    chunks: Any = contract.DEFAULT,
     mask: bool = False,
     **kwargs: Any,
 ) -> xr.DataArray:
@@ -240,10 +241,11 @@ def load(
         ``flag_meanings`` / ``flag_colors`` for
         :func:`easysnowdata.plotting.categorical`.
     """
-    product, src = _common.resolve(PRODUCT_ID, source)
+    product = catalog.get(PRODUCT_ID)
+    src = resolve_source(product, source)
     year = _year(version)
     eager = chunks is None
-    load_chunks = None if chunks is _common.DEFAULT else chunks
+    load_chunks = None if chunks is contract.DEFAULT else chunks
     if src.provider == "stac":
         if items is None:
             items = providers.stac.search(src.id, COLLECTION, aoi)
@@ -255,11 +257,15 @@ def load(
             items = _tiles(aoi, version)
         da = _load_tiles(items, aoi, version, load_chunks, kwargs)
         da = da.assign_coords(time=pd.Timestamp(f"{year}-01-01"))
-    da = _common.standardize(da)
-    da = _common.apply_nodata(da, NODATA, mask=mask)
+    da = contract.write_crs(da, da.rio.crs)
+    da = (
+        contract.mask_continuous(da, NODATA)
+        if mask
+        else contract.set_categorical_nodata(da, NODATA)
+    )
     da = da.rename("landcover")
     da.attrs.update(
-        _common.attrs_for(
+        contract.provenance(
             product,
             src,
             source_url=(
@@ -271,7 +277,7 @@ def load(
             year=year,
         )
     )
-    da = _common.set_variable_flags(da, product, "landcover")
+    da = da.assign_attrs(product.variable("landcover").cf_attrs())
     if eager:
         da = da.compute()
     return da

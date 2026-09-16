@@ -21,8 +21,8 @@ the direct ``zip+https://`` read.
 
 **Upstream fill values.** The two class rasters are written as 32-bit with
 nodata 256 (and 265 in places) rather than 255, so unmasked they arrive as
-uint32. :func:`repair_fill_values` puts every value above the last class back
-to 255 and returns uint8; the loader applies it.
+uint32. :func:`easysnowdata.processing.snow.repair_fill_values` puts every
+value above the last class back to 255 and returns uint8; the loader applies it.
 """
 
 from __future__ import annotations
@@ -35,10 +35,12 @@ import xarray as xr
 
 from easysnowdata import catalog, providers
 from easysnowdata.catalog import health
+from easysnowdata.catalog._access import resolve_source
 from easysnowdata.catalog._models import Probe, Product, Source, Variable
-from easysnowdata.snow import _common
+from easysnowdata.processing import contract
+from easysnowdata.processing.snow import repair_fill_values
 
-__all__ = ["PRODUCT_ID", "LAYERS", "ZENODO_FILES", "repair_fill_values", "load"]
+__all__ = ["PRODUCT_ID", "LAYERS", "ZENODO_FILES", "load"]
 
 _logger = logging.getLogger(__name__)
 
@@ -81,25 +83,13 @@ def _layer(name: str) -> tuple[str, str]:
         ) from None
 
 
-def repair_fill_values(
-    da: xr.DataArray, *, last_class: int = LAST_CLASS, fill: int = NODATA
-) -> xr.DataArray:
-    """Put the upstream 256/265 fill values back to 255 and return uint8.
-
-    The published rasters use nodata 256 (and 265 in places), which does not
-    fit in a byte, so GDAL widens the whole array to uint32. Everything above
-    *last_class* is fill, so it is rewritten to *fill*.
-    """
-    return da.where(da <= last_class, fill).astype("uint8")
-
-
 def load(
     aoi: Any = None,
     *,
     source: str | None = None,
     layer: str = "mountain_snow",
     cache: bool = True,
-    chunks: Any = _common.DEFAULT,
+    chunks: Any = contract.DEFAULT,
     mask: bool = False,
     **kwargs: Any,
 ) -> xr.DataArray:
@@ -131,7 +121,8 @@ def load(
     xarray.DataArray
         The layer as uint8, with CF flag attributes on the two class layers.
     """
-    product, src = _common.resolve(PRODUCT_ID, source)
+    product = catalog.get(PRODUCT_ID)
+    src = resolve_source(product, source)
     archive, member = _layer(layer)
     url = f"{ZENODO_FILES}/{archive}"
     if cache:
@@ -143,16 +134,20 @@ def load(
     da = providers.raster_http.open(
         target,
         aoi,
-        chunks=True if chunks in (None, _common.DEFAULT) else chunks,
+        chunks=True if chunks in (None, contract.DEFAULT) else chunks,
         **kwargs,
     )
     if layer != "clouds":
-        da = repair_fill_values(da)
-    da = _common.standardize(da)
-    da = _common.apply_nodata(da, NODATA, mask=mask)
+        da = repair_fill_values(da, last_class=LAST_CLASS, fill=NODATA)
+    da = contract.write_crs(da, da.rio.crs)
+    da = (
+        contract.mask_continuous(da, NODATA)
+        if mask
+        else contract.set_categorical_nodata(da, NODATA)
+    )
     da = da.rename(layer)
     da.attrs.update(
-        _common.attrs_for(
+        contract.provenance(
             product,
             src,
             source_url=url,
@@ -168,7 +163,7 @@ def load(
         )
     )
     if layer != "clouds":
-        da = _common.set_variable_flags(da, product, layer)
+        da = da.assign_attrs(product.variable(layer).cf_attrs())
     if chunks is None:
         da = da.compute()
     return da

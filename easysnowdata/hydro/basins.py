@@ -34,8 +34,9 @@ import shapely
 from easysnowdata import catalog, providers
 from easysnowdata.aoi import parse_aoi
 from easysnowdata.catalog import health
+from easysnowdata.catalog._access import resolve_source
 from easysnowdata.catalog._models import Probe, Product, Source, Variable
-from easysnowdata.hydro import _common
+from easysnowdata.processing import contract
 
 __all__ = [
     "DATASETS",
@@ -93,13 +94,19 @@ GRDC_WMO_MEMBER = "wmobb_basins.json"
 DATASETS = ("huc", "hydrobasins", "grdc-major-river-basins", "grdc-wmo-basins")
 
 
+def _resolve(product_id: str, source: str | None) -> tuple[Any, Any]:
+    """The catalog product and the chosen access route."""
+    product = catalog.get(product_id)
+    return product, resolve_source(product, source)
+
+
 def _finish(gdf: gpd.GeoDataFrame, product, src, **extra: Any) -> gpd.GeoDataFrame:
     """EPSG:4326 plus the provenance attrs every product carries (§2.5)."""
     if gdf.crs is None:
         gdf = gdf.set_crs("EPSG:4326")
     elif gdf.crs.to_epsg() != 4326:
         gdf = gdf.to_crs("EPSG:4326")
-    gdf.attrs.update(_common.attrs_for(product, src, **extra))
+    gdf.attrs.update(contract.provenance(product, src, **extra))
     return gdf
 
 
@@ -219,7 +226,7 @@ def huc(
     geopandas.GeoDataFrame
         The hydrologic units intersecting the AOI, in EPSG:4326.
     """
-    product, src = _common.resolve("huc", source)
+    product, src = _resolve("huc", source)
     digits = _level(level, low=2, high=16)
     if digits not in WBD_LAYERS:
         raise ValueError(f"HUC level must be one of {sorted(WBD_LAYERS)}, got {level}.")
@@ -312,7 +319,7 @@ def hydrobasins(
     geopandas.GeoDataFrame
         The sub-basins intersecting the AOI, in EPSG:4326.
     """
-    product, src = _common.resolve("hydrobasins", source)
+    product, src = _resolve("hydrobasins", source)
     value = _level(level)
     if src.provider == "gee":
         asset = GEE_HYDROATLAS_ASSET.format(level=value)
@@ -376,7 +383,7 @@ def grdc_major(
     geopandas.GeoDataFrame
         Whole basins (not clipped to the AOI), in EPSG:4326.
     """
-    product, src = _common.resolve("grdc-major-river-basins", source)
+    product, src = _resolve("grdc-major-river-basins", source)
     gdf = providers.vector_http.read(f"zip+{GRDC_MAJOR_URL}", aoi, **kwargs)
     return _finish(gdf, product, src, source_url=GRDC_MAJOR_URL)
 
@@ -404,7 +411,7 @@ def grdc_wmo(
     geopandas.GeoDataFrame
         Whole basins (not clipped to the AOI), in EPSG:4326.
     """
-    product, src = _common.resolve("grdc-wmo-basins", source)
+    product, src = _resolve("grdc-wmo-basins", source)
     path = providers.raster_http.fetch(GRDC_WMO_URL, "wmobb_json.zip", subdir="grdc")
     gdf = providers.vector_http.read(f"zip://{path}!{GRDC_WMO_MEMBER}", aoi, **kwargs)
     return _finish(gdf, product, src, source_url=GRDC_WMO_URL)

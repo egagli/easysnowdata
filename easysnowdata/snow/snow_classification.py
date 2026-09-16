@@ -33,8 +33,9 @@ import xarray as xr
 
 from easysnowdata import auth, catalog, config, providers
 from easysnowdata.catalog import health
+from easysnowdata.catalog._access import resolve_source
 from easysnowdata.catalog._models import Probe, Product, Source, Variable
-from easysnowdata.snow import _common
+from easysnowdata.processing import contract
 
 __all__ = [
     "PRODUCT_ID",
@@ -131,7 +132,7 @@ def load(
     source: str | None = None,
     resolution: str = "10arcsec",
     region: str = "GL",
-    chunks: Any = _common.DEFAULT,
+    chunks: Any = contract.DEFAULT,
     mask: bool = False,
     **kwargs: Any,
 ) -> xr.DataArray:
@@ -166,7 +167,8 @@ def load(
         When the NSIDC route is asked for without Earthdata credentials; the
         message names ``source="hosted-cog"`` as the credential-free route.
     """
-    product, src = _common.resolve(PRODUCT_ID, source)
+    product = catalog.get(PRODUCT_ID)
+    src = resolve_source(product, source)
     if src.id == "nsidc":
         name = filename(resolution, region)
         url: str | Path = _fetch_nsidc(name)
@@ -177,17 +179,21 @@ def load(
     da = providers.raster_http.open(
         url,
         aoi,
-        chunks=True if chunks in (None, _common.DEFAULT) else chunks,
+        chunks=True if chunks in (None, contract.DEFAULT) else chunks,
         **kwargs,
     )
-    da = _common.standardize(da)
-    da = _common.apply_nodata(da, NODATA, mask=mask)
+    da = contract.write_crs(da, da.rio.crs)
+    da = (
+        contract.mask_continuous(da, NODATA)
+        if mask
+        else contract.set_categorical_nodata(da, NODATA)
+    )
     da = da.rename("snow_class")
     da = da.assign_coords(time=pd.Timestamp(f"{EPOCH}-01-01"))
     da.attrs.update(
-        _common.attrs_for(product, src, source_url=source_url, file=name, epoch=EPOCH)
+        contract.provenance(product, src, source_url=source_url, file=name, epoch=EPOCH)
     )
-    da = _common.set_variable_flags(da, product, "snow_class")
+    da = da.assign_attrs(product.variable("snow_class").cf_attrs())
     if chunks is None:
         da = da.compute()
     return da

@@ -25,8 +25,9 @@ import xarray as xr
 
 from easysnowdata import catalog, providers, temporal
 from easysnowdata.catalog import health
+from easysnowdata.catalog._access import resolve_source
 from easysnowdata.catalog._models import Probe, Product, Source, Variable
-from easysnowdata.land import _common
+from easysnowdata.processing import contract
 
 __all__ = ["PRODUCT_ID", "ZENODO_URL", "GEE_ASSET", "load"]
 
@@ -58,14 +59,14 @@ def _load_gee(aoi, time, chunks, kwargs):
         collection = collection.sort("system:time_start", False).limit(1)
     grid = providers.gee.grid_params(collection.first(), aoi)
     params: dict[str, Any] = {"grid": grid}
-    if chunks is not _common.DEFAULT:
+    if chunks is not contract.DEFAULT:
         params["chunks"] = chunks
     ds = providers.gee.open_dataset(collection, aoi, **params, **kwargs)
     names = list(ds.data_vars)
     da = ds[GEE_BAND if GEE_BAND in names else names[0]]
     if "time" in da.dims and (not keep_time or da.sizes["time"] == 1):
         da = da.isel(time=0)
-    return _common.standardize(da, crs=grid["crs"])
+    return contract.write_crs(da, grid["crs"])
 
 
 def load(
@@ -73,7 +74,7 @@ def load(
     *,
     source: str | None = None,
     time: Any = None,
-    chunks: Any = _common.DEFAULT,
+    chunks: Any = contract.DEFAULT,
     mask: bool = True,
     **kwargs: Any,
 ) -> xr.DataArray:
@@ -103,7 +104,8 @@ def load(
     xarray.DataArray
         ``tree_cover_fraction`` in percent.
     """
-    product, src = _common.resolve(PRODUCT_ID, source)
+    product = catalog.get(PRODUCT_ID)
+    src = resolve_source(product, source)
     eager = chunks is None
     if src.provider == "gee":
         da = _load_gee(aoi, time, chunks, kwargs)
@@ -111,15 +113,19 @@ def load(
         da = providers.raster_http.open(
             ZENODO_URL,
             aoi,
-            chunks=True if chunks in (None, _common.DEFAULT) else chunks,
+            chunks=True if chunks in (None, contract.DEFAULT) else chunks,
             **kwargs,
         )
-        da = _common.standardize(da)
+        da = contract.write_crs(da, da.rio.crs)
         da = da.assign_coords(time=pd.Timestamp(f"{EPOCH}-01-01"))
-    da = _common.apply_nodata(da, NODATA, mask=mask)
+    da = (
+        contract.mask_continuous(da, NODATA)
+        if mask
+        else contract.set_categorical_nodata(da, NODATA)
+    )
     da = da.rename("tree_cover_fraction")
     da.attrs.update(
-        _common.attrs_for(
+        contract.provenance(
             product,
             src,
             source_url=ZENODO_URL if src.provider != "gee" else src.location,
