@@ -34,7 +34,6 @@ import xarray as xr
 from easysnowdata import auth, catalog, config, providers
 from easysnowdata.catalog import health
 from easysnowdata.catalog._models import Probe, Product, Source, Variable
-from easysnowdata.catalog._products import SNOW_CLASSIFICATION_CLASSES
 from easysnowdata.snow import _common
 
 __all__ = [
@@ -63,6 +62,18 @@ RESOLUTIONS: dict[str, tuple[str, str]] = {
     "2.5arcmin": ("2.5km", "2.5arcmin"),
     "5arcmin": ("10km", "5.0arcmin"),
     "30arcmin": ("0.5deg", "30.0arcmin"),
+}
+#: The nine seasonal snow classes: value → (name, colour).
+SNOW_CLASSIFICATION_CLASSES: dict[int, tuple[str, str]] = {
+    1: ("Tundra", "#a100c8"),
+    2: ("Boreal Forest", "#00a0fe"),
+    3: ("Maritime", "#fe0000"),
+    4: ("Ephemeral (includes no snow)", "#e7dc32"),
+    5: ("Prairie", "#f08328"),
+    6: ("Montane Forest", "#00dc00"),
+    7: ("Ice (glaciers and ice sheets)", "#aaaaaa"),
+    8: ("Ocean", "#0000ff"),
+    9: ("Fill", "#ffffff"),
 }
 #: The class table's "Fill" value.
 NODATA = 9

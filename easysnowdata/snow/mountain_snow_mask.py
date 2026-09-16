@@ -36,7 +36,6 @@ import xarray as xr
 from easysnowdata import catalog, providers
 from easysnowdata.catalog import health
 from easysnowdata.catalog._models import Probe, Product, Source, Variable
-from easysnowdata.catalog._products import MOUNTAIN_SNOW_CLASSES, SNOW_CLASSES
 from easysnowdata.snow import _common
 
 __all__ = ["PRODUCT_ID", "LAYERS", "ZENODO_FILES", "repair_fill_values", "load"]
@@ -50,6 +49,21 @@ LAYERS: dict[str, tuple[str, str]] = {
     "mountain_snow": ("MODIS_mtnsnow_classes.zip", "MODIS_mtnsnow_classes.tif"),
     "snow": ("MODIS_snow_classes.zip", "MODIS_snow_classes.tif"),
     "clouds": ("MODIS_clouds.zip", "MODISclouds.tif"),
+}
+#: The mountain classes and the all-terrain classes: value → (name, colour).
+MOUNTAIN_SNOW_CLASSES: dict[int, tuple[str, str]] = {
+    0: ("Mountains with little-to-no snow", "#030303"),
+    1: ("Indeterminate due to clouds", "#755F4A"),
+    2: ("Mountains with ephemeral snow", "#792B8E"),
+    3: ("Mountains with seasonal snow", "#679ACF"),
+    255: ("Fill", "#ffffff"),
+}
+SNOW_CLASSES: dict[int, tuple[str, str]] = {
+    0: ("Little-to-no snow", "#030303"),
+    1: ("Indeterminate due to clouds", "#755F4A"),
+    2: ("Ephemeral snow", "#792B8E"),
+    3: ("Seasonal snow", "#679ACF"),
+    255: ("Fill", "#ffffff"),
 }
 #: The class table's "Fill" value, and the highest real class in the two masks.
 NODATA = 255

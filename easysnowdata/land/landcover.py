@@ -28,7 +28,6 @@ import xarray as xr
 from easysnowdata import catalog, providers
 from easysnowdata.catalog import health
 from easysnowdata.catalog._models import Probe, Product, Source, Variable
-from easysnowdata.catalog._products import WORLDCOVER_CLASSES
 from easysnowdata.land import _common
 
 __all__ = ["PRODUCT_ID", "VERSIONS", "COLLECTION", "search", "load"]
@@ -44,6 +43,21 @@ NODATA = 0
 AWS_BUCKET_URL = "https://esa-worldcover.s3.eu-central-1.amazonaws.com"
 GRID_URL = f"{AWS_BUCKET_URL}/esa_worldcover_grid.geojson"
 _PC_STAC = providers.stac.PLANETARY_COMPUTER_URL
+
+#: The 11 WorldCover classes: value → (name, colour).
+WORLDCOVER_CLASSES: dict[int, tuple[str, str]] = {
+    10: ("Tree cover", "#006400"),
+    20: ("Shrubland", "#FFBB22"),
+    30: ("Grassland", "#FFFF4C"),
+    40: ("Cropland", "#F096FF"),
+    50: ("Built-up", "#FA0000"),
+    60: ("Bare / sparse vegetation", "#B4B4B4"),
+    70: ("Snow and ice", "#F0F0F0"),
+    80: ("Permanent water bodies", "#0064C8"),
+    90: ("Herbaceous wetland", "#0096A0"),
+    95: ("Mangroves", "#00CF75"),
+    100: ("Moss and lichen", "#FAE6A0"),
+}
 
 
 def _year(version: str) -> str:
