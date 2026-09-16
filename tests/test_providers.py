@@ -606,6 +606,9 @@ class TestRasterHttp:
 # ── zarr_cloud ────────────────────────────────────────────────────────────────
 
 
+# zarr 3 runs an asyncio loop whose self-pipe is a Unix socketpair on POSIX but a
+# TCP loopback pair on Windows; allow loopback only (the network stays blocked).
+@pytest.mark.allow_hosts(["127.0.0.1", "::1"])
 @pytest.mark.recorded
 class TestZarrCloud:
     def test_storage_options(self):
