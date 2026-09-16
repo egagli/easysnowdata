@@ -42,12 +42,11 @@ unique ``code`` (``"679_WA_SNTL"``) and the network's own station id
 
 from __future__ import annotations
 
-from easysnowdata.stations import _catalog, _frames, archive, clients, networks
+from easysnowdata.stations import _catalog, archive, clients, networks
 from easysnowdata.stations._adapter import PRODUCT_IDS, inventory, load, metadata
 
 __all__ = [
     "PRODUCT_IDS",
-    "_frames",
     "archive",
     "clients",
     "inventory",
