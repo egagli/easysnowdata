@@ -4,7 +4,10 @@
   nodata masking
 * :mod:`~easysnowdata.processing.optical` — baseline harmonization,
   scale/offset, spectral indices, RGB composites and stretches
-* :mod:`~easysnowdata.processing.sar` — dB conversion, border-noise removal
+* :mod:`~easysnowdata.processing.sar` — dB conversion, border-noise removal,
+  slope/aspect and the local incidence angle
+* :mod:`~easysnowdata.processing.snow` — snow-product class tables, binary
+  snow and the SNODAS flat-file reader
 * :mod:`~easysnowdata.processing.wateryear` — vectorized water-year helpers
 * :mod:`~easysnowdata.processing.categorical` — CF flag attributes for
   categorical products (the contract's replacement for ``class_info`` dicts)
@@ -20,6 +23,7 @@ from easysnowdata.processing import (
     masks,
     optical,
     sar,
+    snow,
     wateryear,
 )
 from easysnowdata.processing.categorical import (
@@ -66,6 +70,13 @@ from easysnowdata.processing.sar import (
     remove_border_noise,
     slope_aspect,
 )
+from easysnowdata.processing.snow import (
+    MOD10A2_CLASSES,
+    NDSI_FLAGS,
+    binary_snow,
+    ndsi_flag_attrs,
+    parse_snodas_header,
+)
 from easysnowdata.processing.wateryear import (
     add_water_year_coords,
     day_of_water_year,
@@ -79,6 +90,7 @@ __all__ = [
     "masks",
     "optical",
     "sar",
+    "snow",
     "wateryear",
     "DEFAULT_SCL_REMOVE",
     "FMASK_BITS",
@@ -86,8 +98,11 @@ __all__ = [
     "UDM1_BITS",
     "UDM2_BANDS",
     "UDM2_BINARY_BANDS",
+    "MOD10A2_CLASSES",
+    "NDSI_FLAGS",
     "add_water_year_coords",
     "apply_fmask",
+    "binary_snow",
     "apply_scl_mask",
     "day_of_water_year",
     "db_to_linear",
@@ -108,7 +123,9 @@ __all__ = [
     "ndsi",
     "ndvi",
     "ndwi",
+    "ndsi_flag_attrs",
     "normalized_difference",
+    "parse_snodas_header",
     "remove_border_noise",
     "rgb",
     "scale_offset",

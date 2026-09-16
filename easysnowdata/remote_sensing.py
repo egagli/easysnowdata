@@ -12,21 +12,16 @@ import ee
 import geopandas as gpd
 import matplotlib
 import matplotlib.pyplot as plt
-import pandas as pd
 import shapely
 import xarray as xr
 
 from easysnowdata import auth, providers, temporal
 from easysnowdata._deprecation import deprecated
 from easysnowdata.utils import (
-    _EARTHACCESS_SETUP_MSG,
-    CredentialError,
-    _has_earthaccess_credentials,
     convert_bbox_to_geodataframe,
     get_ee_grid_params,
     initialize_earthengine,
     requires_earthengine,
-    suppress_stdout,
 )
 
 # No import-time side effects (design contract §2.9): GDAL options are applied
@@ -1066,284 +1061,61 @@ def HLS(  # noqa: N802 — this was a class
     )
 
 
-class MODIS_snow:
+@deprecated(
+    "easysnowdata.snow.modis.load",
+    since="0.1.0",
+    remove_in="0.2.0",
+    name="easysnowdata.remote_sensing.MODIS_snow",
+    extra=(
+        "The new loader defaults to NSIDC (the archive of record, and the only route "
+        "with the cloud-gap-filled and Aqua products) and keeps Planetary Computer as "
+        "source='planetary-computer'; get_binary_snow() is now "
+        "easysnowdata.processing.binary_snow()."
+    ),
+)
+def MODIS_snow(  # noqa: N802 — this was a class
+    bbox_input=None,
+    clip_to_bbox=True,
+    start_date="2000-01-01",
+    end_date=None,
+    data_product="MOD10A2",
+    bands=None,
+    resolution=None,
+    crs=None,
+    vertical_tile=None,
+    horizontal_tile=None,
+    mute=False,
+    **kwargs,
+):
+    """Deprecated factory for :func:`easysnowdata.snow.modis.load`.
+
+    Returns the loaded ``xarray.Dataset`` instead of a ``MODIS_snow`` object.
+    ``data_product`` → ``product=``, ``bands`` → ``variables=``,
+    ``clip_to_bbox`` → the AOI's own ``clip`` flag. ``mute`` is accepted and
+    ignored (the loaders log instead of printing), and ``vertical_tile`` /
+    ``horizontal_tile`` are no longer needed: pass an AOI, or ``clip=False``
+    on it to keep whole tiles.
     """
-    A class to handle MODIS snow data.
+    from easysnowdata.aoi import parse_aoi  # noqa: PLC0415
+    from easysnowdata.snow import modis as _modis  # noqa: PLC0415
 
-    This class provides functionality to search, retrieve, and process MODIS snow cover data.
-    It supports various MODIS snow products and allows for spatial and temporal subsetting.
-
-    Parameters
-    ----------
-    bbox_input : geopandas.GeoDataFrame or tuple or Shapely Geometry, optional
-        GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax), or a Shapely geometry.
-    clip_to_bbox : bool, optional
-        Whether to clip the data to the bounding box. Default is True.
-    start_date : str, optional
-        The start date for the data in the format 'YYYY-MM-DD'. Default is '2000-01-01'.
-    end_date : str, optional
-        The end date for the data in the format 'YYYY-MM-DD'. Default is today's date.
-    data_product : str, optional
-        The MODIS data product to retrieve. Can choose between 'MOD10A1F', 'MOD10A1', or 'MOD10A2'. Default is 'MOD10A2'.
-    bands : list, optional
-        The bands to be used. Default is all bands.
-    resolution : str, optional
-        The resolution of the data. Defaults to native resolution.
-    crs : str, optional
-        The coordinate reference system. Default is None.
-    vertical_tile : int, optional
-        The vertical tile number for MODIS data. Default is None.
-    horizontal_tile : int, optional
-        The horizontal tile number for MODIS data. Default is None.
-    mute : bool, optional
-        Whether to mute print outputs. Default is False.
-    **kwargs
-        Additional keyword arguments passed to the underlying loader:
-        ``odc.stac.load`` for ``MOD10A1`` / ``MOD10A2``, or
-        ``rioxarray.open_rasterio`` for ``MOD10A1F``. These take precedence
-        over the defaults used by ``get_data()`` (e.g.
-        ``chunks={"time": 1, "x": 512, "y": 512}``).
-
-    Attributes
-    ----------
-    data : xarray.Dataset
-        The loaded MODIS snow data.
-    binary_snow : xarray.DataArray
-        Binary snow cover map derived from the data (only for MOD10A2 product).
-
-    Methods
-    -------
-    search_data()
-        Searches for MODIS snow data based on the specified parameters.
-    get_data()
-        Retrieves the MODIS snow data based on the search results.
-    get_binary_snow()
-        Calculates a binary snow cover map from the data (only for MOD10A2 product).
-
-    Notes
-    -----
-    The ``MOD10A1F`` product requires NASA EarthData credentials
-    (``EARTHDATA_TOKEN``, or ``EARTHDATA_USERNAME`` + ``EARTHDATA_PASSWORD``,
-    or a ``~/.netrc`` entry written by ``earthaccess.login(persist=True)``);
-    the class logs in through ``earthaccess`` itself and downloads the HDF4
-    granules into the easysnowdata cache directory. Reading them needs a GDAL
-    build with the HDF4 driver (``libgdal-hdf4`` on conda-forge). The
-    ``MOD10A1`` and ``MOD10A2`` products use Microsoft Planetary Computer and
-    require no credentials.
-
-    Available data products:
-    MOD10A1: Daily snow cover, 500m resolution
-    MOD10A2: 8-day maximum snow cover, 500m resolution
-    MOD10A1F: Daily cloud-free snow cover (gap-filled), 500m resolution
-
-    Data citations:
-    MOD10A1F: Hall, D. K. and G. A. Riggs. (2020). MODIS/Terra CGF Snow Cover Daily L3 Global 500m SIN Grid, Version 61 [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/MODIS/MOD10A1F.061. Date Accessed 03-19-2024.
-    MOD10A1: Hall, D. K. and G. A. Riggs. (2021). MODIS/Terra Snow Cover Daily L3 Global 500m SIN Grid, Version 61 [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/MODIS/MOD10A1.061. Date Accessed 03-28-2024.
-    MOD10A2: Hall, D. K. and G. A. Riggs. (2021). MODIS/Terra Snow Cover 8-Day L3 Global 500m SIN Grid, Version 61 [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/MODIS/MOD10A2.061. Date Accessed 03-28-2024.
-    """
-
-    def __init__(
-        self,
-        bbox_input=None,
-        clip_to_bbox=True,
-        start_date="2000-01-01",
-        end_date=None,
-        data_product="MOD10A2",
-        bands=None,
-        resolution=None,
-        crs=None,
-        vertical_tile=None,
-        horizontal_tile=None,
-        mute=False,
+    product = str(data_product).upper()
+    source = "planetary-computer" if product in _modis.PC_COLLECTIONS else "nsidc"
+    aoi = (
+        parse_aoi(bbox_input, clip=bool(clip_to_bbox))
+        if bbox_input is not None
+        else None
+    )
+    return _modis.load(
+        aoi,
+        (start_date, end_date if end_date is not None else temporal.today()),
+        product=product,
+        variables=bands,
+        source=source,
+        resolution=resolution,
+        crs=crs,
         **kwargs,
-    ):
-
-        if data_product == "MOD10A1F" and not _has_earthaccess_credentials():
-            raise CredentialError(
-                f"`MODIS_snow` with data_product='MOD10A1F' requires NASA EarthData credentials.\n\n{_EARTHACCESS_SETUP_MSG}"
-            )
-
-        self.bbox_input = bbox_input
-        self.bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
-        self.clip_to_bbox = clip_to_bbox
-        self.start_date = start_date
-        self.end_date = end_date if end_date is not None else temporal.today()
-        self.data_product = data_product
-        self.bands = bands
-        self.resolution = resolution
-        self.crs = crs
-        self.vertical_tile = vertical_tile
-        self.horizontal_tile = horizontal_tile
-        self.load_kwargs = kwargs
-
-        if mute:
-            with suppress_stdout():
-                self.search_data()
-                self.get_data()
-        else:
-            self.search_data()
-            self.get_data()
-
-    def search_data(self):
-
-        if self.data_product == "MOD10A1" or self.data_product == "MOD10A2":
-            catalog = providers.stac.open_catalog("planetary-computer")
-
-            if self.bbox_input is not None:
-                search = catalog.search(
-                    collections=[f"modis-{self.data_product[3:]}-061"],
-                    bbox=self.bbox_gdf.total_bounds,
-                    datetime=(self.start_date, self.end_date),
-                )
-
-            else:
-                search = catalog.search(
-                    collections=[f"modis-{self.data_product[3:]}-061"],
-                    datetime=(self.start_date, self.end_date),
-                    query={
-                        "modis:vertical-tile": {"eq": self.vertical_tile},
-                        "modis:horizontal-tile": {"eq": self.horizontal_tile},
-                    },
-                )
-
-        elif self.data_product == "MOD10A1F":
-            # MOD10A1F v61 is cloud-hosted at NSIDC (provider NSIDC_CPRD); the
-            # provider logs in explicitly (earthaccess >= 0.16) before searching.
-            search = providers.earthdata.search(
-                "MOD10A1F",
-                cloud_hosted=True,
-                bounding_box=tuple(self.bbox_gdf.total_bounds),
-                temporal=(self.start_date, self.end_date),
-            )
-
-        else:
-            raise ValueError(
-                "Data product not recognized. Please choose 'MOD10A1', 'MOD10A2', or 'MOD10A1F'."
-            )
-
-        self.search = search
-
-    def get_data(self):
-
-        if self.data_product == "MOD10A1" or self.data_product == "MOD10A2":
-            load_params = {
-                "items": self.search.item_collection(),
-                "chunks": {"time": 1, "x": 512, "y": 512},
-            }
-            if self.clip_to_bbox:
-                load_params["bbox"] = self.bbox_gdf.total_bounds
-            if self.bands:
-                load_params["bands"] = self.bands
-            if self.crs:
-                load_params["crs"] = self.crs
-            if self.resolution:
-                load_params["resolution"] = self.resolution
-            # User-supplied kwargs take precedence over the defaults above
-            load_params.update(self.load_kwargs)
-
-            modis_snow = providers.stac.odc_load(
-                load_params.pop("items"), catalog="planetary-computer", **load_params
-            )
-
-        elif self.data_product == "MOD10A1F":
-            # The granules are HDF-EOS2 (HDF4) files. Check for the driver
-            # before downloading anything: rasterio's PyPI wheels ship GDAL
-            # without HDF4 (verified for rasterio 1.5.1 / GDAL 3.12.4), while
-            # conda-forge provides it as the separate libgdal-hdf4 package.
-            providers.earthdata.require_hdf4("MOD10A1F")
-            # HDF4 cannot be read through fsspec file objects either, so
-            # download the granules once into the easysnowdata cache directory
-            # (~/.cache/easysnowdata/MOD10A1F on Linux; override with
-            # EASYSNOWDATA_CACHE_DIR). earthaccess skips files already present.
-            files = providers.earthdata.download(self.search, "MOD10A1F")
-
-            # User-supplied kwargs take precedence over the defaults here
-            open_params = {
-                "variable": "CGF_NDSI_Snow_Cover",
-                "chunks": {},
-                **self.load_kwargs,
-            }
-
-            if self.clip_to_bbox:
-                modis_snow = xr.concat(
-                    [
-                        providers.raster_http.open(file, squeeze=False, **open_params)[
-                            "CGF_NDSI_Snow_Cover"
-                        ]
-                        .squeeze()
-                        .rio.clip_box(
-                            *self.bbox_gdf.total_bounds, crs=self.bbox_gdf.crs
-                        )
-                        .assign_coords(
-                            time=pd.to_datetime(
-                                providers.raster_http.open(
-                                    file, squeeze=False, **open_params
-                                )
-                                .squeeze()
-                                .attrs["RANGEBEGINNINGDATE"]
-                            )
-                        )
-                        .drop_vars("band")
-                        for file in files
-                    ],
-                    dim="time",
-                )
-
-            else:
-                modis_snow = xr.concat(
-                    [
-                        providers.raster_http.open(file, squeeze=False, **open_params)[
-                            "CGF_NDSI_Snow_Cover"
-                        ]
-                        .squeeze()
-                        .assign_coords(
-                            time=pd.to_datetime(
-                                providers.raster_http.open(
-                                    file, squeeze=False, **open_params
-                                )
-                                .squeeze()
-                                .attrs["RANGEBEGINNINGDATE"]
-                            )
-                        )
-                        .drop_vars("band")
-                        for file in files
-                    ],
-                    dim="time",
-                )
-
-        else:
-            raise ValueError(
-                "Data product not recognized. Please choose 'MOD10A1', 'MOD10A2', or 'MOD10A1F'."
-            )
-
-        self.data = modis_snow
-
-        if self.data_product == "MOD10A2":
-            self.data.attrs["class_info"] = {
-                0: {"name": "missing data", "color": "#006400"},
-                1: {"name": "no decision", "color": "#FFBB22"},
-                11: {"name": "night", "color": "#FFFF4C"},
-                25: {"name": "no snow", "color": "#F096FF"},
-                37: {"name": "lake", "color": "#FA0000"},
-                39: {"name": "ocean / sparse vegetation", "color": "#B4B4B4"},
-                50: {"name": "cloud", "color": "#F0F0F0"},
-                100: {"name": "lake ice", "color": "#0064C8"},
-                200: {"name": "snow", "color": "#0096A0"},
-                254: {"name": "detector saturated", "color": "#00CF75"},
-                255: {"name": "fill", "color": "#FAE6A0"},
-            }
-
-        print("Data retrieved. Access with the .data attribute.")
-
-    def get_binary_snow(self):
-
-        if self.data_product == "MOD10A2":
-            self.binary_snow = xr.where(
-                self.data["Maximum_Snow_Extent"] == 200, 1, 0
-            ).rio.write_crs(self.data.rio.crs)
-            print("Binary snow map calculated. Access with the .binary_snow attribute.")
-        else:
-            print("This method is only available for the MOD10A2 product.")
+    )
 
 
 # palsar2
