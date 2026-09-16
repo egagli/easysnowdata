@@ -8,11 +8,20 @@
 * :mod:`~easysnowdata.processing.wateryear` — vectorized water-year helpers
 * :mod:`~easysnowdata.processing.categorical` — CF flag attributes for
   categorical products (the contract's replacement for ``class_info`` dicts)
+* :mod:`~easysnowdata.processing.contract` — the output contract (§2.5):
+  CRS via both accessors, dim names, nodata policy, provenance attrs
 """
 
 from __future__ import annotations
 
-from easysnowdata.processing import categorical, masks, optical, sar, wateryear
+from easysnowdata.processing import (
+    categorical,
+    contract,
+    masks,
+    optical,
+    sar,
+    wateryear,
+)
 from easysnowdata.processing.categorical import (
     flag_mask,
     flags,
@@ -54,6 +63,7 @@ from easysnowdata.processing.wateryear import (
 
 __all__ = [
     "categorical",
+    "contract",
     "masks",
     "optical",
     "sar",
