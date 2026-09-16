@@ -1,4 +1,4 @@
-"""Tests for easysnowdata.topography.
+"""Tests for easysnowdata.topography (deprecation shims over easysnowdata.terrain).
 
 Copernicus DEM uses Planetary Computer (anonymous access, no credentials required).
 CHILI uses Google Earth Engine (requires EARTHENGINE_TOKEN).
@@ -39,6 +39,20 @@ class TestCopernicusDem:
 
         with pytest.raises(ValueError, match="30 m and 90 m"):
             get_copernicus_dem(bbox_input=TEST_BBOX, resolution=15)
+
+    def test_old_name_warns_and_forwards(self, monkeypatch):
+        from easysnowdata import _deprecation
+        from easysnowdata.terrain import dem
+        from easysnowdata.topography import get_copernicus_dem
+
+        _deprecation.reset_warnings()
+        seen = {}
+        monkeypatch.setattr(
+            dem, "load", lambda aoi, **kw: seen.update(aoi=aoi, **kw) or "dem"
+        )
+        with pytest.warns(_deprecation.EasysnowdataDeprecationWarning, match="dem.load"):
+            assert get_copernicus_dem(TEST_BBOX, resolution=90, chunks={}) == "dem"
+        assert seen == {"aoi": TEST_BBOX, "resolution": 90, "chunks": {}}
 
     @pytest.mark.live
     def test_values_are_elevation(self):

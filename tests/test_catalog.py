@@ -86,10 +86,9 @@ class TestRegistryContents:
             p.id = "x"  # type: ignore[misc]
 
     def test_loaders_resolve_to_the_old_api(self):
-        assert (
-            catalog.get("copernicus-dem").resolve_loader()
-            is esd.topography.get_copernicus_dem
-        )
+        # Migrated products (Phase 2) point at their theme module; the rest
+        # still point at the Phase 1 functions until their own migration.
+        assert catalog.get("copernicus-dem").resolve_loader() is esd.terrain.dem.load
         assert (
             catalog.get("sentinel-2-l2a").resolve_loader()
             is esd.remote_sensing.Sentinel2
@@ -119,7 +118,7 @@ class TestRegistryContents:
         assert attrs["flag_colors"].split()[0] == "#000000"
         assert all(isinstance(v, (str, list)) for v in attrs.values())
         assert catalog.get("copernicus-dem").variables[0].cf_attrs() == {
-            "long_name": "elevation",
+            "long_name": "elevation above the EGM2008 geoid",
             "units": "m",
         }
 
@@ -150,7 +149,7 @@ class TestQueries:
         assert text.startswith("# Copernicus DEM")
         assert "| `planetary-computer` (default) | stac | none | 30 m |" in text
         assert "**DOI:** 10.5069/G9028PQB" in text
-        assert "| `data` | m | float32 | -32767 | no |" in text
+        assert "| `elevation` | m | float32 | -32767 | no |" in text
         cat = catalog.describe("sentinel-2-l2a")
         assert "yes (12 classes)" in cat
         hls = catalog.describe("hls")
