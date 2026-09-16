@@ -109,6 +109,10 @@ ENV/
 # API keys
 ee_key.json
 
+# Written by hatch-vcs at build/install time
+easysnowdata/_version.py
+coverage.xml
+
 # Local example downloads (multi-GB Planet scenes, earthaccess downloads)
 docs/examples/planet_data/
 docs/examples/data/

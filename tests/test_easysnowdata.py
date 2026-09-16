@@ -14,12 +14,15 @@ def test_package_imports():
     assert hasattr(easysnowdata, "hydroclimatology")
 
 
-def test_version_is_string():
+def test_version_is_a_valid_version():
+    """hatch-vcs derives it from the git tag: 0.0.27 on a tag, 0.0.27.devN+g… between tags."""
+    from packaging.version import Version
+
     import easysnowdata
 
     assert isinstance(easysnowdata.__version__, str)
-    parts = easysnowdata.__version__.split(".")
-    assert len(parts) == 3
+    parsed = Version(easysnowdata.__version__)
+    assert parsed.release[:2] == (0, 0) or parsed.release >= (0, 1)
 
 
 def test_public_api_surface():

@@ -63,7 +63,7 @@ Ready to contribute? Here's how to set up easysnowdata for local development.
     ```shell
     $ mkvirtualenv easysnowdata
     $ cd easysnowdata/
-    $ python setup.py develop
+    $ pixi install          # creates the dev environment from pyproject.toml / pixi.lock
     ```
 
 4.  Create a branch for local development:
@@ -79,7 +79,7 @@ Ready to contribute? Here's how to set up easysnowdata for local development.
 
     ```shell
     $ flake8 easysnowdata tests
-    $ python setup.py test or pytest
+    $ pixi run test-unit    # offline tiers; pixi run test-live needs network + credentials
     $ tox
     ```
 

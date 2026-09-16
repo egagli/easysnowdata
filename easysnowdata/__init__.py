@@ -2,7 +2,17 @@
 
 __author__ = "Eric Gagliano"
 __email__ = "egagli@uw.edu"
-__version__ = "0.0.26"
+
+try:  # written by hatch-vcs at build/install time from the git tag
+    from easysnowdata._version import __version__
+except ImportError:  # pragma: no cover — source checkout without an install
+    from importlib.metadata import PackageNotFoundError, version
+
+    try:
+        __version__ = version("easysnowdata")
+    except PackageNotFoundError:
+        __version__ = "0.0.0+unknown"
+    del PackageNotFoundError, version
 __all__ = [
     "aoi",
     "auth",
