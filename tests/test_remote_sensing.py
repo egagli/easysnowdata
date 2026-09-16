@@ -96,8 +96,9 @@ class TestForestCoverFraction:
             bbox_input=TEST_BBOX, chunks={"x": 128, "y": 128}
         )
         assert result.chunks is not None
-        assert max(result.chunks[result.get_axis_num("x")]) <= 128
-        assert max(result.chunks[result.get_axis_num("y")]) <= 128
+        # The loader names geographic dims latitude/longitude (§2.5), so the
+        # chunk sizes are checked without naming an axis.
+        assert max(max(sizes) for sizes in result.chunks) <= 128
 
 
 # ---------------------------------------------------------------------------
