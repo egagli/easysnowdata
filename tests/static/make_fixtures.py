@@ -197,6 +197,10 @@ def make_all(directory: Path) -> dict[str, Path]:
         directory / "forest_cover.tif", low=0, high=100, nodata=255
     )
 
+    out["snow_class_cog"] = make_categorical_cog(
+        directory / "snow_class.tif", [1, 3, 4, 7], nodata=9
+    )
+
     left, right, grid = make_worldcover_tiles(directory)
     out["worldcover_left"] = left
     out["worldcover_right"] = right

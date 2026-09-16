@@ -23,6 +23,7 @@ import xarray as xr
 from easysnowdata import auth, providers, temporal
 from easysnowdata._deprecation import deprecated
 from easysnowdata.land import forest_cover, landcover, nlcd
+from easysnowdata.snow import snow_classification
 from easysnowdata.utils import (
     _EARTHACCESS_SETUP_MSG,
     CredentialError,
@@ -139,6 +140,16 @@ def get_forest_cover_fraction(
     return forest_cover.load(bbox_input, mask=mask_nodata, **kwargs)
 
 
+@deprecated(
+    "easysnowdata.snow.snow_classification.load",
+    since="0.1.0",
+    remove_in="0.2.0",
+    name="easysnowdata.remote_sensing.get_seasonal_snow_classification",
+    extra=(
+        "The new loader defaults to NSIDC-0768 (Earthdata Login); this shim "
+        "keeps the hosted COG. The class table is CF flag attrs now."
+    ),
+)
 def get_seasonal_snow_classification(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -150,9 +161,11 @@ def get_seasonal_snow_classification(
     """
     Fetches 10arcsec (~300m) Sturm & Liston 2021 seasonal snow classification data for a given bounding box.
 
-    Description:
-    This dataset consists of global, seasonal snow classifications determined from air temperature,
-    precipitation, and wind speed climatologies. This is the 10 arcsec (~300m) product in EPSG:4326.
+    .. deprecated:: 0.1.0
+        Use :func:`easysnowdata.snow.snow_classification.load`. Its default
+        source is the authoritative NSIDC-0768 archive (Earthdata Login, and
+        the coarser grids); this shim keeps reading the hosted COG, whose
+        location is likely to change.
 
     Parameters
     ----------
@@ -163,135 +176,24 @@ def get_seasonal_snow_classification(
         If False: (dtype=uint8, rio.nodata=9, rio.encoded_nodata=None)
         If True: (dtype=float32, rio.nodata=nan, rio.encoded_nodata=9)
     **kwargs
-        Additional keyword arguments passed to ``rioxarray.open_rasterio`` (e.g.
-        ``chunks={"x": 1024, "y": 1024}``). These take precedence over the
-        defaults used here (``chunks=True``, ``mask_and_scale=mask_nodata``).
+        Additional keyword arguments passed to
+        :func:`easysnowdata.snow.snow_classification.load` (and on to
+        ``rioxarray.open_rasterio``).
 
     Returns
     -------
     xarray.DataArray
-        Seasonal snow class DataArray with class information in attributes.
-
-    Examples
-    --------
-    >>> import geopandas as gpd
-    >>> import easysnowdata
-    >>>
-    >>> # Define a bounding box for an area of interest
-    >>> bbox = (-120.0, 40.0, -118.0, 42.0)
-    >>>
-    >>> # Fetch seasonal snow classification data
-    >>> snow_classification_da = easysnowdata.remote_sensing.get_seasonal_snow_classification(bbox)
-    >>>
-    >>> # Plot the data using the example plot function
-    >>> f,ax = snow_classification_da.attrs['example_plot'](snow_classification_da)
+        Seasonal snow class DataArray with CF flag attributes.
 
     Notes
     -----
     Data citation:
     Liston, G. E. and M. Sturm. (2021). Global Seasonal-Snow Classification, Version 1 [Data Set].
-    Boulder, Colorado USA. National Snow and Ice Data Center. https://doi.org/10.5067/99FTCYYYLAQ0. Date Accessed 03-06-2024.
+    Boulder, Colorado USA. National Snow and Ice Data Center. https://doi.org/10.5067/99FTCYYYLAQ0.
     """
-
-    def get_class_info():
-        classes = {
-            1: {"name": "Tundra", "color": "#a100c8"},
-            2: {"name": "Boreal Forest", "color": "#00a0fe"},
-            3: {"name": "Maritime", "color": "#fe0000"},
-            4: {"name": "Ephemeral (includes no snow)", "color": "#e7dc32"},
-            5: {"name": "Prairie", "color": "#f08328"},
-            6: {"name": "Montane Forest", "color": "#00dc00"},
-            7: {"name": "Ice (glaciers and ice sheets)", "color": "#aaaaaa"},
-            8: {"name": "Ocean", "color": "#0000ff"},
-            9: {"name": "Fill", "color": "#ffffff"},
-        }
-        return classes
-
-    def get_class_cmap(classes):
-        cmap = plt.cm.colors.ListedColormap(
-            [classes[key]["color"] for key in classes.keys()]
-        )
-        return cmap
-
-    def plot_classes(self, ax=None, figsize=(8, 10), legend_kwargs=None):
-        if ax is None:
-            f, ax = plt.subplots(figsize=figsize)
-        else:
-            f = ax.get_figure()
-
-        class_values = sorted(list(self.attrs["class_info"].keys()))
-        bounds = [
-            (class_values[i] + class_values[i + 1]) / 2
-            for i in range(len(class_values) - 1)
-        ]
-        bounds = [class_values[0] - 0.5] + bounds + [class_values[-1] + 0.5]
-        norm = matplotlib.colors.BoundaryNorm(bounds, self.attrs["cmap"].N)
-
-        im = self.plot.imshow(
-            ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False
-        )
-        # ax.set_aspect("equal")
-
-        legend_handles = []
-        class_names = []
-        for class_value, class_info in self.attrs["class_info"].items():
-            legend_handles.append(
-                plt.Rectangle(
-                    (0, 0), 1, 1, facecolor=class_info["color"], edgecolor="black"
-                )
-            )
-            class_names.append(class_info["name"])
-
-        legend_kwargs = legend_kwargs or {}
-        default_legend_kwargs = {
-            "bbox_to_anchor": (0.5, -0.1),
-            "loc": "upper center",
-            "ncol": len(class_names) // 3,
-            "frameon": False,
-            "handlelength": 3.5,
-            "handleheight": 5,
-        }
-        legend_kwargs = {**default_legend_kwargs, **legend_kwargs}
-
-        ax.legend(legend_handles, class_names, **legend_kwargs)
-
-        ax.set_xlabel("Longitude")
-        ax.set_ylabel("Latitude")
-        ax.set_title("Seasonal snow classification\nfrom Sturm & Liston 2021")
-        f.tight_layout(pad=1.5, w_pad=1.5, h_pad=1.5)
-        f.dpi = 300
-
-        return f, ax
-
-    # Convert the input to a GeoDataFrame if it's not already one
-    bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
-
-    open_params = {"chunks": True, "mask_and_scale": mask_nodata, **kwargs}
-    snow_classification_da = providers.raster_http.open(
-        "https://uwcryo.blob.core.windows.net/snowmelt/eric/snow_classification/SnowClass_GL_300m_10.0arcsec_2021_v01.0.tif",
-        squeeze=False,
-        **open_params,
+    return snow_classification.load(
+        bbox_input, source="hosted-cog", mask=mask_nodata, **kwargs
     )
-    snow_classification_da = snow_classification_da.rio.clip_box(
-        *bbox_gdf.total_bounds, crs=bbox_gdf.crs
-    ).squeeze()
-
-    if mask_nodata:
-        snow_classification_da.rio.write_nodata(9, encoded=True, inplace=True)
-    else:
-        snow_classification_da.rio.set_nodata(9, inplace=True)
-
-    snow_classification_da.attrs["class_info"] = get_class_info()
-    snow_classification_da.attrs["cmap"] = get_class_cmap(
-        snow_classification_da.attrs["class_info"]
-    )
-    snow_classification_da.attrs["data_citation"] = (
-        "Liston, G. E. and M. Sturm. (2021). Global Seasonal-Snow Classification, Version 1 [Data Set]. Boulder, Colorado USA. National Snow and Ice Data Center. https://doi.org/10.5067/99FTCYYYLAQ0. Date Accessed 03-06-2024."
-    )
-
-    snow_classification_da.attrs["example_plot"] = plot_classes
-
-    return snow_classification_da
 
 
 def get_seasonal_mountain_snow_mask(

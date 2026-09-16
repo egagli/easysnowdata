@@ -24,24 +24,20 @@ class TestSeasonalSnowClassification:
         result = get_seasonal_snow_classification(bbox_input=TEST_BBOX)
         assert isinstance(result, xr.DataArray)
 
-    def test_has_class_info(self):
+    def test_has_cf_flag_attributes(self):
+        from easysnowdata.remote_sensing import get_seasonal_snow_classification
+
+        # class_info/cmap/example_plot are replaced by CF flag attrs (§2.5).
+        result = get_seasonal_snow_classification(bbox_input=TEST_BBOX)
+        assert len(result.attrs["flag_values"]) == 9
+        assert result.attrs["flag_meanings"].split()[0] == "Tundra"
+        assert len(result.attrs["flag_colors"].split()) == 9
+
+    def test_reads_the_credential_free_hosted_cog(self):
         from easysnowdata.remote_sensing import get_seasonal_snow_classification
 
         result = get_seasonal_snow_classification(bbox_input=TEST_BBOX)
-        assert "class_info" in result.attrs
-        assert len(result.attrs["class_info"]) == 9
-
-    def test_has_cmap(self):
-        from easysnowdata.remote_sensing import get_seasonal_snow_classification
-
-        result = get_seasonal_snow_classification(bbox_input=TEST_BBOX)
-        assert "cmap" in result.attrs
-
-    def test_has_example_plot(self):
-        from easysnowdata.remote_sensing import get_seasonal_snow_classification
-
-        result = get_seasonal_snow_classification(bbox_input=TEST_BBOX)
-        assert callable(result.attrs.get("example_plot"))
+        assert result.attrs["source"] == "hosted-cog"
 
     def test_has_data_citation(self):
         from easysnowdata.remote_sensing import get_seasonal_snow_classification
@@ -56,8 +52,7 @@ class TestSeasonalSnowClassification:
             bbox_input=TEST_BBOX, chunks={"x": 64, "y": 64}
         )
         assert result.chunks is not None
-        assert max(result.chunks[result.get_axis_num("x")]) <= 64
-        assert max(result.chunks[result.get_axis_num("y")]) <= 64
+        assert max(max(sizes) for sizes in result.chunks) <= 64
 
 
 # ---------------------------------------------------------------------------
