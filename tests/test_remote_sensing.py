@@ -179,27 +179,33 @@ class TestNlcdLandcover:
 # Sentinel-2 (Planetary Computer — anonymous access; load is lazy)
 # ---------------------------------------------------------------------------
 class TestSentinel2:
+    """The old ``Sentinel2`` class is now a factory for optical.sentinel2.load."""
+
     pytestmark = pytest.mark.live
 
-    def test_kwargs_forwarded_to_odc_stac_load(self):
+    def test_returns_dataset_and_forwards_kwargs(self):
         from easysnowdata.remote_sensing import Sentinel2
 
         chunks = {"time": 1, "x": 256, "y": 256}
-        s2 = Sentinel2(
-            TEST_BBOX,
-            start_date="2023-08-01",
-            end_date="2023-08-10",
-            bands=["red", "scl"],
-            remove_nodata=False,
-            harmonize_to_old=False,
-            scale_data=False,
-            chunks=chunks,
-        )
-        assert s2.load_kwargs == {"chunks": chunks}
-        red = s2.data["red"]
+        with pytest.warns(DeprecationWarning):
+            s2 = Sentinel2(
+                TEST_BBOX,
+                start_date="2023-08-01",
+                end_date="2023-08-10",
+                bands=["red", "scl"],
+                remove_nodata=False,
+                harmonize_to_old=False,
+                scale_data=False,
+                resolution=60,
+                chunks=chunks,
+            )
+        assert isinstance(s2, xr.Dataset)
+        red = s2["red"]
+        assert red.dims == ("time", "y", "x")
         assert red.chunks is not None
         assert max(red.chunks[red.get_axis_num("x")]) <= 256
         assert max(red.chunks[red.get_axis_num("y")]) <= 256
+        assert s2.attrs["product_id"] == "sentinel-2-l2a"
 
 
 # ---------------------------------------------------------------------------

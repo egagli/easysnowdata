@@ -91,8 +91,7 @@ class TestRegistryContents:
             is esd.topography.get_copernicus_dem
         )
         assert (
-            catalog.get("sentinel-2-l2a").resolve_loader()
-            is esd.remote_sensing.Sentinel2
+            catalog.get("sentinel-2-l2a").resolve_loader() is esd.optical.sentinel2.load
         )
 
     def test_get_unknown(self):
