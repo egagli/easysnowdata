@@ -311,8 +311,11 @@ def load(
 def _load_arco(
     parsed: Any, time: Any, names: list[str] | None, chunks: Any, **kwargs: Any
 ) -> xr.Dataset:
+    # Open without Dask first. ARCO-ERA5 holds 273 variables on a 1940-onward
+    # hourly grid, so chunking before the variable and time subset builds a
+    # graph big enough to exhaust memory; the result is chunked below instead.
     open_kwargs: dict[str, Any] = {
-        "chunks": {} if chunks is None else chunks,
+        "chunks": None,
         "consolidated": True,
         **kwargs,
     }
@@ -340,8 +343,8 @@ def _load_arco(
     ds = _wrap_longitudes(
         ds, keep_0_360=bool(parsed is not None and parsed.crosses_antimeridian)
     )
-    if not ds.chunks:
-        ds = ds.chunk({} if chunks is None else chunks)
+    # Chunk the subset, not the store (§2.3: Dask-backed by default).
+    ds = ds.chunk({"time": 24} if chunks is None else chunks)
     kept = {k: v for k, v in ds.attrs.items() if k in ("longitude_convention",)}
     ds.attrs = {
         k: store_attrs[k]
