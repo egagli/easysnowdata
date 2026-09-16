@@ -95,6 +95,27 @@ STATIONS = [
         "has_daily_snwd": True,
     },
     {
+        # A periodic CCSS snow course: in the inventory, no archive CSV.
+        "code": "HNT",
+        "name": "HUNTINGTON LAKE",
+        "client": "cdec",
+        "network": None,
+        "network_code": "CCSS",
+        "latitude": 37.2,
+        "longitude": -119.2,
+        "elevation_m": 2134.0,
+        "state": "CA",
+        "operator": "CA DWR",
+        "data_provider": "CDEC (CA DWR)",
+        "status": "Active",
+        "is_active": True,
+        "daily_or_better": False,
+        "daily_verified": True,
+        "daily_provenance": "none",
+        "has_daily_swe": False,
+        "has_daily_snwd": False,
+    },
+    {
         # A periodic snow course: in the inventory, but with no archive CSV.
         "code": "08AA-SC01",
         "name": "Canyon Lake",

@@ -1,67 +1,128 @@
-"""Access SNOTEL and CCSS automatic weather station data.
+"""SNOTEL and CCSS station data — a shim over :mod:`easysnowdata.stations`.
 
-Data are hosted on the companion repository
-`egagli/snotel_ccss_stations <https://github.com/egagli/snotel_ccss_stations>`_
-and retrieved as individual CSV files or as a single compressed archive.
+.. deprecated:: 0.1.0
+    Use :func:`easysnowdata.stations.inventory` and
+    :func:`easysnowdata.stations.load` (or
+    :func:`easysnowdata.stations.archive.load`). ``StationCollection`` is kept
+    for one minor release and removed in 0.2.0.
 
-References
-----------
-- SNOTEL: https://www.nrcs.usda.gov/wps/portal/wcc/home/quicklinks/imap
-- CCSS: https://cdec.water.ca.gov/snow/current/snow/
+The data no longer comes from the frozen ``egagli/snotel_ccss_stations``
+archive: that route is gone, with no transition period (§12 Q9). Every call
+below now reaches the live AWDB and CDEC clients, or the daily archive
+``global_snow_networks`` publishes, through the Phase 3 adapter. What that
+changes, and what it does not:
+
+* **Station codes are unchanged.** ``679_WA_SNTL`` still means Paradise; the
+  adapter maps it to the AWDB triplet ``679:WA:SNTL`` on the way out.
+* **Variable names are unchanged.** ``WTEQ``, ``SNWD``, ``PRCPSA``, ``TAVG``,
+  ``TMIN`` and ``TMAX`` still name the columns, mapped to the standardized
+  types the networks speak (``swe``, ``snwd``, ``precip``, ``temp``,
+  ``temp_min``, ``temp_max``).
+* **Units are unchanged.** The old CSVs held metres and millimetres of water;
+  the networks emit centimetres and millimetres. The shim converts back, so
+  the numbers a notebook plots are the same ones it plotted before.
+* **The station list is larger and current.** It comes from the live
+  inventory rather than a 2024 snapshot, so stations added since then appear
+  and ``endDate`` reflects today.
+* **``TAVG`` is not the same quantity any more, and it warns.** The frozen
+  archive served AWDB's ``TAVG`` element, the daily *average* air temperature.
+  The vendored AWDB client does not carry that element — its ``temp`` type is
+  ``TOBS``, the instantaneous temperature at observation time — and it refuses
+  unknown element names rather than falling back. So ``TAVG`` now returns
+  ``TOBS``, which over one Paradise winter runs about 2.4 °C colder in the
+  mean. Every other variable is unchanged to within the centimetre the
+  networks report. ``TMIN`` and ``TMAX`` are unaffected. The fix belongs
+  upstream, in that client's ``VARIABLES`` registry.
 """
 
 from __future__ import annotations
 
-import datetime
-import glob
 import logging
-import pathlib
-import subprocess
+import warnings
+from typing import Any
 
 import geopandas as gpd
 import pandas as pd
-import tqdm
 import xarray as xr
 
-from easysnowdata import providers
-from easysnowdata.utils import (
-    convert_bbox_to_geodataframe,
-    datetime_to_DOWY,
-    datetime_to_WY,
-)
+from easysnowdata import stations as _stations
+from easysnowdata._deprecation import deprecated
+from easysnowdata.temporal import today
 
 __all__ = ["StationCollection"]
 
 _logger = logging.getLogger(__name__)
 
-_STATION_GEOJSON_URL = (
-    "https://github.com/egagli/snotel_ccss_stations/raw/main/all_stations.geojson"
-)
-_STATION_DATA_BASE_URL = (
-    "https://raw.githubusercontent.com/egagli/snotel_ccss_stations/main/data/"
-)
-_ARCHIVE_URL = "https://github.com/egagli/snotel_ccss_stations/raw/main/data/all_station_data.tar.lzma"
+_SINCE = "0.1.0"
+_REMOVE_IN = "0.2.0"
+
+#: The six names the old CSVs used -> the standardized type the networks use.
+VARIABLE_TYPES: dict[str, str] = {
+    "WTEQ": "swe",
+    "SNWD": "snwd",
+    "PRCPSA": "precip",
+    "TAVG": "temp",
+    "TMIN": "temp_min",
+    "TMAX": "temp_max",
+}
+
+#: Multiply the adapter's value by this to get the old CSVs' unit.
+#: SWE, snow depth and precipitation were metres of water / metres of snow;
+#: the networks emit centimetres (swe, snwd) and millimetres (precip).
+_TO_LEGACY_UNITS: dict[str, float] = {
+    "WTEQ": 0.01,  # cm -> m
+    "SNWD": 0.01,  # cm -> m
+    "PRCPSA": 0.001,  # mm -> m
+    "TAVG": 1.0,  # already °C
+    "TMIN": 1.0,
+    "TMAX": 1.0,
+}
+
+#: The networks this class has always meant by "SNOTEL and CCSS".
+_NETWORKS = ("awdb", "cdec")
+
+DEFAULT_VARIABLES = tuple(VARIABLE_TYPES)
+
+
+def _legacy_columns(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Rename the inventory's columns to the ones the old GeoJSON carried."""
+    out = gdf.copy()
+    if "network_code" in out.columns:
+        # The old file said "SNOTEL" or "CCSS"; the inventory keeps the
+        # network's own code (SNTL, MSNT, CCSS, SNOW, …).
+        out["network"] = [
+            "SNOTEL"
+            if str(code).startswith("SNTL")
+            else ("CCSS" if net == "cdec" else str(code))
+            for code, net in zip(out["network_code"], out["network"], strict=True)
+        ]
+    renames = {"begin_date": "beginDate", "end_date": "endDate"}
+    out = out.rename(columns={k: v for k, v in renames.items() if k in out.columns})
+    if "daily_or_better" in out.columns:
+        # `csvData` meant "this station has a data file in the archive", which
+        # is what `daily_or_better` decides now.
+        out["csvData"] = out["daily_or_better"].fillna(False).astype(bool)
+    return out
 
 
 class StationCollection:
     """A collection of SNOTEL and CCSS automatic weather stations.
 
-    Retrieves station metadata and time-series data from the
-    `egagli/snotel_ccss_stations <https://github.com/egagli/snotel_ccss_stations>`_
-    GitHub repository. Outputs are pandas DataFrames (single station) or
-    xarray Datasets (multiple stations).
+    .. deprecated:: 0.1.0
+        Use :func:`easysnowdata.stations.inventory` and
+        :func:`easysnowdata.stations.load`. Removed in 0.2.0.
 
     Parameters
     ----------
     data_available : bool, optional
-        If ``True`` (default), only include stations that have CSV data files.
+        If ``True`` (default), only include stations with a daily record —
+        which is what "has a CSV file" meant in the old archive.
     sortby_dist_to_geom : GeoDataFrame or tuple or shapely geometry, optional
         If provided, stations are sorted by distance to this geometry and a
         ``dist_km`` column is added to ``all_stations``.
     **kwargs
-        Additional keyword arguments passed to ``geopandas.read_file`` when
-        loading the station metadata GeoJSON (e.g. ``columns=[...]``,
-        ``engine="pyogrio"``).
+        Passed to ``geopandas.read_file`` when the station inventory is read
+        (e.g. ``rows=10``).
 
     Attributes
     ----------
@@ -76,32 +137,28 @@ class StationCollection:
 
     Examples
     --------
-    Single-station retrieval (returns a DataFrame):
-
-    >>> sc = StationCollection()
-    >>> sc.get_data(stations="679_WA_SNTL", variables=["WTEQ", "SNWD"],
-    ...             start_date="2020-10-01", end_date="2021-09-30")
-    >>> sc.data.head()
-
-    Multi-station retrieval (returns an xarray Dataset):
-
-    >>> sc = StationCollection()
-    >>> sc.get_data(stations=["679_WA_SNTL", "642_WA_SNTL"],
-    ...             variables=["WTEQ"],
-    ...             start_date="2022-01-01", end_date="2022-03-31")
-    >>> sc.data
+    >>> sc = StationCollection()                                  # doctest: +SKIP
+    >>> sc.get_data(stations="679_WA_SNTL", variables=["WTEQ"],
+    ...             start_date="2020-10-01", end_date="2021-09-30")  # doctest: +SKIP
 
     Notes
     -----
     Available variables: ``WTEQ`` (SWE), ``SNWD`` (snow depth),
     ``PRCPSA`` (accumulated precipitation), ``TAVG``, ``TMIN``, ``TMAX``.
+    Values are in metres and °C, as they were in the frozen archive.
     """
 
+    @deprecated(
+        "easysnowdata.stations.inventory and easysnowdata.stations.load",
+        since=_SINCE,
+        remove_in=_REMOVE_IN,
+        name="easysnowdata.automatic_weather_stations.StationCollection",
+    )
     def __init__(
         self,
         data_available: bool = True,
         sortby_dist_to_geom: gpd.GeoDataFrame | tuple | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         self.data_available = data_available
         self.sortby_dist_to_geom = sortby_dist_to_geom
@@ -112,59 +169,47 @@ class StationCollection:
         self.data: pd.DataFrame | xr.Dataset | None = None
         self.entire_data_archive: xr.Dataset | None = None
 
-        # Per-variable DataFrames populated by get_multiple_station_data
-        self.TAVG: pd.DataFrame | None = None
-        self.TMIN: pd.DataFrame | None = None
-        self.TMAX: pd.DataFrame | None = None
-        self.SNWD: pd.DataFrame | None = None
-        self.WTEQ: pd.DataFrame | None = None
-        self.PRCPSA: pd.DataFrame | None = None
+        for variable in VARIABLE_TYPES:
+            setattr(self, variable, None)
 
         self.get_all_stations()
 
     def get_all_stations(self) -> None:
-        """Fetch all station metadata from GitHub and populate ``all_stations``.
-
-        Optionally filters to stations with data files and sorts by distance
-        to ``sortby_dist_to_geom`` if provided. Keyword arguments given to the
-        constructor are forwarded to ``geopandas.read_file``.
+        """Fetch station metadata and populate ``all_stations``.
 
         Returns
         -------
         None
             Sets ``self.all_stations``.
         """
-        all_stations_gdf = providers.vector_http.read(
-            _STATION_GEOJSON_URL, **self.read_file_kwargs
-        ).set_index("code")
-
-        if self.data_available:
-            all_stations_gdf = all_stations_gdf[all_stations_gdf["csvData"]]
+        gdf = _stations.inventory(
+            networks=_NETWORKS,
+            daily_only=self.data_available,
+            source="archive",
+            **self.read_file_kwargs,
+        )
+        # The frozen file listed every SNOTEL station before every CCSS one;
+        # the live inventory is sorted by name across all networks. Restore
+        # the old grouping so code that indexed positionally still works.
+        gdf = gdf.sort_values(["network", gdf.index.name or "code"], kind="stable")
+        gdf = _legacy_columns(gdf)
 
         if self.sortby_dist_to_geom is not None:
-            _logger.info("Sorting stations by distance to provided geometry.")
-            geom_gdf = convert_bbox_to_geodataframe(self.sortby_dist_to_geom)
-            proj = "EPSG:32611"
-            all_stations_gdf["dist_km"] = (
-                all_stations_gdf.to_crs(proj).distance(
-                    geom_gdf.to_crs(proj).geometry.iloc[0]
-                )
-                / 1000
-            )
-            all_stations_gdf = all_stations_gdf.sort_values("dist_km")
+            from easysnowdata.aoi import parse_aoi  # noqa: PLC0415
 
-        self.all_stations = all_stations_gdf
-        _logger.info("Loaded %d stations into all_stations.", len(self.all_stations))
+            _logger.info("Sorting stations by distance to provided geometry.")
+            target = parse_aoi(self.sortby_dist_to_geom).footprint
+            proj = "EPSG:32611"
+            gdf["dist_km"] = (
+                gdf.to_crs(proj).distance(target.to_crs(proj).geometry.iloc[0]) / 1000
+            )
+            gdf = gdf.sort_values("dist_km")
+
+        self.all_stations = gdf
+        _logger.info("Loaded %d stations into all_stations.", len(gdf))
 
     def choose_stations(self, stations_input: gpd.GeoDataFrame | str | list) -> None:
-        """Select a subset of stations by code string, list of codes, or GeoDataFrame.
-
-        Parameters
-        ----------
-        stations_input : str, list of str, or geopandas.GeoDataFrame
-            Station code(s) to select (e.g. ``"679_WA_SNTL"`` or
-            ``["679_WA_SNTL", "642_WA_SNTL"]``), or a GeoDataFrame already
-            filtered from ``all_stations``.
+        """Select a subset of stations by code, list of codes, or GeoDataFrame.
 
         Returns
         -------
@@ -184,48 +229,37 @@ class StationCollection:
         variables: str | list | None = None,
         start_date: str = "1900-01-01",
         end_date: str | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """Fetch data for the given stations and variables.
 
         Dispatches to :meth:`get_single_station_data` or
-        :meth:`get_multiple_station_data` based on the number of stations
-        selected.
+        :meth:`get_multiple_station_data` based on how many stations are
+        selected, exactly as before.
 
         Parameters
         ----------
         stations : str, list of str, or GeoDataFrame, optional
-            Station code(s) to fetch. Default is ``"679_WA_SNTL"``
-            (Paradise, WA SNOTEL).
+            Station code(s) to fetch. Default ``"679_WA_SNTL"`` (Paradise, WA).
         variables : str or list of str, optional
-            Variable(s) to fetch. Defaults to all variables for a single
-            station, or ``WTEQ`` for multiple stations.
-        start_date : str, optional
-            ISO date string ``"YYYY-MM-DD"``. Default is ``"1900-01-01"``.
-        end_date : str, optional
-            ISO date string. Default is today's date.
+            Defaults to all six variables for a single station, or ``WTEQ``
+            for several.
+        start_date, end_date : str, optional
+            ISO date strings. *end_date* defaults to today.
         **kwargs
-            Additional keyword arguments passed to ``pandas.read_csv`` for each
-            station CSV (e.g. ``dtype={"WTEQ": "float32"}`` or
-            ``storage_options=...``). These take precedence over the defaults
-            used here (``index_col="datetime"``, ``parse_dates=True``).
+            Accepted for compatibility. ``dtype`` is applied to the result;
+            other ``pandas.read_csv`` arguments no longer have a CSV to act on
+            and are ignored with a warning.
 
         Returns
         -------
         None
             Sets ``self.data``.
         """
-        if end_date is None:
-            end_date = datetime.datetime.now().strftime("%Y-%m-%d")
-
         self.choose_stations(stations)
-
         if len(self.stations) == 1:
             self.get_single_station_data(
-                variables=variables,
-                start_date=start_date,
-                end_date=end_date,
-                **kwargs,
+                variables=variables, start_date=start_date, end_date=end_date, **kwargs
             )
         else:
             if variables is None:
@@ -244,63 +278,43 @@ class StationCollection:
         variables: list[str] | None = None,
         start_date: str = "1900-01-01",
         end_date: str | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """Fetch all (or selected) variables for the currently selected single station.
-
-        Parameters
-        ----------
-        variables : list of str, optional
-            Variable columns to keep. Defaults to all available variables.
-        start_date : str, optional
-            ISO date string. Default ``"1900-01-01"``.
-        end_date : str, optional
-            ISO date string. Defaults to today.
-        **kwargs
-            Additional keyword arguments passed to ``pandas.read_csv``. These
-            take precedence over the defaults used here (``index_col="datetime"``,
-            ``parse_dates=True``).
+        """Fetch variables for the currently selected single station.
 
         Returns
         -------
         None
-            Sets ``self.data`` to a :class:`pandas.DataFrame`.
+            Sets ``self.data`` to a :class:`pandas.DataFrame` indexed by
+            ``datetime``, one column per variable, in metres and °C.
         """
-        if end_date is None:
-            end_date = datetime.datetime.now().strftime("%Y-%m-%d")
-        if variables is None:
-            variables = ["WTEQ", "SNWD", "PRCPSA", "TAVG", "TMIN", "TMAX"]
-
-        station_code = self.stations.index[0]
-        url = f"{_STATION_DATA_BASE_URL}{station_code}.csv"
-        read_params = {"index_col": "datetime", "parse_dates": True, **kwargs}
-        df = pd.read_csv(url, **read_params)
-
-        drop_cols = [c for c in df.columns if c not in variables]
-        self.data = df.drop(columns=drop_cols).loc[start_date:end_date]
-        _logger.info("Loaded data for station %s.", station_code)
+        wanted = _variables(variables, default=list(VARIABLE_TYPES))
+        ds = self._load(wanted, start_date, end_date)
+        index = pd.DatetimeIndex(ds["time"].values, name="datetime")
+        # A variable the station does not serve is an empty column, which is
+        # what the frozen CSVs did — they carried all six headers regardless.
+        frame = pd.DataFrame(
+            {
+                name: (
+                    ds[name].isel(station=0).to_series().to_numpy()
+                    if name in ds.data_vars
+                    else float("nan")
+                )
+                for name in wanted
+            },
+            index=index,
+        )
+        self.data = _apply_dtype(frame, kwargs)
+        _logger.info("Loaded data for station %s.", self.stations.index[0])
 
     def get_multiple_station_data(
         self,
         variables: str | list[str] = "WTEQ",
         start_date: str = "1900-01-01",
         end_date: str | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """Fetch one or more variables for all currently selected stations.
-
-        Parameters
-        ----------
-        variables : str or list of str, optional
-            Variable(s) to retrieve. Default is ``"WTEQ"``.
-        start_date : str, optional
-            ISO date string. Default ``"1900-01-01"``.
-        end_date : str, optional
-            ISO date string. Defaults to today.
-        **kwargs
-            Additional keyword arguments passed to ``pandas.read_csv`` for each
-            station CSV. These take precedence over the defaults used here
-            (``index_col="datetime"``, ``parse_dates=True``).
 
         Returns
         -------
@@ -308,111 +322,140 @@ class StationCollection:
             Sets ``self.data`` to an :class:`xarray.Dataset` with water-year
             coordinates ``WY`` and ``DOWY``.
         """
-        if end_date is None:
-            end_date = datetime.datetime.now().strftime("%Y-%m-%d")
-        if isinstance(variables, str):
-            variables = [variables]
+        wanted = _variables(variables, default=["WTEQ"])
+        ds = self._load(wanted, start_date, end_date)
+        self.data = _apply_dtype(_to_legacy_dataset(ds, wanted, self.stations), kwargs)
+        for name in wanted:
+            setattr(self, name, self.data[name].to_pandas().T)
+        _logger.info("Loaded %s for %d stations.", wanted, len(self.stations))
 
-        read_params = {"index_col": "datetime", "parse_dates": True, **kwargs}
-        dataarrays = []
-        for variable in variables:
-            station_dict: dict[str, pd.Series] = {}
-            for station in tqdm.tqdm(self.stations.index, desc=variable):
-                try:
-                    url = f"{_STATION_DATA_BASE_URL}{station}.csv"
-                    tmp = pd.read_csv(url, **read_params)[variable]
-                    station_dict[station] = tmp
-                except Exception as exc:
-                    _logger.warning(
-                        "Failed to retrieve %s for %s: %s", variable, station, exc
-                    )
-
-            station_df = pd.DataFrame.from_dict(station_dict).loc[start_date:end_date]
-            setattr(self, variable, station_df)
-
-            da = (
-                station_df.to_xarray()
-                .to_dataarray(dim="station")
-                .rename(variable)
-                .rename({"datetime": "time"})
-            )
-            dataarrays.append(da)
-
-        ds = xr.merge(dataarrays)
-
-        for col in self.stations.columns:
-            ds = ds.assign_coords({col: ("station", self.stations[col])})
-
-        ds["time"] = pd.to_datetime(ds.time)
-        ds.coords["WY"] = ("time", pd.to_datetime(ds.time).map(datetime_to_WY))
-        ds.coords["DOWY"] = ("time", pd.to_datetime(ds.time).map(datetime_to_DOWY))
-
-        self.data = ds
-        _logger.info("Loaded %s for %d stations.", variables, len(self.stations))
+    def _load(
+        self, variables: list[str], start_date: str, end_date: str | None
+    ) -> xr.Dataset:
+        """The adapter call behind every ``get_*_data`` method, in legacy units."""
+        ds = _stations.load(
+            self.stations,
+            variables=[VARIABLE_TYPES[name] for name in variables],
+            time=(start_date, end_date or today()),
+        )
+        return _to_legacy_units(ds, variables)
 
     def get_entire_data_archive(
-        self, refresh: bool = True, temp_dir: str = "/tmp/", **kwargs
+        self, refresh: bool = True, temp_dir: str = "/tmp/", **kwargs: Any
     ) -> xr.Dataset:
-        """Download, decompress, and assemble the full station data archive.
+        """Every station's whole daily record.
+
+        .. deprecated:: 0.1.0
+            Use :func:`easysnowdata.stations.archive.load`.
 
         Parameters
         ----------
-        refresh : bool, optional
-            Re-download the archive even if it already exists locally.
-            Default is ``True``.
-        temp_dir : str, optional
-            Local directory for the downloaded archive. Default is ``"/tmp/"``.
+        refresh, temp_dir
+            Accepted for compatibility and ignored: the archive is cached by
+            the package (``EASYSNOWDATA_CACHE_DIR`` moves the cache).
         **kwargs
-            Additional keyword arguments passed to ``pandas.read_csv`` for each
-            CSV in the archive. These take precedence over the default used
-            here (``parse_dates=True``).
+            ``dtype`` is applied to the result; anything else is ignored.
 
         Returns
         -------
         xarray.Dataset
-            All variables for all stations with ``WY`` and ``DOWY`` coordinates.
-            Also stored as ``self.entire_data_archive``.
-
-        Notes
-        -----
-        The compressed archive is ~several hundred MB; allow a few minutes for
-        download and decompression on first run.
+            ``WTEQ`` and ``SNWD`` for every station, with ``WY`` and ``DOWY``
+            coordinates. The archive holds no precipitation or temperature;
+            use :meth:`get_data` for those.
         """
-        compressed_path = pathlib.Path(temp_dir, "all_station_data.tar.lzma")
-        decompressed_dir = pathlib.Path(temp_dir, "data")
+        ds = _stations.archive.load(self.all_stations)
+        ds = _to_legacy_units(ds, ["WTEQ", "SNWD"])
+        out = _to_legacy_dataset(ds, ["WTEQ", "SNWD"], self.all_stations)
+        self.entire_data_archive = _apply_dtype(out, kwargs)
+        _logger.info("Full archive loaded (%d stations).", out.sizes["station"])
+        return self.entire_data_archive
 
-        if not compressed_path.exists() or refresh:
-            _logger.info("Downloading archive to %s …", compressed_path)
-            subprocess.run(["wget", "-q", "-P", temp_dir, _ARCHIVE_URL], check=True)
 
-        if not decompressed_dir.exists() or refresh:
-            _logger.info("Decompressing archive …")
-            subprocess.run(
-                ["tar", "--lzma", "-xf", str(compressed_path), "-C", temp_dir],
-                check=True,
-            )
+_TAVG_WARNED = False
 
-        _logger.info("Building xarray.Dataset from decompressed CSVs …")
-        read_params = {"parse_dates": True, **kwargs}
-        datasets = []
-        for csv_file in glob.glob(str(decompressed_dir / "*.csv")):
-            station_name = pathlib.Path(csv_file).stem
-            df = (
-                pd.read_csv(csv_file, **read_params)
-                .rename(columns={"datetime": "time"})
-                .set_index("time")
-                .sort_index()
-            )
-            station_ds = df.to_xarray().assign_coords(station=station_name)
-            for col in self.all_stations.columns:
-                station_ds.coords[col] = self.all_stations.loc[station_name, col]
-            datasets.append(station_ds)
 
-        ds = xr.concat(datasets, dim="station", coords="all")
-        ds["time"] = pd.to_datetime(ds.time)
-        ds.coords["WY"] = ("time", pd.to_datetime(ds.time).map(datetime_to_WY))
-        ds.coords["DOWY"] = ("time", pd.to_datetime(ds.time).map(datetime_to_DOWY))
+def _warn_about_tavg() -> None:
+    """Say once that ``TAVG`` is a different element than it used to be."""
+    global _TAVG_WARNED  # noqa: PLW0603 — warn once per process
+    if _TAVG_WARNED:
+        return
+    _TAVG_WARNED = True
+    message = (
+        "TAVG no longer comes from AWDB's TAVG element (daily average air "
+        "temperature): the station clients do not carry it, so TAVG is now "
+        "TOBS, the instantaneous temperature at observation time. The two "
+        "differ by a couple of degrees in the mean. TMIN and TMAX are "
+        "unaffected, and easysnowdata.stations.load(variables=['temp_min', "
+        "'temp_max']) gives you those directly."
+    )
+    warnings.warn(message, UserWarning, stacklevel=3)
+    _logger.warning("%s", message)
 
-        self.entire_data_archive = ds
-        _logger.info("Full archive loaded (%d stations).", len(datasets))
-        return ds
+
+def _variables(variables: Any, *, default: list[str]) -> list[str]:
+    if variables is None:
+        return list(default)
+    wanted = [variables] if isinstance(variables, str) else list(variables)
+    unknown = [v for v in wanted if v not in VARIABLE_TYPES]
+    if unknown:
+        raise ValueError(
+            f"Unknown variable(s) {', '.join(unknown)}; this class serves "
+            f"{', '.join(VARIABLE_TYPES)}. easysnowdata.stations.load() serves "
+            "the full vocabulary."
+        )
+    if "TAVG" in wanted:
+        _warn_about_tavg()
+    return wanted
+
+
+def _to_legacy_units(ds: xr.Dataset, variables: list[str]) -> xr.Dataset:
+    """Rename the standardized types back to the old names, in the old units."""
+    out = xr.Dataset(coords=ds.coords, attrs=ds.attrs)
+    for name in variables:
+        type_name = VARIABLE_TYPES[name]
+        if type_name not in ds.data_vars:
+            continue
+        factor = _TO_LEGACY_UNITS[name]
+        values = ds[type_name] * factor if factor != 1.0 else ds[type_name]
+        values.attrs = {**ds[type_name].attrs, "units": _legacy_units(name)}
+        out[name] = values
+    return out
+
+
+def _legacy_units(name: str) -> str:
+    return "degC" if name.startswith("T") else "m"
+
+
+def _to_legacy_dataset(
+    ds: xr.Dataset, variables: list[str], stations: gpd.GeoDataFrame | None
+) -> xr.Dataset:
+    """The old multi-station shape: ``WY``/``DOWY`` coords and metadata columns."""
+    out = ds[[v for v in variables if v in ds.data_vars]]
+    if "water_year" in out.coords:
+        out = out.assign_coords(WY=out["water_year"], DOWY=out["dowy"])
+    if stations is not None:
+        for column in stations.columns:
+            if column == "geometry" or column in out.coords:
+                continue
+            values = stations[column].reindex([str(c) for c in out["station"].values])
+            out = out.assign_coords({column: ("station", values.to_numpy())})
+    return out
+
+
+def _apply_dtype(obj: Any, kwargs: dict[str, Any]) -> Any:
+    """Honour ``dtype=`` the way ``pandas.read_csv`` did; warn about the rest."""
+    dtype = kwargs.pop("dtype", None)
+    if kwargs:
+        _logger.warning(
+            "Ignoring %s: these were pandas.read_csv arguments, and the data "
+            "no longer comes from a CSV. See easysnowdata.stations.load().",
+            ", ".join(sorted(kwargs)),
+        )
+    if dtype is None:
+        return obj
+    if isinstance(obj, pd.DataFrame):
+        return obj.astype(dtype)
+    mapping = dtype if isinstance(dtype, dict) else dict.fromkeys(obj.data_vars, dtype)
+    return obj.assign(
+        {name: obj[name].astype(kind) for name, kind in mapping.items() if name in obj}
+    )

@@ -69,7 +69,7 @@ def test_inventory_is_indexed_by_code_and_carries_the_probe_verdict(local_archiv
     inv = archive.inventory()
     assert inv.index.name == "code"
     assert inv.crs.to_epsg() == 4326
-    assert set(inv.index) == {PARADISE_CODE, "QUA", "12.142.0", "08AA-SC01"}
+    assert set(inv.index) == {PARADISE_CODE, "QUA", "HNT", "12.142.0", "08AA-SC01"}
     assert inv.loc[PARADISE_CODE, "network"] == "awdb"
     assert inv.loc[PARADISE_CODE, "station_id"] == "679:WA:SNTL"
     assert bool(inv.loc[PARADISE_CODE, "daily_or_better"]) is True
@@ -102,6 +102,7 @@ def test_inventory_filters(local_archive):
     assert set(archive.inventory(networks=["awdb", "cdec"]).index) == {
         PARADISE_CODE,
         "QUA",
+        "HNT",
     }
     assert set(archive.inventory(RAINIER).index) == {PARADISE_CODE}
 

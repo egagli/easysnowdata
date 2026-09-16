@@ -232,7 +232,18 @@ def _from_frame(stations: Any) -> dict[str, list[str]] | None:
     columns = getattr(stations, "columns", None)
     if columns is None:
         return None
-    column = next((c for c in ("network", "client") if c in columns), None)
+    # Prefer whichever column actually holds network ids. `network` is this
+    # package's name for the access path and `client` is global_snow_networks',
+    # but a frame can carry a `network` column meaning something else — the
+    # published inventory's Yukon display name, or the "SNOTEL"/"CCSS" labels
+    # the automatic_weather_stations shim restores.
+    candidates = [c for c in ("network", "client") if c in columns]
+    column = next(
+        (c for c in candidates if set(stations[c].dropna()) <= set(NETWORKS)),
+        None,
+    )
+    if column is None:
+        column = candidates[0] if candidates else None
     if column is None:
         return None
     index = stations.index
