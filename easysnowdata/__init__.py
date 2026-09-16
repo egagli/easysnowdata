@@ -31,6 +31,11 @@ __all__ = [
     "hydroclimatology",
     "authenticate_all",
     "CredentialError",
+    # Phase 2a — static product themes
+    "terrain",
+    "land",
+    "snow",
+    "hydro",
 ]
 
 from easysnowdata import (
@@ -39,12 +44,16 @@ from easysnowdata import (
     automatic_weather_stations,
     catalog,
     config,
+    hydro,
     hydroclimatology,
+    land,
     plotting,
     processing,
     providers,
     remote_sensing,
+    snow,
     temporal,
+    terrain,
     topography,
     utils,
 )
