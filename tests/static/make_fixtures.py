@@ -141,6 +141,22 @@ def make_categorical_cog(
     return _write_cog(path, data, nodata=nodata, bounds=bounds)
 
 
+def make_continuous_cog(
+    path: Path,
+    *,
+    low: int = 0,
+    high: int = 100,
+    nodata: int = 255,
+    dtype: str = "uint8",
+    size: int = 48,
+) -> Path:
+    """A uint8 COG of a 0-100 fraction with a nodata corner."""
+    y, x = np.mgrid[0:size, 0:size]
+    data = (low + (high - low) * (x + y) / (2 * (size - 1))).astype(dtype)
+    data[:4, :4] = nodata
+    return _write_cog(path, data, nodata=nodata)
+
+
 def make_worldcover_tiles(directory: Path) -> tuple[Path, Path, Path]:
     """Two side-by-side WorldCover-like tiles plus a grid GeoJSON naming them."""
     import geopandas as gpd
@@ -176,6 +192,10 @@ def make_all(directory: Path) -> dict[str, Path]:
     item = make_stac_item(out["dem_cog"], nodata=-32767.0)
     out["dem_item"] = directory / "dem_item.json"
     out["dem_item"].write_text(json.dumps(item))
+
+    out["forest_cog"] = make_continuous_cog(
+        directory / "forest_cover.tif", low=0, high=100, nodata=255
+    )
 
     left, right, grid = make_worldcover_tiles(directory)
     out["worldcover_left"] = left

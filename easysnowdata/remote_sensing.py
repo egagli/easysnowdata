@@ -22,7 +22,7 @@ import xarray as xr
 
 from easysnowdata import auth, providers, temporal
 from easysnowdata._deprecation import deprecated
-from easysnowdata.land import landcover, nlcd
+from easysnowdata.land import forest_cover, landcover, nlcd
 from easysnowdata.utils import (
     _EARTHACCESS_SETUP_MSG,
     CredentialError,
@@ -89,6 +89,13 @@ def authenticate_all():
     _logger.info("Google Earth Engine: done.")
 
 
+@deprecated(
+    "easysnowdata.land.forest_cover.load",
+    since="0.1.0",
+    remove_in="0.2.0",
+    name="easysnowdata.remote_sensing.get_forest_cover_fraction",
+    extra="The example_plot attr is gone; the data carries units and a long_name.",
+)
 def get_forest_cover_fraction(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -100,9 +107,10 @@ def get_forest_cover_fraction(
     """
     Fetches ~100m forest cover fraction data for a given bounding box.
 
-    Description:
-    The data is obtained from the Copernicus Global Land Service: Land Cover 100m: collection 3: epoch 2019: Globe dataset.
-    The specific layer used is the Tree-CoverFraction-layer, which provides the fractional cover (%) for the forest class.
+    .. deprecated:: 0.1.0
+        Use :func:`easysnowdata.land.forest_cover.load`, which masks the 255
+        sentinel by default and adds the Earth Engine epochs
+        (``source="gee"``, ``time=``).
 
     Parameters
     ----------
@@ -113,28 +121,14 @@ def get_forest_cover_fraction(
         If False: (dtype=uint8, rio.nodata=255, rio.encoded_nodata=None)
         If True: (dtype=float32, rio.nodata=nan, rio.encoded_nodata=255)
     **kwargs
-        Additional keyword arguments passed to ``rioxarray.open_rasterio`` (e.g.
-        ``chunks={"x": 1024, "y": 1024}``). These take precedence over the
-        defaults used here (``chunks=True``, ``mask_and_scale=mask_nodata``).
+        Additional keyword arguments passed to
+        :func:`easysnowdata.land.forest_cover.load` (and on to
+        ``rioxarray.open_rasterio``).
 
     Returns
     -------
     xarray.DataArray
-        Forest cover fraction DataArray.
-
-    Examples
-    --------
-    >>> import geopandas as gpd
-    >>> from easysnowdata import remote_sensing
-    >>>
-    >>> # Define a bounding box for an area of interest
-    >>> bbox = (-122.5, 47.0, -121.5, 48.0)
-    >>>
-    >>> # Fetch forest cover fraction data
-    >>> forest_cover = remote_sensing.get_forest_cover_fraction(bbox)
-    >>>
-    >>> # Plot the data using the example plot function
-    >>> f, ax = forest_cover.attrs['example_plot'](forest_cover)
+        Forest cover fraction DataArray, in percent.
 
     Notes
     -----
@@ -142,49 +136,7 @@ def get_forest_cover_fraction(
     Marcel Buchhorn, Bruno Smets, Luc Bertels, Bert De Roo, Myroslava Lesiv, Nandin-Erdene Tsendbazar, Martin Herold, & Steffen Fritz. (2020).
     Copernicus Global Land Service: Land Cover 100m: collection 3: epoch 2019: Globe (V3.0.1) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.3939050
     """
-
-    def plot_forest_cover(self, ax=None, figsize=(8, 10), legend_kwargs=None):
-        if ax is None:
-            f, ax = plt.subplots(figsize=figsize)
-        else:
-            f = ax.get_figure()
-
-        cmap = matplotlib.colormaps.get_cmap("Greens").copy()
-        cmap.set_over("white")  # Set values over 100 (i.e., 255) to white
-
-        im = self.plot.imshow(ax=ax, cmap=cmap, vmin=0, vmax=100, add_colorbar=False)
-
-        cbar = plt.colorbar(im, ax=ax, extend="max")
-        cbar.set_label("Forest Cover Fraction (%)")
-
-        ax.set_xlabel("Longitude")
-        ax.set_ylabel("Latitude")
-        ax.set_title(
-            "Copernicus Global Land Service Forest Cover Fraction\nLand Cover 100m: collection 3: epoch 2019"
-        )
-        f.tight_layout(pad=1.5, w_pad=1.5, h_pad=1.5)
-        f.dpi = 300
-
-        return f, ax
-
-    # Convert the input to a GeoDataFrame if it's not already one
-    bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
-
-    open_params = {"chunks": True, "mask_and_scale": mask_nodata, **kwargs}
-    fcf_da = providers.raster_http.open(
-        "https://zenodo.org/record/3939050/files/PROBAV_LC100_global_v3.0.1_2019-nrt_Tree-CoverFraction-layer_EPSG-4326.tif",
-        squeeze=False,
-        **open_params,
-    )
-
-    fcf_da = fcf_da.rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs).squeeze()
-
-    fcf_da.attrs["example_plot"] = plot_forest_cover
-    fcf_da.attrs["data_citation"] = (
-        "Marcel Buchhorn, Bruno Smets, Luc Bertels, Bert De Roo, Myroslava Lesiv, Nandin-Erdene Tsendbazar, Martin Herold, & Steffen Fritz. (2020). Copernicus Global Land Service: Land Cover 100m: collection 3: epoch 2019: Globe (V3.0.1) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.3939050"
-    )
-
-    return fcf_da
+    return forest_cover.load(bbox_input, mask=mask_nodata, **kwargs)
 
 
 def get_seasonal_snow_classification(

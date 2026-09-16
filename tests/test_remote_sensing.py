@@ -87,6 +87,13 @@ class TestForestCoverFraction:
         valid = result.values[~np.isnan(result.values.astype(float))]
         assert valid.min() >= 0
 
+    def test_mask_nodata_still_masks(self):
+        from easysnowdata.remote_sensing import get_forest_cover_fraction
+
+        result = get_forest_cover_fraction(bbox_input=TEST_BBOX, mask_nodata=True)
+        assert result.dtype == "float32"
+        assert result.rio.encoded_nodata == 255
+
     def test_kwargs_forwarded_to_open_rasterio(self):
         from easysnowdata.remote_sensing import get_forest_cover_fraction
 
