@@ -45,6 +45,9 @@ dependencies = [
     "xee>=0.1",
     "beautifulsoup4",
     "earthaccess>=0.17",
+    # PlanetScope and SkySat access (Data API search, Orders API clip); one
+    # install, no extras (REVAMP_PLAN Q13), so it is a required dependency.
+    "planet>=3.6",
     "pooch",
     "pyyaml",
     "requests",
@@ -192,6 +195,8 @@ earthengine-api = "*"
 xee = ">=0.1"
 beautifulsoup4 = "*"
 earthaccess = ">=0.17"
+# PlanetScope and SkySat access (Data API search, Orders API clip)
+planet = ">=3.6"
 pooch = "*"
 pyyaml = "*"
 requests = "*"
