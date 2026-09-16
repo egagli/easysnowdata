@@ -24,7 +24,6 @@ funded to 2026-10-26), which is why it is one entry here.
 from __future__ import annotations
 
 import logging
-import shutil
 from functools import partial
 from pathlib import Path
 from typing import Any
@@ -109,7 +108,8 @@ def _fetch_nsidc(name: str) -> Path:
         response.raise_for_status()
         partial_path = target.with_suffix(target.suffix + ".part")
         with partial_path.open("wb") as handle:
-            shutil.copyfileobj(response.raw, handle)
+            for chunk in response.iter_content(chunk_size=8 * 1024 * 1024):
+                handle.write(chunk)
     partial_path.replace(target)
     return target
 

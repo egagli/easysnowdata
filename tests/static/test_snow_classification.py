@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import io
-
 import numpy as np
 import pytest
 import xarray as xr
@@ -35,12 +33,15 @@ def fake_earthdata(static_fixtures, monkeypatch, tmp_path):
     class Response:
         def __init__(self, url):
             self.status_code = 404 if "nope" in url else 200
-            body = (
+            self._body = (
                 static_fixtures["snow_class_cog"].read_bytes()
                 if self.status_code == 200
                 else b""
             )
-            self.raw = io.BytesIO(body)
+
+        def iter_content(self, chunk_size=1):
+            for start in range(0, len(self._body), chunk_size):
+                yield self._body[start : start + chunk_size]
 
         def raise_for_status(self):
             if self.status_code >= 400:
