@@ -982,6 +982,38 @@ vectorized functions (adopt the `global_snow_networks` implementation as the sin
 `water_year` and `dowy` coordinates, and teach the `resample(time="YS-OCT")` idiom in the
 Concepts page for aggregation. The old names stay as aliases through the shim release.
 
+### 12.2 Phase 2a caveats: static products (recorded 2026-09-16)
+
+Things the plan did not settle, found while migrating terrain, land, snow (static) and
+hydro. Each says what the code does today, so a later reader can change it deliberately
+rather than discover it.
+
+| # | Caveat | What the code does | Where it is recorded |
+| --- | --- | --- | --- |
+| A | **The NLCD default is ambiguous in this plan.** §4.4 says Annual NLCD should be the default (`source="annual"`); the companion's Tier 1 table says the official 2021 release is the default with Annual NLCD as the alternative | §4.4 wins: the default source is Annual NLCD, with the source id **`gee-annual`** (not `annual`, so it reads parallel to the other `gee` route). `source="gee"` is the 2021 release and is what the `get_nlcd_landcover` shim uses, so old calls are unchanged. **Needs Eric**: confirm the default, then fix whichever document is wrong | this row; `easysnowdata/land/nlcd.py` docstring says *why* Annual is the default but not that the two documents disagree |
+| B | **Only one NSIDC-0768 file name is verified.** Every path under the NSIDC HTTPS directory redirects to Earthdata Login, including deliberately wrong ones, so file existence cannot be probed without credentials | The 10 arcsec global name is confirmed (the hosted COG carries the same name). The 2.5 arcmin, 5 arcmin and 30 arcmin grids and the `NA` regional subset follow the documented convention and are **unverified**; a wrong name surfaces as a `FileNotFoundError` naming the directory and `source="hosted-cog"`. Worth one run of `esd.snow.snow_classification.load(aoi, resolution=...)` per grid with credentials | this row; the naming scheme is in `RESOLUTIONS` and `filename()` |
+| C | **The Wrzesien clouds layer has no documented class meanings.** The Zenodo record defines the two class rasters but not the cloud layer, whose values run 0-6 | It is served as a continuous level rather than a categorical variable: no CF flag attrs, and `long_name` says the levels are undefined upstream | already in the code (module docstring, `layer=` docs, the catalog `Variable`, and the `long_name` attr on the data) |
+| D | **`chunks=None` is ambiguous.** In odc-stac and rioxarray `chunks=None` means "load eagerly", but a loader also needs a value meaning "the package default" | Every Phase 2a loader takes a `DEFAULT` sentinel for the package default (Dask at the source's native chunking) and treats an explicit `chunks=None` as "compute now", which keeps the old `get_copernicus_dem(chunks=None)` behaviour. Any new loader should follow this | already in the code (the docstring of every loader) |
+
+Two more, for whoever finishes the merge:
+
+- **The output-contract helpers are duplicated once per theme** (`terrain/_common.py`,
+  `land/_common.py`, `snow/_common.py`, `hydro/_common.py`), because the parallel-session
+  rules let a session create only its own theme directories. A parametrized test asserts
+  all four behave identically. Fold them into the shared helper Phase 2b added
+  (`processing/contract.py` plus `catalog/_access.py`).
+- **`snow.mountain_snow_mask.repair_fill_values` belongs in `processing.snow`** (§4.3 calls
+  it a processing fix). It sits in the theme module only to avoid racing Phase 2b for that
+  file. It repairs the published 256/265 nodata, which otherwise widens a 4-class byte
+  raster to uint32.
+
+A source note worth keeping with §4.7: the **USGS WBD ArcGIS REST service needs paging and
+retries**. Its `maxRecordCount` is 2000, but any page that takes too long comes back as
+HTTP 500 with an HTML body — a single HUC12 query over a 2°×2° box failed after 93 s, and
+pages past the first few fail even at 100 features. The loader pages in small blocks,
+rounds coordinates with `geometryPrecision`, retries each page, and follows
+`exceededTransferLimit`.
+
 ---
 
 ## 13. Notes to file in the knowledge bases (proposed, not yet filed)
