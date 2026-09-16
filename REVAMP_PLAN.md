@@ -394,11 +394,11 @@ open, and a 2026-04 discussion reports Sentinel-2 ingestion lag).
 
 | Product | Today | Status | Proposal |
 | --- | --- | --- | --- |
-| Sentinel-2 L2A | PC `sentinel-2-l2a` (default) or Earth Search `sentinel-2-l2a` / `sentinel-2-c1-l2a`; own YAML `stac_cfg`; baseline harmonization; SCL masking; RGB percentile/CLAHE | ✅ works | Keep both catalogs as sources. Earth Search v1 verified: `sentinel-2-l2a`, `sentinel-2-l1c`, `sentinel-2-c1-l2a`, `sentinel-2-pre-c1-l2a` (baseline < 05.00, same schema as c1); its items carry `raster:bands` (`nodata 0`, `uint16`, `scale 0.0001`, `offset -0.1`) and `eo:bands.common_name`, so **no `stac_cfg` is needed there** and scale/offset can be applied from metadata. PC still has only `sentinel-2-l2a` (no Collection-1) and could not be checked live; historically its items lack `raster:bands`, so keep the `stac_cfg` fallback for PC only. Add **Copernicus Data Space / EOPF Sentinel-2 Zarr** as an experimental third source once its STAC is stable 🔍 (CDSE needs its own credentials). Move harmonization, SCL mask, indices, RGB to `processing`. Keep the PC-vs-Earth-Search comparison as a gallery example. |
+| Sentinel-2 L2A | PC `sentinel-2-l2a` (default) or Earth Search `sentinel-2-l2a` / `sentinel-2-c1-l2a`; own YAML `stac_cfg`; baseline harmonization; SCL masking; RGB percentile/CLAHE | ✅ works | Keep both catalogs as sources. Earth Search v1 verified: `sentinel-2-l2a`, `sentinel-2-l1c`, `sentinel-2-c1-l2a`, `sentinel-2-pre-c1-l2a` (baseline < 05.00, same schema as c1); its items carry `raster:bands` (`nodata 0`, `uint16`, `scale 0.0001`, `offset -0.1`) and `eo:bands.common_name`, so **no `stac_cfg` is needed there** and scale/offset can be applied from metadata (⚠️ but see §13.1 C1: Earth Search `sentinel-2-l2a` has already removed the baseline offset from the pixels while still advertising `offset: -0.1`, so the item property `earthsearch:boa_offset_applied` — not `raster:bands` — decides whether to subtract it). PC still has only `sentinel-2-l2a` (no Collection-1) and could not be checked live; historically its items lack `raster:bands`, so keep the `stac_cfg` fallback for PC only (⚠️ §13.1 C2: the legacy `get_stac_cfg` keyed per-asset entries by band alias, which `odc-stac` never matches, so the overrides silently did nothing — key them by asset name). Add **Copernicus Data Space / EOPF Sentinel-2 Zarr** as an experimental third source once its STAC is stable 🔍 (CDSE needs its own credentials). Move harmonization, SCL mask, indices, RGB to `processing`. Keep the PC-vs-Earth-Search comparison as a gallery example. |
 | HLS L30/S30 v2.0 | CMR-STAC `LPCLOUD`, `HLSL30_2.0`/`HLSS30_2.0`, EDL via GDAL netrc + cookie file at import, per-item XML metadata fetch | ⚠️ works; #5, #6 | Ids and both CMR-STAC roots verified current (also `HLSL30_VI_2.0` / `HLSS30_VI_2.0` vegetation-index products). PC has an `hls2` dataset folder in `planetary-computer-tasks` (no-credential alternative) 🔍 collection ids once PC is back. Replace per-item XML scraping with STAC properties. Fmask bit decoding → `processing.optical.decode_fmask`. Auth via `auth.earthdata` context manager so Dask workers inherit GDAL config (fixes #5). |
 | Landsat C2 L2 | not implemented | — | Cheap to add via `providers.stac`: Earth Search `landsat-c2-l2` (verified), PC `landsat-c2-l2`, or USGS `https://landsatlook.usgs.gov/stac-server` (requester-pays S3), which also has **`landsat-c2l3-fsca`, a fractional snow cover product**. Useful for pre-2015 snow cover. |
 | MODIS surface reflectance / VIIRS | not implemented (#11) | — | Backlog; VIIRS `VNP09GA` via GEE or `earthaccess`. |
-| **PlanetScope (PSScene, 3 m, 4/8-band) and SkySat (50 cm)** — Planet Labs | not in the package. A rough `PlanetData` class lives in the untracked `docs/examples/sandbox.ipynb` (Data API v1 quick-search with geometry/date/cloud filters → per-item asset activation and polling → `rioxarray.open_rasterio` on the full-scene GeoTIFF → `clip_box` → `xr.concat` over time, plus a folium preview using the `tiles.planet.com` XYZ endpoint), and six `ortho_analytic_4b` scenes it downloaded (3.6 GB, untracked, 2023-07-01 over the Rainier AOI: 4-band uint16, EPSG:32610, 3 m, COG layout, nodata 0, 555–675 MB each) | 🆕 asked for on 2026-09-15 (§12 Q17); nothing to break yet | Ship in Phase 2 as `optical.planetscope` on a new `providers.planet` built on the **`planet` SDK 3.x** (3.6.0 on PyPI and conda-forge, checked 2026-09-15; sync `Planet()` client with `.data`, `.orders`, `.subscriptions`, `.features`, `.mosaics`). **Search** with the Data API (`pl.data.search(item_types=["PSScene"], search_filter=...)`; return the items as a GeoDataFrame like every other `search_*`). **Load** by default through the **Orders API with the `clip` tool** (plus `harmonize`/`composite` on request), so Planet delivers COGs cut to the AOI: the sandbox route activates and streams whole 600 MB strips to clip a 0.4°×0.3° box, which is what burns an Education & Research quota and is where its `ChunkedEncodingError`s came from. Keep the Data API asset read as `source="data-api"` for single-scene quick looks. Decode the **UDM2** usable-data mask (it has clear/snow/shadow/haze/cloud bands) in `processing.optical.decode_udm2` — the snow band is directly useful. Analysis-Ready PlanetScope (daily, harmonized) and Planetary Variables come through the Subscriptions API and stay Tier 3 until there is a use. Credentials via the `planet` auth provider (§5). Tests: recorded Data API responses for the unit tier; the live smoke test only *searches* (free) behind `requires_planet`; ordering tests are manual because they spend quota. Health probe: an authenticated `GET https://api.planet.com/data/v1/` (no quota). Licence: Planet imagery is not redistributable, so no scene crops go in git unless the E&R licence allows it `[needs Eric]`; the local scenes can seed a synthetic fixture instead. Companion §B.11 compares the access routes. |
+| **PlanetScope (PSScene, 3 m, 4/8-band) and SkySat (50 cm)** — Planet Labs | not in the package. A rough `PlanetData` class lives in the untracked `docs/examples/sandbox.ipynb` (Data API v1 quick-search with geometry/date/cloud filters → per-item asset activation and polling → `rioxarray.open_rasterio` on the full-scene GeoTIFF → `clip_box` → `xr.concat` over time, plus a folium preview using the `tiles.planet.com` XYZ endpoint), and six `ortho_analytic_4b` scenes it downloaded (3.6 GB, untracked, 2023-07-01 over the Rainier AOI: 4-band uint16, EPSG:32610, 3 m, COG layout, nodata 0, 555–675 MB each) | 🆕 asked for on 2026-09-15 (§12 Q17); nothing to break yet | Ship in Phase 2 as `optical.planetscope` on a new `providers.planet` built on the **`planet` SDK 3.x** (3.6.0 on PyPI and conda-forge, checked 2026-09-15; sync `Planet()` client with `.data`, `.orders`, `.subscriptions`, `.features`, `.mosaics`). **Search** with the Data API (`pl.data.search(item_types=["PSScene"], search_filter=...)`; return the items as a GeoDataFrame like every other `search_*`). **Load** by default through the **Orders API with the `clip` tool** (plus `harmonize`/`composite` on request), so Planet delivers COGs cut to the AOI: the sandbox route activates and streams whole 600 MB strips to clip a 0.4°×0.3° box, which is what burns an Education & Research quota and is where its `ChunkedEncodingError`s came from. Keep the Data API asset read as `source="data-api"` for single-scene quick looks. Decode the **UDM2** usable-data mask (it has clear/snow/shadow/haze/cloud bands) in `processing.optical.decode_udm2` — the snow band is directly useful. Analysis-Ready PlanetScope (daily, harmonized) and Planetary Variables come through the Subscriptions API and stay Tier 3 until there is a use. Credentials via the `planet` auth provider (§5). Tests: recorded Data API responses for the unit tier; the live smoke test only *searches* (free) behind `requires_planet`; ordering tests are manual because they spend quota. Health probe: an authenticated `GET https://api.planet.com/data/v1/` (no quota). Licence: Planet imagery is not redistributable, so no scene crops go in git unless the E&R licence allows it `[needs Eric]`; the local scenes can seed a synthetic fixture instead. Companion §B.11 compares the access routes. ⚠️ Caveats from the implementation (§13): no Planet capability has been verified against the live API for want of a `PL_API_KEY` (§13.3 G1), and the SDK's `order_request.product()` fetches the bundle spec over the network while *building* a request, so we build the product dict locally (§13.2 S1). |
 
 ### 4.3 Snow products
 
@@ -406,7 +406,7 @@ open, and a 2026-04 discussion reports Sentinel-2 ingestion lag).
 | --- | --- | --- | --- |
 | MODIS snow cover MOD10A1 / MOD10A2 | PC `modis-10A1-061` / `modis-10A2-061` | ❌ likely stale: PC reportedly stopped archiving MOD10A2 ~2025-06 (Eric's own finding); PC unreachable during the check 🔍 | Default source → **NSIDC via `earthaccess`**: `MOD10A1`, `MOD10A2`, `MYD10A1` v61 are all cloud-hosted (`NSIDC_CPRD`, us-west-2, HDF-EOS/HDF4 → download to a cache, open GDAL subdatasets with `rioxarray`, parse the date from `.AYYYYDDD.`). Keep PC as an optional historical source. Add **VIIRS `VNP10A1` / `VNP10A1F` v2 (375 m)** as the successor products (both cloud-hosted). `get_binary_snow` → `processing.snow.binary_snow(da, product=...)` using the class table. |
 | MOD10A1F (cloud-gap-filled) | `earthaccess.download` to `/tmp/local_folder`, `cloud_hosted=False`, no `login()` | ⚠️ stale flags; probably broken on `earthaccess` ≥ 0.16 | Cloud-hosted since the NSIDC migration (3 M granules, `s3://nsidc-cumulus-prod-protected/MODIS/MOD10A1F/61/...`); use `cloud_hosted=True`, explicit login via `auth.earthdata`, a platform cache dir via `pooch`. `MYD10A1F` (Aqua) is available too. |
-| SNODAS | GEE community asset `projects/climate-engine/snodas/daily` (Climate Engine, not official catalog, ~1-day lag) | ⚠️ works; non-authoritative mirror, GEE creds | Add **NSIDC G02158 direct** as a second, credential-free source: `https://noaadata.apps.nsidc.org/NOAA/G02158/{masked,unmasked}/YYYY/MM_Mon/SNODAS_YYYYMMDD.tar`, each tar holding `us_ssmv1*.dat.gz` + `.txt.gz` header pairs; a small reader that streams one day's tar and builds the raster from the header. No COG/Zarr mirror exists (verified by search; GEE is the only cloud copy). Document authoritative vs convenient. |
+| SNODAS | GEE community asset `projects/climate-engine/snodas/daily` (Climate Engine, not official catalog, ~1-day lag) | ⚠️ works; non-authoritative mirror, GEE creds | Add **NSIDC G02158 direct** as a second, credential-free source: `https://noaadata.apps.nsidc.org/NOAA/G02158/{masked,unmasked}/YYYY/MM_Mon/SNODAS_YYYYMMDD.tar`, each tar holding `us_ssmv1*.dat.gz` + `.txt.gz` header pairs; a small reader that streams one day's tar and builds the raster from the header. No COG/Zarr mirror exists (verified by search; GEE is the only cloud copy). Document authoritative vs convenient. ⚠️ SNODAS SWE is int16 millimetres and **saturates at 32767 mm over glaciers** (§13.2 S2); values are passed through untouched and the artefact is documented on the loader. |
 | UCLA WUS snow reanalysis | `earthaccess` cloud-hosted, `open_mfdataset`, no explicit `login()` | ⚠️ probably broken on `earthaccess` ≥ 0.16 (test skipped for months) | Keep the route (`WUS_UCLA_SR` v1, 27 k NetCDF granules, WY1985–2021; no v2 and no global version exist); add explicit login; add the sibling **`HMA_SR_D` v1** (High Mountain Asia) as a second region; fix the `stats=` mapping bug (`"median"` and `"25pct"` both map to index 2). |
 | Sturm & Liston 2021 snow classification | GeoTIFF on UW Azure blob | ⚠️ hosting will change (see §1.2) | Decided: **default source becomes NSIDC-0768 with Earthdata Login** (authoritative; not cloud-hosted, its HTTPS directory redirects to URS, so it goes through `auth.earthdata` and a `pooch` cache), with `source="hosted-cog"` as the credential-free option. **The hosted COG stays on the `uwcryo` blob for now** (Eric, 2026-09-15); its URL is a single catalog entry so moving it later (Zenodo record, GitHub release asset) is a one-line change plus a health-probe run. The catalog page carries a "location likely to change" note. Class table → CF flags. |
 | Wrzesien 2019 mountain snow mask | `zip+https://zenodo…` GeoTIFF | ✅ works, slow (full zip download per call) | Zenodo 2626737 verified live (`MODIS_mtnsnow_classes.zip`, `MODIS_snow_classes.zip`, `MODIS_clouds.zip`). Keep source; add `pooch` caching; expose the clouds layer; document the 256/265 nodata quirk as a `processing` fix. |
@@ -433,7 +433,7 @@ open, and a 2026-04 discussion reports Sentinel-2 ingestion lag).
 
 | Product | Today | Status | Proposal |
 | --- | --- | --- | --- |
-| ERA5 hourly | ARCO-ERA5 Zarr on GCS (`full_37-1h-0p25deg-chunk-1.zarr-v3`) | ✅ works | Verified live: public, Zarr v2 with consolidated metadata, `valid_time_start` 1940-01-01, final ERA5 to 2026-05-31, **ERA5T to 2026-09-09**, `last_updated` 2026-09-15 (so ~1 week latency via ERA5T, ~3 months for final). Keep as default; expose the ERA5/ERA5T boundary in attrs. Alternatives worth listing as sources: **Earthmover Icechunk ERA5** (`s3://earthmover-icechunk-era5/icechunkV2`, anonymous, 1940–2025, quarterly updates), **NCAR ERA5 on AWS** (`s3://nsf-ncar-era5`, NetCDF, 3–4 month lag; the old `era5-pds` is deprecated). |
+| ERA5 hourly | ARCO-ERA5 Zarr on GCS (`full_37-1h-0p25deg-chunk-1.zarr-v3`) | ✅ works | Verified live: public, Zarr v2 with consolidated metadata, `valid_time_start` 1940-01-01, final ERA5 to 2026-05-31, **ERA5T to 2026-09-09**, `last_updated` 2026-09-15 (so ~1 week latency via ERA5T, ~3 months for final). Keep as default; expose the ERA5/ERA5T boundary in attrs. ⚠️ Open it with `chunks=None` and chunk only *after* subsetting — a `chunks=` argument at open time builds a Dask graph over all 273 variables on the full hourly grid and exhausts memory (§13.2 S3). Alternatives worth listing as sources: **Earthmover Icechunk ERA5** (`s3://earthmover-icechunk-era5/icechunkV2`, anonymous, 1940–2025, quarterly updates), **NCAR ERA5 on AWS** (`s3://nsf-ncar-era5`, NetCDF, 3–4 month lag; the old `era5-pds` is deprecated). |
 | ERA5 / ERA5-Land daily/monthly | GEE `ECMWF/ERA5*` collections via xee | ✅ works, GEE creds | Keep. No-GEE ERA5-Land route: the **CDS ARCO Zarr data lake (beta since 2026-06-30)** serves ERA5 single-levels and **ERA5-Land hourly** with a CDS token; ARCO-ERA5 on GCS has no ERA5-Land. Add as `source="cds-arco"` behind a `cds` auth provider once out of beta 🔍. |
 | Köppen-Geiger (Beck 2023) | figshare file `45057352` (v1) zip GeoTIFF | ⚠️ stale file id | Switch to the current file **`61012822`** (article updated 2026-01-14; periods 1901–1930 … 1991–2020 plus 2041–2070 / 2071–2099 projections — expose `period=`); fetch via `ndownloader.figshare.com` (the `figshare.com/ndownloader` host returns a bot-challenge page to non-browser clients); `pooch` cache; CF flags. |
 | Daymet, PRISM, gridMET, CONUS404, NLDAS, HRRR | — (#11) | — | Backlog. Daymet V4R1 is cloud-hosted at ORNL (`Daymet_Daily_V4R1`, EDL) and on PC as Zarr (`daymet-daily-na` 🔍); gridMET on GEE `IDAHO_EPSCOR/GRIDMET` and PC; PRISM on GEE `OREGONSTATE/PRISM/AN81d`; NLDAS on GEE; HRRR as public Zarr on `s3://hrrrzarr`. |
@@ -664,7 +664,7 @@ esd.auth.login("earthengine", project="my-gcp-project")
 | Tier | Marker | Network | Runs | Contents |
 | --- | --- | --- | --- | --- |
 | unit | (none) | no | every push/PR, all OSes | AOI parsing (tuple/geometry/gdf/GeoBox, CRS round-trips, antimeridian), water-year helpers, catalog validation, CF flag tables, `processing.*` on synthetic arrays (SCL/Fmask masks, S2 harmonization offsets, scaling, dB round-trip, indices, RGB stretch shapes/ranges, LIA on a synthetic plane and slope), `auth` detection with monkeypatched env/files, plotting smoke with the Agg backend, deprecation shims |
-| recorded | `recorded` | no (cassettes/fixtures) | every push/PR | STAC searches replayed with `pytest-recording` (vcrpy) cassettes; loaders exercised against tiny local COGs/Zarr/GeoParquet fixtures generated by a script in `tests/fixtures/`; Earth Engine calls mocked at the `providers.gee` boundary |
+| recorded | `recorded` | no (cassettes/fixtures) | every push/PR | STAC searches replayed with `pytest-recording` (vcrpy) cassettes (⚠️ Planetary Computer cassettes need `allow_playback_repeats: True` because `planetary_computer.sign` caches its SAS token per process — §13.2 S4); loaders exercised against tiny local COGs/Zarr/GeoParquet fixtures generated by a script in `tests/fixtures/`; Earth Engine calls mocked at the `providers.gee` boundary |
 | live | `live` + `requires_earthdata` / `requires_earthengine` / `requires_planet` | yes | nightly or weekly schedule, `workflow_dispatch`, and on release branches | one smoke test per product source: search returns items, load returns the documented dims/dtype/CRS, a small `.compute()` succeeds |
 
 Skips are driven by `auth.status()`, so a CI runner with an Earthdata token no longer skips
@@ -680,6 +680,10 @@ Earthdata tests (today's conftest ignores `EARTHDATA_TOKEN`).
   on integer arrays (#7), submodule import (#12), kwargs precedence (#17), `stats` index mapping
   in UCLA SR, GRDC URL resolution (as a live test that also feeds the health check).
 - Doc examples are executed by the gallery build (§7), which is itself a test of the public API.
+- Two live-tier failures seen in Phase 2b are environment, not code: urllib-based station
+  tests fail TLS verification behind a proxy CA, and the legacy live tier OOM-kills on the
+  2.7 GB BasinATLAS download (§13.3 G2). Run the live tier file by file until §4.7's
+  per-region HydroSHEDS route lands.
 
 ---
 
@@ -961,7 +965,7 @@ with the catalog entry as the shared contract.
 | 14 | Idea dump | **Evaluate each item in a table** (why it matters, access, verdict); include in the rewrite only what earns it | companion file §C |
 | 15 | Plotting | **`esd.plotting.categorical(da)`**, no callables in attrs | §2.7 |
 | 16 | Water-year helpers | Asked for the trade-offs — see below; recommendation: keep the function names, reimplement vectorized on top of the `global_snow_networks` `utils` implementation, add `processing.time.add_water_year_coords()`, and document the `resample(time="YS-OCT")` idiom | §2.6 |
-| 17 | Planet | **Integrate Planet data access and authentication into the plan** (asked 2026-09-15 while Phase 0 ran). The rough `PlanetData` class in `docs/examples/sandbox.ipynb` is the seed; PlanetScope moves from the companion's Tier 3 shelf to Tier 2 and ships in Phase 2 behind a `planet` auth provider. No code lands in Phase 0 (no new modules, no public API) | §4.2, §5, §11; companion §A, §B.11, §C, §E.1 |
+| 17 | Planet | **Integrate Planet data access and authentication into the plan** (asked 2026-09-15 while Phase 0 ran). The rough `PlanetData` class in `docs/examples/sandbox.ipynb` is the seed; PlanetScope moves from the companion's Tier 3 shelf to Tier 2 and ships in Phase 2 behind a `planet` auth provider. No code lands in Phase 0 (no new modules, no public API). Shipped in Phase 2b; ⚠️ nothing is verified against the live API without a `PL_API_KEY` secret (§13.3 G1) | §4.2, §5, §11, §13.3; companion §A, §B.11, §C, §E.1 |
 
 ### 12.1 Water-year helpers: trade-offs (Q16)
 
@@ -984,7 +988,124 @@ Concepts page for aggregation. The old names stay as aliases through the shim re
 
 ---
 
-## 13. Notes to file in the knowledge bases (proposed, not yet filed)
+## 13. Implementation caveats (Phase 2b, recorded 2026-09-16)
+
+_Found while building the time-series products on `revamp/phase2b-timeseries-products`
+(climate/ERA5, Köppen-Geiger; optical/Sentinel-2, HLS, PlanetScope; SAR/Sentinel-1; snow/MODIS,
+VIIRS, SNODAS, UCLA SR). Three kinds of entry: **corrections** to statements made elsewhere in
+this plan, **surprises** the plan did not anticipate, and **gaps** that could not be verified.
+Every claim below was checked live on the date given; anything that stays true is worth folding
+into the section it corrects the next time this document is revised._
+
+### 13.1 Corrections to statements elsewhere in this plan
+
+**C1. Earth Search `sentinel-2-l2a` has *already* removed the baseline offset from the pixels,
+while still advertising it in `raster:bands`** (corrects §4.2, which says to apply the offset
+from `raster:bands` where present, and the §14 note to the best-practices repo that says
+scale/offset can be taken from Earth Search metadata).
+
+Measured on one identical tile and date (10TES, 2023-08-10, band B04, 60 m, EPSG:32610, median
+over the AOI):
+
+| Route | Median DN | Offset still in the pixels? |
+| --- | --- | --- |
+| PC `sentinel-2-l2a` | 4162 | yes (raw, baseline ≥ 04.00 items carry +1000) |
+| Earth Search `sentinel-2-l2a` | 3137 (−1025) | **no — already subtracted** |
+| Earth Search `sentinel-2-c1-l2a` | 4136 (−26) | yes |
+
+Applying `offset: -0.1` from `raster:bands` on the Earth Search `sentinel-2-l2a` route therefore
+subtracts 1000 DN twice. The discriminator is the item property
+**`earthsearch:boa_offset_applied`**: when it is `True` the offset is already applied and must
+not be applied again. `optical/sentinel2.py::_offset_days` honours that property and falls back
+to the processing-baseline date rule (items on or after 2022-01-25) only when the property is
+absent. `odc-stac` ignoring `raster:bands` (§14 notes) is what makes this our problem rather
+than the loader's.
+
+**C2. The legacy `utils.get_stac_cfg` never applied its per-asset overrides.** Its per-asset
+entries were keyed by the *band alias* (`scl`, `visual`) while `odc-stac` matches `cfg` keys
+against the *asset name* (`SCL`, `visual`), so every override silently did nothing and SCL came
+back `uint16` instead of `uint8` — the concrete form of the band-alias drift recorded as issue
+#6 in §1.2. The replacement `_PC_STAC_CFG` in `optical/sentinel2.py` keys per-asset entries by
+asset name, and deliberately keeps the legacy `costal` alias typo alongside the correct
+`coastal` so notebooks that use the old name keep working through the shim release.
+
+### 13.2 Upstream behaviour the plan did not anticipate
+
+**S1. The Planet SDK fetches a spec from the network while *building* an order request.**
+`planet.order_request.product()` resolves bundles through `specs._LazyBundlesLoader`, which
+GETs `https://api.planet.com/compute/ops/bundles/spec` on first use. Building a request
+therefore fails offline (and whenever that endpoint is down or slow), which breaks both the
+recorded test tier and any request built before a network session exists.
+`providers/planet.py::product()` builds the product dictionary locally from the bundle and item
+type; `validate_bundle=True` opts back into the SDK's spec-backed validation for callers who
+want it and have the network. Bundle names are validated against a local `BUNDLES` tuple.
+
+**S2. SNODAS saturates its int16 range over glaciers.** SWE is stored as int16 millimetres, and
+over perennial ice the model runs up to the type maximum: 32767 mm = 32.767 m. On 2024-03-15 the
+masked CONUS grid has 8 saturated pixels — around 46.845–46.8625 N, −121.75 W (the Rainier ice
+cap) and 48.7792 N, −121.8125 W (Mount Baker) — while the next-highest real value is 32280 mm and
+the Rainier box median is 0.86 m (p90 2.10 m). This is a property of the NOHRSC model, not of
+the reader, so `snow/snodas.py` passes the values through untouched and documents the artefact;
+users who want it gone mask with `ds["SWE"].where(ds["SWE"] < 30)`. Worth knowing before
+anyone treats a basin maximum from SNODAS as physical.
+
+**S3. ARCO-ERA5 must be subset *before* it is chunked.** Opening
+`full_37-1h-0p25deg-chunk-1.zarr-v3` with a `chunks=` argument builds a Dask graph over all 273
+variables on the full hourly 1940→present grid; that graph alone exhausted memory and got the
+live ERA5 test OOM-killed. `climate/era5.py::_load_arco` now opens with `chunks=None` (lazy,
+no graph), selects variables/time/space, and only then calls `.chunk({"time": 24})`. The live
+test went from an OOM kill to under four seconds. The same pattern applies to any wide
+cloud-native store we add as a source.
+
+**S4. Planetary Computer SAS signing makes VCR cassettes order-dependent.**
+`planetary_computer.sign` caches its SAS token per process, so the token request appears once in
+a cassette but is needed by every test that signs an asset, and the second test replaying the
+same cassette finds the interaction already consumed. `tests/timeseries/conftest.py` overrides
+`vcr_config` with `allow_playback_repeats: True`; without it, recorded PC tests pass alone and
+fail as a suite.
+
+### 13.3 What could not be verified live
+
+**G1. Planet capabilities are unverified against the real API — there is no `PL_API_KEY` in the
+environment.** Everything below is implemented and covered by recorded/synthetic tests, but has
+never run against `api.planet.com`:
+
+| Capability | State |
+| --- | --- |
+| Data API quick-search (`providers.planet.search`, `optical.planetscope.search`) | synthetic responses only |
+| Asset activation and polling (`source="data-api"`) | unexercised |
+| Orders API order creation with the `clip` tool (`optical.planetscope.order`) | unexercised; **stays manual by design** — orders spend Education & Research quota |
+| Order polling and delivery download (`wait_order`, `download_order`) | unexercised |
+| Authenticated health probe (`GET https://api.planet.com/data/v1/`) | unexercised |
+| XYZ tile URLs (`tile_url`) | URL construction only |
+
+To close this, add a `PL_API_KEY` repository secret and run the `requires_planet` live tests;
+the search-only smoke test is free, the ordering tests should stay opt-in. The licence
+constraint stands either way: **Planet imagery is not redistributable**, so no real scene crops,
+thumbnails or item ids from the E&R account go in git — the recorded Data API responses in
+`tests/timeseries/` are synthetic, and the PlanetScope fixture is generated, not a real scene.
+
+**G2. Two live-tier failures are environment-only, not code.** Both reproduce on `main` and
+neither is caused by Phase 2b:
+
+- Station tests that fetch over `urllib` fail TLS verification behind the agent proxy
+  ("CA cert does not include key usage extension"). `requests`-based routes are fine.
+- The full legacy live tier OOM-kills on `TestGetHydroBasins`, which downloads the 2.7 GB
+  `BasinATLAS_Data_v10.gdb.zip`. Run the live tier file by file, or skip that class, until the
+  HydroSHEDS per-region route in §4.7 lands and makes the download small.
+
+### 13.4 🔍 items this phase closed
+
+- **PC HLS collection ids are `hls2-l30` and `hls2-s30`** (§4.2 marked them 🔍 pending PC coming
+  back up). Confirmed live 2026-09-16; wired as the credential-free mirror source on
+  `optical/hls.py`.
+- **MOD10A2 is still served by NSIDC** despite PC having stopped archiving it (§4.3's ❌ row).
+  Confirmed live 2026-09-16 via `earthaccess`; the NSIDC route is the default and PC stays as an
+  optional historical source.
+
+---
+
+## 14. Notes to file in the knowledge bases (proposed, not yet filed)
 
 For `all_project_memory/INBOX.md`:
 - easysnowdata CI has been red since ≥ June 2026 on the GRDC/WMO basins URL; the health check
@@ -993,6 +1114,10 @@ For `all_project_memory/INBOX.md`:
   blob — same expiry problem as the P3 store; needs re-hosting before 2026-10-26 / 2026-12-31.
 - `global_snow_networks` → `easysnowdata.stations` merge plan (§9) as the concrete form of the
   2026-09-15 decision recorded in `_meta/software.md`.
+- **SNODAS SWE saturates its int16 range at 32767 mm (32.767 m) over perennial ice** — 8
+  pixels on 2024-03-15 over the Rainier ice cap and Mount Baker, next real value 32280 mm.
+  A NOHRSC model artefact, not a reader bug; mask before taking basin maxima. Worth a line
+  in the snow-product notes (and on `nsidc.md` for the G02158 route).
 - Planet is now in the easysnowdata plan (§12 Q17): PlanetScope/SkySat via the `planet` SDK,
   Phase 2. Connects to the P2 note "near-daily binary snow mask (e.g., PlanetScope)" and the
   snow-ideas item "use planet imagery to confirm snowmelt (tested over Mill Creek)". The
@@ -1031,7 +1156,28 @@ live on 2026-09-15 unless noted):
   `gee-and-xee.md` (which still says "confirm stable install path").
 - **`odc-stac` ignores `raster:bands` scale/offset** (stackstac applies them); Earth Search
   Sentinel-2 items carry `scale 0.0001, offset -0.1` so `stac_cfg` is unnecessary there.
+  **Corrected 2026-09-16 (§13.1 C1): Earth Search `sentinel-2-l2a` has already subtracted
+  the +1000 baseline offset from the pixels while still advertising `offset: -0.1`, so
+  applying that offset double-counts it; the item property `earthsearch:boa_offset_applied`
+  is the discriminator, and `sentinel-2-c1-l2a` still ships the offset in the pixels.**
+  Measured on tile 10TES, 2023-08-10, B04, 60 m: PC 4162 DN, Earth Search `l2a` 3137,
+  Earth Search `c1-l2a` 4136. Also: `odc-stac` matches per-asset `cfg` keys against the
+  **asset name**, not the band alias — keying them by alias fails silently (§13.1 C2).
   Belongs on `odc-stac-and-odc-geo.md`.
+- **`planet.order_request.product()` hits the network while building a request** (it
+  resolves bundles through `specs._LazyBundlesLoader`, which GETs
+  `api.planet.com/compute/ops/bundles/spec`), so offline request construction and recorded
+  tests fail unless you build the product dict yourself (checked 2026-09-16, SDK 3.6.0).
+  Belongs on the new `planet.md` page.
+- **`planetary_computer.sign` caches its SAS token per process**, which makes vcrpy
+  cassettes order-dependent: the token interaction is recorded once but needed by every
+  replaying test. `allow_playback_repeats: True` in the `vcr_config` fixture is the fix.
+  Belongs on `microsoft-planetary-computer.md` or a testing page.
+- **Wide cloud-native Zarr stores must be subset before they are chunked**: opening
+  ARCO-ERA5 (`full_37-1h-0p25deg-chunk-1.zarr-v3`, 273 variables, hourly 1940→present)
+  with a `chunks=` argument builds a Dask graph large enough to exhaust memory; open with
+  `chunks=None`, `.sel()`, then `.chunk()` (checked 2026-09-16). Belongs on `zarr-cloud-
+  visualization-ecosystem.md` or the xarray/Dask page.
 - **xarray `keep_attrs=True` is the default since 2025.11.0**, zarr ≥ 3 is the minimum since
   2026.04, default netCDF engine flipped to h5netcdf and back (2025.09.1 → 2025.10.1: pass
   `engine=` explicitly). Belongs on `xarray.md`.
