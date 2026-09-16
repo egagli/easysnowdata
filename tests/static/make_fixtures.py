@@ -207,6 +207,53 @@ def make_worldcover_tiles(directory: Path) -> tuple[Path, Path, Path]:
     return left, right, path
 
 
+def _basin_frame():
+    import geopandas as gpd
+    import shapely
+
+    west, south, east, north = RAINIER
+    polys = [
+        shapely.box(west - 0.2, south - 0.2, east + 0.2, north + 0.2),  # intersects
+        shapely.box(west, south, (west + east) / 2, north),  # intersects
+        shapely.box(west - 5, south - 5, west - 4, south - 4),  # far away
+    ]
+    return gpd.GeoDataFrame(
+        {
+            "HYBAS_ID": [7050000010, 7050000020, 7050000030],
+            "WMOBB": [4130, 4131, 4132],
+            "WMOBB_NAME": ["Nisqually", "Puyallup", "Elsewhere"],
+            "SUB_AREA": [1994.5, 2455.0, 12.0],
+        },
+        geometry=polys,
+        crs="EPSG:4326",
+    )
+
+
+def make_basin_zips(directory: Path) -> tuple[Path, Path]:
+    """A GRDC-like zipped GeoJSON and a HydroSHEDS-like zipped shapefile."""
+    frame = _basin_frame()
+
+    geojson = directory / "wmobb_basins.json"
+    frame.to_file(geojson, driver="GeoJSON")
+    wmo_zip = directory / "wmobb_json.zip"
+    with zipfile.ZipFile(wmo_zip, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.write(geojson, "wmobb_basins.json")
+    geojson.unlink()
+
+    shape_dir = directory / "hybas"
+    shape_dir.mkdir(exist_ok=True)
+    stem = "hybas_na_lev05_v1c"
+    frame.to_file(shape_dir / f"{stem}.shp", driver="ESRI Shapefile")
+    hybas_zip = directory / "hybas_na_lev01-12_v1c.zip"
+    with zipfile.ZipFile(hybas_zip, "w", zipfile.ZIP_DEFLATED) as zf:
+        for part in sorted(shape_dir.glob(f"{stem}.*")):
+            zf.write(part, part.name)
+    for part in sorted(shape_dir.glob("*")):
+        part.unlink()
+    shape_dir.rmdir()
+    return wmo_zip, hybas_zip
+
+
 def make_all(directory: Path) -> dict[str, Path]:
     """Write every fixture into *directory* and return the paths by name."""
     directory = Path(directory)
@@ -241,6 +288,8 @@ def make_all(directory: Path) -> dict[str, Path]:
         nodata=255,
         dtype="uint8",
     )
+
+    out["wmo_zip"], out["hybas_zip"] = make_basin_zips(directory)
 
     left, right, grid = make_worldcover_tiles(directory)
     out["worldcover_left"] = left

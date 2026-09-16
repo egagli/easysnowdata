@@ -1,8 +1,11 @@
-"""Access hydroclimatology datasets: ERA5, SNODAS, UCLA reanalysis, basin geometries, and more."""
+"""Access hydroclimatology datasets: ERA5, SNODAS, UCLA reanalysis, basin geometries, and more.
+
+The basin loaders moved to :mod:`easysnowdata.hydro.basins` (§3.4): the names
+here keep working for one minor release and warn on first use.
+"""
 
 from __future__ import annotations
 
-import json
 import logging
 import re
 
@@ -16,6 +19,8 @@ import shapely
 import xarray as xr
 
 from easysnowdata import providers
+from easysnowdata._deprecation import deprecated
+from easysnowdata.hydro import basins
 from easysnowdata.utils import (
     convert_bbox_to_geodataframe,
     get_ee_grid_params,
@@ -42,7 +47,17 @@ _logger = logging.getLogger(__name__)
 _UCLA_SR_STATS_INDEX = {"mean": 0, "std": 1, "median": 2, "25pct": 3, "75pct": 4}
 
 
-@requires_earthengine
+@deprecated(
+    "easysnowdata.hydro.basins.huc",
+    since="0.1.0",
+    remove_in="0.2.0",
+    name="easysnowdata.hydroclimatology.get_huc_geometries",
+    extra=(
+        "The new loader defaults to the public USGS WBD REST service, so HUC "
+        "boundaries no longer need Earth Engine, and the citation is in the "
+        "data_citation attr."
+    ),
+)
 def get_huc_geometries(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -53,9 +68,11 @@ def get_huc_geometries(
     """
     Retrieves Hydrologic Unit Code (HUC) geometries within a specified bounding box and HUC level.
 
-    This function queries the USGS Water Boundary Dataset (WBD) for HUC geometries. It can retrieve
-    HUC geometries at different levels for a specified region defined by a bounding box. If no
-    bounding box is provided, it retrieves HUC geometries for the entire United States.
+    .. deprecated:: 0.1.0
+        Use :func:`easysnowdata.hydro.basins.huc`. Its default source is the
+        USGS Watershed Boundary Dataset REST service (no credentials, newer
+        than the 2017 Earth Engine snapshot); pass ``source="gee"`` for the
+        Earth Engine route this function used.
 
     Parameters
     ----------
@@ -71,61 +88,23 @@ def get_huc_geometries(
         A GeoDataFrame containing the retrieved HUC geometries along with associated attributes
         such as name, area in square kilometers, states, TNMID, and geometry.
 
-    Examples
-    --------
-    Get HUC geometries for a specific region at HUC level 08...
-
-    >>> huc_data = get_huc_geometries(bbox_input=(-121.94, 46.72, -121.54, 46.99), huc_level="08")
-    >>> huc_data.plot()
-
     Notes
     -----
-    Requires Google Earth Engine authentication. Run ``ee.Authenticate()`` and
-    ``ee.Initialize()`` once, or call ``easysnowdata.authenticate_all()``.
-
     Data citation:
     Jones, K.A., Niknami, L.S., Buto, S.G., and Decker, D., 2022,
     Federal standards and procedures for the national Watershed Boundary Dataset (WBD) (5 ed.):
     U.S. Geological Survey Techniques and Methods 11-A3, 54 p.,
     https://doi.org/10.3133/tm11A3
     """
-
-    initialize_earthengine()
-
-    # Convert bounding box to feature collection to use as region for querying HUC geometries
-    bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
-    bbox_json = bbox_gdf.to_json()
-    featureCollection = ee.FeatureCollection(json.loads(bbox_json))
-
-    # Search Earth Engine USGS WBD collection for HUC geometries
-    huc_gdf = ee.data.listFeatures(
-        {
-            "assetId": f"USGS/WBD/2017/HUC{huc_level}",
-            "region": featureCollection.geometry().getInfo(),
-            "fileFormat": "GEOPANDAS_GEODATAFRAME",
-        }
-    )
-
-    # Add crs to geodataframe and select relevant columns
-    huc_gdf.crs = "EPSG:4326"
-    huc_gdf = huc_gdf[
-        [
-            "name",
-            f"huc{huc_level.lstrip('0')}",
-            "areasqkm",
-            "states",
-            "tnmid",
-            "geometry",
-        ]
-    ]
-
-    huc_gdf.attrs = {
-        "Data citation": "Jones, K.A., Niknami, L.S., Buto, S.G., and Decker, D., 2022, Federal standards and procedures for the national Watershed Boundary Dataset (WBD) (5 ed.): U.S. Geological Survey Techniques and Methods 11-A3, 54 p., https://doi.org/10.3133/tm11A3"
-    }
-
-    return huc_gdf
+    return basins.huc(bbox_input, level=huc_level)
 
 
+@deprecated(
+    "easysnowdata.hydro.basins.hydrobasins",
+    since="0.1.0",
+    remove_in="0.2.0",
+    name="easysnowdata.hydroclimatology.get_hydroBASINS",
+)
 def get_hydroBASINS(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -137,9 +116,10 @@ def get_hydroBASINS(
     """
     Retrieves HydroATLAS sub-basin boundaries at specified hierarchical level.
 
-    This function downloads and loads vectorized polygon layers depicting sub-basin boundaries
-    from the HydroATLAS database via figshare. It provides consistently sized and hierarchically
-    nested sub-basins at different scales, supported by Pfafstetter coding for catchment topology analysis.
+    .. deprecated:: 0.1.0
+        Use :func:`easysnowdata.hydro.basins.hydrobasins`, which adds the
+        lighter per-region HydroSHEDS zips (``source="hydrosheds"``) and the
+        Earth Engine route.
 
     Parameters
     ----------
@@ -149,80 +129,33 @@ def get_hydroBASINS(
         The hierarchical level (1-12) of sub-basin delineation. Higher levels represent
         finer subdivisions. Default is 5.
     **kwargs
-        Additional keyword arguments passed to ``geopandas.read_file`` (e.g.
-        ``columns=[...]``, ``rows=...``, ``engine="pyogrio"``). These take
-        precedence over the defaults used here (``layer`` and, when a bbox is
-        given, ``mask``).
+        Additional keyword arguments passed to
+        :func:`easysnowdata.hydro.basins.hydrobasins` (and on to
+        ``geopandas.read_file``).
 
     Returns
     -------
     geopandas.GeoDataFrame
         A GeoDataFrame containing the HydroATLAS sub-basin boundaries with associated attributes.
 
-    Examples
-    --------
-    Get level 5 sub-basins for all regions...
-
-    >>> basins = get_hydroBASINS()
-    >>> basins.plot()
-
-    Get level 6 sub-basins for a specific region...
-
-    >>> bbox = (-121.94, 46.72, -121.54, 46.99)
-    >>> regional_basins = get_hydroBASINS(bbox_input=bbox, level=6)
-    >>> regional_basins.plot()
-
     Notes
     -----
-    This function uses the HydroATLAS dataset which provides global coverage in a single file,
-    making it more efficient than downloading individual regional HydroBASINS files.
-
     Data citation:
     Linke, S., Lehner, B., Ouellet Dallaire, C., Ariwi, J., Grill, G., Anand, M., Beames, P.,
     Burchard-Levine, V., Maxwell, S., Moidu, H., Tan, F., Thieme, M. (2019). Global hydro-
     environmental sub-basin and river reach characteristics at high spatial resolution.
     Scientific Data 6: 283. doi: 10.1038/s41597-019-0300-6
     """
-
-    # Validate level parameter
-    if level < 1 or level > 12:
-        raise ValueError(f"Level must be between 1 and 12, got {level}")
-
-    # Convert bbox to GeoDataFrame if provided
-    bbox_gdf = (
-        convert_bbox_to_geodataframe(bbox_input) if bbox_input is not None else None
-    )
-
-    # Construct URL and layer name. Use the ndownloader.figshare.com host: it
-    # answers with a plain 302 to the signed S3 object, whereas
-    # figshare.com/ndownloader serves a bot-challenge page (HTTP 202) to
-    # non-browser clients such as GDAL.
-    url = "https://ndownloader.figshare.com/files/20082137/BasinATLAS_Data_v10.gdb.zip"
-    layer_name = f"BasinATLAS_v10_lev{level:02d}"
-
-    _logger.info("Loading HydroATLAS level {level} basins...")
-
-    # Load the data with optional spatial masking
-    read_params = {"layer": layer_name}
-    if bbox_gdf is not None:
-        read_params["mask"] = bbox_gdf
-    else:
-        _logger.info("Loading global dataset (this may take a while)...")
-    # User-supplied kwargs take precedence over the defaults above
-    read_params.update(kwargs)
-    basins_gdf = providers.vector_http.read("zip+" + url, **read_params)
-
-    # Add citation to attributes
-    basins_gdf.attrs["data_citation"] = (
-        "Linke, S., Lehner, B., Ouellet Dallaire, C., Ariwi, J., Grill, G., Anand, M., "
-        "Beames, P., Burchard-Levine, V., Maxwell, S., Moidu, H., Tan, F., Thieme, M. (2019). "
-        "Global hydro-environmental sub-basin and river reach characteristics at high spatial "
-        "resolution. Scientific Data 6: 283. doi: 10.1038/s41597-019-0300-6"
-    )
-
-    return basins_gdf
+    return basins.hydrobasins(bbox_input, level=level, **kwargs)
 
 
+@deprecated(
+    "easysnowdata.hydro.basins.grdc_major",
+    since="0.1.0",
+    remove_in="0.2.0",
+    name="easysnowdata.hydroclimatology.get_grdc_major_river_basins_of_the_world",
+    extra="Basins that intersect the AOI are returned whole, not cut at its edge.",
+)
 def get_grdc_major_river_basins_of_the_world(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -233,71 +166,40 @@ def get_grdc_major_river_basins_of_the_world(
     """
     Retrieves GRDC Major River Basins of the World dataset.
 
-    This function downloads and loads the Global Runoff Data Centre's (GRDC) Major River Basins
-    dataset, which contains 520 river/lake basins considered major in size or hydro-political
-    importance. The basins include both exorheic drainage (flowing to oceans) and endorheic
-    drainage (inland sinks/lakes) systems.
+    .. deprecated:: 0.1.0
+        Use :func:`easysnowdata.hydro.basins.grdc_major`. It returns the
+        intersecting basins whole instead of clipping them to the AOI.
 
     Parameters
     ----------
     bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional
         The bounding box for spatial subsetting. If None, the entire global dataset is returned.
     **kwargs
-        Additional keyword arguments passed to ``geopandas.read_file`` (e.g.
-        ``columns=[...]``, ``rows=...``, ``engine="pyogrio"``).
+        Additional keyword arguments passed to
+        :func:`easysnowdata.hydro.basins.grdc_major` (and on to
+        ``geopandas.read_file``).
 
     Returns
     -------
     geopandas.GeoDataFrame
         A GeoDataFrame containing the GRDC major river basins with associated attributes.
 
-    Examples
-    --------
-    Get all major river basins...
-
-    >>> basins = get_grdc_basins()
-    >>> basins.plot()
-
-    Get basins for a specific region...
-
-    >>> bbox = (-121.94, 46.72, -121.54, 46.99)
-    >>> regional_basins = get_grdc_basins(bbox_input=bbox)
-    >>> regional_basins.plot()
-
     Notes
     -----
-    This dataset incorporates data from HydroSHEDS database which is © World Wildlife Fund, Inc.
-    (2006-2013) and has been used under license.
-
     Data citation:
     GRDC (2020): GRDC Major River Basins. Global Runoff Data Centre. 2nd, rev. ed.
     Koblenz: Federal Institute of Hydrology (BfG).
     """
-
-    url = "https://datacatalogfiles.worldbank.org/ddh-published/0041426/DR0051689/major_basins_of_the_world_0_0_0.zip"
-
-    # Convert bbox to GeoDataFrame if provided
-    bbox_gdf = (
-        convert_bbox_to_geodataframe(bbox_input) if bbox_input is not None else None
-    )
-
-    # Load the data
-    basins_gdf = providers.vector_http.read("zip+" + url, **kwargs)
-
-    # Clip to bbox if provided
-    if bbox_gdf is not None:
-        basins_gdf = basins_gdf.clip(bbox_gdf)
-    else:
-        _logger.info("No spatial subsetting because bbox_input was not provided.")
-
-    # Add citation to attributes
-    basins_gdf.attrs["data_citation"] = (
-        "GRDC (2020): GRDC Major River Basins. Global Runoff Data Centre. 2nd, rev. ed. Koblenz: Federal Institute of Hydrology (BfG)."
-    )
-
-    return basins_gdf
+    return basins.grdc_major(bbox_input, **kwargs)
 
 
+@deprecated(
+    "easysnowdata.hydro.basins.grdc_wmo",
+    since="0.1.0",
+    remove_in="0.2.0",
+    name="easysnowdata.hydroclimatology.get_grdc_wmo_basins",
+    extra="Basins that intersect the AOI are returned whole, not cut at its edge.",
+)
 def get_grdc_wmo_basins(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -308,91 +210,35 @@ def get_grdc_wmo_basins(
     """
     Retrieves WMO Basins and Sub-Basins dataset.
 
-    This function downloads and loads the Global Runoff Data Centre's (GRDC) WMO Basins
-    and Sub-Basins dataset. It contains 515 WMO Basins representing hydrographic regions
-    including river/lake basins with both exorheic drainage (flowing to oceans) and
-    endorheic drainage (inland sinks/lakes).
+    .. deprecated:: 0.1.0
+        Use :func:`easysnowdata.hydro.basins.grdc_wmo`. It returns the
+        intersecting basins whole instead of clipping them to the AOI.
 
     Parameters
     ----------
     bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional
         The bounding box for spatial subsetting. If None, the entire global dataset is returned.
     **kwargs
-        Additional keyword arguments passed to ``geopandas.read_file`` (e.g.
-        ``columns=[...]``, ``rows=...``, ``engine="pyogrio"``).
+        Additional keyword arguments passed to
+        :func:`easysnowdata.hydro.basins.grdc_wmo` (and on to
+        ``geopandas.read_file``).
 
     Returns
     -------
     geopandas.GeoDataFrame
         A GeoDataFrame containing the WMO Basins and Sub-Basins with associated attributes.
 
-    Examples
-    --------
-    Get all WMO basins...
-
-    >>> basins = get_wmo_basins_and_subbasins()
-    >>> basins.plot()
-
-    Get basins for a specific region...
-
-    >>> bbox = (-121.94, 46.72, -121.54, 46.99)
-    >>> regional_basins = get_wmo_basins_and_subbasins(bbox_input=bbox)
-    >>> regional_basins.plot()
-
     Notes
     -----
-    The GRDC archive (about 380 MB) is downloaded once into the easysnowdata
-    cache directory (``~/.cache/easysnowdata/grdc`` on Linux; override with
+    The GRDC archive is downloaded once into the easysnowdata cache directory
+    (``~/.cache/easysnowdata/grdc`` on Linux; override with
     ``EASYSNOWDATA_CACHE_DIR``) and re-used on later calls.
-
-    This dataset incorporates data from the HydroSHEDS database which is © World Wildlife Fund, Inc.
-    (2006-2013) and has been used under license.
-
-    WMO basins and sub-basins are attributed with:
-    - WMOBB: identifier of hydrographic region
-    - WMOBB_NAME: name of hydrographic region
-    - WMOBB_BASIN: name of river/lake basin, coastal region or island
-    - WMOBB_SUBBASIN: name of river/lake basin forming a separate sub-basin
-    - WMOBB_DESCRIPTION: description of hydrographic region
-    - REGNUM: number of the WMO Region (Regional Association)
-    - REGNAME: name of the WMO Region (Regional Association)
-    - WMO306_MoC_NUM: reference to Manual on Codes, 2-digit basin code
-    - WMO306_MoC_REFERENCE: reference to Manual on Codes, name of basin/sub-basin
-    - SUMSUBAREA: approximate of drainage area (in square km)
 
     Data citation:
     GRDC (2020): WMO Basins and Sub-Basins / Global Runoff Data Centre, GRDC. 3rd, rev. ext. ed.
     Koblenz, Germany: Federal Institute of Hydrology (BfG).
     """
-
-    url = "https://grdc.bafg.de/downloads/wmobb_json.zip"
-
-    # Convert bbox to GeoDataFrame if provided
-    bbox_gdf = (
-        convert_bbox_to_geodataframe(bbox_input) if bbox_input is not None else None
-    )
-
-    # The GRDC server answers HTTP 400 to HEAD requests, which GDAL's /vsicurl
-    # sends before any range read, so a remote "zip+https://" read fails even
-    # though the file is there. Fetch the archive once with a plain GET into
-    # the user cache directory (~380 MB) and read the basins layer locally.
-    zip_path = providers.raster_http.fetch(url, "wmobb_json.zip", subdir="grdc")
-    basins_gdf = providers.vector_http.read(
-        f"zip://{zip_path}!wmobb_basins.json", **kwargs
-    )
-
-    # Clip to bbox if provided
-    if bbox_gdf is not None:
-        basins_gdf = basins_gdf.clip(bbox_gdf)
-    else:
-        _logger.info("No spatial subsetting because bbox_input was not provided.")
-
-    # Add citation to attributes
-    basins_gdf.attrs["data_citation"] = (
-        "GRDC (2020): WMO Basins and Sub-Basins / Global Runoff Data Centre, GRDC. 3rd, rev. ext. ed. Koblenz, Germany: Federal Institute of Hydrology (BfG)."
-    )
-
-    return basins_gdf
+    return basins.grdc_wmo(bbox_input, **kwargs)
 
 
 def get_era5(

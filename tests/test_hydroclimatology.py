@@ -32,6 +32,7 @@ class TestGetHydroBasins:
 
         result = get_hydroBASINS(bbox_input=TEST_BBOX, level=5)
         assert "data_citation" in result.attrs
+        assert result.attrs["product_id"] == "hydrobasins"
 
     def test_invalid_level_raises(self):
         from easysnowdata.hydroclimatology import get_hydroBASINS
@@ -173,13 +174,15 @@ class TestEra5Gcs:
 class TestHucGeometries:
     pytestmark = pytest.mark.live
 
-    @pytest.mark.requires_earthengine
     def test_returns_geodataframe(self):
+        # No longer needs Earth Engine: the default route is the USGS WBD
+        # REST service (§12 Q7).
         from easysnowdata.hydroclimatology import get_huc_geometries
 
         result = get_huc_geometries(bbox_input=TEST_BBOX, huc_level="08")
         assert isinstance(result, gpd.GeoDataFrame)
         assert len(result) > 0
+        assert list(result.columns)[:2] == ["name", "huc8"]
 
 
 class TestSnodas:

@@ -129,12 +129,14 @@ class TestQueries:
         assert isinstance(table, pd.DataFrame) and table.index.name == "id"
         assert set(catalog.list(theme="terrain").index) == {"copernicus-dem", "chili"}
         assert "hls" in catalog.list(provider="stac").index
+        # "huc" left this set in Phase 2: its default source is now the
+        # credential-free USGS WBD REST service (§12 Q7).
         assert set(catalog.list(requires="earthengine").index) >= {
-            "huc",
             "chili",
             "nlcd",
             "snodas",
         }
+        assert "huc" in catalog.list(credential_free=True).index
         assert "chili" not in catalog.list(credential_free=True).index
         assert "era5" in catalog.list(credential_free=True).index
         assert catalog.list(theme="nope").empty
