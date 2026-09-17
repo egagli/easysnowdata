@@ -1,3 +1,4 @@
+# esd-requires: earthengine
 """
 CHILI heat-load index on Mount Rainier
 ======================================

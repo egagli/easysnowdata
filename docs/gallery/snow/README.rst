@@ -1,4 +1,4 @@
 Snow
 ====
 
-Snow cover, snow water equivalent and snow reanalysis products.
+Snow classifications, masks, cover and snow water equivalent.

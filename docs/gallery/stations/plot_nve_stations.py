@@ -1,3 +1,4 @@
+# esd-requires: nve
 """
 Norwegian snow pillows (NVE HydAPI)
 ===================================

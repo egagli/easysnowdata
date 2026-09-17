@@ -1,3 +1,4 @@
+# esd-requires: earthengine
 """
 Annual NLCD land cover for a Cascades basin
 ===========================================

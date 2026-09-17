@@ -1,6 +1,6 @@
 """
 SNODAS: the authoritative archive against the Earth Engine mirror
-================================================================
+=================================================================
 
 SNODAS now defaults to the NSIDC G02158 archive, which needs no account at
 all: one tar per day of flat-binary grids, read straight into xarray. The

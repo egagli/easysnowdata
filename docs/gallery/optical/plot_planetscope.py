@@ -1,3 +1,4 @@
+# esd-requires: planet
 """
 PlanetScope beside Sentinel-2, and the UDM2 snow band
 =====================================================

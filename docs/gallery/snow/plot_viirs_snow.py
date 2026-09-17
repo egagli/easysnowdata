@@ -1,3 +1,4 @@
+# esd-requires: earthdata
 """
 VIIRS snow cover, the successor to MODIS
 ========================================

@@ -1,3 +1,4 @@
+# esd-requires: earthdata
 """
 UCLA snow reanalysis, and when virtualization pays off
 ======================================================

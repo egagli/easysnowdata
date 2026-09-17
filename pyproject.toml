@@ -120,7 +120,12 @@ line-length = 88
 # global_snow_networks with `git subtree` (§9 step 1) and stay byte-identical
 # to that repo, so `git subtree pull` keeps working and the two copies can be
 # diffed. Reformatting them here would make every future sync a conflict.
-extend-exclude = ["easysnowdata/stations/clients"]
+extend-exclude = [
+    "easysnowdata/stations/clients",
+    # The long-form notebooks are historical artefacts kept verbatim; they are
+    # not re-executed and are removed with the legacy API in Phase 5.
+    "docs/examples",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP"]
@@ -243,12 +248,7 @@ pre-commit = "*"
 ipykernel = "*"
 nbconvert = "*"
 nbformat = "*"
-mkdocs = "*"
-mkdocs-material = ">=9.1.3"
-mkdocstrings = "*"
-mkdocstrings-python = "*"
 pygments = "*"
-pymdown-extensions = "*"
 python-build = "*"
 hatchling = "*"
 hatch-vcs = "*"
@@ -257,8 +257,6 @@ twine = "*"
 codespell = "*"
 
 [tool.pixi.feature.dev.pypi-dependencies]
-mkdocs-jupyter = ">=0.24.0"
-mkdocs-git-revision-date-localized-plugin = "*"
 git-changelog = "*"
 
 [tool.pixi.feature.dev.tasks]
@@ -278,14 +276,41 @@ record-cassettes = "pytest tests/test_recorded.py --record-mode=rewrite"
 # requires_* tests, provider credentials (otherwise they skip).
 test-live = "pytest tests/ -m live"
 test = "pytest tests/"
-lint = "ruff check easysnowdata/ tests/ scripts/"
-format = "ruff format easysnowdata/ tests/ scripts/"
+lint = "ruff check easysnowdata/ tests/ scripts/ docs/"
+format = "ruff format easysnowdata/ tests/ scripts/ docs/"
 build = "python -m build"
-docs-serve = "mkdocs serve"
-docs-build = "mkdocs build"
 changelog = "git-changelog --output CHANGELOG.md"
 check-sources = "python scripts/check_data_sources.py"
 update-status = "python scripts/update_readme_status.py"
+
+# ── Docs (Sphinx + pydata theme + sphinx-gallery + myst-nb; REVAMP_PLAN §7, Q6) ──
+# Separate from `dev` because the docs environment executes the gallery against
+# live data and therefore installs the whole package stack, while `dev` also
+# carries the test tooling. Both share the default solve group.
+[tool.pixi.feature.docs.dependencies]
+sphinx = ">=8.2"
+pydata-sphinx-theme = ">=0.16"
+sphinx-gallery = ">=0.19"
+myst-nb = ">=1.2"
+sphinx-copybutton = "*"
+sphinx-design = "*"
+# The README gallery montage is tiled from the built thumbnails.
+pillow = "*"
+
+[tool.pixi.feature.docs.tasks]
+# Full build: executes every gallery script, so it needs the provider
+# credentials (scripts whose credentials are missing still render, without
+# output). -j auto parallelises the non-gallery pages.
+docs-build = { cmd = "sphinx-build -b html docs docs/_build/html -j auto", env = { ESD_DOCS_GALLERY = "full" } }
+# Credential-free subset: what a pull request builds. Scripts that declare an
+# `esd-requires:` marker are rendered but not executed.
+docs-build-free = { cmd = "sphinx-build -b html docs docs/_build/html -j auto", env = { ESD_DOCS_GALLERY = "free" } }
+# No gallery execution at all — the fastest way to check prose and API pages.
+docs-fast = { cmd = "sphinx-build -b html docs docs/_build/html -j auto", env = { ESD_DOCS_GALLERY = "none" } }
+docs-serve = "python -m http.server --directory docs/_build/html 8000"
+docs-clean = "python -c \"import shutil,pathlib; [shutil.rmtree(p, ignore_errors=True) for p in (pathlib.Path('docs/_build'), pathlib.Path('docs/auto_examples'), pathlib.Path('docs/generated'), pathlib.Path('docs/gen_modules'))]\""
+# Link check over the built site (slow; run before a release).
+docs-linkcheck = { cmd = "sphinx-build -b linkcheck docs docs/_build/linkcheck", env = { ESD_DOCS_GALLERY = "none" } }
 
 # One feature per interpreter so CI can lock and test each Python separately.
 [tool.pixi.feature.py312.dependencies]
@@ -304,6 +329,7 @@ ruff = "*"
 [tool.pixi.environments]
 default = { features = [], solve-group = "default" }
 dev = { features = ["dev"], solve-group = "default" }
+docs = { features = ["docs"], solve-group = "default" }
 lint = { features = ["lint"], no-default-feature = true }
 test-py312 = { features = ["dev", "py312"] }
 test-py313 = { features = ["dev", "py313"] }

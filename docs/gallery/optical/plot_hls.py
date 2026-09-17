@@ -1,3 +1,4 @@
+# esd-requires: earthdata
 """
 HLS: Landsat and Sentinel-2 on one time axis
 ============================================

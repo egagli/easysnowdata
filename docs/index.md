@@ -1,110 +1,116 @@
+---
+sd_hide_title: true
+---
+
 # easysnowdata
 
-[![PyPI](https://img.shields.io/pypi/v/easysnowdata.svg)](https://pypi.python.org/pypi/easysnowdata)
-[![conda-forge](https://img.shields.io/conda/vn/conda-forge/easysnowdata.svg)](https://anaconda.org/conda-forge/easysnowdata)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14741502.svg)](https://doi.org/10.5281/zenodo.14741502)
-[![CI](https://github.com/egagli/easysnowdata/actions/workflows/ci.yml/badge.svg)](https://github.com/egagli/easysnowdata/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+::::{grid} 1 1 2 2
+:gutter: 3
+:class-container: sd-pt-2
 
-**A Python package to easily retrieve data relevant to snow science.**
+:::{grid-item}
+:columns: 12
 
-`easysnowdata` unifies access to a wide range of snow-relevant geospatial
-datasets under a consistent API that returns **xarray** objects. The emphasis
-is on minimising downloads and local computation by leveraging cloud-optimised
-data formats (Zarr, COGs, STAC) wherever possible.
+# easysnowdata
 
-![easysnowdata gallery](https://github.com/user-attachments/assets/5b2c83a4-b732-4c35-86fd-1bccb954c286)
+**Snow-relevant geospatial data, one call each, as xarray.**
 
----
+Twenty-eight products — station observations, SAR and optical imagery, snow
+cover and SWE, DEMs, land cover, basins and reanalysis — behind one API that
+takes an area of interest and a time range, returns lazy Dask-backed xarray
+objects, and never downloads more than it has to.
 
-## Modules at a glance
+```{button-ref} installation
+:color: primary
+:expand:
+Install and get going
+```
+:::
+::::
 
-| Module | Contents |
-|--------|----------|
-| [`automatic_weather_stations`](automatic_weather_stations.md) | SNOTEL & CCSS station metadata + multi-variable time series |
-| [`hydroclimatology`](hydroclimatology.md) | ERA5, SNODAS, UCLA snow reanalysis, watershed/basin geometries, Köppen-Geiger |
-| [`remote_sensing`](remote_sensing.md) | Sentinel-1, Sentinel-2, HLS, MODIS snow, ESA WorldCover, forest cover, snow classification |
-| [`topography`](topography.md) | Copernicus DEM (30 m / 90 m), CHILI topographic index |
-| [`utils`](utils.md) | Shared helpers: bbox conversion, water-year utilities, STAC configs |
+```{code-block} python
+import easysnowdata as esd
 
----
+aoi = (-121.94, 46.72, -121.54, 46.99)                      # Mount Rainier; any AOI form works
 
-## Installation
+inv = esd.stations.inventory(aoi, daily_only=True)          # which snow stations are here
+obs = esd.stations.load(inv, variables=["swe", "snwd"], time="2023-10/2024-09")
 
-=== "pip"
-
-    ```bash
-    pip install easysnowdata
-    ```
-
-=== "conda / mamba"
-
-    ```bash
-    conda install -c conda-forge easysnowdata
-    # or
-    mamba install -c conda-forge easysnowdata
-    ```
-
-=== "Development (pixi)"
-
-    ```bash
-    git clone https://github.com/egagli/easysnowdata.git
-    cd easysnowdata
-    pixi install
-    pixi run test-unit   # offline tests (no network, no credentials)
-    ```
-
----
-
-## Five-minute quickstart
-
-```python
-import easysnowdata
-
-bbox = (-121.94, 46.72, -121.54, 46.99)  # Mount Rainier, WA
-
-# Automatic weather station data
-sc = easysnowdata.automatic_weather_stations.StationCollection()
-sc.get_data(stations="679_WA_SNTL", variables=["WTEQ", "SNWD"],
-            start_date="2023-10-01", end_date="2024-06-30")
-sc.data.plot()
-
-# Copernicus DEM
-dem = easysnowdata.topography.get_copernicus_dem(bbox_input=bbox, resolution=30)
-dem.plot()
-
-# ERA5 hourly (anonymous GCS access — no credentials needed)
-era5 = easysnowdata.hydroclimatology.get_era5(
-    bbox_input=bbox, source="GCS",
-    start_date="2023-01-01", end_date="2023-01-31"
-)
-era5["2m_temperature"].mean("time").plot()
-
-# Seasonal snow classification
-snow_class = easysnowdata.remote_sensing.get_seasonal_snow_classification(bbox)
-snow_class.attrs["example_plot"](snow_class)
+dem = esd.terrain.dem.load(aoi)                             # Copernicus GLO-30
+s1 = esd.sar.sentinel1.load(aoi, "2024-03", units="dB")     # Sentinel-1 RTC
+swe = esd.snow.snodas.load(aoi, "2024-03")                  # SNODAS, no account needed
 ```
 
----
+## Where to go
 
-## Services requiring account setup
+::::{grid} 1 2 2 3
+:gutter: 3
 
-Some data sources require free accounts:
+:::{grid-item-card} {octicon}`telescope` Example gallery
+:link: auto_examples/index
+:link-type: doc
 
-| Service | Env vars needed | Sign-up link |
-|---------|----------------|--------------|
-| Google Earth Engine | `EARTHENGINE_TOKEN` | [earthengine.google.com](https://earthengine.google.com) |
-| NASA EarthData | `EARTHDATA_USERNAME`, `EARTHDATA_PASSWORD` | [urs.earthdata.nasa.gov](https://urs.earthdata.nasa.gov) |
+One executed script per product, with the figure it produces.
+:::
 
-Planetary Computer and anonymous GCS (ERA5) require no credentials.
+:::{grid-item-card} {octicon}`code` API reference
+:link: api/index
+:link-type: doc
 
----
+Every public function, grouped by subpackage.
+:::
+
+:::{grid-item-card} {octicon}`tools` Contributing
+:link: contributing
+:link-type: doc
+
+The pixi tasks, the four test tiers, and how to add a product.
+:::
+::::
+
+## Design in one paragraph
+
+Every loader takes the same `aoi` (a bounding-box tuple, a shapely geometry, a
+GeoDataFrame in any CRS, or an `odc.geo.GeoBox`) and the same `time` (anything
+pandas or STAC understands). Search and load are separate calls. Results are
+lazy, carry their CRS on both the `.rio` and `.odc` accessors, and carry
+`source`, `license` and `data_citation` in `.attrs`. Products with more than
+one route expose them through `source=`, so a Planetary Computer outage is one
+keyword away from an alternative. Credentials are checked before any network
+request, and the error says exactly how to fix them. See
+REVAMP_PLAN §2 for the whole contract.
 
 ## Citing
 
-If you use easysnowdata in your research, please cite the Zenodo archive:
-
+```{code-block} text
+Gagliano, E. (2024). easysnowdata [Software]. Zenodo.
+https://doi.org/10.5281/zenodo.14741502
 ```
-Gagliano, E. (2024). easysnowdata (Version 0.0.21) [Software].
-Zenodo. https://doi.org/10.5281/zenodo.14741502
+
+Each product also carries the citation of the data it serves in
+`ds.attrs["data_citation"]`, and the catalog page for that product repeats it.
+
+```{toctree}
+:hidden:
+:caption: Getting started
+
+installation
+faq
+```
+
+```{toctree}
+:hidden:
+:caption: Data
+
+auto_examples/index
+```
+
+```{toctree}
+:hidden:
+:caption: Reference
+
+api/index
+notebooks
+contributing
+changelog
 ```
