@@ -38,6 +38,37 @@ INTERVALS: frozenset[str] = frozenset({
     "annual",
 })
 
+# ── Type vocabulary (DESIGN.md §3.2) ─────────────────────────────────────────
+
+#: The one shared standardized-type vocabulary. Every ``VARIABLES``/``SENSORS``
+#: entry's ``type`` must be one of these, and nothing outside this set may
+#: reach a record or an artifact.
+#:
+#: ``snowfall`` is new snow as a *depth of snow* and is deliberately distinct
+#: from ``precip``, a depth of *water*: they are not interconvertible, since
+#: 5 cm of new snow is roughly 5 mm of water rather than 50 mm. ``snwd`` is
+#: the snow already on the ground.
+TYPES: frozenset[str] = frozenset({
+    "swe",
+    "snwd",
+    "snowfall",
+    "temp",
+    "temp_max",
+    "temp_min",
+    "precip",
+    "rh",
+    "wind_spd",
+    "wind_gust",
+    "wind_dir",
+    "wind_run",
+    "solar",
+    "baro",
+    "density",
+    "snow_line",
+    "soil_moisture",
+    "other",
+})
+
 # ── Missing-value sentinels (DESIGN.md §3.6) ─────────────────────────────────
 
 #: Numeric sentinels that mean "missing" across the sources.
