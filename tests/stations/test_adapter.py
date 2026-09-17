@@ -274,21 +274,45 @@ def test_station_metadata_becomes_non_dimension_coordinates():
 
 
 def test_a_type_served_in_two_units_is_brought_onto_one():
-    # the vendored Yukon client emits one precip series in cm, against
-    # DESIGN.md §3.5, so the adapter converts rather than mixing units
-    records = _records("09AA-M1", "precip_mm", "precip", "mm", [10.0])
-    records += _records("09BA-M7", "precip_cm", "precip", "cm", [1.0])
+    """kPa and hPa are the same quantity, so barometric pressure converts.
+
+    The vendored Yukon client emits kPa where DESIGN.md §3.5 and the DataBC
+    client use hPa.
+    """
+    records = _records("09AA-M1", "baro_hpa", "baro", "hPa", [1013.0])
+    records += _records("09BA-M7", "baro_press_kpa", "baro", "kPa", [101.3])
     ds = _frames.records_to_dataset(records, "yukon")
-    assert ds["precip"].attrs["units"] == "mm"
-    values = dict(zip(ds["station"].values, ds["precip"].values[:, 0], strict=True))
-    assert values["09AA-M1"] == pytest.approx(10.0)
-    assert values["09BA-M7"] == pytest.approx(10.0)  # 1 cm became 10 mm
+    assert ds["baro"].attrs["units"] == "hPa"
+    values = dict(zip(ds["station"].values, ds["baro"].values[:, 0], strict=True))
+    assert values["09AA-M1"] == pytest.approx(1013.0)
+    assert values["09BA-M7"] == pytest.approx(1013.0)  # 101.3 kPa became 1013 hPa
+
+
+def test_snowfall_depth_is_never_rescaled_into_a_depth_of_water():
+    """Yukon's `precip_snow_cm` is new snowfall, not precipitation in cm.
+
+    Multiplying it by ten to look like millimetres of water would report 5 cm
+    of snow as 50 mm of rain — arithmetically tidy and physically wrong — so
+    the clash is refused instead.
+    """
+    records = _records("09AA-M1", "precip_total_mm", "precip", "mm", [2.0])
+    records += _records("09BA-M7", "precip_snow_cm", "precip", "cm", [5.0])
+    with pytest.raises(ValueError, match="not safe for 'precip'"):
+        _frames.records_to_dataset(records, "yukon")
+
+
+@pytest.mark.parametrize("units", ["cm", "m", "mm"])
+def test_snow_depths_and_water_equivalents_do_convert(units):
+    """Those are plain depths of the same substance, so rescaling is fine."""
+    records = _records("a", "x", "swe", units, [1.0])
+    ds = _frames.records_to_dataset(records, "nve")
+    assert ds["swe"].attrs["units"] == "cm"
 
 
 def test_an_unconvertible_unit_clash_raises_instead_of_mixing():
     records = _records("09AA-M1", "a", "swe", "cm", [1.0])
     records += _records("09BA-M7", "b", "swe", "furlongs", [1.0])
-    with pytest.raises(ValueError, match="No conversion from"):
+    with pytest.raises(ValueError, match="not safe for 'swe'"):
         _frames.records_to_dataset(records, "yukon")
 
 

@@ -174,7 +174,12 @@ def _harmonize_units(frame: pd.DataFrame, type_name: str) -> tuple[pd.DataFrame,
     for unit in units:
         if unit == target:
             continue
-        factor = networks.unit_factor(unit, target)
+        factor = networks.unit_factor(
+            type_name,
+            unit,
+            target,
+            variables=" ".join(sorted({str(v) for v in frame["variable"].dropna()})),
+        )
         _logger.info(
             "Converting %s values from %s to %s (factor %g) so the variable "
             "carries one unit.",

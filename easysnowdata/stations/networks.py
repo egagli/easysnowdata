@@ -160,18 +160,29 @@ TYPES: dict[str, tuple[str, str]] = {
     "other": ("", "other measurement"),
 }
 
-#: Multiply by this to get from the key's unit to the canonical one. Needed
-#: because two vendored Yukon variables miss DESIGN.md §3.5: ``baro`` is
-#: emitted in kPa rather than hPa, and one ``precip`` series in cm rather
-#: than mm. Upstream bugs; converting here keeps one unit per data variable.
-_UNIT_FACTORS: dict[tuple[str, str], float] = {
-    ("kPa", "hPa"): 10.0,
-    ("cm", "mm"): 10.0,
-    ("mm", "cm"): 0.1,
-    ("m", "cm"): 100.0,
-    ("cm", "m"): 0.01,
-    ("mm", "m"): 0.001,
-    ("m", "mm"): 1000.0,
+#: Conversions that are safe *for a given type*, keyed ``(type, from, to)``.
+#:
+#: Keyed by type on purpose. A length conversion that is right for one
+#: quantity is wrong for another: ``swe`` in cm and in m are the same depth of
+#: water, but ``precip`` in mm (depth of water) and in cm (depth of new
+#: snowfall, which is what Yukon's ``precip_snow_cm`` measures) are different
+#: quantities, and multiplying one by ten to look like the other would report
+#: 5 cm of snow as 50 mm of water. Anything not listed here raises rather than
+#: being fabricated.
+_UNIT_FACTORS: dict[tuple[str, str, str], float] = {
+    # Barometric pressure: the same quantity, and Yukon emits kPa where
+    # DataBC and DESIGN.md §3.5 use hPa.
+    ("baro", "kPa", "hPa"): 10.0,
+    ("baro", "hPa", "kPa"): 0.1,
+    # Snow water equivalent and snow depth: plain depth, safely rescaled.
+    ("swe", "m", "cm"): 100.0,
+    ("swe", "cm", "m"): 0.01,
+    ("swe", "mm", "cm"): 0.1,
+    ("swe", "cm", "mm"): 10.0,
+    ("snwd", "m", "cm"): 100.0,
+    ("snwd", "cm", "m"): 0.01,
+    ("snwd", "mm", "cm"): 0.1,
+    ("snwd", "cm", "mm"): 10.0,
 }
 
 
@@ -180,17 +191,27 @@ def canonical_units(type_name: str) -> str:
     return TYPES.get(type_name, ("", ""))[0]
 
 
-def unit_factor(from_units: str, to_units: str) -> float:
-    """Factor converting *from_units* to *to_units*; raises when unknown."""
+def unit_factor(
+    type_name: str, from_units: str, to_units: str, *, variables: str = ""
+) -> float:
+    """Factor converting *from_units* to *to_units* for *type_name*.
+
+    Raises when the conversion is not one this package considers safe for that
+    type — which includes conversions that are arithmetically obvious but
+    physically wrong, such as treating a depth of snowfall as a depth of water.
+    """
     if from_units == to_units or not from_units or not to_units:
         return 1.0
     try:
-        return _UNIT_FACTORS[from_units, to_units]
+        return _UNIT_FACTORS[type_name, from_units, to_units]
     except KeyError:
+        detail = f" ({variables})" if variables else ""
         raise ValueError(
-            f"No conversion from {from_units!r} to {to_units!r}. The network "
-            "client emitted a unit this adapter does not know how to bring "
-            "onto the canonical one."
+            f"{type_name!r} came back in both {from_units!r} and "
+            f"{to_units!r}{detail}, and converting between them is not safe "
+            f"for {type_name!r} — they may not measure the same quantity. "
+            "Request one native variable by name instead of the standardized "
+            "type, or use the clients directly."
         ) from None
 
 
