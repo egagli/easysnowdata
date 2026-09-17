@@ -304,15 +304,17 @@ VARIABLES: dict[str, dict] = {
         "notes": "Aggregation type 'sum'. Native units: mm.",
     },
     "precip_snow_cm": {
-        "name": "Precipitation (snowfall)",
-        "type": "precip",
+        "name": "Snowfall",
+        "type": "snowfall",
         "units": "cm",
         "output_units": "cm",
         "source": _YUKON_DATA_SOURCE + " (parameter 'precipitation, snow')",
         "description": "New snowfall accumulated over the recording interval.",
         "notes": (
             "ECCC daily series. The /timeseries units field is empty for "
-            "this parameter; cm comes from /parameters (id 1221)."
+            "this parameter; cm comes from /parameters (id 1221). Typed "
+            "`snowfall`, not `precip`: it is a depth of snow, not a depth of "
+            "water, and the two are not interconvertible (DESIGN.md §3.2)."
         ),
     },
     "rel_humidity_pct": {
@@ -378,7 +380,8 @@ _TYPE_TO_YUKON_VARS: dict[str, list[str]] = {
     "temp": ["air_temp_degc"],
     "temp_max": ["air_temp_max_degc"],
     "temp_min": ["air_temp_min_degc"],
-    "precip": ["precip_total_mm", "precip_rain_mm", "precip_snow_cm"],
+    "precip": ["precip_total_mm", "precip_rain_mm"],
+    "snowfall": ["precip_snow_cm"],
     "rh": ["rel_humidity_pct"],
     "wind_spd": ["wind_spd_kmh"],
     "wind_dir": ["wind_dir_deg"],
