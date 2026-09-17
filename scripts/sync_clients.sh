@@ -22,6 +22,14 @@ SPLIT_REF="_easysnowdata_clients_export"
 
 [ -d "$GSN/.git" ] || { echo "Not a git repo: $GSN" >&2; exit 1; }
 
+# `git subtree merge` refuses to run against a dirty tree, and pixi rewrites
+# pixi.lock's dev version string on every `pixi run`, so this trips easily.
+if ! git diff --quiet || ! git diff --cached --quiet; then
+    echo "Working tree has uncommitted changes; commit or stash them first:" >&2
+    git status --short >&2
+    exit 1
+fi
+
 echo "Splitting clients/ out of $GSN ($BRANCH)…"
 git -C "$GSN" subtree split --prefix=clients --branch "$SPLIT_REF" "$BRANCH" >/dev/null
 

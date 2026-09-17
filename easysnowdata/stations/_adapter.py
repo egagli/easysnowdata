@@ -299,10 +299,10 @@ def metadata(stations: Any, *, networks: Any = None) -> dict[str, Any]:
 def _one_metadata(value: Any, network: str, station_id: str) -> Any:
     """One station's metadata as a dict, whatever shape the client used.
 
-    DESIGN.md §3.4 says ``get_metadata(station_id) -> dict``, and four of the
-    five clients do that. The AWDB client returns a one-element list instead,
-    so it is unwrapped here rather than leaking two shapes to callers. The fix
-    belongs upstream; unwrapping is harmless once it lands.
+    DESIGN.md §3.4 says ``get_metadata(station_id) -> dict`` and all five
+    clients now do that — AWDB used to return a one-element list and was fixed
+    upstream. This stays as a cheap guard so a client that regresses, or a
+    future one that batches, cannot leak two shapes to callers.
     """
     if isinstance(value, list):
         if len(value) == 1:
