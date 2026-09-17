@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import logging
-from pathlib import Path
+import re
+import urllib.parse
+from pathlib import Path, PurePosixPath
 from typing import Any
+from urllib.request import url2pathname
 
 from easysnowdata import auth, config
 from easysnowdata._gdal import gdal_env
@@ -14,10 +17,44 @@ __all__ = ["open", "zip_url", "fetch"]
 
 _logger = logging.getLogger(__name__)
 
+#: "C:/…" — a Windows drive-lettered path, which must not keep a leading slash.
+_DRIVE = re.compile(r"^[A-Za-z]:/")
+
 
 def zip_url(url: str, member: str) -> str:
-    """GDAL path for *member* inside the remote zip at *url* (``zip+https://…!/member``)."""
-    return f"zip+{url}!/{member.lstrip('/')}"
+    """GDAL path for *member* inside the zip at *url*.
+
+    Remote archives get rasterio's ``zip+https://…!/member`` spelling, which it
+    turns into ``/vsizip/vsicurl/https://…``.
+
+    A **local** archive is spelled as ``/vsizip/`` directly instead of going
+    through a ``file://`` URI, because rasterio renders
+    ``zip+file:///C:/x.zip!/m.tif`` as ``/vsizip//C:/x.zip/m.tif`` — with two
+    slashes. On POSIX that extra slash is harmless (``//tmp/x.zip`` is still
+    ``/tmp/x.zip``); on Windows ``//C:/…`` is not a path GDAL can open. Only
+    local archives are affected, so this never reached a user — the products
+    all read remote zips — but it is what made the offline tier fail on
+    Windows the first time CI ran it.
+    """
+    member = member.lstrip("/")
+    text = str(url)
+    scheme = urllib.parse.urlsplit(text).scheme
+    if scheme == "file":
+        local = url2pathname(urllib.parse.urlsplit(text).path)
+    elif scheme == "" or len(scheme) == 1:  # a bare path, or a Windows drive letter
+        local = text
+    else:
+        return f"zip+{text}!/{member}"
+    path = PurePosixPath(Path(local).as_posix())
+    # A POSIX absolute path keeps its leading slash — /vsizip//tmp/x.zip is how
+    # an absolute path is spelled, and /vsizip/tmp/x.zip would be relative. A
+    # drive-lettered path must not gain one. url2pathname only strips the
+    # leading slash from a drive letter when it runs on Windows, so do it here
+    # rather than depending on the platform.
+    text_path = str(path)
+    if _DRIVE.match(text_path.lstrip("/")):
+        text_path = text_path.lstrip("/")
+    return f"/vsizip/{text_path}/{member}"
 
 
 def open(  # noqa: A001 — mirrors rioxarray.open_rasterio

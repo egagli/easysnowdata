@@ -570,6 +570,27 @@ class TestRasterHttp:
         world = raster_http.open(path, None, chunks=None)
         assert world.shape == (64, 64)
 
+    @pytest.mark.parametrize(
+        ("url", "expected"),
+        [
+            # Remote: rasterio's own spelling, which it turns into
+            # /vsizip/vsicurl/https://…
+            ("https://h/a.zip", "zip+https://h/a.zip!/b.tif"),
+            # Local: /vsizip/ directly. A POSIX absolute path keeps its leading
+            # slash (/vsizip//tmp/… is absolute, /vsizip/tmp/… would not be);
+            # a Windows drive letter must not gain one. Going through a
+            # file:// URI instead gives /vsizip//C:/… , which GDAL cannot open
+            # — the reason the offline tier failed on Windows in CI.
+            ("file:///tmp/a.zip", "/vsizip//tmp/a.zip/b.tif"),
+            ("/tmp/a.zip", "/vsizip//tmp/a.zip/b.tif"),
+            ("file:///C:/Users/r/a.zip", "/vsizip/C:/Users/r/a.zip/b.tif"),
+            ("C:/Users/r/a.zip", "/vsizip/C:/Users/r/a.zip/b.tif"),
+        ],
+    )
+    def test_zip_url_spellings(self, url, expected):
+        assert raster_http.zip_url(url, "/b.tif") == expected
+        assert raster_http.zip_url(url, "b.tif") == expected
+
     def test_zip_url_and_fetch(self, monkeypatch, tmp_path):
         assert (
             raster_http.zip_url("https://h/a.zip", "/b.tif")
