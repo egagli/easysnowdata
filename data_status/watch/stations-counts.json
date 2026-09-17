@@ -1,0 +1,22 @@
+{
+  "awdb": {
+    "active": 4396,
+    "count": 7146,
+    "daily": "not advertised"
+  },
+  "cdec": {
+    "active": 558,
+    "count": 558,
+    "daily": 558
+  },
+  "databc": {
+    "active": 248,
+    "count": 542,
+    "daily": 152
+  },
+  "yukon": {
+    "active": 77,
+    "count": 109,
+    "daily": 17
+  }
+}

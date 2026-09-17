@@ -1,0 +1,49 @@
+{
+  "COPERNICUS/Landcover/100m/Proba-V-C3/Global": {
+    "end": "2019-01-01",
+    "type": "IMAGE_COLLECTION",
+    "updated": "2024-03-07",
+    "url": "https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_Landcover_100m_Proba-V-C3_Global",
+    "window_days": 3650
+  },
+  "CSP/ERGo/1_0/Global/ALOS_CHILI": {
+    "bands": 1,
+    "type": "IMAGE",
+    "updated": "2022-01-12",
+    "url": "https://developers.google.com/earth-engine/datasets/catalog/CSP_ERGo_1_0_Global_ALOS_CHILI"
+  },
+  "ECMWF/ERA5_LAND/HOURLY": {
+    "end": "2026-09-11",
+    "type": "IMAGE_COLLECTION",
+    "updated": "2026-09-17",
+    "url": "https://developers.google.com/earth-engine/datasets/catalog/ECMWF_ERA5_LAND_HOURLY",
+    "window_days": 30
+  },
+  "OPERA/RTC/L2_V1/S1": {
+    "end": "2026-09-16",
+    "type": "IMAGE_COLLECTION",
+    "updated": "2026-09-17",
+    "url": "https://developers.google.com/earth-engine/datasets/catalog/OPERA_RTC_L2_V1_S1",
+    "window_days": 30
+  },
+  "USGS/WBD/2017/HUC08": {
+    "features": 2303,
+    "type": "TABLE",
+    "updated": "2019-08-26",
+    "url": "https://developers.google.com/earth-engine/datasets/catalog/USGS_WBD_2017_HUC08"
+  },
+  "projects/earthengine-legacy/assets/projects/climate-engine/snodas/daily": {
+    "end": "2026-09-16",
+    "type": "IMAGE_COLLECTION",
+    "updated": "2026-09-17",
+    "url": "https://developers.google.com/earth-engine/datasets/catalog/projects_earthengine-legacy_assets_projects_climate-engine_snodas_daily",
+    "window_days": 30
+  },
+  "projects/sat-io/open-datasets/USGS/ANNUAL_NLCD/LANDCOVER": {
+    "end": "2025-01-01",
+    "type": "IMAGE_COLLECTION",
+    "updated": "2026-07-08",
+    "url": "https://developers.google.com/earth-engine/datasets/catalog/projects_sat-io_open-datasets_USGS_ANNUAL_NLCD_LANDCOVER",
+    "window_days": 3650
+  }
+}

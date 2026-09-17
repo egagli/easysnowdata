@@ -720,6 +720,22 @@ def status_page(
             "",
         ]
 
+    lines += [
+        "## Upstream watch",
+        "",
+        "A second weekly job reads `WATCHLIST.toml` — CMR collections, STAC "
+        "collections, Earth Engine assets, static files, station counts, PyPI "
+        "releases, and a dozen provider changelogs — diffs each against the "
+        "snapshot in `data_status/watch/`, and opens one digest issue labelled "
+        "[`upstream-watch`](https://github.com/egagli/easysnowdata/issues?q=label%3Aupstream-watch) "
+        "with a section per category. If nothing changed, no issue is opened.",
+        "",
+        "```bash",
+        "pixi run -e dev watch   # fetch and diff, writing nothing",
+        "```",
+        "",
+    ]
+
     unprobed = sorted(
         pid
         for pid, product in products.items()

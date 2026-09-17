@@ -32,6 +32,8 @@ the build rather than silently resolving something else.
 | `pixi run -e docs docs-build` | build and run the whole gallery (needs every credential) |
 | `pixi run -e docs docs-serve` | serve `docs/_build/html` on port 8000 |
 | `pixi run -e dev check-sources` | run the health probes and update the history |
+| `pixi run -e dev report-health` | print the issues the last health run would open |
+| `pixi run -e dev watch` | run the upstream watch and print the digest, writing nothing |
 
 ## The four test tiers
 

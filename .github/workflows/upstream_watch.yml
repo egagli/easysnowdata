@@ -1,0 +1,79 @@
+name: Upstream Watch
+
+# The "check forums, changelogs and release notes periodically" ask, as a
+# weekly Action (REVAMP_PLAN §8, decision Q12: Actions only). Fetches every
+# entry in WATCHLIST.toml, diffs it against last week's snapshot in
+# data_status/watch/, and opens one digest issue. Nothing is acted on
+# automatically — the digest is the hand-off point.
+
+on:
+  schedule:
+    # Mondays at 09:00 UTC, an hour after the health check, so a provider that
+    # broke over the weekend is already in the tracker when the digest lands.
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Fetch and diff, but write no snapshots and open no issue"
+        type: boolean
+        default: false
+      only:
+        description: "Space-separated kinds to check (cmr stac gee file stations pypi page feed)"
+        type: string
+        default: ""
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: prefix-dev/setup-pixi@v0.10.2
+        with:
+          pixi-version: v0.65.0
+          environments: test-py313
+          locked: true
+
+      - name: Watch
+        env:
+          # Only the Earth Engine asset check needs a credential; everything
+          # else is public, and an entry that cannot be checked is reported in
+          # the digest rather than failing the job.
+          EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          EASYSNOWDATA_QUIET: "1"
+        run: |
+          pixi run -e test-py313 python scripts/watch.py \
+            ${{ inputs.dry_run && '--dry-run' || '--issue' }} \
+            ${{ inputs.only && format('--only {0}', inputs.only) || '' }} \
+            --output watch-digest.md
+
+      - name: Summarize
+        if: always()
+        run: |
+          {
+            echo "### Upstream watch"
+            echo
+            cat watch-digest.md 2>/dev/null || echo "Nothing changed."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit the snapshots
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data_status/watch
+          if git diff --staged --quiet; then
+            echo "No snapshot changes."
+          else
+            git commit -m "chore: upstream watch snapshots [skip ci]"
+            git push origin HEAD
+          fi

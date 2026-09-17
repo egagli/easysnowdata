@@ -282,6 +282,8 @@ build = "python -m build"
 changelog = "git-changelog --output CHANGELOG.md"
 check-sources = "python scripts/check_data_sources.py"
 update-status = "python scripts/update_readme_status.py"
+report-health = "python scripts/report_health.py --dry-run"
+watch = "python scripts/watch.py --dry-run"
 
 # ── Docs (Sphinx + pydata theme + sphinx-gallery + myst-nb; REVAMP_PLAN §7, Q6) ──
 # Separate from `dev` because the docs environment executes the gallery against

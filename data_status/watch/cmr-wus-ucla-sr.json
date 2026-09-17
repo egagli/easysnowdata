@@ -1,0 +1,9 @@
+{
+  "WUS_UCLA_SR (C3273595478-NSIDC_CPRD)": {
+    "revision_date": "2026-06-24",
+    "temporal_end": "2021-09-30",
+    "temporal_start": "1984-10-01",
+    "url": "https://cmr.earthdata.nasa.gov/search/concepts/C3273595478-NSIDC_CPRD.html",
+    "version": "1"
+  }
+}
