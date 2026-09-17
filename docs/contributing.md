@@ -138,6 +138,14 @@ catalog page means editing the catalog entry.
 What *is* hand-written: `index.md`, `installation.md`, `concepts.md`,
 `faq.md`, this page, and the gallery scripts.
 
+The README's header image is generated too: `scripts/make_montage.py` tiles
+the thumbnails of the executed gallery into `_static/gallery.webp`, which the
+scheduled docs build publishes and the README links to. It skips examples that
+did not run, so a build without credentials does not turn seven products into
+blank squares. Its status table and catalog summary come from
+`scripts/update_readme_status.py`, between the sentinel comments — edit the
+catalog entry, not the README.
+
 The legacy notebooks under `docs/examples/` are historical. They are rendered
 as-is, never re-executed, and excluded from ruff. Do not reformat them.
 

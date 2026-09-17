@@ -119,6 +119,12 @@ jobs:
             exit 1
           fi
 
+      # The README's header image, tiled from the thumbnails this build just
+      # produced and published with the site (§7.2). It replaces the 2024
+      # user-attachment upload that nobody could regenerate.
+      - name: Build the README gallery montage
+        run: pixi run -e docs python scripts/make_montage.py --out docs/_build/html/_static/gallery.webp
+
       - name: Save the executed gallery
         if: steps.mode.outputs.gallery == 'full'
         uses: actions/cache/save@v4
