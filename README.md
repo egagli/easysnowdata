@@ -15,34 +15,77 @@ formats wherever possible.
 
 ## Gallery
 
-![easysnowdata](https://github.com/user-attachments/assets/5b2c83a4-b732-4c35-86fd-1bccb954c286)
+<!-- GALLERY_START -->
+<!-- Built by scripts/make_montage.py from the thumbnails of the scheduled
+     docs build and published with the site, so this picture is always the
+     figures the package currently produces. Do not paste an upload here. -->
+[![easysnowdata example gallery](https://egagli.github.io/easysnowdata/_static/gallery.webp)](https://egagli.github.io/easysnowdata/auto_examples/index.html)
+
+One executed script per product — [browse them](https://egagli.github.io/easysnowdata/auto_examples/index.html),
+each with the code, the figure and a downloadable notebook.
+<!-- GALLERY_END -->
 
 ## Data Source Status
 
-<!-- DATA_STATUS_START -->
-_Last updated: 2026-09-14 08:16 UTC_  
-_⚠️ = skipped (credentials not available in this run)_
+Every route of every product is probed weekly. A failure opens an issue
+labelled [`data-source`](https://github.com/egagli/easysnowdata/issues?q=label%3Adata-source)
+and a recovery closes it; latency and DMR++ readiness are on the
+[status page](https://egagli.github.io/easysnowdata/status.html).
 
-| Data Source | Latest (Sep 14) | Sep 7 | Aug 31 | Aug 24 |
+<!-- DATA_STATUS_START -->
+_Last updated: 2026-09-17 21:39 UTC_  
+_⚠️ = skipped (credentials not available in this run). Latency and virtualization probes are on the [status page](https://egagli.github.io/easysnowdata/status.html)._
+
+| Data Source | Latest (Sep 17) | Sep 14 | Sep 7 | Aug 31 |
 | :---------- | :------: | :------: | :------: | :------: |
+| AWDB stations (NRCS REST API) | ✅ | — | — | — |
+| CDEC stations (JSON data servlet) | ✅ | — | — | — |
+| BC snow stations (DataBC WFS) | ✅ | — | — | — |
+| NVE stations (HydAPI) | ⚠️ | — | — | — |
+| Yukon stations (AquaCache API) | ✅ | — | — | — |
 | SNOTEL/CCSS station list (GitHub) | ✅ | ✅ | ✅ | ✅ |
+| Snow station archive tarball (global_snow_networks) | ✅ | — | — | — |
 | SNOTEL/CCSS station CSV (GitHub) | ✅ | ✅ | ✅ | ✅ |
-| HydroATLAS basins (figshare) | ✅ | ✅ | ✅ | ✅ |
-| GRDC major river basins (World Bank) | ✅ | ✅ | ✅ | ✅ |
-| GRDC WMO basins | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> |
-| Köppen-Geiger classification (figshare) | ✅ | ✅ | ✅ | ✅ |
-| Sturm & Liston snow classification (Azure) | ✅ | ✅ | ✅ | ✅ |
-| Forest cover fraction (Zenodo) | ✅ | ✅ | ✅ | ✅ |
-| Mountain snow mask (Zenodo) | ✅ | ✅ | ✅ | ✅ |
 | ARCO-ERA5 (GCS anonymous) | ✅ | ✅ | ✅ | ✅ |
-| Copernicus DEM (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
+| ERA5 (Google Earth Engine) | ✅ | ✅ | ✅ | ✅ |
+| Köppen-Geiger classification (figshare) | ✅ | ✅ | ✅ | ✅ |
+| HUC geometries (USGS WBD REST) | ✅ | — | — | — |
+| HUC geometries (GEE/USGS WBD) | ✅ | ✅ | ✅ | ✅ |
+| HydroATLAS basins (figshare) | ✅ | ✅ | ✅ | ✅ |
+| HydroBASINS (HydroSHEDS regional zip) | ✅ | — | — | — |
+| HydroBASINS (GEE/HydroATLAS) | ✅ | — | — | — |
+| GRDC major river basins (World Bank) | ✅ | ✅ | ✅ | ✅ |
+| GRDC WMO basins | <abbr title="ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection r">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> |
+| MODIS snow cover MOD10A1F (NASA NSIDC) | ✅ | — | — | — |
+| MODIS snow cover MOD10A1 (Planetary Computer) | ✅ | — | — | — |
+| Mountain snow mask (Zenodo) | ✅ | ✅ | ✅ | ✅ |
+| SNODAS (NSIDC G02158) | ✅ | — | — | — |
+| SNODAS (GEE/Climate Engine) | ✅ | ✅ | ✅ | ✅ |
+| Sturm & Liston snow classification (NSIDC-0768) | ✅ | — | — | — |
+| Sturm & Liston snow classification (Azure) | ✅ | ✅ | ✅ | ✅ |
+| UCLA Snow Reanalysis (NASA NSIDC) | ✅ | ⚠️ | ⚠️ | ⚠️ |
+| HMA Snow Reanalysis (NASA NSIDC) | ✅ | — | — | — |
+| VIIRS snow cover VNP10A1F (NASA NSIDC) | ✅ | — | — | — |
+| Forest cover fraction (Zenodo) | ✅ | ✅ | ✅ | ✅ |
+| Forest cover fraction (GEE/CGLS-LC100) | ✅ | — | — | — |
 | ESA WorldCover (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
-| HUC geometries (GEE/USGS WBD) | ✅ | ✅ | ✅ | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
-| SNODAS (GEE/Climate Engine) | ✅ | ✅ | ✅ | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
-| ERA5 (Google Earth Engine) | ✅ | ✅ | ✅ | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
-| CHILI (GEE/CSP ERGo) | ✅ | ✅ | ✅ | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
-| NLCD (GEE/USGS) | ✅ | ✅ | ✅ | <abbr title="RefreshError: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_d">❌</abbr> |
-| UCLA Snow Reanalysis (NASA NSIDC) | ⚠️ | ⚠️ | ⚠️ | ⚠️ |
+| ESA WorldCover (AWS bucket) | ✅ | — | — | — |
+| Annual NLCD (GEE community asset) | ✅ | — | — | — |
+| NLCD (GEE/USGS) | ✅ | ✅ | ✅ | ✅ |
+| HLS L30 (CMR-STAC LPCLOUD) | ✅ | — | — | — |
+| HLS S30 (Planetary Computer) | ✅ | — | — | — |
+| PlanetScope (Planet Data API) | ⚠️ | — | — | — |
+| Sentinel-2 L2A (Planetary Computer) | ✅ | — | — | — |
+| Sentinel-2 L2A (Earth Search) | ✅ | — | — | — |
+| Sentinel-1 RTC (Planetary Computer) | ✅ | — | — | — |
+| Sentinel-1 RTC OPERA (CMR-STAC ASF) | ✅ | — | — | — |
+| Sentinel-1 RTC OPERA (Earth Engine) | ✅ | — | — | — |
+| Sentinel-1 static layers (CMR-STAC ASF) | ✅ | — | — | — |
+| Copernicus DEM for the incidence angle (Planetary Computer) | ✅ | — | — | — |
+| Sentinel-1 GRD angle band (Earth Engine) | ✅ | — | — | — |
+| CHILI (GEE/CSP ERGo) | ✅ | ✅ | ✅ | ✅ |
+| Copernicus DEM (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
+| Copernicus DEM (Earth Search) | ✅ | — | — | — |
 <!-- DATA_STATUS_END -->
 
 ## Installation
@@ -79,43 +122,59 @@ Some data sources need free accounts and credentials passed as environment varia
 
 Planetary Computer and anonymous GCS access require no credentials.
 
-## Modules
+## What is in it
 
-| Module | What it provides |
-|--------|-----------------|
-| `automatic_weather_stations` | SNOTEL & CCSS station metadata + time-series data |
-| `hydroclimatology` | ERA5, SNODAS, UCLA snow reanalysis, HUC boundaries, HydroATLAS, GRDC basins, Köppen-Geiger |
-| `remote_sensing` | Sentinel-1, Sentinel-2, HLS, MODIS snow, ESA WorldCover, forest cover, snow classification |
-| `topography` | Copernicus DEM (30 m / 90 m), CHILI topographic index |
-| `utils` | Shared helpers: bbox conversion, water-year utilities, STAC config |
+<!-- CATALOG_START -->
+28 products across 8 themes, each with one or more access routes:
+
+| theme | products | open without an account |
+| --- | --- | --- |
+| **climate** | [`era5`](https://egagli.github.io/easysnowdata/catalog/era5.html), [`koppen-geiger`](https://egagli.github.io/easysnowdata/catalog/koppen-geiger.html) | 2 of 2 |
+| **hydro** | [`grdc-major-river-basins`](https://egagli.github.io/easysnowdata/catalog/grdc-major-river-basins.html), [`grdc-wmo-basins`](https://egagli.github.io/easysnowdata/catalog/grdc-wmo-basins.html), [`huc`](https://egagli.github.io/easysnowdata/catalog/huc.html), [`hydrobasins`](https://egagli.github.io/easysnowdata/catalog/hydrobasins.html) | 4 of 4 |
+| **land** | [`esa-worldcover`](https://egagli.github.io/easysnowdata/catalog/esa-worldcover.html), [`forest-cover-fraction`](https://egagli.github.io/easysnowdata/catalog/forest-cover-fraction.html), [`nlcd`](https://egagli.github.io/easysnowdata/catalog/nlcd.html) | 2 of 3 |
+| **optical** | [`hls`](https://egagli.github.io/easysnowdata/catalog/hls.html), [`planetscope`](https://egagli.github.io/easysnowdata/catalog/planetscope.html), [`sentinel-2-l2a`](https://egagli.github.io/easysnowdata/catalog/sentinel-2-l2a.html) | 2 of 3 |
+| **sar** | [`sentinel-1-local-incidence-angle`](https://egagli.github.io/easysnowdata/catalog/sentinel-1-local-incidence-angle.html), [`sentinel-1-rtc`](https://egagli.github.io/easysnowdata/catalog/sentinel-1-rtc.html) | 2 of 2 |
+| **snow** | [`modis-snow`](https://egagli.github.io/easysnowdata/catalog/modis-snow.html), [`mountain-snow-mask`](https://egagli.github.io/easysnowdata/catalog/mountain-snow-mask.html), [`snodas`](https://egagli.github.io/easysnowdata/catalog/snodas.html), [`snow-classification`](https://egagli.github.io/easysnowdata/catalog/snow-classification.html), [`ucla-snow-reanalysis`](https://egagli.github.io/easysnowdata/catalog/ucla-snow-reanalysis.html), [`viirs-snow`](https://egagli.github.io/easysnowdata/catalog/viirs-snow.html) | 4 of 6 |
+| **stations** | [`awdb-stations`](https://egagli.github.io/easysnowdata/catalog/awdb-stations.html), [`cdec-stations`](https://egagli.github.io/easysnowdata/catalog/cdec-stations.html), [`databc-stations`](https://egagli.github.io/easysnowdata/catalog/databc-stations.html), [`nve-stations`](https://egagli.github.io/easysnowdata/catalog/nve-stations.html), [`snow-station-archive`](https://egagli.github.io/easysnowdata/catalog/snow-station-archive.html), [`yukon-stations`](https://egagli.github.io/easysnowdata/catalog/yukon-stations.html) | 5 of 6 |
+| **terrain** | [`chili`](https://egagli.github.io/easysnowdata/catalog/chili.html), [`copernicus-dem`](https://egagli.github.io/easysnowdata/catalog/copernicus-dem.html) | 1 of 2 |
+<!-- CATALOG_END -->
+
+Every product's routes, resolution, credentials, licence and health are on its
+own page: <https://egagli.github.io/easysnowdata/catalog/>.
 
 ## Quick Start
 
 ```python
-import easysnowdata
+import easysnowdata as esd
 
-# ── Automatic weather stations ─────────────────────────────────────────────
-sc = easysnowdata.automatic_weather_stations.StationCollection()
-sc.get_data(stations="679_WA_SNTL", variables=["WTEQ", "SNWD"],
-            start_date="2023-10-01", end_date="2024-06-30")
-sc.data.plot()                        # pandas DataFrame for one station
+aoi = (-121.94, 46.72, -121.54, 46.99)          # Mount Rainier; any AOI form works
 
-# ── Topography ─────────────────────────────────────────────────────────────
-bbox = (-121.94, 46.72, -121.54, 46.99)   # Mount Rainier, WA
-dem = easysnowdata.topography.get_copernicus_dem(bbox_input=bbox, resolution=30)
-dem.plot()                               # xarray DataArray
+# Snow stations: which are here, then one water year of observations
+inv = esd.stations.inventory(aoi, daily_only=True)
+obs = esd.stations.load(inv, variables=["swe", "snwd"], time="2023-10/2024-09")
 
-# ── Hydroclimatology ───────────────────────────────────────────────────────
-era5 = easysnowdata.hydroclimatology.get_era5(
-    bbox_input=bbox, source="GCS",
-    start_date="2023-01-01", end_date="2023-01-31"
-)
-era5["2m_temperature"].mean("time").plot()
+# Terrain, SAR and snow water equivalent — lazy, Dask-backed, CRS attached
+dem = esd.terrain.dem.load(aoi)                             # Copernicus GLO-30
+s1 = esd.sar.sentinel1.load(aoi, "2024-03", units="dB")     # Sentinel-1 RTC
+swe = esd.snow.snodas.load(aoi, "2024-03")                  # SNODAS, no account
 
-# ── Remote sensing ─────────────────────────────────────────────────────────
-snow_class = easysnowdata.remote_sensing.get_seasonal_snow_classification(bbox)
-snow_class.attrs["example_plot"](snow_class)
+# Optical, masked and turned into a snow index
+s2 = esd.optical.sentinel2.load(aoi, "2024-03", mask="scl-default")
+ndsi = esd.processing.ndsi(s2)
+
+# Categorical products carry CF flag attrs, so the legend draws itself
+esd.plotting.categorical(esd.land.landcover.load(aoi))
+
+# What is available, and what it needs
+esd.catalog.search("swe")
+esd.catalog.describe("snodas")
+esd.auth.status()
 ```
+
+The pre-0.1 API (`easysnowdata.remote_sensing.get_*`,
+`automatic_weather_stations.StationCollection`, …) still works and emits a
+`DeprecationWarning` naming its replacement. It is removed one minor release
+after 0.1.
 
 ## Documentation
 

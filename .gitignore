@@ -64,8 +64,18 @@ instance/
 # Scrapy stuff:
 .scrapy
 
-# Sphinx documentation
+# Sphinx documentation. Everything the build generates: the executed gallery,
+# the per-product catalog pages, the API reference, the credentials and status
+# pages and the autosummary stubs. None of it is committed (REVAMP_PLAN §7.2).
 docs/_build/
+docs/auto_examples/
+docs/catalog/
+docs/api/
+docs/generated/
+docs/gen_modules/
+docs/credentials.md
+docs/status.md
+docs/sg_execution_times.rst
 
 # PyBuilder
 target/
@@ -97,7 +107,7 @@ ENV/
 # Rope project settings
 .ropeproject
 
-# mkdocs documentation
+# mkdocs documentation (removed in Phase 4; the entry outlives the config)
 /site
 
 # mypy
@@ -109,6 +119,12 @@ ENV/
 # API keys
 ee_key.json
 
+# Written by hatch-vcs at build/install time
+easysnowdata/_version.py
+coverage.xml
+
 # Local example downloads (multi-GB Planet scenes, earthaccess downloads)
 docs/examples/planet_data/
 docs/examples/data/
+# Local scratch notebook (the seed of the Planet work, REVAMP_PLAN Q17)
+docs/examples/sandbox.ipynb

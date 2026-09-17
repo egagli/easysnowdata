@@ -1,29 +1,33 @@
-"""Shared utility functions used across easysnowdata modules."""
+"""Shared utility functions used across easysnowdata modules.
+
+Credential handling lives in :mod:`easysnowdata.auth` and the cache directory
+in :mod:`easysnowdata.config`; the names kept here are thin delegates so the
+existing modules and tests keep working.
+"""
 
 from __future__ import annotations
 
-import base64
 import contextlib
 import functools
 import io
-import json
 import logging
-import math
-import netrc
-import os
-import re
-import time
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import pooch
 import requests
 import shapely
 import yaml
 from bs4 import BeautifulSoup
+
+from easysnowdata import auth, config
+from easysnowdata.auth import CredentialError
+from easysnowdata.auth.earthengine import (
+    credentials_from_token as _ee_credentials_from_token,
+)
+from easysnowdata.auth.earthengine import decode_token as _decode_ee_token
 
 if TYPE_CHECKING:
     import ee
@@ -42,251 +46,68 @@ __all__ = [
     "datetime_to_WY",
     "HLS_xml_url_to_metadata_df",
 ]
+_ = (_decode_ee_token, _ee_credentials_from_token)  # re-exported for back-compat
 
 _logger = logging.getLogger(__name__)
 
-
-class CredentialError(Exception):
-    """Raised when required credentials are missing or not yet configured."""
-
-
-# ── Setup instructions ────────────────────────────────────────────────────────
-
-_EE_SETUP_MSG = """\
-Google Earth Engine credentials not found.
-
-First-time setup (run once in a terminal or notebook):
-
-    import ee
-    ee.Authenticate()   # opens a browser window — follow the prompts
-    ee.Initialize()
-
-For non-interactive / CI environments set the EARTHENGINE_TOKEN environment
-variable to the contents of a Google service-account key JSON (raw or
-base64-encoded). The JSON from ~/.config/earthengine/credentials also works.
-
-Sign up at: https://earthengine.google.com"""
-
-_EARTHACCESS_SETUP_MSG = """\
-NASA EarthData credentials not found.
-
-First-time setup (run once in a terminal or notebook):
-
-    import earthaccess
-    earthaccess.login(persist=True)   # saves to ~/.netrc — only needed once
-
-For non-interactive / CI environments use one of:
-  - EARTHDATA_TOKEN   (recommended — generate at urs.earthdata.nasa.gov)
-  - EARTHDATA_USERNAME + EARTHDATA_PASSWORD
-
-Register for a free account at: https://urs.earthdata.nasa.gov"""
+# Setup texts now live on the providers; kept under the old names.
+_EE_SETUP_MSG = auth.get("earthengine").setup_instructions
+_EARTHACCESS_SETUP_MSG = auth.get("earthdata").setup_instructions
+_EE_HIGH_VOLUME_URL = "https://earthengine-highvolume.googleapis.com"
 
 
-# ── Credential detection ──────────────────────────────────────────────────────
+# ── Credential detection (delegates to easysnowdata.auth) ─────────────────────
 
 
 def _has_earthengine_credentials() -> bool:
-    """Return True if EE credentials can be found (env var or credential file)."""
-    if os.environ.get("EARTHENGINE_TOKEN"):
-        return True
-    try:
-        import ee  # noqa: PLC0415
-
-        creds_path = Path(ee.oauth.get_credentials_path())
-        return creds_path.exists()
-    except Exception:
-        return False
+    """Return True if EE credentials can be found (env var, ADC, or credential file)."""
+    return bool(auth.detect("earthengine"))
 
 
 def _has_earthaccess_credentials() -> bool:
-    """Return True if NASA EarthData credentials can be found (env vars or ~/.netrc)."""
-    if os.environ.get("EARTHDATA_TOKEN"):
-        return True
-    if os.environ.get("EARTHDATA_USERNAME") and os.environ.get("EARTHDATA_PASSWORD"):
-        return True
-    try:
-        n = netrc.netrc()
-        return n.authenticators("urs.earthdata.nasa.gov") is not None
-    except Exception:
-        return False
+    """Return True if NASA Earthdata credentials can be found (env vars or ~/.netrc)."""
+    return bool(auth.detect("earthdata"))
 
 
-def _earthaccess_login() -> None:
+def _earthaccess_login():
     """Log in to NASA Earthdata through ``earthaccess`` if not already done.
 
-    ``earthaccess`` >= 0.16 no longer logs in implicitly, so ``open()`` and
-    ``download()`` need an explicit ``earthaccess.login()`` first. The
-    strategy follows the package's credential-detection order: environment
-    variables (``EARTHDATA_TOKEN``, or ``EARTHDATA_USERNAME`` +
-    ``EARTHDATA_PASSWORD``) first, then ``~/.netrc``. It never prompts.
+    Delegates to the ``earthdata`` auth provider (explicit ``earthaccess.login``
+    with the environment-then-netrc strategy, store check, one retry). Never
+    prompts.
 
     Raises
     ------
     CredentialError
         If no credentials are found or Earthdata Login rejects them.
     """
-    import earthaccess  # noqa: PLC0415
-
-    # Logged in already? Require the Store too: with EARTHDATA_TOKEN earthaccess
-    # marks the Auth authenticated before it contacts Earthdata Login, and if
-    # the Store creation then fails (e.g. a transient network error) the
-    # module is left with authenticated=True but __store__ is None, which
-    # makes the next open()/download() fail with a bare AttributeError.
-    auth = getattr(earthaccess, "__auth__", None)
-    store = getattr(earthaccess, "__store__", None)
-    if auth is not None and getattr(auth, "authenticated", False) and store is not None:
-        return
-
-    if os.environ.get("EARTHDATA_TOKEN") or (
-        os.environ.get("EARTHDATA_USERNAME") and os.environ.get("EARTHDATA_PASSWORD")
-    ):
-        strategy = "environment"
-    elif _has_earthaccess_credentials():
-        strategy = "netrc"
-    else:
+    if not _has_earthaccess_credentials():
         raise CredentialError(
-            f"NASA EarthData credentials are required.\n\n{_EARTHACCESS_SETUP_MSG}"
+            f"NASA EarthData credentials are required.\n\n{_EARTHACCESS_SETUP_MSG}",
+            provider="earthdata",
         )
-
-    _logger.debug("Logging in to NASA Earthdata with strategy %r.", strategy)
-    last_exc: Exception | None = None
-    for attempt in (1, 2):  # one retry for transient connection errors
-        try:
-            auth = earthaccess.login(strategy=strategy)
-        except Exception as exc:
-            last_exc = exc
-            if auth is not None:
-                auth.authenticated = False  # do not leave half-initialised state
-            if attempt == 1:
-                _logger.warning("Earthdata login attempt failed (%s); retrying.", exc)
-                time.sleep(2)
-            continue
-        if getattr(auth, "authenticated", False) and (
-            getattr(earthaccess, "__store__", None) is not None
-        ):
-            return
-        last_exc = None
-        break
-    detail = f": {last_exc}" if last_exc is not None else ""
-    raise CredentialError(
-        f"NASA EarthData login failed (strategy {strategy!r}){detail}\n\n"
-        f"{_EARTHACCESS_SETUP_MSG}"
-    ) from last_exc
-
-
-# ── Earth Engine initialisation ───────────────────────────────────────────────
-
-_EE_HIGH_VOLUME_URL = "https://earthengine-highvolume.googleapis.com"
-
-
-def _decode_ee_token(token: str | None) -> dict | None:
-    """Decode ``EARTHENGINE_TOKEN`` (raw or base64-encoded JSON) into a dict."""
-    if token is None or not token.strip():
-        return None
-    raw = token.strip()
-    try:
-        info = json.loads(raw)
-    except json.JSONDecodeError:
-        try:
-            raw = base64.b64decode(re.sub(r"\s+", "", raw), validate=True).decode()
-            info = json.loads(raw)
-        except (ValueError, UnicodeDecodeError) as exc:
-            raise ValueError(
-                "EARTHENGINE_TOKEN is neither JSON nor base64-encoded JSON."
-            ) from exc
-    if not isinstance(info, dict):
-        raise ValueError("EARTHENGINE_TOKEN must decode to a JSON object.")
-    info["_raw"] = raw
-    return info
-
-
-def _ee_credentials_from_token(token: str | None = None):
-    """Build Earth Engine credentials from ``EARTHENGINE_TOKEN``.
-
-    Accepted formats (each either raw or base64-encoded):
-
-    * a Google **service-account key** JSON (recommended for CI), or
-    * the JSON written to ``~/.config/earthengine/credentials`` by
-      ``ee.Authenticate()`` (``client_id`` / ``client_secret`` / ``refresh_token``).
-
-    Parameters
-    ----------
-    token : str, optional
-        Token string; defaults to the ``EARTHENGINE_TOKEN`` environment variable.
-
-    Returns
-    -------
-    google.auth.credentials.Credentials or None
-        ``None`` when the token is unset or empty.
-
-    Raises
-    ------
-    ValueError
-        If the token cannot be decoded or is not one of the accepted formats.
-    """
-    info = _decode_ee_token(
-        os.environ.get("EARTHENGINE_TOKEN") if token is None else token
-    )
-    if info is None:
-        return None
-    import ee  # noqa: PLC0415
-    import google.oauth2.credentials  # noqa: PLC0415
-
-    if info.get("type") == "service_account":
-        return ee.ServiceAccountCredentials(info["client_email"], key_data=info["_raw"])
-    if "refresh_token" in info:
-        # Newer ~/.config/earthengine/credentials files omit the client id/secret
-        # and rely on Earth Engine's default OAuth client, as ee.oauth does.
-        return google.oauth2.credentials.Credentials(
-            None,
-            token_uri=info.get("token_uri", "https://oauth2.googleapis.com/token"),
-            client_id=info.get("client_id", ee.oauth.CLIENT_ID),
-            client_secret=info.get("client_secret", ee.oauth.CLIENT_SECRET),
-            refresh_token=info["refresh_token"],
-            scopes=info.get("scopes"),
-            quota_project_id=info.get("project"),
-        )
-    raise ValueError(
-        "EARTHENGINE_TOKEN is neither a service-account key nor an Earth Engine "
-        "OAuth token (expected 'type': 'service_account' or a 'refresh_token')."
-    )
+    return auth.get("earthdata").ensure()
 
 
 def initialize_earthengine(**kwargs) -> None:
-    """Initialise Google Earth Engine, honouring ``EARTHENGINE_TOKEN`` if set.
+    """Initialise Google Earth Engine once, honouring ``EARTHENGINE_TOKEN`` if set.
 
-    With ``EARTHENGINE_TOKEN`` set (see :func:`_ee_credentials_from_token`) the
-    credentials it encodes are used — this is how CI authenticates. Otherwise
-    ``ee.Initialize()`` falls back to the credentials stored by
-    ``ee.Authenticate()``. Uses the high-volume endpoint unless ``opt_url`` /
-    ``url`` is given. Extra keyword arguments are passed to ``ee.Initialize``.
+    Delegates to the ``earthengine`` auth provider: token (service-account or
+    OAuth JSON, raw or base64), Application Default Credentials, or the
+    ``ee.Authenticate()`` file; high-volume endpoint unless ``opt_url``/``url``
+    is given; a Cloud project from ``EE_PROJECT_ID``/``EARTHENGINE_PROJECT``,
+    the token, or the credentials file. Extra keyword arguments are passed to
+    ``ee.Initialize`` and force a re-initialisation.
     """
-    import ee  # noqa: PLC0415
-
-    if "url" not in kwargs:
-        kwargs.setdefault("opt_url", _EE_HIGH_VOLUME_URL)
-    info = _decode_ee_token(os.environ.get("EARTHENGINE_TOKEN"))
-    if info is not None:
-        kwargs["credentials"] = _ee_credentials_from_token(info["_raw"])
-        kwargs.setdefault("project", info.get("project") or info.get("project_id"))
-    ee.Initialize(**kwargs)
+    auth.get("earthengine").ensure(**kwargs)
 
 
-# ── Local cache ───────────────────────────────────────────────────────────────
+# ── Local cache (delegates to easysnowdata.config) ────────────────────────────
 
 
 def _cache_dir(*subdirs: str) -> Path:
-    """Return (and create) the easysnowdata cache directory.
-
-    Defaults to the platform user cache dir (``~/.cache/easysnowdata`` on
-    Linux, ``~/Library/Caches/easysnowdata`` on macOS,
-    ``%LOCALAPPDATA%\\easysnowdata\\cache`` on Windows). Set the
-    ``EASYSNOWDATA_CACHE_DIR`` environment variable to override the root.
-    """
-    root = os.environ.get("EASYSNOWDATA_CACHE_DIR") or pooch.os_cache("easysnowdata")
-    path = Path(root).expanduser().joinpath(*subdirs)
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+    """Return (and create) the easysnowdata cache directory (see ``config.cache_dir``)."""
+    return config.cache_dir(*subdirs)
 
 
 def _fetch_to_cache(
@@ -298,11 +119,9 @@ def _fetch_to_cache(
     archives whose hosts do not support range requests or reject the HEAD
     request that GDAL's ``/vsicurl`` sends first (e.g. GRDC).
     """
-    path = _cache_dir(*([subdir] if subdir else []))
-    local = pooch.retrieve(
-        url, known_hash=None, fname=fname, path=path, progressbar=progressbar
-    )
-    return Path(local)
+    from easysnowdata.providers import raster_http  # noqa: PLC0415
+
+    return raster_http.fetch(url, fname, subdir=subdir, progressbar=progressbar)
 
 
 # ── Auth decorators ───────────────────────────────────────────────────────────
@@ -315,7 +134,8 @@ def requires_earthengine(func):
     def wrapper(*args, **kwargs):
         if not _has_earthengine_credentials():
             raise CredentialError(
-                f"`{func.__qualname__}` requires Google Earth Engine.\n\n{_EE_SETUP_MSG}"
+                f"`{func.__qualname__}` requires Google Earth Engine.\n\n{_EE_SETUP_MSG}",
+                provider="earthengine",
             )
         return func(*args, **kwargs)
 
@@ -329,7 +149,8 @@ def requires_earthaccess(func):
     def wrapper(*args, **kwargs):
         if not _has_earthaccess_credentials():
             raise CredentialError(
-                f"`{func.__qualname__}` requires NASA EarthData credentials.\n\n{_EARTHACCESS_SETUP_MSG}"
+                f"`{func.__qualname__}` requires NASA EarthData credentials.\n\n{_EARTHACCESS_SETUP_MSG}",
+                provider="earthdata",
             )
         return func(*args, **kwargs)
 
@@ -388,66 +209,14 @@ def get_ee_grid_params(
 ) -> dict:
     """Build the pixel-grid kwargs required by ``xarray.open_dataset(engine="ee")``.
 
-    xee >= 0.1 no longer accepts ``geometry`` / ``scale`` / ``projection``; the
-    output grid must instead be given explicitly as ``crs``, ``crs_transform``
-    and ``shape_2d``. This helper derives those from the *native* grid of an
-    Earth Engine object and, optionally, crops the grid to a bounding box.
-
-    Parameters
-    ----------
-    ee_obj : ee.Image or ee.ImageCollection
-        Object whose native projection defines the grid. For a collection the
-        first band of the first image is used (via
-        ``xee.helpers.extract_grid_params``).
-    bbox_gdf : geopandas.GeoDataFrame, optional
-        Area of interest, in any CRS. The grid is cropped to the smallest block
-        of native pixels that fully covers it, so the returned pixels are exact
-        native values rather than a resampled copy. ``None`` returns the full
-        native grid.
-
-    Returns
-    -------
-    dict
-        ``{"crs": str, "crs_transform": tuple, "shape_2d": (width, height)}`` —
-        unpack directly into ``xarray.open_dataset(..., engine="ee", **grid)``.
+    Delegates to :func:`easysnowdata.providers.gee.grid_params`: the *native*
+    grid of an Earth Engine object (``crs``, ``crs_transform``, ``shape_2d``),
+    optionally cropped to the smallest block of native pixels covering
+    *bbox_gdf* (any CRS). ``None`` returns the full native grid.
     """
-    from xee import helpers as xee_helpers  # noqa: PLC0415
+    from easysnowdata.providers import gee  # noqa: PLC0415
 
-    native = xee_helpers.extract_grid_params(ee_obj)
-    if bbox_gdf is None:
-        return dict(native)
-
-    a, b, c, d, e, f = native["crs_transform"][:6]
-    if b or d:
-        raise ValueError("Rotated Earth Engine grids are not supported.")
-
-    geom = bbox_gdf.geometry
-    if geom.crs is None:
-        geom = geom.set_crs("EPSG:4326")
-    # Densify the outline so curved edges survive reprojection to projected CRSs.
-    xmin0, ymin0, xmax0, ymax0 = geom.total_bounds
-    seg = max(xmax0 - xmin0, ymax0 - ymin0) / 100 or 1.0
-    x_min, y_min, x_max, y_max = geom.segmentize(seg).to_crs(native["crs"]).total_bounds
-
-    # Pixel indices of the bbox edges on the native grid, expanded outward.
-    eps = 1e-9  # tolerate float noise when an edge sits exactly on a pixel boundary
-    cols = ((x_min - c) / a, (x_max - c) / a)
-    rows = ((y_min - f) / e, (y_max - f) / e)
-    col0 = math.floor(min(cols) + eps)
-    col1 = math.ceil(max(cols) - eps)
-    row0 = math.floor(min(rows) + eps)
-    row1 = math.ceil(max(rows) - eps)
-
-    # Pixels outside the asset footprint come back as NaN (as with xee < 0.1),
-    # so the grid is not clamped to the native extent; just guarantee >= 1 pixel.
-    col1 = max(col1, col0 + 1)
-    row1 = max(row1, row0 + 1)
-
-    return {
-        "crs": native["crs"],
-        "crs_transform": (a, 0.0, c + col0 * a, 0.0, e, f + row0 * e),
-        "shape_2d": (col1 - col0, row1 - row0),
-    }
+    return gee.grid_params(ee_obj, bbox_gdf)
 
 
 def get_stac_cfg(sensor: str = "sentinel-2-l2a") -> dict:
@@ -604,49 +373,27 @@ def get_stac_cfg(sensor: str = "sentinel-2-l2a") -> dict:
 def get_water_year_start(date: pd.Timestamp, hemisphere: str) -> pd.Timestamp:
     """Return the start date of the water year containing *date*.
 
-    Parameters
-    ----------
-    date : pandas.Timestamp
-        Any date within the water year of interest.
-    hemisphere : str
-        ``"northern"`` (water year starts Oct 1) or
-        ``"southern"`` (water year starts Apr 1).
-
-    Returns
-    -------
-    pandas.Timestamp
-        The first day of the corresponding water year.
+    Delegates to :func:`easysnowdata.processing.wateryear.water_year_start`
+    (``"northern"`` starts 1 October, ``"southern"`` 1 April).
     """
-    year = date.year
-    month = 10 if hemisphere == "northern" else 4
-    if (hemisphere == "northern" and date.month < 10) or (
-        hemisphere == "southern" and date.month < 4
-    ):
-        year -= 1
-    return pd.Timestamp(year=year, month=month, day=1)
+    from easysnowdata.processing import wateryear  # noqa: PLC0415
+
+    return wateryear.water_year_start(pd.Timestamp(date), hemisphere)
 
 
 def datetime_to_DOWY(
     date: pd.Timestamp | str, hemisphere: str = "northern"
 ) -> int | float:
-    """Convert a date to the day-of-water-year (DOWY).
+    """Convert a date to the day-of-water-year (DOWY), 1-indexed.
 
-    Parameters
-    ----------
-    date : pandas.Timestamp or str
-        The date to convert. Strings are parsed by :func:`pandas.to_datetime`.
-    hemisphere : str, optional
-        ``"northern"`` or ``"southern"``. Default is ``"northern"``.
-
-    Returns
-    -------
-    int or float
-        Day of the water year (1-indexed), or ``np.nan`` on parse failure.
+    Scalar wrapper around the vectorized
+    :func:`easysnowdata.processing.wateryear.day_of_water_year`; returns
+    ``np.nan`` when *date* cannot be parsed.
     """
+    from easysnowdata.processing import wateryear  # noqa: PLC0415
+
     try:
-        date = pd.to_datetime(date)
-        start = get_water_year_start(date, hemisphere)
-        return (date - start).days + 1
+        return int(wateryear.day_of_water_year(pd.to_datetime(date), hemisphere))
     except Exception as exc:
         _logger.warning("Could not compute DOWY for %s: %s", date, exc)
         return np.nan
@@ -657,27 +404,15 @@ def datetime_to_WY(
 ) -> int | float:
     """Convert a date to its water year (WY).
 
-    Parameters
-    ----------
-    date : pandas.Timestamp or str
-        The date to convert. Strings are parsed by :func:`pandas.to_datetime`.
-    hemisphere : str, optional
-        ``"northern"`` or ``"southern"``. Default is ``"northern"``.
-
-    Returns
-    -------
-    int or float
-        The water year as a calendar year integer, or ``np.nan`` on failure.
-
-    Notes
-    -----
-    For the northern hemisphere, the water year is the calendar year in which
-    the water year *ends* (i.e. WY 2021 runs Oct 1 2020 – Sep 30 2021).
+    Scalar wrapper around the vectorized
+    :func:`easysnowdata.processing.wateryear.water_year`; returns ``np.nan``
+    when *date* cannot be parsed. For the northern hemisphere the water year is
+    the calendar year in which it *ends* (WY 2021 runs 2020-10-01 – 2021-09-30).
     """
+    from easysnowdata.processing import wateryear  # noqa: PLC0415
+
     try:
-        date = pd.to_datetime(date)
-        start = get_water_year_start(date, hemisphere)
-        return start.year + (1 if hemisphere == "northern" else 0)
+        return int(wateryear.water_year(pd.to_datetime(date), hemisphere))
     except Exception as exc:
         _logger.warning("Could not compute WY for %s: %s", date, exc)
         return np.nan

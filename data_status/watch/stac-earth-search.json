@@ -1,0 +1,20 @@
+{
+  "stac-earth-search/cop-dem-glo-30": {
+    "license": "proprietary",
+    "temporal_end": "2021-04-22",
+    "temporal_start": "2021-04-22",
+    "url": "https://earth-search.aws.element84.com/v1/collections/cop-dem-glo-30"
+  },
+  "stac-earth-search/sentinel-2-c1-l2a": {
+    "license": "proprietary",
+    "temporal_end": "ongoing",
+    "temporal_start": "2015-06-27",
+    "url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a"
+  },
+  "stac-earth-search/sentinel-2-l2a": {
+    "license": "proprietary",
+    "temporal_end": "ongoing",
+    "temporal_start": "2015-06-27",
+    "url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a"
+  }
+}

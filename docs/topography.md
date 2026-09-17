@@ -1,3 +1,0 @@
-# topography module
-
-::: easysnowdata.topography

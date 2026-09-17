@@ -1,31 +1,21 @@
-"""Access hydroclimatology datasets: ERA5, SNODAS, UCLA reanalysis, basin geometries, and more."""
+"""Access hydroclimatology datasets: ERA5, SNODAS, UCLA reanalysis, basin geometries, and more.
+
+The basin loaders moved to :mod:`easysnowdata.hydro.basins` (§3.4): the names
+here keep working for one minor release and warn on first use.
+"""
 
 from __future__ import annotations
 
-import json
 import logging
-import re
 
-import earthaccess
-import ee
 import geopandas as gpd
-import matplotlib.colors
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import rioxarray as rxr
 import shapely
 import xarray as xr
 
-from easysnowdata.utils import (
-    _earthaccess_login,
-    _fetch_to_cache,
-    convert_bbox_to_geodataframe,
-    get_ee_grid_params,
-    initialize_earthengine,
-    requires_earthaccess,
-    requires_earthengine,
-)
+from easysnowdata import temporal
+from easysnowdata._deprecation import deprecated
+from easysnowdata.hydro import basins
+from easysnowdata.snow import ucla_sr as _ucla_sr_stats
 
 __all__ = [
     "get_huc_geometries",
@@ -41,11 +31,28 @@ __all__ = [
 _logger = logging.getLogger(__name__)
 
 # Position of each ensemble statistic along the ``Stats`` dimension of the
+# WUS_UCLA_SR files. The table now lives in easysnowdata.snow.ucla_sr.STATS;
+# this module-level alias keeps the old private constant working for one
+# release (Phase 0 fixed it: "median" and "25pct" used to share index 2).
+_UCLA_SR_STATS_INDEX = dict(_ucla_sr_stats.STATS)
+
+# Position of each ensemble statistic along the ``Stats`` dimension of the
 # WUS_UCLA_SR files: mean, standard deviation, median, 25th and 75th percentile.
-_UCLA_SR_STATS_INDEX = {"mean": 0, "std": 1, "median": 2, "25pct": 3, "75pct": 4}
+# The table now lives in easysnowdata.snow.ucla_sr.STATS; this alias keeps the
+# old module constant working for one release.
 
 
-@requires_earthengine
+@deprecated(
+    "easysnowdata.hydro.basins.huc",
+    since="0.1.0",
+    remove_in="0.2.0",
+    name="easysnowdata.hydroclimatology.get_huc_geometries",
+    extra=(
+        "The new loader defaults to the public USGS WBD REST service, so HUC "
+        "boundaries no longer need Earth Engine, and the citation is in the "
+        "data_citation attr."
+    ),
+)
 def get_huc_geometries(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -56,9 +63,11 @@ def get_huc_geometries(
     """
     Retrieves Hydrologic Unit Code (HUC) geometries within a specified bounding box and HUC level.
 
-    This function queries the USGS Water Boundary Dataset (WBD) for HUC geometries. It can retrieve
-    HUC geometries at different levels for a specified region defined by a bounding box. If no
-    bounding box is provided, it retrieves HUC geometries for the entire United States.
+    .. deprecated:: 0.1.0
+        Use :func:`easysnowdata.hydro.basins.huc`. Its default source is the
+        USGS Watershed Boundary Dataset REST service (no credentials, newer
+        than the 2017 Earth Engine snapshot); pass ``source="gee"`` for the
+        Earth Engine route this function used.
 
     Parameters
     ----------
@@ -74,61 +83,23 @@ def get_huc_geometries(
         A GeoDataFrame containing the retrieved HUC geometries along with associated attributes
         such as name, area in square kilometers, states, TNMID, and geometry.
 
-    Examples
-    --------
-    Get HUC geometries for a specific region at HUC level 08...
-
-    >>> huc_data = get_huc_geometries(bbox_input=(-121.94, 46.72, -121.54, 46.99), huc_level="08")
-    >>> huc_data.plot()
-
     Notes
     -----
-    Requires Google Earth Engine authentication. Run ``ee.Authenticate()`` and
-    ``ee.Initialize()`` once, or call ``easysnowdata.authenticate_all()``.
-
     Data citation:
     Jones, K.A., Niknami, L.S., Buto, S.G., and Decker, D., 2022,
     Federal standards and procedures for the national Watershed Boundary Dataset (WBD) (5 ed.):
     U.S. Geological Survey Techniques and Methods 11-A3, 54 p.,
     https://doi.org/10.3133/tm11A3
     """
-
-    initialize_earthengine()
-
-    # Convert bounding box to feature collection to use as region for querying HUC geometries
-    bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
-    bbox_json = bbox_gdf.to_json()
-    featureCollection = ee.FeatureCollection(json.loads(bbox_json))
-
-    # Search Earth Engine USGS WBD collection for HUC geometries
-    huc_gdf = ee.data.listFeatures(
-        {
-            "assetId": f"USGS/WBD/2017/HUC{huc_level}",
-            "region": featureCollection.geometry().getInfo(),
-            "fileFormat": "GEOPANDAS_GEODATAFRAME",
-        }
-    )
-
-    # Add crs to geodataframe and select relevant columns
-    huc_gdf.crs = "EPSG:4326"
-    huc_gdf = huc_gdf[
-        [
-            "name",
-            f"huc{huc_level.lstrip('0')}",
-            "areasqkm",
-            "states",
-            "tnmid",
-            "geometry",
-        ]
-    ]
-
-    huc_gdf.attrs = {
-        "Data citation": "Jones, K.A., Niknami, L.S., Buto, S.G., and Decker, D., 2022, Federal standards and procedures for the national Watershed Boundary Dataset (WBD) (5 ed.): U.S. Geological Survey Techniques and Methods 11-A3, 54 p., https://doi.org/10.3133/tm11A3"
-    }
-
-    return huc_gdf
+    return basins.huc(bbox_input, level=huc_level)
 
 
+@deprecated(
+    "easysnowdata.hydro.basins.hydrobasins",
+    since="0.1.0",
+    remove_in="0.2.0",
+    name="easysnowdata.hydroclimatology.get_hydroBASINS",
+)
 def get_hydroBASINS(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -140,9 +111,10 @@ def get_hydroBASINS(
     """
     Retrieves HydroATLAS sub-basin boundaries at specified hierarchical level.
 
-    This function downloads and loads vectorized polygon layers depicting sub-basin boundaries
-    from the HydroATLAS database via figshare. It provides consistently sized and hierarchically
-    nested sub-basins at different scales, supported by Pfafstetter coding for catchment topology analysis.
+    .. deprecated:: 0.1.0
+        Use :func:`easysnowdata.hydro.basins.hydrobasins`, which adds the
+        lighter per-region HydroSHEDS zips (``source="hydrosheds"``) and the
+        Earth Engine route.
 
     Parameters
     ----------
@@ -152,80 +124,33 @@ def get_hydroBASINS(
         The hierarchical level (1-12) of sub-basin delineation. Higher levels represent
         finer subdivisions. Default is 5.
     **kwargs
-        Additional keyword arguments passed to ``geopandas.read_file`` (e.g.
-        ``columns=[...]``, ``rows=...``, ``engine="pyogrio"``). These take
-        precedence over the defaults used here (``layer`` and, when a bbox is
-        given, ``mask``).
+        Additional keyword arguments passed to
+        :func:`easysnowdata.hydro.basins.hydrobasins` (and on to
+        ``geopandas.read_file``).
 
     Returns
     -------
     geopandas.GeoDataFrame
         A GeoDataFrame containing the HydroATLAS sub-basin boundaries with associated attributes.
 
-    Examples
-    --------
-    Get level 5 sub-basins for all regions...
-
-    >>> basins = get_hydroBASINS()
-    >>> basins.plot()
-
-    Get level 6 sub-basins for a specific region...
-
-    >>> bbox = (-121.94, 46.72, -121.54, 46.99)
-    >>> regional_basins = get_hydroBASINS(bbox_input=bbox, level=6)
-    >>> regional_basins.plot()
-
     Notes
     -----
-    This function uses the HydroATLAS dataset which provides global coverage in a single file,
-    making it more efficient than downloading individual regional HydroBASINS files.
-
     Data citation:
     Linke, S., Lehner, B., Ouellet Dallaire, C., Ariwi, J., Grill, G., Anand, M., Beames, P.,
     Burchard-Levine, V., Maxwell, S., Moidu, H., Tan, F., Thieme, M. (2019). Global hydro-
     environmental sub-basin and river reach characteristics at high spatial resolution.
     Scientific Data 6: 283. doi: 10.1038/s41597-019-0300-6
     """
-
-    # Validate level parameter
-    if level < 1 or level > 12:
-        raise ValueError(f"Level must be between 1 and 12, got {level}")
-
-    # Convert bbox to GeoDataFrame if provided
-    bbox_gdf = (
-        convert_bbox_to_geodataframe(bbox_input) if bbox_input is not None else None
-    )
-
-    # Construct URL and layer name. Use the ndownloader.figshare.com host: it
-    # answers with a plain 302 to the signed S3 object, whereas
-    # figshare.com/ndownloader serves a bot-challenge page (HTTP 202) to
-    # non-browser clients such as GDAL.
-    url = "https://ndownloader.figshare.com/files/20082137/BasinATLAS_Data_v10.gdb.zip"
-    layer_name = f"BasinATLAS_v10_lev{level:02d}"
-
-    _logger.info("Loading HydroATLAS level {level} basins...")
-
-    # Load the data with optional spatial masking
-    read_params = {"layer": layer_name}
-    if bbox_gdf is not None:
-        read_params["mask"] = bbox_gdf
-    else:
-        _logger.info("Loading global dataset (this may take a while)...")
-    # User-supplied kwargs take precedence over the defaults above
-    read_params.update(kwargs)
-    basins_gdf = gpd.read_file("zip+" + url, **read_params)
-
-    # Add citation to attributes
-    basins_gdf.attrs["data_citation"] = (
-        "Linke, S., Lehner, B., Ouellet Dallaire, C., Ariwi, J., Grill, G., Anand, M., "
-        "Beames, P., Burchard-Levine, V., Maxwell, S., Moidu, H., Tan, F., Thieme, M. (2019). "
-        "Global hydro-environmental sub-basin and river reach characteristics at high spatial "
-        "resolution. Scientific Data 6: 283. doi: 10.1038/s41597-019-0300-6"
-    )
-
-    return basins_gdf
+    return basins.hydrobasins(bbox_input, level=level, **kwargs)
 
 
+@deprecated(
+    "easysnowdata.hydro.basins.grdc_major",
+    since="0.1.0",
+    remove_in="0.2.0",
+    name="easysnowdata.hydroclimatology.get_grdc_major_river_basins_of_the_world",
+    extra="Basins that intersect the AOI are returned whole, not cut at its edge.",
+)
 def get_grdc_major_river_basins_of_the_world(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -236,71 +161,40 @@ def get_grdc_major_river_basins_of_the_world(
     """
     Retrieves GRDC Major River Basins of the World dataset.
 
-    This function downloads and loads the Global Runoff Data Centre's (GRDC) Major River Basins
-    dataset, which contains 520 river/lake basins considered major in size or hydro-political
-    importance. The basins include both exorheic drainage (flowing to oceans) and endorheic
-    drainage (inland sinks/lakes) systems.
+    .. deprecated:: 0.1.0
+        Use :func:`easysnowdata.hydro.basins.grdc_major`. It returns the
+        intersecting basins whole instead of clipping them to the AOI.
 
     Parameters
     ----------
     bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional
         The bounding box for spatial subsetting. If None, the entire global dataset is returned.
     **kwargs
-        Additional keyword arguments passed to ``geopandas.read_file`` (e.g.
-        ``columns=[...]``, ``rows=...``, ``engine="pyogrio"``).
+        Additional keyword arguments passed to
+        :func:`easysnowdata.hydro.basins.grdc_major` (and on to
+        ``geopandas.read_file``).
 
     Returns
     -------
     geopandas.GeoDataFrame
         A GeoDataFrame containing the GRDC major river basins with associated attributes.
 
-    Examples
-    --------
-    Get all major river basins...
-
-    >>> basins = get_grdc_basins()
-    >>> basins.plot()
-
-    Get basins for a specific region...
-
-    >>> bbox = (-121.94, 46.72, -121.54, 46.99)
-    >>> regional_basins = get_grdc_basins(bbox_input=bbox)
-    >>> regional_basins.plot()
-
     Notes
     -----
-    This dataset incorporates data from HydroSHEDS database which is © World Wildlife Fund, Inc.
-    (2006-2013) and has been used under license.
-
     Data citation:
     GRDC (2020): GRDC Major River Basins. Global Runoff Data Centre. 2nd, rev. ed.
     Koblenz: Federal Institute of Hydrology (BfG).
     """
-
-    url = "https://datacatalogfiles.worldbank.org/ddh-published/0041426/DR0051689/major_basins_of_the_world_0_0_0.zip"
-
-    # Convert bbox to GeoDataFrame if provided
-    bbox_gdf = (
-        convert_bbox_to_geodataframe(bbox_input) if bbox_input is not None else None
-    )
-
-    # Load the data
-    basins_gdf = gpd.read_file("zip+" + url, **kwargs)
-
-    # Clip to bbox if provided
-    if bbox_gdf is not None:
-        basins_gdf = basins_gdf.clip(bbox_gdf)
-    else:
-        _logger.info("No spatial subsetting because bbox_input was not provided.")
-
-    # Add citation to attributes
-    basins_gdf.attrs["data_citation"] = (
-        "GRDC (2020): GRDC Major River Basins. Global Runoff Data Centre. 2nd, rev. ed. Koblenz: Federal Institute of Hydrology (BfG)."
-    )
-
-    return basins_gdf
+    return basins.grdc_major(bbox_input, **kwargs)
 
 
+@deprecated(
+    "easysnowdata.hydro.basins.grdc_wmo",
+    since="0.1.0",
+    remove_in="0.2.0",
+    name="easysnowdata.hydroclimatology.get_grdc_wmo_basins",
+    extra="Basins that intersect the AOI are returned whole, not cut at its edge.",
+)
 def get_grdc_wmo_basins(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -311,91 +205,46 @@ def get_grdc_wmo_basins(
     """
     Retrieves WMO Basins and Sub-Basins dataset.
 
-    This function downloads and loads the Global Runoff Data Centre's (GRDC) WMO Basins
-    and Sub-Basins dataset. It contains 515 WMO Basins representing hydrographic regions
-    including river/lake basins with both exorheic drainage (flowing to oceans) and
-    endorheic drainage (inland sinks/lakes).
+    .. deprecated:: 0.1.0
+        Use :func:`easysnowdata.hydro.basins.grdc_wmo`. It returns the
+        intersecting basins whole instead of clipping them to the AOI.
 
     Parameters
     ----------
     bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional
         The bounding box for spatial subsetting. If None, the entire global dataset is returned.
     **kwargs
-        Additional keyword arguments passed to ``geopandas.read_file`` (e.g.
-        ``columns=[...]``, ``rows=...``, ``engine="pyogrio"``).
+        Additional keyword arguments passed to
+        :func:`easysnowdata.hydro.basins.grdc_wmo` (and on to
+        ``geopandas.read_file``).
 
     Returns
     -------
     geopandas.GeoDataFrame
         A GeoDataFrame containing the WMO Basins and Sub-Basins with associated attributes.
 
-    Examples
-    --------
-    Get all WMO basins...
-
-    >>> basins = get_wmo_basins_and_subbasins()
-    >>> basins.plot()
-
-    Get basins for a specific region...
-
-    >>> bbox = (-121.94, 46.72, -121.54, 46.99)
-    >>> regional_basins = get_wmo_basins_and_subbasins(bbox_input=bbox)
-    >>> regional_basins.plot()
-
     Notes
     -----
-    The GRDC archive (about 380 MB) is downloaded once into the easysnowdata
-    cache directory (``~/.cache/easysnowdata/grdc`` on Linux; override with
+    The GRDC archive is downloaded once into the easysnowdata cache directory
+    (``~/.cache/easysnowdata/grdc`` on Linux; override with
     ``EASYSNOWDATA_CACHE_DIR``) and re-used on later calls.
-
-    This dataset incorporates data from the HydroSHEDS database which is © World Wildlife Fund, Inc.
-    (2006-2013) and has been used under license.
-
-    WMO basins and sub-basins are attributed with:
-    - WMOBB: identifier of hydrographic region
-    - WMOBB_NAME: name of hydrographic region
-    - WMOBB_BASIN: name of river/lake basin, coastal region or island
-    - WMOBB_SUBBASIN: name of river/lake basin forming a separate sub-basin
-    - WMOBB_DESCRIPTION: description of hydrographic region
-    - REGNUM: number of the WMO Region (Regional Association)
-    - REGNAME: name of the WMO Region (Regional Association)
-    - WMO306_MoC_NUM: reference to Manual on Codes, 2-digit basin code
-    - WMO306_MoC_REFERENCE: reference to Manual on Codes, name of basin/sub-basin
-    - SUMSUBAREA: approximate of drainage area (in square km)
 
     Data citation:
     GRDC (2020): WMO Basins and Sub-Basins / Global Runoff Data Centre, GRDC. 3rd, rev. ext. ed.
     Koblenz, Germany: Federal Institute of Hydrology (BfG).
     """
-
-    url = "https://grdc.bafg.de/downloads/wmobb_json.zip"
-
-    # Convert bbox to GeoDataFrame if provided
-    bbox_gdf = (
-        convert_bbox_to_geodataframe(bbox_input) if bbox_input is not None else None
-    )
-
-    # The GRDC server answers HTTP 400 to HEAD requests, which GDAL's /vsicurl
-    # sends before any range read, so a remote "zip+https://" read fails even
-    # though the file is there. Fetch the archive once with a plain GET into
-    # the user cache directory (~380 MB) and read the basins layer locally.
-    zip_path = _fetch_to_cache(url, fname="wmobb_json.zip", subdir="grdc")
-    basins_gdf = gpd.read_file(f"zip://{zip_path}!wmobb_basins.json", **kwargs)
-
-    # Clip to bbox if provided
-    if bbox_gdf is not None:
-        basins_gdf = basins_gdf.clip(bbox_gdf)
-    else:
-        _logger.info("No spatial subsetting because bbox_input was not provided.")
-
-    # Add citation to attributes
-    basins_gdf.attrs["data_citation"] = (
-        "GRDC (2020): WMO Basins and Sub-Basins / Global Runoff Data Centre, GRDC. 3rd, rev. ext. ed. Koblenz, Germany: Federal Institute of Hydrology (BfG)."
-    )
-
-    return basins_gdf
+    return basins.grdc_wmo(bbox_input, **kwargs)
 
 
+@deprecated(
+    "easysnowdata.climate.era5.load",
+    since="0.1.0",
+    remove_in="0.2.0",
+    extra=(
+        "The new loader takes aoi= and time= (any AOI/time form), serves hourly ERA5 "
+        "from ARCO-ERA5 without Earth Engine credentials, and returns the standard attrs."
+    ),
+)
 def get_era5(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -410,252 +259,39 @@ def get_era5(
     initialize_ee: bool = True,
     **kwargs,
 ) -> xr.Dataset:
+    """Deprecated alias of :func:`easysnowdata.climate.era5.load`.
+
+    Every old keyword still works for one release. ``initialize_ee`` is
+    accepted and ignored (Earth Engine is initialised on first use through
+    ``easysnowdata.auth``), and ``source`` still takes ``"auto"``, ``"GEE"``
+    or ``"GCS"``.
     """
-    Retrieves ERA5 reanalysis data using optimal source selection.
+    from easysnowdata.climate import era5 as _era5  # noqa: PLC0415
 
-    By default, this function uses Google Earth Engine for most requests, but automatically
-    switches to the high-resolution ARCO-ERA5 Zarr dataset from Google Cloud Storage for
-    hourly ERA5 data due to its superior performance and coverage for that specific
-    combination. Please note, these datasets may be different from the original ERA5 data
-    hosted on the Copernicus Climate Data Store (CDS).
-
-    Parameters
-    ----------
-    bbox_input : geopandas.GeoDataFrame or tuple or shapely.Geometry, optional
-        The spatial bounding box for subsetting. If None, returns global data.
-    version : str, optional
-        Version of ERA5 data. Options are 'ERA5' or 'ERA5_LAND'. Default is 'ERA5'.
-    cadence : str, optional
-        Temporal resolution. Options are 'HOURLY', 'DAILY', or 'MONTHLY'. Default is 'HOURLY'.
-    source : str, optional
-        Data source to use: "auto" (smart selection), "GEE" (Google Earth Engine), or
-        "GCS" (Google Cloud Storage). Default is "auto", which uses GCS for ERA5 hourly data
-        and GEE for everything else.
-    start_date : str, optional
-        Start date in 'YYYY-MM-DD' format. If None, uses earliest available date.
-    end_date : str, optional
-        End date in 'YYYY-MM-DD' format. If None, uses latest available date.
-    variables : str or list, optional
-        Variable(s) to select. If None, returns all variables. Only applicable for GEE source.
-    initialize_ee : bool, optional
-        Whether to initialize Earth Engine. Default is True. Only applicable for GEE source.
-    **kwargs
-        Additional keyword arguments passed to the underlying loader:
-        ``xarray.open_zarr`` for the GCS source, or ``xarray.open_dataset`` with
-        ``engine="ee"`` for the GEE source (e.g. ``chunks={"time": 24}``). These
-        take precedence over the defaults used here (``chunks=None``).
-
-    Returns
-    -------
-    xarray.Dataset
-        An xarray Dataset containing ERA5 reanalysis data for the specified region.
-
-    Examples
-    --------
-    Get hourly ERA5 data (automatically uses ARCO-ERA5 from GCS):
-
-    >>> bbox = (-121.94, 46.72, -121.54, 46.99)
-    >>> era5_ds = get_era5(bbox_input=bbox)  # Uses GCS for hourly ERA5
-    >>> era5_ds["2m_temperature"].sel(time="2020-05-26").mean(dim="time").plot()
-
-    Get monthly ERA5 data (uses Google Earth Engine):
-
-    >>> era5_gee = get_era5(
-    ...     bbox_input=bbox,
-    ...     cadence="MONTHLY",
-    ...     start_date="2020-01-01",
-    ...     end_date="2020-12-31",
-    ...     variables=["temperature_2m"]
-    ... )  # Uses GEE for monthly data
-    >>> era5_gee["temperature_2m"].plot()
-
-    Force using GEE for hourly ERA5 data:
-
-    >>> era5_hourly_gee = get_era5(
-    ...     bbox_input=bbox,
-    ...     source="GEE",
-    ...     start_date="2020-01-01",
-    ...     end_date="2020-01-02"
-    ... )  # Explicitly uses GEE for hourly data
-
-    Notes
-    -----
-    When *source* is ``"GEE"`` or ``"auto"`` selects GEE (all combinations except hourly ERA5),
-    Google Earth Engine authentication is required. Run ``ee.Authenticate()`` /
-    ``ee.Initialize()`` once, or call ``easysnowdata.authenticate_all()``.
-    When *source* is ``"GCS"`` (or ``"auto"`` selects GCS for hourly ERA5), no credentials
-    are needed.
-
-    - The function automatically selects the optimal data source based on your request
-    - Hourly ERA5 data comes from ARCO-ERA5 on Google Cloud Storage by default
-    - All other combinations use Google Earth Engine
-    - You can override the automatic source selection by explicitly setting the source parameter
-    - Please note, these data are not the original ERA5 data but have been processed and optimized for cloud access. Each dataset will also have an assosciated latency different from the original dataset. The most up-to-date information can be found at: https://cds.climate.copernicus.eu/datasets
-
-
-    Data citations:
-    - GEE+GCS: Hersbach, H., Bell, B., Berrisford, P., et al. (2020). The ERA5 global reanalysis. Quarterly Journal of the Royal Meteorological Society, 146(730), 1999-2049.
-    - GCS: Carver, Robert W, and Merose, Alex. (2023): ARCO-ERA5: An Analysis-Ready Cloud-Optimized Reanalysis Dataset. 22nd Conf. on AI for Env. Science, Denver, CO, Amer. Meteo. Soc, 4A.1, https://ams.confex.com/ams/103ANNUAL/meetingapp.cgi/Paper/415842
-    """
-    # Determine the appropriate source based on parameters
-    effective_source = source.upper()
-
-    if effective_source == "AUTO":
-        if version == "ERA5" and cadence == "HOURLY":
-            effective_source = "GCS"  # Use ARCO dataset for hourly ERA5
-        else:
-            effective_source = "GEE"  # Default to GEE for all other combinations
-
-    # Convert bbox to GeoDataFrame format for consistent handling
-    bbox_gdf = (
-        convert_bbox_to_geodataframe(bbox_input) if bbox_input is not None else None
+    source_map = {"AUTO": None, "GEE": "gee", "GCS": "arco-era5-gcs"}
+    resolved = source_map.get(str(source).upper(), source)
+    time = None if (start_date is None and end_date is None) else (start_date, end_date)
+    return _era5.load(
+        bbox_input,
+        time,
+        variables=variables,
+        source=resolved,
+        version=version,
+        cadence=cadence,
+        **kwargs,
     )
 
-    # Option 1: Google Cloud Storage (GCS) - ARCO-ERA5 Zarr dataset
-    if effective_source == "GCS":
-        # Verify we're using ERA5 hourly (the only supported option for GCS)
-        if version != "ERA5" or cadence != "HOURLY":
-            raise ValueError(
-                f"GCS source only supports ERA5 hourly data, not {version} {cadence}"
-            )
 
-        open_params = {
-            "chunks": None,
-            "storage_options": dict(token="anon"),
-            **kwargs,
-        }
-        era5_ds = xr.open_zarr(
-            "gs://gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3",
-            **open_params,
-        )
-
-        # Apply time filtering if specified
-        if start_date is not None and end_date is not None:
-            era5_ds = era5_ds.sel(time=slice(start_date, end_date))
-        else:
-            era5_ds = era5_ds.sel(
-                time=slice(
-                    era5_ds.attrs["valid_time_start"], era5_ds.attrs["valid_time_stop"]
-                )
-            )
-
-        # Set CRS and normalize longitude coordinates
-        era5_ds.rio.write_crs("EPSG:4326", inplace=True)
-        era5_ds = era5_ds.assign_coords(
-            longitude=(((era5_ds.longitude + 180) % 360) - 180)
-        ).sortby("longitude")
-
-        # Add coordinate attributes
-        era5_ds["longitude"].attrs["long_name"] = "longitude"
-        era5_ds["longitude"].attrs["units"] = "degrees_east"
-
-        # Apply spatial subsetting if specified
-        if bbox_gdf is not None:
-            # 0.25° grid: a small bbox can cover a single row/column of pixels
-            era5_ds = era5_ds.rio.clip_box(
-                *bbox_gdf.total_bounds,
-                crs=bbox_gdf.crs,
-                allow_one_dimensional_raster=True,
-            )
-
-        # Add metadata
-        era5_ds.attrs["data_citation"] = (
-            "Carver, Robert W, and Merose, Alex. (2023): ARCO-ERA5: An Analysis-Ready "
-            "Cloud-Optimized Reanalysis Dataset. 22nd Conf. on AI for Env. Science, "
-            "Denver, CO, Amer. Meteo. Soc, 4A.1, "
-            "https://ams.confex.com/ams/103ANNUAL/meetingapp.cgi/Paper/415842"
-        )
-        era5_ds.attrs["source"] = "Google Cloud Storage (ARCO-ERA5)"
-        era5_ds.attrs["version"] = version
-        era5_ds.attrs["cadence"] = cadence
-
-        return era5_ds
-
-    # Option 2: Google Earth Engine (GEE)
-    elif effective_source == "GEE":
-        from easysnowdata.utils import (
-            _EE_SETUP_MSG,
-            CredentialError,
-            _has_earthengine_credentials,
-        )  # noqa: PLC0415
-
-        if not _has_earthengine_credentials():
-            raise CredentialError(
-                f"`get_era5` with source='GEE' requires Google Earth Engine.\n\n{_EE_SETUP_MSG}"
-            )
-        # Initialize Earth Engine if requested
-        if initialize_ee:
-            initialize_earthengine()
-        else:
-            _logger.info(
-                "Earth Engine initialization skipped. Please ensure EE is initialized."
-            )
-
-        # Collection name mapping
-        collection_mapping = {
-            ("ERA5_LAND", "HOURLY"): "ECMWF/ERA5_LAND/HOURLY",
-            ("ERA5_LAND", "DAILY"): "ECMWF/ERA5_LAND/DAILY_AGGR",
-            ("ERA5_LAND", "MONTHLY"): "ECMWF/ERA5_LAND/MONTHLY_AGGR",
-            ("ERA5", "HOURLY"): "ECMWF/ERA5/HOURLY",
-            ("ERA5", "DAILY"): "ECMWF/ERA5/DAILY",
-            ("ERA5", "MONTHLY"): "ECMWF/ERA5/MONTHLY",
-        }
-
-        # Get collection name
-        collection_key = (version, cadence)
-        if collection_key not in collection_mapping:
-            raise ValueError(
-                f"Invalid combination of version '{version}' and cadence '{cadence}'"
-            )
-
-        collection_name = collection_mapping[collection_key]
-
-        # Initialize image collection
-        image_collection = ee.ImageCollection(collection_name)
-
-        # Apply date filtering if specified
-        if start_date is not None and end_date is not None:
-            end_date = end_date + "T23:59:59"  # Include full end date
-            image_collection = image_collection.filterDate(start_date, end_date)
-
-        # Apply variable selection if specified
-        if variables is not None:
-            if isinstance(variables, str):
-                variables = [variables]
-            image_collection = image_collection.select(variables)
-
-        # Match the collection's native grid, cropped to the bbox (if given)
-        grid = get_ee_grid_params(image_collection.first(), bbox_gdf)
-
-        # Load dataset (xee >= 0.1 returns dims ordered (time, y, x))
-        open_params = {"engine": "ee", "chunks": None, **grid, **kwargs}
-        ds = xr.open_dataset(image_collection, **open_params)
-
-        # Clean up coordinate names
-        ds = (
-            ds.rename({"y": "latitude", "x": "longitude"})
-            .rio.set_spatial_dims(x_dim="longitude", y_dim="latitude")
-            .rio.write_crs(open_params["crs"])
-        )
-
-        # Add metadata
-        ds.attrs["data_citation"] = (
-            "Hersbach, H., Bell, B., Berrisford, P., et al. (2020). The ERA5 global reanalysis. "
-            "Quarterly Journal of the Royal Meteorological Society, 146(730), 1999-2049."
-        )
-        ds.attrs["version"] = version
-        ds.attrs["cadence"] = cadence
-        ds.attrs["source"] = "Google Earth Engine"
-
-        return ds
-
-    else:
-        raise ValueError(
-            "Source must be 'auto', 'GEE' (Google Earth Engine), or 'GCS' (Google Cloud Storage)"
-        )
-
-
-@requires_earthengine
+@deprecated(
+    "easysnowdata.snow.snodas.load",
+    since="0.1.0",
+    remove_in="0.2.0",
+    extra=(
+        "The new loader defaults to the authoritative NSIDC G02158 archive, which "
+        "needs no Earth Engine account; pass source='gee-climate-engine' for the "
+        "mirror this function used."
+    ),
+)
 def get_snodas(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -667,187 +303,32 @@ def get_snodas(
     initialize_ee: bool = True,
     **kwargs,
 ) -> xr.Dataset:
+    """Deprecated alias of :func:`easysnowdata.snow.snodas.load`.
+
+    Keeps the Earth Engine route this function has always used, so the data
+    and the credentials are unchanged; ``initialize_ee`` is accepted and
+    ignored. The new default route (``source="nsidc"``) needs no account.
     """
-    Retrieves SNODAS (Snow Data Assimilation System) data for a given bounding box and time range.
+    from easysnowdata.snow import snodas as _snodas  # noqa: PLC0415
 
-    The Snow Data Assimilation System (SNODAS) is a modeling and data assimilation system
-    developed by NOHRSC that provides accurate estimations of snow cover and associated
-    parameters at 1 km spatial resolution and daily temporal resolution.
-
-    Parameters
-    ----------
-    bbox_input : geopandas.GeoDataFrame or tuple or Shapely Geometry, optional
-        GeoDataFrame containing the bounding box, or a tuple of (xmin, ymin, xmax, ymax),
-        or a Shapely geometry. If None, returns data for the entire dataset extent.
-    start_date : str, optional
-        The start date for the data in the format 'YYYY-MM-DD'. Default is '2003-10-01'.
-    end_date : str, optional
-        The end date for the data in the format 'YYYY-MM-DD'. Default is today's date.
-    variables : str or list, optional
-        Variable(s) to select. Options are 'Snow_Depth' and 'SWE' (Snow Water Equivalent).
-        If None, returns all variables.
-    initialize_ee : bool, optional
-        Whether to initialize Earth Engine. Default is True.
-    **kwargs
-        Additional keyword arguments passed to ``xarray.open_dataset`` with
-        ``engine="ee"`` (e.g. ``chunks={"time": 1, "x": 512, "y": 512}``).
-        These take precedence over the defaults used here (``chunks=None``).
-
-    Returns
-    -------
-    xarray.Dataset
-        An xarray Dataset containing SNODAS data for the specified region and time period.
-
-    Examples
-    --------
-    Get SNODAS data for a specific region:
-
-    >>> import geopandas as gpd
-    >>> import easysnowdata
-    >>>
-    >>> # Define a bounding box for an area of interest
-    >>> bbox = (-121.94, 46.72, -121.54, 46.99)
-    >>>
-    >>> # Get SNODAS data for winter 2022
-    >>> snodas_ds = easysnowdata.hydroclimatology.get_snodas(
-    ...     bbox_input=bbox,
-    ...     start_date="2022-01-01",
-    ...     end_date="2022-03-31"
-    ... )
-    >>>
-    >>> # Plot snow water equivalent
-    >>> snodas_ds['SWE'].max(dim='time').plot(cmap='Blues')
-
-    Get only snow depth data:
-
-    >>> snow_depth_ds = easysnowdata.hydroclimatology.get_snodas(
-    ...     bbox_input=bbox,
-    ...     start_date="2022-01-01",
-    ...     end_date="2022-01-05",
-    ...     variables="Snow_Depth"
-    ... )
-    >>> snow_depth_ds['Snow_Depth'].isel(time=0).plot()
-
-    Notes
-    -----
-    Requires Google Earth Engine authentication. Run ``ee.Authenticate()`` and
-    ``ee.Initialize()`` once, or call ``easysnowdata.authenticate_all()``.
-
-    - SNODAS covers the continental United States, Alaska, and Hawaii
-    - Data is available from 2003-10-01 to present with daily updates
-    - Spatial resolution is 1 km (1/120-degree)
-
-    Data citations:
-    Barrett, Andrew. 2003. National Operational Hydrologic Remote Sensing Center Snow Data
-    Assimilation System (SNODAS) Products at NSIDC. NSIDC Special Report 11. Boulder, CO USA:
-    National Snow and Ice Data Center. 19 pp.
-
-    Barrett, A. P., R. L. Armstrong, and J. L. Smith. 2001. The Snow Data Assimilation System
-    (SNODAS): An overview. Journal of Hydrometeorology 2(3):288-306.
-    """
-    import datetime
-
-    # Initialize Earth Engine if requested
-    if initialize_ee:
-        initialize_earthengine()
-    else:
-        _logger.info(
-            "Earth Engine initialization skipped. Please ensure EE is initialized."
-        )
-
-    # Set default end date to today if not provided
-    if end_date is None:
-        end_date = datetime.datetime.now().strftime("%Y-%m-%d")
-
-    # Convert bbox to GeoDataFrame if provided
-    bbox_gdf = (
-        convert_bbox_to_geodataframe(bbox_input) if bbox_input is not None else None
+    return _snodas.load(
+        bbox_input,
+        (start_date, end_date if end_date is not None else temporal.today()),
+        variables=variables,
+        source="gee-climate-engine",
+        **kwargs,
     )
 
-    # Initialize SNODAS image collection
-    collection_name = (
-        "projects/earthengine-legacy/assets/projects/climate-engine/snodas/daily"
-    )
-    image_collection = ee.ImageCollection(collection_name)
 
-    # Apply date filtering
-    end_date_inclusive = end_date + "T23:59:59"  # Include full end date
-    image_collection = image_collection.filterDate(start_date, end_date_inclusive)
-
-    # Apply variable selection if specified
-    available_variables = ["Snow_Depth", "SWE"]
-    if variables is not None:
-        if isinstance(variables, str):
-            variables = [variables]
-        # Validate variables
-        invalid_vars = set(variables) - set(available_variables)
-        if invalid_vars:
-            raise ValueError(
-                f"Invalid variables: {invalid_vars}. Available variables: {available_variables}"
-            )
-        image_collection = image_collection.select(variables)
-
-    # Match the collection's native grid, cropped to the bbox (if given)
-    grid = get_ee_grid_params(image_collection.first(), bbox_gdf)
-
-    # Load dataset using xee (xee >= 0.1 returns dims ordered (time, y, x))
-    open_params = {"engine": "ee", "chunks": None, **grid, **kwargs}
-    ds = xr.open_dataset(image_collection, **open_params)
-
-    # Clean up coordinate names
-    ds = ds.rename({"y": "latitude", "x": "longitude"}).rio.set_spatial_dims(
-        x_dim="longitude", y_dim="latitude"
-    )
-
-    # Set coordinate reference system
-    ds.rio.write_crs(open_params["crs"], inplace=True)
-
-    # Add variable attributes
-    if "Snow_Depth" in ds.data_vars:
-        ds["Snow_Depth"].attrs.update(
-            {
-                "long_name": "Snow Depth",
-                "units": "meters",
-                "description": "Daily snow depth from SNODAS",
-            }
-        )
-
-    if "SWE" in ds.data_vars:
-        ds["SWE"].attrs.update(
-            {
-                "long_name": "Snow Water Equivalent",
-                "units": "meters",
-                "description": "Daily snow water equivalent from SNODAS",
-            }
-        )
-
-    # Add dataset attributes
-    ds.attrs.update(
-        {
-            "title": "Snow Data Assimilation System (SNODAS)",
-            "institution": "National Operational Hydrologic Remote Sensing Center (NOHRSC)",
-            "source": "Google Earth Engine (Climate Engine Org collection)",
-            "spatial_resolution": "1 km",
-            "temporal_resolution": "Daily",
-            "coverage": "Continental United States, Alaska, and Hawaii",
-            "data_citation": (
-                "Barrett, Andrew. 2003. National Operational Hydrologic Remote Sensing Center "
-                "Snow Data Assimilation System (SNODAS) Products at NSIDC. NSIDC Special Report 11. "
-                "Boulder, CO USA: National Snow and Ice Data Center. 19 pp.; "
-                "Barrett, A. P., R. L. Armstrong, and J. L. Smith. 2001. The Snow Data Assimilation "
-                "System (SNODAS): An overview. Journal of Hydrometeorology 2(3):288-306."
-            ),
-            "license": (
-                "NOAA data, information, and products, regardless of the method of delivery, "
-                "are not subject to copyright and carry no restrictions on their subsequent use by the public."
-            ),
-        }
-    )
-
-    return ds
-
-
-@requires_earthaccess
+@deprecated(
+    "easysnowdata.snow.ucla_sr.load",
+    since="0.1.0",
+    remove_in="0.2.0",
+    extra=(
+        "The new loader adds region='hma' (High Mountain Asia), virtualize='auto' for "
+        "long series and access='auto' for in-region S3 reads."
+    ),
+)
 def get_ucla_snow_reanalysis(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -859,118 +340,33 @@ def get_ucla_snow_reanalysis(
     end_date: str = "2021-09-30",
     **kwargs,
 ) -> xr.DataArray:
+    """Deprecated alias of :func:`easysnowdata.snow.ucla_sr.load`.
+
+    Every old keyword still works for one release. The ensemble-statistic
+    mapping (``_UCLA_SR_STATS_INDEX``) now lives in
+    ``easysnowdata.snow.ucla_sr.STATS``.
     """
-    Fetches the Margulis UCLA snow reanalysis product for a specified bounding box and time range.
+    from easysnowdata.snow import ucla_sr as _ucla_sr  # noqa: PLC0415
 
-    This function retrieves snow reanalysis data from the UCLA dataset, allowing users to specify
-    the type of snow data variable, statistical measure, and the temporal range for the data retrieval.
-    The data is then clipped to the specified bounding box and returned as an xarray DataArray.
-
-    Parameters
-    ----------
-    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional
-        The bounding box for spatial subsetting. If None, the entire dataset is returned.
-    variable : str, optional
-        The type of snow data variable to retrieve. Options include 'SWE_Post' (Snow Water Equivalent),
-        'SCA_Post' (Snow Cover Area), and 'SD_Post' (Snow Depth). Default is 'SWE_Post'.
-    stats : str, optional
-        The ensemble statistic. Options are 'mean', 'std' (standard deviation),
-        'median', '25pct' (25th percentile), and '75pct' (75th percentile). Default is 'mean'.
-    start_date : str, optional
-        The start date for the data retrieval in 'YYYY-MM-DD' format. Default is '1984-10-01'.
-    end_date : str, optional
-        The end date for the data retrieval in 'YYYY-MM-DD' format. Default is '2021-09-30'.
-    **kwargs
-        Additional keyword arguments passed to ``xarray.open_mfdataset`` (e.g.
-        ``chunks={"Day": 30}`` or ``parallel=True``).
-
-    Returns
-    -------
-    xarray.DataArray
-        An xarray DataArray containing the requested snow reanalysis data, clipped to the specified bounding box.
-
-    Examples
-    --------
-    Get mean Snow Water Equivalent data for a specific region and time period...
-
-    >>> swe_reanalysis_da = easysnowdata.hydroclimatology.get_ucla_snow_reanalysis(bbox_input=(-121.94, 46.72, -121.54, 46.99),
-    ...                                     variable='SWE_Post',
-    ...                                     start_date='2000-01-01',
-    ...                                     end_date='2000-12-31')
-    >>> snow_reanalysis_da.isel(time=slice(0, 365, 30)).plot.imshow(col="time",col_wrap=5,cmap="Blues",vmin=0,vmax=3)
-
-    Notes
-    -----
-    Requires NASA EarthData credentials: ``EARTHDATA_TOKEN``, or
-    ``EARTHDATA_USERNAME`` + ``EARTHDATA_PASSWORD``, or a ``~/.netrc`` entry
-    (``earthaccess.login(persist=True)`` writes one). The function logs in
-    through ``earthaccess`` itself before opening any file.
-
-    Data citation:
-
-    Fang, Y., Liu, Y. & Margulis, S. A. (2022). Western United States UCLA Daily Snow Reanalysis. (WUS_UCLA_SR, Version 1). [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/PP7T2GBI52I2
-    """
-
-    if stats not in _UCLA_SR_STATS_INDEX:
-        raise ValueError(
-            f"stats must be one of {list(_UCLA_SR_STATS_INDEX)}, got {stats!r}."
-        )
-    stats_index = _UCLA_SR_STATS_INDEX[stats]
-
-    bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
-
-    # earthaccess >= 0.16 requires an explicit login before open()/download().
-    _earthaccess_login()
-
-    search = earthaccess.search_data(
-        short_name="WUS_UCLA_SR",
-        cloud_hosted=True,
-        bounding_box=tuple(bbox_gdf.total_bounds),
-        temporal=(start_date, end_date),
+    return _ucla_sr.load(
+        bbox_input,
+        (start_date, end_date),
+        variable=variable,
+        stats=stats,
+        **kwargs,
     )
 
-    files = earthaccess.open(
-        search
-    )  # cant disable progress bar yet https://github.com/nsidc/earthaccess/issues/612
-    snow_reanalysis_ds = xr.open_mfdataset(files, **kwargs).transpose()
 
-    # Each file holds one water year of daily data starting 1 October. Take the
-    # year from the file name (..._WY1999_...); fall back to a date embedded in
-    # the archive path (.../1999/10/01/... or the older 1999.10.01 form).
-    url = files[0].path
-    if match := re.search(r"_WY(\d{4})_", url):
-        WY_start_date = pd.Timestamp(year=int(match.group(1)), month=10, day=1)
-    elif match := re.search(r"(\d{4})[./](\d{2})[./](\d{2})", url):
-        WY_start_date = pd.Timestamp(*(int(g) for g in match.groups()))
-    else:
-        raise ValueError(
-            f"Could not determine the water-year start date from file path: {url}"
-        )
-
-    snow_reanalysis_ds.coords["time"] = (
-        "Day",
-        pd.date_range(WY_start_date, periods=snow_reanalysis_ds.sizes["Day"]),
-    )
-    snow_reanalysis_ds = snow_reanalysis_ds.swap_dims({"Day": "time"})
-
-    snow_reanalysis_ds = snow_reanalysis_ds.sel(time=slice(start_date, end_date))
-
-    snow_reanalysis_da = snow_reanalysis_ds[variable].sel(Stats=stats_index)
-    snow_reanalysis_da = snow_reanalysis_da.rio.set_spatial_dims(
-        x_dim="Longitude", y_dim="Latitude"
-    )
-    snow_reanalysis_da = snow_reanalysis_da.rio.write_crs(bbox_gdf.crs)
-    snow_reanalysis_da = snow_reanalysis_da.rio.clip_box(
-        *bbox_gdf.total_bounds, crs=bbox_gdf.crs
-    )
-
-    snow_reanalysis_da.attrs["data_citation"] = (
-        "Fang, Y., Liu, Y. & Margulis, S. A. (2022). Western United States UCLA Daily Snow Reanalysis. (WUS_UCLA_SR, Version 1). [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/PP7T2GBI52I2"
-    )
-
-    return snow_reanalysis_da
-
-
+@deprecated(
+    "easysnowdata.climate.koppen_geiger.load",
+    since="0.1.0",
+    remove_in="0.2.0",
+    extra=(
+        "The new loader adds period= and scenario= (the archive's other 30-year periods "
+        "and CMIP6 projections) and returns CF flag attrs instead of class_info/cmap/"
+        "example_plot; plot it with easysnowdata.plotting.categorical()."
+    ),
+)
 def get_koppen_geiger_classes(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -979,280 +375,17 @@ def get_koppen_geiger_classes(
     resolution: str = "0.1 degree",
     **kwargs,
 ) -> xr.DataArray:
+    """Deprecated alias of :func:`easysnowdata.climate.koppen_geiger.load`.
+
+    Returns the 1991-2020 classes at *resolution*, as before. The
+    ``class_info``, ``cmap`` and ``example_plot`` attrs are gone (design
+    contract §2.5: nothing in ``.attrs`` is a Python object); the classes are
+    now CF ``flag_values`` / ``flag_meanings`` / ``flag_colors`` and
+    ``easysnowdata.plotting.categorical`` draws the legend.
     """
-    Retrieves Köppen-Geiger climate classification data for a given bounding box and resolution.
+    from easysnowdata.climate import koppen_geiger as _koppen  # noqa: PLC0415
 
-    This function fetches global Köppen-Geiger climate classification data from a high-resolution dataset
-    based on constrained CMIP6 projections. It allows for optional spatial subsetting and provides
-    multiple resolution options. The returned DataArray includes a custom plotting function as an attribute.
-
-    Parameters
-    ----------
-    bbox_input:
-        The bounding box for spatial subsetting. If None, the entire global dataset is returned.
-    resolution:
-        The spatial resolution of the data. Options are "1 degree", "0.5 degree", "0.1 degree", or "1 km".
-        Default is "0.1 degree".
-    **kwargs:
-        Additional keyword arguments passed to ``rioxarray.open_rasterio`` (e.g.
-        ``chunks={"x": 1024, "y": 1024}`` to load lazily with dask).
-
-    Returns
-    -------
-    xarray.DataArray
-        A DataArray containing the Köppen-Geiger climate classification data, with class information,
-        color map, data citation, and a custom plotting function included as attributes.
-
-    Examples
-    --------
-    Get Köppen-Geiger climate classification data for the entire globe with a 1-degree resolution, use custom plotting function:
-    >>> koppen_data = get_koppen_geiger_classes(bbox_input=None, resolution="1 degree")
-    >>> koppen_data.attrs['example_plot'](koppen_data)
-    Get Köppen-Geiger climate classification data for a specific region with a 1 km resolution, plot using xarray's built-in plotting function
-    >>> koppen_geiger_da = get_koppen_geiger_classes(bbox_input=(-121.94224976, 46.72842173, -121.54136001, 46.99728203), resolution="1 km")
-    >>> koppen_data.plot(cmap=koppen_data.attrs["cmap"])
-
-    Notes
-    -----
-    Data citation:
-
-    Beck, H.E., McVicar, T.R., Vergopolan, N. et al. High-resolution (1 km) Köppen-Geiger maps
-    for 1901–2099 based on constrained CMIP6 projections. Sci Data 10, 724 (2023).
-    https://doi.org/10.1038/s41597-023-02549-6
-    """
-
-    def get_class_info():
-        classes = {
-            1: {
-                "name": "Af",
-                "description": "Tropical, rainforest",
-                "color": [0, 0, 255],
-            },
-            2: {
-                "name": "Am",
-                "description": "Tropical, monsoon",
-                "color": [0, 120, 255],
-            },
-            3: {
-                "name": "Aw",
-                "description": "Tropical, savannah",
-                "color": [70, 170, 250],
-            },
-            4: {
-                "name": "BWh",
-                "description": "Arid, desert, hot",
-                "color": [255, 0, 0],
-            },
-            5: {
-                "name": "BWk",
-                "description": "Arid, desert, cold",
-                "color": [255, 150, 150],
-            },
-            6: {
-                "name": "BSh",
-                "description": "Arid, steppe, hot",
-                "color": [245, 165, 0],
-            },
-            7: {
-                "name": "BSk",
-                "description": "Arid, steppe, cold",
-                "color": [255, 220, 100],
-            },
-            8: {
-                "name": "Csa",
-                "description": "Temperate, dry summer, hot summer",
-                "color": [255, 255, 0],
-            },
-            9: {
-                "name": "Csb",
-                "description": "Temperate, dry summer, warm summer",
-                "color": [200, 200, 0],
-            },
-            10: {
-                "name": "Csc",
-                "description": "Temperate, dry summer, cold summer",
-                "color": [150, 150, 0],
-            },
-            11: {
-                "name": "Cwa",
-                "description": "Temperate, dry winter, hot summer",
-                "color": [150, 255, 150],
-            },
-            12: {
-                "name": "Cwb",
-                "description": "Temperate, dry winter, warm summer",
-                "color": [100, 200, 100],
-            },
-            13: {
-                "name": "Cwc",
-                "description": "Temperate, dry winter, cold summer",
-                "color": [50, 150, 50],
-            },
-            14: {
-                "name": "Cfa",
-                "description": "Temperate, no dry season, hot summer",
-                "color": [200, 255, 80],
-            },
-            15: {
-                "name": "Cfb",
-                "description": "Temperate, no dry season, warm summer",
-                "color": [100, 255, 80],
-            },
-            16: {
-                "name": "Cfc",
-                "description": "Temperate, no dry season, cold summer",
-                "color": [50, 200, 0],
-            },
-            17: {
-                "name": "Dsa",
-                "description": "Cold, dry summer, hot summer",
-                "color": [255, 0, 255],
-            },
-            18: {
-                "name": "Dsb",
-                "description": "Cold, dry summer, warm summer",
-                "color": [200, 0, 200],
-            },
-            19: {
-                "name": "Dsc",
-                "description": "Cold, dry summer, cold summer",
-                "color": [150, 50, 150],
-            },
-            20: {
-                "name": "Dsd",
-                "description": "Cold, dry summer, very cold winter",
-                "color": [150, 100, 150],
-            },
-            21: {
-                "name": "Dwa",
-                "description": "Cold, dry winter, hot summer",
-                "color": [170, 175, 255],
-            },
-            22: {
-                "name": "Dwb",
-                "description": "Cold, dry winter, warm summer",
-                "color": [90, 120, 220],
-            },
-            23: {
-                "name": "Dwc",
-                "description": "Cold, dry winter, cold summer",
-                "color": [75, 80, 180],
-            },
-            24: {
-                "name": "Dwd",
-                "description": "Cold, dry winter, very cold winter",
-                "color": [50, 0, 135],
-            },
-            25: {
-                "name": "Dfa",
-                "description": "Cold, no dry season, hot summer",
-                "color": [0, 255, 255],
-            },
-            26: {
-                "name": "Dfb",
-                "description": "Cold, no dry season, warm summer",
-                "color": [55, 200, 255],
-            },
-            27: {
-                "name": "Dfc",
-                "description": "Cold, no dry season, cold summer",
-                "color": [0, 125, 125],
-            },
-            28: {
-                "name": "Dfd",
-                "description": "Cold, no dry season, very cold winter",
-                "color": [0, 70, 95],
-            },
-            29: {
-                "name": "ET",
-                "description": "Polar, tundra",
-                "color": [178, 178, 178],
-            },
-            30: {"name": "EF", "description": "Polar, frost", "color": [102, 102, 102]},
-        }
-        return classes
-
-    def get_class_cmap(classes):
-        colors = {k: [c / 255 for c in v["color"]] for k, v in classes.items()}
-        return matplotlib.colors.ListedColormap([colors[i] for i in range(1, 31)])
-
-    def plot_classes(self, ax=None, figsize=(8, 10), cbar_orientation="horizontal"):
-        if ax is None:
-            f, ax = plt.subplots(figsize=figsize)
-        else:
-            f = ax.get_figure()
-
-        bounds = np.arange(0.5, 31.5, 1)
-        norm = matplotlib.colors.BoundaryNorm(bounds, self.attrs["cmap"].N)
-
-        im = self.plot(ax=ax, cmap=self.attrs["cmap"], norm=norm, add_colorbar=False)
-
-        ax.set_aspect("equal")
-
-        cbar = f.colorbar(im, ax=ax, orientation=cbar_orientation, aspect=30, pad=0.08)
-
-        cbar.set_ticks(np.arange(1, 31))
-        cbar.set_ticklabels(
-            [
-                f"{v['name']}: {v['description']}"
-                for k, v in self.attrs["class_info"].items()
-            ],
-            fontsize=8,
-        )
-
-        if cbar_orientation == "horizontal":
-            plt.setp(
-                cbar.ax.get_xticklabels(),
-                rotation=60,
-                ha="right",
-                rotation_mode="anchor",
-            )
-        else:
-            plt.setp(cbar.ax.get_yticklabels(), rotation=0, ha="right")
-
-        ax.set_xlabel("Longitude")
-        ax.set_ylabel("Latitude")
-        ax.set_title("Köppen-Geiger climate classification")
-        f.tight_layout(pad=1.5, w_pad=1.5, h_pad=1.5)
-
-        return f, ax
-
-    bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
-
-    resolution_dict = {
-        "1 degree": "1p0",
-        "0.5 degree": "0p5",
-        "0.1 degree": "0p1",
-        "1 km": "0p00833333",
-    }
-    resolution = resolution_dict[resolution]
-
-    # figshare file 61012822 is the current (January 2026) release of the
-    # Beck et al. (2023) archive; 45057352 was the superseded v1 file. Read
-    # through the ndownloader.figshare.com host, which answers with a plain
-    # 302 to the signed S3 object; the figshare.com/ndownloader host serves a
-    # bot-challenge page (HTTP 202) to non-browser clients such as GDAL.
-    koppen_geiger_da = rxr.open_rasterio(
-        f"zip+https://ndownloader.figshare.com/files/61012822/koppen_geiger_tif.zip/1991_2020/koppen_geiger_{resolution}.tif",
-        **kwargs,
-    ).squeeze()
-
-    # A bbox smaller than one pixel (e.g. at "1 degree") must not raise
-    koppen_geiger_da = koppen_geiger_da.rio.clip_box(
-        *bbox_gdf.total_bounds, crs=bbox_gdf.crs, allow_one_dimensional_raster=True
-    )
-
-    koppen_geiger_da.attrs["class_info"] = get_class_info()
-    koppen_geiger_da.attrs["cmap"] = get_class_cmap(
-        koppen_geiger_da.attrs["class_info"]
-    )
-    koppen_geiger_da.attrs["data_citation"] = (
-        "Beck, H.E., McVicar, T.R., Vergopolan, N. et al. High-resolution (1 km) Köppen-Geiger maps for 1901–2099 based on constrained CMIP6 projections. Sci Data 10, 724 (2023). https://doi.org/10.1038/s41597-023-02549-6"
-    )
-
-    koppen_geiger_da.attrs["example_plot"] = plot_classes
-
-    return koppen_geiger_da
+    return _koppen.load(bbox_input, resolution=resolution, **{"chunks": None, **kwargs})
 
 
 # huc map, from gee?

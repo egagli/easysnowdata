@@ -32,6 +32,7 @@ class TestGetHydroBasins:
 
         result = get_hydroBASINS(bbox_input=TEST_BBOX, level=5)
         assert "data_citation" in result.attrs
+        assert result.attrs["product_id"] == "hydrobasins"
 
     def test_invalid_level_raises(self):
         from easysnowdata.hydroclimatology import get_hydroBASINS
@@ -60,24 +61,23 @@ class TestKoppenGeiger:
         result = get_koppen_geiger_classes(bbox_input=TEST_BBOX, resolution="1 degree")
         assert isinstance(result, xr.DataArray)
 
-    def test_has_class_info(self):
+    def test_has_cf_flags_instead_of_class_info(self):
+        """The class table is CF flag attrs now, not a dict of Python objects.
+
+        ``class_info``, ``cmap`` and ``example_plot`` are gone by design
+        (REVAMP_PLAN §2.5: nothing in ``.attrs`` is a Python object);
+        ``easysnowdata.plotting.categorical`` draws the legend from the flags.
+        """
         from easysnowdata.hydroclimatology import get_koppen_geiger_classes
 
         result = get_koppen_geiger_classes(bbox_input=TEST_BBOX, resolution="1 degree")
-        assert "class_info" in result.attrs
-        assert len(result.attrs["class_info"]) == 30
-
-    def test_has_cmap(self):
-        from easysnowdata.hydroclimatology import get_koppen_geiger_classes
-
-        result = get_koppen_geiger_classes(bbox_input=TEST_BBOX, resolution="1 degree")
-        assert "cmap" in result.attrs
-
-    def test_has_example_plot_callable(self):
-        from easysnowdata.hydroclimatology import get_koppen_geiger_classes
-
-        result = get_koppen_geiger_classes(bbox_input=TEST_BBOX, resolution="1 degree")
-        assert callable(result.attrs.get("example_plot"))
+        assert len(result.attrs["flag_values"]) == 30
+        assert result.attrs["flag_meanings"].split()[0] == "Af"
+        assert len(result.attrs["flag_colors"].split()) == 30
+        assert "class_info" not in result.attrs
+        assert "cmap" not in result.attrs
+        assert "example_plot" not in result.attrs
+        assert all(not callable(value) for value in result.attrs.values())
 
     def test_kwargs_forwarded_to_open_rasterio(self):
         from easysnowdata.hydroclimatology import get_koppen_geiger_classes
@@ -173,13 +173,15 @@ class TestEra5Gcs:
 class TestHucGeometries:
     pytestmark = pytest.mark.live
 
-    @pytest.mark.requires_earthengine
     def test_returns_geodataframe(self):
+        # No longer needs Earth Engine: the default route is the USGS WBD
+        # REST service (§12 Q7).
         from easysnowdata.hydroclimatology import get_huc_geometries
 
         result = get_huc_geometries(bbox_input=TEST_BBOX, huc_level="08")
         assert isinstance(result, gpd.GeoDataFrame)
         assert len(result) > 0
+        assert list(result.columns)[:2] == ["name", "huc8"]
 
 
 class TestSnodas:
@@ -269,18 +271,24 @@ class TestUclaSnowReanalysisStatsMapping:
         assert len(set(_UCLA_SR_STATS_INDEX.values())) == len(_UCLA_SR_STATS_INDEX)
 
     def test_invalid_stats_raises_before_any_network_call(self, monkeypatch):
-        from easysnowdata import hydroclimatology
+        from easysnowdata import hydroclimatology, providers
 
         monkeypatch.setattr(
             "easysnowdata.utils._has_earthaccess_credentials", lambda: True
         )
+        # The loader now searches through the earthdata provider (which logs
+        # in first); neither may be reached for an invalid `stats`. Patch the
+        # provider itself: hydroclimatology is a shim module now and no longer
+        # imports it.
         monkeypatch.setattr(
-            hydroclimatology, "_earthaccess_login", lambda: pytest.fail("login")
+            providers.earthdata,
+            "search",
+            lambda *args, **kwargs: pytest.fail("network"),
         )
         monkeypatch.setattr(
-            hydroclimatology.earthaccess,
-            "search_data",
-            lambda **kwargs: pytest.fail("network"),
+            providers.earthdata,
+            "ensure",
+            lambda: pytest.fail("login"),
         )
         with pytest.raises(ValueError, match="stats must be one of"):
             hydroclimatology.get_ucla_snow_reanalysis(

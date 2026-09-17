@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: write
 
     steps:
       - uses: actions/checkout@v4
@@ -23,16 +24,14 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/setup-python@v5
+      # The probes live in easysnowdata.catalog.health and use the package's
+      # own auth module, so the check runs from the same pixi environment as
+      # the tests.
+      - uses: prefix-dev/setup-pixi@v0.10.2
         with:
-          python-version: "3.12"
-
-      - name: Install minimal dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests pystac-client planetary-computer \
-            xarray zarr gcsfs fsspec earthaccess \
-            earthengine-api google-auth
+          pixi-version: v0.65.0
+          environments: test-py313
+          locked: true
 
       - name: Run health checks
         env:
@@ -40,10 +39,34 @@ jobs:
           EARTHDATA_TOKEN: ${{ secrets.EARTHDATA_TOKEN }}
           EARTHDATA_USERNAME: ${{ secrets.EARTHDATA_USERNAME }}
           EARTHDATA_PASSWORD: ${{ secrets.EARTHDATA_PASSWORD }}
-        run: python scripts/check_data_sources.py --output data_status/history.json
+          PL_API_KEY: ${{ secrets.PL_API_KEY }}
+          NVE_API_KEY: ${{ secrets.NVE_API_KEY }}
+          EASYSNOWDATA_QUIET: "1"
+        run: pixi run -e test-py313 python scripts/check_data_sources.py --output data_status/history.json
 
       - name: Update README status table
-        run: python scripts/update_readme_status.py
+        run: pixi run -e test-py313 python scripts/update_readme_status.py
+
+      # A red row nobody opens an issue about is a row nobody fixes: the
+      # GRDC/WMO 404 sat in the README from June 2026 onward (§8). Failures
+      # now open or update an issue labelled data-source, a recovery closes
+      # it, and a DMR++ sidecar appearing opens its own.
+      - name: Open, update or close data-source issues
+        if: ${{ !inputs.dry_run }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: pixi run -e test-py313 python scripts/report_health.py
+
+      - name: Summarize
+        if: always()
+        run: |
+          {
+            echo "### Data source health"
+            echo '```'
+            pixi run -e test-py313 python scripts/report_health.py --dry-run
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Commit and push if changed
         if: ${{ !inputs.dry_run }}

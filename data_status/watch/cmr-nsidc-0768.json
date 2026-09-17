@@ -1,0 +1,9 @@
+{
+  "NSIDC-0768 (C2218487926-NSIDCV0)": {
+    "revision_date": "2026-08-13",
+    "temporal_end": "2019-12-31",
+    "temporal_start": "1981-01-01",
+    "url": "https://cmr.earthdata.nasa.gov/search/concepts/C2218487926-NSIDCV0.html",
+    "version": "1"
+  }
+}

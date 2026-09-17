@@ -1,0 +1,281 @@
+# What to watch upstream, and what a change in it would mean (REVAMP_PLAN §8).
+#
+# `scripts/watch.py` fetches every entry once a week, diffs it against the
+# snapshot of the previous run in `data_status/watch/`, tags each new or
+# changed item with the categories below, and opens one digest issue. Reading
+# the digest and acting on it is a human job; this file only decides what gets
+# looked at.
+#
+# Each entry has:
+#   kind      how to fetch and compare it — see the sections below
+#   id        the snapshot file name; stable, so renaming an entry starts over
+#   products  catalog products affected, so the digest can say what is at stake
+#   url /     what to fetch (kind-specific)
+#   keywords  extra words that promote an item to "action needed" for this entry
+#
+# The categories every item is tagged against live in scripts/watch.py
+# (CATEGORIES); they are the §8 list: removal, deprecation, reprocessing,
+# extent, stations, new dataset, outage.
+
+# ── Programmatic checks ───────────────────────────────────────────────────────
+# No text parsing. These catch a change before any changelog mentions it.
+
+# CMR collections: a version_id or revision_date bump is how reprocessing
+# reaches us, and the granule count is how an archiving stop shows up.
+[[cmr]]
+id = "cmr-mod10a1f"
+short_name = "MOD10A1F"
+products = ["modis-snow"]
+
+[[cmr]]
+id = "cmr-mod10a2"
+short_name = "MOD10A2"
+products = ["modis-snow"]
+# §13.4: PC stopped archiving this; NSIDC is the only route left, so a change
+# here is load-bearing.
+
+[[cmr]]
+id = "cmr-vnp10a1f"
+short_name = "VNP10A1F"
+products = ["viirs-snow"]
+
+[[cmr]]
+id = "cmr-wus-ucla-sr"
+short_name = "WUS_UCLA_SR"
+products = ["ucla-snow-reanalysis"]
+
+[[cmr]]
+id = "cmr-hls-s30"
+short_name = "HLSS30"
+products = ["hls"]
+
+[[cmr]]
+id = "cmr-hls-l30"
+short_name = "HLSL30"
+products = ["hls"]
+
+[[cmr]]
+id = "cmr-opera-rtc-s1"
+short_name = "OPERA_L2_RTC-S1_V1"
+products = ["sentinel-1-rtc"]
+
+[[cmr]]
+id = "cmr-nsidc-0768"
+short_name = "NSIDC-0768"
+products = ["snow-classification"]
+
+# STAC collections: presence in /collections, the temporal extent, and the
+# newest item. Catches a collection quietly disappearing (the MOD10A2 case)
+# or stopping.
+[[stac]]
+id = "stac-pc"
+url = "https://planetarycomputer.microsoft.com/api/stac/v1"
+collections = [
+    "sentinel-1-rtc",
+    "sentinel-2-l2a",
+    "cop-dem-glo-30",
+    "cop-dem-glo-90",
+    "esa-worldcover",
+    "modis-10A1-061",
+    "modis-10A2-061",
+    "hls2-s30",
+    "hls2-l30",
+]
+products = [
+    "sentinel-1-rtc",
+    "sentinel-2-l2a",
+    "copernicus-dem",
+    "esa-worldcover",
+    "modis-snow",
+    "hls",
+]
+
+[[stac]]
+id = "stac-earth-search"
+url = "https://earth-search.aws.element84.com/v1"
+collections = [
+    "sentinel-2-l2a",
+    "sentinel-2-c1-l2a",
+    "cop-dem-glo-30",
+]
+products = ["sentinel-2-l2a", "copernicus-dem"]
+# sentinel-2-c1-l2a is the route that still carries the baseline offset in the
+# pixels (§13.1 C1); PC issue #394 asks for it on PC too.
+
+[[stac]]
+id = "stac-cmr-lpcloud"
+url = "https://cmr.earthdata.nasa.gov/stac/LPCLOUD"
+collections = ["HLSS30_2.0", "HLSL30_2.0"]
+products = ["hls"]
+
+[[stac]]
+id = "stac-cmr-asf"
+url = "https://cmr.earthdata.nasa.gov/cloudstac/ASF"
+collections = ["OPERA_L2_RTC-S1_V1_1", "OPERA_L2_RTC-S1-STATIC_V1_1"]
+products = ["sentinel-1-rtc", "sentinel-1-local-incidence-angle"]
+
+# Earth Engine assets: existence and date range, including the community
+# catalog entries we depend on.
+[[gee]]
+id = "gee-assets"
+assets = [
+    "ECMWF/ERA5_LAND/HOURLY",
+    "CSP/ERGo/1_0/Global/ALOS_CHILI",
+    "USGS/WBD/2017/HUC08",
+    "projects/earthengine-legacy/assets/projects/climate-engine/snodas/daily",
+    "projects/sat-io/open-datasets/USGS/ANNUAL_NLCD/LANDCOVER",
+    "COPERNICUS/Landcover/100m/Proba-V-C3/Global",
+    "OPERA/RTC/L2_V1/S1",
+]
+products = ["era5", "chili", "huc", "snodas", "nlcd", "forest-cover-fraction"]
+
+# Static files: ETag / Last-Modified / Content-Length, fetched GET-first
+# because some of these servers answer HEAD with a 400 (§8, GRDC).
+[[file]]
+id = "file-koppen-geiger"
+url = "https://ndownloader.figshare.com/files/61012822"
+products = ["koppen-geiger"]
+
+[[file]]
+id = "file-forest-cover"
+url = "https://zenodo.org/records/3939050/files/PROBAV_LC100_global_v3.0.1_2019-nrt_Tree-CoverFraction-layer_EPSG-4326.tif"
+products = ["forest-cover-fraction"]
+
+[[file]]
+id = "file-grdc-major"
+url = "https://datacatalogfiles.worldbank.org/ddh-published/0041426/DR0051217/major_basins_of_the_world_0_0_0.zip"
+products = ["grdc-major-river-basins"]
+
+[[file]]
+id = "file-snow-classification-cog"
+# No url: taken from the catalog source, so it cannot drift from what the
+# loader reads.
+product = "snow-classification"
+source = "hosted-cog"
+products = ["snow-classification"]
+keywords = ["expiry", "blob", "sas"]
+# The uwcryo blob is the one hosting decision the plan flags as temporary
+# (§12 Q8, §14): re-host before the store expires.
+
+[[file]]
+id = "file-hydroatlas"
+url = "https://ndownloader.figshare.com/files/20082137/BasinATLAS_Data_v10.gdb.zip"
+products = ["hydrobasins"]
+
+# Station inventories: a count per network, so stations added or retired show
+# up as a delta. NRCS adds SNOTEL sites every year.
+[[stations]]
+id = "stations-counts"
+networks = ["awdb", "cdec", "databc", "yukon"]
+products = [
+    "awdb-stations",
+    "cdec-stations",
+    "databc-stations",
+    "yukon-stations",
+    "snow-station-archive",
+]
+# nve is left out: it needs an API key, and the digest must run without one.
+
+# Dependencies: the PyPI JSON for each, with a link to its changelog.
+[[pypi]]
+id = "pypi-stack"
+packages = [
+    "xarray",
+    "zarr",
+    "odc-stac",
+    "odc-geo",
+    "rioxarray",
+    "rasterio",
+    "pystac-client",
+    "planetary-computer",
+    "earthaccess",
+    "earthengine-api",
+    "xee",
+    "geopandas",
+    "pyogrio",
+    "dask",
+    "icechunk",
+    "virtualizarr",
+    "asf-search",
+    "planet",
+    "sphinx-gallery",
+]
+
+# ── Pages and feeds ───────────────────────────────────────────────────────────
+# Fetched, reduced to their visible text, diffed against last week, and each
+# new line keyword-tagged. Noisy by nature, which is why the digest groups
+# them under "changed" and "other" unless a keyword promotes them.
+
+[[page]]
+id = "page-gee-release-notes"
+url = "https://developers.google.com/earth-engine/docs/data-catalog/release-notes"
+products = ["era5", "chili", "huc", "snodas", "nlcd", "forest-cover-fraction"]
+
+[[page]]
+id = "page-pc-changelog"
+url = "https://planetarycomputer.microsoft.com/docs/changelogs/history"
+products = ["sentinel-1-rtc", "sentinel-2-l2a", "copernicus-dem", "esa-worldcover", "modis-snow", "hls"]
+
+[[page]]
+id = "page-earthdata-alerts"
+url = "https://www.earthdata.nasa.gov/data/alerts-outages"
+products = ["hls", "modis-snow", "viirs-snow", "ucla-snow-reanalysis", "snow-classification"]
+keywords = ["nsidc", "lp daac", "asf", "urs", "earthdata login"]
+
+[[page]]
+id = "page-nsidc-updates"
+url = "https://nsidc.org/data/data-programs/nsidc-daac/data-updates"
+products = ["modis-snow", "viirs-snow", "ucla-snow-reanalysis", "snow-classification", "snodas"]
+
+[[page]]
+id = "page-asf-daac"
+url = "https://www.earthdata.nasa.gov/centers/asf-daac"
+products = ["sentinel-1-rtc", "sentinel-1-local-incidence-angle"]
+
+[[page]]
+id = "page-nrcs-sswsf"
+url = "https://www.nrcs.usda.gov/programs-initiatives/sswsf-snow-survey-and-water-supply-forecasting-program"
+products = ["awdb-stations"]
+
+[[page]]
+id = "page-lpdaac-news"
+url = "https://www.earthdata.nasa.gov/data/catalog?facets=lp-daac"
+products = ["hls"]
+
+[[page]]
+id = "page-nohrsc-snodas"
+url = "https://nsidc.org/data/g02158/versions/1"
+products = ["snodas"]
+
+[[page]]
+id = "page-cdec-news"
+# cdec.water.ca.gov/whatsnew.html was a 404 when this list was written
+# (2026-09-17); the department's news page is the live one.
+url = "https://water.ca.gov/News"
+products = ["cdec-stations"]
+
+[[page]]
+id = "page-earth-search"
+url = "https://element84.com/earth-search/"
+products = ["sentinel-2-l2a", "copernicus-dem"]
+
+[[page]]
+id = "page-worldcover"
+url = "https://esa-worldcover.org/en/data-access"
+products = ["esa-worldcover"]
+
+[[page]]
+id = "page-gee-community-catalog"
+url = "https://gee-community-catalog.org/changelog/"
+products = ["snodas", "nlcd"]
+
+[[feed]]
+id = "feed-asf-search-changelog"
+url = "https://raw.githubusercontent.com/asfadmin/Discovery-asf_search/master/CHANGELOG.md"
+products = ["sentinel-1-rtc"]
+
+[[feed]]
+id = "feed-pangeo-discourse"
+url = "https://discourse.pangeo.io/latest.json"
+products = []
+keywords = ["zarr", "icechunk", "virtualizarr", "stac", "era5", "snow"]

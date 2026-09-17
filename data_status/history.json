@@ -1,6 +1,619 @@
 [
   [
     {
+      "source": "AWDB stations (NRCS REST API)",
+      "product": "awdb-stations",
+      "route": "awdb",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:29Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "CDEC stations (JSON data servlet)",
+      "product": "cdec-stations",
+      "route": "cdec",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:29Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "BC snow stations (DataBC WFS)",
+      "product": "databc-stations",
+      "route": "databc",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:30Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "NVE stations (HydAPI)",
+      "product": "nve-stations",
+      "route": "nve",
+      "kind": "health",
+      "requires": [
+        "nve"
+      ],
+      "checked_at": "2026-09-17T21:35:30Z",
+      "status": "skip",
+      "error": "Missing credentials — NVE HydAPI: NVE_API_KEY"
+    },
+    {
+      "source": "Yukon stations (AquaCache API)",
+      "product": "yukon-stations",
+      "route": "yukon",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:30Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "SNOTEL/CCSS station list (GitHub)",
+      "product": "snow-station-archive",
+      "route": "github-tarball",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:30Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Snow station archive tarball (global_snow_networks)",
+      "product": "snow-station-archive",
+      "route": "github-tarball",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:31Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "SNOTEL/CCSS station CSV (GitHub)",
+      "product": "snow-station-archive",
+      "route": "github-csv",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:31Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "ARCO-ERA5 (GCS anonymous)",
+      "product": "era5",
+      "route": "arco-era5-gcs",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:31Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "ARCO-ERA5 latency (GCS anonymous)",
+      "product": "era5",
+      "route": "arco-era5-gcs",
+      "kind": "latency",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:32Z",
+      "status": "pass",
+      "error": null,
+      "value": "2026-09-11T00:00:00Z"
+    },
+    {
+      "source": "ERA5 (Google Earth Engine)",
+      "product": "era5",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-09-17T21:35:33Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Köppen-Geiger classification (figshare)",
+      "product": "koppen-geiger",
+      "route": "figshare",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:35Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "HUC geometries (USGS WBD REST)",
+      "product": "huc",
+      "route": "usgs-wbd",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:36Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "HUC geometries (GEE/USGS WBD)",
+      "product": "huc",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-09-17T21:35:37Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "HydroATLAS basins (figshare)",
+      "product": "hydrobasins",
+      "route": "figshare-basinatlas",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:38Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "HydroBASINS (HydroSHEDS regional zip)",
+      "product": "hydrobasins",
+      "route": "hydrosheds",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:39Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "HydroBASINS (GEE/HydroATLAS)",
+      "product": "hydrobasins",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-09-17T21:35:39Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "GRDC major river basins (World Bank)",
+      "product": "grdc-major-river-basins",
+      "route": "world-bank",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:43Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "GRDC WMO basins",
+      "product": "grdc-wmo-basins",
+      "route": "grdc",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:43Z",
+      "status": "fail",
+      "error": "ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))"
+    },
+    {
+      "source": "MODIS snow cover MOD10A1F (NASA NSIDC)",
+      "product": "modis-snow",
+      "route": "nsidc",
+      "kind": "health",
+      "requires": [
+        "earthdata"
+      ],
+      "checked_at": "2026-09-17T21:35:47Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "MODIS snow cover MOD10A1F latency (CMR)",
+      "product": "modis-snow",
+      "route": "nsidc",
+      "kind": "latency",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:50Z",
+      "status": "pass",
+      "error": null,
+      "value": "2026-09-16T00:00:00Z"
+    },
+    {
+      "source": "MODIS snow cover MOD10A1F DMR++ (CMR)",
+      "product": "modis-snow",
+      "route": "nsidc",
+      "kind": "virtualization",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:50Z",
+      "status": "pass",
+      "error": null,
+      "value": "absent; fallback: VirtualiZarr HDF4Parser (kerchunk wrapper, root group only)"
+    },
+    {
+      "source": "MODIS snow cover MOD10A1 (Planetary Computer)",
+      "product": "modis-snow",
+      "route": "planetary-computer",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:50Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Mountain snow mask (Zenodo)",
+      "product": "mountain-snow-mask",
+      "route": "zenodo",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:53Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "SNODAS (NSIDC G02158)",
+      "product": "snodas",
+      "route": "nsidc",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:54Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "SNODAS latency (NSIDC G02158)",
+      "product": "snodas",
+      "route": "nsidc",
+      "kind": "latency",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:54Z",
+      "status": "pass",
+      "error": null,
+      "value": "2026-09-16T00:00:00Z"
+    },
+    {
+      "source": "SNODAS (GEE/Climate Engine)",
+      "product": "snodas",
+      "route": "gee-climate-engine",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-09-17T21:35:54Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Sturm & Liston snow classification (NSIDC-0768)",
+      "product": "snow-classification",
+      "route": "nsidc",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:54Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Sturm & Liston snow classification (Azure)",
+      "product": "snow-classification",
+      "route": "hosted-cog",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:55Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "UCLA Snow Reanalysis (NASA NSIDC)",
+      "product": "ucla-snow-reanalysis",
+      "route": "nsidc",
+      "kind": "health",
+      "requires": [
+        "earthdata"
+      ],
+      "checked_at": "2026-09-17T21:35:55Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "UCLA Snow Reanalysis DMR++ (CMR)",
+      "product": "ucla-snow-reanalysis",
+      "route": "nsidc",
+      "kind": "virtualization",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:56Z",
+      "status": "pass",
+      "error": null,
+      "value": "absent; fallback: VirtualiZarr HDFParser"
+    },
+    {
+      "source": "HMA Snow Reanalysis (NASA NSIDC)",
+      "product": "ucla-snow-reanalysis",
+      "route": "nsidc-hma",
+      "kind": "health",
+      "requires": [
+        "earthdata"
+      ],
+      "checked_at": "2026-09-17T21:35:56Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "VIIRS snow cover VNP10A1F (NASA NSIDC)",
+      "product": "viirs-snow",
+      "route": "nsidc",
+      "kind": "health",
+      "requires": [
+        "earthdata"
+      ],
+      "checked_at": "2026-09-17T21:35:57Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "VIIRS snow cover VNP10A1F latency (CMR)",
+      "product": "viirs-snow",
+      "route": "nsidc",
+      "kind": "latency",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:58Z",
+      "status": "pass",
+      "error": null,
+      "value": "2026-09-16T00:00:00Z"
+    },
+    {
+      "source": "VIIRS snow cover VNP10A1F DMR++ (CMR)",
+      "product": "viirs-snow",
+      "route": "nsidc",
+      "kind": "virtualization",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:58Z",
+      "status": "pass",
+      "error": null,
+      "value": "absent; fallback: VirtualiZarr HDFParser"
+    },
+    {
+      "source": "Forest cover fraction (Zenodo)",
+      "product": "forest-cover-fraction",
+      "route": "zenodo",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:35:58Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Forest cover fraction (GEE/CGLS-LC100)",
+      "product": "forest-cover-fraction",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-09-17T21:35:59Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "ESA WorldCover (Planetary Computer)",
+      "product": "esa-worldcover",
+      "route": "planetary-computer",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:36:00Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "ESA WorldCover (AWS bucket)",
+      "product": "esa-worldcover",
+      "route": "aws-open-data",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:36:01Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Annual NLCD (GEE community asset)",
+      "product": "nlcd",
+      "route": "gee-annual",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-09-17T21:36:02Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "NLCD (GEE/USGS)",
+      "product": "nlcd",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-09-17T21:36:03Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "HLS L30 (CMR-STAC LPCLOUD)",
+      "product": "hls",
+      "route": "lpcloud-cmr-stac",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:36:03Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "HLS S30 (Planetary Computer)",
+      "product": "hls",
+      "route": "planetary-computer",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:36:05Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "PlanetScope (Planet Data API)",
+      "product": "planetscope",
+      "route": "orders-api",
+      "kind": "health",
+      "requires": [
+        "planet"
+      ],
+      "checked_at": "2026-09-17T21:37:04Z",
+      "status": "skip",
+      "error": "Missing credentials — Planet: PL_API_KEY or PL_AUTH_API_KEY or PL_AUTH_CLIENT_ID or PL_AUTH_CLIENT_SECRET or PL_AUTH_PROFILE"
+    },
+    {
+      "source": "Sentinel-2 L2A (Planetary Computer)",
+      "product": "sentinel-2-l2a",
+      "route": "planetary-computer",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:37:04Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Sentinel-2 L2A latency (Planetary Computer)",
+      "product": "sentinel-2-l2a",
+      "route": "planetary-computer",
+      "kind": "latency",
+      "requires": [],
+      "checked_at": "2026-09-17T21:37:06Z",
+      "status": "pass",
+      "error": null,
+      "value": "2026-09-17T14:47:29Z"
+    },
+    {
+      "source": "Sentinel-2 L2A (Earth Search)",
+      "product": "sentinel-2-l2a",
+      "route": "earth-search",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:37:08Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Sentinel-1 RTC (Planetary Computer)",
+      "product": "sentinel-1-rtc",
+      "route": "planetary-computer",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:37:08Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Sentinel-1 RTC latency (Planetary Computer)",
+      "product": "sentinel-1-rtc",
+      "route": "planetary-computer",
+      "kind": "latency",
+      "requires": [],
+      "checked_at": "2026-09-17T21:37:10Z",
+      "status": "pass",
+      "error": null,
+      "value": "2026-09-17T11:00:07Z"
+    },
+    {
+      "source": "Sentinel-1 RTC OPERA (CMR-STAC ASF)",
+      "product": "sentinel-1-rtc",
+      "route": "opera-rtc-s1",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:37:11Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Sentinel-1 RTC OPERA (Earth Engine)",
+      "product": "sentinel-1-rtc",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-09-17T21:37:13Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Sentinel-1 static layers (CMR-STAC ASF)",
+      "product": "sentinel-1-local-incidence-angle",
+      "route": "opera-static",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:37:24Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Copernicus DEM for the incidence angle (Planetary Computer)",
+      "product": "sentinel-1-local-incidence-angle",
+      "route": "dem",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:37:26Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Sentinel-1 GRD angle band (Earth Engine)",
+      "product": "sentinel-1-local-incidence-angle",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-09-17T21:37:28Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "CHILI (GEE/CSP ERGo)",
+      "product": "chili",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-09-17T21:37:28Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Copernicus DEM (Planetary Computer)",
+      "product": "copernicus-dem",
+      "route": "planetary-computer",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:37:29Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Copernicus DEM (Earth Search)",
+      "product": "copernicus-dem",
+      "route": "earth-search",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-09-17T21:37:30Z",
+      "status": "pass",
+      "error": null
+    }
+  ],
+  [
+    {
       "source": "SNOTEL/CCSS station list (GitHub)",
       "status": "pass",
       "error": null,
@@ -31,7 +644,7 @@
       "checked_at": "2026-09-14T08:16:28Z"
     },
     {
-      "source": "K\u00f6ppen-Geiger classification (figshare)",
+      "source": "Köppen-Geiger classification (figshare)",
       "status": "pass",
       "error": null,
       "checked_at": "2026-09-14T08:16:30Z"
@@ -141,7 +754,7 @@
       "checked_at": "2026-09-07T08:16:38Z"
     },
     {
-      "source": "K\u00f6ppen-Geiger classification (figshare)",
+      "source": "Köppen-Geiger classification (figshare)",
       "status": "pass",
       "error": null,
       "checked_at": "2026-09-07T08:16:40Z"
@@ -251,7 +864,7 @@
       "checked_at": "2026-08-31T08:16:47Z"
     },
     {
-      "source": "K\u00f6ppen-Geiger classification (figshare)",
+      "source": "Köppen-Geiger classification (figshare)",
       "status": "pass",
       "error": null,
       "checked_at": "2026-08-31T08:16:49Z"
@@ -361,7 +974,7 @@
       "checked_at": "2026-08-24T08:17:16Z"
     },
     {
-      "source": "K\u00f6ppen-Geiger classification (figshare)",
+      "source": "Köppen-Geiger classification (figshare)",
       "status": "pass",
       "error": null,
       "checked_at": "2026-08-24T08:17:20Z"
@@ -471,7 +1084,7 @@
       "checked_at": "2026-08-17T08:15:44Z"
     },
     {
-      "source": "K\u00f6ppen-Geiger classification (figshare)",
+      "source": "Köppen-Geiger classification (figshare)",
       "status": "pass",
       "error": null,
       "checked_at": "2026-08-17T08:15:45Z"
@@ -581,7 +1194,7 @@
       "checked_at": "2026-08-10T08:34:50Z"
     },
     {
-      "source": "K\u00f6ppen-Geiger classification (figshare)",
+      "source": "Köppen-Geiger classification (figshare)",
       "status": "pass",
       "error": null,
       "checked_at": "2026-08-10T08:34:53Z"
@@ -691,7 +1304,7 @@
       "checked_at": "2026-08-03T09:10:20Z"
     },
     {
-      "source": "K\u00f6ppen-Geiger classification (figshare)",
+      "source": "Köppen-Geiger classification (figshare)",
       "status": "pass",
       "error": null,
       "checked_at": "2026-08-03T09:10:23Z"
@@ -801,7 +1414,7 @@
       "checked_at": "2026-07-27T09:09:27Z"
     },
     {
-      "source": "K\u00f6ppen-Geiger classification (figshare)",
+      "source": "Köppen-Geiger classification (figshare)",
       "status": "pass",
       "error": null,
       "checked_at": "2026-07-27T09:09:29Z"
@@ -911,7 +1524,7 @@
       "checked_at": "2026-07-20T09:05:59Z"
     },
     {
-      "source": "K\u00f6ppen-Geiger classification (figshare)",
+      "source": "Köppen-Geiger classification (figshare)",
       "status": "pass",
       "error": null,
       "checked_at": "2026-07-20T09:06:02Z"
@@ -1021,7 +1634,7 @@
       "checked_at": "2026-07-13T09:08:27Z"
     },
     {
-      "source": "K\u00f6ppen-Geiger classification (figshare)",
+      "source": "Köppen-Geiger classification (figshare)",
       "status": "pass",
       "error": null,
       "checked_at": "2026-07-13T09:08:31Z"
@@ -1131,7 +1744,7 @@
       "checked_at": "2026-07-06T09:25:24Z"
     },
     {
-      "source": "K\u00f6ppen-Geiger classification (figshare)",
+      "source": "Köppen-Geiger classification (figshare)",
       "status": "pass",
       "error": null,
       "checked_at": "2026-07-06T09:25:27Z"
@@ -1241,7 +1854,7 @@
       "checked_at": "2026-06-29T09:40:01Z"
     },
     {
-      "source": "K\u00f6ppen-Geiger classification (figshare)",
+      "source": "Köppen-Geiger classification (figshare)",
       "status": "pass",
       "error": null,
       "checked_at": "2026-06-29T09:40:08Z"
@@ -1351,7 +1964,7 @@
       "checked_at": "2026-06-22T10:05:01Z"
     },
     {
-      "source": "K\u00f6ppen-Geiger classification (figshare)",
+      "source": "Köppen-Geiger classification (figshare)",
       "status": "pass",
       "error": null,
       "checked_at": "2026-06-22T10:05:03Z"
@@ -1461,7 +2074,7 @@
       "checked_at": "2026-06-15T10:11:45Z"
     },
     {
-      "source": "K\u00f6ppen-Geiger classification (figshare)",
+      "source": "Köppen-Geiger classification (figshare)",
       "status": "pass",
       "error": null,
       "checked_at": "2026-06-15T10:11:47Z"
@@ -1571,7 +2184,7 @@
       "checked_at": "2026-06-08T09:40:07Z"
     },
     {
-      "source": "K\u00f6ppen-Geiger classification (figshare)",
+      "source": "Köppen-Geiger classification (figshare)",
       "status": "pass",
       "error": null,
       "checked_at": "2026-06-08T09:40:09Z"
@@ -1681,7 +2294,7 @@
       "checked_at": "2026-06-05T08:30:52Z"
     },
     {
-      "source": "K\u00f6ppen-Geiger classification (figshare)",
+      "source": "Köppen-Geiger classification (figshare)",
       "status": "pass",
       "error": null,
       "checked_at": "2026-06-05T08:31:02Z"

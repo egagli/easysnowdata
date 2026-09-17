@@ -1,38 +1,37 @@
-"""Access digital elevation models and topographic indices.
+"""Deprecated shims for the terrain products (§3.4, §11).
 
-Currently supported datasets:
+The loaders moved to :mod:`easysnowdata.terrain`:
 
-* **Copernicus DEM** (30 m / 90 m) via Microsoft Planetary Computer
-* **CHILI** — Continuous Heat-Insolation Load Index via Google Earth Engine
+* ``get_copernicus_dem`` → :func:`easysnowdata.terrain.dem.load`
+* ``get_chili`` → :func:`easysnowdata.terrain.chili.load`
+
+Every name here keeps working for one minor release and emits an
+:class:`~easysnowdata._deprecation.EasysnowdataDeprecationWarning` on first use.
 """
 
 from __future__ import annotations
 
 import logging
 
-import ee
 import geopandas as gpd
-import odc.stac
-import planetary_computer
-import pystac_client
 import rioxarray  # noqa: F401  (registers the ``.rio`` accessor used below)
 import shapely
 import xarray as xr
 
-from easysnowdata.utils import (
-    convert_bbox_to_geodataframe,
-    get_ee_grid_params,
-    initialize_earthengine,
-    requires_earthengine,
-)
-
-odc.stac.configure_rio(cloud_defaults=True)
+from easysnowdata._deprecation import deprecated
+from easysnowdata.terrain import chili, dem
 
 __all__ = ["get_copernicus_dem", "get_chili"]
 
 _logger = logging.getLogger(__name__)
 
 
+@deprecated(
+    "easysnowdata.terrain.dem.load",
+    since="0.1.0",
+    remove_in="0.2.0",
+    name="easysnowdata.topography.get_copernicus_dem",
+)
 def get_copernicus_dem(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -43,6 +42,11 @@ def get_copernicus_dem(
 ) -> xr.DataArray:
     """Fetch the Copernicus Global DEM for a bounding box.
 
+    .. deprecated:: 0.1.0
+        Use :func:`easysnowdata.terrain.dem.load`, which takes any AOI form,
+        offers the unsigned AWS route (``source="earth-search"``) and masks the
+        -32767 sentinel to NaN by default.
+
     Parameters
     ----------
     bbox_input : geopandas.GeoDataFrame or tuple or shapely.geometry, optional
@@ -51,9 +55,8 @@ def get_copernicus_dem(
     resolution : int, optional
         DEM resolution in metres. Either ``30`` or ``90``. Default is ``30``.
     **kwargs
-        Additional keyword arguments passed to ``odc.stac.load`` (e.g.
-        ``chunks={"x": 1024, "y": 1024}``). These take precedence over the
-        defaults used here (``chunks={}``).
+        Additional keyword arguments passed to
+        :func:`easysnowdata.terrain.dem.load` (and on to ``odc.stac.load``).
 
     Returns
     -------
@@ -67,41 +70,24 @@ def get_copernicus_dem(
 
     Notes
     -----
-    The Copernicus DEM is a Digital Surface Model (DSM) derived from the
-    WorldDEM with additional editing applied to water bodies and coastlines.
-
     Data citation:
         European Space Agency, Sinergise (2021). Copernicus Global Digital
         Elevation Model. Distributed by OpenTopography.
         https://doi.org/10.5069/G9028PQB
     """
-    if resolution not in (30, 90):
-        raise ValueError(
-            f"Copernicus DEM is available at 30 m and 90 m only, got {resolution} m."
-        )
-
-    bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
-
-    catalog = pystac_client.Client.open(
-        "https://planetarycomputer.microsoft.com/api/stac/v1",
-        modifier=planetary_computer.sign_inplace,
-    )
-    search = catalog.search(
-        collections=[f"cop-dem-glo-{resolution}"], bbox=bbox_gdf.total_bounds
-    )
-    load_params = {"bbox": bbox_gdf.total_bounds, "chunks": {}, **kwargs}
-    cop_dem_da = odc.stac.load(search.items(), **load_params)["data"].squeeze()
-    cop_dem_da = cop_dem_da.rio.write_nodata(-32767, encoded=True)
-
-    cop_dem_da.attrs["data_citation"] = (
-        "European Space Agency, Sinergise (2021). Copernicus Global Digital "
-        "Elevation Model. Distributed by OpenTopography. "
-        "https://doi.org/10.5069/G9028PQB. Accessed: 2024-03-18"
-    )
-    return cop_dem_da
+    return dem.load(bbox_input, resolution=resolution, **kwargs)
 
 
-@requires_earthengine
+@deprecated(
+    "easysnowdata.terrain.chili.load",
+    since="0.1.0",
+    remove_in="0.2.0",
+    name="easysnowdata.topography.get_chili",
+    extra=(
+        "The new loader returns native values (normalize='minmax' keeps this "
+        "AOI-relative rescaling) and names its dims latitude/longitude."
+    ),
+)
 def get_chili(
     bbox_input: gpd.GeoDataFrame
     | tuple
@@ -112,31 +98,31 @@ def get_chili(
 ) -> xr.DataArray:
     """Fetch CHILI (Continuous Heat-Insolation Load Index) for a bounding box.
 
-    CHILI is a topographic index quantifying the combined effect of solar
-    radiation and surface temperature, derived from ALOS World 3D-30m (AW3D30).
-    Values range 0–1: warm (> 0.767), neutral (0.448–0.767), cool (< 0.448).
+    .. deprecated:: 0.1.0
+        Use :func:`easysnowdata.terrain.chili.load`. It returns the native
+        values by default; pass ``normalize="minmax"`` for the AOI-relative
+        rescaling this function applied, or ``normalize="index"`` for the 0-1
+        index.
 
     Parameters
     ----------
     bbox_input : geopandas.GeoDataFrame or tuple or shapely.geometry, optional
         Spatial extent. Defaults to global extent if ``None``.
     initialize_ee : bool, optional
-        Initialise Earth Engine before fetching. Default ``True``. Set to
-        ``False`` if EE is already initialised in the calling script.
+        Ignored: Earth Engine is initialised on first use (§2.8).
     **kwargs
-        Additional keyword arguments passed to ``xarray.open_dataset`` with
-        ``engine="ee"`` (e.g. ``chunks={"time": 1, "x": 512, "y": 512}``).
-        These take precedence over the defaults used here.
+        Additional keyword arguments passed to
+        :func:`easysnowdata.terrain.chili.load` (and on to
+        ``xarray.open_dataset(engine="ee")``).
 
     Returns
     -------
     xarray.DataArray
-        CHILI DataArray, min–max normalised to [0, 1].
+        CHILI DataArray, min-max normalised to [0, 1] within the AOI.
 
     Notes
     -----
-    Requires Google Earth Engine authentication. Run ``ee.Authenticate()`` and
-    ``ee.Initialize()`` once, or call ``easysnowdata.authenticate_all()``.
+    Requires Google Earth Engine authentication; see ``esd.auth.status()``.
 
     Data are only available between 70°N and 70°S.
 
@@ -146,36 +132,4 @@ def get_chili(
         Climate Adaptation Planning. PLoS ONE 10(12): e0143619.
         https://doi.org/10.1371/journal.pone.0143619
     """
-    if initialize_ee:
-        initialize_earthengine()
-
-    bbox_gdf = convert_bbox_to_geodataframe(bbox_input)
-
-    image = ee.Image("CSP/ERGo/1_0/Global/ALOS_CHILI")
-    # Match CHILI's native ~90 m grid, cropped to the bbox
-    grid = get_ee_grid_params(image, bbox_gdf)
-
-    open_params = {"engine": "ee", **grid, **kwargs}
-    chili_da = (
-        xr.open_dataset(ee.ImageCollection(image), **open_params)
-        .isel(time=0, drop=True)["constant"]
-        .rename({"y": "lat", "x": "lon"})
-        .rio.set_spatial_dims(x_dim="lon", y_dim="lat")
-        .rio.write_crs(open_params["crs"])
-    )
-    chili_da = chili_da.rio.clip_box(*bbox_gdf.total_bounds, crs=bbox_gdf.crs)
-
-    # bool() computes for dask-backed arrays too (e.g. when chunks= is passed)
-    if bool(chili_da.isnull().all()):
-        _logger.warning(
-            "No CHILI data for this location. CHILI is only available 70°N–70°S."
-        )
-
-    chili_da = (chili_da - chili_da.min()) / (chili_da.max() - chili_da.min())
-    chili_da.attrs["data_citation"] = (
-        "Theobald, D.M., Harrison-Atlas, D., Monahan, W.B., Albano, C.M. (2015). "
-        "Ecologically-Relevant Maps of Landforms and Physiographic Diversity for "
-        "Climate Adaptation Planning. PLoS ONE 10(12): e0143619. "
-        "https://doi.org/10.1371/journal.pone.0143619"
-    )
-    return chili_da
+    return chili.load(bbox_input, normalize="minmax", **kwargs)

@@ -1,6 +1,10 @@
+# ── Package ───────────────────────────────────────────────────────────────────
+[build-system]
+requires = ["hatchling>=1.27", "hatch-vcs>=0.4"]
+build-backend = "hatchling.build"
+
 [project]
 name = "easysnowdata"
-version = "0.0.26"
 description = "A Python package to easily retrieve data relevant to snow science"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -13,25 +17,37 @@ classifiers = [
     "Natural Language :: English",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering :: GIS",
     "Topic :: Scientific/Engineering :: Atmospheric Science",
 ]
+# The version comes from the git tag (hatch-vcs); see [tool.hatch.version].
+dynamic = ["version"]
+# One install, no extras (REVAMP_PLAN §10). Floors follow §10.1.
 dependencies = [
     "numpy",
     "matplotlib",
     "pandas",
-    "geopandas",
-    "rasterio",
-    "xarray",
-    "rioxarray",
-    "shapely",
-    "pystac-client",
+    "geopandas>=1.1",
+    "pyogrio>=0.12",
+    "pyarrow",
+    "pyproj",
+    "rasterio>=1.5",
+    "xarray>=2026.2",
+    "rioxarray>=0.22",
+    "shapely>=2",
+    "pystac>=1.12",
+    "pystac-client>=0.8",
     "planetary-computer",
-    "odc-stac",
+    "odc-stac>=0.5",
+    "odc-geo>=0.5",
     "earthengine-api",
     "xee>=0.1",
     "beautifulsoup4",
-    "earthaccess",
+    "earthaccess>=0.17",
+    # PlanetScope and SkySat access (Data API search, Orders API clip); one
+    # install, no extras (REVAMP_PLAN Q13), so it is a required dependency.
+    "planet>=3.6",
     "pooch",
     "pyyaml",
     "requests",
@@ -39,9 +55,12 @@ dependencies = [
     "scikit-image",
     "tqdm",
     "dask",
-    "zarr",
+    "zarr>=3.1",
     "gcsfs",
+    "s3fs",
+    "fsspec",
     "h5netcdf",
+    # h5netcdf >= 1.8 made h5py an optional extra on PyPI; declare the backend we use
     "h5py",
 ]
 
@@ -51,29 +70,36 @@ Documentation = "https://egagli.github.io/easysnowdata"
 Repository = "https://github.com/egagli/easysnowdata"
 "Bug Tracker" = "https://github.com/egagli/easysnowdata/issues"
 
-[tool.setuptools.packages.find]
-include = ["easysnowdata*"]
-exclude = ["docs*", "tests*", "scripts*"]
+[tool.hatch.version]
+source = "vcs"
 
+[tool.hatch.version.raw-options]
+# A checkout without tags (a GitHub zip, fetch-depth 1) still builds.
+fallback_version = "0.0.0+unknown"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "easysnowdata/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["easysnowdata"]
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/docs/examples/planet_data",
+    "/docs/examples/data",
+    "/data_status",
+    "/.github",
+    "/.pixi",
+    "/ee_key.json",
+]
+
+# ── Release (bump-my-version until the release workflow changes in Phase 5) ──
+# The tag it creates is what hatch-vcs reads; the files below are the ones
+# that still carry a literal version.
 [tool.bumpversion]
 current_version = "0.0.26"
 commit = true
 tag = true
-
-[[tool.bumpversion.files]]
-filename = "pyproject.toml"
-search = 'version = "{current_version}"'
-replace = 'version = "{new_version}"'
-
-[[tool.bumpversion.files]]
-filename = "pixi.toml"
-search = 'version = "{current_version}"'
-replace = 'version = "{new_version}"'
-
-[[tool.bumpversion.files]]
-filename = "easysnowdata/__init__.py"
-search = '__version__ = "{current_version}"'
-replace = '__version__ = "{new_version}"'
 
 [[tool.bumpversion.files]]
 filename = "CITATION.cff"
@@ -86,9 +112,20 @@ regex = true
 search = "date-released: '\\d{{4}}-\\d{{2}}-\\d{{2}}'"
 replace = "date-released: '{now:%Y-%m-%d}'"
 
+# ── Lint / format ─────────────────────────────────────────────────────────────
 [tool.ruff]
 target-version = "py312"
 line-length = 88
+# The network clients under easysnowdata/stations/clients/ are vendored from
+# global_snow_networks with `git subtree` (§9 step 1) and stay byte-identical
+# to that repo, so `git subtree pull` keeps working and the two copies can be
+# diffed. Reformatting them here would make every future sync a conflict.
+extend-exclude = [
+    "easysnowdata/stations/clients",
+    # The long-form notebooks are historical artefacts kept verbatim; they are
+    # not re-executed and are removed with the legacy API in Phase 5.
+    "docs/examples",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP"]
@@ -103,16 +140,202 @@ known-first-party = ["easysnowdata"]
 [tool.ruff.format]
 quote-style = "double"
 
+# ── Tests ─────────────────────────────────────────────────────────────────────
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = [
     "live: marks tests that make network requests to a data provider (deselected in the offline tier)",
     "requires_earthengine: marks tests that need Google Earth Engine credentials (EARTHENGINE_TOKEN or ~/.config/earthengine/credentials)",
     "requires_earthaccess: marks tests that need NASA Earthdata credentials (EARTHDATA_TOKEN, EARTHDATA_USERNAME + EARTHDATA_PASSWORD, or a ~/.netrc entry)",
+    "requires_planet: marks tests that need Planet credentials (PL_API_KEY, PL_AUTH_* or a `planet auth login` session)",
+    "requires_nve: marks tests that need an NVE HydAPI key (NVE_API_KEY)",
+    "recorded: marks tests replayed from pytest-recording cassettes or run against the tiny local fixtures (offline tier)",
     "integration: marks slow integration tests that make live external API calls",
 ]
+# Do not name an easysnowdata warning class here: pytest imports the module to
+# resolve it before pytest-cov starts, which hides every module-level line
+# from coverage. The deprecation tests assert with pytest.warns instead.
 filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]
 
-[build-system]
-requires = ["setuptools>=64", "setuptools_scm>=8"]
-build-backend = "setuptools.build_meta"
+[tool.coverage.run]
+# The new modules (Phase 1); the legacy modules are covered by the live tier
+# until Phase 2 migrates them onto providers/.
+source = ["easysnowdata"]
+omit = [
+    # Vendored from global_snow_networks (§9 step 1): ~7 000 lines exercised by
+    # that repo's own live client tests, carried over in tests/stations/.
+    "easysnowdata/stations/clients/*",
+    "easysnowdata/remote_sensing.py",
+    "easysnowdata/hydroclimatology.py",
+    "easysnowdata/topography.py",
+    "easysnowdata/automatic_weather_stations.py",
+    "easysnowdata/utils.py",
+    "easysnowdata/_version.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under = 95
+
+# ── Environments (pixi; one dependency list with [project] above) ─────────────
+# `pixi install` resolves conda-forge first and installs this package
+# editable; the PyPI requirements in [project.dependencies] are satisfied by
+# the conda packages below (pixi maps the names).
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"]
+
+[tool.pixi.dependencies]
+python = ">=3.12,<3.15"
+numpy = "*"
+matplotlib = "*"
+pandas = "*"
+geopandas = ">=1.1"
+pyogrio = ">=0.12"
+pyarrow = "*"
+pyproj = "*"
+rasterio = ">=1.5"
+xarray = ">=2026.2"
+rioxarray = ">=0.22"
+shapely = ">=2"
+pystac = ">=1.12"
+pystac-client = ">=0.8"
+planetary-computer = "*"
+odc-stac = ">=0.5"
+odc-geo = ">=0.5"
+earthengine-api = "*"
+xee = ">=0.1"
+beautifulsoup4 = "*"
+earthaccess = ">=0.17"
+# PlanetScope and SkySat access (Data API search, Orders API clip)
+planet = ">=3.6"
+pooch = "*"
+pyyaml = "*"
+requests = "*"
+lxml = "*"
+scikit-image = "*"
+tqdm = "*"
+dask = "*"
+zarr = ">=3.1"
+gcsfs = "*"
+s3fs = "*"
+fsspec = "*"
+h5netcdf = "*"
+# h5netcdf >= 1.8 made h5py an optional extra on PyPI; declare the backend we use
+h5py = "*"
+# GDAL HDF4 driver (conda-forge splits it out of libgdal-core); needed to read
+# the MOD10A1F HDF-EOS2 granules. Not a Python package, so pixi-only.
+libgdal-hdf4 = "*"
+
+[tool.pixi.pypi-dependencies]
+easysnowdata = { path = ".", editable = true }
+
+[tool.pixi.feature.dev.dependencies]
+pytest = "*"
+pytest-socket = "*"
+pytest-cov = ">=7.1.0,<8"
+pytest-recording = ">=0.13.4,<0.14"
+pytest-xdist = ">=3.8.0,<4"
+packaging = ">=26.3,<27"
+# Notebook conveniences used by docs/examples, not imported by the package
+contextily = "*"
+folium = "*"
+mapclassify = "*"
+py3dep = "*"
+ruff = "*"
+pre-commit = "*"
+ipykernel = "*"
+nbconvert = "*"
+nbformat = "*"
+pygments = "*"
+python-build = "*"
+hatchling = "*"
+hatch-vcs = "*"
+bump-my-version = "*"
+twine = "*"
+codespell = "*"
+
+[tool.pixi.feature.dev.pypi-dependencies]
+git-changelog = "*"
+
+[tool.pixi.feature.dev.tasks]
+# Offline tier: deselects every test marked `live` and blocks socket use so a
+# test that quietly reaches the network fails instead of passing by accident.
+# --allow-unix-socket keeps the network blocked but lets asyncio (zarr 3, fsspec)
+# create its event-loop socketpair.
+test-unit = "pytest tests/ -m 'not live' --disable-socket --allow-unix-socket"
+# Recorded tier only: STAC searches replayed from tests/cassettes and the local
+# fixtures; --record-mode=none (the default) fails on a missing cassette.
+test-recorded = "pytest tests/ -m recorded --disable-socket --allow-unix-socket --record-mode=none"
+# Offline tier with line coverage of the new modules ([tool.coverage.*] above)
+test-cov = "pytest tests/ -m 'not live' --disable-socket --allow-unix-socket --cov --cov-report=term-missing --cov-report=xml"
+# Refresh the cassettes (needs network; run before committing a changed search)
+record-cassettes = "pytest tests/test_recorded.py --record-mode=rewrite"
+# Live tier: one smoke test per data source; needs network and, for the
+# requires_* tests, provider credentials (otherwise they skip).
+test-live = "pytest tests/ -m live"
+test = "pytest tests/"
+lint = "ruff check easysnowdata/ tests/ scripts/ docs/"
+format = "ruff format easysnowdata/ tests/ scripts/ docs/"
+build = "python -m build"
+changelog = "git-changelog --output CHANGELOG.md"
+check-sources = "python scripts/check_data_sources.py"
+update-status = "python scripts/update_readme_status.py"
+report-health = "python scripts/report_health.py --dry-run"
+watch = "python scripts/watch.py --dry-run"
+
+# ── Docs (Sphinx + pydata theme + sphinx-gallery + myst-nb; REVAMP_PLAN §7, Q6) ──
+# Separate from `dev` because the docs environment executes the gallery against
+# live data and therefore installs the whole package stack, while `dev` also
+# carries the test tooling. Both share the default solve group.
+[tool.pixi.feature.docs.dependencies]
+sphinx = ">=8.2"
+pydata-sphinx-theme = ">=0.16"
+sphinx-gallery = ">=0.19"
+myst-nb = ">=1.2"
+sphinx-copybutton = "*"
+sphinx-design = "*"
+# The README gallery montage is tiled from the built thumbnails.
+pillow = "*"
+
+[tool.pixi.feature.docs.tasks]
+# Full build: executes every gallery script, so it needs the provider
+# credentials (scripts whose credentials are missing still render, without
+# output). -j auto parallelises the non-gallery pages.
+docs-build = { cmd = "sphinx-build -b html docs docs/_build/html -d docs/_build/doctrees -j auto", env = { ESD_DOCS_GALLERY = "full" } }
+# Credential-free subset: what a pull request builds. Scripts that declare an
+# `esd-requires:` marker are rendered but not executed.
+docs-build-free = { cmd = "sphinx-build -b html docs docs/_build/html -d docs/_build/doctrees -j auto", env = { ESD_DOCS_GALLERY = "free" } }
+# No gallery execution at all — the fastest way to check prose and API pages.
+docs-fast = { cmd = "sphinx-build -b html docs docs/_build/html -d docs/_build/doctrees -j auto", env = { ESD_DOCS_GALLERY = "none" } }
+docs-serve = "python -m http.server --directory docs/_build/html 8000"
+# Remove *everything* the build generates, so a local clean build is the same
+# build CI does from a fresh checkout. Leaving docs/api behind is what hid a
+# first-build autosummary failure locally.
+docs-clean = "python -c \"import shutil,pathlib; [shutil.rmtree(pathlib.Path(p), ignore_errors=True) for p in ('docs/_build','docs/auto_examples','docs/generated','docs/gen_modules','docs/api','docs/catalog')]; [pathlib.Path(f).unlink(missing_ok=True) for f in ('docs/credentials.md','docs/status.md')]\""
+# Link check over the built site (slow; run before a release).
+docs-linkcheck = { cmd = "sphinx-build -b linkcheck docs docs/_build/linkcheck -d docs/_build/doctrees", env = { ESD_DOCS_GALLERY = "none" } }
+
+# One feature per interpreter so CI can lock and test each Python separately.
+[tool.pixi.feature.py312.dependencies]
+python = "3.12.*"
+
+[tool.pixi.feature.py313.dependencies]
+python = "3.13.*"
+
+[tool.pixi.feature.py314.dependencies]
+python = "3.14.*"
+
+# ruff only — the lint job does not need GDAL and friends.
+[tool.pixi.feature.lint.dependencies]
+ruff = "*"
+
+[tool.pixi.environments]
+default = { features = [], solve-group = "default" }
+dev = { features = ["dev"], solve-group = "default" }
+docs = { features = ["docs"], solve-group = "default" }
+lint = { features = ["lint"], no-default-feature = true }
+test-py312 = { features = ["dev", "py312"] }
+test-py313 = { features = ["dev", "py313"] }
+test-py314 = { features = ["dev", "py314"] }

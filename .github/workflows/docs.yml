@@ -1,31 +1,167 @@
 name: docs
+
+# Two shapes of docs build (REVAMP_PLAN §7.2):
+#
+#   pull_request   — executes only the credential-free gallery examples and
+#                    reuses the cached outputs of the rest. No secrets, ever.
+#   push to main   — the same, then deploys, so a merge is live in minutes.
+#   schedule       — the full build with every provider secret: all 24 gallery
+#                    examples run against live data, and the result is
+#                    deployed and cached for the credential-free builds above.
+#
+# Nothing rendered is committed. The site goes to the gh-pages branch as an
+# orphan commit (force_orphan) so its history does not accumulate the ~130 MB
+# of images each build produces.
+
 on:
-    push:
-        branches:
-            - main
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    # Sundays at 06:00 UTC, ahead of Monday's health check.
+    - cron: "0 6 * * 0"
+  workflow_dispatch:
+    inputs:
+      full:
+        description: "Execute every gallery example (needs the secrets)"
+        type: boolean
+        default: true
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PIXI_VERSION: v0.65.0
 
 jobs:
-    deploy:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0
+  build:
+    runs-on: ubuntu-latest
+    # The full build executes 24 examples against live providers.
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # hatch-vcs derives the version from tags
 
-            - uses: actions/setup-python@v5
-              with:
-                  python-version: "3.12"
+      - uses: prefix-dev/setup-pixi@v0.10.2
+        with:
+          pixi-version: ${{ env.PIXI_VERSION }}
+          environments: docs
+          locked: true
 
-            - name: Install GDAL
-              run: |
-                  python -m pip install --upgrade pip
-                  pip install --find-links=https://girder.github.io/large_image_wheels --no-cache GDAL
+      - name: Decide which gallery to execute
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.full }}" = "true" ]; then
+            echo "gallery=full" >> "$GITHUB_OUTPUT"
+          else
+            echo "gallery=free" >> "$GITHUB_OUTPUT"
+          fi
 
-            - name: Install package and docs dependencies
-              run: |
-                  pip install -e .
-                  pip install mkdocs mkdocs-material mkdocstrings mkdocstrings-python \
-                      pymdown-extensions pygments mkdocs-jupyter \
-                      mkdocs-git-revision-date-localized-plugin
+      # sphinx-gallery skips an example whose source md5 is unchanged and whose
+      # output is already present, so restoring the last full build's output
+      # means a pull request shows the credentialed examples' figures without
+      # holding any credentials. The key rotates weekly with the full build.
+      - name: Restore the executed gallery
+        if: steps.mode.outputs.gallery != 'full'
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            docs/auto_examples
+            docs/gen_modules
+          key: gallery-${{ hashFiles('docs/gallery/**/*.py') }}
+          restore-keys: |
+            gallery-
 
-            - run: mkdocs gh-deploy --force
+      - name: Build
+        env:
+          ESD_DOCS_GALLERY: ${{ steps.mode.outputs.gallery }}
+          EASYSNOWDATA_QUIET: "1"
+          # Absent on pull requests, by design: nothing in the credential-free
+          # build reads them, and a fork's PR cannot see them anyway.
+          EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_TOKEN }}
+          EARTHDATA_TOKEN: ${{ secrets.EARTHDATA_TOKEN }}
+          EARTHDATA_USERNAME: ${{ secrets.EARTHDATA_USERNAME }}
+          EARTHDATA_PASSWORD: ${{ secrets.EARTHDATA_PASSWORD }}
+          PL_API_KEY: ${{ secrets.PL_API_KEY }}
+          NVE_API_KEY: ${{ secrets.NVE_API_KEY }}
+        run: pixi run -e docs sphinx-build -b html docs docs/_build/html -d docs/_build/doctrees -j auto --keep-going -w sphinx-warnings.txt
+
+      - name: Report gallery failures
+        if: always()
+        run: |
+          {
+            echo "### Gallery (${{ steps.mode.outputs.gallery }} mode)"
+            echo
+            if [ -f docs/auto_examples/sg_execution_times.rst ]; then
+              grep -E '^\s+\* -' docs/auto_examples/sg_execution_times.rst | head -40 || true
+            fi
+            echo
+            echo "### Sphinx warnings"
+            echo '```'
+            sed -n '1,60p' sphinx-warnings.txt 2>/dev/null || echo "none"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # A warning is a broken cross-reference or a page missing from the tree;
+      # both are worth failing over. A gallery example that failed to execute
+      # is not: a provider outage must not block a documentation fix, and it
+      # is already reported in the summary above and on the example's own
+      # page. sphinx-gallery logs that case as one multi-line warning, so it
+      # is cut out of the file before the check rather than grepped away.
+      - name: Fail on Sphinx warnings
+        run: |
+          python - <<'EOF'
+          import pathlib, re, sys
+
+          text = pathlib.Path("sphinx-warnings.txt").read_text(errors="replace")
+          text = re.sub(
+              r"WARNING: Here is a summary of the problems encountered.*?(?:-{70,}\n|\Z)",
+              "",
+              text,
+              flags=re.S,
+          )
+          rest = [line for line in text.splitlines() if line.strip()]
+          if rest:
+              print("::error::Sphinx emitted warnings:")
+              print("\n".join(rest))
+              sys.exit(1)
+          print("No Sphinx warnings.")
+          EOF
+
+      # The README's header image, tiled from the thumbnails this build just
+      # produced and published with the site (§7.2). It replaces the 2024
+      # user-attachment upload that nobody could regenerate.
+      - name: Build the README gallery montage
+        run: pixi run -e docs python scripts/make_montage.py --out docs/_build/html/_static/gallery.webp
+
+      - name: Save the executed gallery
+        if: steps.mode.outputs.gallery == 'full'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            docs/auto_examples
+            docs/gen_modules
+          key: gallery-${{ hashFiles('docs/gallery/**/*.py') }}
+
+      - name: Upload the site
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-${{ steps.mode.outputs.gallery }}
+          path: docs/_build/html
+          retention-days: 7
+
+      - name: Deploy to gh-pages
+        if: github.event_name != 'pull_request'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/_build/html
+          # One orphan commit per deploy: the site is ~130 MB of rendered
+          # notebooks and figures and must not accumulate in git history.
+          force_orphan: true
+          commit_message: "docs: ${{ steps.mode.outputs.gallery }} build of ${{ github.sha }}"

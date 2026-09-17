@@ -1,0 +1,78 @@
+{
+  "asf-search": {
+    "latest_version": "14.0.0",
+    "url": "https://github.com/asfadmin/Discovery-asf_search/blob/master/CHANGELOG.md"
+  },
+  "dask": {
+    "latest_version": "2026.8.0",
+    "url": "https://pypi.org/project/dask/"
+  },
+  "earthaccess": {
+    "latest_version": "0.19.0",
+    "url": "https://github.com/nsidc/earthaccess/releases"
+  },
+  "earthengine-api": {
+    "latest_version": "1.7.43",
+    "url": "https://pypi.org/project/earthengine-api/"
+  },
+  "geopandas": {
+    "latest_version": "1.1.4",
+    "url": "https://pypi.org/project/geopandas/"
+  },
+  "icechunk": {
+    "latest_version": "2.2.2",
+    "url": "https://github.com/earth-mover/icechunk/releases"
+  },
+  "odc-geo": {
+    "latest_version": "0.5.3",
+    "url": "https://pypi.org/project/odc-geo/"
+  },
+  "odc-stac": {
+    "latest_version": "0.5.3",
+    "url": "https://pypi.org/project/odc-stac/"
+  },
+  "planet": {
+    "latest_version": "3.6.0",
+    "url": "https://pypi.org/project/planet/"
+  },
+  "planetary-computer": {
+    "latest_version": "1.0.0",
+    "url": "https://pypi.org/project/planetary-computer/"
+  },
+  "pyogrio": {
+    "latest_version": "0.13.0",
+    "url": "https://pypi.org/project/pyogrio/"
+  },
+  "pystac-client": {
+    "latest_version": "0.9.0",
+    "url": "https://pypi.org/project/pystac-client/"
+  },
+  "rasterio": {
+    "latest_version": "1.5.1",
+    "url": "https://rasterio.readthedocs.io/en/stable/"
+  },
+  "rioxarray": {
+    "latest_version": "0.23.0",
+    "url": "https://pypi.org/project/rioxarray/"
+  },
+  "sphinx-gallery": {
+    "latest_version": "0.22.0",
+    "url": "https://pypi.org/project/sphinx-gallery/"
+  },
+  "virtualizarr": {
+    "latest_version": "2.7.3",
+    "url": "https://virtualizarr.readthedocs.io/en/latest/releases.html"
+  },
+  "xarray": {
+    "latest_version": "2026.7.0",
+    "url": "https://docs.xarray.dev/en/stable/whats-new.html"
+  },
+  "xee": {
+    "latest_version": "0.1.2",
+    "url": "https://pypi.org/project/xee/"
+  },
+  "zarr": {
+    "latest_version": "3.4.0",
+    "url": "https://zarr.readthedocs.io/en/stable/release-notes.html"
+  }
+}

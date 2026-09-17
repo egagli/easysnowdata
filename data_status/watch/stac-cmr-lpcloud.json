@@ -1,0 +1,14 @@
+{
+  "stac-cmr-lpcloud/HLSL30_2.0": {
+    "license": "CC0-1.0",
+    "temporal_end": "ongoing",
+    "temporal_start": "2013-04-11",
+    "url": "https://cmr.earthdata.nasa.gov/stac/LPCLOUD/collections/HLSL30_2.0"
+  },
+  "stac-cmr-lpcloud/HLSS30_2.0": {
+    "license": "CC0-1.0",
+    "temporal_end": "ongoing",
+    "temporal_start": "2015-11-28",
+    "url": "https://cmr.earthdata.nasa.gov/stac/LPCLOUD/collections/HLSS30_2.0"
+  }
+}

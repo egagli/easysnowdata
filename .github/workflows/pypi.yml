@@ -21,7 +21,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install build tools
-        run: pip install setuptools wheel twine build git-changelog
+        run: pip install build twine git-changelog  # hatchling + hatch-vcs come via build isolation
 
       - name: Update CHANGELOG.md
         run: |

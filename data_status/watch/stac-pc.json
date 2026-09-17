@@ -1,0 +1,56 @@
+{
+  "stac-pc/cop-dem-glo-30": {
+    "license": "proprietary",
+    "temporal_end": "2021-04-22",
+    "temporal_start": "2021-04-22",
+    "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/cop-dem-glo-30"
+  },
+  "stac-pc/cop-dem-glo-90": {
+    "license": "proprietary",
+    "temporal_end": "2021-04-22",
+    "temporal_start": "2021-04-22",
+    "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/cop-dem-glo-90"
+  },
+  "stac-pc/esa-worldcover": {
+    "license": "CC-BY-4.0",
+    "temporal_end": "2021-12-31",
+    "temporal_start": "2020-01-01",
+    "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/esa-worldcover"
+  },
+  "stac-pc/hls2-l30": {
+    "license": "proprietary",
+    "temporal_end": "ongoing",
+    "temporal_start": "2020-01-01",
+    "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/hls2-l30"
+  },
+  "stac-pc/hls2-s30": {
+    "license": "proprietary",
+    "temporal_end": "ongoing",
+    "temporal_start": "2020-01-01",
+    "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/hls2-s30"
+  },
+  "stac-pc/modis-10A1-061": {
+    "license": "proprietary",
+    "temporal_end": "ongoing",
+    "temporal_start": "2000-02-24",
+    "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/modis-10A1-061"
+  },
+  "stac-pc/modis-10A2-061": {
+    "license": "proprietary",
+    "temporal_end": "ongoing",
+    "temporal_start": "2000-02-18",
+    "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/modis-10A2-061"
+  },
+  "stac-pc/sentinel-1-rtc": {
+    "license": "CC-BY-4.0",
+    "temporal_end": "ongoing",
+    "temporal_start": "2014-10-10",
+    "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/sentinel-1-rtc"
+  },
+  "stac-pc/sentinel-2-l2a": {
+    "license": "proprietary",
+    "temporal_end": "ongoing",
+    "temporal_start": "2015-06-27",
+    "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/sentinel-2-l2a"
+  }
+}

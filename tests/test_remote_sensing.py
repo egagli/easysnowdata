@@ -24,24 +24,20 @@ class TestSeasonalSnowClassification:
         result = get_seasonal_snow_classification(bbox_input=TEST_BBOX)
         assert isinstance(result, xr.DataArray)
 
-    def test_has_class_info(self):
+    def test_has_cf_flag_attributes(self):
+        from easysnowdata.remote_sensing import get_seasonal_snow_classification
+
+        # class_info/cmap/example_plot are replaced by CF flag attrs (§2.5).
+        result = get_seasonal_snow_classification(bbox_input=TEST_BBOX)
+        assert len(result.attrs["flag_values"]) == 9
+        assert result.attrs["flag_meanings"].split()[0] == "Tundra"
+        assert len(result.attrs["flag_colors"].split()) == 9
+
+    def test_reads_the_credential_free_hosted_cog(self):
         from easysnowdata.remote_sensing import get_seasonal_snow_classification
 
         result = get_seasonal_snow_classification(bbox_input=TEST_BBOX)
-        assert "class_info" in result.attrs
-        assert len(result.attrs["class_info"]) == 9
-
-    def test_has_cmap(self):
-        from easysnowdata.remote_sensing import get_seasonal_snow_classification
-
-        result = get_seasonal_snow_classification(bbox_input=TEST_BBOX)
-        assert "cmap" in result.attrs
-
-    def test_has_example_plot(self):
-        from easysnowdata.remote_sensing import get_seasonal_snow_classification
-
-        result = get_seasonal_snow_classification(bbox_input=TEST_BBOX)
-        assert callable(result.attrs.get("example_plot"))
+        assert result.attrs["source"] == "hosted-cog"
 
     def test_has_data_citation(self):
         from easysnowdata.remote_sensing import get_seasonal_snow_classification
@@ -56,8 +52,7 @@ class TestSeasonalSnowClassification:
             bbox_input=TEST_BBOX, chunks={"x": 64, "y": 64}
         )
         assert result.chunks is not None
-        assert max(result.chunks[result.get_axis_num("x")]) <= 64
-        assert max(result.chunks[result.get_axis_num("y")]) <= 64
+        assert max(max(sizes) for sizes in result.chunks) <= 64
 
 
 # ---------------------------------------------------------------------------
@@ -87,6 +82,13 @@ class TestForestCoverFraction:
         valid = result.values[~np.isnan(result.values.astype(float))]
         assert valid.min() >= 0
 
+    def test_mask_nodata_still_masks(self):
+        from easysnowdata.remote_sensing import get_forest_cover_fraction
+
+        result = get_forest_cover_fraction(bbox_input=TEST_BBOX, mask_nodata=True)
+        assert result.dtype == "float32"
+        assert result.rio.encoded_nodata == 255
+
     def test_kwargs_forwarded_to_open_rasterio(self):
         from easysnowdata.remote_sensing import get_forest_cover_fraction
 
@@ -94,8 +96,9 @@ class TestForestCoverFraction:
             bbox_input=TEST_BBOX, chunks={"x": 128, "y": 128}
         )
         assert result.chunks is not None
-        assert max(result.chunks[result.get_axis_num("x")]) <= 128
-        assert max(result.chunks[result.get_axis_num("y")]) <= 128
+        # The loader names geographic dims latitude/longitude (§2.5), so the
+        # chunk sizes are checked without naming an axis.
+        assert max(max(sizes) for sizes in result.chunks) <= 128
 
 
 # ---------------------------------------------------------------------------
@@ -118,6 +121,16 @@ class TestSeasonalMountainSnowMask:
                 bbox_input=TEST_BBOX, data_product="invalid"
             )
 
+    def test_upstream_fill_is_repaired(self):
+        import numpy as np
+
+        from easysnowdata.remote_sensing import get_seasonal_mountain_snow_mask
+
+        result = get_seasonal_mountain_snow_mask(bbox_input=TEST_BBOX)
+        # The published nodata is 256/265; the loader puts it back to 255.
+        assert result.dtype == "uint8" and result.rio.nodata == 255
+        assert set(np.unique(result.values)) <= {0, 1, 2, 3, 255}
+
 
 # ---------------------------------------------------------------------------
 # ESA WorldCover (Planetary Computer — anonymous access)
@@ -129,12 +142,31 @@ class TestEsaWorldcover:
 
         result = get_esa_worldcover(bbox_input=TEST_BBOX)
         assert isinstance(result, xr.DataArray)
+        # The class table is CF flag attrs now, not class_info/cmap/example_plot.
+        assert result.attrs["flag_values"][0] == 10
+        assert result.rio.nodata == 0
 
     def test_invalid_version_raises(self):
         from easysnowdata.remote_sensing import get_esa_worldcover
 
         with pytest.raises(ValueError):
             get_esa_worldcover(bbox_input=TEST_BBOX, version="v999")
+
+    def test_old_name_warns_and_forwards(self, monkeypatch):
+        from easysnowdata import _deprecation
+        from easysnowdata.land import landcover
+        from easysnowdata.remote_sensing import get_esa_worldcover
+
+        _deprecation.reset_warnings()
+        seen = {}
+        monkeypatch.setattr(
+            landcover, "load", lambda aoi, **kw: seen.update(aoi=aoi, **kw) or "lc"
+        )
+        with pytest.warns(
+            _deprecation.EasysnowdataDeprecationWarning, match="landcover.load"
+        ):
+            assert get_esa_worldcover(TEST_BBOX, mask_nodata=True) == "lc"
+        assert seen == {"aoi": TEST_BBOX, "version": "v200", "mask": True}
 
     @pytest.mark.live
     def test_kwargs_forwarded_to_odc_stac_load(self):
@@ -160,7 +192,8 @@ class TestNlcdLandcover:
         assert isinstance(result, xr.DataArray)
         assert result.dims == ("y", "x")
         assert result.dtype == "uint8"
-        assert "class_info" in result.attrs
+        # The class table is CF flag attrs now, read from the asset properties.
+        assert result.attrs["flag_values"] and result.attrs["flag_meanings"]
         assert result.rio.crs is not None
 
     @pytest.mark.requires_earthengine
@@ -179,50 +212,63 @@ class TestNlcdLandcover:
 # Sentinel-2 (Planetary Computer — anonymous access; load is lazy)
 # ---------------------------------------------------------------------------
 class TestSentinel2:
+    """The old ``Sentinel2`` class is now a factory for optical.sentinel2.load."""
+
     pytestmark = pytest.mark.live
 
-    def test_kwargs_forwarded_to_odc_stac_load(self):
+    def test_returns_dataset_and_forwards_kwargs(self):
         from easysnowdata.remote_sensing import Sentinel2
 
         chunks = {"time": 1, "x": 256, "y": 256}
-        s2 = Sentinel2(
-            TEST_BBOX,
-            start_date="2023-08-01",
-            end_date="2023-08-10",
-            bands=["red", "scl"],
-            remove_nodata=False,
-            harmonize_to_old=False,
-            scale_data=False,
-            chunks=chunks,
-        )
-        assert s2.load_kwargs == {"chunks": chunks}
-        red = s2.data["red"]
+        with pytest.warns(DeprecationWarning):
+            s2 = Sentinel2(
+                TEST_BBOX,
+                start_date="2023-08-01",
+                end_date="2023-08-10",
+                bands=["red", "scl"],
+                remove_nodata=False,
+                harmonize_to_old=False,
+                scale_data=False,
+                resolution=60,
+                chunks=chunks,
+            )
+        assert isinstance(s2, xr.Dataset)
+        red = s2["red"]
+        assert red.dims == ("time", "y", "x")
         assert red.chunks is not None
         assert max(red.chunks[red.get_axis_num("x")]) <= 256
         assert max(red.chunks[red.get_axis_num("y")]) <= 256
+        assert s2.attrs["product_id"] == "sentinel-2-l2a"
 
 
 # ---------------------------------------------------------------------------
 # MODIS snow (MOD10A2 via Planetary Computer — anonymous access; load is lazy)
 # ---------------------------------------------------------------------------
 class TestModisSnow:
+    """The old ``MODIS_snow`` class is now a factory for snow.modis.load."""
+
     pytestmark = pytest.mark.live
 
-    def test_kwargs_forwarded_to_odc_stac_load(self):
+    def test_returns_dataset_and_forwards_kwargs(self):
         from easysnowdata.remote_sensing import MODIS_snow
 
-        modis = MODIS_snow(
-            TEST_BBOX,
-            start_date="2023-01-01",
-            end_date="2023-01-20",
-            data_product="MOD10A2",
-            mute=True,
-            chunks={"time": 1, "x": 64, "y": 64},
-        )
-        da = modis.data["Maximum_Snow_Extent"]
+        with pytest.warns(DeprecationWarning):
+            modis = MODIS_snow(
+                TEST_BBOX,
+                start_date="2023-01-01",
+                end_date="2023-01-20",
+                data_product="MOD10A2",
+                mute=True,
+                chunks={"time": 1, "x": 64, "y": 64},
+            )
+        assert isinstance(modis, xr.Dataset)
+        da = modis["Maximum_Snow_Extent"]
         assert da.chunks is not None
         assert max(da.chunks[da.get_axis_num("x")]) <= 64
         assert max(da.chunks[da.get_axis_num("y")]) <= 64
+        # MOD10A2 keeps its Planetary Computer route through the shim
+        assert modis.attrs["source_id"] == "planetary-computer"
+        assert modis.attrs["modis_product"] == "MOD10A2"
 
 
 # ---------------------------------------------------------------------------

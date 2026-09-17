@@ -1,0 +1,9 @@
+{
+  "MOD10A2 (C3044685923-NSIDC_CPRD)": {
+    "revision_date": "2026-06-24",
+    "temporal_end": "ongoing",
+    "temporal_start": "2000-02-18",
+    "url": "https://cmr.earthdata.nasa.gov/search/concepts/C3044685923-NSIDC_CPRD.html",
+    "version": "61"
+  }
+}
