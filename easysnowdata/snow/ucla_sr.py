@@ -11,6 +11,16 @@ particle-batch-smoother reanalysis, one NetCDF-4 granule per water year and
 
 Both come from NSIDC through ``earthaccess`` and need Earthdata Login.
 
+**Glaciers accumulate without bound**, the same artefact SNODAS has
+(:mod:`easysnowdata.snow.snodas`): the reanalysis never melts perennial ice
+out, so SWE over an ice cap grows year on year. Verified 2026-09-17 over the
+Mount Rainier box for January 2020 — the median is 0.14 m and the 90th
+percentile 1.09 m, both seasonally sensible, while 135 of 5 642 pixels exceed
+10 m and the maximum reaches 105.9 m on the summit ice cap. Those are the
+model's values, passed through untouched; mask them
+(``da.where(da < 10)``) before taking a basin maximum where there are
+glaciers.
+
 Virtualization (plan §4.9)
 --------------------------
 These granules are NetCDF-4 without DMR++ sidecars, so

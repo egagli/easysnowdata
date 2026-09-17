@@ -297,8 +297,11 @@ class TestModisSnowMod10a1f:
             data_product="MOD10A1F",
             mute=True,
         )
-        da = modis.data
-        assert isinstance(da, xr.DataArray)
+        # The shim returns the Dataset itself, not a MODIS_snow object with a
+        # `.data` attribute (§3.4). This line asked for `.data` and had never
+        # run: the load above failed first, on the wrong HDF-EOS grid name.
+        assert isinstance(modis, xr.Dataset)
+        da = modis[next(iter(modis.data_vars))]
         assert "time" in da.dims
         assert da.sizes["time"] >= 1
         assert da.rio.crs is not None

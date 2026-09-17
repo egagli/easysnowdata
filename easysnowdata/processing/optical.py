@@ -163,12 +163,45 @@ def scale_offset(
     return result
 
 
-def normalized_difference(a: xr.DataArray, b: xr.DataArray) -> xr.DataArray:
-    """``(a - b) / (a + b)`` as float, NaN where the denominator is zero."""
+def normalized_difference(
+    a: xr.DataArray,
+    b: xr.DataArray,
+    *,
+    valid_range: tuple[float, float] | None = (-1.0, 1.0),
+) -> xr.DataArray:
+    """``(a - b) / (a + b)`` as float, NaN where the index is undefined.
+
+    A normalized difference of two non-negative quantities is in [-1, 1] by
+    construction. Surface reflectance is **not** always non-negative:
+    atmospheric correction over dark targets returns slightly negative values,
+    and where one band is a small negative and the other a small positive the
+    denominator approaches zero and the ratio explodes. Measured on HLS S30
+    over Mount Rainier, 2023-08-01/06, 120 m: green reaches -0.0135 and swir16
+    -0.0196, and 29 of 66 045 pixels come out beyond [-1, 1] — one of them at
+    -19.
+
+    Those pixels are not a darker or brighter surface, they are a division by
+    almost nothing, so they are masked rather than returned: the function
+    already did this for an exactly-zero denominator, and this is the same
+    guard widened to the case that actually occurs. Pass ``valid_range=None``
+    for the raw ratio.
+
+    Parameters
+    ----------
+    a, b
+        The two bands, in the order that makes the index positive for the
+        feature of interest.
+    valid_range
+        Results outside this range are set to NaN. ``None`` disables it.
+    """
     a_f = a.astype("float32") if not np.issubdtype(a.dtype, np.floating) else a
     b_f = b.astype("float32") if not np.issubdtype(b.dtype, np.floating) else b
     denominator = a_f + b_f
-    return ((a_f - b_f) / denominator.where(denominator != 0)).rename(None)
+    index = (a_f - b_f) / denominator.where(denominator != 0)
+    if valid_range is not None:
+        low, high = valid_range
+        index = index.where((index >= low) & (index <= high))
+    return index.rename(None)
 
 
 def _band(ds: xr.Dataset, name: str) -> xr.DataArray:

@@ -282,7 +282,15 @@ def test_live_ucla_sr_load_one_water_year():
     assert da.attrs["units"] == "m" and da.attrs["statistic"] == "mean"
     assert da.attrs["virtualized"] == "False"  # one water year needs no references
     values = da.isel(time=0).compute()
-    assert 0.0 <= float(np.nanmax(values)) < 10.0
+    # Not a maximum: the reanalysis accumulates unbounded SWE over perennial
+    # ice, exactly as SNODAS does, so the Rainier summit ice cap reaches ~106 m
+    # while the field around it is seasonal. Assert on the bulk of the
+    # distribution and on the glacier tail being a tail (module docstring).
+    assert float(np.nanmin(values)) >= 0.0
+    assert 0.0 < float(np.nanmedian(values)) < 5.0
+    assert float(np.nanpercentile(values, 90)) < 10.0
+    seasonal = values.where(values < 10)
+    assert float(seasonal.isnull().mean()) < 0.1  # the ice cap is a few % of pixels
 
 
 @pytest.mark.live

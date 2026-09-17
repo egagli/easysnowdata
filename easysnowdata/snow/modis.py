@@ -61,8 +61,11 @@ PRODUCTS: dict[str, tuple[str, str]] = {
     "MYD10A1": ("MOD_Grid_Snow_500m", "NDSI_Snow_Cover"),
     "MOD10A2": ("MOD_Grid_Snow_500m", "Maximum_Snow_Extent"),
     "MYD10A2": ("MOD_Grid_Snow_500m", "Maximum_Snow_Extent"),
-    "MOD10A1F": ("MOD_CGF_NDSI_500m", "CGF_NDSI_Snow_Cover"),
-    "MYD10A1F": ("MOD_CGF_NDSI_500m", "CGF_NDSI_Snow_Cover"),
+    # Verified against a v61 granule on 2026-09-17: the cloud-gap-filled
+    # products store their fields in the same MOD_Grid_Snow_500m grid as the
+    # daily ones, not in a MOD_CGF_NDSI_500m grid of their own.
+    "MOD10A1F": ("MOD_Grid_Snow_500m", "CGF_NDSI_Snow_Cover"),
+    "MYD10A1F": ("MOD_Grid_Snow_500m", "CGF_NDSI_Snow_Cover"),
 }
 #: The HDF-EOS grid each product stores its data fields in.
 GRIDS = {name: grid for name, (grid, _) in PRODUCTS.items()}
@@ -222,6 +225,18 @@ def _variables(product: str, variables: str | Sequence[str] | None) -> list[str]
     return [variables] if isinstance(variables, str) else list(variables)
 
 
+def _grids_in(path: Path | str) -> list[str]:
+    """Every subdataset GDAL reports for *path* (empty when it cannot be read)."""
+    import rasterio  # noqa: PLC0415
+
+    try:
+        with rasterio.open(str(path)) as src:
+            return list(src.subdatasets)
+    except Exception as exc:  # noqa: BLE001 — fall back to the declared grid
+        _logger.debug("Could not list subdatasets of %s: %s", path, exc)
+        return []
+
+
 def granule_date(name: str) -> pd.Timestamp | None:
     """The acquisition date encoded in a granule name (``.AYYYYDDD.``)."""
     match = _GRANULE_DATE.search(str(name))
@@ -232,7 +247,24 @@ def granule_date(name: str) -> pd.Timestamp | None:
 
 
 def subdataset(path: Path | str, product: str, variable: str) -> str:
-    """The GDAL subdataset path for one variable of an HDF-EOS2 granule."""
+    """The GDAL subdataset path for one variable of an HDF-EOS2 granule.
+
+    The grid name is taken from the granule itself when it can be read, and
+    from :data:`GRIDS` otherwise. Asking GDAL for a grid the file does not
+    have is worth avoiding: it does not raise, it returns a 1×0 dataset, and
+    the failure surfaces several layers away as ``ValueError: Unknown dims``
+    out of rioxarray. That is how MOD10A1F stayed broken — the table said
+    ``MOD_CGF_NDSI_500m`` and the granules use ``MOD_Grid_Snow_500m``.
+    """
+    grids = _grids_in(path)
+    if grids:
+        wanted = [name for name in grids if name.endswith(f":{variable}")]
+        if wanted:
+            return wanted[0]
+        raise ValueError(
+            f"{Path(path).name} has no {variable!r} field; available: "
+            + ", ".join(sorted(n.rsplit(":", 1)[-1] for n in grids))
+        )
     return f'HDF4_EOS:EOS_GRID:"{path}":{GRIDS[product]}:{variable}'
 
 
