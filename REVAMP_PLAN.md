@@ -909,6 +909,16 @@ bundle with `pooch`. See that repo's `docs/STORAGE.md` for the proposal to
 move the archive to a chunked store, which would make the archive route fetch
 kilobytes per query instead of the whole 27 MB bundle.
 
+**What `global_snow_networks` still owes this migration** is tracked in that
+repo as [`docs/EASYSNOWDATA_MIGRATION.md`](https://github.com/egagli/global_snow_networks/blob/main/docs/EASYSNOWDATA_MIGRATION.md):
+switch 16 import lines across three scripts, delete `clients/*.py`, `utils/`
+and the six client test files, rehome the five
+`clients/*/<name>_stations.geojson` artefacts (which deleting the code
+directory orphans, and which DESIGN.md §6.2 names by path), and pin
+`easysnowdata>=0.2`. **All of it is blocked on releasing 0.2** — the pin
+cannot resolve before then — so the order is: merge this branch, release,
+then that PR.
+
 Keeping the two copies of the clients in step: the vendored prefix is
 byte-identical to that repo's `clients/`, minus the pipeline artefacts filtered
 out of its history. Fix a client **there** first, then run
