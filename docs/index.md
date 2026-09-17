@@ -60,6 +60,13 @@ One executed script per product, with the figure it produces.
 Every product: its routes, resolution, credentials, licence and health.
 :::
 
+:::{grid-item-card} {octicon}`book` Concepts
+:link: concepts
+:link-type: doc
+
+AOI, laziness, nodata, CRS and dims — the rules every loader follows.
+:::
+
 :::{grid-item-card} {octicon}`key` Credentials
 :link: credentials
 :link-type: doc
@@ -92,7 +99,7 @@ lazy, carry their CRS on both the `.rio` and `.odc` accessors, and carry
 one route expose them through `source=`, so a Planetary Computer outage is one
 keyword away from an alternative. Credentials are checked before any network
 request, and the error says exactly how to fix them. See
-REVAMP_PLAN §2 for the whole contract.
+[Concepts](concepts.md) for the whole contract.
 
 ## Citing
 
@@ -109,6 +116,7 @@ Each product also carries the citation of the data it serves in
 :caption: Getting started
 
 installation
+concepts
 credentials
 faq
 ```
