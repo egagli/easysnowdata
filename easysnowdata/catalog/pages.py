@@ -35,6 +35,8 @@ __all__ = [
     "quickstart",
     "index_page",
     "credentials_page",
+    "status_page",
+    "sparkline",
     "write_all",
 ]
 
@@ -80,8 +82,16 @@ def latest_status(history: list[list[dict[str, Any]]]) -> dict[str, dict[str, An
 def _source_status(
     product: Product, source: Source, latest: dict[str, dict[str, Any]]
 ) -> str | None:
-    """The worst status among a source's probes: fail beats skip beats pass."""
-    seen = [latest.get(probe.label, {}).get("status") for probe in source.health]
+    """The worst status among a source's health probes: fail beats skip beats pass.
+
+    Only ``health`` probes count. A latency probe that times out says the
+    measurement failed, not that the route is unreachable.
+    """
+    seen = [
+        latest.get(probe.label, {}).get("status")
+        for probe in source.health
+        if probe.kind == "health"
+    ]
     seen = [s for s in seen if s]
     for status in ("fail", "skip", "pass"):
         if status in seen:
@@ -513,6 +523,225 @@ def credentials_page(products: dict[str, Product] | None = None) -> str:
     return "\n".join(lines)
 
 
+# ── the status page ───────────────────────────────────────────────────────────
+
+
+def sparkline(values: list[float | None], *, width: int = 110, height: int = 20) -> str:
+    """An inline SVG line of *values*, oldest first, scaled to its own range.
+
+    Inline rather than a rendered image: it uses ``currentColor``, so it is
+    legible in both themes, it costs no build step, and it survives being
+    regenerated on every docs build. Gaps (``None``) break the line.
+    """
+    known = [v for v in values if v is not None]
+    if len(known) < 2:
+        return ""
+    low, high = min(known), max(known)
+    span = (high - low) or 1.0
+    step = width / max(len(values) - 1, 1)
+    pad = 2
+    segments: list[list[str]] = [[]]
+    for i, value in enumerate(values):
+        if value is None:
+            segments.append([])
+            continue
+        x = i * step
+        y = pad + (height - 2 * pad) * (1 - (value - low) / span)
+        segments[-1].append(f"{x:.1f},{y:.1f}")
+    paths = "".join(
+        f'<polyline points="{" ".join(seg)}" fill="none" stroke="currentColor" '
+        f'stroke-width="1.5" stroke-linejoin="round" />'
+        for seg in segments
+        if len(seg) > 1
+    )
+    if not paths:
+        return ""
+    return (
+        f'<svg width="{width}" height="{height}" viewBox="0 0 {width} {height}" '
+        f'role="img" aria-label="recent values, oldest first" '
+        f'style="vertical-align:middle;opacity:0.8">{paths}</svg>'
+    )
+
+
+def _lag_days(value: str, now: Any = None) -> float | None:
+    """Days between an ISO timestamp and *now*."""
+    import pandas as pd  # noqa: PLC0415
+
+    try:
+        stamp = pd.Timestamp(value)
+    except (ValueError, TypeError):  # pragma: no cover — a non-time value
+        return None
+    reference = pd.Timestamp(now) if now is not None else pd.Timestamp.utcnow()
+    if stamp.tzinfo is not None:
+        stamp = stamp.tz_convert("UTC").tz_localize(None)
+    if reference.tzinfo is not None:
+        reference = reference.tz_convert("UTC").tz_localize(None)
+    return round((reference - stamp).total_seconds() / 86400, 1)
+
+
+def _series(history: list[list[dict[str, Any]]], label: str, key: str) -> list[Any]:
+    """One probe's values across the history, oldest run first."""
+    out = []
+    for run in reversed(history):
+        match = next((r for r in run if r["source"] == label), None)
+        out.append(None if match is None else match.get(key))
+    return out
+
+
+def status_page(
+    history: list[list[dict[str, Any]]],
+    *,
+    products: dict[str, Product] | None = None,
+    now: Any = None,
+) -> str:
+    """Render the health, latency and virtualization status page (§8)."""
+    products = dict(products if products is not None else _registry.products())
+    latest = latest_status(history)
+    run = history[0] if history else []
+    checked = run[0].get("checked_at", "never") if run else "never"
+
+    health = [r for r in run if r.get("kind", "health") == "health"]
+    counts = {
+        status: sum(1 for r in health if r["status"] == status)
+        for status in ("pass", "fail", "skip")
+    }
+
+    lines = [
+        "# Source status",
+        "",
+        f"Last run **{checked}**, {len(history)} runs on record. "
+        f"{counts['pass']} routes answered, {counts['fail']} failed, and "
+        f"{counts['skip']} "
+        f"{'was' if counts['skip'] == 1 else 'were'} skipped for want of "
+        "credentials.",
+        "",
+        "Every route of every product is probed once a week by the "
+        "`Data Source Health Check` workflow. A failure opens an issue "
+        "labelled [`data-source`](https://github.com/egagli/easysnowdata/issues?q=label%3Adata-source) "
+        "and a recovery closes it, so this page is a summary and the tracker "
+        "is the record.",
+        "",
+        "```bash",
+        "pixi run -e dev python scripts/check_data_sources.py   # run them yourself",
+        "```",
+        "",
+        "## Health",
+        "",
+        "| route | product | status | last good | recent | note |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for result in health:
+        label = result["source"]
+        product = result.get("product", "—")
+        good = next(
+            (
+                str(r.get("checked_at", ""))[:10]
+                for older in history
+                for r in older
+                if r["source"] == label and r["status"] == "pass"
+            ),
+            "—",
+        )
+        strip = "".join(
+            {"pass": "▪", "fail": "▴", "skip": "▫"}.get(status or "", " ")
+            for status in _series(history, label, "status")[-12:]
+        )
+        note = str(result.get("error") or "").replace("|", "\\|")[:90]
+        lines.append(
+            f"| {label} | `{product}` | {BADGES[result['status']]} | {good} | "
+            f"`{strip}` | {note} |"
+        )
+    lines += [
+        "",
+        "`▪` answered · `▴` failed · `▫` skipped, oldest run on the left.",
+        "",
+    ]
+
+    latency = [r for r in run if r.get("kind") == "latency"]
+    lines += ["## Latency", ""]
+    if latency:
+        lines += [
+            "How far behind real time each time-series route is, measured every "
+            "week. A step change here is how a product that quietly stops being "
+            "archived shows up — the MOD10A2 case (§8).",
+            "",
+            "| route | product | newest data | days behind | trend |",
+            "| --- | --- | --- | --- | --- |",
+        ]
+        for result in sorted(latency, key=lambda r: r["source"]):
+            value = str(result.get("value", "")) or "—"
+            lag = _lag_days(value, now) if result.get("value") else None
+            series = [
+                _lag_days(v, now) if v else None
+                for v in _series(history, result["source"], "value")[-12:]
+            ]
+            chart = sparkline(series)
+            lines.append(
+                f"| {result['source']} | `{result.get('product', '—')}` | {value} | "
+                f"{'—' if lag is None else f'{lag:g}'} | "
+                f"{chart or '_not enough runs yet_'} |"
+            )
+        lines += [
+            "",
+            "The trend line rises when a route falls further behind.",
+            "",
+        ]
+    else:
+        lines += [
+            "_No latency probe has run yet. The next weekly check records one "
+            "per time-series route._",
+            "",
+        ]
+
+    virtual = [r for r in run if r.get("kind") == "virtualization"]
+    lines += ["## Virtualization readiness", ""]
+    if virtual:
+        lines += [
+            "Whether NASA publishes a DMR++ sidecar for each NetCDF/HDF product. "
+            "With one, `earthaccess.virtualize()` reads a sidecar; without one it "
+            "scans every granule's metadata, which is why the loaders cache their "
+            "references. A sidecar appearing opens an issue (§4.9).",
+            "",
+            "| route | product | sidecar | fallback parser |",
+            "| --- | --- | --- | --- |",
+        ]
+        for result in sorted(virtual, key=lambda r: r["source"]):
+            value = str(result.get("value", "—"))
+            state, _, fallback = value.partition("; fallback: ")
+            lines.append(
+                f"| {result['source']} | `{result.get('product', '—')}` | "
+                f"{'{bdg-success}`present`' if state.startswith('present') else '{bdg-secondary}`absent`'} | "
+                f"{fallback or '—'} |"
+            )
+        lines += [""]
+    else:
+        lines += [
+            "_No virtualization probe has run yet._",
+            "",
+        ]
+
+    unprobed = sorted(
+        pid
+        for pid, product in products.items()
+        if not any(
+            latest.get(probe.label)
+            for source in product.sources
+            for probe in source.health
+        )
+    )
+    if unprobed:
+        lines += [
+            "## Not yet in the history",
+            "",
+            "These products have probes that no recorded run has executed yet — "
+            "they were added to the catalog after the most recent run:",
+            "",
+            *(f"- [`{pid}`](catalog/{pid}.md)" for pid in unprobed),
+            "",
+        ]
+    return "\n".join(lines)
+
+
 def write_all(
     out_dir: str | Path,
     *,
@@ -520,6 +749,7 @@ def write_all(
     history: list[list[dict[str, Any]]] | None = None,
     gallery_dir: str = "gallery",
     credentials: str | Path | None = None,
+    status: str | Path | None = None,
 ) -> list[Path]:
     """Write ``index.md`` and one page per product into *out_dir*.
 
@@ -544,6 +774,9 @@ def write_all(
     if credentials is not None:
         _write_if_changed(Path(credentials), credentials_page(products))
         written.append(Path(credentials))
+    if status is not None:
+        _write_if_changed(Path(status), status_page(history or [], products=products))
+        written.append(Path(status))
     return written
 
 

@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: write
 
     steps:
       - uses: actions/checkout@v4
@@ -43,6 +44,27 @@ jobs:
 
       - name: Update README status table
         run: pixi run -e test-py313 python scripts/update_readme_status.py
+
+      # A red row nobody opens an issue about is a row nobody fixes: the
+      # GRDC/WMO 404 sat in the README from June 2026 onward (§8). Failures
+      # now open or update an issue labelled data-source, a recovery closes
+      # it, and a DMR++ sidecar appearing opens its own.
+      - name: Open, update or close data-source issues
+        if: ${{ !inputs.dry_run }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: pixi run -e test-py313 python scripts/report_health.py
+
+      - name: Summarize
+        if: always()
+        run: |
+          {
+            echo "### Data source health"
+            echo '```'
+            pixi run -e test-py313 python scripts/report_health.py --dry-run
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Commit and push if changed
         if: ${{ !inputs.dry_run }}

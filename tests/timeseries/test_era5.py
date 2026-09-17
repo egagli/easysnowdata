@@ -33,7 +33,7 @@ def test_catalog_entry_is_registered_from_this_module():
     assert [s.id for s in product.sources] == ["arco-era5-gcs", "gee"]
     assert product.default_source.requires == ()
     assert product.source("gee").requires == ("earthengine",)
-    labels = [p.label for s in product.sources for p in s.health]
+    labels = [p.label for s in product.sources for p in s.health if p.kind == "health"]
     assert labels == ["ARCO-ERA5 (GCS anonymous)", "ERA5 (Google Earth Engine)"]
     assert catalog.validate_all(known_auth=tuple(esd.auth.PROVIDERS)) == []
 

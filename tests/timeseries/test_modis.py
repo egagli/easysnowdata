@@ -31,7 +31,9 @@ def test_catalog_entry_is_registered_from_this_module():
     assert product.default_source.requires == ("earthdata",)
     assert product.source("planetary-computer").requires == ()
     # the labels the weekly health check has been recording are unchanged
-    assert [p.label for s in product.sources for p in s.health] == [
+    assert [
+        p.label for s in product.sources for p in s.health if p.kind == "health"
+    ] == [
         "MODIS snow cover MOD10A1F (NASA NSIDC)",
         "MODIS snow cover MOD10A1 (Planetary Computer)",
     ]

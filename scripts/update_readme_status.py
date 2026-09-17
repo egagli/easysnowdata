@@ -37,9 +37,15 @@ def _week_label(iso_ts: str) -> str:
         return iso_ts[:10]
 
 
+def _health_rows(run: list[dict]) -> list[dict]:
+    """Only the pass/fail probes. Latency and virtualization measure, not judge."""
+    return [r for r in run if r.get("kind", "health") == "health"]
+
+
 def build_table(history: list[list[dict]]) -> str:
     """Build a Markdown status table from up to 4 weekly snapshots."""
-    weeks = history[:4]
+    weeks = [_health_rows(run) for run in history[:4]]
+    weeks = [week for week in weeks if week]
     if not weeks:
         return "_No data yet — run `python scripts/check_data_sources.py` first._\n"
 
@@ -74,7 +80,12 @@ def build_table(history: list[list[dict]]) -> str:
         rows.append(f"| {source} | " + " | ".join(cells) + " |")
 
     now = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
-    note = f"_Last updated: {now}_  \n_⚠️ = skipped (credentials not available in this run)_\n"
+    note = (
+        f"_Last updated: {now}_  \n"
+        "_⚠️ = skipped (credentials not available in this run). "
+        "Latency and virtualization probes are on the "
+        "[status page](https://egagli.github.io/easysnowdata/status.html)._\n"
+    )
 
     return "\n".join([note, header, separator] + rows) + "\n"
 

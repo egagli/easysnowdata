@@ -120,14 +120,21 @@ PRODUCT = Product(
                 "date rule and the band aliases come from the stac_cfg fallback"
             ),
             title="Planetary Computer",
-            health=Probe(
-                "Sentinel-2 L2A (Planetary Computer)",
-                partial(
-                    health.stac_search,
-                    PC_STAC,
-                    "sentinel-2-l2a",
-                    datetime_range="2024-07-01/2024-07-31",
-                    sign=True,
+            health=(
+                Probe(
+                    "Sentinel-2 L2A (Planetary Computer)",
+                    partial(
+                        health.stac_search,
+                        PC_STAC,
+                        "sentinel-2-l2a",
+                        datetime_range="2024-07-01/2024-07-31",
+                        sign=True,
+                    ),
+                ),
+                Probe(
+                    "Sentinel-2 L2A latency (Planetary Computer)",
+                    partial(health.stac_latest, PC_STAC, "sentinel-2-l2a"),
+                    kind="latency",
                 ),
             ),
         ),

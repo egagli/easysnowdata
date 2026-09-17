@@ -127,6 +127,7 @@ faq
 
 auto_examples/index
 catalog/index
+status
 ```
 
 ```{toctree}

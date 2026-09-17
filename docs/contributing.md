@@ -128,8 +128,8 @@ generated page.
 ## Documentation
 
 Nothing under `docs/catalog/`, `docs/api/`, `docs/auto_examples/`,
-`docs/generated/`, `docs/gen_modules/` or `docs/credentials.md` is written by
-hand — they are generated at build time from
+`docs/generated/`, `docs/gen_modules/`, `docs/credentials.md` or
+`docs/status.md` is written by hand — they are generated at build time from
 the registry and the gallery, and they are all in `.gitignore`. Editing a
 catalog page means editing the catalog entry.
 

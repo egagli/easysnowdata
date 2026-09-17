@@ -79,9 +79,10 @@ Yes; nothing in the package holds a client. Two things to know:
 
 ## A source is down. What do I do?
 
-Check the product's [catalog page](catalog/index.md): the badge is the most
-recent weekly probe of each route, and a route that has been failing has an
-open issue against it with the error and when it last worked. Then switch routes — `source=` — if the product
+Check the [status page](status.md): it lists every route's most recent probe,
+how long it has been failing and when it last worked. A route that is failing
+also has an open issue labelled `data-source` against it, with the error, and
+the issue closes itself when the route recovers. Then switch routes — `source=` — if the product
 has another one. Provider outages are the reason multiple routes are a
 first-class feature rather than a nicety.
 

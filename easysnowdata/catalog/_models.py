@@ -7,7 +7,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
-__all__ = ["Variable", "Probe", "Source", "Product", "validate"]
+__all__ = ["Variable", "Probe", "PROBE_KINDS", "Source", "Product", "validate"]
 
 KNOWN_PROVIDERS = (
     "stac",
@@ -69,17 +69,37 @@ class Variable:
         return attrs
 
 
+#: What a probe measures. ``health`` answers "is this route alive"; ``latency``
+#: returns the newest datetime the route serves; ``virtualization`` returns
+#: whether a DMR++ sidecar exists, or a third-party store's latest time (§8).
+PROBE_KINDS = ("health", "latency", "virtualization")
+
+
 @dataclass(frozen=True)
 class Probe:
     """A minimal live check of one access route (§8).
 
     ``requires`` overrides the source's credential requirement for the probe
-    itself (a STAC search of an EDL-protected catalog needs no login).
+    itself (a STAC search of an EDL-protected catalog needs no login, and a
+    CMR metadata query needs none either).
+
+    ``fn`` raises on failure. A ``latency`` or ``virtualization`` probe also
+    *returns* something — an ISO-8601 timestamp, or ``present``/``absent``
+    plus the fallback parser — which is recorded alongside the status and is
+    what the status page charts.
     """
 
     label: str
-    fn: Callable[[], None]
+    fn: Callable[[], Any]
     requires: tuple[str, ...] | None = None
+    kind: str = "health"
+
+    def __post_init__(self) -> None:
+        if self.kind not in PROBE_KINDS:
+            raise ValueError(
+                f"Probe {self.label!r}: kind must be one of {PROBE_KINDS}, "
+                f"got {self.kind!r}."
+            )
 
 
 @dataclass(frozen=True)
@@ -190,7 +210,9 @@ def validate(product: Product, *, known_auth: tuple[str, ...] = ()) -> list[str]
             problems.append(f"{pid}: {attr} is empty")
     if not product.sources:
         problems.append(f"{pid}: no sources")
-    if not any(src.health for src in product.sources):
+    if not any(
+        probe.kind == "health" for src in product.sources for probe in src.health
+    ):
         problems.append(f"{pid}: no health probe on any source")
     ids = [s.id for s in product.sources]
     if len(set(ids)) != len(ids):

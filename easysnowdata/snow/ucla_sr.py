@@ -102,9 +102,25 @@ PRODUCT = Product(
                 "so virtualize='auto' scans HDF5 metadata once and caches references"
             ),
             title="NSIDC (Earthdata)",
-            health=Probe(
-                "UCLA Snow Reanalysis (NASA NSIDC)",
-                partial(health.earthdata_search, "WUS_UCLA_SR"),
+            health=(
+                Probe(
+                    "UCLA Snow Reanalysis (NASA NSIDC)",
+                    partial(health.earthdata_search, "WUS_UCLA_SR"),
+                ),
+                # The one that would change the loader's default: a DMR++
+                # sidecar turns virtualize='auto' from an HDF5 metadata scan
+                # into a sidecar read (§4.9). NSIDC published none as of
+                # 2026-09-15; this is the weekly check for that changing.
+                Probe(
+                    "UCLA Snow Reanalysis DMR++ (CMR)",
+                    partial(
+                        health.dmrpp_status,
+                        "WUS_UCLA_SR",
+                        fallback=health.FALLBACK_PARSERS["NETCDF-4"],
+                    ),
+                    requires=(),
+                    kind="virtualization",
+                ),
             ),
         ),
         Source(

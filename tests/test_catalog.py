@@ -369,9 +369,17 @@ class TestHealthRunner:
         assert health.summarize(results) == {"pass": 2, "fail": 1, "skip": 1}
 
     def test_credentialed_probes_skip_without_credentials(self, creds):
-        results = health.run(["chili", "ucla-snow-reanalysis"])
+        results = health.run(["chili", "ucla-snow-reanalysis"], kinds=["health"])
         assert {r["status"] for r in results} == {"skip"}
         assert "EARTHENGINE_TOKEN" in results[0]["error"]
+
+    def test_a_cmr_probe_on_a_credentialed_product_is_not_skipped(self, creds):
+        # CMR metadata needs no Earthdata Login, so the UCLA DMR++ probe must
+        # be attempted even in a run with no credentials at all (§8). Sockets
+        # are blocked here, so "attempted" shows up as a failure, not a skip.
+        results = health.run(["ucla-snow-reanalysis"], kinds=["virtualization"])
+        assert [r["status"] for r in results] == ["fail"]
+        assert results[0]["requires"] == []
 
     def test_update_history_and_main(self, creds, tmp_path, monkeypatch, capsys):
         history = tmp_path / "data_status" / "history.json"
@@ -385,7 +393,7 @@ class TestHealthRunner:
         data = json.loads(history.read_text())
         assert len(data) == 1 and data[0][0]["source"] == "B"
 
-        def fake_run(ids, progress=None):
+        def fake_run(ids, kinds=None, progress=None):
             if progress is not None:
                 progress("  ✅ X")
             return first
@@ -403,7 +411,7 @@ class TestHealthRunner:
         monkeypatch.setattr(
             health,
             "run",
-            lambda ids, progress=None: [
+            lambda ids, kinds=None, progress=None: [
                 {"source": "A", "status": "fail", "error": "e", "checked_at": "t"}
             ],
         )

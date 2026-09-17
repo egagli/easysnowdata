@@ -31,7 +31,9 @@ def test_catalog_entry_is_registered_from_this_module():
     assert product.resolve_loader() is sentinel2.load
     assert [s.id for s in product.sources] == ["planetary-computer", "earth-search"]
     assert product.default_source.requires == ()
-    assert [p.label for s in product.sources for p in s.health] == [
+    assert [
+        p.label for s in product.sources for p in s.health if p.kind == "health"
+    ] == [
         "Sentinel-2 L2A (Planetary Computer)",
         "Sentinel-2 L2A (Earth Search)",
     ]

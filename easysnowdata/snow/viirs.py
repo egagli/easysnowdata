@@ -107,12 +107,30 @@ PRODUCT = Product(
                 "driver with the grid taken from StructMetadata.0"
             ),
             title="NSIDC (Earthdata)",
-            health=Probe(
-                "VIIRS snow cover VNP10A1F (NASA NSIDC)",
-                partial(
-                    health.earthdata_search,
-                    "VNP10A1F",
-                    temporal=("2023-01-01", "2023-01-07"),
+            health=(
+                Probe(
+                    "VIIRS snow cover VNP10A1F (NASA NSIDC)",
+                    partial(
+                        health.earthdata_search,
+                        "VNP10A1F",
+                        temporal=("2023-01-01", "2023-01-07"),
+                    ),
+                ),
+                Probe(
+                    "VIIRS snow cover VNP10A1F latency (CMR)",
+                    partial(health.cmr_latest, "VNP10A1F"),
+                    requires=(),
+                    kind="latency",
+                ),
+                Probe(
+                    "VIIRS snow cover VNP10A1F DMR++ (CMR)",
+                    partial(
+                        health.dmrpp_status,
+                        "VNP10A1F",
+                        fallback=health.FALLBACK_PARSERS["HDF5"],
+                    ),
+                    requires=(),
+                    kind="virtualization",
                 ),
             ),
         ),

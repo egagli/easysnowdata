@@ -26,10 +26,17 @@ def test_catalog_entry_is_registered_from_this_module():
     assert product.resolve_loader() is ucla_sr.load
     assert [s.id for s in product.sources] == ["nsidc", "nsidc-hma"]
     assert product.requires == ("earthdata",)
-    labels = [p.label for s in product.sources for p in s.health]
-    # the label the weekly health check has been recording is unchanged
-    assert labels[0] == "UCLA Snow Reanalysis (NASA NSIDC)"
-    assert labels[1] == "HMA Snow Reanalysis (NASA NSIDC)"
+    # the labels the weekly health check has been recording are unchanged
+    labels = [p.label for s in product.sources for p in s.health if p.kind == "health"]
+    assert labels == [
+        "UCLA Snow Reanalysis (NASA NSIDC)",
+        "HMA Snow Reanalysis (NASA NSIDC)",
+    ]
+    # ...and the DMR++ probe rides alongside without needing credentials (§8)
+    virtualization = [
+        p for s in product.sources for p in s.health if p.kind == "virtualization"
+    ]
+    assert [p.requires for p in virtualization] == [()]
     assert {v.name for v in product.variables} == {"SWE_Post", "SCA_Post", "SD_Post"}
     assert catalog.validate_all(known_auth=tuple(esd.auth.PROVIDERS)) == []
 

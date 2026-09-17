@@ -33,6 +33,7 @@ def test_catalog_entry_is_registered_from_this_module():
     # the label the weekly health check has been recording is unchanged
     assert "SNODAS (GEE/Climate Engine)" in labels
     assert labels[0] == "SNODAS (NSIDC G02158)"
+    assert "SNODAS latency (NSIDC G02158)" in labels
     assert catalog.validate_all(known_auth=tuple(esd.auth.PROVIDERS)) == []
 
 

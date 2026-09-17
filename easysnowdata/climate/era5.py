@@ -87,9 +87,23 @@ PRODUCT = Product(
             latency="~1 week (ERA5T); ~3 months (final ERA5)",
             notes="Zarr v2, consolidated, anonymous; hourly ERA5 only",
             title="ARCO-ERA5 (GCS)",
-            health=Probe(
-                "ARCO-ERA5 (GCS anonymous)",
-                partial(health.zarr_metadata, ARCO_URL),
+            health=(
+                Probe(
+                    "ARCO-ERA5 (GCS anonymous)",
+                    partial(health.zarr_metadata, ARCO_URL),
+                ),
+                # §8 asks a third-party Zarr store for its latest time; for a
+                # reanalysis that is also exactly its latency, so one read
+                # answers both. ERA5T runs about five days behind real time.
+                Probe(
+                    "ARCO-ERA5 latency (GCS anonymous)",
+                    partial(
+                        health.zarr_latest,
+                        ARCO_URL,
+                        attrs=("valid_time_stop_era5t", "valid_time_stop"),
+                    ),
+                    kind="latency",
+                ),
             ),
         ),
         Source(

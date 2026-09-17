@@ -133,12 +133,34 @@ PRODUCT = Product(
                 "subdatasets; needs the HDF4 driver (conda-forge libgdal-hdf4)"
             ),
             title="NSIDC (Earthdata)",
-            health=Probe(
-                "MODIS snow cover MOD10A1F (NASA NSIDC)",
-                partial(
-                    health.earthdata_search,
-                    "MOD10A1F",
-                    temporal=("2023-01-01", "2023-01-07"),
+            health=(
+                Probe(
+                    "MODIS snow cover MOD10A1F (NASA NSIDC)",
+                    partial(
+                        health.earthdata_search,
+                        "MOD10A1F",
+                        temporal=("2023-01-01", "2023-01-07"),
+                    ),
+                ),
+                # CMR's metadata search needs no Earthdata Login, so both of
+                # these answer even in a run with no credentials — which is
+                # the point: the MOD10A2 archiving stop would have shown up
+                # here as a frozen date (§8).
+                Probe(
+                    "MODIS snow cover MOD10A1F latency (CMR)",
+                    partial(health.cmr_latest, "MOD10A1F"),
+                    requires=(),
+                    kind="latency",
+                ),
+                Probe(
+                    "MODIS snow cover MOD10A1F DMR++ (CMR)",
+                    partial(
+                        health.dmrpp_status,
+                        "MOD10A1F",
+                        fallback=health.FALLBACK_PARSERS["HDF-EOS2"],
+                    ),
+                    requires=(),
+                    kind="virtualization",
                 ),
             ),
         ),

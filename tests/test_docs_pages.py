@@ -197,7 +197,9 @@ class TestHealthBadges:
 
     def test_product_badge_prefers_a_working_route(self):
         product = catalog.get("snodas")
-        labels = [p.label for s in product.sources for p in s.health]
+        labels = [
+            p.label for s in product.sources for p in s.health if p.kind == "health"
+        ]
         history = [
             [
                 {
@@ -225,6 +227,7 @@ class TestHealthBadges:
                 {"source": p.label, "status": "fail", "error": "x", "checked_at": "x"}
                 for s in product.sources
                 for p in s.health
+                if p.kind == "health"
             ]
         ]
         latest = pages.latest_status(history)

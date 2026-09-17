@@ -105,11 +105,22 @@ PRODUCT = Product(
                 "grids plus text headers; no credentials, no cloud-native mirror exists"
             ),
             title="NSIDC G02158 (direct)",
-            health=Probe(
-                "SNODAS (NSIDC G02158)",
-                partial(
-                    health.http_first_byte,
-                    f"{NSIDC_ROOT}/masked/2024/03_Mar/SNODAS_20240315.tar",
+            health=(
+                Probe(
+                    "SNODAS (NSIDC G02158)",
+                    partial(
+                        health.http_first_byte,
+                        f"{NSIDC_ROOT}/masked/2024/03_Mar/SNODAS_20240315.tar",
+                    ),
+                ),
+                # No index to query: walk back a day at a time until one
+                # answers. That is also the measurement Eric's next-overpass
+                # latency tool generalizes (§8).
+                Probe(
+                    "SNODAS latency (NSIDC G02158)",
+                    # tar_url is defined below; resolve it when the probe runs.
+                    partial(health.latest_available_day, lambda day: tar_url(day)),
+                    kind="latency",
                 ),
             ),
         ),

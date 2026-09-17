@@ -364,6 +364,7 @@ def generate_catalog(app: Sphinx) -> None:
         history=pages.read_history(HISTORY_PATH),
         gallery_dir=str(GALLERY_DIR.relative_to(DOCS_DIR)),
         credentials=DOCS_DIR / "credentials.md",
+        status=DOCS_DIR / "status.md",
     )
     logger.info("[esd] wrote %d catalog pages", len(written))
 

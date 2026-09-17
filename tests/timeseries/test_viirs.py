@@ -26,7 +26,7 @@ def test_catalog_entry_is_registered_from_this_module():
     assert [s.id for s in product.sources] == ["nsidc"]
     assert product.requires == ("earthdata",)
     assert product.credential_free_sources == ()
-    assert [p.label for p in product.default_source.health] == [
+    assert [p.label for p in product.default_source.health if p.kind == "health"] == [
         "VIIRS snow cover VNP10A1F (NASA NSIDC)"
     ]
     assert product.default_source.resolution_m == 375

@@ -105,14 +105,21 @@ PRODUCT = Product(
             latency="~2 days",
             notes="scene based, Catalyst processing; no incidence-angle layer",
             title="Planetary Computer",
-            health=Probe(
-                "Sentinel-1 RTC (Planetary Computer)",
-                partial(
-                    health.stac_search,
-                    PC_STAC,
-                    "sentinel-1-rtc",
-                    datetime_range="2024-07-01/2024-07-31",
-                    sign=True,
+            health=(
+                Probe(
+                    "Sentinel-1 RTC (Planetary Computer)",
+                    partial(
+                        health.stac_search,
+                        PC_STAC,
+                        "sentinel-1-rtc",
+                        datetime_range="2024-07-01/2024-07-31",
+                        sign=True,
+                    ),
+                ),
+                Probe(
+                    "Sentinel-1 RTC latency (Planetary Computer)",
+                    partial(health.stac_latest, PC_STAC, "sentinel-1-rtc"),
+                    kind="latency",
                 ),
             ),
         ),
