@@ -143,6 +143,10 @@ NETWORKS: dict[str, Network] = {
 TYPES: dict[str, tuple[str, str]] = {
     "swe": ("cm", "snow water equivalent"),
     "snwd": ("cm", "snow depth"),
+    # New snow as a depth of snow, deliberately not `precip` (a depth of
+    # water) and not `snwd` (what is already on the ground). The three are
+    # not interconvertible.
+    "snowfall": ("cm", "snowfall"),
     "temp": ("°C", "air temperature"),
     "temp_max": ("°C", "maximum air temperature"),
     "temp_min": ("°C", "minimum air temperature"),
@@ -183,6 +187,10 @@ _UNIT_FACTORS: dict[tuple[str, str, str], float] = {
     ("snwd", "cm", "m"): 0.01,
     ("snwd", "mm", "cm"): 0.1,
     ("snwd", "cm", "mm"): 10.0,
+    ("snowfall", "m", "cm"): 100.0,
+    ("snowfall", "cm", "m"): 0.01,
+    ("snowfall", "mm", "cm"): 0.1,
+    ("snowfall", "cm", "mm"): 10.0,
 }
 
 

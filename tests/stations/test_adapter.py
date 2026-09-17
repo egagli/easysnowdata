@@ -288,17 +288,35 @@ def test_a_type_served_in_two_units_is_brought_onto_one():
     assert values["09BA-M7"] == pytest.approx(1013.0)  # 101.3 kPa became 1013 hPa
 
 
-def test_snowfall_depth_is_never_rescaled_into_a_depth_of_water():
-    """Yukon's `precip_snow_cm` is new snowfall, not precipitation in cm.
+def test_snowfall_is_its_own_variable_not_precipitation_in_centimetres():
+    """A depth of snow and a depth of water are different quantities.
 
-    Multiplying it by ten to look like millimetres of water would report 5 cm
-    of snow as 50 mm of rain — arithmetically tidy and physically wrong — so
-    the clash is refused instead.
+    Yukon's `precip_snow_cm` is typed `snowfall` upstream, so the two land in
+    separate data variables in their own units rather than one being rescaled
+    into the other — 5 cm of snow is roughly 5 mm of water, not 50 mm.
     """
+    records = _records("09AA-M1", "precip_total_mm", "precip", "mm", [2.0])
+    records += _records("09BA-M7", "precip_snow_cm", "snowfall", "cm", [5.0])
+    ds = _frames.records_to_dataset(records, "yukon")
+    assert sorted(ds.data_vars) == ["precip", "snowfall"]
+    assert ds["precip"].attrs["units"] == "mm"
+    assert ds["snowfall"].attrs["units"] == "cm"
+    assert ds["snowfall"].sel(station="09BA-M7").item() == pytest.approx(5.0)
+
+
+def test_a_depth_of_snow_is_still_never_rescaled_into_a_depth_of_water():
+    """If a client ever mistypes snowfall as precip again, refuse it."""
     records = _records("09AA-M1", "precip_total_mm", "precip", "mm", [2.0])
     records += _records("09BA-M7", "precip_snow_cm", "precip", "cm", [5.0])
     with pytest.raises(ValueError, match="not safe for 'precip'"):
         _frames.records_to_dataset(records, "yukon")
+
+
+def test_the_client_type_vocabulary_and_the_adapters_agree():
+    """Both copies of the vocabulary come from the same upstream constant."""
+    from easysnowdata.stations.clients._common import TYPES
+
+    assert set(networks.TYPES) == set(TYPES)
 
 
 @pytest.mark.parametrize("units", ["cm", "m", "mm"])
