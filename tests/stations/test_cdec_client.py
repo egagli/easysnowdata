@@ -7,6 +7,7 @@ An internet connection is required.
 
 import pytest
 
+from easysnowdata.stations.clients._common import TYPES
 from easysnowdata.stations.clients.cdec import CDECClient
 from easysnowdata.stations.clients.cdec.cdec_client import (
     _CDEC_DURATION_TO_INTERVAL,
@@ -41,29 +42,7 @@ def test_sensors_required_fields():
 
 
 def test_sensors_types_are_valid():
-    valid_types = {
-        "swe",
-        "snwd",
-        "temp",
-        "temp_max",
-        "temp_min",
-        "precip",
-        "rh",
-        "wind_spd",
-        "wind_gust",
-        "wind_dir",
-        "wind_run",
-        "solar",
-        "baro",
-        "density",
-        "snow_line",
-        # Four CDEC sensors are soil moisture, and DESIGN.md §3.2 lists the
-        # type; the vocabulary here was simply missing it. Carried over from
-        # global_snow_networks and corrected here; the same fix is owed
-        # upstream.
-        "soil_moisture",
-        "other",
-    }
+    valid_types = TYPES
     for num, info in SENSORS.items():
         assert info["type"] in valid_types, (
             f"SENSORS[{num}] has unknown type {info['type']!r}"
