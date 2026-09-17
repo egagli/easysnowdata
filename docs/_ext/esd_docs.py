@@ -273,6 +273,20 @@ _UNEXECUTED_NOTE = """.. admonition:: Not executed in this build
    yourself.
 """
 
+_CACHED_NOTE = """.. admonition:: Output from the last scheduled build
+   :class: note
+
+   This example needs {providers} credentials. The figures and printed output
+   below come from the most recent scheduled build, which has them; this build
+   reused that output instead of re-running the example.
+"""
+
+#: Both notes, so a page that already carries one is not annotated twice.
+_NOTE_MARKERS = (
+    "Not executed in this build",
+    "Output from the last scheduled build",
+)
+
 
 def annotate_unexecuted(app: Sphinx) -> None:
     """Mark the generated pages of examples this build did not run.
@@ -280,7 +294,9 @@ def annotate_unexecuted(app: Sphinx) -> None:
     sphinx-gallery renders an example that ``filename_pattern`` skips exactly
     like one that ran and produced nothing, which is misleading. This runs
     after the gallery is generated and inserts a note under the title of every
-    example that was skipped for want of credentials.
+    example that was skipped for want of credentials — one note when the page
+    has no output at all, a different one when the output was restored from
+    the cache of the last scheduled build.
     """
     conf = app.config.sphinx_gallery_conf
     if str(conf.get("plot_gallery", "True")).lower() in ("false", "0"):
@@ -293,10 +309,16 @@ def annotate_unexecuted(app: Sphinx) -> None:
         page = out / Path(name).with_suffix(".rst")
         if not page.exists():  # pragma: no cover — gallery layout changed
             continue
-        lines = page.read_text(encoding="utf-8").splitlines(keepends=True)
-        note = _UNEXECUTED_NOTE.format(
-            providers=" and ".join(f"``{n}``" for n in needs)
-        )
+        text = page.read_text(encoding="utf-8")
+        if any(marker in text for marker in _NOTE_MARKERS):
+            continue  # already annotated: a restored cache carries its note
+        # A page restored from the cache of a full build still has its figures
+        # and printed output. Say where they came from rather than claiming
+        # the example did not run.
+        cached = "sphx-glr-script-out" in text or "image-sg::" in text
+        template = _CACHED_NOTE if cached else _UNEXECUTED_NOTE
+        note = template.format(providers=" and ".join(f"``{n}``" for n in needs))
+        lines = text.splitlines(keepends=True)
         for i, line in enumerate(lines):
             if set(line.strip()) == {"="} and i and lines[i - 1].strip():
                 lines.insert(i + 1, "\n" + note)
