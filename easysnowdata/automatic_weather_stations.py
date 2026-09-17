@@ -24,27 +24,17 @@ changes, and what it does not:
 * **The station list is larger and current.** It comes from the live
   inventory rather than a 2024 snapshot, so stations added since then appear
   and ``endDate`` reflects today.
-* **``TAVG`` is not the same quantity any more, and it warns** — for SNOTEL
-  only. The frozen archive served AWDB's ``TAVG`` element, the daily
-  *average* air temperature. The vendored AWDB client does not carry that
-  element — its ``temp`` type is ``TOBS``, the instantaneous temperature at
-  observation time — and it refuses unknown element names rather than falling
-  back, so ``TAVG`` now returns ``TOBS``. Measured over Jan-Mar 2021, TOBS
-  runs 1.0-2.2 °C colder than TAVG depending on the station. CCSS stations
-  are unaffected: CDEC's ``temp`` resolves to sensor 30 (TEMP AV), the same
-  daily average the frozen archive used, and matches it to 0.004 °C. The fix
-  belongs upstream, in the AWDB client's ``VARIABLES`` registry.
-* **SNOTEL air temperature also changed vintage, and this one is a fix rather
-  than a regression.** ``TMIN`` and ``TMAX`` still map to the same elements
-  they always did, but their *values* differ from the frozen archive for
-  roughly 2004-2024 at the stations NRCS bias-corrected: the frozen CSVs hold
-  the uncorrected series, about 1.1 °C warm, because that archive's updater
-  only ever rewrote the last ten days and never re-fetched history. Verified
+* **SNOTEL air temperature is a newer vintage, and that is a fix rather than
+  a regression.** ``TAVG``, ``TMIN`` and ``TMAX`` map to the same AWDB
+  elements the frozen archive used, but their *values* differ for roughly
+  2004-2024 at the stations NRCS bias-corrected: the frozen CSVs hold the
+  uncorrected series, about 1.1 °C warm, because that archive's updater only
+  ever rewrote the last ten days and never re-fetched history. Verified
   against both AWDB REST and the CUAHSI WaterOneFlow service the frozen
-  archive itself used, which agree with each other: at Paradise the offset
-  runs 2004-2024 and is zero before and after; Bear Lake (303:CO) and Grand
-  Mesa (457:CO) show the same shape; Morse Lake (642:WA) shows none. Reading
-  live means you now get the corrected values.
+  archive itself used, which agree with each other to 0.02 °C. At Paradise
+  the offset spans 2004-2024 and is zero either side; 303:CO and 457:CO show
+  the same shape; 642:WA shows none. Reading live means you get the corrected
+  values, so a Paradise winter mean moves from -1.55 °C to -2.95 °C.
 """
 
 from __future__ import annotations
@@ -383,24 +373,26 @@ class StationCollection:
         return self.entire_data_archive
 
 
-_TAVG_WARNED = False
+_TEMPERATURE_WARNED = False
+
+#: The variables the NRCS bias correction moved.
+_CORRECTED_TEMPERATURES = ("TAVG", "TMIN", "TMAX")
 
 
-def _warn_about_tavg() -> None:
-    """Say once that ``TAVG`` is a different element than it used to be."""
-    global _TAVG_WARNED  # noqa: PLW0603 — warn once per process
-    if _TAVG_WARNED:
+def _warn_about_temperature_vintage() -> None:
+    """Say once that SNOTEL air temperature is the corrected series now."""
+    global _TEMPERATURE_WARNED  # noqa: PLW0603 — warn once per process
+    if _TEMPERATURE_WARNED:
         return
-    _TAVG_WARNED = True
+    _TEMPERATURE_WARNED = True
     message = (
-        "For SNOTEL, TAVG no longer comes from AWDB's TAVG element (daily "
-        "average air temperature): the station clients do not carry it, so "
-        "TAVG is now TOBS, the instantaneous temperature at observation "
-        "time, which runs 1-2 degC colder in the mean. CCSS stations are "
-        "unaffected. Separately, SNOTEL air temperature (TAVG, TMIN and "
-        "TMAX alike) is now the NRCS bias-corrected series, about 1.1 degC "
-        "cooler than the frozen archive over roughly 2004-2024 at the "
-        "stations that were corrected."
+        "SNOTEL air temperature (TAVG, TMIN, TMAX) is read live from AWDB, "
+        "so it is the NRCS bias-corrected series. The frozen "
+        "snotel_ccss_stations archive held the uncorrected values for "
+        "roughly 2004-2024 at the stations that were corrected, about "
+        "1.1 degC warm, because its updater never re-fetched history. "
+        "Numbers from that era will not reproduce against the old CSVs, and "
+        "the new ones are the right ones. CCSS stations are unaffected."
     )
     warnings.warn(message, UserWarning, stacklevel=3)
     _logger.warning("%s", message)
@@ -417,8 +409,8 @@ def _variables(variables: Any, *, default: list[str]) -> list[str]:
             f"{', '.join(VARIABLE_TYPES)}. easysnowdata.stations.load() serves "
             "the full vocabulary."
         )
-    if "TAVG" in wanted:
-        _warn_about_tavg()
+    if any(name in _CORRECTED_TEMPERATURES for name in wanted):
+        _warn_about_temperature_vintage()
     return wanted
 
 

@@ -409,3 +409,49 @@ def test_metadata_unwraps_the_awdb_clients_one_element_list():
     # more than one record is not something to silently pick from
     two = [{"a": 1}, {"a": 2}]
     assert _adapter._one_metadata(two, "awdb", PARADISE_TRIPLET) == two
+
+
+# ── global_snow_networks is a shortcut, not a dependency ─────────────────────
+
+
+@pytest.fixture
+def archive_down(monkeypatch):
+    """Make every read of the published inventory fail."""
+    from easysnowdata.stations import archive
+
+    def boom(*a, **k):
+        raise OSError("global_snow_networks is unreachable")
+
+    monkeypatch.setattr(archive, "_read_inventory", boom)
+    monkeypatch.setattr(archive, "inventory", boom)
+    monkeypatch.setattr(archive, "network_of", boom)
+
+
+def test_an_ambiguous_code_falls_back_to_asking_the_networks(
+    stub_clients, archive_down
+):
+    ds = esd.stations.load(["QUA"], variables="swe", time="2024-03")
+    assert list(ds["station"].values) == ["QUA"]
+    assert stub_clients["cdec"].calls[-1]["station_ids"] == ["QUA"]
+
+
+def test_an_aoi_load_falls_back_to_the_live_inventory(stub_clients, archive_down):
+    ds = esd.stations.load(
+        aoi=RAINIER, networks="awdb", time="2024-03", daily_only=False
+    )
+    assert list(ds["station"].values) == [PARADISE_CODE]
+
+
+def test_a_code_no_network_has_still_raises_something_useful(
+    stub_clients, archive_down
+):
+    with pytest.raises(ValueError, match="Unknown station code"):
+        esd.stations.load(["NOPE"], variables="swe", time="2024-03")
+
+
+def test_metadata_coordinates_are_dropped_rather_than_fatal(stub_clients, archive_down):
+    """An unreachable inventory costs the metadata coords, not the data."""
+    ds = esd.stations.load([PARADISE_CODE], variables="swe", time="2024-03")
+    assert "swe" in ds.data_vars
+    assert "network" in ds.coords  # always known
+    assert "elevation_m" not in ds.coords  # would have come from the inventory

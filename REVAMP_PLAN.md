@@ -869,6 +869,57 @@ Concretely:
    `easysnowdata>=0.2`, keep pipeline + map + data.
 6. NVE's `NVE_API_KEY` becomes an `auth` provider (§5).
 
+### 9.3 Which repository answers which request (recorded 2026-09-17)
+
+The rule, in one line: **`global_snow_networks` is an index and a bulk cache;
+an observation always comes from the network that made it.** No measurement
+reaches a user through that repo except by the explicit archive route, and
+nothing in `easysnowdata.stations` treats it as the only way to get an answer.
+
+| Call | Reads `global_snow_networks` | Reads the network APIs |
+| --- | --- | --- |
+| `stations.load(codes, …)` | station metadata for the coordinates | **every observation** |
+| `stations.load(aoi=…)` | the station list for that AOI | every observation |
+| `stations.inventory()` | ✅ default (`source="archive"`) | `source="clients"` |
+| `stations.archive.load()` | ✅ inventory and daily CSVs | — |
+| `automatic_weather_stations.StationCollection` | the station list | every observation |
+
+Why the inventory defaults to the archive rather than the five APIs: it is one
+HTTP request instead of five sweeps, its columns are normalized across
+networks, and its `daily_or_better` flag is the pipeline's **probe-verified**
+verdict rather than what a network advertises about itself (that repo's
+DESIGN.md §4 is explicit that advertised capability flags are hints). The live
+route exists for "what does the network say *today*" and is one keyword away.
+
+Because a published library should not be able to be broken by a data repo,
+every one of those reads degrades rather than failing:
+
+| If `global_snow_networks` is unreachable | What happens |
+| --- | --- |
+| `load()` metadata coordinates | warns; the Dataset keeps `network` and the data |
+| `load()` with an ambiguous code (`"QUA"`) | warns; asks CDEC and DataBC directly |
+| `load(aoi=…)` | warns; falls back to `inventory(source="clients")` |
+| `load()` with an unambiguous code or `networks=` | unaffected — never consulted |
+| `archive.load()` | fails, correctly: that route *is* the archive |
+
+What that repo publishes, and when: its CI rebuilds `all_snow_stations.geojson`
+and the per-station CSVs daily and redeploys its Pages site from a build
+artefact. `easysnowdata` reads those over HTTPS at call time and caches the
+bundle with `pooch`. See that repo's `docs/STORAGE.md` for the proposal to
+move the archive to a chunked store, which would make the archive route fetch
+kilobytes per query instead of the whole 27 MB bundle.
+
+Keeping the two copies of the clients in step: the vendored prefix is
+byte-identical to that repo's `clients/`, minus the pipeline artefacts filtered
+out of its history. Fix a client **there** first, then run
+`scripts/sync_clients.sh`, which re-splits, re-filters and subtree-merges. The
+filter is deterministic, so the split reproduces the same SHAs every time.
+Note that the client *tests* live outside the vendored prefix
+(`tests/stations/test_*_client.py`), so a test change upstream has to be
+carried over by hand.
+
+---
+
 Sequencing: after §3 foundations exist (so the adapter has `aoi`, `auth`, logging to build on),
 before the docs rewrite (so the stations gallery examples are written once).
 

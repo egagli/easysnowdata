@@ -72,10 +72,57 @@ def _client(network: str) -> Any:
 
 
 def _archive_lookup(codes: list[str]) -> dict[str, str]:
-    """``{code: network}`` for codes whose shape does not give the network away."""
+    """``{code: network}`` for codes whose shape does not give the network away.
+
+    The published inventory is the cheap way to answer this — one request that
+    already knows every code. When it cannot be reached, fall back to asking
+    the candidate networks themselves, so an unreachable
+    ``global_snow_networks`` degrades a shortcut rather than breaking the load.
+    """
     from easysnowdata.stations import archive  # noqa: PLC0415
 
-    return archive.network_of(codes)
+    try:
+        found = archive.network_of(codes)
+    except Exception as exc:  # noqa: BLE001 — the live networks can still answer
+        _logger.warning(
+            "Could not read the station inventory to resolve %s (%s); asking "
+            "the networks whose codes have that shape instead.",
+            ", ".join(sorted(codes)),
+            exc,
+        )
+        found = {}
+    missing = [code for code in codes if code not in found]
+    if missing:
+        found.update(_lookup_by_asking_networks(missing))
+    return found
+
+
+#: Networks whose station codes cannot be told apart by shape (see
+#: :func:`easysnowdata.stations.networks.guess_network`).
+_AMBIGUOUS_NETWORKS = ("cdec", "databc")
+
+
+def _lookup_by_asking_networks(codes: list[str]) -> dict[str, str]:
+    """``{code: network}`` by listing the networks whose codes share a shape."""
+    found: dict[str, str] = {}
+    wanted = set(codes)
+    for network in _AMBIGUOUS_NETWORKS:
+        if not wanted:
+            break
+        try:
+            client = _client(network)
+            with auth.env(*_nets.get(network).requires):
+                stations = client.get_all_stations()
+        except Exception as exc:  # noqa: BLE001 — try the next network
+            _logger.warning("Could not list %s stations (%s).", network, exc)
+            continue
+        net = _nets.get(network)
+        for station in stations:
+            code = station.get(net.id_key) or station.get("station_id")
+            if code is not None and str(code) in wanted:
+                found[str(code)] = network
+                wanted.discard(str(code))
+    return found
 
 
 def _metadata_frame(codes: list[str]) -> gpd.GeoDataFrame | None:
@@ -360,7 +407,17 @@ def load(
                 "load() needs either stations= (codes, ids or an inventory "
                 "frame) or aoi= to choose them with."
             )
-        inv = inventory(aoi, networks=networks, daily_only=daily_only)
+        try:
+            inv = inventory(aoi, networks=networks, daily_only=daily_only)
+        except Exception as exc:  # noqa: BLE001 — the networks can list themselves
+            _logger.warning(
+                "Could not read the station inventory to choose stations for "
+                "this AOI (%s); asking the networks directly instead.",
+                exc,
+            )
+            inv = inventory(
+                aoi, networks=networks, daily_only=daily_only, source="clients"
+            )
         if inv.empty:
             raise ValueError("No stations found in that area of interest.")
         stations = inv

@@ -149,16 +149,30 @@ def test_values_are_converted_back_to_the_frozen_archives_units():
     assert out["TAVG"].attrs["units"] == "degC"
 
 
-def test_asking_for_tavg_warns_that_it_is_a_different_element():
-    aws._TAVG_WARNED = False
-    with pytest.warns(UserWarning, match="TAVG no longer comes from"):
-        aws._variables(["TAVG"], default=["WTEQ"])
+@pytest.mark.parametrize("variable", ["TAVG", "TMIN", "TMAX"])
+def test_asking_for_air_temperature_warns_about_the_vintage(variable):
+    """All three moved when NRCS bias-corrected SNOTEL air temperature."""
+    aws._TEMPERATURE_WARNED = False
+    with pytest.warns(UserWarning, match="NRCS bias-corrected series"):
+        aws._variables([variable], default=["WTEQ"])
     # once per process
     import warnings
 
     with warnings.catch_warnings():
         warnings.simplefilter("error", UserWarning)
-        aws._variables(["TAVG"], default=["WTEQ"])
+        aws._variables([variable], default=["WTEQ"])
+
+
+def test_tavg_maps_to_the_awdb_daily_mean_again():
+    """The element regression is fixed upstream: `temp` leads with TAVG."""
+    from easysnowdata.stations.clients.awdb.awdb_client import (
+        _TYPE_TO_ELEMENTS,
+        VARIABLES,
+    )
+
+    assert "TAVG" in VARIABLES
+    assert VARIABLES["TAVG"]["type"] == "temp"
+    assert _TYPE_TO_ELEMENTS["temp"][0] == "TAVG"
 
 
 def test_an_unknown_variable_names_the_six_it_serves():
