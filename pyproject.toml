@@ -310,7 +310,10 @@ docs-build-free = { cmd = "sphinx-build -b html docs docs/_build/html -d docs/_b
 # No gallery execution at all — the fastest way to check prose and API pages.
 docs-fast = { cmd = "sphinx-build -b html docs docs/_build/html -d docs/_build/doctrees -j auto", env = { ESD_DOCS_GALLERY = "none" } }
 docs-serve = "python -m http.server --directory docs/_build/html 8000"
-docs-clean = "python -c \"import shutil,pathlib; [shutil.rmtree(p, ignore_errors=True) for p in (pathlib.Path('docs/_build'), pathlib.Path('docs/auto_examples'), pathlib.Path('docs/generated'), pathlib.Path('docs/gen_modules'))]\""
+# Remove *everything* the build generates, so a local clean build is the same
+# build CI does from a fresh checkout. Leaving docs/api behind is what hid a
+# first-build autosummary failure locally.
+docs-clean = "python -c \"import shutil,pathlib; [shutil.rmtree(pathlib.Path(p), ignore_errors=True) for p in ('docs/_build','docs/auto_examples','docs/generated','docs/gen_modules','docs/api','docs/catalog')]; [pathlib.Path(f).unlink(missing_ok=True) for f in ('docs/credentials.md','docs/status.md')]\""
 # Link check over the built site (slow; run before a release).
 docs-linkcheck = { cmd = "sphinx-build -b linkcheck docs docs/_build/linkcheck -d docs/_build/doctrees", env = { ESD_DOCS_GALLERY = "none" } }
 

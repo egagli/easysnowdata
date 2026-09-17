@@ -283,6 +283,14 @@ def generate_api(app: Sphinx) -> None:
                 continue
             written.append(name)
     _write(out / "index.md", _write_api_index(written))
+    # Hand autosummary the exact list of pages to scan. `autosummary_generate
+    # = True` takes its list from `env.found_docs`, which is empty at
+    # builder-inited on a *first* build — so on a fresh checkout no stub is
+    # written and every entry warns "stub file not found". On a second build
+    # the pickled environment has the documents and it works, which is what
+    # hid this locally until CI built from scratch. This runs at priority 100,
+    # before autosummary's own builder-inited handler at 500.
+    app.config.autosummary_generate = [f"api/{name}.rst" for name in written]
     logger.info("[esd] wrote %d API pages", len(written))
 
 

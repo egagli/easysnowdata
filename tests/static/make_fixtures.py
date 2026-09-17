@@ -26,7 +26,7 @@ from rasterio.transform import from_bounds
 RAINIER = (-121.94, 46.72, -121.54, 46.99)
 
 
-def _write_cog(
+def _write_tif(
     path: Path,
     data: np.ndarray,
     *,
@@ -35,9 +35,24 @@ def _write_cog(
     crs: str = "EPSG:4326",
     tags: dict[str, str] | None = None,
 ) -> Path:
+    """A tiled, DEFLATE-compressed GeoTIFF.
+
+    A tiled GTiff rather than the COG driver, for a reason that cost an
+    afternoon: **on rasterio 1.5.1 / GDAL 3.13.3 the COG driver truncates every
+    written value to eight bits** while still reporting the declared dtype. A
+    uint32 1000 reads back as 232, a float32 -9999 as 241, and the nodata 256
+    these class rasters use as 0 — so the fixture silently stopped containing
+    the fill the tests are about. rasterio 1.5.0 / GDAL 3.12.3 is unaffected,
+    which is why this only appeared once CI ran the `test-py3XX` environments
+    (they solve separately from `dev` and pick up the newer stack).
+
+    Nothing is lost by the change: no test here reads an overview, the package
+    never writes a raster, and the upstream archives these imitate — the
+    Wrzesien Zenodo zips — hold plain GeoTIFFs anyway.
+    """
     height, width = data.shape
     profile = {
-        "driver": "COG",
+        "driver": "GTiff",
         "dtype": data.dtype.name,
         "width": width,
         "height": height,
@@ -46,7 +61,9 @@ def _write_cog(
         "transform": from_bounds(*bounds, width, height),
         "nodata": nodata,
         "compress": "DEFLATE",
-        "blocksize": 32,
+        "tiled": True,
+        "blockxsize": 32,
+        "blockysize": 32,
     }
     with rasterio.open(path, "w", **profile) as dst:
         dst.write(data, 1)
@@ -60,7 +77,7 @@ def make_dem_cog(path: Path, *, size: int = 48) -> Path:
     y, x = np.mgrid[0:size, 0:size]
     data = (500 + 40 * (x + y)).astype("float32")  # 500 m → ~4.3 km, Rainier-like
     data[:4, :4] = -32767.0
-    return _write_cog(path, data, nodata=-32767.0)
+    return _write_tif(path, data, nodata=-32767.0)
 
 
 def make_stac_item(
@@ -139,7 +156,7 @@ def make_categorical_cog(
     """A COG whose pixels cycle through *values*, with a nodata corner."""
     data = np.resize(np.array(values, dtype=dtype), (size, size))
     data[:4, :4] = nodata
-    return _write_cog(path, data, nodata=nodata, bounds=bounds)
+    return _write_tif(path, data, nodata=nodata, bounds=bounds)
 
 
 def make_continuous_cog(
@@ -155,7 +172,7 @@ def make_continuous_cog(
     y, x = np.mgrid[0:size, 0:size]
     data = (low + (high - low) * (x + y) / (2 * (size - 1))).astype(dtype)
     data[:4, :4] = nodata
-    return _write_cog(path, data, nodata=nodata)
+    return _write_tif(path, data, nodata=nodata)
 
 
 def make_zipped_class_tif(
@@ -172,7 +189,7 @@ def make_zipped_class_tif(
     data = np.resize(np.array(values, dtype=dtype), (size, size))
     data[:4, :4] = nodata
     tif = directory / member
-    _write_cog(tif, data, nodata=nodata)
+    _write_tif(tif, data, nodata=nodata)
     path = directory / archive
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as zf:
         zf.write(tif, member)

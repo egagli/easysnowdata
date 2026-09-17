@@ -141,4 +141,6 @@ jobs:
           EARTHDATA_TOKEN: ${{ secrets.EARTHDATA_TOKEN }}
           EARTHDATA_USERNAME: ${{ secrets.EARTHDATA_USERNAME }}
           EARTHDATA_PASSWORD: ${{ secrets.EARTHDATA_PASSWORD }}
+          PL_API_KEY: ${{ secrets.PL_API_KEY }}
+          NVE_API_KEY: ${{ secrets.NVE_API_KEY }}
         run: pixi run -e test-py313 test-live -v --tb=short -rfEs
