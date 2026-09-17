@@ -365,9 +365,16 @@ class AWDBClient:
         include_forecast_point: bool = False,
         include_reservoir: bool = False,
         active_only: bool = False,
-    ) -> list[dict]:
+    ) -> dict | list[dict]:
         """
         Retrieve full station metadata including the element inventory.
+
+        Given a single triplet this returns one dict, which is the
+        ``get_metadata(station_id) -> dict`` contract of DESIGN.md §3.4 that
+        the other four clients implement. Given a list it returns one dict per
+        station, which the inventory pipeline needs: AWDB carries ~4 000
+        stations and fetching them one at a time is not viable, so this client
+        keeps the batch form the API supports.
 
         Parameters
         ----------
@@ -388,10 +395,12 @@ class AWDBClient:
 
         Returns
         -------
-        list[dict]
-            One dict per station.  Each dict contains all AWDB metadata fields
-            plus a ``stationElements`` list (one entry per matching element ×
-            duration combination).
+        dict or list[dict]
+            One dict when *triplets* is a single triplet, otherwise one dict
+            per station.  Each dict contains all AWDB metadata fields plus a
+            ``stationElements`` list (one entry per matching element ×
+            duration combination).  A single triplet that matches no station
+            returns an empty dict.
 
         Notes
         -----
@@ -410,6 +419,7 @@ class AWDBClient:
         >>> meta[0]["stationElements"][0]["elementCode"]
         'SNWD'
         """
+        one_station = isinstance(triplets, (str, int))
         triplets = _coerce_list(triplets)
         elements_str = ",".join(_coerce_list(elements)) if elements != "*" else "*"
         durations_str = ",".join(_coerce_list(durations)) if durations != "*" else "*"
@@ -458,6 +468,8 @@ class AWDBClient:
         for batch in _chunk(triplets, 150):
             results.extend(fetch_batch(batch))
 
+        if one_station:
+            return results[0] if results else {}
         return results
 
     def _get_data_awdb(
