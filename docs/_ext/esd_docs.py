@@ -167,8 +167,24 @@ TITLES = {
 }
 
 
-def _public_members(module: types.ModuleType) -> tuple[list[str], list[str]]:
-    """Return ``(callables, submodules)`` from a module's ``__all__``."""
+def _identity(obj: object) -> str | None:
+    """Where an object is actually defined, so a re-export is recognisable."""
+    module = getattr(obj, "__module__", None)
+    qualname = getattr(obj, "__qualname__", None)
+    return f"{module}.{qualname}" if module and qualname else None
+
+
+def _public_members(
+    module: types.ModuleType, seen: set[str]
+) -> tuple[list[str], list[str]]:
+    """Return ``(callables, submodules)`` from a module's ``__all__``.
+
+    *seen* collects what has already been documented elsewhere in the API
+    reference. A name re-exported by a second module (``CredentialError``
+    appears in both ``auth`` and the ``utils`` shim) is documented once, under
+    the first module that claims it: autodoc warns about the second copy, and
+    the docs CI treats warnings as errors.
+    """
     names = getattr(module, "__all__", None)
     if names is None:
         names = [n for n in vars(module) if not n.startswith("_")]
@@ -182,6 +198,11 @@ def _public_members(module: types.ModuleType) -> tuple[list[str], list[str]]:
             if obj.__name__.startswith(module.__name__ + "."):
                 submodules.append(name)
         elif inspect.isclass(obj) or inspect.isroutine(obj):
+            identity = _identity(obj)
+            if identity is not None:
+                if identity in seen:
+                    continue
+                seen.add(identity)
             callables.append(name)
     return callables, submodules
 
@@ -201,23 +222,25 @@ def _autosummary(fullnames: list[str], *, indent: str = "   ") -> list[str]:
     return lines
 
 
-def _module_section(dotted: str, underline: str) -> list[str]:
+def _module_section(dotted: str, underline: str, seen: set[str]) -> list[str]:
     module = importlib.import_module(dotted)
-    callables, submodules = _public_members(module)
+    callables, submodules = _public_members(module, seen)
     lines = [dotted, underline * len(dotted), ""]
     lines += [f".. automodule:: {dotted}", "   :no-members:", "   :no-index:", ""]
     # Bare names under the module autodoc has just entered: autosummary still
     # names the stub files by the full dotted path, so nothing collides.
     lines += _autosummary(callables)
     for sub in submodules:
-        lines += _module_section(f"{dotted}.{sub}", "^" if underline == "-" else '"')
+        lines += _module_section(
+            f"{dotted}.{sub}", "^" if underline == "-" else '"', seen
+        )
     return lines
 
 
-def _api_page(name: str) -> str:
+def _api_page(name: str, seen: set[str]) -> str:
     title = TITLES.get(name, name)
     lines = [f".. _api-{name}:", "", title, "=" * len(title), ""]
-    lines += _module_section(f"easysnowdata.{name}", "-")
+    lines += _module_section(f"easysnowdata.{name}", "-", seen)
     return "\n".join(lines) + "\n"
 
 
@@ -250,10 +273,11 @@ def generate_api(app: Sphinx) -> None:
     """Write ``docs/api/*.rst`` from the package's own ``__all__`` lists."""
     out = DOCS_DIR / "api"
     written: list[str] = []
+    seen: set[str] = set()
     for _group, names in API_GROUPS:
         for name in names:
             try:
-                _write(out / f"{name}.rst", _api_page(name))
+                _write(out / f"{name}.rst", _api_page(name, seen))
             except Exception as exc:  # pragma: no cover — surfaced as a warning
                 logger.warning("api page for %s failed: %s", name, exc)
                 continue
