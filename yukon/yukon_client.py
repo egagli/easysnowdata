@@ -349,12 +349,15 @@ VARIABLES: dict[str, dict] = {
         "name": "Barometric Pressure",
         "type": "baro",
         "units": "kPa",
-        "output_units": "kPa",
+        "output_units": "hPa",
         "source": _YUKON_DATA_SOURCE + " (parameter 'barometric pressure')",
-        "description": "Barometric pressure.",
+        "description": (
+            "Barometric pressure. Converted in-client from kPa to hPa."
+        ),
         "notes": (
-            "Native units: kPa — note the DataBC client reports hPa for the "
-            "same quantity (1 kPa = 10 hPa)."
+            "Native units: kPa; emitted as hPa (× 10), which is DESIGN.md "
+            "§3.5's canonical unit for `baro` and what the DataBC client "
+            "already reports for the same quantity."
         ),
     },
     "soil_moisture_pct": {
@@ -532,6 +535,21 @@ def _normalize_value(value: Any) -> float | None:
     if num is None or num in _MISSING_VALUES:
         return None
     return num
+
+
+#: Native → emitted conversions, keyed by variable (DESIGN.md §3.5).
+_OUTPUT_CONVERSIONS: dict[str, Any] = {
+    "swe_mm": lambda v: round(v / 10.0, 3),        # mm → cm
+    "baro_press_kpa": lambda v: round(v * 10.0, 3),  # kPa → hPa
+}
+
+
+def _to_output_units(var_key: str, value: float | None) -> float | None:
+    """Bring one raw value onto the unit ``VARIABLES[var_key]["output_units"]`` names."""
+    transform = _OUTPUT_CONVERSIONS.get(var_key)
+    if transform is None or value is None:
+        return value
+    return transform(value)
 
 
 def _clamp_snow(value: float | None) -> float | None:
@@ -1295,9 +1313,7 @@ class YukonClient:
             if end and sample_date > end:
                 continue
 
-            value = _normalize_value(row.get("result"))
-            if var_key == "swe_mm" and value is not None:
-                value = round(value / 10.0, 3)
+            value = _to_output_units(var_key, _normalize_value(row.get("result")))
             if var_info["type"] in {"swe", "snwd"}:
                 value = _clamp_snow(value)
 
@@ -1701,9 +1717,7 @@ class YukonClient:
         if not date_str:
             return None
 
-        value = _normalize_value(raw_value)
-        if var_key == "swe_mm" and value is not None:
-            value = round(value / 10.0, 3)
+        value = _to_output_units(var_key, _normalize_value(raw_value))
         if var_info["type"] in {"swe", "snwd"}:
             value = _clamp_snow(value)
 
