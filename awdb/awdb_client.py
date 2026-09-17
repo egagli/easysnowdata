@@ -86,6 +86,7 @@ _AWDB_DATA_SOURCE = "USDA NRCS AWDB REST API v1 — /data endpoint"
 VARIABLES: dict[str, dict] = {
     "WTEQ":   {"name": "Snow Water Equivalent",          "type": "swe",       "units": "in",      "output_units": "cm",      "description": "Snow water equivalent. Converted in-client from inches to cm.", "notes": "",  "source": _AWDB_DATA_SOURCE},
     "SNWD":   {"name": "Snow Depth",                     "type": "snwd",      "units": "in",      "output_units": "cm",      "description": "Snow depth. Converted in-client from inches to cm.",            "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "TAVG":   {"name": "Average Air Temperature",         "type": "temp",      "units": "°F",      "output_units": "°C",      "description": "Daily average air temperature. Converted in-client to °C.",     "notes": "Preferred over TOBS for the `temp` type: it is the daily mean, whereas TOBS is a single instantaneous reading. Over Jan-Mar 2021 TOBS ran 1.0-2.2 °C colder than TAVG across four SNOTEL sites.", "source": _AWDB_DATA_SOURCE},
     "TOBS":   {"name": "Air Temperature (observed)",     "type": "temp",      "units": "°F",      "output_units": "°C",      "description": "Instantaneous air temperature at observation time. Converted in-client to °C.", "notes": "",  "source": _AWDB_DATA_SOURCE},
     "TMAX":   {"name": "Maximum Air Temperature",        "type": "temp_max",  "units": "°F",      "output_units": "°C",      "description": "Daily maximum air temperature. Converted in-client to °C.",     "notes": "",  "source": _AWDB_DATA_SOURCE},
     "TMIN":   {"name": "Minimum Air Temperature",        "type": "temp_min",  "units": "°F",      "output_units": "°C",      "description": "Daily minimum air temperature. Converted in-client to °C.",     "notes": "",  "source": _AWDB_DATA_SOURCE},
@@ -105,6 +106,7 @@ VARIABLES: dict[str, dict] = {
 _METRIC_CONVERSIONS: dict[str, tuple] = {
     "WTEQ":   (lambda v: v * 2.54, "cm"),
     "SNWD":   (lambda v: v * 2.54, "cm"),
+    "TAVG":   (lambda v: (v - 32.0) * 5.0 / 9.0, "°C"),
     "TOBS":   (lambda v: (v - 32.0) * 5.0 / 9.0, "°C"),
     "TMAX":   (lambda v: (v - 32.0) * 5.0 / 9.0, "°C"),
     "TMIN":   (lambda v: (v - 32.0) * 5.0 / 9.0, "°C"),
@@ -157,7 +159,11 @@ _AWDB_DURATION_TO_INTERVAL: dict[str, str] = {
 _TYPE_TO_ELEMENTS: dict[str, list[str]] = {
     "swe":       ["WTEQ"],
     "snwd":      ["SNWD"],
-    "temp":      ["TOBS", "TMAX", "TMIN"],
+    # TAVG leads deliberately. Consumers that flatten several elements of one
+    # type into a single series take the first non-null, so the daily mean
+    # wins over the instantaneous reading — which is what CDEC already does
+    # in practice, where only sensor 30 (TEMP AV) carries a daily series.
+    "temp":      ["TAVG", "TOBS", "TMAX", "TMIN"],
     "temp_max":  ["TMAX"],
     "temp_min":  ["TMIN"],
     "precip":    ["PREC", "PRCP", "PRCPSA"],
