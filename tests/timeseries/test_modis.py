@@ -44,8 +44,12 @@ def test_product_table_and_granule_names():
     assert modis._product("mod10a1f") == "MOD10A1F"
     with pytest.raises(ValueError, match="product must be one of"):
         modis._product("MOD09GA")
-    assert modis.GRIDS["MOD10A1F"] == "MOD_CGF_NDSI_500m"
-    assert modis.GRIDS["MYD10A2"] == "MOD_Grid_Snow_500m"
+    # Every product, cloud-gap-filled included, stores its fields in the one
+    # MOD_Grid_Snow_500m grid — verified against a v61 granule 2026-09-17.
+    # This assertion used to pin MOD_CGF_NDSI_500m, which is why the wrong
+    # name survived: GDAL answers a grid that does not exist with an empty
+    # 1×0 dataset rather than an error.
+    assert set(modis.GRIDS.values()) == {"MOD_Grid_Snow_500m"}
     assert modis.DEFAULT_VARIABLES["MOD10A2"] == ("Maximum_Snow_Extent",)
     assert modis.granule_date(
         "MOD10A1.A2023060.h09v04.061.2023062.hdf"

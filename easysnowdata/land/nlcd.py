@@ -78,28 +78,54 @@ def _asset(source_id: str, layer: str) -> str:
         ) from None
 
 
-def _class_table(image: Any, layer: str, band: str) -> tuple[list, list, list] | None:
-    """Read ``<layer>_class_values`` / ``_names`` / ``_palette`` from the asset."""
-    try:
-        properties = image.getInfo()["properties"]
-    except Exception as exc:  # noqa: BLE001 — a missing table is not a failure
-        _logger.debug("NLCD class table unavailable: %s", exc)
-        return None
-    for prefix in (layer, band, "landcover"):
-        values = properties.get(f"{prefix}_class_values")
-        names = properties.get(f"{prefix}_class_names")
-        palette = properties.get(f"{prefix}_class_palette")
-        if (
-            values
-            and names
-            and palette
-            and len({len(values), len(names), len(palette)}) == 1
-        ):
-            return (
-                [int(v) for v in values],
-                [str(n).split(":")[0].split(".")[0] for n in names],
-                [c if str(c).startswith("#") else f"#{c}" for c in palette],
-            )
+def _entries(value: Any) -> list[str]:
+    """One class table field as a list.
+
+    Earth Engine's own NLCD assets store these as lists. The community Annual
+    NLCD asset stores them as delimited strings instead — ``"11,12,21,…"`` and
+    ``"Open Water|Perennial Ice/Snow|…"`` — so a class *name* may contain a
+    comma ("Developed, Open Space") and the pipe has to win where both appear.
+    """
+    if value is None:
+        return []
+    if isinstance(value, str):
+        separator = "|" if "|" in value else ","
+        return [part.strip() for part in value.split(separator) if part.strip()]
+    return [v for v in value]
+
+
+def _class_table(
+    image: Any, collection: Any, layer: str, band: str
+) -> tuple[list, list, list] | None:
+    """Read ``<layer>_class_values`` / ``_names`` / ``_palette`` from the asset.
+
+    The image first, then the collection: the official USGS releases put the
+    table on each image, while the community Annual NLCD asset puts it on the
+    collection only — which is why the default route came back as float32 with
+    no legend until this looked in both places.
+    """
+    sources = []
+    for obj in (image, collection):
+        try:
+            sources.append(obj.getInfo().get("properties") or {})
+        except Exception as exc:  # noqa: BLE001 — a missing table is not a failure
+            _logger.debug("NLCD class table unavailable: %s", exc)
+    for properties in sources:
+        for prefix in (layer, band, "landcover"):
+            values = _entries(properties.get(f"{prefix}_class_values"))
+            names = _entries(properties.get(f"{prefix}_class_names"))
+            palette = _entries(properties.get(f"{prefix}_class_palette"))
+            if (
+                values
+                and names
+                and palette
+                and len({len(values), len(names), len(palette)}) == 1
+            ):
+                return (
+                    [int(v) for v in values],
+                    [str(n).split(":")[0].split(".")[0] for n in names],
+                    [c if str(c).startswith("#") else f"#{c}" for c in palette],
+                )
     _logger.info("The %s asset carries no class table for %r.", PRODUCT_ID, layer)
     return None
 
@@ -188,11 +214,15 @@ def load(
     if "time" in da.dims and (not keep_time or da.sizes["time"] == 1):
         da = da.isel(time=0)  # keep the year as a scalar coordinate
     da = contract.write_crs(da, grid["crs"])
-    table = _class_table(image, layer, band)
-    if table is not None:
-        da = da.astype("uint8") if da.dtype.kind == "f" and max(table[0]) < 256 else da
-        da = set_flags(da, *table, long_name=f"NLCD {layer.replace('_', ' ')}")
+    table = _class_table(image, collection, layer, band)
     nodata = 0 if table is not None and 0 not in table[0] else None
+    if table is not None:
+        if da.dtype.kind == "f" and max(table[0]) < 256:
+            # xee hands back float32 with NaN wherever the asset is masked.
+            # The sentinel has to replace NaN *before* the cast, or a masked
+            # pixel becomes an arbitrary class rather than nodata.
+            da = da.fillna(nodata if nodata is not None else 0).astype("uint8")
+        da = set_flags(da, *table, long_name=f"NLCD {layer.replace('_', ' ')}")
     da = (
         contract.mask_continuous(da, nodata)
         if mask

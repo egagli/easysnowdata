@@ -317,6 +317,11 @@ def test_live_hls_load_cmr_lpcloud():
     assert float(np.nanmax(green)) <= 2.0
     ndsi = esd.processing.ndsi(ds).isel(time=0).compute()
     assert -1.0 <= float(np.nanmin(ndsi)) <= float(np.nanmax(ndsi)) <= 1.0
+    # Slightly negative surface reflectance over dark targets makes the
+    # denominator vanish on a handful of pixels; those are masked, not clipped,
+    # and must stay a handful rather than a hole in the scene.
+    extra = float(ndsi.isnull().mean() - ds["green"].isel(time=0).isnull().mean())
+    assert 0.0 <= extra < 0.01
 
 
 @pytest.mark.live

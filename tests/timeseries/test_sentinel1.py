@@ -429,6 +429,21 @@ def test_live_local_incidence_angle_from_the_dem_needs_no_account():
 
 @pytest.mark.live
 @pytest.mark.requires_earthaccess
+@pytest.mark.xfail(
+    reason=(
+        "ASF's datapool answers GDAL with 403. Measured 2026-09-17: a plain "
+        "requests GET of the same URL returns 206 through four redirects "
+        "(datapool → cumulus → urs.earthdata → CloudFront), while GDAL/curl "
+        "with GDAL_HTTP_NETRC never completes the handshake — no cookie is "
+        "issued for the ASF host even with an empty jar, and neither "
+        "CPL_VSIL_CURL_USE_HEAD=NO, GDAL_DISABLE_READDIR_ON_OPEN nor an "
+        "explicit GDAL_HTTP_USERPWD changes it. Not strict: CI authenticates "
+        "with EARTHDATA_TOKEN (a bearer header, a different code path), so "
+        "this may well pass there. The product has a credential-free route — "
+        "source='dem' — which the gallery example uses."
+    ),
+    strict=False,
+)
 def test_live_local_incidence_angle_from_opera_static():
     ds = sentinel1.local_incidence_angle(RAINIER, resolution=90)
     assert "local_incidence_angle" in ds.data_vars and "mask" in ds.data_vars
