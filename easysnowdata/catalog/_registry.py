@@ -136,29 +136,19 @@ def search(text: str) -> Any:
 
 
 def describe(product_id: str) -> str:
-    """Return a Markdown description of a product: sources, variables, citation."""
+    """Return a Markdown description of a product: sources, variables, citation.
+
+    The same tables the generated docs page uses (:mod:`easysnowdata.catalog.pages`),
+    so the two cannot disagree.
+    """
+    from easysnowdata.catalog import pages  # noqa: PLC0415 — avoids an import cycle
+
     p = get(product_id)
     lines = [f"# {p.title} (`{p.id}`)", "", p.description.strip(), ""]
-    lines += ["| source | provider | credentials | resolution | extent | temporal | latency | notes |",
-              "| --- | --- | --- | --- | --- | --- | --- | --- |"]  # fmt: skip
-    for i, s in enumerate(p.sources):
-        default = " (default)" if i == 0 else ""
-        res = f"{s.resolution_m:g} m" if s.resolution_m else "—"
-        lines.append(
-            f"| `{s.id}`{default} | {s.provider} | {', '.join(s.requires) or 'none'} | {res} | "
-            f"{s.extent} | {s.temporal or '—'} | {s.latency or '—'} | {s.notes} |"
-        )
-    if p.variables:
-        lines += [
-            "",
-            "| variable | units | dtype | nodata | categorical |",
-            "| --- | --- | --- | --- | --- |",
-        ]
-        for v in p.variables:
-            lines.append(
-                f"| `{v.name}` | {v.units or '—'} | {v.dtype or '—'} | {v.nodata if v.nodata is not None else '—'} | "
-                f"{'yes (' + str(len(v.flag_values)) + ' classes)' if v.categorical else 'no'} |"
-            )
+    lines += pages.sources_table(p)
+    variables = pages.variables_table(p)
+    if variables:
+        lines += [""] + variables
     lines += ["", f"**Loader:** `{p.loader}`", f"**License:** {p.license}"]
     if p.doi:
         lines.append(f"**DOI:** {p.doi}")

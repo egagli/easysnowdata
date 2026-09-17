@@ -101,6 +101,7 @@ AWDB_PRODUCT = Product(
     ),
     license="Public domain (US government data)",
     loader=_LOADER,
+    examples=("stations/plot_awdb_stations.py",),
     references=(
         "https://wcc.sc.egov.usda.gov/awdbRestApi/swagger-ui/index.html",
         "https://www.nrcs.usda.gov/wps/portal/wcc/home/",
@@ -147,6 +148,7 @@ CDEC_PRODUCT = Product(
     ),
     license="Public domain (California state government data)",
     loader=_LOADER,
+    examples=("stations/plot_cdec_stations.py",),
     references=(
         "https://cdec.water.ca.gov/",
         "https://cdec.water.ca.gov/snow/current/snow/",
@@ -196,6 +198,7 @@ DATABC_PRODUCT = Product(
     ),
     license="Open Government Licence – British Columbia",
     loader=_LOADER,
+    examples=("stations/plot_databc_stations.py",),
     references=(
         "https://catalogue.data.gov.bc.ca/dataset/snow-weather-stations-archive",
         "https://www.env.gov.bc.ca/wsd/data_searches/snow/",
@@ -247,6 +250,7 @@ NVE_PRODUCT = Product(
     ),
     license="Norwegian Licence for Open Government Data (NLOD)",
     loader=_LOADER,
+    examples=("stations/plot_nve_stations.py",),
     references=(
         "https://hydapi.nve.no/UserDocumentation/",
         "https://sildre.nve.no/",
@@ -289,6 +293,7 @@ YUKON_PRODUCT = Product(
     ),
     license="Open Government Licence – Yukon",
     loader=_LOADER,
+    examples=("stations/plot_yukon_stations.py",),
     references=(
         "https://service.yukon.ca/water-data/shiny/?page=home&lang=en",
         "https://yukon.ca/en/snow-survey-bulletin",

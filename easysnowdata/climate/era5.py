@@ -136,6 +136,7 @@ PRODUCT = Product(
     doi="10.1002/qj.3803",
     references=(ARCO_DOCS, GEE_DOCS),
     loader="easysnowdata.climate.era5.load",
+    examples=("climate/plot_era5.py",),
     tags=("reanalysis", "temperature", "precipitation", "snow depth"),
 )
 catalog.register(PRODUCT, replace=True)

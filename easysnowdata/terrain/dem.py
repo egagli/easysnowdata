@@ -235,6 +235,7 @@ PRODUCT = Product(
     license="Copernicus DEM licence (free, attribution)",
     doi="10.5069/G9028PQB",
     loader="easysnowdata.terrain.dem.load",
+    examples=("terrain/plot_dem.py",),
     references=(
         "https://planetarycomputer.microsoft.com/dataset/cop-dem-glo-30",
         "https://registry.opendata.aws/copernicus-dem/",

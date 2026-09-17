@@ -53,6 +53,20 @@ swe = esd.snow.snodas.load(aoi, "2024-03")                  # SNODAS, no account
 One executed script per product, with the figure it produces.
 :::
 
+:::{grid-item-card} {octicon}`database` Data catalog
+:link: catalog/index
+:link-type: doc
+
+Every product: its routes, resolution, credentials, licence and health.
+:::
+
+:::{grid-item-card} {octicon}`key` Credentials
+:link: credentials
+:link-type: doc
+
+Which products need an account, and how to set each one up.
+:::
+
 :::{grid-item-card} {octicon}`code` API reference
 :link: api/index
 :link-type: doc
@@ -95,6 +109,7 @@ Each product also carries the citation of the data it serves in
 :caption: Getting started
 
 installation
+credentials
 faq
 ```
 
@@ -103,6 +118,7 @@ faq
 :caption: Data
 
 auto_examples/index
+catalog/index
 ```
 
 ```{toctree}

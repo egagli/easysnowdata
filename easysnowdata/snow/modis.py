@@ -175,6 +175,10 @@ PRODUCT = Product(
     doi="10.5067/MODIS/MOD10A1.061",
     references=(_NSIDC_DOCS, _PC_DOCS),
     loader="easysnowdata.snow.modis.load",
+    examples=(
+        "snow/plot_modis_snow.py",
+        "snow/plot_viirs_snow.py",
+    ),
     tags=("snow cover", "ndsi", "modis", "terra", "aqua"),
 )
 catalog.register(PRODUCT, replace=True)

@@ -196,6 +196,7 @@ PRODUCT = Product(
     doi="10.5067/HLS/HLSL30.002",
     references=(_LPDAAC_DOCS, _PC_DOCS),
     loader="easysnowdata.optical.hls.load",
+    examples=("optical/plot_hls.py",),
     tags=("optical", "reflectance", "landsat", "sentinel-2", "hls"),
 )
 catalog.register(PRODUCT, replace=True)

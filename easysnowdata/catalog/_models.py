@@ -130,6 +130,10 @@ class Product:
     doi: str | None = None
     references: tuple[str, ...] = ()
     tags: tuple[str, ...] = field(default_factory=tuple)
+    #: Gallery scripts that load this product, as paths under ``docs/gallery``
+    #: (``"snow/plot_snodas.py"``). §2.11 asks every product for one; the docs
+    #: page links them, and the offline catalog test checks they exist.
+    examples: tuple[str, ...] = ()
 
     @property
     def default_source(self) -> Source:
@@ -202,6 +206,12 @@ def validate(product: Product, *, known_auth: tuple[str, ...] = ()) -> list[str]
         for probe in src.health:
             if not callable(probe.fn) or not probe.label:
                 problems.append(f"{pid}/{src.id}: malformed health probe")
+    for example in product.examples:
+        if not example.endswith(".py") or example.startswith("/"):
+            problems.append(
+                f"{pid}: example {example!r} must be a path under docs/gallery, "
+                "like 'snow/plot_snodas.py'"
+            )
     for var in product.variables:
         if var.categorical:
             n = len(var.flag_values)

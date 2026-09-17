@@ -341,6 +341,7 @@ PRODUCT = Product(
     license="CC BY 4.0",
     doi="10.5281/zenodo.7254221",
     loader="easysnowdata.land.landcover.load",
+    examples=("land/plot_worldcover.py",),
     references=(
         "https://esa-worldcover.org/",
         "https://registry.opendata.aws/esa-worldcover-vito/",

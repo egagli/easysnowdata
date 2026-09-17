@@ -148,6 +148,7 @@ PRODUCT = Product(
     doi="10.1038/s41597-023-02549-6",
     references=(ARTICLE_URL,),
     loader="easysnowdata.climate.koppen_geiger.load",
+    examples=("climate/plot_koppen_geiger.py",),
     tags=("climate classification", "koppen"),
 )
 catalog.register(PRODUCT, replace=True)

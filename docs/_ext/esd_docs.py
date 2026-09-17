@@ -36,12 +36,21 @@ import inspect
 import re
 import types
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from sphinx.application import Sphinx
-from sphinx.util import logging
+from easysnowdata.catalog import pages
+
+if TYPE_CHECKING:  # pragma: no cover — Sphinx is only needed to run the build
+    from sphinx.application import Sphinx
+
+try:  # the offline test tier imports this module without Sphinx installed
+    from sphinx.util import logging
+except ImportError:  # pragma: no cover
+    import logging  # type: ignore[no-redef]
 
 __all__ = [
     "GALLERY_DIR",
+    "HISTORY_PATH",
     "REPO_ROOT",
     "example_requirements",
     "credential_free_examples",
@@ -54,6 +63,7 @@ logger = logging.getLogger(__name__)
 DOCS_DIR = Path(__file__).resolve().parent.parent
 REPO_ROOT = DOCS_DIR.parent
 GALLERY_DIR = DOCS_DIR / "gallery"
+HISTORY_PATH = REPO_ROOT / "data_status" / "history.json"
 
 _REQUIRES_RE = re.compile(r"^#\s*esd-requires:\s*(.+)$", re.MULTILINE)
 
@@ -258,8 +268,9 @@ _UNEXECUTED_NOTE = """.. admonition:: Not executed in this build
    :class: warning
 
    This example needs {providers} credentials, which the build that produced
-   this page did not have, so the code below is shown without its output.
-   The scheduled build refreshes it.
+   this page did not have, so the code below is shown without its output. The
+   scheduled build refreshes it; :doc:`/credentials` has the setup to run it
+   yourself.
 """
 
 
@@ -293,8 +304,27 @@ def annotate_unexecuted(app: Sphinx) -> None:
                 break
 
 
+# ── generated catalog pages ───────────────────────────────────────────────────
+
+
+def generate_catalog(app: Sphinx) -> None:
+    """Write ``docs/catalog/*.md``: one page per product, plus the index.
+
+    The renderer lives in the package (:mod:`easysnowdata.catalog.pages`) so
+    that the offline test tier can check it without Sphinx.
+    """
+    written = pages.write_all(
+        DOCS_DIR / "catalog",
+        history=pages.read_history(HISTORY_PATH),
+        gallery_dir=str(GALLERY_DIR.relative_to(DOCS_DIR)),
+        credentials=DOCS_DIR / "credentials.md",
+    )
+    logger.info("[esd] wrote %d catalog pages", len(written))
+
+
 def setup(app: Sphinx) -> dict[str, object]:
     app.connect("builder-inited", generate_api, priority=100)
+    app.connect("builder-inited", generate_catalog, priority=100)
     # After sphinx-gallery's own generate_gallery_rst (priority 500).
     app.connect("builder-inited", annotate_unexecuted, priority=600)
     return {

@@ -193,6 +193,7 @@ PRODUCT = Product(
     license="CC BY 4.0",
     doi="10.5281/zenodo.3939050",
     loader="easysnowdata.land.forest_cover.load",
+    examples=("land/plot_forest_cover.py",),
     references=("https://land.copernicus.eu/global/products/lc",),
     tags=("forest", "land cover", "vegetation"),
 )

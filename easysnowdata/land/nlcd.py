@@ -278,6 +278,7 @@ PRODUCT = Product(
     license="Public domain (US government data)",
     doi="10.5066/P9JZ7AO3",
     loader="easysnowdata.land.nlcd.load",
+    examples=("land/plot_nlcd.py",),
     references=(
         "https://www.mrlc.gov/data",
         "https://gee-community-catalog.org/projects/annual_nlcd/",

@@ -171,6 +171,10 @@ PRODUCT = Product(
     license="Copernicus Sentinel data licence",
     references=(_PC_DOCS, _EARTH_SEARCH_DOCS),
     loader="easysnowdata.optical.sentinel2.load",
+    examples=(
+        "optical/plot_sentinel2.py",
+        "optical/plot_planetscope.py",
+    ),
     tags=("optical", "reflectance", "ndsi", "sentinel-2"),
 )
 catalog.register(PRODUCT, replace=True)

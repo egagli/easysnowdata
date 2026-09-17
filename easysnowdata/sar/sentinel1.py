@@ -168,6 +168,7 @@ PRODUCT = Product(
     license="Copernicus Sentinel data licence",
     references=(_PC_DOCS, _OPERA_DOCS, _GEE_DOCS),
     loader="easysnowdata.sar.sentinel1.load",
+    examples=("sar/plot_sentinel1.py",),
     tags=("sar", "backscatter", "gamma0", "sentinel-1"),
 )
 catalog.register(PRODUCT, replace=True)
@@ -273,6 +274,7 @@ LIA_PRODUCT = Product(
     license="NASA Earthdata (free registration) / Copernicus DEM licence",
     references=(_OPERA_DOCS, "https://gis.stackexchange.com/a/352658"),
     loader="easysnowdata.sar.sentinel1.local_incidence_angle",
+    examples=("sar/plot_sentinel1.py",),
     tags=("sar", "incidence angle", "layover", "shadow", "terrain"),
 )
 catalog.register(LIA_PRODUCT, replace=True)

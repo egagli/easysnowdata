@@ -290,6 +290,7 @@ PRODUCT = Product(
     license="NASA Earthdata (free registration)",
     doi="10.5067/99FTCYYYLAQ0",
     loader="easysnowdata.snow.snow_classification.load",
+    examples=("snow/plot_snow_classification.py",),
     references=(
         "https://nsidc.org/data/nsidc-0768/versions/1",
         "https://doi.org/10.1175/2010JCLI3544.1",

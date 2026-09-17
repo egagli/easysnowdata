@@ -498,6 +498,7 @@ HUC_PRODUCT = Product(
     license="Public domain (US government data)",
     doi="10.3133/tm11A3",
     loader="easysnowdata.hydro.basins.huc",
+    examples=("hydro/plot_basins.py",),
     references=(
         "https://www.usgs.gov/national-hydrography/watershed-boundary-dataset",
     ),
@@ -607,6 +608,7 @@ GRDC_MAJOR_PRODUCT = Product(
     ),
     license="Open (attribution)",
     loader="easysnowdata.hydro.basins.grdc_major",
+    examples=("hydro/plot_basins.py",),
     references=("https://www.bafg.de/GRDC",),
     tags=("basins", "rivers"),
 )

@@ -168,6 +168,7 @@ PRODUCT = Product(
     doi="10.5067/VIIRS/VNP10A1F.002",
     references=(_NSIDC_DOCS,),
     loader="easysnowdata.snow.viirs.load",
+    examples=("snow/plot_viirs_snow.py",),
     tags=("snow cover", "ndsi", "viirs", "suomi-npp"),
 )
 catalog.register(PRODUCT, replace=True)

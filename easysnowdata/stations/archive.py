@@ -539,6 +539,7 @@ PRODUCT = Product(
     ),
     license="Per contributing network; see each network's product entry",
     loader="easysnowdata.stations.archive.load",
+    examples=("stations/plot_station_archive.py",),
     references=(REPO, f"{REPO}/blob/main/DESIGN.md"),
     tags=("swe", "snow depth", "stations", "archive", "daily"),
 )

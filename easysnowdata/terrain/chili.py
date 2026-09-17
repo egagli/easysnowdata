@@ -178,6 +178,7 @@ PRODUCT = Product(
     license="CC BY 4.0",
     doi="10.1371/journal.pone.0143619",
     loader="easysnowdata.terrain.chili.load",
+    examples=("terrain/plot_chili.py",),
     references=(
         "https://developers.google.com/earth-engine/datasets/catalog/CSP_ERGo_1_0_Global_ALOS_CHILI",
     ),

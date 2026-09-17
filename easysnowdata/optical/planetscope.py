@@ -165,6 +165,7 @@ PRODUCT = Product(
     license="Planet licence (not redistributable; Education & Research programme)",
     references=(_PLANET_DOCS, _UDM2_DOCS),
     loader="easysnowdata.optical.planetscope.load",
+    examples=("optical/plot_planetscope.py",),
     tags=("optical", "planet", "planetscope", "commercial", "udm2"),
 )
 catalog.register(PRODUCT, replace=True)

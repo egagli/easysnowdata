@@ -232,6 +232,7 @@ PRODUCT = Product(
     license="CC BY 4.0",
     doi="10.5281/zenodo.2626737",
     loader="easysnowdata.snow.mountain_snow_mask.load",
+    examples=("snow/plot_mountain_snow_mask.py",),
     references=("https://doi.org/10.1029/2019GL082649",),
     tags=("snow mask", "mountains", "modis"),
 )

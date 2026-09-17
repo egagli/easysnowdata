@@ -157,6 +157,7 @@ PRODUCT = Product(
     doi="10.7265/N5TB14TC",
     references=(_NSIDC_DOCS, _GEE_DOCS),
     loader="easysnowdata.snow.snodas.load",
+    examples=("snow/plot_snodas.py",),
     tags=("swe", "snow depth", "snodas", "nohrsc"),
 )
 catalog.register(PRODUCT, replace=True)

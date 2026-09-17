@@ -155,6 +155,7 @@ PRODUCT = Product(
     doi="10.5067/PP7T2GBI52I2",
     references=(_NSIDC_DOCS, _HMA_DOCS),
     loader="easysnowdata.snow.ucla_sr.load",
+    examples=("snow/plot_ucla_sr.py",),
     tags=("swe", "reanalysis", "snow depth", "ucla"),
 )
 catalog.register(PRODUCT, replace=True)
