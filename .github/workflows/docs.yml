@@ -109,15 +109,29 @@ jobs:
 
       # A warning is a broken cross-reference or a page missing from the tree;
       # both are worth failing over. A gallery example that failed to execute
-      # is reported above and on the page itself, not here — a provider outage
-      # must not block a documentation fix.
+      # is not: a provider outage must not block a documentation fix, and it
+      # is already reported in the summary above and on the example's own
+      # page. sphinx-gallery logs that case as one multi-line warning, so it
+      # is cut out of the file before the check rather than grepped away.
       - name: Fail on Sphinx warnings
         run: |
-          if [ -s sphinx-warnings.txt ]; then
-            echo "::error::Sphinx emitted warnings:"
-            cat sphinx-warnings.txt
-            exit 1
-          fi
+          python - <<'EOF'
+          import pathlib, re, sys
+
+          text = pathlib.Path("sphinx-warnings.txt").read_text(errors="replace")
+          text = re.sub(
+              r"WARNING: Here is a summary of the problems encountered.*?(?:-{70,}\n|\Z)",
+              "",
+              text,
+              flags=re.S,
+          )
+          rest = [line for line in text.splitlines() if line.strip()]
+          if rest:
+              print("::error::Sphinx emitted warnings:")
+              print("\n".join(rest))
+              sys.exit(1)
+          print("No Sphinx warnings.")
+          EOF
 
       # The README's header image, tiled from the thumbnails this build just
       # produced and published with the site (§7.2). It replaces the 2024
