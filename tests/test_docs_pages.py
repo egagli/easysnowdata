@@ -122,8 +122,29 @@ class TestProductPage:
         assert product.citation.strip() in page
         assert product.license in page
         assert f"https://doi.org/{product.doi}" in page
-        assert "gallery/snow/plot_snodas.py" in page
+        assert "../auto_examples/snow/plot_snodas" in page
         assert "esd.snow.snodas.load(aoi" in page
+
+    def test_example_cards_use_the_title_and_thumbnail_when_known(self):
+        page = pages.product_page(
+            catalog.get("snodas"),
+            examples={
+                "snow/plot_snodas.py": {
+                    "title": "SNODAS against the mirror",
+                    "thumbnail": "../auto_examples/snow/images/thumb/x.png",
+                }
+            },
+        )
+        assert ":::{grid-item-card} SNODAS against the mirror" in page
+        assert ":img-top: ../auto_examples/snow/images/thumb/x.png" in page
+
+    def test_an_unexecuted_example_gets_a_card_without_an_image(self):
+        # The thumbnail is left out rather than pointing at the placeholder.
+        page = pages.product_page(
+            catalog.get("snodas"), examples={"snow/plot_snodas.py": {"title": "T"}}
+        )
+        assert ":::{grid-item-card} T" in page
+        assert ":img-top:" not in page
 
     def test_categorical_variables_get_a_class_table(self):
         page = pages.product_page(catalog.get("esa-worldcover"))

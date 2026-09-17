@@ -353,16 +353,44 @@ def annotate_unexecuted(app: Sphinx) -> None:
 # ── generated catalog pages ───────────────────────────────────────────────────
 
 
+_TITLE_RE = re.compile(r'"""\s*\n(.+?)\n[=\-~^]{3,}\s*\n', re.S)
+
+
+def example_info(gallery_dirs: str = "auto_examples") -> dict[str, dict[str, str]]:
+    """Title and thumbnail of every gallery example, keyed by script path.
+
+    The title comes from the script's own docstring, so it needs nothing from
+    the build; the thumbnail is whatever sphinx-gallery has produced by the
+    time this runs, and is left out for an example that has not been executed
+    (its placeholder is not worth a card image).
+    """
+    out: dict[str, dict[str, str]] = {}
+    for path in sorted(GALLERY_DIR.rglob("plot_*.py")):
+        rel = path.relative_to(GALLERY_DIR).as_posix()
+        match = _TITLE_RE.search(path.read_text(encoding="utf-8")[:2000])
+        info = {"title": match.group(1).strip() if match else path.stem}
+        images = DOCS_DIR / gallery_dirs / Path(rel).parent / "images"
+        stem = path.stem
+        if any(images.glob(f"sphx_glr_{stem}_0*.png")):
+            thumb = images / "thumb" / f"sphx_glr_{stem}_thumb.png"
+            if thumb.exists():
+                info["thumbnail"] = "../" + thumb.relative_to(DOCS_DIR).as_posix()
+        out[rel] = info
+    return out
+
+
 def generate_catalog(app: Sphinx) -> None:
     """Write ``docs/catalog/*.md``: one page per product, plus the index.
 
     The renderer lives in the package (:mod:`easysnowdata.catalog.pages`) so
-    that the offline test tier can check it without Sphinx.
+    that the offline test tier can check it without Sphinx. This runs *after*
+    sphinx-gallery has generated the gallery, so the example cards can carry
+    the thumbnails of the examples that actually ran.
     """
     written = pages.write_all(
         DOCS_DIR / "catalog",
         history=pages.read_history(HISTORY_PATH),
-        gallery_dir=str(GALLERY_DIR.relative_to(DOCS_DIR)),
+        examples=example_info(str(app.config.sphinx_gallery_conf["gallery_dirs"])),
         credentials=DOCS_DIR / "credentials.md",
         status=DOCS_DIR / "status.md",
     )
@@ -371,7 +399,9 @@ def generate_catalog(app: Sphinx) -> None:
 
 def setup(app: Sphinx) -> dict[str, object]:
     app.connect("builder-inited", generate_api, priority=100)
-    app.connect("builder-inited", generate_catalog, priority=100)
+    # After sphinx-gallery's generate_gallery_rst (priority 500), so the
+    # catalog pages can link the thumbnails it has just written.
+    app.connect("builder-inited", generate_catalog, priority=600)
     # After sphinx-gallery's own generate_gallery_rst (priority 500).
     app.connect("builder-inited", annotate_unexecuted, priority=600)
     return {

@@ -262,9 +262,14 @@ def product_page(
     product: Product,
     *,
     latest: dict[str, dict[str, Any]] | None = None,
-    gallery_dir: str = "gallery",
+    examples: dict[str, dict[str, str]] | None = None,
 ) -> str:
-    """Render one product's Markdown page."""
+    """Render one product's Markdown page.
+
+    *examples* maps a gallery script path to ``{"title": ..., "thumbnail":
+    ...}``; the docs extension supplies it once sphinx-gallery has run.
+    Without it the example cards fall back to the script name.
+    """
     latest = latest or {}
     status = _product_status(product, latest)
     lines = [
@@ -311,19 +316,34 @@ def product_page(
     lines += [f"**Loader** · {{py:obj}}`{product.loader}`", ""]
 
     if product.examples:
-        # eval-rst, not a MyST directive: minigallery calls insert_input on the
-        # state machine, which MyST's mock does not implement.
-        lines += [
-            "## Gallery examples",
-            "",
-            "```{eval-rst}",
-            ".. minigallery::",
-            "",
-            *(f"    {gallery_dir}/{example}" for example in product.examples),
-            "```",
-            "",
-        ]
+        lines += ["## Gallery examples", ""] + _example_cards(product, examples or {})
     return "\n".join(lines) + "\n"
+
+
+def _example_cards(product: Product, examples: dict[str, dict[str, str]]) -> list[str]:
+    """A card per gallery example, with its thumbnail when one exists.
+
+    Hand-rolled rather than sphinx-gallery's ``minigallery`` directive. That
+    directive calls ``insert_input`` on the state machine, and inside a MyST
+    ``eval-rst`` block the resulting nodes drag the build environment into the
+    pickled doctree: each of these pages went from 24 KB to 13 MB, and the
+    build's doctree cache from 44 MB to 367 MB. These cards carry the same
+    information with none of that.
+    """
+    lines = ["::::{grid} 1 2 2 3", ":gutter: 2", ""]
+    for example in product.examples:
+        info = examples.get(example, {})
+        stem = example.rsplit("/", 1)[-1].removesuffix(".py")
+        lines += [
+            f":::{{grid-item-card}} {info.get('title') or stem}",
+            f":link: ../auto_examples/{example.removesuffix('.py')}",
+            ":link-type: doc",
+        ]
+        if info.get("thumbnail"):
+            lines.append(f":img-top: {info['thumbnail']}")
+        lines += [":::", ""]
+    lines += ["::::", ""]
+    return lines
 
 
 def _index_row(product: Product, latest: dict[str, dict[str, Any]]) -> str:
@@ -763,7 +783,7 @@ def write_all(
     *,
     products: dict[str, Product] | None = None,
     history: list[list[dict[str, Any]]] | None = None,
-    gallery_dir: str = "gallery",
+    examples: dict[str, dict[str, str]] | None = None,
     credentials: str | Path | None = None,
     status: str | Path | None = None,
 ) -> list[Path]:
@@ -780,9 +800,7 @@ def write_all(
     written = []
     for product in products.values():
         path = out_dir / f"{product.id}.md"
-        _write_if_changed(
-            path, product_page(product, latest=latest, gallery_dir=gallery_dir)
-        )
+        _write_if_changed(path, product_page(product, latest=latest, examples=examples))
         written.append(path)
     index = out_dir / "index.md"
     _write_if_changed(index, index_page(products, latest=latest))

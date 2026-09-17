@@ -116,7 +116,7 @@ jobs:
         env:
           ESD_DOCS_GALLERY: none
           EASYSNOWDATA_QUIET: "1"
-        run: pixi run -e docs sphinx-build -b html docs docs/_build/html -j auto -W --keep-going
+        run: pixi run -e docs sphinx-build -b html docs docs/_build/html -d docs/_build/doctrees -j auto -W --keep-going
 
   # ── Live tests (weekly schedule and manual runs) ───────────────────────────
   # One smoke test per data source against the real providers, with the

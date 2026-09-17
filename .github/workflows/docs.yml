@@ -89,7 +89,7 @@ jobs:
           EARTHDATA_PASSWORD: ${{ secrets.EARTHDATA_PASSWORD }}
           PL_API_KEY: ${{ secrets.PL_API_KEY }}
           NVE_API_KEY: ${{ secrets.NVE_API_KEY }}
-        run: pixi run -e docs sphinx-build -b html docs docs/_build/html -j auto --keep-going -w sphinx-warnings.txt
+        run: pixi run -e docs sphinx-build -b html docs docs/_build/html -d docs/_build/doctrees -j auto --keep-going -w sphinx-warnings.txt
 
       - name: Report gallery failures
         if: always()

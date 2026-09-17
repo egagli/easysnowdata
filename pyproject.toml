@@ -303,16 +303,16 @@ pillow = "*"
 # Full build: executes every gallery script, so it needs the provider
 # credentials (scripts whose credentials are missing still render, without
 # output). -j auto parallelises the non-gallery pages.
-docs-build = { cmd = "sphinx-build -b html docs docs/_build/html -j auto", env = { ESD_DOCS_GALLERY = "full" } }
+docs-build = { cmd = "sphinx-build -b html docs docs/_build/html -d docs/_build/doctrees -j auto", env = { ESD_DOCS_GALLERY = "full" } }
 # Credential-free subset: what a pull request builds. Scripts that declare an
 # `esd-requires:` marker are rendered but not executed.
-docs-build-free = { cmd = "sphinx-build -b html docs docs/_build/html -j auto", env = { ESD_DOCS_GALLERY = "free" } }
+docs-build-free = { cmd = "sphinx-build -b html docs docs/_build/html -d docs/_build/doctrees -j auto", env = { ESD_DOCS_GALLERY = "free" } }
 # No gallery execution at all — the fastest way to check prose and API pages.
-docs-fast = { cmd = "sphinx-build -b html docs docs/_build/html -j auto", env = { ESD_DOCS_GALLERY = "none" } }
+docs-fast = { cmd = "sphinx-build -b html docs docs/_build/html -d docs/_build/doctrees -j auto", env = { ESD_DOCS_GALLERY = "none" } }
 docs-serve = "python -m http.server --directory docs/_build/html 8000"
 docs-clean = "python -c \"import shutil,pathlib; [shutil.rmtree(p, ignore_errors=True) for p in (pathlib.Path('docs/_build'), pathlib.Path('docs/auto_examples'), pathlib.Path('docs/generated'), pathlib.Path('docs/gen_modules'))]\""
 # Link check over the built site (slow; run before a release).
-docs-linkcheck = { cmd = "sphinx-build -b linkcheck docs docs/_build/linkcheck", env = { ESD_DOCS_GALLERY = "none" } }
+docs-linkcheck = { cmd = "sphinx-build -b linkcheck docs docs/_build/linkcheck -d docs/_build/doctrees", env = { ESD_DOCS_GALLERY = "none" } }
 
 # One feature per interpreter so CI can lock and test each Python separately.
 [tool.pixi.feature.py312.dependencies]
