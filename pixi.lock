@@ -17574,8 +17574,8 @@ packages:
   timestamp: 1789443548418
 - pypi: ./
   name: easysnowdata
-  version: 0.0.27.dev125+g480e638d6.d20260918
-  sha256: 021fe10b1a59e6dae211481cd5371d39f113fe05db0fa3c7ff385a56820932c9
+  version: 0.0.27.dev127+g00744f806.d20260918
+  sha256: a2d8fe08637bddb8e4406e518646219f5bcbe312858ff6ba1ba493695c38fc75
   requires_dist:
   - beautifulsoup4
   - dask

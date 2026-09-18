@@ -5,38 +5,80 @@ on:
     types: [created]
 
 jobs:
-  deploy:
+  # Publishing must not depend on anything that can fail for a reason
+  # unrelated to the package. The v0.0.26 release died here: the changelog
+  # step ran *first*, committed onto the detached tag and pushed HEAD:main,
+  # main had moved past the tag, the push was rejected non-fast-forward, and
+  # `bash -e` killed the job before it built anything. The GitHub release
+  # exists and PyPI never saw it. So: build and upload first, in a job that
+  # touches nothing but PyPI.
+  publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0  # hatch-vcs derives the version from the tag
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Install build tools
-        run: pip install build twine git-changelog  # hatchling + hatch-vcs come via build isolation
-
-      - name: Update CHANGELOG.md
-        run: |
-          git-changelog --output CHANGELOG.md
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add CHANGELOG.md
-          git diff --staged --quiet || git commit -m "docs: update CHANGELOG for ${{ github.ref_name }} [skip ci]"
-          git push origin HEAD:main
+        run: pip install build twine  # hatchling + hatch-vcs come via build isolation
 
       - name: Build package
         run: python -m build
+
+      - name: Check the artifacts before uploading
+        run: |
+          set -euo pipefail
+          twine check dist/*
+          expected="${GITHUB_REF_NAME#v}"
+          built="$(ls dist/*.whl | head -1 | sed -E 's|.*/[^-]+-([^-]+)-.*|\1|')"
+          if [ "$built" != "$expected" ]; then
+            echo "::error::tag $GITHUB_REF_NAME wants version $expected but the wheel is $built."
+            echo "The tag is probably not on the bump commit — hatch-vcs then appends .devN."
+            exit 1
+          fi
+          echo "Built $built from $GITHUB_REF_NAME; sdist $(du -h dist/*.tar.gz | cut -f1), wheel $(du -h dist/*.whl | cut -f1)."
 
       - name: Publish to PyPI
         env:
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: twine upload dist/*
+
+  # Downstream of the upload and unable to block it. Checks out main rather
+  # than the tag, so the push is a fast-forward whatever the tag points at.
+  changelog:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install git-changelog
+        run: pip install git-changelog
+
+      - name: Update CHANGELOG.md on main
+        run: |
+          git-changelog --output CHANGELOG.md
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          if git diff --staged --quiet; then
+            echo "CHANGELOG.md is already current."
+            exit 0
+          fi
+          git commit -m "docs: update CHANGELOG for ${{ github.ref_name }} [skip ci]"
+          git push origin main

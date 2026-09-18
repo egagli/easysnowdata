@@ -83,14 +83,20 @@ version-file = "easysnowdata/_version.py"
 [tool.hatch.build.targets.wheel]
 packages = ["easysnowdata"]
 
+# The sdist is what conda-forge builds from, so it carries only what a build
+# needs. Excluding the two heavy docs/examples subdirectories was not enough:
+# the legacy notebooks themselves embed their output images, one of them 41 MB,
+# which made the sdist 47 MB against a 335 KB wheel. tests/ stays in, because
+# packagers run it.
 [tool.hatch.build.targets.sdist]
 exclude = [
-    "/docs/examples/planet_data",
-    "/docs/examples/data",
+    "/docs",
     "/data_status",
     "/.github",
     "/.pixi",
     "/ee_key.json",
+    "/pixi.lock",
+    "/coverage.xml",
 ]
 
 # ── Release (bump-my-version until the release workflow changes in Phase 5) ──
