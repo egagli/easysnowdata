@@ -919,14 +919,14 @@ directory orphans, and which DESIGN.md §6.2 names by path), and pin
 cannot resolve before then — so the order is: merge this branch, release,
 then that PR.
 
-Keeping the two copies of the clients in step: the vendored prefix is
-byte-identical to that repo's `clients/`, minus the pipeline artefacts filtered
-out of its history. Fix a client **there** first, then run
-`scripts/sync_clients.sh`, which re-splits, re-filters and subtree-merges. The
-filter is deterministic, so the split reproduces the same SHAs every time.
-Note that the client *tests* live outside the vendored prefix
-(`tests/stations/test_*_client.py`), so a test change upstream has to be
-carried over by hand.
+Keeping the two copies of the clients in step: **superseded 2026-09-17.**
+`global_snow_networks` deleted its `clients/` and `utils/` and now imports
+these, so there is one copy and it is this one — fix a client here.
+`scripts/sync_clients.sh` went with the second copy. The two client-contract
+tests that repo had added and the subtree never carried (the shared type
+vocabulary, and Yukon snowfall not being precipitation) were ported into
+`tests/stations/test_clients_offline.py` in the same change, which is the
+last thing the hand-carrying rule was there to catch.
 
 ---
 

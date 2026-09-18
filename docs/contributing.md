@@ -161,13 +161,15 @@ as-is, never re-executed, and excluded from ruff. Do not reformat them.
   configuration.
 - Metric units everywhere.
 
-The vendored network clients under `easysnowdata/stations/clients/` are
-excluded from ruff on purpose: they are a `git subtree` of
-[`global_snow_networks`](https://github.com/egagli/global_snow_networks) and
-stay byte-identical to that repo so the subtree can keep being pulled. **Fix a
-client there first**, then run `scripts/sync_clients.sh`. Their tests live
-outside the vendored prefix, in `tests/stations/`, and have to be carried over
-by hand.
+The network clients under `easysnowdata/stations/clients/` arrived here as a
+`git subtree` of
+[`global_snow_networks`](https://github.com/egagli/global_snow_networks). That
+repo deleted its copy in 2026-09 and imports these instead, so **this is now
+the only copy: fix a client here.** They are still excluded from ruff, which
+is no longer necessary and only avoids a 7 000-line reformat inside the
+migration; formatting them is a fine follow-up. Their contract is still
+global_snow_networks' `DESIGN.md` §3, and their tests are in
+`tests/stations/`.
 
 ## Pull requests
 

@@ -278,3 +278,50 @@ def test_databc_negative_filter_spares_air_temperature():
 
     df_swe = client._load_asws_wide_csv("fake://sw.csv", value_col="swe_mm")
     assert pd.isna(df_swe["swe_mm"].tolist()[0])  # negative SWE nulled
+
+
+# ── the shared type vocabulary (global_snow_networks' DESIGN.md §3.2) ────────
+
+
+def test_every_client_uses_only_the_shared_type_vocabulary():
+    """No client may invent a standardized type of its own.
+
+    The vocabulary used to be restated inside two test files, which is how
+    `soil_moisture` came to be missing from one of them while four CDEC
+    sensors used it. It lives in `_common.py` now, like INTERVALS.
+    """
+    import importlib
+
+    from easysnowdata.stations.clients._common import TYPES
+
+    offenders = {}
+    for name in ("awdb", "cdec", "databc", "nve", "yukon"):
+        module = importlib.import_module(
+            f"easysnowdata.stations.clients.{name}.{name}_client"
+        )
+        registry = getattr(module, "VARIABLES", None) or getattr(module, "SENSORS", {})
+        bad = {k: v["type"] for k, v in registry.items() if v["type"] not in TYPES}
+        if bad:
+            offenders[name] = bad
+    assert offenders == {}, offenders
+
+
+def test_snowfall_is_not_filed_under_precipitation():
+    """A depth of snow is not a depth of water (DESIGN.md §3.2).
+
+    Yukon's `precip_snow_cm` is the only snowfall series any client carries;
+    typing it `precip` invited consumers to rescale 5 cm of snow into 50 mm
+    of water.
+    """
+    from easysnowdata.stations.clients.yukon.yukon_client import (
+        _TYPE_TO_YUKON_VARS,
+        VARIABLES,
+    )
+
+    assert VARIABLES["precip_snow_cm"]["type"] == "snowfall"
+    assert VARIABLES["precip_snow_cm"]["output_units"] == "cm"
+    assert "precip_snow_cm" not in _TYPE_TO_YUKON_VARS["precip"]
+    assert _TYPE_TO_YUKON_VARS["snowfall"] == ["precip_snow_cm"]
+    # every `precip` series really is a depth of water, in mm
+    for key in _TYPE_TO_YUKON_VARS["precip"]:
+        assert VARIABLES[key]["output_units"] == "mm"
