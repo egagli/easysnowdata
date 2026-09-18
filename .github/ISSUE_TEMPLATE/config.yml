@@ -1,4 +1,7 @@
 contact_links:
+    - name: Add a snow station network
+      url: https://github.com/egagli/global_snow_networks/issues/new?template=new_client.md
+      about: The clients live here, but a new network also needs wiring into the inventory, archive and map. The checklist covering both repositories is in global_snow_networks.
     - name: Ask questions
       url: https://github.com/egagli/easysnowdata/discussions/categories/q-a
       about: Please ask and answer questions here.
