@@ -4,7 +4,7 @@
     Use :func:`easysnowdata.stations.inventory` and
     :func:`easysnowdata.stations.load` (or
     :func:`easysnowdata.stations.archive.load`). ``StationCollection`` is kept
-    for one minor release and removed in 0.2.0.
+    for one minor release and removed in 0.3.0.
 
 The data no longer comes from the frozen ``egagli/snotel_ccss_stations``
 archive: that route is gone, with no transition period (§12 Q9). Every call
@@ -56,7 +56,7 @@ __all__ = ["StationCollection"]
 _logger = logging.getLogger(__name__)
 
 _SINCE = "0.1.0"
-_REMOVE_IN = "0.2.0"
+_REMOVE_IN = "0.3.0"
 
 #: The six names the old CSVs used -> the standardized type the networks use.
 VARIABLE_TYPES: dict[str, str] = {

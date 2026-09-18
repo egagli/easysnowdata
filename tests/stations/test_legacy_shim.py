@@ -62,7 +62,7 @@ def test_constructing_it_warns_once(local_archive):
     import warnings
 
     reset_warnings()
-    with pytest.warns(EasysnowdataDeprecationWarning, match="removed in 0.2.0"):
+    with pytest.warns(EasysnowdataDeprecationWarning, match="removed in 0.3.0"):
         first = StationCollection()
     assert first.all_stations is not None
     # the message is emitted once per process, not once per instance

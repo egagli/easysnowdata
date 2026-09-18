@@ -29,7 +29,7 @@ _logger = logging.getLogger(__name__)
 @deprecated(
     "easysnowdata.terrain.dem.load",
     since="0.1.0",
-    remove_in="0.2.0",
+    remove_in="0.3.0",
     name="easysnowdata.topography.get_copernicus_dem",
 )
 def get_copernicus_dem(
@@ -81,7 +81,7 @@ def get_copernicus_dem(
 @deprecated(
     "easysnowdata.terrain.chili.load",
     since="0.1.0",
-    remove_in="0.2.0",
+    remove_in="0.3.0",
     name="easysnowdata.topography.get_chili",
     extra=(
         "The new loader returns native values (normalize='minmax' keeps this "

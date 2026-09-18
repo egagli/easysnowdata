@@ -4,7 +4,7 @@
 
     from easysnowdata._deprecation import deprecated, deprecated_alias
 
-    @deprecated("easysnowdata.terrain.dem.load", since="0.1.0", remove_in="0.2.0")
+    @deprecated("easysnowdata.terrain.dem.load", since="0.1.0", remove_in="0.3.0")
     def get_copernicus_dem(bbox_input=None, resolution=30, **kwargs):
         return dem.load(bbox_input, source=f"copernicus-glo{resolution}", **kwargs)
 

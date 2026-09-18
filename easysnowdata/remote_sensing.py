@@ -74,7 +74,7 @@ def authenticate_all():
 @deprecated(
     "easysnowdata.land.forest_cover.load",
     since="0.1.0",
-    remove_in="0.2.0",
+    remove_in="0.3.0",
     name="easysnowdata.remote_sensing.get_forest_cover_fraction",
     extra="The example_plot attr is gone; the data carries units and a long_name.",
 )
@@ -124,7 +124,7 @@ def get_forest_cover_fraction(
 @deprecated(
     "easysnowdata.snow.snow_classification.load",
     since="0.1.0",
-    remove_in="0.2.0",
+    remove_in="0.3.0",
     name="easysnowdata.remote_sensing.get_seasonal_snow_classification",
     extra=(
         "The new loader defaults to NSIDC-0768 (Earthdata Login); this shim "
@@ -180,7 +180,7 @@ def get_seasonal_snow_classification(
 @deprecated(
     "easysnowdata.snow.mountain_snow_mask.load",
     since="0.1.0",
-    remove_in="0.2.0",
+    remove_in="0.3.0",
     name="easysnowdata.remote_sensing.get_seasonal_mountain_snow_mask",
     extra=(
         "The archive is cached after the first call, the clouds layer is "
@@ -238,7 +238,7 @@ def get_seasonal_mountain_snow_mask(
 @deprecated(
     "easysnowdata.land.landcover.load",
     since="0.1.0",
-    remove_in="0.2.0",
+    remove_in="0.3.0",
     name="easysnowdata.remote_sensing.get_esa_worldcover",
     extra=(
         "The class table is now CF flag attrs (esd.plotting.categorical draws "
@@ -294,7 +294,7 @@ def get_esa_worldcover(
 @deprecated(
     "easysnowdata.land.nlcd.load",
     since="0.1.0",
-    remove_in="0.2.0",
+    remove_in="0.3.0",
     name="easysnowdata.remote_sensing.get_nlcd_landcover",
     extra=(
         "The new loader defaults to Annual NLCD (1985-2024); this shim keeps "
@@ -361,7 +361,7 @@ def get_nlcd_landcover(
 @deprecated(
     "easysnowdata.optical.sentinel2.load",
     since="0.1.0",
-    remove_in="0.2.0",
+    remove_in="0.3.0",
     name="easysnowdata.remote_sensing.Sentinel2",
     extra=(
         "The new loader is a function returning the Dataset; search results come from "
@@ -431,7 +431,7 @@ def Sentinel2(  # noqa: N802 — this was a class
 @deprecated(
     "easysnowdata.sar.sentinel1.load",
     since="0.1.0",
-    remove_in="0.2.0",
+    remove_in="0.3.0",
     name="easysnowdata.remote_sensing.Sentinel1",
     extra=(
         "The new loader adds the OPERA RTC-S1 route (source='opera-rtc-s1') and "
@@ -485,7 +485,7 @@ def Sentinel1(  # noqa: N802 — this was a class
 @deprecated(
     "easysnowdata.optical.hls.load",
     since="0.1.0",
-    remove_in="0.2.0",
+    remove_in="0.3.0",
     name="easysnowdata.remote_sensing.HLS",
     extra=(
         "The new loader reads the scene metadata from STAC properties instead of "
@@ -534,7 +534,7 @@ def HLS(  # noqa: N802 — this was a class
 @deprecated(
     "easysnowdata.snow.modis.load",
     since="0.1.0",
-    remove_in="0.2.0",
+    remove_in="0.3.0",
     name="easysnowdata.remote_sensing.MODIS_snow",
     extra=(
         "The new loader defaults to NSIDC (the archive of record, and the only route "

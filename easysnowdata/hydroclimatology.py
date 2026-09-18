@@ -45,7 +45,7 @@ _UCLA_SR_STATS_INDEX = dict(_ucla_sr_stats.STATS)
 @deprecated(
     "easysnowdata.hydro.basins.huc",
     since="0.1.0",
-    remove_in="0.2.0",
+    remove_in="0.3.0",
     name="easysnowdata.hydroclimatology.get_huc_geometries",
     extra=(
         "The new loader defaults to the public USGS WBD REST service, so HUC "
@@ -97,7 +97,7 @@ def get_huc_geometries(
 @deprecated(
     "easysnowdata.hydro.basins.hydrobasins",
     since="0.1.0",
-    remove_in="0.2.0",
+    remove_in="0.3.0",
     name="easysnowdata.hydroclimatology.get_hydroBASINS",
 )
 def get_hydroBASINS(
@@ -147,7 +147,7 @@ def get_hydroBASINS(
 @deprecated(
     "easysnowdata.hydro.basins.grdc_major",
     since="0.1.0",
-    remove_in="0.2.0",
+    remove_in="0.3.0",
     name="easysnowdata.hydroclimatology.get_grdc_major_river_basins_of_the_world",
     extra="Basins that intersect the AOI are returned whole, not cut at its edge.",
 )
@@ -191,7 +191,7 @@ def get_grdc_major_river_basins_of_the_world(
 @deprecated(
     "easysnowdata.hydro.basins.grdc_wmo",
     since="0.1.0",
-    remove_in="0.2.0",
+    remove_in="0.3.0",
     name="easysnowdata.hydroclimatology.get_grdc_wmo_basins",
     extra="Basins that intersect the AOI are returned whole, not cut at its edge.",
 )
@@ -239,7 +239,7 @@ def get_grdc_wmo_basins(
 @deprecated(
     "easysnowdata.climate.era5.load",
     since="0.1.0",
-    remove_in="0.2.0",
+    remove_in="0.3.0",
     extra=(
         "The new loader takes aoi= and time= (any AOI/time form), serves hourly ERA5 "
         "from ARCO-ERA5 without Earth Engine credentials, and returns the standard attrs."
@@ -285,7 +285,7 @@ def get_era5(
 @deprecated(
     "easysnowdata.snow.snodas.load",
     since="0.1.0",
-    remove_in="0.2.0",
+    remove_in="0.3.0",
     extra=(
         "The new loader defaults to the authoritative NSIDC G02158 archive, which "
         "needs no Earth Engine account; pass source='gee-climate-engine' for the "
@@ -323,7 +323,7 @@ def get_snodas(
 @deprecated(
     "easysnowdata.snow.ucla_sr.load",
     since="0.1.0",
-    remove_in="0.2.0",
+    remove_in="0.3.0",
     extra=(
         "The new loader adds region='hma' (High Mountain Asia), virtualize='auto' for "
         "long series and access='auto' for in-region S3 reads."
@@ -360,7 +360,7 @@ def get_ucla_snow_reanalysis(
 @deprecated(
     "easysnowdata.climate.koppen_geiger.load",
     since="0.1.0",
-    remove_in="0.2.0",
+    remove_in="0.3.0",
     extra=(
         "The new loader adds period= and scenario= (the archive's other 30-year periods "
         "and CMIP6 projections) and returns CF flag attrs instead of class_info/cmap/"
