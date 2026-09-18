@@ -25,8 +25,12 @@ jobs:
         with:
           python-version: "3.12"
 
+      # hatchling + hatch-vcs come via build isolation. The twine floor is
+      # not decoration: hatchling 1.28 emits `Metadata-Version: 2.5`, and
+      # twine 6.2 rejects it as invalid metadata, which would fail the check
+      # below on a package that is perfectly fine.
       - name: Install build tools
-        run: pip install build twine  # hatchling + hatch-vcs come via build isolation
+        run: pip install build "twine>=7"
 
       - name: Build package
         run: python -m build
