@@ -1,0 +1,1172 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>easysnowdata.stations.archive &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=db369ce5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/easysnowdata/stations/archive';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.2.1.dev6" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../notebooks.html">
+    Long-form notebooks
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../notebooks.html">
+    Long-form notebooks
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">easysnowdata.stations.archive</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for easysnowdata.stations.archive</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;The daily station archive: everything daily, without hitting five APIs.</span>
+
+<span class="sd">``global_snow_networks`` pre-downloads daily SWE and snow depth for every</span>
+<span class="sd">station its probe has verified as daily-or-better, and publishes two</span>
+<span class="sd">artefacts that this module reads (§9 step 3):</span>
+
+<span class="sd">``all_snow_stations.geojson``</span>
+<span class="sd">    Every station from all five networks, periodic sites included, with the</span>
+<span class="sd">    26 normalized properties of that repo&#39;s DESIGN.md §6.1 — including</span>
+<span class="sd">    ``daily_or_better``, which is the **probe&#39;s verdict** rather than what a</span>
+<span class="sd">    network advertises about itself.</span>
+<span class="sd">``data/all_station_csvs.tar.xz``</span>
+<span class="sd">    One ``date,wteq_cm,snwd_cm`` CSV per daily-or-better station, bundled.</span>
+<span class="sd">    About 28 MB, and the cheapest way by far to get every station&#39;s whole</span>
+<span class="sd">    record — which, for a few long snow courses, reaches back to 1896.</span>
+
+<span class="sd">::</span>
+
+<span class="sd">    import easysnowdata as esd</span>
+
+<span class="sd">    inv = esd.stations.archive.inventory(daily_only=True)   # one request</span>
+<span class="sd">    ds = esd.stations.archive.load(aoi=(-121.94, 46.72, -121.54, 46.99))</span>
+
+<span class="sd">Both artefacts are refreshed daily by that repo&#39;s CI, so the archive is at</span>
+<span class="sd">most a day behind and covers only SWE and snow depth. For anything else — a</span>
+<span class="sd">different variable, an interval other than daily, quality flags, or today&#39;s</span>
+<span class="sd">observation — use :func:`easysnowdata.stations.load`, which goes to the</span>
+<span class="sd">networks themselves.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tarfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata</span><span class="w"> </span><span class="kn">import</span> <span class="n">catalog</span><span class="p">,</span> <span class="n">providers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.aoi</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_aoi</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.catalog</span><span class="w"> </span><span class="kn">import</span> <span class="n">health</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.catalog._access</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_source</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.catalog._models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Probe</span><span class="p">,</span> <span class="n">Product</span><span class="p">,</span> <span class="n">Source</span><span class="p">,</span> <span class="n">Variable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">contract</span><span class="p">,</span> <span class="n">wateryear</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.stations</span><span class="w"> </span><span class="kn">import</span> <span class="n">_frames</span><span class="p">,</span> <span class="n">networks</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;ARCHIVE_URL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CSV_BASE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;INVENTORY_URL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PRODUCT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;REPO&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;csv_url&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;inventory&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;load&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;network_of&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">REPO</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/egagli/global_snow_networks&quot;</span>
+<span class="n">INVENTORY_URL</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">REPO</span><span class="si">}</span><span class="s2">/raw/main/all_snow_stations.geojson&quot;</span>
+<span class="n">ARCHIVE_URL</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">REPO</span><span class="si">}</span><span class="s2">/raw/main/data/all_station_csvs.tar.xz&quot;</span>
+<span class="n">CSV_BASE</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;https://raw.githubusercontent.com/egagli/global_snow_networks/main/data/stations/&quot;</span>
+<span class="p">)</span>
+
+<span class="c1">#: Archive CSV column -&gt; (standardized type, units).</span>
+<span class="n">COLUMNS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;wteq_cm&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;swe&quot;</span><span class="p">,</span> <span class="s2">&quot;cm&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;snwd_cm&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;snwd&quot;</span><span class="p">,</span> <span class="s2">&quot;cm&quot;</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="c1">#: Inventory properties kept as columns, on top of the geometry.</span>
+<span class="n">_KEEP</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;code&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;client&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;network_code&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;network_name&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;latitude&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;longitude&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;elevation_m&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;operator&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;data_provider&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;status&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;is_active&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;begin_date&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;end_date&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;earliest_record_date&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;latest_record_date&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;station_url&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;has_daily_swe&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;has_daily_snwd&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;daily_or_better&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;daily_verified&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;daily_provenance&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;metadata_fetched_at&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">_INVENTORY_CACHE</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<div class="viewcode-block" id="csv_url">
+<a class="viewcode-back" href="../../../generated/easysnowdata.stations.archive.csv_url.html#easysnowdata.stations.archive.csv_url">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">csv_url</span><span class="p">(</span><span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;URL of one station&#39;s archive CSV.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">CSV_BASE</span><span class="si">}{</span><span class="n">code</span><span class="si">}</span><span class="s2">.csv&quot;</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_inventory</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The published inventory, memoized per process for the keyword set used.&quot;&quot;&quot;</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+    <span class="n">cached</span> <span class="o">=</span> <span class="n">_INVENTORY_CACHE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cached</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cached</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reading the station inventory from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">INVENTORY_URL</span><span class="p">)</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">providers</span><span class="o">.</span><span class="n">vector_http</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">INVENTORY_URL</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;code&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;code&quot;</span><span class="p">)</span>
+    <span class="c1"># Careful: the published inventory already has a `network` property, and</span>
+    <span class="c1"># it means something else — a Yukon-specific display name (&quot;Yukon Snow</span>
+    <span class="c1"># Survey Network&quot;), null for the other four clients. This package&#39;s</span>
+    <span class="c1"># `network` is the access path, which that repo calls `client`. Keep the</span>
+    <span class="c1"># upstream value under `network_name` and let `network` mean one thing.</span>
+    <span class="k">if</span> <span class="s2">&quot;client&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;network&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;network&quot;</span><span class="p">:</span> <span class="s2">&quot;network_name&quot;</span><span class="p">})</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;network&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;client&quot;</span><span class="p">]</span>
+    <span class="n">_INVENTORY_CACHE</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span>
+    <span class="k">return</span> <span class="n">gdf</span>
+
+
+<div class="viewcode-block" id="inventory">
+<a class="viewcode-back" href="../../../generated/easysnowdata.stations.archive.inventory.html#easysnowdata.stations.archive.inventory">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">inventory</span><span class="p">(</span>
+    <span class="n">aoi</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">networks</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">daily_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">active_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">columns</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The published station inventory as a GeoDataFrame indexed by code.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    aoi</span>
+<span class="sd">        Any form :func:`easysnowdata.aoi.parse_aoi` accepts; ``None`` keeps</span>
+<span class="sd">        every station.</span>
+<span class="sd">    networks</span>
+<span class="sd">        Keep only these networks (``&quot;awdb&quot;``, ``&quot;cdec&quot;``, ``&quot;databc&quot;``,</span>
+<span class="sd">        ``&quot;nve&quot;``, ``&quot;yukon&quot;``).</span>
+<span class="sd">    daily_only</span>
+<span class="sd">        Keep only stations whose daily record the pipeline has actually</span>
+<span class="sd">        verified (``daily_or_better``), which is what the archive holds CSVs</span>
+<span class="sd">        for. Unlike the live route, this verdict is probe-based, not</span>
+<span class="sd">        advertised.</span>
+<span class="sd">    active_only</span>
+<span class="sd">        Keep only stations the network reports as active.</span>
+<span class="sd">    columns</span>
+<span class="sd">        Columns to keep. ``None`` keeps the standard set; ``&quot;all&quot;`` keeps</span>
+<span class="sd">        every property, including ``data_variables`` and</span>
+<span class="sd">        ``possible_duplicates``.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Passed to ``geopandas.read_file`` (``rows=``, ``where=``, …).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    geopandas.GeoDataFrame</span>
+<span class="sd">        Stations in EPSG:4326 indexed by ``code``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">_read_inventory</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">networks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">wanted</span> <span class="o">=</span> <span class="p">[</span><span class="n">networks</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">networks</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">networks</span><span class="p">)</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;network&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">wanted</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">daily_only</span> <span class="ow">and</span> <span class="s2">&quot;daily_or_better&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;daily_or_better&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">active_only</span> <span class="ow">and</span> <span class="s2">&quot;is_active&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;is_active&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">aoi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">parse_aoi</span><span class="p">(</span><span class="n">aoi</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">parsed</span><span class="o">.</span><span class="n">is_global</span><span class="p">:</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">gdf</span><span class="o">.</span><span class="n">intersects</span><span class="p">(</span><span class="n">parsed</span><span class="o">.</span><span class="n">geometry</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">columns</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="n">columns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">keep</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;station_id&quot;</span><span class="p">,</span> <span class="s2">&quot;network&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">_KEEP</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[[</span><span class="o">*</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">keep</span><span class="p">),</span> <span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[[</span><span class="o">*</span><span class="n">columns</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s2">&quot;station_id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="s2">&quot;network&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;station_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">networks_module</span><span class="p">()</span><span class="o">.</span><span class="n">to_station_id</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">code</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">net</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">net</span><span class="p">)</span> <span class="ow">in</span> <span class="n">networks_module</span><span class="p">()</span><span class="o">.</span><span class="n">NETWORKS</span>
+            <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">code</span><span class="p">,</span> <span class="n">net</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;network&quot;</span><span class="p">],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="n">product</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;snow-station-archive&quot;</span><span class="p">)</span>
+    <span class="n">gdf</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">contract</span><span class="o">.</span><span class="n">provenance</span><span class="p">(</span>
+            <span class="n">product</span><span class="p">,</span> <span class="n">resolve_source</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="s2">&quot;github-tarball&quot;</span><span class="p">),</span> <span class="n">source_url</span><span class="o">=</span><span class="n">INVENTORY_URL</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">gdf</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">networks_module</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;:mod:`easysnowdata.stations.networks` (the keyword shadows the name).&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">networks</span>
+
+
+<div class="viewcode-block" id="network_of">
+<a class="viewcode-back" href="../../../generated/easysnowdata.stations.archive.network_of.html#easysnowdata.stations.archive.network_of">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">network_of</span><span class="p">(</span><span class="n">codes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``{code: network}`` from the inventory, for codes whose shape is ambiguous.&quot;&quot;&quot;</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">_read_inventory</span><span class="p">()</span>
+    <span class="n">found</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">reindex</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">codes</span><span class="p">])[</span><span class="s2">&quot;network&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">code</span><span class="p">):</span> <span class="nb">str</span><span class="p">(</span><span class="n">net</span><span class="p">)</span> <span class="k">for</span> <span class="n">code</span><span class="p">,</span> <span class="n">net</span> <span class="ow">in</span> <span class="n">found</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+
+
+
+<span class="c1"># ── reading the data ─────────────────────────────────────────────────────────</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_csv</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;One station CSV as a date-indexed frame (``date,wteq_cm,snwd_cm``).&quot;&quot;&quot;</span>
+    <span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">(</span><span class="n">text</span><span class="p">),</span> <span class="n">parse_dates</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">frame</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_from_tarball</span><span class="p">(</span><span class="n">codes</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Every wanted station&#39;s CSV, out of the one bundled archive.</span>
+
+<span class="sd">    Downloaded once into the package cache by pooch, so a second call in the</span>
+<span class="sd">    same environment re-reads the local file. ``EASYSNOWDATA_CACHE_DIR`` moves</span>
+<span class="sd">    the cache root.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">providers</span><span class="o">.</span><span class="n">raster_http</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span>
+        <span class="n">ARCHIVE_URL</span><span class="p">,</span> <span class="s2">&quot;all_station_csvs.tar.xz&quot;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="s2">&quot;stations&quot;</span>
+    <span class="p">)</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reading the bundled station archive at </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="n">frames</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r:xz&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tar</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">tar</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">member</span><span class="o">.</span><span class="n">isfile</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">member</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.csv&quot;</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">code</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">member</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
+            <span class="k">if</span> <span class="n">codes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">code</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">codes</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">handle</span> <span class="o">=</span> <span class="n">tar</span><span class="o">.</span><span class="n">extractfile</span><span class="p">(</span><span class="n">member</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">handle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pragma: no cover — directories skipped above</span>
+                <span class="k">continue</span>
+            <span class="n">frames</span><span class="p">[</span><span class="n">code</span><span class="p">]</span> <span class="o">=</span> <span class="n">_parse_csv</span><span class="p">(</span><span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span> <span class="n">code</span><span class="p">)</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Read </span><span class="si">%d</span><span class="s2"> station CSVs from the archive&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">frames</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">frames</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_from_csvs</span><span class="p">(</span><span class="n">codes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;One HTTP request per station, for when only a few are wanted.&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="n">frames</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">codes</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">csv_url</span><span class="p">(</span><span class="n">code</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> has no archive CSV (the probe has not verified it as &quot;</span>
+                <span class="s2">&quot;daily-or-better); its row will be all-NaN.&quot;</span><span class="p">,</span>
+                <span class="n">code</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="n">frames</span><span class="p">[</span><span class="n">code</span><span class="p">]</span> <span class="o">=</span> <span class="n">_parse_csv</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">frames</span>
+
+
+<div class="viewcode-block" id="load">
+<a class="viewcode-back" href="../../../generated/easysnowdata.stations.archive.load.html#easysnowdata.stations.archive.load">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span>
+    <span class="n">stations</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">aoi</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">variables</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">networks</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">hemisphere</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;northern&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Daily SWE and snow depth for many stations, from the published archive.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    stations</span>
+<span class="sd">        Station codes, or an inventory frame. ``None`` with no *aoi* means</span>
+<span class="sd">        every station in the archive — which is the point of this route.</span>
+<span class="sd">    aoi</span>
+<span class="sd">        Any form :func:`easysnowdata.aoi.parse_aoi` accepts; picks the</span>
+<span class="sd">        stations when *stations* is ``None``.</span>
+<span class="sd">    variables</span>
+<span class="sd">        ``&quot;swe&quot;``, ``&quot;snwd&quot;`` or both (the default). The archive holds</span>
+<span class="sd">        nothing else; :func:`easysnowdata.stations.load` does.</span>
+<span class="sd">    time</span>
+<span class="sd">        Any form :func:`easysnowdata.temporal.parse_time` accepts. Each</span>
+<span class="sd">        station&#39;s series is cut to the window before the dense grid is built,</span>
+<span class="sd">        so a narrow window is cheap — but the bundle is still downloaded</span>
+<span class="sd">        whole, because that is how it is published.</span>
+<span class="sd">    networks</span>
+<span class="sd">        Keep only these networks.</span>
+<span class="sd">    source</span>
+<span class="sd">        ``&quot;github-tarball&quot;`` (default) downloads the one ~28 MB bundle and</span>
+<span class="sd">        reads every wanted CSV out of it — right for more than a handful of</span>
+<span class="sd">        stations, and the only sane route for all of them.</span>
+<span class="sd">        ``&quot;github-csv&quot;`` fetches one CSV per station instead, which is</span>
+<span class="sd">        cheaper for a few stations and needs no temporary file.</span>
+<span class="sd">    hemisphere</span>
+<span class="sd">        Which water year to attach.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        ``swe`` and ``snwd`` in centimetres with dims ``(station, time)``,</span>
+<span class="sd">        station metadata on ``station`` and water-year coordinates on</span>
+<span class="sd">        ``time``.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The whole archive is about 1 550 stations by 47 000 days, so asking for</span>
+<span class="sd">    all of it materializes roughly 1.2 GB of float64 (measured: 31 s and</span>
+<span class="sd">    under 2 GB of peak memory). Pass *time*, *aoi* or *stations* when you do</span>
+<span class="sd">    not need every cell.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import easysnowdata as esd</span>
+<span class="sd">    &gt;&gt;&gt; ds = esd.stations.archive.load()          # every daily station  # doctest: +SKIP</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">product</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;snow-station-archive&quot;</span><span class="p">)</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">resolve_source</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
+    <span class="n">wanted_types</span> <span class="o">=</span> <span class="n">_types</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+
+    <span class="n">inv</span> <span class="o">=</span> <span class="n">stations</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">stations</span><span class="p">,</span> <span class="s2">&quot;columns&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">codes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">inv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">codes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">inv</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">stations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">codes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">([</span><span class="n">stations</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stations</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">stations</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="k">elif</span> <span class="n">aoi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">networks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">inv</span> <span class="o">=</span> <span class="n">inventory</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="n">networks</span><span class="o">=</span><span class="n">networks</span><span class="p">,</span> <span class="n">daily_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">codes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">inv</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">inv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">inv</span> <span class="o">=</span> <span class="n">inventory</span><span class="p">(</span><span class="n">daily_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">codes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">inv</span> <span class="o">=</span> <span class="n">inv</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">codes</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="s2">&quot;github-csv&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">codes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;source=&quot;github-csv&quot; fetches one CSV per station, so it needs &#39;</span>
+                <span class="s2">&quot;stations= or aoi=. Use the default tarball route for the &quot;</span>
+                <span class="s2">&quot;whole archive.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">frames</span> <span class="o">=</span> <span class="n">_from_csvs</span><span class="p">(</span><span class="n">codes</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">frames</span> <span class="o">=</span> <span class="n">_from_tarball</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">codes</span><span class="p">)</span> <span class="k">if</span> <span class="n">codes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">window</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.temporal</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_time</span>  <span class="c1"># noqa: PLC0415</span>
+
+        <span class="n">window</span> <span class="o">=</span> <span class="n">parse_time</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">_to_dataset</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="n">wanted_types</span><span class="p">,</span> <span class="n">codes</span><span class="p">,</span> <span class="n">inv</span><span class="p">,</span> <span class="n">hemisphere</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">contract</span><span class="o">.</span><span class="n">provenance</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">source_url</span><span class="o">=</span><span class="n">_url_of</span><span class="p">(</span><span class="n">src</span><span class="p">)))</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;interval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;daily&quot;</span>
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_url_of</span><span class="p">(</span><span class="n">src</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">ARCHIVE_URL</span> <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="s2">&quot;github-tarball&quot;</span> <span class="k">else</span> <span class="n">CSV_BASE</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_types</span><span class="p">(</span><span class="n">variables</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">known</span> <span class="o">=</span> <span class="p">{</span><span class="n">type_name</span> <span class="k">for</span> <span class="n">type_name</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">COLUMNS</span><span class="o">.</span><span class="n">values</span><span class="p">()}</span>
+    <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">known</span><span class="p">)</span>
+    <span class="n">wanted</span> <span class="o">=</span> <span class="p">[</span><span class="n">variables</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+    <span class="n">unknown</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">wanted</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">known</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">unknown</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;The archive holds only </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">known</span><span class="p">))</span><span class="si">}</span><span class="s2">; it has no &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unknown</span><span class="p">)</span><span class="si">}</span><span class="s2">. Use easysnowdata.stations.load() for those.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">wanted</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_to_dataset</span><span class="p">(</span>
+    <span class="n">frames</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
+    <span class="n">types</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">codes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">inv</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">hemisphere</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The parsed CSVs as the same ``(station, time)`` Dataset ``load()`` returns.</span>
+
+<span class="sd">    Each station&#39;s series is written straight into a preallocated dense</span>
+<span class="sd">    array. Concatenating first and pivoting would work for a handful of</span>
+<span class="sd">    stations and build a 30-million-row intermediate for the whole archive,</span>
+<span class="sd">    which is the case this route exists to serve.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="k">if</span> <span class="n">window</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">window</span>
+        <span class="n">frames</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">code</span><span class="p">:</span> <span class="n">frame</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>  <span class="c1"># type: ignore[misc]</span>
+            <span class="k">for</span> <span class="n">code</span><span class="p">,</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">frames</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="n">station_axis</span> <span class="o">=</span> <span class="n">codes</span> <span class="k">if</span> <span class="n">codes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">frames</span><span class="p">:</span>
+        <span class="n">times</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span>
+            <span class="nb">sorted</span><span class="p">({</span><span class="n">t</span> <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">frames</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">frame</span><span class="o">.</span><span class="n">index</span><span class="p">}),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;time&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">times</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">([],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+    <span class="n">positions</span> <span class="o">=</span> <span class="p">{</span><span class="n">code</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">code</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">station_axis</span><span class="p">)}</span>
+    <span class="n">time_positions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)),</span> <span class="n">index</span><span class="o">=</span><span class="n">times</span><span class="p">)</span>
+
+    <span class="n">arrays</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="p">(</span><span class="n">type_name</span><span class="p">,</span> <span class="n">_units</span><span class="p">)</span> <span class="ow">in</span> <span class="n">COLUMNS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">type_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">types</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">station_axis</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">code</span><span class="p">,</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">frames</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">positions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">row</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">frame</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">series</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">frame</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+            <span class="n">values</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">time_positions</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">series</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">series</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">arrays</span><span class="p">[</span><span class="n">type_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;station&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">),</span> <span class="n">values</span><span class="p">)</span>
+
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="n">arrays</span><span class="p">,</span>
+        <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;station&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">station_axis</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">),</span> <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">times</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="p">(</span><span class="n">type_name</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span> <span class="ow">in</span> <span class="n">COLUMNS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">type_name</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="n">ds</span><span class="p">[</span><span class="n">type_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="n">units</span><span class="p">,</span>
+                    <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="n">networks</span><span class="o">.</span><span class="n">TYPES</span><span class="p">[</span><span class="n">type_name</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="s2">&quot;native_variables&quot;</span><span class="p">:</span> <span class="n">column</span><span class="p">,</span>
+                    <span class="s2">&quot;interval&quot;</span><span class="p">:</span> <span class="s2">&quot;daily&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">_frames</span><span class="o">.</span><span class="n">_attach_metadata</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">inv</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">wateryear</span><span class="o">.</span><span class="n">add_water_year_coords</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">hemisphere</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span>
+
+
+<span class="c1"># ── catalog entry ────────────────────────────────────────────────────────────</span>
+
+<span class="n">PRODUCT</span> <span class="o">=</span> <span class="n">Product</span><span class="p">(</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;snow-station-archive&quot;</span><span class="p">,</span>
+    <span class="n">theme</span><span class="o">=</span><span class="s2">&quot;stations&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Daily snow-station archive (global snow networks)&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;Daily SWE and snow depth for every station whose daily &quot;</span>
+        <span class="s2">&quot;record has been probe-verified, across all five networks, &quot;</span>
+        <span class="s2">&quot;pre-downloaded and published by global_snow_networks: a normalized &quot;</span>
+        <span class="s2">&quot;station inventory as GeoJSON and one CSV per station, bundled into a &quot;</span>
+        <span class="s2">&quot;single ~28 MB archive. The fast path for &#39;everything daily&#39; without &quot;</span>
+        <span class="s2">&quot;hitting five APIs, refreshed daily. Most stations start around 1980; &quot;</span>
+        <span class="s2">&quot;a few long snow courses reach back to 1896. SWE and snow depth only; for &quot;</span>
+        <span class="s2">&quot;other variables, other intervals or quality flags, use &quot;</span>
+        <span class="s2">&quot;easysnowdata.stations.load().&quot;</span>
+    <span class="p">),</span>
+    <span class="n">sources</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Source</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;github-tarball&quot;</span><span class="p">,</span>
+            <span class="n">provider</span><span class="o">=</span><span class="s2">&quot;raster_http&quot;</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="n">ARCHIVE_URL</span><span class="p">,</span>
+            <span class="n">extent</span><span class="o">=</span><span class="s2">&quot;western US, western Canada, Norway, Yukon, California, BC&quot;</span><span class="p">,</span>
+            <span class="n">temporal</span><span class="o">=</span><span class="s2">&quot;1896/present (most stations from ~1980)&quot;</span><span class="p">,</span>
+            <span class="n">latency</span><span class="o">=</span><span class="s2">&quot;daily rebuild&quot;</span><span class="p">,</span>
+            <span class="n">notes</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;one ~28 MB download holding every station CSV; cached, so &quot;</span>
+                <span class="s2">&quot;the whole archive costs one request&quot;</span>
+            <span class="p">),</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;global_snow_networks bundled archive&quot;</span><span class="p">,</span>
+            <span class="c1"># These two labels are inherited from the retired</span>
+            <span class="c1"># `snotel-ccss-stations` entry on purpose. They are the keys</span>
+            <span class="c1"># data_status/history.json and the README status table have</span>
+            <span class="c1"># recorded weekly since 2026-06, and the route they name — a</span>
+            <span class="c1"># station list and a station CSV on GitHub — is still exactly</span>
+            <span class="c1"># what they probe, just published by global_snow_networks now.</span>
+            <span class="c1"># Renaming them would start two fresh rows and orphan the</span>
+            <span class="c1"># history.</span>
+            <span class="n">health</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">Probe</span><span class="p">(</span>
+                    <span class="s2">&quot;SNOTEL/CCSS station list (GitHub)&quot;</span><span class="p">,</span>
+                    <span class="n">partial</span><span class="p">(</span><span class="n">health</span><span class="o">.</span><span class="n">http_first_byte</span><span class="p">,</span> <span class="n">INVENTORY_URL</span><span class="p">),</span>
+                <span class="p">),</span>
+                <span class="n">Probe</span><span class="p">(</span>
+                    <span class="s2">&quot;Snow station archive tarball (global_snow_networks)&quot;</span><span class="p">,</span>
+                    <span class="n">partial</span><span class="p">(</span><span class="n">health</span><span class="o">.</span><span class="n">http_first_byte</span><span class="p">,</span> <span class="n">ARCHIVE_URL</span><span class="p">),</span>
+                <span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">Source</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;github-csv&quot;</span><span class="p">,</span>
+            <span class="n">provider</span><span class="o">=</span><span class="s2">&quot;vector_http&quot;</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="n">CSV_BASE</span><span class="p">,</span>
+            <span class="n">extent</span><span class="o">=</span><span class="s2">&quot;western US, western Canada, Norway, Yukon, California, BC&quot;</span><span class="p">,</span>
+            <span class="n">temporal</span><span class="o">=</span><span class="s2">&quot;1896/present (most stations from ~1980)&quot;</span><span class="p">,</span>
+            <span class="n">latency</span><span class="o">=</span><span class="s2">&quot;daily rebuild&quot;</span><span class="p">,</span>
+            <span class="n">notes</span><span class="o">=</span><span class="s2">&quot;one request per station; cheaper than the bundle for a few&quot;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;global_snow_networks per-station CSVs&quot;</span><span class="p">,</span>
+            <span class="n">health</span><span class="o">=</span><span class="n">Probe</span><span class="p">(</span>
+                <span class="s2">&quot;SNOTEL/CCSS station CSV (GitHub)&quot;</span><span class="p">,</span>
+                <span class="n">partial</span><span class="p">(</span><span class="n">health</span><span class="o">.</span><span class="n">http_first_byte</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">CSV_BASE</span><span class="si">}</span><span class="s2">679_WA_SNTL.csv&quot;</span><span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">variables</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Variable</span><span class="p">(</span><span class="s2">&quot;swe&quot;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;cm&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span> <span class="n">long_name</span><span class="o">=</span><span class="s2">&quot;snow water equivalent&quot;</span><span class="p">),</span>
+        <span class="n">Variable</span><span class="p">(</span><span class="s2">&quot;snwd&quot;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;cm&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span> <span class="n">long_name</span><span class="o">=</span><span class="s2">&quot;snow depth&quot;</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">citation</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;Gagliano, E. Global snow networks: a documented inventory and daily &quot;</span>
+        <span class="s2">&quot;archive of public snow-station observations. &quot;</span>
+        <span class="s2">&quot;https://github.com/egagli/global_snow_networks. Underlying &quot;</span>
+        <span class="s2">&quot;observations are the networks&#39; own; cite them as well.&quot;</span>
+    <span class="p">),</span>
+    <span class="n">license</span><span class="o">=</span><span class="s2">&quot;Per contributing network; see each network&#39;s product entry&quot;</span><span class="p">,</span>
+    <span class="n">loader</span><span class="o">=</span><span class="s2">&quot;easysnowdata.stations.archive.load&quot;</span><span class="p">,</span>
+    <span class="n">examples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;stations/plot_station_archive.py&quot;</span><span class="p">,),</span>
+    <span class="n">references</span><span class="o">=</span><span class="p">(</span><span class="n">REPO</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">REPO</span><span class="si">}</span><span class="s2">/blob/main/DESIGN.md&quot;</span><span class="p">),</span>
+    <span class="n">tags</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;swe&quot;</span><span class="p">,</span> <span class="s2">&quot;snow depth&quot;</span><span class="p">,</span> <span class="s2">&quot;stations&quot;</span><span class="p">,</span> <span class="s2">&quot;archive&quot;</span><span class="p">,</span> <span class="s2">&quot;daily&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">catalog</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">PRODUCT</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

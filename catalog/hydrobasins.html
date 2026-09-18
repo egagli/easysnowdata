@@ -1,0 +1,807 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>HydroBASINS / BasinATLAS &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../_static/documentation_options.js?v=db369ce5"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'catalog/hydrobasins';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Köppen-Geiger climate classification (Beck et al. 2023)" href="koppen-geiger.html" />
+    <link rel="prev" title="USGS Watershed Boundary Dataset (HUC)" href="huc.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.2.1.dev6" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../notebooks.html">
+    Long-form notebooks
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../notebooks.html">
+    Long-form notebooks
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="awdb-stations.html">SNOTEL, SCAN and snow-course observations (USDA NRCS AWDB)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cdec-stations.html">California snow pillows and snow courses (CDEC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chili.html">CHILI (Continuous Heat-Insolation Load Index)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="copernicus-dem.html">Copernicus DEM GLO-30 / GLO-90</a></li>
+<li class="toctree-l1"><a class="reference internal" href="databc-stations.html">British Columbia automated snow weather stations and snow surveys</a></li>
+<li class="toctree-l1"><a class="reference internal" href="era5.html">ERA5 / ERA5-Land reanalysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="esa-worldcover.html">ESA WorldCover land cover</a></li>
+<li class="toctree-l1"><a class="reference internal" href="forest-cover-fraction.html">Forest cover fraction (CGLS-LC100)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grdc-major-river-basins.html">GRDC major river basins of the world</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grdc-wmo-basins.html">GRDC / WMO basins and sub-basins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hls.html">Harmonized Landsat Sentinel-2 (HLS) v2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="huc.html">USGS Watershed Boundary Dataset (HUC)</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">HydroBASINS / BasinATLAS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="koppen-geiger.html">Köppen-Geiger climate classification (Beck et al. 2023)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modis-snow.html">MODIS snow cover (MOD10A1, MOD10A2, MOD10A1F)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mountain-snow-mask.html">Wrzesien global seasonal mountain snow mask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nlcd.html">National Land Cover Database (NLCD)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nve-stations.html">Norwegian snow pillows and snow-depth stations (NVE HydAPI)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="planetscope.html">PlanetScope surface reflectance (Planet Labs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sentinel-1-local-incidence-angle.html">Sentinel-1 local incidence angle and layover/shadow mask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sentinel-1-rtc.html">Sentinel-1 radiometrically terrain-corrected backscatter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sentinel-2-l2a.html">Sentinel-2 Level-2A surface reflectance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snodas.html">SNODAS snow water equivalent and snow depth</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snow-classification.html">Sturm &amp; Liston seasonal snow classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snow-station-archive.html">Daily snow-station archive (global snow networks)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ucla-snow-reanalysis.html">UCLA snow reanalysis (Western US and High Mountain Asia)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viirs-snow.html">VIIRS snow cover (VNP10A1, VNP10A1F)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yukon-stations.html">Yukon snow survey and automated stations (AquaCache)</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Data catalog</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">HydroBASINS / BasinATLAS</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="hydrobasins-basinatlas">
+<h1>HydroBASINS / BasinATLAS<a class="headerlink" href="#hydrobasins-basinatlas" title="Link to this heading">#</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">hydrobasins</span></code> · theme <code class="docutils literal notranslate"><span class="pre">hydro</span></code> · <span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">live</span></p>
+<p>Global nested sub-basin polygons (Pfafstetter levels 1-12). BasinATLAS adds several hundred hydro-environmental attributes per basin.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">easysnowdata</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">esd</span>
+
+<span class="n">aoi</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">121.94</span><span class="p">,</span> <span class="mf">46.72</span><span class="p">,</span> <span class="o">-</span><span class="mf">121.54</span><span class="p">,</span> <span class="mf">46.99</span><span class="p">)</span>   <span class="c1"># Mount Rainier</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">esd</span><span class="o">.</span><span class="n">hydro</span><span class="o">.</span><span class="n">basins</span><span class="o">.</span><span class="n">hydrobasins</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="tip admonition">
+<p class="admonition-title">No account needed for the default route</p>
+<p><code class="docutils literal notranslate"><span class="pre">source=&quot;figshare-basinatlas&quot;</span></code> is open. <code class="docutils literal notranslate"><span class="pre">source=&quot;gee&quot;</span></code> needs <code class="docutils literal notranslate"><span class="pre">earthengine</span></code> — see <a class="reference internal" href="../credentials.html"><span class="std std-doc">the credentials page</span></a>.</p>
+</div>
+<section id="sources">
+<h2>Sources<a class="headerlink" href="#sources" title="Link to this heading">#</a></h2>
+<p>3 routes serve this product; the first is the default and <code class="docutils literal notranslate"><span class="pre">source=</span></code> picks another. The return contract is the same either way.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>source</p></th>
+<th class="head"><p>provider</p></th>
+<th class="head"><p>credentials</p></th>
+<th class="head"><p>resolution</p></th>
+<th class="head"><p>extent</p></th>
+<th class="head"><p>temporal</p></th>
+<th class="head"><p>latency</p></th>
+<th class="head"><p>notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">figshare-basinatlas</span></code> (default)</p></td>
+<td><p>vector_http</p></td>
+<td><p>none</p></td>
+<td><p>—</p></td>
+<td><p>global</p></td>
+<td><p>static (v1.0, 2019)</p></td>
+<td><p>—</p></td>
+<td><p>2.7 GB file geodatabase read with mask pushdown, so only the intersecting basins are fetched; carries the BasinATLAS attributes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hydrosheds</span></code></p></td>
+<td><p>vector_http</p></td>
+<td><p>none</p></td>
+<td><p>—</p></td>
+<td><p>per region (9 regions)</p></td>
+<td><p>static (v1c)</p></td>
+<td><p>—</p></td>
+<td><p>~50-300 MB per region instead of 2.7 GB, cached on first use; geometry and the basic Pfafstetter fields, no BasinATLAS attributes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gee</span></code></p></td>
+<td><p>gee</p></td>
+<td><p>earthengine</p></td>
+<td><p>—</p></td>
+<td><p>global</p></td>
+<td><p>static (v1.0)</p></td>
+<td><p>—</p></td>
+<td><p>server-side query, no download</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="where-each-route-points">
+<h3>Where each route points<a class="headerlink" href="#where-each-route-points" title="Link to this heading">#</a></h3>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">figshare-basinatlas</span></code> — figshare BasinATLAS gdb <span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">live</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">https://ndownloader.figshare.com/files/20082137/BasinATLAS_Data_v10.gdb.zip</span></code></p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">hydrosheds</span></code> — HydroSHEDS regional zips <span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">live</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">https://data.hydrosheds.org/file/HydroBASINS/standard/hybas_&lt;region&gt;_lev01-12_v1c.zip</span></code></p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">gee</span></code> — Earth Engine <span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">live</span></dt><dd><p><code class="docutils literal notranslate"><span class="pre">WWF/HydroATLAS/v1/Basins/level{level}</span></code></p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="provenance">
+<h2>Provenance<a class="headerlink" href="#provenance" title="Link to this heading">#</a></h2>
+<p><strong>Licence</strong> · CC BY 4.0</p>
+<p><strong>DOI</strong> · <a class="reference external" href="https://doi.org/10.1038/s41597-019-0300-6">10.1038/s41597-019-0300-6</a></p>
+<p><strong>Cite the data as</strong></p>
+<blockquote>
+<div><p>Linke, S., Lehner, B., Ouellet Dallaire, C., et al. (2019). Global hydro-environmental sub-basin and river reach characteristics at high spatial resolution. Scientific Data 6, 283.</p>
+</div></blockquote>
+<p><strong>Documentation</strong></p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.hydrosheds.org/products/hydrobasins">https://www.hydrosheds.org/products/hydrobasins</a></p></li>
+</ul>
+<p><strong>Loader</strong> · <a class="reference internal" href="../generated/easysnowdata.hydro.basins.hydrobasins.html#easysnowdata.hydro.basins.hydrobasins" title="easysnowdata.hydro.basins.hydrobasins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">easysnowdata.hydro.basins.hydrobasins</span></code></a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="huc.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">USGS Watershed Boundary Dataset (HUC)</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="koppen-geiger.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Köppen-Geiger climate classification (Beck et al. 2023)</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sources">Sources</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#where-each-route-points">Where each route points</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#provenance">Provenance</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/egagli/easysnowdata/edit/main/docs/catalog/hydrobasins.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

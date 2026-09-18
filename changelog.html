@@ -1,0 +1,1145 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Changelog &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="_static/documentation_options.js?v=db369ce5"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'changelog';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Releasing" href="releasing.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.2.1.dev6" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="notebooks.html">
+    Long-form notebooks
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="#">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="notebooks.html">
+    Long-form notebooks
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Changelog</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading">#</a></h1>
+<p>All notable changes to this project will be documented in this file.</p>
+<p>The format is based on <a class="reference external" href="http://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>
+and this project adheres to <a class="reference external" href="http://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<!-- insertion marker -->
+<section id="v0-2-0-2026-09-17">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.2.0">v0.2.0</a> - 2026-09-17<a class="headerlink" href="#v0-2-0-2026-09-17" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.26...v0.2.0">Compare with v0.0.26</a></small></p>
+<section id="fixed">
+<h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>fix(live): three real bugs behind the failing live tests, one marker for the fourth (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/0cbfafb7821980be9ed7101e1dae5f7d839f8387">0cbfafb</a> by egagli).</p></li>
+<li><p>fix(providers): spell a local zip as /vsizip/ so Windows can open it (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/599a296e0d8f6f95bdfa093f0cc8e642233658f3">599a296</a> by egagli).</p></li>
+<li><p>fix(ci): generate the autosummary stubs on a first build, and stop writing COGs in fixtures (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/7c3952c02f69a88dd978470d54306cd6f2671b95">7c3952c</a> by egagli).</p></li>
+<li><p>fix(docs): drop the minigallery directive, and keep doctrees out of the site (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/e051058dc47f1edf474c3a343c5f30d243dc0173">e051058</a> by egagli).</p></li>
+<li><p>fix(docs): document a re-exported object once, not per module (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/10a9b94b75ce151c190725c26f2e2de080c35c1a">10a9b94</a> by egagli).</p></li>
+<li><p>fix(yukon): snowfall is its own type, not precipitation in centimetres (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/e89ed0ed3b376b216fd41ab9505f2be0242ae706">e89ed0e</a> by egagli).</p></li>
+<li><p>fix(stations): never rescale a depth of snowfall into a depth of water (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/37e8aa84c363935677837cf79a83be51ff2a931a">37e8aa8</a> by egagli).</p></li>
+<li><p>fix(clients): conform get_metadata for one station, emit hPa from Yukon (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/defc05342fb1630206cc226aeedb1967b9071a8b">defc053</a> by egagli).</p></li>
+<li><p>fix(awdb): serve TAVG, and prefer it over TOBS for the <code class="docutils literal notranslate"><span class="pre">temp</span></code> type (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/87c8ea2d23a9b883cf1997a2ac7903b4d754413f">87c8ea2</a> by egagli).</p></li>
+<li><p>fix(stations): three contract gaps the live tier found (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/00560f6106cf4f6d89722174029a4c379ddb1f1e">00560f6</a> by egagli).</p></li>
+<li><p>fix(snow): stream the NSIDC download with iter_content (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/ad1473e34d45491390e74075d61bc036cf89a670">ad1473e</a> by Claude).</p></li>
+<li><p>fix(earthaccess): do not treat a half-initialised login as logged in; retry once (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/fa5f3094dc4c3866a02a14fcbadd4d47e1a6bda1">fa5f309</a> by egagli).</p></li>
+<li><p>fix(modis): fail fast when GDAL has no HDF4 driver (MOD10A1F) (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/f506c1341943ec1d0bb059d8fae89028baf2adc7">f506c13</a> by egagli).</p></li>
+<li><p>fix(yukon): raise on unknown variables and unsupported intervals (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/513bc0ca93498e16512e52199b1246726211b1e2">513bc0c</a> by egagli).</p></li>
+<li><p>fix(nve): datetime on hourly records, no silent fallbacks, correct stale docstrings (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/c7d499c3a4b2d30337e03311b0fe002e7b036551">c7d499c</a> by egagli).</p></li>
+<li><p>fix(awdb): convert all variables to metric, add datetime to hourly records, validate inputs (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/bdcda3c257a315b1839366f533af9304a4e2ec4f">bdcda3c</a> by egagli).</p></li>
+<li><p>fix(cdec): preserve hourly timestamps, clean SWE priority logic, validate inputs (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/8a75dbb50c089a50434103000202de17475ef25a">8a75dbb</a> by egagli).</p></li>
+<li><p>fix(databc): wire hourly through get_data, scope negative-value filter, validate interval (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/01a1a16e10c4f14d3911b43d6b03d5e753d2044f">01a1a16</a> by egagli).</p></li>
+<li><p>fix: correct Nepal station coordinates via detect-and-override, not exclusion (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/e6a3e0bd10c88bfcba6ab3542004d2e165640d56">e6a3e0b</a> by egagli).</p></li>
+<li><p>fix: correct NVE parameter IDs, response parsing, flags — verified live (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/fe202a97b6065dd96fd7b43ed8a64035101112e6">fe202a9</a> by egagli).</p></li>
+<li><p>fix: NVE fetch self-diagnoses when /Series matches nothing (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/71220bfcd8a9a0a0ec03f58da9279ac0de84035c">71220bf</a> by egagli).</p></li>
+<li><p>fix: NVE Observations 404s — request only series that exist, chunked (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/ff0f318d8ed3742b77947764392f853c65f4b8f3">ff0f318</a> by egagli).</p></li>
+<li><p>fix: NVE Observations uses ReferenceTime not StartDate/EndDate (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/c4f8aeee52650259aca0f41162cf6433b652487c">c4f8aee</a> by egagli).</p></li>
+<li><p>fix: use correct NVE Observations query param name (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/c6b44f5178b8c0de79063f4c69aef30a0a9a386d">c6b44f5</a> by egagli).</p></li>
+<li><p>fix: NVE Observations 400 (date format), 429 (rate limit), begin_date (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/18d0a515769703c651e4f0a2ca8ae29fe465f856">18d0a51</a> by egagli).</p></li>
+<li><p>fix: NVE parameters missing when filtering by ParameterId, CI missing API key (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/5deee415a5793ff175f368ca900b3729af3f338d">5deee41</a> by egagli).</p></li>
+<li><p>fix: NVE API key auth, Pages permissions, detached HEAD push (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/fbbc4d7a6826ef23c34d8a81357ca1b2c7daeb5b">fbbc4d7</a> by egagli).</p></li>
+<li><p>fix awdb metadata adaptive batching (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/367639a61ecadd583ff2ed28c41c4b082245820f">367639a</a> by egagli).</p></li>
+<li><p>fix: restore variables_daily for CDEC/DataBC; update README field docs (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/8a256ff8431be7bde33d346024762c06d55bec4a">8a256ff</a> by egagli).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-26-2026-09-15">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.26">v0.0.26</a> - 2026-09-15<a class="headerlink" href="#v0-0-26-2026-09-15" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.25...v0.0.26">Compare with v0.0.25</a></small></p>
+<section id="id1">
+<h3>Fixed<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>fix(hydro): read Köppen-Geiger file 61012822 via ndownloader.figshare.com (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/e78aeceb347fb56e625f347fe9f848c8c5739521">e78aece</a> by egagli).</p></li>
+<li><p>fix(earthaccess): explicit login, cloud-hosted MOD10A1F, cache dir, UCLA stats index (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/a8c2d3e73a5929a627eac826b750f80f8305223f">a8c2d3e</a> by egagli).</p></li>
+<li><p>fix(hydro): fetch GRDC WMO basins with GET into a cache; GET-first health probe (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/69ab0e0a49275fdcc7737f53a2ca39f0569af6e6">69ab0e0</a> by egagli).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-25-2026-08-25">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.25">v0.0.25</a> - 2026-08-25<a class="headerlink" href="#v0-0-25-2026-08-25" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.24...v0.0.25">Compare with v0.0.24</a></small></p>
+<section id="added">
+<h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>add kwargs to functions (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/730fa84e2440c2ca1cd07ef76e528d0f21646d25">730fa84</a> by egagli).</p></li>
+</ul>
+</section>
+<section id="id2">
+<h3>Fixed<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>fix EE config stuff (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/46d870c80f622b9a6f34eb94a6b3dceefd919fa1">46d870c</a> by egagli).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-24-2026-06-15">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.24">v0.0.24</a> - 2026-06-15<a class="headerlink" href="#v0-0-24-2026-06-15" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.23...v0.0.24">Compare with v0.0.23</a></small></p>
+<section id="changed">
+<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Change git push target to main branch (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/cef203d4e66c990fa8c6f3dd052dabdea2980b4d">cef203d</a> by Eric Gagliano).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-23-2026-06-15">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.23">v0.0.23</a> - 2026-06-15<a class="headerlink" href="#v0-0-23-2026-06-15" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.22...v0.0.23">Compare with v0.0.22</a></small></p>
+<section id="id3">
+<h3>Fixed<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>fix: support EARTHDATA_TOKEN in addition to username/password (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/7e879a4f792206a906c67df128495d53318e2daf">7e879a4</a> by Claude).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-22-2025-07-28">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.22">v0.0.22</a> - 2025-07-28<a class="headerlink" href="#v0-0-22-2025-07-28" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.21...v0.0.22">Compare with v0.0.21</a></small></p>
+</section>
+<section id="v0-0-21-2025-07-28">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.21">v0.0.21</a> - 2025-07-28<a class="headerlink" href="#v0-0-21-2025-07-28" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.20...v0.0.21">Compare with v0.0.20</a></small></p>
+<section id="id4">
+<h3>Added<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>add snodas code and example (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/6012c1cf5b6864311cf32763d0d4b352a73bd6f0">6012c1c</a> by egagli).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-20-2025-04-09">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.20">v0.0.20</a> - 2025-04-09<a class="headerlink" href="#v0-0-20-2025-04-09" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.19...v0.0.20">Compare with v0.0.19</a></small></p>
+<section id="id5">
+<h3>Added<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>add new wmo basins (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/929833b5ef8f6df52a2c989da03844e369f4700b">929833b</a> by egagli).</p></li>
+</ul>
+</section>
+<section id="id6">
+<h3>Fixed<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>fix wmo basin example (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/79cd83a88b6f5cca9964e48db1a40138fdf13b86">79cd83a</a> by egagli).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-19-2025-03-26">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.19">v0.0.19</a> - 2025-03-26<a class="headerlink" href="#v0-0-19-2025-03-26" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.18...v0.0.19">Compare with v0.0.18</a></small></p>
+<section id="id7">
+<h3>Added<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>add new function for local incidence angle calculation via gee (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/a4089ef5d2861a9c544c5ecca41a34c2e086d56f">a4089ef</a> by egagli).</p></li>
+<li><p>add extra note about ERA5 CDS (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/4310aca4b85dba0682cfc95544e23fe70188b13f">4310aca</a> by egagli).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-18-2025-02-25">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.18">v0.0.18</a> - 2025-02-25<a class="headerlink" href="#v0-0-18-2025-02-25" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.17...v0.0.18">Compare with v0.0.17</a></small></p>
+</section>
+<section id="v0-0-17-2025-02-24">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.17">v0.0.17</a> - 2025-02-24<a class="headerlink" href="#v0-0-17-2025-02-24" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.16...v0.0.17">Compare with v0.0.16</a></small></p>
+<section id="id8">
+<h3>Added<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>add era5 functionality (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/90325e31323b48a08db2453421472632e8766f0e">90325e3</a> by egagli).</p></li>
+<li><p>add gee credentials as repo secret so we can test gee functionality (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/fccff20fc5c1fc0a45f7fc6d7ab9d811200a4d83">fccff20</a> by egagli).</p></li>
+</ul>
+</section>
+<section id="id9">
+<h3>Fixed<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>fix shapely version (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/977e6d6c8dac80eac8946e298674b44d92b4f650">977e6d6</a> by egagli).</p></li>
+<li><p>fix end of file space (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/c923ffa9f58b4fe2dd11fbde58917caa0213f7e7">c923ffa</a> by egagli).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-16-2025-01-30">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.16">v0.0.16</a> - 2025-01-30<a class="headerlink" href="#v0-0-16-2025-01-30" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.15...v0.0.16">Compare with v0.0.15</a></small></p>
+<section id="id10">
+<h3>Added<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>add hydroBASINS geometries and GRCD major river basins (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/c04673a4febf77c79b62c76a14aa03c520fe5d33">c04673a</a> by egagli).</p></li>
+<li><p>add example for nlcd (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/7c864cf32066049ba641db7fc0a51113eea2e636">7c864cf</a> by egagli).</p></li>
+<li><p>add DOI badge (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/10a36400b12dfad13e18b84468b811edb2a85fc0">10a3640</a> by Eric Gagliano).</p></li>
+<li><p>Add files via upload (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/1a071d68e086f2813d17950738d1b779229a60a1">1a071d6</a> by Eric Gagliano).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-15-2025-01-26">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.15">v0.0.15</a> - 2025-01-26<a class="headerlink" href="#v0-0-15-2025-01-26" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.14...v0.0.15">Compare with v0.0.14</a></small></p>
+</section>
+<section id="v0-0-14-2025-01-14">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.14">v0.0.14</a> - 2025-01-14<a class="headerlink" href="#v0-0-14-2025-01-14" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.13...v0.0.14">Compare with v0.0.13</a></small></p>
+<section id="id11">
+<h3>Fixed<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>fix python version in pyproject (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/b570db3d5c33c55a05f810468672f2439b2fa2eb">b570db3</a> by egagli).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-13-2025-01-11">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.13">v0.0.13</a> - 2025-01-11<a class="headerlink" href="#v0-0-13-2025-01-11" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.12...v0.0.13">Compare with v0.0.12</a></small></p>
+<section id="removed">
+<h3>Removed<a class="headerlink" href="#removed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>remove cli stuff from pyproject to make conda work (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/f134ace648076d7e2b464b37d47495915ca607dd">f134ace</a> by egagli).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-12-2025-01-11">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.12">v0.0.12</a> - 2025-01-11<a class="headerlink" href="#v0-0-12-2025-01-11" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.11...v0.0.12">Compare with v0.0.11</a></small></p>
+<section id="id12">
+<h3>Added<a class="headerlink" href="#id12" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>add note to self to add chunks on chili function (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/7d258781b682ec46f5b6d55f3ed3c91b15c3eaa0">7d25878</a> by egagli).</p></li>
+</ul>
+</section>
+<section id="id13">
+<h3>Fixed<a class="headerlink" href="#id13" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>fix beautifulsoup4 and bs4 problem (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/3d0079e5b359b2090b1126f00dcbd1eefa9f447a">3d0079e</a> by egagli).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-11-2024-11-04">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.11">v0.0.11</a> - 2024-11-04<a class="headerlink" href="#v0-0-11-2024-11-04" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.10...v0.0.11">Compare with v0.0.10</a></small></p>
+</section>
+<section id="v0-0-10-2024-11-04">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.10">v0.0.10</a> - 2024-11-04<a class="headerlink" href="#v0-0-10-2024-11-04" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.9...v0.0.10">Compare with v0.0.9</a></small></p>
+<section id="id14">
+<h3>Added<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>add nlcd data (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/94f1fa5c1a76fd4c1c0cd45d51c22b09f47c7862">94f1fa5</a> by egagli).</p></li>
+<li><p>add chili, proxy for insolation (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/078f47cd4ae102d4cf9d77e7682d9ba185e5f975">078f47c</a> by egagli).</p></li>
+<li><p>add high volume api for huc geoms (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/e02f1d233390e50ab39ade38b813916b66da8861">e02f1d2</a> by egagli).</p></li>
+</ul>
+</section>
+<section id="id15">
+<h3>Fixed<a class="headerlink" href="#id15" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>fix nlcd doc string (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/c57f5c3afc54fadce2ecf3ca856406a677c8e08e">c57f5c3</a> by egagli).</p></li>
+<li><p>fix issue where station named not correctly assigned (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/00a39b2fa38d54bf1c468f6a0ab285987af86b9f">00a39b2</a> by egagli).</p></li>
+<li><p>fix chili case when no data (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/bb436f6da029ea8b598a6eebe266692d6f535512">bb436f6</a> by egagli).</p></li>
+<li><p>fix transpose issue with chili data (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/a4bf8ce64221d1f47f1ad58e6cf686c579a4569f">a4bf8ce</a> by egagli).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-9-2024-09-29">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.9">v0.0.9</a> - 2024-09-29<a class="headerlink" href="#v0-0-9-2024-09-29" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.8...v0.0.9">Compare with v0.0.8</a></small></p>
+<section id="id16">
+<h3>Added<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>add s2 comparison notebook (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/de52ae2f1e3d669f07a4027d8aae291c7489265c">de52ae2</a> by egagli).</p></li>
+<li><p>add koppen geiger data (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/6ff576cda810333869bed33f76c6949659cedbdf">6ff576c</a> by egagli).</p></li>
+</ul>
+</section>
+<section id="id17">
+<h3>Fixed<a class="headerlink" href="#id17" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>fix for hls name change (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/7e07270510c8a089a00154027ee2439c8121d125">7e07270</a> by egagli).</p></li>
+<li><p>fix docs (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/5fac0302de2e3254dcad43e444175869efa16b8b">5fac030</a> by egagli).</p></li>
+<li><p>fix issue 7 regarding esa worldcover nodata, plot updates (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/b624a19141913db05410b4645c0830ba1c16f44f">b624a19</a> by egagli).</p></li>
+<li><p>fix ucla swe reanalysis rotation issue (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/950ff2a46da9ad99e2863af995d53939a888b2d1">950ff2a</a> by egagli).</p></li>
+<li><p>fix documentation page (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/4bbef71e2e1789548bad7d6327cedeb682ad53c5">4bbef71</a> by egagli).</p></li>
+<li><p>fix naming (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/aa7ee78e6c31addd4dedbc2ef8f6702f9946dc10">aa7ee78</a> by egagli).</p></li>
+</ul>
+</section>
+<section id="id18">
+<h3>Changed<a class="headerlink" href="#id18" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>change clip to clip_box (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/f8e404ea07d2252084edd3512f25d835b0068e6e">f8e404e</a> by egagli).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-8-2024-08-19">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.8">v0.0.8</a> - 2024-08-19<a class="headerlink" href="#v0-0-8-2024-08-19" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.7...v0.0.8">Compare with v0.0.7</a></small></p>
+<section id="id19">
+<h3>Fixed<a class="headerlink" href="#id19" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>fix s1, remove geobox option (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/627fa53734a4d85d123bf1f5fefcd4bf48583615">627fa53</a> by egagli).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-7-2024-08-19">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.7">v0.0.7</a> - 2024-08-19<a class="headerlink" href="#v0-0-7-2024-08-19" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.6...v0.0.7">Compare with v0.0.6</a></small></p>
+</section>
+<section id="v0-0-6-2024-07-16">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.6">v0.0.6</a> - 2024-07-16<a class="headerlink" href="#v0-0-6-2024-07-16" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.5...v0.0.6">Compare with v0.0.5</a></small></p>
+<section id="id20">
+<h3>Added<a class="headerlink" href="#id20" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>add dependencies needed for earthaccess UCLA snow reanalysis (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/300b1cd094c99ef3a9649af237993ef67e515770">300b1cd</a> by egagli).</p></li>
+</ul>
+</section>
+<section id="id21">
+<h3>Fixed<a class="headerlink" href="#id21" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>fix WY and DOWY functions, fix formatting (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/37d109492bc5f13d517ea3a6467c9da1624b92ea">37d1094</a> by egagli).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-5-2024-07-03">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.5">v0.0.5</a> - 2024-07-03<a class="headerlink" href="#v0-0-5-2024-07-03" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.4...v0.0.5">Compare with v0.0.4</a></small></p>
+<section id="id22">
+<h3>Added<a class="headerlink" href="#id22" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>add era5 data (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/8da612d32e4158472d4be2d25e93302bad1a26fd">8da612d</a> by egagli).</p></li>
+<li><p>add new dependencies (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/2532664133e7a08623edae43151ad3d7d39a5bb9">2532664</a> by egagli).</p></li>
+<li><p>add option to keep s1 data in linear power (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/eecd9c7a3306af5eb4d2def1506294f47675fea5">eecd9c7</a> by egagli).</p></li>
+<li><p>add huc function (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/5e111979569716da00a576304e973234edad38cf">5e11197</a> by egagli).</p></li>
+<li><p>add rgb norm to S2 (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/8781aacc2aa55136e5eacce8d38e5ee5ce5d4a9b">8781aac</a> by eric).</p></li>
+<li><p>add southern hemisphere support to water year and DOWY functions… importantly, decided on what to label WY start/end (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/a7067574fcf52b35f17be6dc3a7cc86629bb4451">a706757</a> by eric).</p></li>
+</ul>
+</section>
+<section id="id23">
+<h3>Changed<a class="headerlink" href="#id23" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>change s1 chunking (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/b090f1f25ec2544c7e4f3b80dfc3d4e86ecb5dd2">b090f1f</a> by egagli).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-4-2024-04-17">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.4">v0.0.4</a> - 2024-04-17<a class="headerlink" href="#v0-0-4-2024-04-17" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.3...v0.0.4">Compare with v0.0.3</a></small></p>
+</section>
+<section id="v0-0-3-2024-04-14">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.3">v0.0.3</a> - 2024-04-14<a class="headerlink" href="#v0-0-3-2024-04-14" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.2...v0.0.3">Compare with v0.0.2</a></small></p>
+<section id="id24">
+<h3>Added<a class="headerlink" href="#id24" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>add clip to bbox argument with true as default (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/cb11d38eb2d2348466a74b0b770ae2efd39f95bf">cb11d38</a> by eric).</p></li>
+<li><p>add mod10a2 attrs (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/1d55b6a007df471513edd71dba3f4c1ffba08a95">1d55b6a</a> by eric).</p></li>
+</ul>
+</section>
+<section id="id25">
+<h3>Fixed<a class="headerlink" href="#id25" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>fix spelling error in pathname (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/f78a2a7bc894766188a229eb95be7fcb680872ab">f78a2a7</a> by eric).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-2-2024-04-02">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.2">v0.0.2</a> - 2024-04-02<a class="headerlink" href="#v0-0-2-2024-04-02" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/v0.0.1...v0.0.2">Compare with v0.0.1</a></small></p>
+<section id="id26">
+<h3>Added<a class="headerlink" href="#id26" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>add testing framework (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/b6cd9b9efd3415a65047673b73d275348e78eb07">b6cd9b9</a> by eric).</p></li>
+<li><p>add ability to skip cache (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/33749b0898fddf4161733694b7964b184ebe3924">33749b0</a> by eric).</p></li>
+<li><p>add earthaccess (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/83e1a23939add0762ae84a0dd9f0a005d416c381">83e1a23</a> by eric).</p></li>
+<li><p>add new packages (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/305c56d7aa3a733856a843ddde0e75d7340407d2">305c56d</a> by eric).</p></li>
+<li><p>add templates for new modules (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/3103269d31bc82aaff24ed14b13a9f569d52d762">3103269</a> by –global).</p></li>
+<li><p>add all data function (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/26cf17ce5fd1ab0447801b440aa7c6bed70d4acf">26cf17c</a> by eric).</p></li>
+<li><p>add sentinel 1 functionality (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/020dbd9e80ec2048c36c049eb40e794bcba23bb7">020dbd9</a> by eric).</p></li>
+<li><p>add sentinel 2 class (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/a0b49b1322e94bfef11c2b618eae2ce06c9a1169">a0b49b1</a> by eric).</p></li>
+<li><p>add new module (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/ab50970cfc77dec49e1ad06e4964955b01bb1703">ab50970</a> by eric).</p></li>
+<li><p>add new module for automatic weather stations (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/fe32c60ece6d7639ef4ab11449d8955c411c87db">fe32c60</a> by eric).</p></li>
+<li><p>add get_esa_worldcover function (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/450bf0aad1438a0fadadb126b508bb7bcd672602">450bf0a</a> by eric).</p></li>
+<li><p>add env file (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/399fa92b67acc6bffd13650989bf5251ada32731">399fa92</a> by eric).</p></li>
+</ul>
+</section>
+<section id="id27">
+<h3>Fixed<a class="headerlink" href="#id27" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>fix time slice inconsistency (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/60e21e9874ab88a2405bbc1d3132531b19cd9b95">60e21e9</a> by eric).</p></li>
+<li><p>fix datetime to dowy (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/418f45c3149e8ff910bb54a2be25ee4f9795c083">418f45c</a> by eric).</p></li>
+<li><p>fix variable name (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/8fd6b7f920d8c9377c5ec2e4d6f7f51114e13b94">8fd6b7f</a> by eric).</p></li>
+<li><p>fix example (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/b18f9289b197c4bf525ce8054e337ba55b6f06ba">b18f928</a> by eric).</p></li>
+</ul>
+</section>
+<section id="id28">
+<h3>Removed<a class="headerlink" href="#id28" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>remove fluff (<a class="reference external" href="https://github.com/egagli/easysnowdata/commit/26486e34781b9d274aff5ca8f8c414ce4585dd69">26486e3</a> by eric).</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-0-1-2024-03-05">
+<h2><a class="reference external" href="https://github.com/egagli/easysnowdata/releases/tag/v0.0.1">v0.0.1</a> - 2024-03-05<a class="headerlink" href="#v0-0-1-2024-03-05" title="Link to this heading">#</a></h2>
+<p><small><a class="reference external" href="https://github.com/egagli/easysnowdata/compare/eeaf604acd92df02b70d2c410821a5af30b7b27c...v0.0.1">Compare with first commit</a></small></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="releasing.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Releasing</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-2-0-2026-09-17">v0.2.0 - 2026-09-17</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-26-2026-09-15">v0.0.26 - 2026-09-15</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-25-2026-08-25">v0.0.25 - 2026-08-25</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-24-2026-06-15">v0.0.24 - 2026-06-15</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-23-2026-06-15">v0.0.23 - 2026-06-15</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-22-2025-07-28">v0.0.22 - 2025-07-28</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-21-2025-07-28">v0.0.21 - 2025-07-28</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-20-2025-04-09">v0.0.20 - 2025-04-09</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-19-2025-03-26">v0.0.19 - 2025-03-26</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-18-2025-02-25">v0.0.18 - 2025-02-25</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-17-2025-02-24">v0.0.17 - 2025-02-24</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-16-2025-01-30">v0.0.16 - 2025-01-30</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">Added</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-15-2025-01-26">v0.0.15 - 2025-01-26</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-14-2025-01-14">v0.0.14 - 2025-01-14</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-13-2025-01-11">v0.0.13 - 2025-01-11</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#removed">Removed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-12-2025-01-11">v0.0.12 - 2025-01-11</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-11-2024-11-04">v0.0.11 - 2024-11-04</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-10-2024-11-04">v0.0.10 - 2024-11-04</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-9-2024-09-29">v0.0.9 - 2024-09-29</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-8-2024-08-19">v0.0.8 - 2024-08-19</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-7-2024-08-19">v0.0.7 - 2024-08-19</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-6-2024-07-16">v0.0.6 - 2024-07-16</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-5-2024-07-03">v0.0.5 - 2024-07-03</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">Changed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-4-2024-04-17">v0.0.4 - 2024-04-17</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-3-2024-04-14">v0.0.3 - 2024-04-14</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">Fixed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-2-2024-04-02">v0.0.2 - 2024-04-02</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id27">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id28">Removed</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-0-1-2024-03-05">v0.0.1 - 2024-03-05</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/egagli/easysnowdata/edit/main/docs/changelog.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

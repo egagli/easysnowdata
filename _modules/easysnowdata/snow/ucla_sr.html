@@ -1,0 +1,1073 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>easysnowdata.snow.ucla_sr &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=db369ce5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/easysnowdata/snow/ucla_sr';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.2.1.dev6" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../notebooks.html">
+    Long-form notebooks
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../notebooks.html">
+    Long-form notebooks
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">easysnowdata.snow.ucla_sr</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for easysnowdata.snow.ucla_sr</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;UCLA snow reanalysis: Western US (WUS_UCLA_SR) and High Mountain Asia (HMA_SR_D).</span>
+
+<span class="sd">Daily posterior SWE, snow depth and snow-covered area at 480 m from a</span>
+<span class="sd">particle-batch-smoother reanalysis, one NetCDF-4 granule per water year and</span>
+<span class="sd">1°×1° tile. Two regions, the same layout:</span>
+
+<span class="sd">``wus`` (default)</span>
+<span class="sd">    ``WUS_UCLA_SR`` v1, water years 1985–2021 over the western United States.</span>
+<span class="sd">``hma``</span>
+<span class="sd">    ``HMA_SR_D`` v1, the High Mountain Asia sibling — new here (plan §4.3).</span>
+
+<span class="sd">Both come from NSIDC through ``earthaccess`` and need Earthdata Login.</span>
+
+<span class="sd">**Glaciers accumulate without bound**, the same artefact SNODAS has</span>
+<span class="sd">(:mod:`easysnowdata.snow.snodas`): the reanalysis never melts perennial ice</span>
+<span class="sd">out, so SWE over an ice cap grows year on year. Verified 2026-09-17 over the</span>
+<span class="sd">Mount Rainier box for January 2020 — the median is 0.14 m and the 90th</span>
+<span class="sd">percentile 1.09 m, both seasonally sensible, while 135 of 5 642 pixels exceed</span>
+<span class="sd">10 m and the maximum reaches 105.9 m on the summit ice cap. Those are the</span>
+<span class="sd">model&#39;s values, passed through untouched; mask them</span>
+<span class="sd">(``da.where(da &lt; 10)``) before taking a basin maximum where there are</span>
+<span class="sd">glaciers.</span>
+
+<span class="sd">Virtualization (plan §4.9)</span>
+<span class="sd">--------------------------</span>
+<span class="sd">These granules are NetCDF-4 without DMR++ sidecars, so</span>
+<span class="sd">``earthaccess.virtualize()`` falls back to scanning each file&#39;s HDF5 metadata</span>
+<span class="sd">once and caching kerchunk references. That is worth it for a long series and</span>
+<span class="sd">wasted on one water year, which is what ``virtualize=&quot;auto&quot;`` encodes: it</span>
+<span class="sd">turns on past ``VIRTUALIZE_THRESHOLD`` granules. ``True``/``False`` force it.</span>
+<span class="sd">The reference cache lives under :func:`easysnowdata.config.cache_dir`, so a</span>
+<span class="sd">second call over the same granules skips the scan.</span>
+
+<span class="sd">::</span>
+
+<span class="sd">    import easysnowdata as esd</span>
+<span class="sd">    swe = esd.snow.ucla_sr.load(aoi, &quot;2019-10/2021-09&quot;)                  # WUS</span>
+<span class="sd">    swe = esd.snow.ucla_sr.load(aoi, &quot;2000-10/2001-09&quot;, region=&quot;hma&quot;)    # HMA</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata</span><span class="w"> </span><span class="kn">import</span> <span class="n">catalog</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">providers</span><span class="p">,</span> <span class="n">temporal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.aoi</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_aoi</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.catalog</span><span class="w"> </span><span class="kn">import</span> <span class="n">Probe</span><span class="p">,</span> <span class="n">Product</span><span class="p">,</span> <span class="n">Source</span><span class="p">,</span> <span class="n">Variable</span><span class="p">,</span> <span class="n">health</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.catalog._access</span><span class="w"> </span><span class="kn">import</span> <span class="n">ensure_source</span><span class="p">,</span> <span class="n">resolve_source</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">contract</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;PRODUCT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;REGIONS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;STATS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;VARIABLES&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;VIRTUALIZE_THRESHOLD&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;search&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;load&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1">#: region → (short name, extent, temporal coverage)</span>
+<span class="n">REGIONS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;wus&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;WUS_UCLA_SR&quot;</span><span class="p">,</span> <span class="s2">&quot;western US&quot;</span><span class="p">,</span> <span class="s2">&quot;1984-10/2021-09&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;hma&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;HMA_SR_D&quot;</span><span class="p">,</span> <span class="s2">&quot;High Mountain Asia&quot;</span><span class="p">,</span> <span class="s2">&quot;1999-10/2017-09&quot;</span><span class="p">),</span>
+<span class="p">}</span>
+<span class="c1">#: Position of each ensemble statistic along the ``Stats`` dimension.</span>
+<span class="c1">#: (Phase 0 fixed the old mapping, where &quot;median&quot; and &quot;25pct&quot; shared index 2.)</span>
+<span class="n">STATS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;mean&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;25pct&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;75pct&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}</span>
+<span class="c1">#: The posterior variables the SWE/SCA granules carry.</span>
+<span class="n">VARIABLES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;SWE_Post&quot;</span><span class="p">,</span> <span class="s2">&quot;SCA_Post&quot;</span><span class="p">,</span> <span class="s2">&quot;SD_Post&quot;</span><span class="p">)</span>
+<span class="c1">#: More granules than this and ``virtualize=&quot;auto&quot;`` turns virtualization on.</span>
+<span class="n">VIRTUALIZE_THRESHOLD</span> <span class="o">=</span> <span class="mi">6</span>
+
+<span class="n">_NSIDC_DOCS</span> <span class="o">=</span> <span class="s2">&quot;https://nsidc.org/data/wus_ucla_sr/versions/1&quot;</span>
+<span class="n">_HMA_DOCS</span> <span class="o">=</span> <span class="s2">&quot;https://nsidc.org/data/hma_sr_d/versions/1&quot;</span>
+<span class="n">_WATER_YEAR</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;_WY(\d</span><span class="si">{4}</span><span class="s2">)_&quot;</span><span class="p">)</span>
+<span class="n">_DATE_IN_PATH</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d</span><span class="si">{4}</span><span class="s2">)[./](\d</span><span class="si">{2}</span><span class="s2">)[./](\d</span><span class="si">{2}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+<span class="n">PRODUCT</span> <span class="o">=</span> <span class="n">Product</span><span class="p">(</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;ucla-snow-reanalysis&quot;</span><span class="p">,</span>
+    <span class="n">theme</span><span class="o">=</span><span class="s2">&quot;snow&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;UCLA snow reanalysis (Western US and High Mountain Asia)&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;Daily 480 m posterior SWE, snow depth and snow-covered area from the UCLA &quot;</span>
+        <span class="s2">&quot;particle-batch-smoother reanalysis: water years 1985–2021 over the western &quot;</span>
+        <span class="s2">&quot;United States (WUS_UCLA_SR v1) and 2000–2017 over High Mountain Asia &quot;</span>
+        <span class="s2">&quot;(HMA_SR_D v1), each with five ensemble statistics.&quot;</span>
+    <span class="p">),</span>
+    <span class="n">sources</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Source</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;nsidc&quot;</span><span class="p">,</span>
+            <span class="n">provider</span><span class="o">=</span><span class="s2">&quot;earthdata&quot;</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="s2">&quot;WUS_UCLA_SR&quot;</span><span class="p">,</span>
+            <span class="n">requires</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;earthdata&quot;</span><span class="p">,),</span>
+            <span class="n">resolution_m</span><span class="o">=</span><span class="mi">480</span><span class="p">,</span>
+            <span class="n">extent</span><span class="o">=</span><span class="s2">&quot;western US&quot;</span><span class="p">,</span>
+            <span class="n">temporal</span><span class="o">=</span><span class="s2">&quot;1984-10/2021-09&quot;</span><span class="p">,</span>
+            <span class="n">latency</span><span class="o">=</span><span class="s2">&quot;static&quot;</span><span class="p">,</span>
+            <span class="n">notes</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;one NetCDF-4 granule per water year and 1° tile; no DMR++ sidecars, &quot;</span>
+                <span class="s2">&quot;so virtualize=&#39;auto&#39; scans HDF5 metadata once and caches references&quot;</span>
+            <span class="p">),</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;NSIDC (Earthdata)&quot;</span><span class="p">,</span>
+            <span class="n">health</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">Probe</span><span class="p">(</span>
+                    <span class="s2">&quot;UCLA Snow Reanalysis (NASA NSIDC)&quot;</span><span class="p">,</span>
+                    <span class="n">partial</span><span class="p">(</span><span class="n">health</span><span class="o">.</span><span class="n">earthdata_search</span><span class="p">,</span> <span class="s2">&quot;WUS_UCLA_SR&quot;</span><span class="p">),</span>
+                <span class="p">),</span>
+                <span class="c1"># The one that would change the loader&#39;s default: a DMR++</span>
+                <span class="c1"># sidecar turns virtualize=&#39;auto&#39; from an HDF5 metadata scan</span>
+                <span class="c1"># into a sidecar read (§4.9). NSIDC published none as of</span>
+                <span class="c1"># 2026-09-15; this is the weekly check for that changing.</span>
+                <span class="n">Probe</span><span class="p">(</span>
+                    <span class="s2">&quot;UCLA Snow Reanalysis DMR++ (CMR)&quot;</span><span class="p">,</span>
+                    <span class="n">partial</span><span class="p">(</span>
+                        <span class="n">health</span><span class="o">.</span><span class="n">dmrpp_status</span><span class="p">,</span>
+                        <span class="s2">&quot;WUS_UCLA_SR&quot;</span><span class="p">,</span>
+                        <span class="n">fallback</span><span class="o">=</span><span class="n">health</span><span class="o">.</span><span class="n">FALLBACK_PARSERS</span><span class="p">[</span><span class="s2">&quot;NETCDF-4&quot;</span><span class="p">],</span>
+                    <span class="p">),</span>
+                    <span class="n">requires</span><span class="o">=</span><span class="p">(),</span>
+                    <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;virtualization&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">Source</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;nsidc-hma&quot;</span><span class="p">,</span>
+            <span class="n">provider</span><span class="o">=</span><span class="s2">&quot;earthdata&quot;</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="s2">&quot;HMA_SR_D&quot;</span><span class="p">,</span>
+            <span class="n">requires</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;earthdata&quot;</span><span class="p">,),</span>
+            <span class="n">resolution_m</span><span class="o">=</span><span class="mi">480</span><span class="p">,</span>
+            <span class="n">extent</span><span class="o">=</span><span class="s2">&quot;High Mountain Asia&quot;</span><span class="p">,</span>
+            <span class="n">temporal</span><span class="o">=</span><span class="s2">&quot;1999-10/2017-09&quot;</span><span class="p">,</span>
+            <span class="n">latency</span><span class="o">=</span><span class="s2">&quot;static&quot;</span><span class="p">,</span>
+            <span class="n">notes</span><span class="o">=</span><span class="s2">&quot;the High Mountain Asia sibling of the same reanalysis&quot;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;NSIDC HMA (Earthdata)&quot;</span><span class="p">,</span>
+            <span class="n">health</span><span class="o">=</span><span class="n">Probe</span><span class="p">(</span>
+                <span class="s2">&quot;HMA Snow Reanalysis (NASA NSIDC)&quot;</span><span class="p">,</span>
+                <span class="n">partial</span><span class="p">(</span>
+                    <span class="n">health</span><span class="o">.</span><span class="n">earthdata_search</span><span class="p">,</span>
+                    <span class="s2">&quot;HMA_SR_D&quot;</span><span class="p">,</span>
+                    <span class="n">bbox</span><span class="o">=</span><span class="p">(</span><span class="mf">80.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">81.0</span><span class="p">,</span> <span class="mf">31.0</span><span class="p">),</span>
+                    <span class="n">temporal</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;2000-03-01&quot;</span><span class="p">,</span> <span class="s2">&quot;2000-03-07&quot;</span><span class="p">),</span>
+                <span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">variables</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Variable</span><span class="p">(</span>
+            <span class="s2">&quot;SWE_Post&quot;</span><span class="p">,</span>
+            <span class="n">units</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span>
+            <span class="n">long_name</span><span class="o">=</span><span class="s2">&quot;posterior snow water equivalent&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">Variable</span><span class="p">(</span>
+            <span class="s2">&quot;SCA_Post&quot;</span><span class="p">,</span>
+            <span class="n">units</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span>
+            <span class="n">long_name</span><span class="o">=</span><span class="s2">&quot;posterior snow-covered area fraction&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">Variable</span><span class="p">(</span>
+            <span class="s2">&quot;SD_Post&quot;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">long_name</span><span class="o">=</span><span class="s2">&quot;posterior snow depth&quot;</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">citation</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;Fang, Y., Liu, Y. and Margulis, S. A. (2022). Western United States UCLA Daily &quot;</span>
+        <span class="s2">&quot;Snow Reanalysis, Version 1. NASA NSIDC DAAC. Liu, Y., Fang, Y. and Margulis, &quot;</span>
+        <span class="s2">&quot;S. A. (2021). High Mountain Asia UCLA Daily Snow Reanalysis, Version 1.&quot;</span>
+    <span class="p">),</span>
+    <span class="n">license</span><span class="o">=</span><span class="s2">&quot;NASA Earthdata (free registration)&quot;</span><span class="p">,</span>
+    <span class="n">doi</span><span class="o">=</span><span class="s2">&quot;10.5067/PP7T2GBI52I2&quot;</span><span class="p">,</span>
+    <span class="n">references</span><span class="o">=</span><span class="p">(</span><span class="n">_NSIDC_DOCS</span><span class="p">,</span> <span class="n">_HMA_DOCS</span><span class="p">),</span>
+    <span class="n">loader</span><span class="o">=</span><span class="s2">&quot;easysnowdata.snow.ucla_sr.load&quot;</span><span class="p">,</span>
+    <span class="n">examples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;snow/plot_ucla_sr.py&quot;</span><span class="p">,),</span>
+    <span class="n">tags</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;swe&quot;</span><span class="p">,</span> <span class="s2">&quot;reanalysis&quot;</span><span class="p">,</span> <span class="s2">&quot;snow depth&quot;</span><span class="p">,</span> <span class="s2">&quot;ucla&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">catalog</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">PRODUCT</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="c1"># ── helpers ───────────────────────────────────────────────────────────────────</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_region</span><span class="p">(</span><span class="n">region</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">region</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">REGIONS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;region must be one of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">REGIONS</span><span class="p">)</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">region</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">key</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_stats_index</span><span class="p">(</span><span class="n">stats</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">stats</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">STATS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;stats must be one of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">STATS</span><span class="p">)</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">stats</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">STATS</span><span class="p">[</span><span class="n">stats</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">water_year_start</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The 1 October a granule&#39;s daily record starts on.</span>
+
+<span class="sd">    Taken from the ``_WY1999_`` field of the file name, or from a date in the</span>
+<span class="sd">    archive path (``.../1999/10/01/...``) when the name does not carry one.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span> <span class="o">:=</span> <span class="n">_WATER_YEAR</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="n">month</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span> <span class="o">:=</span> <span class="n">_DATE_IN_PATH</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">g</span><span class="p">)</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()))</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not determine the water-year start date from: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_should_virtualize</span><span class="p">(</span><span class="n">virtualize</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">granule_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">virtualize</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">virtualize</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;virtualize must be True, False or &#39;auto&#39;, got </span><span class="si">{</span><span class="n">virtualize</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">granule_count</span> <span class="o">&gt;</span> <span class="n">VIRTUALIZE_THRESHOLD</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">virtualize</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_time_coord</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Turn the granule&#39;s ``Day`` index into a real time axis.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;Day&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ds</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;Day&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Day&quot;</span><span class="p">,</span> <span class="n">times</span><span class="p">))</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s2">&quot;Day&quot;</span><span class="p">:</span> <span class="s2">&quot;time&quot;</span><span class="p">})</span>
+
+
+<span class="c1"># ── public API ────────────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="search">
+<a class="viewcode-back" href="../../../generated/easysnowdata.snow.ucla_sr.search.html#easysnowdata.snow.ucla_sr.search">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span>
+    <span class="n">aoi</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">region</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wus&quot;</span><span class="p">,</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_items</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Search the reanalysis granules and return them as a ``GeoDataFrame``.&quot;&quot;&quot;</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">_region</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">resolve_source</span><span class="p">(</span><span class="n">PRODUCT</span><span class="p">,</span> <span class="n">source</span> <span class="ow">or</span> <span class="p">(</span><span class="s2">&quot;nsidc&quot;</span> <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;wus&quot;</span> <span class="k">else</span> <span class="s2">&quot;nsidc-hma&quot;</span><span class="p">))</span>
+    <span class="n">ensure_source</span><span class="p">(</span><span class="n">PRODUCT</span><span class="p">,</span> <span class="n">src</span><span class="p">)</span>
+    <span class="n">granules</span> <span class="o">=</span> <span class="n">providers</span><span class="o">.</span><span class="n">earthdata</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">REGIONS</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">aoi</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">max_items</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">granules</span> <span class="o">=</span> <span class="n">granules</span><span class="p">[:</span><span class="n">max_items</span><span class="p">]</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">providers</span><span class="o">.</span><span class="n">earthdata</span><span class="o">.</span><span class="n">granules_to_geodataframe</span><span class="p">(</span><span class="n">granules</span><span class="p">)</span>
+    <span class="n">gdf</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">src</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">key</span><span class="p">,</span> <span class="s2">&quot;short_name&quot;</span><span class="p">:</span> <span class="n">REGIONS</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">]}</span>
+    <span class="k">return</span> <span class="n">gdf</span></div>
+
+
+
+<div class="viewcode-block" id="load">
+<a class="viewcode-back" href="../../../generated/easysnowdata.snow.ucla_sr.load.html#easysnowdata.snow.ucla_sr.load">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span>
+    <span class="n">aoi</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">variable</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;SWE_Post&quot;</span><span class="p">,</span>
+    <span class="n">stats</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+    <span class="n">region</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wus&quot;</span><span class="p">,</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">granules</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">virtualize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">access</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">chunks</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load the reanalysis as a lazy ``xarray.DataArray`` (``time``, ``y``, ``x``).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    aoi, time</span>
+<span class="sd">        The usual spatial and temporal inputs.</span>
+<span class="sd">    variable</span>
+<span class="sd">        ``&quot;SWE_Post&quot;`` (default), ``&quot;SCA_Post&quot;`` or ``&quot;SD_Post&quot;``.</span>
+<span class="sd">    stats</span>
+<span class="sd">        Ensemble statistic: ``&quot;mean&quot;``, ``&quot;std&quot;``, ``&quot;median&quot;``, ``&quot;25pct&quot;``</span>
+<span class="sd">        or ``&quot;75pct&quot;``.</span>
+<span class="sd">    region</span>
+<span class="sd">        ``&quot;wus&quot;`` (default) or ``&quot;hma&quot;``.</span>
+<span class="sd">    virtualize</span>
+<span class="sd">        ``&quot;auto&quot;`` (default) virtualizes past</span>
+<span class="sd">        :data:`VIRTUALIZE_THRESHOLD` granules, which is where the one-off</span>
+<span class="sd">        HDF5 metadata scan pays for itself; ``True``/``False`` force it.</span>
+<span class="sd">    access</span>
+<span class="sd">        ``&quot;auto&quot;`` (default) uses NASA&#39;s in-region S3 credentials when this</span>
+<span class="sd">        process runs in ``us-west-2`` and HTTPS everywhere else;</span>
+<span class="sd">        ``&quot;direct&quot;``/``&quot;indirect&quot;`` force it.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        The chosen variable and statistic, clipped to the AOI.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">_region</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">resolve_source</span><span class="p">(</span><span class="n">PRODUCT</span><span class="p">,</span> <span class="n">source</span> <span class="ow">or</span> <span class="p">(</span><span class="s2">&quot;nsidc&quot;</span> <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;wus&quot;</span> <span class="k">else</span> <span class="s2">&quot;nsidc-hma&quot;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;variable must be one of </span><span class="si">{</span><span class="n">VARIABLES</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">variable</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">_stats_index</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>  <span class="c1"># validated before any network call</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">parse_aoi</span><span class="p">(</span><span class="n">aoi</span><span class="p">)</span> <span class="k">if</span> <span class="n">aoi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">ensure_source</span><span class="p">(</span><span class="n">PRODUCT</span><span class="p">,</span> <span class="n">src</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">granules</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">granules</span> <span class="o">=</span> <span class="n">providers</span><span class="o">.</span><span class="n">earthdata</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">REGIONS</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">aoi</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">granules</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;No </span><span class="si">{</span><span class="n">REGIONS</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> granules for this AOI and time &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">REGIONS</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2"> is the coverage).&quot;</span>
+        <span class="p">)</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="n">_resolve_access</span><span class="p">(</span><span class="n">access</span><span class="p">)</span>
+    <span class="n">use_virtual</span> <span class="o">=</span> <span class="n">_should_virtualize</span><span class="p">(</span><span class="n">virtualize</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">granules</span><span class="p">))</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Loading </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> granule(s) (virtualize=</span><span class="si">%s</span><span class="s2">, access=</span><span class="si">%s</span><span class="s2">).&quot;</span><span class="p">,</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">granules</span><span class="p">),</span>
+        <span class="n">REGIONS</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">use_virtual</span><span class="p">,</span>
+        <span class="n">mode</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_open_virtual</span><span class="p">(</span><span class="n">granules</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">chunks</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">use_virtual</span>
+        <span class="k">else</span> <span class="n">_open_direct</span><span class="p">(</span><span class="n">granules</span><span class="p">,</span> <span class="n">chunks</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">da</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">&quot;Stats&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">Stats</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;Latitude&quot;</span><span class="p">:</span> <span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="s2">&quot;Longitude&quot;</span><span class="p">:</span> <span class="s2">&quot;longitude&quot;</span><span class="p">})</span>
+    <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">set_spatial_dims</span><span class="p">(</span><span class="n">x_dim</span><span class="o">=</span><span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="n">y_dim</span><span class="o">=</span><span class="s2">&quot;latitude&quot;</span><span class="p">)</span>
+    <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">write_crs</span><span class="p">(</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">parsed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">parsed</span><span class="o">.</span><span class="n">clip</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">parsed</span><span class="o">.</span><span class="n">is_global</span><span class="p">:</span>
+        <span class="n">west</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">north</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">()</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">clip_box</span><span class="p">(</span>
+            <span class="n">west</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">north</span><span class="p">,</span> <span class="n">allow_one_dimensional_raster</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">temporal</span><span class="o">.</span><span class="n">parse_time</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">chunks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">chunk</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">da</span><span class="o">.</span><span class="n">chunks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">chunk</span><span class="p">({</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="mi">31</span><span class="p">})</span>
+
+    <span class="n">da</span> <span class="o">=</span> <span class="n">contract</span><span class="o">.</span><span class="n">finalize</span><span class="p">(</span>
+        <span class="n">da</span><span class="p">,</span>
+        <span class="n">PRODUCT</span><span class="p">,</span>
+        <span class="n">src</span><span class="p">,</span>
+        <span class="n">crs</span><span class="o">=</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">,</span>
+        <span class="n">variables</span><span class="o">=</span><span class="p">(),</span>
+        <span class="n">source_url</span><span class="o">=</span><span class="n">_NSIDC_DOCS</span> <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;wus&quot;</span> <span class="k">else</span> <span class="n">_HMA_DOCS</span><span class="p">,</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">key</span><span class="p">,</span>
+            <span class="s2">&quot;short_name&quot;</span><span class="p">:</span> <span class="n">REGIONS</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+            <span class="s2">&quot;statistic&quot;</span><span class="p">:</span> <span class="n">stats</span><span class="p">,</span>
+            <span class="s2">&quot;variable&quot;</span><span class="p">:</span> <span class="n">variable</span><span class="p">,</span>
+            <span class="s2">&quot;virtualized&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">use_virtual</span><span class="p">),</span>
+            <span class="s2">&quot;access&quot;</span><span class="p">:</span> <span class="n">mode</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">_variable_attrs</span><span class="p">(</span><span class="n">variable</span><span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">da</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_variable_attrs</span><span class="p">(</span><span class="n">variable</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The catalog&#39;s CF attrs for one reanalysis variable.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">definition</span> <span class="ow">in</span> <span class="n">PRODUCT</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">definition</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">variable</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">definition</span><span class="o">.</span><span class="n">cf_attrs</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">{}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_access</span><span class="p">(</span><span class="n">access</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``&quot;direct&quot;`` only where NASA&#39;s in-region S3 credentials work (us-west-2).&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">access</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="s2">&quot;direct&quot;</span><span class="p">,</span> <span class="s2">&quot;indirect&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;access must be &#39;auto&#39;, &#39;direct&#39; or &#39;indirect&#39;, got </span><span class="si">{</span><span class="n">access</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">access</span> <span class="o">!=</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">access</span>
+    <span class="k">return</span> <span class="s2">&quot;direct&quot;</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">region</span><span class="p">(</span><span class="n">probe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">direct_s3</span> <span class="k">else</span> <span class="s2">&quot;indirect&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_open_direct</span><span class="p">(</span><span class="n">granules</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">chunks</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``earthaccess.open`` plus ``open_mfdataset`` — the path for a few granules.&quot;&quot;&quot;</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="n">providers</span><span class="o">.</span><span class="n">earthdata</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">granules</span><span class="p">))</span>
+    <span class="n">datasets</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">handle</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s2">&quot;path&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span>
+            <span class="n">handle</span><span class="p">,</span> <span class="s2">&quot;full_name&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="p">{}</span> <span class="k">if</span> <span class="n">chunks</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">chunks</span><span class="p">)</span>
+        <span class="n">datasets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_add_time_coord</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">water_year_start</span><span class="p">(</span><span class="n">path</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">combine_by_coords</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">combine_attrs</span><span class="o">=</span><span class="s2">&quot;drop_conflicts&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_open_virtual</span><span class="p">(</span><span class="n">granules</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">access</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chunks</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``earthaccess.virtualize`` with a reference cache in the easysnowdata cache.</span>
+
+<span class="sd">    The granules carry no DMR++ sidecars, so earthaccess falls back to the</span>
+<span class="sd">    HDF5 parser: one metadata scan per granule, written to ``reference_dir``</span>
+<span class="sd">    and reused on the next call.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">earthaccess</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="n">reference_dir</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">(</span><span class="s2">&quot;virtual&quot;</span><span class="p">,</span> <span class="s2">&quot;ucla_sr&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">earthaccess</span><span class="o">.</span><span class="n">virtualize</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">granules</span><span class="p">),</span>
+            <span class="n">access</span><span class="o">=</span><span class="n">access</span><span class="p">,</span>
+            <span class="n">load</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">concat_dim</span><span class="o">=</span><span class="s2">&quot;Day&quot;</span><span class="p">,</span>
+            <span class="n">reference_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">reference_dir</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 — virtualization is an optimisation</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Virtualization failed (</span><span class="si">%s</span><span class="s2">); falling back to earthaccess.open().&quot;</span><span class="p">,</span> <span class="n">exc</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_open_direct</span><span class="p">(</span><span class="n">granules</span><span class="p">,</span> <span class="n">chunks</span><span class="p">)</span>
+    <span class="n">starts</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">water_year_start</span><span class="p">(</span><span class="n">_granule_path</span><span class="p">(</span><span class="n">g</span><span class="p">))</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">granules</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;Day&quot;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">days</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;Day&quot;</span><span class="p">]</span>
+        <span class="n">per_year</span> <span class="o">=</span> <span class="n">days</span> <span class="o">//</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">starts</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="n">per_year</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="n">starts</span><span class="p">]</span>
+        <span class="p">)[:</span><span class="n">days</span><span class="p">]</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Day&quot;</span><span class="p">,</span> <span class="n">times</span><span class="p">))</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s2">&quot;Day&quot;</span><span class="p">:</span> <span class="s2">&quot;time&quot;</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">ds</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_granule_path</span><span class="p">(</span><span class="n">granule</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A file path or URL for a granule, whatever earthaccess handed back.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">,</span> <span class="s2">&quot;full_name&quot;</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">granule</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">links</span> <span class="o">=</span> <span class="n">granule</span><span class="o">.</span><span class="n">data_links</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
+        <span class="n">links</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">links</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">links</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">granule</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">granule</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">granule</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">granule</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">granule</span><span class="p">)</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

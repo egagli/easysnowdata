@@ -1,0 +1,1009 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>easysnowdata.providers.planet.sdk &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../_static/documentation_options.js?v=db369ce5"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/easysnowdata.providers.planet.sdk';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="easysnowdata.providers.planet.build_search_filter" href="easysnowdata.providers.planet.build_search_filter.html" />
+    <link rel="prev" title="easysnowdata.providers.planet.client" href="easysnowdata.providers.planet.client.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.2.1.dev6" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../notebooks.html">
+    Long-form notebooks
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../notebooks.html">
+    Long-form notebooks
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/aoi.html">Areas of interest</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.aoi.AOI.html">easysnowdata.aoi.AOI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.aoi.parse_aoi.html">easysnowdata.aoi.parse_aoi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.aoi.estimate_utm_crs.html">easysnowdata.aoi.estimate_utm_crs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.aoi.split_antimeridian.html">easysnowdata.aoi.split_antimeridian</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/auth.html">Credentials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.auth.CredentialError.html">easysnowdata.auth.CredentialError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.auth.Detection.html">easysnowdata.auth.Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.auth.Provider.html">easysnowdata.auth.Provider</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.auth.get.html">easysnowdata.auth.get</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.auth.detect.html">easysnowdata.auth.detect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.auth.status.html">easysnowdata.auth.status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.auth.login.html">easysnowdata.auth.login</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.auth.ensure.html">easysnowdata.auth.ensure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.auth.env.html">easysnowdata.auth.env</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.auth.reset.html">easysnowdata.auth.reset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.auth.summary_line.html">easysnowdata.auth.summary_line</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/catalog.html">Catalog</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.Variable.html">easysnowdata.catalog.Variable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.Probe.html">easysnowdata.catalog.Probe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.Source.html">easysnowdata.catalog.Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.Product.html">easysnowdata.catalog.Product</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.register.html">easysnowdata.catalog.register</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.products.html">easysnowdata.catalog.products</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.get.html">easysnowdata.catalog.get</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.list.html">easysnowdata.catalog.list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.search.html">easysnowdata.catalog.search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.describe.html">easysnowdata.catalog.describe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.themes.html">easysnowdata.catalog.themes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.validate.html">easysnowdata.catalog.validate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.validate_all.html">easysnowdata.catalog.validate_all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.health.http_first_byte.html">easysnowdata.catalog.health.http_first_byte</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.health.stac_search.html">easysnowdata.catalog.health.stac_search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.health.zarr_metadata.html">easysnowdata.catalog.health.zarr_metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.health.gee_asset.html">easysnowdata.catalog.health.gee_asset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.health.earthdata_search.html">easysnowdata.catalog.health.earthdata_search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.health.stac_latest.html">easysnowdata.catalog.health.stac_latest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.health.cmr_latest.html">easysnowdata.catalog.health.cmr_latest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.health.zarr_latest.html">easysnowdata.catalog.health.zarr_latest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.health.gee_latest.html">easysnowdata.catalog.health.gee_latest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.health.latest_available_day.html">easysnowdata.catalog.health.latest_available_day</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.health.dmrpp_status.html">easysnowdata.catalog.health.dmrpp_status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.health.run.html">easysnowdata.catalog.health.run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.health.update_history.html">easysnowdata.catalog.health.update_history</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.health.summarize.html">easysnowdata.catalog.health.summarize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.catalog.health.main.html">easysnowdata.catalog.health.main</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/config.html">Configuration</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.config.quiet.html">easysnowdata.config.quiet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.config.is_interactive.html">easysnowdata.config.is_interactive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.config.cache_dir.html">easysnowdata.config.cache_dir</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.config.Region.html">easysnowdata.config.Region</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.config.region.html">easysnowdata.config.region</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.config.access_mode.html">easysnowdata.config.access_mode</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/temporal.html">Time inputs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.temporal.parse_time.html">easysnowdata.temporal.parse_time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.temporal.to_stac_datetime.html">easysnowdata.temporal.to_stac_datetime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.temporal.today.html">easysnowdata.temporal.today</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.temporal.now.html">easysnowdata.temporal.now</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/stations.html">Stations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.inventory.html">easysnowdata.stations.inventory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.load.html">easysnowdata.stations.load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.metadata.html">easysnowdata.stations.metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.archive.csv_url.html">easysnowdata.stations.archive.csv_url</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.archive.inventory.html">easysnowdata.stations.archive.inventory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.archive.load.html">easysnowdata.stations.archive.load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.archive.network_of.html">easysnowdata.stations.archive.network_of</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.clients.AWDBClient.html">easysnowdata.stations.clients.AWDBClient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.clients.AWDBError.html">easysnowdata.stations.clients.AWDBError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.clients.CDECClient.html">easysnowdata.stations.clients.CDECClient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.clients.CDECError.html">easysnowdata.stations.clients.CDECError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.clients.DataBCClient.html">easysnowdata.stations.clients.DataBCClient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.clients.DataBCError.html">easysnowdata.stations.clients.DataBCError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.clients.NVEClient.html">easysnowdata.stations.clients.NVEClient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.clients.NVEError.html">easysnowdata.stations.clients.NVEError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.clients.YukonClient.html">easysnowdata.stations.clients.YukonClient</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.clients.YukonError.html">easysnowdata.stations.clients.YukonError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.networks.Network.html">easysnowdata.stations.networks.Network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.networks.canonical_units.html">easysnowdata.stations.networks.canonical_units</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.networks.get.html">easysnowdata.stations.networks.get</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.networks.split_by_network.html">easysnowdata.stations.networks.split_by_network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.networks.to_code.html">easysnowdata.stations.networks.to_code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.stations.networks.to_station_id.html">easysnowdata.stations.networks.to_station_id</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/snow.html">Snow</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.snow.modis.search.html">easysnowdata.snow.modis.search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.snow.modis.load.html">easysnowdata.snow.modis.load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.snow.mountain_snow_mask.load.html">easysnowdata.snow.mountain_snow_mask.load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.snow.snodas.tar_url.html">easysnowdata.snow.snodas.tar_url</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.snow.snodas.search.html">easysnowdata.snow.snodas.search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.snow.snodas.load.html">easysnowdata.snow.snodas.load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.snow.snow_classification.filename.html">easysnowdata.snow.snow_classification.filename</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.snow.snow_classification.load.html">easysnowdata.snow.snow_classification.load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.snow.ucla_sr.search.html">easysnowdata.snow.ucla_sr.search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.snow.ucla_sr.load.html">easysnowdata.snow.ucla_sr.load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.snow.viirs.search.html">easysnowdata.snow.viirs.search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.snow.viirs.load.html">easysnowdata.snow.viirs.load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.snow.viirs.read_struct_metadata.html">easysnowdata.snow.viirs.read_struct_metadata</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/sar.html">SAR</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.sar.sentinel1.search.html">easysnowdata.sar.sentinel1.search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.sar.sentinel1.load.html">easysnowdata.sar.sentinel1.load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.sar.sentinel1.local_incidence_angle.html">easysnowdata.sar.sentinel1.local_incidence_angle</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/optical.html">Optical</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.optical.hls.search.html">easysnowdata.optical.hls.search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.optical.hls.load.html">easysnowdata.optical.hls.load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.optical.planetscope.search.html">easysnowdata.optical.planetscope.search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.optical.planetscope.order.html">easysnowdata.optical.planetscope.order</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.optical.planetscope.load.html">easysnowdata.optical.planetscope.load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.optical.planetscope.open_delivery.html">easysnowdata.optical.planetscope.open_delivery</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.optical.sentinel2.search.html">easysnowdata.optical.sentinel2.search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.optical.sentinel2.load.html">easysnowdata.optical.sentinel2.load</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/terrain.html">Terrain</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.terrain.chili.load.html">easysnowdata.terrain.chili.load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.terrain.dem.search.html">easysnowdata.terrain.dem.search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.terrain.dem.load.html">easysnowdata.terrain.dem.load</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/land.html">Land cover</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.land.forest_cover.load.html">easysnowdata.land.forest_cover.load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.land.landcover.search.html">easysnowdata.land.landcover.search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.land.landcover.load.html">easysnowdata.land.landcover.load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.land.nlcd.load.html">easysnowdata.land.nlcd.load</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/hydro.html">Hydrography</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.hydro.basins.huc.html">easysnowdata.hydro.basins.huc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.hydro.basins.hydrobasins.html">easysnowdata.hydro.basins.hydrobasins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.hydro.basins.grdc_major.html">easysnowdata.hydro.basins.grdc_major</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.hydro.basins.grdc_wmo.html">easysnowdata.hydro.basins.grdc_wmo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.hydro.basins.load.html">easysnowdata.hydro.basins.load</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/climate.html">Climate</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.climate.era5.search.html">easysnowdata.climate.era5.search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.climate.era5.load.html">easysnowdata.climate.era5.load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.climate.koppen_geiger.search.html">easysnowdata.climate.koppen_geiger.search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.climate.koppen_geiger.load.html">easysnowdata.climate.koppen_geiger.load</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/processing.html">Processing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.add_water_year_coords.html">easysnowdata.processing.add_water_year_coords</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.apply_fmask.html">easysnowdata.processing.apply_fmask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.binary_snow.html">easysnowdata.processing.binary_snow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.apply_scl_mask.html">easysnowdata.processing.apply_scl_mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.day_of_water_year.html">easysnowdata.processing.day_of_water_year</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.db_to_linear.html">easysnowdata.processing.db_to_linear</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.decode_udm2.html">easysnowdata.processing.decode_udm2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.evi.html">easysnowdata.processing.evi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.flag_mask.html">easysnowdata.processing.flag_mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.flags.html">easysnowdata.processing.flags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.fmask_aerosol_level.html">easysnowdata.processing.fmask_aerosol_level</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.fmask_bit.html">easysnowdata.processing.fmask_bit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.fmask_mask.html">easysnowdata.processing.fmask_mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.from_class_info.html">easysnowdata.processing.from_class_info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.harmonize_s2_baseline.html">easysnowdata.processing.harmonize_s2_baseline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.linear_to_db.html">easysnowdata.processing.linear_to_db</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.local_incidence_angle.html">easysnowdata.processing.local_incidence_angle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.look_azimuth.html">easysnowdata.processing.look_azimuth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.mask_nodata.html">easysnowdata.processing.mask_nodata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.ndbi.html">easysnowdata.processing.ndbi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.ndsi.html">easysnowdata.processing.ndsi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.ndvi.html">easysnowdata.processing.ndvi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.ndwi.html">easysnowdata.processing.ndwi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.ndsi_flag_attrs.html">easysnowdata.processing.ndsi_flag_attrs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.normalized_difference.html">easysnowdata.processing.normalized_difference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.parse_snodas_header.html">easysnowdata.processing.parse_snodas_header</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.remove_border_noise.html">easysnowdata.processing.remove_border_noise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.rgb.html">easysnowdata.processing.rgb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.scale_offset.html">easysnowdata.processing.scale_offset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.scl_mask.html">easysnowdata.processing.scl_mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.set_flags.html">easysnowdata.processing.set_flags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.slope_aspect.html">easysnowdata.processing.slope_aspect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.stretch_clahe.html">easysnowdata.processing.stretch_clahe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.stretch_percentile.html">easysnowdata.processing.stretch_percentile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.udm1_bit.html">easysnowdata.processing.udm1_bit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.water_year.html">easysnowdata.processing.water_year</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.water_year_start.html">easysnowdata.processing.water_year_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.categorical.meaning_key.html">easysnowdata.processing.categorical.meaning_key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.contract.geographic_dims.html">easysnowdata.processing.contract.geographic_dims</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.contract.write_crs.html">easysnowdata.processing.contract.write_crs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.contract.mask_continuous.html">easysnowdata.processing.contract.mask_continuous</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.contract.set_categorical_nodata.html">easysnowdata.processing.contract.set_categorical_nodata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.contract.provenance.html">easysnowdata.processing.contract.provenance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.contract.apply_variables.html">easysnowdata.processing.contract.apply_variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.contract.finalize.html">easysnowdata.processing.contract.finalize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.snow.repair_fill_values.html">easysnowdata.processing.snow.repair_fill_values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.snow.snodas_members.html">easysnowdata.processing.snow.snodas_members</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.snow.snodas_array.html">easysnowdata.processing.snow.snodas_array</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.wateryear.water_year_bounds.html">easysnowdata.processing.wateryear.water_year_bounds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.wateryear.water_year_range.html">easysnowdata.processing.wateryear.water_year_range</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.processing.wateryear.water_year_length.html">easysnowdata.processing.wateryear.water_year_length</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/plotting.html">Plotting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.plotting.colormap_from_flags.html">easysnowdata.plotting.colormap_from_flags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.plotting.legend_handles.html">easysnowdata.plotting.legend_handles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.plotting.categorical.html">easysnowdata.plotting.categorical</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.plotting.register_colormap.html">easysnowdata.plotting.register_colormap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.plotting.rgb.html">easysnowdata.plotting.rgb</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api/providers.html">Providers</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.gdal_env.html">easysnowdata.providers.gdal_env</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.stac.open_catalog.html">easysnowdata.providers.stac.open_catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.stac.search.html">easysnowdata.providers.stac.search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.stac.items_to_geodataframe.html">easysnowdata.providers.stac.items_to_geodataframe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.stac.geodataframe_to_items.html">easysnowdata.providers.stac.geodataframe_to_items</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.stac.load.html">easysnowdata.providers.stac.load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.stac.odc_load.html">easysnowdata.providers.stac.odc_load</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.stac.read_env.html">easysnowdata.providers.stac.read_env</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.earthdata.ensure.html">easysnowdata.providers.earthdata.ensure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.earthdata.env.html">easysnowdata.providers.earthdata.env</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.earthdata.search.html">easysnowdata.providers.earthdata.search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.earthdata.granules_to_geodataframe.html">easysnowdata.providers.earthdata.granules_to_geodataframe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.earthdata.open.html">easysnowdata.providers.earthdata.open</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.earthdata.download.html">easysnowdata.providers.earthdata.download</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.earthdata.hdf4_available.html">easysnowdata.providers.earthdata.hdf4_available</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.earthdata.require_hdf4.html">easysnowdata.providers.earthdata.require_hdf4</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.gee.ensure.html">easysnowdata.providers.gee.ensure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.gee.ee.html">easysnowdata.providers.gee.ee</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.gee.grid_params.html">easysnowdata.providers.gee.grid_params</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.gee.open_dataset.html">easysnowdata.providers.gee.open_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.gee.features_to_geodataframe.html">easysnowdata.providers.gee.features_to_geodataframe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.gee.geometry.html">easysnowdata.providers.gee.geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.planet.ensure.html">easysnowdata.providers.planet.ensure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.planet.client.html">easysnowdata.providers.planet.client</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">easysnowdata.providers.planet.sdk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.planet.build_search_filter.html">easysnowdata.providers.planet.build_search_filter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.planet.search.html">easysnowdata.providers.planet.search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.planet.items_to_geodataframe.html">easysnowdata.providers.planet.items_to_geodataframe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.planet.product.html">easysnowdata.providers.planet.product</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.planet.create_order.html">easysnowdata.providers.planet.create_order</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.planet.wait_order.html">easysnowdata.providers.planet.wait_order</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.planet.download_order.html">easysnowdata.providers.planet.download_order</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.planet.asset_url.html">easysnowdata.providers.planet.asset_url</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.raster_http.open.html">easysnowdata.providers.raster_http.open</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.raster_http.zip_url.html">easysnowdata.providers.raster_http.zip_url</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.raster_http.fetch.html">easysnowdata.providers.raster_http.fetch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.zarr_cloud.storage_options_for.html">easysnowdata.providers.zarr_cloud.storage_options_for</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.zarr_cloud.open.html">easysnowdata.providers.zarr_cloud.open</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.zarr_cloud.select.html">easysnowdata.providers.zarr_cloud.select</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.vector_http.read.html">easysnowdata.providers.vector_http.read</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.vector_http.read_parquet.html">easysnowdata.providers.vector_http.read_parquet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.providers.vector_http.zip_path.html">easysnowdata.providers.vector_http.zip_path</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/remote_sensing.html">remote_sensing (deprecated)</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.remote_sensing.authenticate_all.html">easysnowdata.remote_sensing.authenticate_all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.remote_sensing.get_forest_cover_fraction.html">easysnowdata.remote_sensing.get_forest_cover_fraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.remote_sensing.get_seasonal_snow_classification.html">easysnowdata.remote_sensing.get_seasonal_snow_classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.remote_sensing.get_seasonal_mountain_snow_mask.html">easysnowdata.remote_sensing.get_seasonal_mountain_snow_mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.remote_sensing.get_esa_worldcover.html">easysnowdata.remote_sensing.get_esa_worldcover</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.remote_sensing.get_nlcd_landcover.html">easysnowdata.remote_sensing.get_nlcd_landcover</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.remote_sensing.Sentinel2.html">easysnowdata.remote_sensing.Sentinel2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.remote_sensing.Sentinel1.html">easysnowdata.remote_sensing.Sentinel1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.remote_sensing.HLS.html">easysnowdata.remote_sensing.HLS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.remote_sensing.MODIS_snow.html">easysnowdata.remote_sensing.MODIS_snow</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/hydroclimatology.html">hydroclimatology (deprecated)</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.hydroclimatology.get_huc_geometries.html">easysnowdata.hydroclimatology.get_huc_geometries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.hydroclimatology.get_hydroBASINS.html">easysnowdata.hydroclimatology.get_hydroBASINS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.hydroclimatology.get_grdc_major_river_basins_of_the_world.html">easysnowdata.hydroclimatology.get_grdc_major_river_basins_of_the_world</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.hydroclimatology.get_grdc_wmo_basins.html">easysnowdata.hydroclimatology.get_grdc_wmo_basins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.hydroclimatology.get_era5.html">easysnowdata.hydroclimatology.get_era5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.hydroclimatology.get_snodas.html">easysnowdata.hydroclimatology.get_snodas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.hydroclimatology.get_ucla_snow_reanalysis.html">easysnowdata.hydroclimatology.get_ucla_snow_reanalysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.hydroclimatology.get_koppen_geiger_classes.html">easysnowdata.hydroclimatology.get_koppen_geiger_classes</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/topography.html">topography (deprecated)</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.topography.get_copernicus_dem.html">easysnowdata.topography.get_copernicus_dem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.topography.get_chili.html">easysnowdata.topography.get_chili</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/automatic_weather_stations.html">automatic_weather_stations (deprecated)</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.automatic_weather_stations.StationCollection.html">easysnowdata.automatic_weather_stations.StationCollection</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/utils.html">utils (deprecated)</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.utils.requires_earthengine.html">easysnowdata.utils.requires_earthengine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.utils.requires_earthaccess.html">easysnowdata.utils.requires_earthaccess</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.utils.initialize_earthengine.html">easysnowdata.utils.initialize_earthengine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.utils.suppress_stdout.html">easysnowdata.utils.suppress_stdout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.utils.convert_bbox_to_geodataframe.html">easysnowdata.utils.convert_bbox_to_geodataframe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.utils.get_ee_grid_params.html">easysnowdata.utils.get_ee_grid_params</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.utils.get_stac_cfg.html">easysnowdata.utils.get_stac_cfg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.utils.get_water_year_start.html">easysnowdata.utils.get_water_year_start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.utils.datetime_to_DOWY.html">easysnowdata.utils.datetime_to_DOWY</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.utils.datetime_to_WY.html">easysnowdata.utils.datetime_to_WY</a></li>
+<li class="toctree-l2"><a class="reference internal" href="easysnowdata.utils.HLS_xml_url_to_metadata_df.html">easysnowdata.utils.HLS_xml_url_to_metadata_df</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api/index.html" class="nav-link">API reference</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../api/providers.html" class="nav-link">Providers</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">easysnowdata.providers.planet.sdk</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="easysnowdata-providers-planet-sdk">
+<h1>easysnowdata.providers.planet.sdk<a class="headerlink" href="#easysnowdata-providers-planet-sdk" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="easysnowdata.providers.planet.sdk">
+<span class="sig-prename descclassname"><span class="pre">easysnowdata.providers.planet.</span></span><span class="sig-name descname"><span class="pre">sdk</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></span><a class="reference internal" href="../_modules/easysnowdata/providers/planet.html#sdk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#easysnowdata.providers.planet.sdk" title="Link to this definition">#</a></dt>
+<dd><p>Return the imported <code class="docutils literal notranslate"><span class="pre">planet</span></code> module (a required dependency).</p>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="easysnowdata.providers.planet.client.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">easysnowdata.providers.planet.client</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="easysnowdata.providers.planet.build_search_filter.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">easysnowdata.providers.planet.build_search_filter</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#easysnowdata.providers.planet.sdk"><code class="docutils literal notranslate"><span class="pre">sdk()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/egagli/easysnowdata/edit/main/docs/generated/easysnowdata.providers.planet.sdk.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

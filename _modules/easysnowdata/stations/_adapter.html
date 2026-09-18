@@ -1,0 +1,1138 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>easysnowdata.stations._adapter &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=db369ce5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/easysnowdata/stations/_adapter';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.2.1.dev6" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../notebooks.html">
+    Long-form notebooks
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../notebooks.html">
+    Long-form notebooks
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">easysnowdata.stations._adapter</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for easysnowdata.stations._adapter</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;``inventory()`` and ``load()``: the xarray/GeoDataFrame layer over the clients.</span>
+
+<span class="sd">The clients answer in dict records (``global_snow_networks``&#39; DESIGN.md §3.4)</span>
+<span class="sd">because that repo&#39;s pipeline wants them that way. Library users want the</span>
+<span class="sd">package&#39;s own return types, so this module is the only place that knows both:</span>
+<span class="sd">it takes an ``aoi`` and a ``time`` like every other loader (§2.1, §2.2), fans</span>
+<span class="sd">the request out over the networks the stations belong to, and brings the</span>
+<span class="sd">answer onto the output contract.</span>
+
+<span class="sd">The ``networks`` module is imported under an alias throughout, because</span>
+<span class="sd">``networks`` is also the name of the public keyword argument §9 step 2 gives</span>
+<span class="sd">:func:`inventory` and :func:`load`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata</span><span class="w"> </span><span class="kn">import</span> <span class="n">auth</span><span class="p">,</span> <span class="n">catalog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.aoi</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_aoi</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.catalog._access</span><span class="w"> </span><span class="kn">import</span> <span class="n">ensure_source</span><span class="p">,</span> <span class="n">resolve_source</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">contract</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.stations</span><span class="w"> </span><span class="kn">import</span> <span class="n">_frames</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.stations</span><span class="w"> </span><span class="kn">import</span> <span class="n">networks</span> <span class="k">as</span> <span class="n">_nets</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.temporal</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_time</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PRODUCT_IDS&quot;</span><span class="p">,</span> <span class="s2">&quot;inventory&quot;</span><span class="p">,</span> <span class="s2">&quot;load&quot;</span><span class="p">,</span> <span class="s2">&quot;metadata&quot;</span><span class="p">]</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1">#: Catalog product id per network.</span>
+<span class="n">PRODUCT_IDS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;awdb&quot;</span><span class="p">:</span> <span class="s2">&quot;awdb-stations&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cdec&quot;</span><span class="p">:</span> <span class="s2">&quot;cdec-stations&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;databc&quot;</span><span class="p">:</span> <span class="s2">&quot;databc-stations&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nve&quot;</span><span class="p">:</span> <span class="s2">&quot;nve-stations&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;yukon&quot;</span><span class="p">:</span> <span class="s2">&quot;yukon-stations&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_DEFAULT_VARIABLES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;swe&quot;</span><span class="p">,</span> <span class="s2">&quot;snwd&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_network_ids</span><span class="p">(</span><span class="n">names</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_nets</span><span class="o">.</span><span class="n">NETWORKS</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">names</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">_nets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_bbox</span><span class="p">(</span><span class="n">aoi</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The clients&#39; ``(min_lon, min_lat, max_lon, max_lat)``, or ``None``.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">aoi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">parse_aoi</span><span class="p">(</span><span class="n">aoi</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">is_global</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">parsed</span><span class="o">.</span><span class="n">bounds</span><span class="p">)</span>  <span class="c1"># type: ignore[return-value]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_client</span><span class="p">(</span><span class="n">network</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An initialised client for *network*, credentials ensured first (§5.2).&quot;&quot;&quot;</span>
+    <span class="n">net</span> <span class="o">=</span> <span class="n">_nets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">network</span><span class="p">)</span>
+    <span class="n">product</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">PRODUCT_IDS</span><span class="p">[</span><span class="n">network</span><span class="p">])</span>
+    <span class="n">ensure_source</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="n">resolve_source</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="n">net</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">net</span><span class="o">.</span><span class="n">client_class</span><span class="p">()()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_archive_lookup</span><span class="p">(</span><span class="n">codes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``{code: network}`` for codes whose shape does not give the network away.</span>
+
+<span class="sd">    The published inventory is the cheap way to answer this — one request that</span>
+<span class="sd">    already knows every code. When it cannot be reached, fall back to asking</span>
+<span class="sd">    the candidate networks themselves, so an unreachable</span>
+<span class="sd">    ``global_snow_networks`` degrades a shortcut rather than breaking the load.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.stations</span><span class="w"> </span><span class="kn">import</span> <span class="n">archive</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="n">archive</span><span class="o">.</span><span class="n">network_of</span><span class="p">(</span><span class="n">codes</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 — the live networks can still answer</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Could not read the station inventory to resolve </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">); asking &quot;</span>
+            <span class="s2">&quot;the networks whose codes have that shape instead.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">codes</span><span class="p">)),</span>
+            <span class="n">exc</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">code</span> <span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">codes</span> <span class="k">if</span> <span class="n">code</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">found</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="n">found</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_lookup_by_asking_networks</span><span class="p">(</span><span class="n">missing</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">found</span>
+
+
+<span class="c1">#: Networks whose station codes cannot be told apart by shape (see</span>
+<span class="c1">#: :func:`easysnowdata.stations.networks.guess_network`).</span>
+<span class="n">_AMBIGUOUS_NETWORKS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;cdec&quot;</span><span class="p">,</span> <span class="s2">&quot;databc&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_lookup_by_asking_networks</span><span class="p">(</span><span class="n">codes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``{code: network}`` by listing the networks whose codes share a shape.&quot;&quot;&quot;</span>
+    <span class="n">found</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">wanted</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">codes</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="n">_AMBIGUOUS_NETWORKS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">wanted</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">client</span> <span class="o">=</span> <span class="n">_client</span><span class="p">(</span><span class="n">network</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">auth</span><span class="o">.</span><span class="n">env</span><span class="p">(</span><span class="o">*</span><span class="n">_nets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">network</span><span class="p">)</span><span class="o">.</span><span class="n">requires</span><span class="p">):</span>
+                <span class="n">stations</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_all_stations</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 — try the next network</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Could not list </span><span class="si">%s</span><span class="s2"> stations (</span><span class="si">%s</span><span class="s2">).&quot;</span><span class="p">,</span> <span class="n">network</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">net</span> <span class="o">=</span> <span class="n">_nets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">network</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">stations</span><span class="p">:</span>
+            <span class="n">code</span> <span class="o">=</span> <span class="n">station</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">net</span><span class="o">.</span><span class="n">id_key</span><span class="p">)</span> <span class="ow">or</span> <span class="n">station</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;station_id&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">code</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">code</span><span class="p">)</span> <span class="ow">in</span> <span class="n">wanted</span><span class="p">:</span>
+                <span class="n">found</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">code</span><span class="p">)]</span> <span class="o">=</span> <span class="n">network</span>
+                <span class="n">wanted</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">code</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">found</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_metadata_frame</span><span class="p">(</span><span class="n">codes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Metadata for the stations being loaded, from the published inventory.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.stations</span><span class="w"> </span><span class="kn">import</span> <span class="n">archive</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">archive</span><span class="o">.</span><span class="n">inventory</span><span class="p">(</span><span class="n">daily_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">codes</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 — metadata is a nicety, not the data</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Could not read the station inventory for the metadata &quot;</span>
+            <span class="s2">&quot;coordinates (</span><span class="si">%s</span><span class="s2">); the Dataset carries only `network`.&quot;</span><span class="p">,</span>
+            <span class="n">exc</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_version</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="k">return</span> <span class="n">__version__</span>
+
+
+<span class="c1"># ── inventory ────────────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="inventory">
+<a class="viewcode-back" href="../../../generated/easysnowdata.stations.inventory.html#easysnowdata.stations.inventory">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">inventory</span><span class="p">(</span>
+    <span class="n">aoi</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">networks</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">daily_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">active_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;archive&quot;</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Snow stations as a GeoDataFrame, indexed by their global station code.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    aoi</span>
+<span class="sd">        Any form :func:`easysnowdata.aoi.parse_aoi` accepts; ``None`` asks for</span>
+<span class="sd">        every station in the chosen networks.</span>
+<span class="sd">    networks</span>
+<span class="sd">        Which networks to list — any of ``&quot;awdb&quot;``, ``&quot;cdec&quot;``, ``&quot;databc&quot;``,</span>
+<span class="sd">        ``&quot;nve&quot;``, ``&quot;yukon&quot;``. ``None`` (default) means all five.</span>
+<span class="sd">    daily_only</span>
+<span class="sd">        Keep only stations with a daily-or-better SWE or snow-depth record.</span>
+<span class="sd">        On ``source=&quot;archive&quot;`` this is the **probe-verified** verdict</span>
+<span class="sd">        (``global_snow_networks``&#39; DESIGN.md §4: a station counts as daily</span>
+<span class="sd">        only once the pipeline has actually retrieved daily values). The live</span>
+<span class="sd">        route has no such verdict, so there it filters on what each network</span>
+<span class="sd">        *advertises* about itself, and the frame&#39;s ``daily`` column and</span>
+<span class="sd">        ``daily_flag`` attribute say so.</span>
+<span class="sd">    active_only</span>
+<span class="sd">        Keep only stations the network reports as active. Inactive stations</span>
+<span class="sd">        with a long record are usually still worth having.</span>
+<span class="sd">    source</span>
+<span class="sd">        ``&quot;archive&quot;`` (default) reads the daily-refreshed inventory</span>
+<span class="sd">        ``global_snow_networks`` publishes: one HTTP request, normalized</span>
+<span class="sd">        columns and probe-verified daily flags, at most a day old.</span>
+<span class="sd">        ``&quot;clients&quot;`` asks the five APIs for today&#39;s station list instead —</span>
+<span class="sd">        five sweeps, slower, and NVE needs its key.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        On the archive route, passed to ``geopandas.read_file`` (``rows=``,</span>
+<span class="sd">        ``columns=``, …).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    geopandas.GeoDataFrame</span>
+<span class="sd">        Stations in EPSG:4326 indexed by ``code`` (``&quot;679_WA_SNTL&quot;``), with</span>
+<span class="sd">        the native ``station_id`` and the columns listed in</span>
+<span class="sd">        :data:`easysnowdata.stations._frames.INVENTORY_COLUMNS`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import easysnowdata as esd</span>
+<span class="sd">    &gt;&gt;&gt; aoi = (-121.94, 46.72, -121.54, 46.99)</span>
+<span class="sd">    &gt;&gt;&gt; esd.stations.inventory(aoi, daily_only=True)          # doctest: +SKIP</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">wanted</span> <span class="o">=</span> <span class="n">_network_ids</span><span class="p">(</span><span class="n">networks</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;archive&quot;</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.stations</span><span class="w"> </span><span class="kn">import</span> <span class="n">archive</span>  <span class="c1"># noqa: PLC0415</span>
+
+        <span class="k">return</span> <span class="n">archive</span><span class="o">.</span><span class="n">inventory</span><span class="p">(</span>
+            <span class="n">aoi</span><span class="p">,</span>
+            <span class="n">networks</span><span class="o">=</span><span class="n">wanted</span><span class="p">,</span>
+            <span class="n">daily_only</span><span class="o">=</span><span class="n">daily_only</span><span class="p">,</span>
+            <span class="n">active_only</span><span class="o">=</span><span class="n">active_only</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">source</span> <span class="o">!=</span> <span class="s2">&quot;clients&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unknown inventory source </span><span class="si">{</span><span class="n">source</span><span class="si">!r}</span><span class="s2">; use &#39;archive&#39; or &#39;clients&#39;.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">bbox</span> <span class="o">=</span> <span class="n">_bbox</span><span class="p">(</span><span class="n">aoi</span><span class="p">)</span>
+    <span class="n">frames</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="n">wanted</span><span class="p">:</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="n">_client</span><span class="p">(</span><span class="n">network</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">auth</span><span class="o">.</span><span class="n">env</span><span class="p">(</span><span class="o">*</span><span class="n">_nets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">network</span><span class="p">)</span><span class="o">.</span><span class="n">requires</span><span class="p">):</span>
+            <span class="n">stations</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_all_stations</span><span class="p">(</span><span class="n">active_only</span><span class="o">=</span><span class="n">active_only</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%d</span><span class="s2"> stations&quot;</span><span class="p">,</span> <span class="n">network</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">stations</span><span class="p">))</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">_frames</span><span class="o">.</span><span class="n">stations_to_geodataframe</span><span class="p">(</span><span class="n">stations</span><span class="p">,</span> <span class="n">network</span><span class="p">)</span>
+        <span class="n">frame</span><span class="p">[</span><span class="s2">&quot;daily&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_advertised_daily</span><span class="p">(</span><span class="n">stations</span><span class="p">,</span> <span class="n">network</span><span class="p">)</span>
+        <span class="n">frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">frames</span>
+        <span class="k">else</span> <span class="n">_frames</span><span class="o">.</span><span class="n">stations_to_geodataframe</span><span class="p">([],</span> <span class="s2">&quot;awdb&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">daily</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="s2">&quot;geometry&quot;</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">daily_only</span><span class="p">:</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;daily&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)]</span>
+    <span class="n">gdf</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;clients&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;source_title&quot;</span><span class="p">:</span> <span class="s2">&quot;the network APIs, live&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;networks&quot;</span><span class="p">:</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">wanted</span><span class="p">),</span>
+            <span class="s2">&quot;daily_flag&quot;</span><span class="p">:</span> <span class="s2">&quot;advertised (not probe-verified; see source=&#39;archive&#39;)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;easysnowdata_version&quot;</span><span class="p">:</span> <span class="n">_version</span><span class="p">(),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">gdf</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_advertised_daily</span><span class="p">(</span><span class="n">stations</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">network</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;What each network&#39;s station list *says* about daily SWE / snow depth.</span>
+
+<span class="sd">    Advertised, never verified — DESIGN.md §4 is explicit that capability</span>
+<span class="sd">    flags are hints. ``None`` where the station list carries no signal at all:</span>
+<span class="sd">    AWDB&#39;s does not, because its element inventory needs a per-station</span>
+<span class="sd">    metadata call.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">stations</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">network</span> <span class="o">==</span> <span class="s2">&quot;cdec&quot;</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="nb">bool</span><span class="p">(</span><span class="n">station</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;has_daily_swe&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">station</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;has_daily_snwd&quot;</span><span class="p">))</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">network</span> <span class="o">==</span> <span class="s2">&quot;nve&quot;</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">station</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;daily_parameters&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">())</span> <span class="o">&amp;</span> <span class="p">{</span><span class="mi">2002</span><span class="p">,</span> <span class="mi">2003</span><span class="p">}))</span>
+        <span class="k">elif</span> <span class="n">network</span> <span class="o">==</span> <span class="s2">&quot;yukon&quot;</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="nb">any</span><span class="p">(</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;interval&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;daily&quot;</span><span class="p">,</span> <span class="s2">&quot;hourly&quot;</span><span class="p">,</span> <span class="s2">&quot;sub_daily&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">(</span><span class="n">station</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;series&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">())</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">network</span> <span class="o">==</span> <span class="s2">&quot;databc&quot;</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">station</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;station_type&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ASWS&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<div class="viewcode-block" id="metadata">
+<a class="viewcode-back" href="../../../generated/easysnowdata.stations.metadata.html#easysnowdata.stations.metadata">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">metadata</span><span class="p">(</span><span class="n">stations</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">networks</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Full per-station metadata from the owning network&#39;s API.</span>
+
+<span class="sd">    A near-pass-through to each client&#39;s ``get_metadata``; returns</span>
+<span class="sd">    ``{code: metadata dict}``, including the station&#39;s variable inventory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">_split</span><span class="p">(</span><span class="n">stations</span><span class="p">,</span> <span class="n">networks</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">net</span><span class="p">,</span> <span class="n">ids</span> <span class="ow">in</span> <span class="n">grouped</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="n">_client</span><span class="p">(</span><span class="n">net</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">auth</span><span class="o">.</span><span class="n">env</span><span class="p">(</span><span class="o">*</span><span class="n">_nets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">net</span><span class="p">)</span><span class="o">.</span><span class="n">requires</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">station_id</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">:</span>
+                <span class="n">out</span><span class="p">[</span><span class="n">_nets</span><span class="o">.</span><span class="n">to_code</span><span class="p">(</span><span class="n">station_id</span><span class="p">,</span> <span class="n">net</span><span class="p">)]</span> <span class="o">=</span> <span class="n">_one_metadata</span><span class="p">(</span>
+                    <span class="n">client</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">(</span><span class="n">station_id</span><span class="p">),</span> <span class="n">net</span><span class="p">,</span> <span class="n">station_id</span>
+                <span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_one_metadata</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">network</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">station_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;One station&#39;s metadata as a dict, whatever shape the client used.</span>
+
+<span class="sd">    DESIGN.md §3.4 says ``get_metadata(station_id) -&gt; dict`` and all five</span>
+<span class="sd">    clients now do that — AWDB used to return a one-element list and was fixed</span>
+<span class="sd">    upstream. This stays as a cheap guard so a client that regresses, or a</span>
+<span class="sd">    future one that batches, cannot leak two shapes to callers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> returned </span><span class="si">%d</span><span class="s2"> metadata records for </span><span class="si">%s</span><span class="s2">; DESIGN.md §3.4 expects &quot;</span>
+            <span class="s2">&quot;one dict, so the list is passed through unchanged.&quot;</span><span class="p">,</span>
+            <span class="n">network</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">),</span>
+            <span class="n">station_id</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">value</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_split</span><span class="p">(</span><span class="n">stations</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``{network: [station_id]}`` for *stations*, honouring a pinned network.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_nets</span><span class="o">.</span><span class="n">split_by_network</span><span class="p">(</span><span class="n">stations</span><span class="p">,</span> <span class="n">lookup</span><span class="o">=</span><span class="n">_archive_lookup</span><span class="p">)</span>
+    <span class="n">wanted</span> <span class="o">=</span> <span class="n">_network_ids</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">wanted</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_nets</span><span class="o">.</span><span class="n">split_by_network</span><span class="p">(</span><span class="n">stations</span><span class="p">,</span> <span class="n">network</span><span class="o">=</span><span class="n">wanted</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">_nets</span><span class="o">.</span><span class="n">split_by_network</span><span class="p">(</span><span class="n">stations</span><span class="p">,</span> <span class="n">lookup</span><span class="o">=</span><span class="n">_archive_lookup</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">net</span><span class="p">:</span> <span class="n">ids</span> <span class="k">for</span> <span class="n">net</span><span class="p">,</span> <span class="n">ids</span> <span class="ow">in</span> <span class="n">grouped</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">net</span> <span class="ow">in</span> <span class="n">wanted</span><span class="p">}</span>
+
+
+<span class="c1"># ── load ─────────────────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="load">
+<a class="viewcode-back" href="../../../generated/easysnowdata.stations.load.html#easysnowdata.stations.load">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span>
+    <span class="n">stations</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">aoi</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">variables</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">_DEFAULT_VARIABLES</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">interval</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;daily&quot;</span><span class="p">,</span>
+    <span class="n">networks</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">include_flags</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">hemisphere</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;northern&quot;</span><span class="p">,</span>
+    <span class="n">daily_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Station observations as a ``(station, time)`` Dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    stations</span>
+<span class="sd">        Station codes (``&quot;679_WA_SNTL&quot;``), native station ids</span>
+<span class="sd">        (``&quot;679:WA:SNTL&quot;``), or the frame :func:`inventory` returned — which</span>
+<span class="sd">        is the cheapest form, because it already says which network each</span>
+<span class="sd">        station belongs to. ``None`` reads every station in *aoi*.</span>
+<span class="sd">    aoi</span>
+<span class="sd">        Any form :func:`easysnowdata.aoi.parse_aoi` accepts. Picks the</span>
+<span class="sd">        stations when *stations* is ``None``; ignored otherwise.</span>
+<span class="sd">    variables</span>
+<span class="sd">        Standardized types (``&quot;swe&quot;``, ``&quot;snwd&quot;``, ``&quot;temp&quot;``, … — the</span>
+<span class="sd">        vocabulary in :data:`easysnowdata.stations.networks.TYPES`) or a</span>
+<span class="sd">        network&#39;s own native names. Default: SWE and snow depth. The returned</span>
+<span class="sd">        data variables are always named for the *type*, whichever spelling</span>
+<span class="sd">        went in; the native names that fed each one are in its</span>
+<span class="sd">        ``native_variables`` attribute.</span>
+<span class="sd">    time</span>
+<span class="sd">        Any form :func:`easysnowdata.temporal.parse_time` accepts:</span>
+<span class="sd">        ``&quot;2023-10&quot;``, ``(&quot;2023-10-01&quot;, &quot;2024-06-30&quot;)``, ``&quot;2023-10/2024-06&quot;``.</span>
+<span class="sd">        ``None`` asks each network for its whole record.</span>
+<span class="sd">    interval</span>
+<span class="sd">        ``&quot;daily&quot;`` (default), ``&quot;hourly&quot;``, ``&quot;monthly&quot;``, … — the shared</span>
+<span class="sd">        interval vocabulary. A network that cannot serve it raises its own</span>
+<span class="sd">        ``{Client}Error`` rather than quietly resampling.</span>
+<span class="sd">    networks</span>
+<span class="sd">        Pin every station to this network (or these networks) instead of</span>
+<span class="sd">        working out which one each code belongs to.</span>
+<span class="sd">    include_flags</span>
+<span class="sd">        Ask the clients for per-value quality flags. The Dataset keeps the</span>
+<span class="sd">        values; use the clients directly when you need the flags themselves.</span>
+<span class="sd">    hemisphere</span>
+<span class="sd">        Which water year to attach: ``&quot;northern&quot;`` (1 October, default) or</span>
+<span class="sd">        ``&quot;southern&quot;`` (1 April).</span>
+<span class="sd">    daily_only</span>
+<span class="sd">        When the stations come from *aoi* rather than being named, keep only</span>
+<span class="sd">        the daily-or-better ones. Reading every periodic snow course in a</span>
+<span class="sd">        large AOI is rarely what anyone wants.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        Dims ``(station, time)``; one data variable per standardized type,</span>
+<span class="sd">        each carrying ``units``, ``long_name``, ``native_variables`` and</span>
+<span class="sd">        ``interval``; station metadata (name, latitude, longitude,</span>
+<span class="sd">        elevation_m, network, …) as non-dimension coordinates on ``station``;</span>
+<span class="sd">        ``water_year`` and ``dowy`` on ``time``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import easysnowdata as esd</span>
+<span class="sd">    &gt;&gt;&gt; obs = esd.stations.load([&quot;679_WA_SNTL&quot;, &quot;642_WA_SNTL&quot;],</span>
+<span class="sd">    ...                         variables=[&quot;swe&quot;, &quot;snwd&quot;],</span>
+<span class="sd">    ...                         time=&quot;2023-10/2024-06&quot;)       # doctest: +SKIP</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">inv</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">stations</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">aoi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;load() needs either stations= (codes, ids or an inventory &quot;</span>
+                <span class="s2">&quot;frame) or aoi= to choose them with.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">inv</span> <span class="o">=</span> <span class="n">inventory</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="n">networks</span><span class="o">=</span><span class="n">networks</span><span class="p">,</span> <span class="n">daily_only</span><span class="o">=</span><span class="n">daily_only</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 — the networks can list themselves</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Could not read the station inventory to choose stations for &quot;</span>
+                <span class="s2">&quot;this AOI (</span><span class="si">%s</span><span class="s2">); asking the networks directly instead.&quot;</span><span class="p">,</span>
+                <span class="n">exc</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">inv</span> <span class="o">=</span> <span class="n">inventory</span><span class="p">(</span>
+                <span class="n">aoi</span><span class="p">,</span> <span class="n">networks</span><span class="o">=</span><span class="n">networks</span><span class="p">,</span> <span class="n">daily_only</span><span class="o">=</span><span class="n">daily_only</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">&quot;clients&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">inv</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No stations found in that area of interest.&quot;</span><span class="p">)</span>
+        <span class="n">stations</span> <span class="o">=</span> <span class="n">inv</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">stations</span><span class="p">,</span> <span class="s2">&quot;columns&quot;</span><span class="p">):</span>
+        <span class="n">inv</span> <span class="o">=</span> <span class="n">stations</span>
+
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">_split</span><span class="p">(</span><span class="n">stations</span><span class="p">,</span> <span class="n">networks</span><span class="p">)</span>
+    <span class="n">begin</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">_window</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+    <span class="n">wanted</span> <span class="o">=</span> <span class="n">_variable_names</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+
+    <span class="n">records</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">products</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">sources</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">network</span><span class="p">,</span> <span class="n">ids</span> <span class="ow">in</span> <span class="n">grouped</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="n">_client</span><span class="p">(</span><span class="n">network</span><span class="p">)</span>
+        <span class="n">product</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">PRODUCT_IDS</span><span class="p">[</span><span class="n">network</span><span class="p">])</span>
+        <span class="n">products</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">product</span><span class="p">)</span>
+        <span class="n">sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resolve_source</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="n">network</span><span class="p">))</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: fetching </span><span class="si">%s</span><span class="s2"> for </span><span class="si">%d</span><span class="s2"> station(s), </span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">network</span><span class="p">,</span>
+            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">wanted</span><span class="p">),</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">),</span>
+            <span class="n">begin</span> <span class="ow">or</span> <span class="s2">&quot;start of record&quot;</span><span class="p">,</span>
+            <span class="n">end</span> <span class="ow">or</span> <span class="s2">&quot;today&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">auth</span><span class="o">.</span><span class="n">env</span><span class="p">(</span><span class="o">*</span><span class="n">_nets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">network</span><span class="p">)</span><span class="o">.</span><span class="n">requires</span><span class="p">):</span>
+            <span class="n">records</span><span class="p">[</span><span class="n">network</span><span class="p">]</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span>
+                <span class="n">station_ids</span><span class="o">=</span><span class="n">ids</span><span class="p">,</span>
+                <span class="n">variables</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">wanted</span><span class="p">),</span>
+                <span class="n">begin_date</span><span class="o">=</span><span class="n">begin</span><span class="p">,</span>
+                <span class="n">end_date</span><span class="o">=</span><span class="n">end</span><span class="p">,</span>
+                <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span>
+                <span class="n">include_flags</span><span class="o">=</span><span class="n">include_flags</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="n">codes</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">_nets</span><span class="o">.</span><span class="n">to_code</span><span class="p">(</span><span class="n">station_id</span><span class="p">,</span> <span class="n">network</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">network</span><span class="p">,</span> <span class="n">ids</span> <span class="ow">in</span> <span class="n">grouped</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">station_id</span> <span class="ow">in</span> <span class="n">ids</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">inv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">inv</span> <span class="o">=</span> <span class="n">_metadata_frame</span><span class="p">(</span><span class="n">codes</span><span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">_frames</span><span class="o">.</span><span class="n">records_to_dataset</span><span class="p">(</span>
+        <span class="n">records</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">inv</span><span class="p">,</span> <span class="n">hemisphere</span><span class="o">=</span><span class="n">hemisphere</span><span class="p">,</span> <span class="n">stations</span><span class="o">=</span><span class="n">codes</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_finish</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">products</span><span class="p">,</span> <span class="n">sources</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_variable_names</span><span class="p">(</span><span class="n">variables</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_DEFAULT_VARIABLES</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">variables</span><span class="p">,)</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_window</span><span class="p">(</span><span class="n">time</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``time`` as the clients&#39; ``(begin_date, end_date)`` day strings.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">parse_time</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="kc">None</span> <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span>
+        <span class="kc">None</span> <span class="k">if</span> <span class="n">end</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">end</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_finish</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">products</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">sources</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">interval</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provenance attrs (§2.5) for one network, or for several.</span>
+
+<span class="sd">    With a single network the attrs are the usual ones, so</span>
+<span class="sd">    ``ds.attrs[&quot;source&quot;]`` hands straight back to ``load(networks=...)``.</span>
+<span class="sd">    Across networks the per-station truth is the ``network`` coordinate, and</span>
+<span class="sd">    the joined ids are recorded here so nothing is lost.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">products</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">contract</span><span class="o">.</span><span class="n">provenance</span><span class="p">(</span><span class="n">products</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sources</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="k">elif</span> <span class="n">products</span><span class="p">:</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">),</span>
+                <span class="s2">&quot;source_id&quot;</span><span class="p">:</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">),</span>
+                <span class="s2">&quot;source_title&quot;</span><span class="p">:</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">title</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">),</span>
+                <span class="s2">&quot;source_url&quot;</span><span class="p">:</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">location</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">),</span>
+                <span class="s2">&quot;product_id&quot;</span><span class="p">:</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">products</span><span class="p">),</span>
+                <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Snow station observations&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;data_citation&quot;</span><span class="p">:</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">citation</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">products</span><span class="p">),</span>
+                <span class="s2">&quot;license&quot;</span><span class="p">:</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">({</span><span class="n">p</span><span class="o">.</span><span class="n">license</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">products</span><span class="p">})),</span>
+                <span class="s2">&quot;easysnowdata_version&quot;</span><span class="p">:</span> <span class="n">_version</span><span class="p">(),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;interval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">interval</span>
+    <span class="k">return</span> <span class="n">ds</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

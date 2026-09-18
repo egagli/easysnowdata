@@ -1,0 +1,807 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Example gallery &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../_static/documentation_options.js?v=db369ce5"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/index';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SNOTEL snow water equivalent at Mount Rainier" href="stations/plot_awdb_stations.html" />
+    <link rel="prev" title="FAQ" href="../faq.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.2.1.dev6" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../notebooks.html">
+    Long-form notebooks
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../notebooks.html">
+    Long-form notebooks
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Example gallery</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="example-gallery">
+<h1>Example gallery<a class="headerlink" href="#example-gallery" title="Link to this heading">#</a></h1>
+<p>One short script per product: load it over one area of interest and draw one
+figure. Every script here is executed when the docs are built, so a figure on
+this page is a figure the package produced against live data on that day.</p>
+<p>Examples marked <em>not executed in this build</em> need provider credentials and run
+only in the scheduled build (<a class="reference internal" href="../credentials.html"><span class="doc">Credentials</span></a>); everything else runs on every
+pull request.</p>
+<p>Each page offers the script and a Jupyter notebook to download.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"></div></section>
+<section id="stations">
+<h1>Stations<a class="headerlink" href="#stations" title="Link to this heading">#</a></h1>
+<p>Point observations of SWE and snow depth from five public snow networks, and
+the daily archive that pre-downloads them all.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="The AWDB network — SNOTEL and SNOLITE telemetry sites, SCAN, and the manual snow courses — through easysnowdata.stations. No credentials."><img alt="" src="../_images/sphx_glr_plot_awdb_stations_thumb.png" />
+<p><a class="reference internal" href="stations/plot_awdb_stations.html"><span class="doc">SNOTEL snow water equivalent at Mount Rainier</span></a></p>
+  <div class="sphx-glr-thumbnail-title">SNOTEL snow water equivalent at Mount Rainier</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The California Data Exchange Center serves the California Cooperative Snow Surveys: automated snow pillows reporting daily, and manual snow courses surveyed a few times a winter. Both are in the inventory; only the pillows carry a daily record, which is what daily_only selects."><img alt="" src="../_images/sphx_glr_plot_cdec_stations_thumb.png" />
+<p><a class="reference internal" href="stations/plot_cdec_stations.html"><span class="doc">California snow pillows and snow courses</span></a></p>
+  <div class="sphx-glr-thumbnail-title">California snow pillows and snow courses</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="BC&#x27;s ASWS network reports hourly and daily, and the province also runs manual snow-survey courses. The client serves both, plus the wind, humidity and barometric variables the ASWS sites carry — more than the snow archive keeps."><img alt="" src="../_images/sphx_glr_plot_databc_stations_thumb.png" />
+<p><a class="reference internal" href="stations/plot_databc_stations.html"><span class="doc">British Columbia automated snow weather stations</span></a></p>
+  <div class="sphx-glr-thumbnail-title">British Columbia automated snow weather stations</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="NVE is the one network of the five that needs a credential: a free API key in NVE_API_KEY. easysnowdata reads it through its nve auth provider, so a missing key raises CredentialError with the setup steps before any request is made, rather than an opaque HTTP 401."><img alt="" src="../_images/sphx_glr_plot_nve_stations_thumb.png" />
+<p><a class="reference internal" href="stations/plot_nve_stations.html"><span class="doc">Norwegian snow pillows (NVE HydAPI)</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Norwegian snow pillows (NVE HydAPI)</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The archive route reads what global_snow_networks pre-downloads: a normalized inventory of every station across the five networks, and one daily SWE / snow-depth CSV per station whose daily record has been probe-verified. One ~28 MB download instead of five API sweeps, and it needs no credentials — not even NVE&#x27;s, because the Norwegian stations are already in the bundle."><img alt="" src="../_images/sphx_glr_plot_station_archive_thumb.png" />
+<p><a class="reference internal" href="stations/plot_station_archive.html"><span class="doc">Every daily snow station at once</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Every daily snow station at once</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The Yukon Snow Survey Network mixes automated snow-weather stations reporting daily with manual snow courses surveyed monthly through the winter, and the Yukon Water Data API also mirrors ECCC meteorological stations. A few courses the survey operates sit in northern BC and Alaska, so state is not always YT."><img alt="" src="../_images/sphx_glr_plot_yukon_stations_thumb.png" />
+<p><a class="reference internal" href="stations/plot_yukon_stations.html"><span class="doc">Yukon snow courses and automated stations</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Yukon snow courses and automated stations</div>
+</div></div><div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="snow">
+<h1>Snow<a class="headerlink" href="#snow" title="Link to this heading">#</a></h1>
+<p>Snow classifications, masks, cover and snow water equivalent.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="MODIS snow products pack a percentage and a set of sentinel values into one byte, so the loader keeps the raw byte with CF flags rather than guessing what you want. processing.binary_snow turns it into a 0/1 mask at whatever NDSI threshold you choose, leaving cloud and night as NaN."><img alt="" src="../_images/sphx_glr_plot_modis_snow_thumb.png" />
+<p><a class="reference internal" href="snow/plot_modis_snow.html"><span class="doc">MODIS snow cover, raw bytes and binary snow</span></a></p>
+  <div class="sphx-glr-thumbnail-title">MODIS snow cover, raw bytes and binary snow</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Wrzesien et al. separate mountains with seasonal snow from mountains with ephemeral snow, which is the distinction that decides whether a basin stores water as snow through the winter."><img alt="" src="../_images/sphx_glr_plot_mountain_snow_mask_thumb.png" />
+<p><a class="reference internal" href="snow/plot_mountain_snow_mask.html"><span class="doc">Where mountain snow is seasonal</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Where mountain snow is seasonal</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="SNODAS now defaults to the NSIDC G02158 archive, which needs no account at all: one tar per day of flat-binary grids, read straight into xarray. The Climate Engine mirror on Earth Engine stays available and is faster for long series. They should agree, and this example checks that they do."><img alt="" src="../_images/sphx_glr_plot_snodas_thumb.png" />
+<p><a class="reference internal" href="snow/plot_snodas.html"><span class="doc">SNODAS: the authoritative archive against the Earth Engine mirror</span></a></p>
+  <div class="sphx-glr-thumbnail-title">SNODAS: the authoritative archive against the Earth Engine mirror</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Sturm &amp; Liston&#x27;s classification says what kind of snowpack a place gets: maritime on the Cascade crest, montane forest on the flanks, ephemeral in the lowlands. The classes are drawn from the CF flag attributes the loader attaches."><img alt="" src="../_images/sphx_glr_plot_snow_classification_thumb.png" />
+<p><a class="reference internal" href="snow/plot_snow_classification.html"><span class="doc">Seasonal snow classes around Mount Rainier</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Seasonal snow classes around Mount Rainier</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The UCLA reanalysis is one NetCDF-4 granule per water year and 1° tile, with no DMR++ sidecars. Reading a single water year straight through earthaccess.open is fastest; over many water years the one-off HDF5 metadata scan that virtualize=True performs is cheaper than reopening every file, and the references it writes are cached for next time. That is what virtualize=&quot;auto&quot; decides for you."><img alt="" src="../_images/sphx_glr_plot_ucla_sr_thumb.png" />
+<p><a class="reference internal" href="snow/plot_ucla_sr.html"><span class="doc">UCLA snow reanalysis, and when virtualization pays off</span></a></p>
+  <div class="sphx-glr-thumbnail-title">UCLA snow reanalysis, and when virtualization pays off</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="VIIRS carries the snow-cover record forward at 375 m as Terra winds down. The byte convention is the same as MODIS, so the same thresholding function works on both and the two can be compared directly over a winter."><img alt="" src="../_images/sphx_glr_plot_viirs_snow_thumb.png" />
+<p><a class="reference internal" href="snow/plot_viirs_snow.html"><span class="doc">VIIRS snow cover, the successor to MODIS</span></a></p>
+  <div class="sphx-glr-thumbnail-title">VIIRS snow cover, the successor to MODIS</div>
+</div></div><div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="sar">
+<h1>SAR<a class="headerlink" href="#sar" title="Link to this heading">#</a></h1>
+<p>Sentinel-1 radiometrically terrain-corrected backscatter and the local
+incidence angle.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Sentinel-1 RTC backscatter comes from Planetary Computer by default (10 m, 2014 onward, no account) with OPERA RTC-S1 as the 30 m burst-based alternative. The local incidence angle, which used to need a 350-line Earth Engine routine, now has a credential-free route: compute it from any DEM."><img alt="" src="../_images/sphx_glr_plot_sentinel1_thumb.png" />
+<p><a class="reference internal" href="sar/plot_sentinel1.html"><span class="doc">Sentinel-1 backscatter and the local incidence angle</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Sentinel-1 backscatter and the local incidence angle</div>
+</div></div><div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="optical-imagery">
+<h1>Optical imagery<a class="headerlink" href="#optical-imagery" title="Link to this heading">#</a></h1>
+<p>Passive optical products: Sentinel-2, HLS and PlanetScope.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="HLS v2.0 stacks Landsat 8/9 (L30) and Sentinel-2 (S30) on a common 30 m grid. The loader returns both products in one Dataset with a product coordinate, reading the scene metadata from STAC properties. The default route is NASA&#x27;s CMR-STAC (Earthdata Login for the reads); the Planetary Computer mirror needs no account."><img alt="" src="../_images/sphx_glr_plot_hls_thumb.png" />
+<p><a class="reference internal" href="optical/plot_hls.html"><span class="doc">HLS: Landsat and Sentinel-2 on one time axis</span></a></p>
+  <div class="sphx-glr-thumbnail-title">HLS: Landsat and Sentinel-2 on one time axis</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="PlanetScope is 3 m and near-daily, which is what makes it useful for catching a melt event between Sentinel-2 overpasses. It is also commercial: an order spends the account&#x27;s quota, so the ordering cell below is manual and does not run when the gallery is built."><img alt="" src="../_images/sphx_glr_plot_planetscope_thumb.png" />
+<p><a class="reference internal" href="optical/plot_planetscope.html"><span class="doc">PlanetScope beside Sentinel-2, and the UDM2 snow band</span></a></p>
+  <div class="sphx-glr-thumbnail-title">PlanetScope beside Sentinel-2, and the UDM2 snow band</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Sentinel-2 L2A comes from Planetary Computer by default and from Earth Search with source=&quot;earth-search&quot;. Both are credential-free; the loader puts every scene on the pre-2022 baseline, so the two agree pixel for pixel."><img alt="" src="../_images/sphx_glr_plot_sentinel2_thumb.png" />
+<p><a class="reference internal" href="optical/plot_sentinel2.html"><span class="doc">Sentinel-2 snow index, and the two catalogs side by side</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Sentinel-2 snow index, and the two catalogs side by side</div>
+</div></div><div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="terrain">
+<h1>Terrain<a class="headerlink" href="#terrain" title="Link to this heading">#</a></h1>
+<p>Digital elevation models and topographic indices.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="CHILI combines slope, aspect and latitude into one index of the heat load a pixel receives. Cool, north-facing slopes hold snow later in the season than the warm slopes across the valley."><img alt="" src="../_images/sphx_glr_plot_chili_thumb.png" />
+<p><a class="reference internal" href="terrain/plot_chili.html"><span class="doc">CHILI heat-load index on Mount Rainier</span></a></p>
+  <div class="sphx-glr-thumbnail-title">CHILI heat-load index on Mount Rainier</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The 30 m Copernicus digital surface model, loaded from the Planetary Computer and shaded by elevation. source=&quot;earth-search&quot; reads the same 2021 release from the unsigned AWS Open Data bucket instead."><img alt="" src="../_images/sphx_glr_plot_dem_thumb.png" />
+<p><a class="reference internal" href="terrain/plot_dem.html"><span class="doc">Copernicus DEM around Mount Rainier</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Copernicus DEM around Mount Rainier</div>
+</div></div><div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="land-cover">
+<h1>Land cover<a class="headerlink" href="#land-cover" title="Link to this heading">#</a></h1>
+<p>Land cover, forest cover and vegetation products.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="The CGLS-LC100 tree-cover fraction says how much of each 100 m pixel is canopy. Snow under canopy is what a satellite cannot see, so this layer is the usual companion to any optical snow-cover product."><img alt="" src="../_images/sphx_glr_plot_forest_cover_thumb.png" />
+<p><a class="reference internal" href="land/plot_forest_cover.html"><span class="doc">Forest cover fraction below the treeline</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Forest cover fraction below the treeline</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Annual NLCD carries one map per year from 1985 to 2024, so land cover can be followed through time instead of pinned to the frozen 2021 release. Here the newest year is drawn from the class table the Earth Engine asset ships."><img alt="" src="../_images/sphx_glr_plot_nlcd_thumb.png" />
+<p><a class="reference internal" href="land/plot_nlcd.html"><span class="doc">Annual NLCD land cover for a Cascades basin</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Annual NLCD land cover for a Cascades basin</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Ten-metre land cover with the classes drawn straight from the CF flag attributes the loader attaches. The same map is on the Planetary Computer and, unsigned, in the public AWS bucket (``source=&quot;aws-open-data&quot;``)."><img alt="" src="../_images/sphx_glr_plot_worldcover_thumb.png" />
+<p><a class="reference internal" href="land/plot_worldcover.html"><span class="doc">ESA WorldCover around Mount Rainier</span></a></p>
+  <div class="sphx-glr-thumbnail-title">ESA WorldCover around Mount Rainier</div>
+</div></div><div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="hydrography">
+<h1>Hydrography<a class="headerlink" href="#hydrography" title="Link to this heading">#</a></h1>
+<p>Basin and watershed boundaries.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Three nested views of the same drainage, all credential-free: HUC12 subwatersheds from the USGS Watershed Boundary Dataset, the HUC8 subbasins they sit inside, and the GRDC major river basin that contains the lot."><img alt="" src="../_images/sphx_glr_plot_basins_thumb.png" />
+<p><a class="reference internal" href="hydro/plot_basins.html"><span class="doc">Watersheds around Mount Rainier, and the basin they drain to</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Watersheds around Mount Rainier, and the basin they drain to</div>
+</div></div><div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="climate-and-reanalysis">
+<h1>Climate and reanalysis<a class="headerlink" href="#climate-and-reanalysis" title="Link to this heading">#</a></h1>
+<p>ERA5 / ERA5-Land reanalysis and the Köppen-Geiger climate classification.</p>
+<div id='sg-tag-list' class='sphx-glr-tag-list'></div><div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Hourly 2 m temperature from ARCO-ERA5 on Google Cloud Storage: no credentials, one week behind real time through ERA5T. The same call reaches ERA5-Land and the daily / monthly aggregates with source=&quot;gee&quot;."><img alt="" src="../_images/sphx_glr_plot_era5_thumb.png" />
+<p><a class="reference internal" href="climate/plot_era5.html"><span class="doc">ERA5 hourly temperature over Mount Rainier</span></a></p>
+  <div class="sphx-glr-thumbnail-title">ERA5 hourly temperature over Mount Rainier</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The Beck et al. (2023) classification at 1 km, and how the same box is projected to look at the end of the century under SSP5-8.5. The class table travels with the array as CF flag attributes, so the legend draws itself."><img alt="" src="../_images/sphx_glr_plot_koppen_geiger_thumb.png" />
+<p><a class="reference internal" href="climate/plot_koppen_geiger.html"><span class="doc">Köppen-Geiger classes, present and projected</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Köppen-Geiger classes, present and projected</div>
+</div></div><div class="toctree-wrapper compound">
+</div>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../faq.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">FAQ</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="stations/plot_awdb_stations.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">SNOTEL snow water equivalent at Mount Rainier</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Example gallery</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#stations">Stations</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#snow">Snow</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#sar">SAR</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#optical-imagery">Optical imagery</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#terrain">Terrain</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#land-cover">Land cover</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#hydrography">Hydrography</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#climate-and-reanalysis">Climate and reanalysis</a></li>
+</ul>
+
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/egagli/easysnowdata/edit/main/docs/auto_examples/index.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

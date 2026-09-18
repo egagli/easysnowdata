@@ -1,0 +1,1067 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>easysnowdata.hydroclimatology &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../_static/documentation_options.js?v=db369ce5"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/easysnowdata/hydroclimatology';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.2.1.dev6" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../notebooks.html">
+    Long-form notebooks
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../notebooks.html">
+    Long-form notebooks
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">easysnowdata.hydroclimatology</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for easysnowdata.hydroclimatology</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Access hydroclimatology datasets: ERA5, SNODAS, UCLA reanalysis, basin geometries, and more.</span>
+
+<span class="sd">The basin loaders moved to :mod:`easysnowdata.hydro.basins` (§3.4): the names</span>
+<span class="sd">here keep working for one minor release and warn on first use.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shapely</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata</span><span class="w"> </span><span class="kn">import</span> <span class="n">temporal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata._deprecation</span><span class="w"> </span><span class="kn">import</span> <span class="n">deprecated</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.hydro</span><span class="w"> </span><span class="kn">import</span> <span class="n">basins</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.snow</span><span class="w"> </span><span class="kn">import</span> <span class="n">ucla_sr</span> <span class="k">as</span> <span class="n">_ucla_sr_stats</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;get_huc_geometries&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_hydroBASINS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_grdc_major_river_basins_of_the_world&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_grdc_wmo_basins&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_era5&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_snodas&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_ucla_snow_reanalysis&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_koppen_geiger_classes&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># Position of each ensemble statistic along the ``Stats`` dimension of the</span>
+<span class="c1"># WUS_UCLA_SR files. The table now lives in easysnowdata.snow.ucla_sr.STATS;</span>
+<span class="c1"># this module-level alias keeps the old private constant working for one</span>
+<span class="c1"># release (Phase 0 fixed it: &quot;median&quot; and &quot;25pct&quot; used to share index 2).</span>
+<span class="n">_UCLA_SR_STATS_INDEX</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_ucla_sr_stats</span><span class="o">.</span><span class="n">STATS</span><span class="p">)</span>
+
+<span class="c1"># Position of each ensemble statistic along the ``Stats`` dimension of the</span>
+<span class="c1"># WUS_UCLA_SR files: mean, standard deviation, median, 25th and 75th percentile.</span>
+<span class="c1"># The table now lives in easysnowdata.snow.ucla_sr.STATS; this alias keeps the</span>
+<span class="c1"># old module constant working for one release.</span>
+
+
+<div class="viewcode-block" id="get_huc_geometries">
+<a class="viewcode-back" href="../../generated/easysnowdata.hydroclimatology.get_huc_geometries.html#easysnowdata.hydroclimatology.get_huc_geometries">[docs]</a>
+<span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="s2">&quot;easysnowdata.hydro.basins.huc&quot;</span><span class="p">,</span>
+    <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+    <span class="n">remove_in</span><span class="o">=</span><span class="s2">&quot;0.3.0&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;easysnowdata.hydroclimatology.get_huc_geometries&quot;</span><span class="p">,</span>
+    <span class="n">extra</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;The new loader defaults to the public USGS WBD REST service, so HUC &quot;</span>
+        <span class="s2">&quot;boundaries no longer need Earth Engine, and the citation is in the &quot;</span>
+        <span class="s2">&quot;data_citation attr.&quot;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_huc_geometries</span><span class="p">(</span>
+    <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
+    <span class="o">|</span> <span class="nb">tuple</span>
+    <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">huc_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;02&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieves Hydrologic Unit Code (HUC) geometries within a specified bounding box and HUC level.</span>
+
+<span class="sd">    .. deprecated:: 0.1.0</span>
+<span class="sd">        Use :func:`easysnowdata.hydro.basins.huc`. Its default source is the</span>
+<span class="sd">        USGS Watershed Boundary Dataset REST service (no credentials, newer</span>
+<span class="sd">        than the 2017 Earth Engine snapshot); pass ``source=&quot;gee&quot;`` for the</span>
+<span class="sd">        Earth Engine route this function used.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional</span>
+<span class="sd">        The bounding box for spatial subsetting. If None, the entire US dataset is returned.</span>
+<span class="sd">    huc_level : str, optional</span>
+<span class="sd">        The HUC level to retrieve geometries for. Valid levels are &#39;02&#39;, &#39;04&#39;, &#39;06&#39;, &#39;08&#39;, &#39;10&#39;, &#39;12&#39;.</span>
+<span class="sd">        Default is &#39;02&#39;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    geopandas.GeoDataFrame</span>
+<span class="sd">        A GeoDataFrame containing the retrieved HUC geometries along with associated attributes</span>
+<span class="sd">        such as name, area in square kilometers, states, TNMID, and geometry.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Data citation:</span>
+<span class="sd">    Jones, K.A., Niknami, L.S., Buto, S.G., and Decker, D., 2022,</span>
+<span class="sd">    Federal standards and procedures for the national Watershed Boundary Dataset (WBD) (5 ed.):</span>
+<span class="sd">    U.S. Geological Survey Techniques and Methods 11-A3, 54 p.,</span>
+<span class="sd">    https://doi.org/10.3133/tm11A3</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">basins</span><span class="o">.</span><span class="n">huc</span><span class="p">(</span><span class="n">bbox_input</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">huc_level</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_hydroBASINS">
+<a class="viewcode-back" href="../../generated/easysnowdata.hydroclimatology.get_hydroBASINS.html#easysnowdata.hydroclimatology.get_hydroBASINS">[docs]</a>
+<span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="s2">&quot;easysnowdata.hydro.basins.hydrobasins&quot;</span><span class="p">,</span>
+    <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+    <span class="n">remove_in</span><span class="o">=</span><span class="s2">&quot;0.3.0&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;easysnowdata.hydroclimatology.get_hydroBASINS&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_hydroBASINS</span><span class="p">(</span>
+    <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
+    <span class="o">|</span> <span class="nb">tuple</span>
+    <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieves HydroATLAS sub-basin boundaries at specified hierarchical level.</span>
+
+<span class="sd">    .. deprecated:: 0.1.0</span>
+<span class="sd">        Use :func:`easysnowdata.hydro.basins.hydrobasins`, which adds the</span>
+<span class="sd">        lighter per-region HydroSHEDS zips (``source=&quot;hydrosheds&quot;``) and the</span>
+<span class="sd">        Earth Engine route.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional</span>
+<span class="sd">        The bounding box for spatial subsetting. If None, the entire global dataset is returned.</span>
+<span class="sd">    level : int, optional</span>
+<span class="sd">        The hierarchical level (1-12) of sub-basin delineation. Higher levels represent</span>
+<span class="sd">        finer subdivisions. Default is 5.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional keyword arguments passed to</span>
+<span class="sd">        :func:`easysnowdata.hydro.basins.hydrobasins` (and on to</span>
+<span class="sd">        ``geopandas.read_file``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    geopandas.GeoDataFrame</span>
+<span class="sd">        A GeoDataFrame containing the HydroATLAS sub-basin boundaries with associated attributes.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Data citation:</span>
+<span class="sd">    Linke, S., Lehner, B., Ouellet Dallaire, C., Ariwi, J., Grill, G., Anand, M., Beames, P.,</span>
+<span class="sd">    Burchard-Levine, V., Maxwell, S., Moidu, H., Tan, F., Thieme, M. (2019). Global hydro-</span>
+<span class="sd">    environmental sub-basin and river reach characteristics at high spatial resolution.</span>
+<span class="sd">    Scientific Data 6: 283. doi: 10.1038/s41597-019-0300-6</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">basins</span><span class="o">.</span><span class="n">hydrobasins</span><span class="p">(</span><span class="n">bbox_input</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_grdc_major_river_basins_of_the_world">
+<a class="viewcode-back" href="../../generated/easysnowdata.hydroclimatology.get_grdc_major_river_basins_of_the_world.html#easysnowdata.hydroclimatology.get_grdc_major_river_basins_of_the_world">[docs]</a>
+<span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="s2">&quot;easysnowdata.hydro.basins.grdc_major&quot;</span><span class="p">,</span>
+    <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+    <span class="n">remove_in</span><span class="o">=</span><span class="s2">&quot;0.3.0&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;easysnowdata.hydroclimatology.get_grdc_major_river_basins_of_the_world&quot;</span><span class="p">,</span>
+    <span class="n">extra</span><span class="o">=</span><span class="s2">&quot;Basins that intersect the AOI are returned whole, not cut at its edge.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_grdc_major_river_basins_of_the_world</span><span class="p">(</span>
+    <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
+    <span class="o">|</span> <span class="nb">tuple</span>
+    <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieves GRDC Major River Basins of the World dataset.</span>
+
+<span class="sd">    .. deprecated:: 0.1.0</span>
+<span class="sd">        Use :func:`easysnowdata.hydro.basins.grdc_major`. It returns the</span>
+<span class="sd">        intersecting basins whole instead of clipping them to the AOI.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional</span>
+<span class="sd">        The bounding box for spatial subsetting. If None, the entire global dataset is returned.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional keyword arguments passed to</span>
+<span class="sd">        :func:`easysnowdata.hydro.basins.grdc_major` (and on to</span>
+<span class="sd">        ``geopandas.read_file``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    geopandas.GeoDataFrame</span>
+<span class="sd">        A GeoDataFrame containing the GRDC major river basins with associated attributes.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Data citation:</span>
+<span class="sd">    GRDC (2020): GRDC Major River Basins. Global Runoff Data Centre. 2nd, rev. ed.</span>
+<span class="sd">    Koblenz: Federal Institute of Hydrology (BfG).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">basins</span><span class="o">.</span><span class="n">grdc_major</span><span class="p">(</span><span class="n">bbox_input</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_grdc_wmo_basins">
+<a class="viewcode-back" href="../../generated/easysnowdata.hydroclimatology.get_grdc_wmo_basins.html#easysnowdata.hydroclimatology.get_grdc_wmo_basins">[docs]</a>
+<span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="s2">&quot;easysnowdata.hydro.basins.grdc_wmo&quot;</span><span class="p">,</span>
+    <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+    <span class="n">remove_in</span><span class="o">=</span><span class="s2">&quot;0.3.0&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;easysnowdata.hydroclimatology.get_grdc_wmo_basins&quot;</span><span class="p">,</span>
+    <span class="n">extra</span><span class="o">=</span><span class="s2">&quot;Basins that intersect the AOI are returned whole, not cut at its edge.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_grdc_wmo_basins</span><span class="p">(</span>
+    <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
+    <span class="o">|</span> <span class="nb">tuple</span>
+    <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieves WMO Basins and Sub-Basins dataset.</span>
+
+<span class="sd">    .. deprecated:: 0.1.0</span>
+<span class="sd">        Use :func:`easysnowdata.hydro.basins.grdc_wmo`. It returns the</span>
+<span class="sd">        intersecting basins whole instead of clipping them to the AOI.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bbox_input : geopandas.GeoDataFrame, tuple, or Shapely Geometry, optional</span>
+<span class="sd">        The bounding box for spatial subsetting. If None, the entire global dataset is returned.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional keyword arguments passed to</span>
+<span class="sd">        :func:`easysnowdata.hydro.basins.grdc_wmo` (and on to</span>
+<span class="sd">        ``geopandas.read_file``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    geopandas.GeoDataFrame</span>
+<span class="sd">        A GeoDataFrame containing the WMO Basins and Sub-Basins with associated attributes.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The GRDC archive is downloaded once into the easysnowdata cache directory</span>
+<span class="sd">    (``~/.cache/easysnowdata/grdc`` on Linux; override with</span>
+<span class="sd">    ``EASYSNOWDATA_CACHE_DIR``) and re-used on later calls.</span>
+
+<span class="sd">    Data citation:</span>
+<span class="sd">    GRDC (2020): WMO Basins and Sub-Basins / Global Runoff Data Centre, GRDC. 3rd, rev. ext. ed.</span>
+<span class="sd">    Koblenz, Germany: Federal Institute of Hydrology (BfG).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">basins</span><span class="o">.</span><span class="n">grdc_wmo</span><span class="p">(</span><span class="n">bbox_input</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_era5">
+<a class="viewcode-back" href="../../generated/easysnowdata.hydroclimatology.get_era5.html#easysnowdata.hydroclimatology.get_era5">[docs]</a>
+<span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="s2">&quot;easysnowdata.climate.era5.load&quot;</span><span class="p">,</span>
+    <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+    <span class="n">remove_in</span><span class="o">=</span><span class="s2">&quot;0.3.0&quot;</span><span class="p">,</span>
+    <span class="n">extra</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;The new loader takes aoi= and time= (any AOI/time form), serves hourly ERA5 &quot;</span>
+        <span class="s2">&quot;from ARCO-ERA5 without Earth Engine credentials, and returns the standard attrs.&quot;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_era5</span><span class="p">(</span>
+    <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
+    <span class="o">|</span> <span class="nb">tuple</span>
+    <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ERA5&quot;</span><span class="p">,</span>
+    <span class="n">cadence</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;HOURLY&quot;</span><span class="p">,</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>  <span class="c1"># &quot;auto&quot;, &quot;GEE&quot;, or &quot;GCS&quot;</span>
+    <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">variables</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">initialize_ee</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deprecated alias of :func:`easysnowdata.climate.era5.load`.</span>
+
+<span class="sd">    Every old keyword still works for one release. ``initialize_ee`` is</span>
+<span class="sd">    accepted and ignored (Earth Engine is initialised on first use through</span>
+<span class="sd">    ``easysnowdata.auth``), and ``source`` still takes ``&quot;auto&quot;``, ``&quot;GEE&quot;``</span>
+<span class="sd">    or ``&quot;GCS&quot;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.climate</span><span class="w"> </span><span class="kn">import</span> <span class="n">era5</span> <span class="k">as</span> <span class="n">_era5</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="n">source_map</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;AUTO&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;GEE&quot;</span><span class="p">:</span> <span class="s2">&quot;gee&quot;</span><span class="p">,</span> <span class="s2">&quot;GCS&quot;</span><span class="p">:</span> <span class="s2">&quot;arco-era5-gcs&quot;</span><span class="p">}</span>
+    <span class="n">resolved</span> <span class="o">=</span> <span class="n">source_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">source</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">source</span><span class="p">)</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="p">(</span><span class="n">start_date</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">end_date</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="p">(</span><span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_era5</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+        <span class="n">bbox_input</span><span class="p">,</span>
+        <span class="n">time</span><span class="p">,</span>
+        <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
+        <span class="n">source</span><span class="o">=</span><span class="n">resolved</span><span class="p">,</span>
+        <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span>
+        <span class="n">cadence</span><span class="o">=</span><span class="n">cadence</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_snodas">
+<a class="viewcode-back" href="../../generated/easysnowdata.hydroclimatology.get_snodas.html#easysnowdata.hydroclimatology.get_snodas">[docs]</a>
+<span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="s2">&quot;easysnowdata.snow.snodas.load&quot;</span><span class="p">,</span>
+    <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+    <span class="n">remove_in</span><span class="o">=</span><span class="s2">&quot;0.3.0&quot;</span><span class="p">,</span>
+    <span class="n">extra</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;The new loader defaults to the authoritative NSIDC G02158 archive, which &quot;</span>
+        <span class="s2">&quot;needs no Earth Engine account; pass source=&#39;gee-climate-engine&#39; for the &quot;</span>
+        <span class="s2">&quot;mirror this function used.&quot;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_snodas</span><span class="p">(</span>
+    <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
+    <span class="o">|</span> <span class="nb">tuple</span>
+    <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;2003-10-01&quot;</span><span class="p">,</span>
+    <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">variables</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">initialize_ee</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deprecated alias of :func:`easysnowdata.snow.snodas.load`.</span>
+
+<span class="sd">    Keeps the Earth Engine route this function has always used, so the data</span>
+<span class="sd">    and the credentials are unchanged; ``initialize_ee`` is accepted and</span>
+<span class="sd">    ignored. The new default route (``source=&quot;nsidc&quot;``) needs no account.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.snow</span><span class="w"> </span><span class="kn">import</span> <span class="n">snodas</span> <span class="k">as</span> <span class="n">_snodas</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="k">return</span> <span class="n">_snodas</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+        <span class="n">bbox_input</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span> <span class="k">if</span> <span class="n">end_date</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">temporal</span><span class="o">.</span><span class="n">today</span><span class="p">()),</span>
+        <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">&quot;gee-climate-engine&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_ucla_snow_reanalysis">
+<a class="viewcode-back" href="../../generated/easysnowdata.hydroclimatology.get_ucla_snow_reanalysis.html#easysnowdata.hydroclimatology.get_ucla_snow_reanalysis">[docs]</a>
+<span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="s2">&quot;easysnowdata.snow.ucla_sr.load&quot;</span><span class="p">,</span>
+    <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+    <span class="n">remove_in</span><span class="o">=</span><span class="s2">&quot;0.3.0&quot;</span><span class="p">,</span>
+    <span class="n">extra</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;The new loader adds region=&#39;hma&#39; (High Mountain Asia), virtualize=&#39;auto&#39; for &quot;</span>
+        <span class="s2">&quot;long series and access=&#39;auto&#39; for in-region S3 reads.&quot;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_ucla_snow_reanalysis</span><span class="p">(</span>
+    <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
+    <span class="o">|</span> <span class="nb">tuple</span>
+    <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">variable</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;SWE_Post&quot;</span><span class="p">,</span>
+    <span class="n">stats</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+    <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;1984-10-01&quot;</span><span class="p">,</span>
+    <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;2021-09-30&quot;</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deprecated alias of :func:`easysnowdata.snow.ucla_sr.load`.</span>
+
+<span class="sd">    Every old keyword still works for one release. The ensemble-statistic</span>
+<span class="sd">    mapping (``_UCLA_SR_STATS_INDEX``) now lives in</span>
+<span class="sd">    ``easysnowdata.snow.ucla_sr.STATS``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.snow</span><span class="w"> </span><span class="kn">import</span> <span class="n">ucla_sr</span> <span class="k">as</span> <span class="n">_ucla_sr</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="k">return</span> <span class="n">_ucla_sr</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+        <span class="n">bbox_input</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">),</span>
+        <span class="n">variable</span><span class="o">=</span><span class="n">variable</span><span class="p">,</span>
+        <span class="n">stats</span><span class="o">=</span><span class="n">stats</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_koppen_geiger_classes">
+<a class="viewcode-back" href="../../generated/easysnowdata.hydroclimatology.get_koppen_geiger_classes.html#easysnowdata.hydroclimatology.get_koppen_geiger_classes">[docs]</a>
+<span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="s2">&quot;easysnowdata.climate.koppen_geiger.load&quot;</span><span class="p">,</span>
+    <span class="n">since</span><span class="o">=</span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+    <span class="n">remove_in</span><span class="o">=</span><span class="s2">&quot;0.3.0&quot;</span><span class="p">,</span>
+    <span class="n">extra</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;The new loader adds period= and scenario= (the archive&#39;s other 30-year periods &quot;</span>
+        <span class="s2">&quot;and CMIP6 projections) and returns CF flag attrs instead of class_info/cmap/&quot;</span>
+        <span class="s2">&quot;example_plot; plot it with easysnowdata.plotting.categorical().&quot;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_koppen_geiger_classes</span><span class="p">(</span>
+    <span class="n">bbox_input</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
+    <span class="o">|</span> <span class="nb">tuple</span>
+    <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span>
+    <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">resolution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;0.1 degree&quot;</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deprecated alias of :func:`easysnowdata.climate.koppen_geiger.load`.</span>
+
+<span class="sd">    Returns the 1991-2020 classes at *resolution*, as before. The</span>
+<span class="sd">    ``class_info``, ``cmap`` and ``example_plot`` attrs are gone (design</span>
+<span class="sd">    contract §2.5: nothing in ``.attrs`` is a Python object); the classes are</span>
+<span class="sd">    now CF ``flag_values`` / ``flag_meanings`` / ``flag_colors`` and</span>
+<span class="sd">    ``easysnowdata.plotting.categorical`` draws the legend.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.climate</span><span class="w"> </span><span class="kn">import</span> <span class="n">koppen_geiger</span> <span class="k">as</span> <span class="n">_koppen</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="k">return</span> <span class="n">_koppen</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">bbox_input</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="s2">&quot;chunks&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">})</span></div>
+
+
+
+<span class="c1"># huc map, from gee?</span>
+
+<span class="c1"># hydroatlas? https://developers.google.com/earth-engine/datasets/catalog/WWF_HydroATLAS_v1_Basins_level03</span>
+
+<span class="c1"># maybe seperate climate module,or use https://github.com/hyriver/pydaymet</span>
+
+<span class="c1"># https://github.com/OpenTopography/OT_3DEP_Workflows/blob/main/notebooks/03_3DEP_Generate_DEM_USGS_HUCs.ipynb</span>
+<span class="c1"># from opentopo....</span>
+<span class="c1"># Now exectute the call to the USGS Watershed Boundary Dataset REST API. There are several possibilities here if the following step does not execute properly. There is a print statement implemented that should provide some indication of which it is.</span>
+
+<span class="c1"># If you receive the error Error with Service Call or Error loading JSON output, this most likely indicates that the region you selected does coincide with a USGS hydrologic unit from that particular service.</span>
+
+<span class="c1"># If you recieve the error {&#39;message&#39;: &#39;Endpoint request timed out&#39;}, this likely indicates the Watershed Boundary Dataset service may be down. To check, click this link (https://stats.uptimerobot.com/gxzRZFARLZ/783928857). If you are greeted with the message ScienceBase is down., the service is temporarily down and it is not possible to query the service at this time.</span>
+
+<span class="c1"># If the cell executes successfully, the interesecting watershed boundary geometry will be printed.</span>
+
+<span class="c1"># #url for 12-digit HUCs is ../MapServer/6/</span>
+<span class="c1"># #url = &#39;https://hydro.nationalmap.gov/arcgis/rest/services/wbd/MapServer/7/query?&#39;   #14-Digit HUC</span>
+<span class="c1"># url = &#39;https://hydro.nationalmap.gov/arcgis/rest/services/wbd/MapServer/6/query?&#39;   #12-Digit HUC</span>
+
+<span class="c1"># #the parameters here will query the map server for the appropriate HU boundary</span>
+<span class="c1"># params = dict(geometry=user_AOI,geometryType=&#39;esriGeometryEnvelope&#39;,inSR=&#39;4326&#39;,</span>
+<span class="c1">#               spatialRel=&#39;esriSpatialRelIntersects&#39;,f=&#39;geojson&#39;)</span>
+
+<span class="c1"># #Execute REST API call.</span>
+<span class="c1"># try:</span>
+<span class="c1">#     r = requests.get(url,params=params)</span>
+<span class="c1"># except:</span>
+<span class="c1">#     print(&#39;Error with Service Call. This could mean that there is no hydrologic unit polygon where you selected.&#39;)</span>
+
+<span class="c1"># #load API JSON output into a variable</span>
+<span class="c1"># try:</span>
+<span class="c1">#     wbd_geojson = json.loads(r.content)</span>
+<span class="c1">#     print(wbd_geojson)</span>
+<span class="c1"># except:</span>
+<span class="c1">#     print(&#39;Error loading JSON output&#39;)</span>
+
+<span class="c1"># #To write out a JSON file...</span>
+<span class="c1"># with open(&#39;WBD_API_Query.geojson&#39;, &#39;w&#39;) as outfile:</span>
+<span class="c1">#     json.dump(wbd_geojson, outfile)</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
