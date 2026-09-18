@@ -59,6 +59,15 @@ jobs:
             environment: test-py313
           - os: windows-latest
             environment: test-py313
+          # `dev` resolves separately from the test-py3XX environments, which
+          # have no solve-group, so it is a different stack — measurably: it
+          # had rasterio 1.5.0 / GDAL 3.12.3 where test-py313 had 1.5.1 /
+          # 3.13.3, and that gap cost a red CI run nobody could reproduce
+          # locally (#20). Keeping the interpreter environments free-solving is
+          # the point of the matrix, so instead the stack contributors actually
+          # type is covered here too.
+          - os: ubuntu-latest
+            environment: dev
     steps:
       - uses: actions/checkout@v4
         with:

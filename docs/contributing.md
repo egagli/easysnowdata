@@ -8,24 +8,34 @@ issue tracker is at <https://github.com/egagli/easysnowdata/issues>.
 ```bash
 git clone https://github.com/egagli/easysnowdata.git
 cd easysnowdata
-pixi install                    # resolves from pixi.lock; conda-forge
-pixi run -e dev test-unit       # should be green before you change anything
+pixi install                         # resolves from pixi.lock; conda-forge
+pixi run -e test-py313 test-unit     # should be green before you change anything
 ```
 
-`pixi.lock` pins every environment, GDAL included, so what runs on your laptop
-is what runs in CI. Never hand-edit it; `pixi install` regenerates it when
-`pyproject.toml` changes, and CI runs with `locked: true` so a stale lock fails
-the build rather than silently resolving something else.
+**Test in `test-py313`, not `dev`.** `pixi.lock` pins every environment, but the
+per-interpreter environments have no `solve-group`, so they resolve
+independently of `dev` and land on a different stack — at one point `dev` had
+rasterio 1.5.0 / GDAL 3.12.3 while `test-py313` had 1.5.1 / 3.13.3. That is
+deliberate (testing three interpreters against their own best resolutions is
+the point of the matrix) but it means **`dev` is for interactive work — a
+notebook, a REPL, a docs build — and `test-py3XX` is what CI runs**. CI now has
+a `dev` leg too, so the gap cannot silently reopen (#20).
+
+Never hand-edit the lock; `pixi install` regenerates it when `pyproject.toml`
+changes, and CI runs with `locked: true` so a stale lock fails the build rather
+than silently resolving something else. One caveat worth knowing: `pixi lock`
+exits 0 even when it drops a dependency it cannot satisfy, so check that a new
+dependency is actually in `pixi.lock` rather than trusting the exit code.
 
 ## The tasks
 
 | task | what it does |
 | --- | --- |
-| `pixi run -e dev test-unit` | the whole offline tier, sockets blocked |
-| `pixi run -e dev test-recorded` | just the cassette-replayed tests |
-| `pixi run -e dev test-cov` | offline tier with coverage (fails under 95%) |
-| `pixi run -e dev test-live` | live tier: one smoke test per source |
-| `pixi run -e dev record-cassettes` | re-record the cassettes (needs network) |
+| `pixi run -e test-py313 test-unit` | the whole offline tier, sockets blocked |
+| `pixi run -e test-py313 test-recorded` | just the cassette-replayed tests |
+| `pixi run -e test-py313 test-cov` | offline tier with coverage (fails under 95%) |
+| `pixi run -e test-py313 test-live` | live tier: one smoke test per source |
+| `pixi run -e test-py313 record-cassettes` | re-record the cassettes (needs network) |
 | `pixi run -e lint lint` / `format` | ruff check / ruff format |
 | `pixi run -e docs docs-fast` | build the site without running the gallery (~17 s) |
 | `pixi run -e docs docs-build-free` | build and run the credential-free gallery (~4 min) |
@@ -121,7 +131,7 @@ on the rendered page.
 ```
 
 ```{card} 6. Check the loop closed
-`pixi run -e dev test-unit` — `tests/test_docs_pages.py` fails if the product
+`pixi run -e test-py313 test-unit` — `tests/test_docs_pages.py` fails if the product
 has no example, if the example file is missing, or if a gallery script no
 product claims has appeared. `pixi run -e docs docs-fast` then shows you the
 generated page.

@@ -62,7 +62,7 @@ same stack.
 git clone https://github.com/egagli/easysnowdata.git
 cd easysnowdata
 pixi install                 # the default environment
-pixi run -e dev test-unit    # offline tests: no network, no credentials
+pixi run -e test-py313 test-unit    # offline tests: no network, no credentials
 ```
 
 The environments and what they are for:
