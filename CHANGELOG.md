@@ -6,6 +6,52 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
+## [v0.2.0](https://github.com/egagli/easysnowdata/releases/tag/v0.2.0) - 2026-09-17
+
+<small>[Compare with v0.0.26](https://github.com/egagli/easysnowdata/compare/v0.0.26...v0.2.0)</small>
+
+### Fixed
+
+- fix(live): three real bugs behind the failing live tests, one marker for the fourth ([0cbfafb](https://github.com/egagli/easysnowdata/commit/0cbfafb7821980be9ed7101e1dae5f7d839f8387) by egagli).
+- fix(providers): spell a local zip as /vsizip/ so Windows can open it ([599a296](https://github.com/egagli/easysnowdata/commit/599a296e0d8f6f95bdfa093f0cc8e642233658f3) by egagli).
+- fix(ci): generate the autosummary stubs on a first build, and stop writing COGs in fixtures ([7c3952c](https://github.com/egagli/easysnowdata/commit/7c3952c02f69a88dd978470d54306cd6f2671b95) by egagli).
+- fix(docs): drop the minigallery directive, and keep doctrees out of the site ([e051058](https://github.com/egagli/easysnowdata/commit/e051058dc47f1edf474c3a343c5f30d243dc0173) by egagli).
+- fix(docs): document a re-exported object once, not per module ([10a9b94](https://github.com/egagli/easysnowdata/commit/10a9b94b75ce151c190725c26f2e2de080c35c1a) by egagli).
+- fix(yukon): snowfall is its own type, not precipitation in centimetres ([e89ed0e](https://github.com/egagli/easysnowdata/commit/e89ed0ed3b376b216fd41ab9505f2be0242ae706) by egagli).
+- fix(stations): never rescale a depth of snowfall into a depth of water ([37e8aa8](https://github.com/egagli/easysnowdata/commit/37e8aa84c363935677837cf79a83be51ff2a931a) by egagli).
+- fix(clients): conform get_metadata for one station, emit hPa from Yukon ([defc053](https://github.com/egagli/easysnowdata/commit/defc05342fb1630206cc226aeedb1967b9071a8b) by egagli).
+- fix(awdb): serve TAVG, and prefer it over TOBS for the `temp` type ([87c8ea2](https://github.com/egagli/easysnowdata/commit/87c8ea2d23a9b883cf1997a2ac7903b4d754413f) by egagli).
+- fix(stations): three contract gaps the live tier found ([00560f6](https://github.com/egagli/easysnowdata/commit/00560f6106cf4f6d89722174029a4c379ddb1f1e) by egagli).
+- fix(snow): stream the NSIDC download with iter_content ([ad1473e](https://github.com/egagli/easysnowdata/commit/ad1473e34d45491390e74075d61bc036cf89a670) by Claude).
+- fix(earthaccess): do not treat a half-initialised login as logged in; retry once ([fa5f309](https://github.com/egagli/easysnowdata/commit/fa5f3094dc4c3866a02a14fcbadd4d47e1a6bda1) by egagli).
+- fix(modis): fail fast when GDAL has no HDF4 driver (MOD10A1F) ([f506c13](https://github.com/egagli/easysnowdata/commit/f506c1341943ec1d0bb059d8fae89028baf2adc7) by egagli).
+- fix(yukon): raise on unknown variables and unsupported intervals ([513bc0c](https://github.com/egagli/easysnowdata/commit/513bc0ca93498e16512e52199b1246726211b1e2) by egagli).
+- fix(nve): datetime on hourly records, no silent fallbacks, correct stale docstrings ([c7d499c](https://github.com/egagli/easysnowdata/commit/c7d499c3a4b2d30337e03311b0fe002e7b036551) by egagli).
+- fix(awdb): convert all variables to metric, add datetime to hourly records, validate inputs ([bdcda3c](https://github.com/egagli/easysnowdata/commit/bdcda3c257a315b1839366f533af9304a4e2ec4f) by egagli).
+- fix(cdec): preserve hourly timestamps, clean SWE priority logic, validate inputs ([8a75dbb](https://github.com/egagli/easysnowdata/commit/8a75dbb50c089a50434103000202de17475ef25a) by egagli).
+- fix(databc): wire hourly through get_data, scope negative-value filter, validate interval ([01a1a16](https://github.com/egagli/easysnowdata/commit/01a1a16e10c4f14d3911b43d6b03d5e753d2044f) by egagli).
+- fix: correct Nepal station coordinates via detect-and-override, not exclusion ([e6a3e0b](https://github.com/egagli/easysnowdata/commit/e6a3e0bd10c88bfcba6ab3542004d2e165640d56) by egagli).
+- fix: correct NVE parameter IDs, response parsing, flags — verified live ([fe202a9](https://github.com/egagli/easysnowdata/commit/fe202a97b6065dd96fd7b43ed8a64035101112e6) by egagli).
+- fix: NVE fetch self-diagnoses when /Series matches nothing ([71220bf](https://github.com/egagli/easysnowdata/commit/71220bfcd8a9a0a0ec03f58da9279ac0de84035c) by egagli).
+- fix: NVE Observations 404s — request only series that exist, chunked ([ff0f318](https://github.com/egagli/easysnowdata/commit/ff0f318d8ed3742b77947764392f853c65f4b8f3) by egagli).
+- fix: NVE Observations uses ReferenceTime not StartDate/EndDate ([c4f8aee](https://github.com/egagli/easysnowdata/commit/c4f8aeee52650259aca0f41162cf6433b652487c) by egagli).
+- fix: use correct NVE Observations query param name ([c6b44f5](https://github.com/egagli/easysnowdata/commit/c6b44f5178b8c0de79063f4c69aef30a0a9a386d) by egagli).
+- fix: NVE Observations 400 (date format), 429 (rate limit), begin_date ([18d0a51](https://github.com/egagli/easysnowdata/commit/18d0a515769703c651e4f0a2ca8ae29fe465f856) by egagli).
+- fix: NVE parameters missing when filtering by ParameterId, CI missing API key ([5deee41](https://github.com/egagli/easysnowdata/commit/5deee415a5793ff175f368ca900b3729af3f338d) by egagli).
+- fix: NVE API key auth, Pages permissions, detached HEAD push ([fbbc4d7](https://github.com/egagli/easysnowdata/commit/fbbc4d7a6826ef23c34d8a81357ca1b2c7daeb5b) by egagli).
+- fix awdb metadata adaptive batching ([367639a](https://github.com/egagli/easysnowdata/commit/367639a61ecadd583ff2ed28c41c4b082245820f) by egagli).
+- fix: restore variables_daily for CDEC/DataBC; update README field docs ([8a256ff](https://github.com/egagli/easysnowdata/commit/8a256ff8431be7bde33d346024762c06d55bec4a) by egagli).
+
+## [v0.0.26](https://github.com/egagli/easysnowdata/releases/tag/v0.0.26) - 2026-09-15
+
+<small>[Compare with v0.0.25](https://github.com/egagli/easysnowdata/compare/v0.0.25...v0.0.26)</small>
+
+### Fixed
+
+- fix(hydro): read Köppen-Geiger file 61012822 via ndownloader.figshare.com ([e78aece](https://github.com/egagli/easysnowdata/commit/e78aeceb347fb56e625f347fe9f848c8c5739521) by egagli).
+- fix(earthaccess): explicit login, cloud-hosted MOD10A1F, cache dir, UCLA stats index ([a8c2d3e](https://github.com/egagli/easysnowdata/commit/a8c2d3e73a5929a627eac826b750f80f8305223f) by egagli).
+- fix(hydro): fetch GRDC WMO basins with GET into a cache; GET-first health probe ([69ab0e0](https://github.com/egagli/easysnowdata/commit/69ab0e0a49275fdcc7737f53a2ca39f0569af6e6) by egagli).
+
 ## [v0.0.25](https://github.com/egagli/easysnowdata/releases/tag/v0.0.25) - 2026-08-25
 
 <small>[Compare with v0.0.24](https://github.com/egagli/easysnowdata/compare/v0.0.24...v0.0.25)</small>
