@@ -118,6 +118,7 @@ Each product also carries the citation of the data it serves in
 installation
 concepts
 credentials
+migration
 faq
 ```
 
@@ -137,5 +138,6 @@ status
 api/index
 notebooks
 contributing
+releasing
 changelog
 ```

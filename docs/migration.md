@@ -1,0 +1,143 @@
+# Migrating from 0.0.x
+
+Version 0.2 reorganised easysnowdata around **theme modules** — `snow`,
+`optical`, `sar`, `land`, `terrain`, `climate`, `hydro`, `stations` — each with
+one `load()` per product. Every function you used before still works and
+forwards to its replacement.
+
+**Nothing breaks in 0.2.** The old names warn and will be removed in **0.3.0**,
+so there is a release in between to move at your own pace.
+
+## Find out what you use
+
+The warnings are `DeprecationWarning`s, which Python hides by default. Turn
+them on for one run and the library tells you exactly what to change:
+
+```python
+import warnings
+warnings.filterwarnings("default", category=DeprecationWarning)
+```
+
+```text
+easysnowdata.topography.get_chili is deprecated since easysnowdata 0.1.0 and
+will be removed in 0.3.0. Use easysnowdata.terrain.chili.load instead. The new
+loader returns native values (normalize='minmax' keeps this AOI-relative
+rescaling) and names its dims latitude/longitude.
+```
+
+Each warning fires once per name per process, so a notebook gives you the whole
+list on one pass.
+
+## The renames
+
+| 0.0.x | 0.2 |
+| --- | --- |
+| `remote_sensing.get_forest_cover_fraction` | `land.forest_cover.load` |
+| `remote_sensing.get_seasonal_snow_classification` | `snow.snow_classification.load` |
+| `remote_sensing.get_seasonal_mountain_snow_mask` | `snow.mountain_snow_mask.load` |
+| `remote_sensing.get_esa_worldcover` | `land.landcover.load` |
+| `remote_sensing.get_nlcd_landcover` | `land.nlcd.load` |
+| `remote_sensing.Sentinel2` | `optical.sentinel2.load` |
+| `remote_sensing.Sentinel1` | `sar.sentinel1.load` |
+| `remote_sensing.HLS` | `optical.hls.load` |
+| `remote_sensing.MODIS_snow` | `snow.modis.load` |
+| `topography.get_copernicus_dem` | `terrain.dem.load` |
+| `topography.get_chili` | `terrain.chili.load` |
+| `hydroclimatology.get_huc_geometries` | `hydro.basins.huc` |
+| `hydroclimatology.get_hydroBASINS` | `hydro.basins.hydrobasins` |
+| `hydroclimatology.get_grdc_major_river_basins_of_the_world` | `hydro.basins.grdc_major` |
+| `hydroclimatology.get_grdc_wmo_basins` | `hydro.basins.grdc_wmo` |
+| `hydroclimatology.get_era5` | `climate.era5.load` |
+| `hydroclimatology.get_snodas` | `snow.snodas.load` |
+| `hydroclimatology.get_ucla_snow_reanalysis` | `snow.ucla_sr.load` |
+| `hydroclimatology.get_koppen_geiger_classes` | `climate.koppen_geiger.load` |
+| `automatic_weather_stations.StationCollection` | `stations.inventory` and `stations.load` |
+| `utils.get_water_year_start` | `processing.wateryear.water_year_start` |
+| `utils.datetime_to_DOWY` | `processing.wateryear.day_of_water_year` |
+| `utils.datetime_to_WY` | `processing.wateryear.water_year` |
+
+## Four changes that are not just a rename
+
+### `bbox_input=` is `aoi=`, and it takes more
+
+```python
+esd.remote_sensing.get_esa_worldcover(bbox_input=(-121.9, 46.7, -121.5, 47.0))
+esd.land.landcover.load((-121.9, 46.7, -121.5, 47.0))
+```
+
+`aoi` is positional and accepts a `(west, south, east, north)` tuple in
+EPSG:4326, a shapely geometry or GeoJSON-like mapping, a GeoDataFrame or
+GeoSeries in any CRS, an `odc.geo.geobox.GeoBox`, or `None` for the whole
+globe. See [Concepts](concepts.md).
+
+### The classes are functions
+
+`Sentinel2`, `Sentinel1`, `HLS` and `MODIS_snow` were classes you constructed
+and then read a `.data` attribute from. They are `load()` functions returning
+the `xarray.Dataset` directly:
+
+```python
+s2 = esd.remote_sensing.Sentinel2(bbox, start_date="2023-08-01").data
+s2 = esd.optical.sentinel2.load(bbox, time="2023-08-01/2023-08-31")
+```
+
+Searching without loading is `optical.sentinel2.search()`.
+
+### Class tables are CF flag attributes
+
+`class_info`, `cmap` and `example_plot` are gone. Categorical products now
+carry the standard `flag_values` / `flag_meanings` / `flag_colors` attributes,
+which any CF-aware tool understands, and this package draws them:
+
+```python
+lc = esd.land.landcover.load(aoi)
+esd.plotting.categorical(lc)          # also: colormap_from_flags, legend_handles
+```
+
+### Some defaults moved to a better source
+
+Where a product has more than one route, 0.2 defaults to the archive of record
+rather than whichever mirror was wired up first. The shim keeps the old route,
+so this is the change most likely to surprise you:
+
+| product | 0.0.x route | 0.2 default | keep the old one with |
+| --- | --- | --- | --- |
+| snow classification | hosted COG | NSIDC-0768 | `source="hosted-cog"` |
+| NLCD | 2021 release | Annual NLCD, 1985–2024 | `source="gee"` |
+| MODIS snow | Planetary Computer | NSIDC | `source="planetary-computer"` |
+| SNODAS | GEE / Climate Engine | NSIDC G02158 | `source="gee-climate-engine"` |
+
+Several of these need *fewer* credentials than before: `hydro.basins.huc` reads
+the public USGS WBD service instead of Earth Engine, `climate.era5.load` serves
+hourly ERA5 from ARCO-ERA5 without an Earth Engine account, and
+`optical.hls.load` gained a credential-free Planetary Computer route. Run
+`esd.auth.status()` to see what you actually still need.
+
+## Stations
+
+`automatic_weather_stations.StationCollection` read a frozen CSV archive. It is
+now a shim over `easysnowdata.stations`, which talks to the five network APIs
+(AWDB, CDEC, DataBC, NVE, Yukon AquaCache) and to the daily archive that
+[`global_snow_networks`](https://github.com/egagli/global_snow_networks)
+publishes:
+
+```python
+gdf = esd.stations.inventory(aoi=aoi)                  # GeoDataFrame
+ds = esd.stations.load(gdf, variables=["swe", "snwd"]) # xarray Dataset
+ds = esd.stations.archive.load(aoi=aoi)                # the bulk daily archive
+```
+
+One thing to know if you used the old archive for **air temperature**: it holds
+uncorrected SNOTEL values for roughly 2004–2024, about 1.1 °C warm, because its
+updater only ever re-fetched the last ten days and never revisited history
+after NRCS bias-corrected the network. The live routes above do not have this
+problem. SWE and snow depth are unaffected.
+
+## Still stuck?
+
+Every product's page under [Catalog](catalog/index.md) lists its sources,
+variables and credentials, and the [gallery](auto_examples/index.rst) has a
+runnable example for each. If a shim does something the replacement cannot,
+that is a bug worth
+[reporting](https://github.com/egagli/easysnowdata/issues) before 0.3 removes
+it.
