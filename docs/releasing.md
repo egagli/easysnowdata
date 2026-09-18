@@ -15,18 +15,26 @@ git switch main && git pull && git status --short
 #    It refuses a dirty tree, which is the guard for step 1.
 pixi run -e dev bump-my-version bump --new-version X.Y.Z
 
-# 3. Build from the tag and look at what you are about to publish. Use the
+# 3. Re-lock. bump-my-version edited pyproject.toml, which makes pixi.lock
+#    stale, and CI installs with `locked: true` — so without this the
+#    release commit turns every CI leg red. Fold it into the bump commit
+#    and move the tag onto the amended commit.
+pixi lock
+git add pixi.lock && git commit --amend --no-edit
+git tag -f vX.Y.Z
+
+# 4. Build from the tag and look at what you are about to publish. Use the
 #    environment's python directly: `pixi run` would dirty the lock again,
 #    and hatch-vcs then emits X.Y.Z+1.dev0 instead of the tag.
 .pixi/envs/dev/bin/python -m build
 ls -la dist/            # sdist should be well under a megabyte
 
-# 4. Push, then create a GitHub *release*. A tag alone publishes nothing —
+# 5. Push, then create a GitHub *release*. A tag alone publishes nothing —
 #    `pypi.yml` triggers on `release: created`.
 git push origin main && git push origin vX.Y.Z
 gh release create vX.Y.Z --title vX.Y.Z --notes "..."
 
-# 5. Update the conda-forge recipe. Do not wait for the autotick bot: it
+# 6. Update the conda-forge recipe. Do not wait for the autotick bot: it
 #    bumps the version and the sha256 and nothing else.
 pixi run -e dev python scripts/feedstock_requirements.py
 ```
@@ -46,6 +54,20 @@ depend on anything that can fail for a reason unrelated to the package.
 The version assertion catches the other easy mistake: a tag one commit off the
 bump commit makes hatch-vcs append `.devN`, which would otherwise upload a
 development version under a release's name.
+
+## The three ways a release goes wrong
+
+All three have happened. In order of how long they take to notice:
+
+1. **The lock goes stale and CI goes red on the release commit.** Step 3.
+   `bump-my-version` touches `pyproject.toml`, `locked: true` refuses to
+   install, and every leg fails with `lock-file not up-to-date with the
+   workspace` — on a commit whose only content is a version number.
+2. **Nothing reaches PyPI and the GitHub release looks fine.** v0.0.26.
+   Check <https://pypi.org/project/easysnowdata/> rather than the releases
+   page, and read the workflow run rather than its badge.
+3. **conda-forge stays on the old version for weeks** because the autotick
+   bot opened a PR whose build fails and nobody looked. Step 6.
 
 ## conda-forge
 
