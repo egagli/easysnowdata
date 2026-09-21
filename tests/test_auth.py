@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import json
 import logging
+import os
 import sys
 import types
 from pathlib import Path
@@ -60,7 +61,6 @@ class TestRegistry:
     def test_top_level_exports(self):
         assert easysnowdata.auth is auth
         assert easysnowdata.CredentialError is CredentialError
-        assert easysnowdata.utils.CredentialError is CredentialError
 
     def test_status_table(self, clean_env):
         table = auth.status()
@@ -313,11 +313,6 @@ class TestEarthdata:
         self.provider.login()
         assert fake_earthaccess["calls"] == ["environment"]
 
-    def test_utils_wrapper_delegates(self, clean_env, monkeypatch, fake_earthaccess):
-        monkeypatch.setenv("EARTHDATA_TOKEN", "abc")
-        easysnowdata.utils._earthaccess_login()
-        assert fake_earthaccess["calls"] == ["environment"]
-
 
 # ── earth engine ──────────────────────────────────────────────────────────────
 
@@ -390,10 +385,6 @@ class TestEarthEngine:
         with pytest.raises(ValueError, match="neither a service-account"):
             eeprov.credentials_from_token('{"foo": 1}')
         assert eeprov.credentials_from_token() is None
-        assert (
-            easysnowdata.utils._ee_credentials_from_token
-            is eeprov.credentials_from_token
-        )
 
     def test_project_precedence(self, clean_env, monkeypatch):
         monkeypatch.setenv("EARTHENGINE_TOKEN", json.dumps(OAUTH))
@@ -484,11 +475,6 @@ class TestEarthEngine:
         monkeypatch.setattr(ee, "Authenticate", authenticate)
         self.provider.login()
         assert called == [{}] and fake_ee["init"][0]["project"] == "p"
-
-    def test_utils_initialize_delegates(self, clean_env, monkeypatch, fake_ee):
-        monkeypatch.setenv("EARTHENGINE_TOKEN", json.dumps(OAUTH))
-        easysnowdata.utils.initialize_earthengine()
-        assert len(fake_ee["init"]) == 1
 
 
 # ── planetary computer ────────────────────────────────────────────────────────
@@ -628,3 +614,89 @@ class TestNVE:
         assert self.provider.headers()["X-API-Key"] == "key"
         with pytest.raises(CredentialError, match="no interactive login"):
             self.provider.login()
+
+
+class TestEarthdataTokenFallback:
+    """An expired EARTHDATA_TOKEN is dropped in favour of username/password."""
+
+    provider = auth.get("earthdata")
+
+    @pytest.fixture
+    def urs(self, monkeypatch):
+        import requests
+
+        state = {"status": 401, "calls": 0}
+
+        def get(self, url, headers=None, timeout=None):
+            state["calls"] += 1
+            assert self.trust_env is False  # or netrc basic auth masks the bearer
+            assert url == ed.URS_TOKENS_URL and headers["Authorization"].startswith(
+                "Bearer "
+            )
+            return types.SimpleNamespace(status_code=state["status"])
+
+        monkeypatch.setattr(requests.Session, "get", get)
+        return state
+
+    @pytest.fixture
+    def fake_earthaccess(self, monkeypatch):
+        import earthaccess
+
+        state = {"auth": types.SimpleNamespace(authenticated=False), "calls": []}
+
+        def login(strategy, persist=False):
+            state["calls"].append((strategy, os.environ.get("EARTHDATA_TOKEN")))
+            state["auth"].authenticated = True
+            state["auth"].token = {"access_token": "fresh"}
+            earthaccess._store = object()
+            return state["auth"]
+
+        monkeypatch.setattr(earthaccess, "_auth", state["auth"])
+        monkeypatch.setattr(earthaccess, "_store", None)
+        monkeypatch.setattr(earthaccess, "login", login)
+        monkeypatch.setattr(ed.time, "sleep", lambda s: None)
+        return state
+
+    def test_token_is_valid_reads_the_status(self, urs):
+        assert ed.token_is_valid("t") is False
+        urs["status"] = 200
+        assert ed.token_is_valid("t") is True
+        urs["status"] = 500
+        assert ed.token_is_valid("t") is None
+
+    def test_rejected_token_falls_back_to_the_password(
+        self, clean_env, monkeypatch, urs, fake_earthaccess
+    ):
+        monkeypatch.setenv("EARTHDATA_TOKEN", "expired")
+        monkeypatch.setenv("EARTHDATA_USERNAME", "u")
+        monkeypatch.setenv("EARTHDATA_PASSWORD", "p")
+        self.provider.ensure()
+        # logged in with the environment strategy, and the token was gone by then
+        assert fake_earthaccess["calls"] == [("environment", None)]
+        assert "EARTHDATA_TOKEN" not in os.environ
+        # GDAL reads use the token earthaccess minted, not the rejected one
+        assert self.provider.gdal_options()["GDAL_HTTP_BEARER"] == "fresh"
+
+    def test_valid_token_is_kept(self, clean_env, monkeypatch, urs, fake_earthaccess):
+        urs["status"] = 200
+        monkeypatch.setenv("EARTHDATA_TOKEN", "good")
+        self.provider.ensure()
+        assert fake_earthaccess["calls"] == [("environment", "good")]
+        assert self.provider.gdal_options()["GDAL_HTTP_BEARER"] == "good"
+
+    def test_rejected_token_without_fallback_names_the_cause(
+        self, clean_env, monkeypatch, urs, fake_earthaccess
+    ):
+        monkeypatch.setenv("EARTHDATA_TOKEN", "expired")
+        monkeypatch.setattr(ed, "netrc_has_edl", lambda: False)
+        with pytest.raises(CredentialError, match="rejected"):
+            self.provider.ensure()
+        assert fake_earthaccess["calls"] == []
+
+    def test_unreachable_urs_gives_the_token_the_benefit_of_the_doubt(
+        self, clean_env, monkeypatch, urs, fake_earthaccess
+    ):
+        urs["status"] = 503
+        monkeypatch.setenv("EARTHDATA_TOKEN", "maybe")
+        self.provider.ensure()
+        assert fake_earthaccess["calls"] == [("environment", "maybe")]

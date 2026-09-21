@@ -22,11 +22,42 @@ from easysnowdata import config
 from easysnowdata._gdal import gdal_env
 from easysnowdata.auth._base import Detection, Provider
 
-__all__ = ["EarthdataProvider", "NETRC_HOST"]
+__all__ = ["EarthdataProvider", "NETRC_HOST", "URS_TOKENS_URL", "token_is_valid"]
 
 _logger = logging.getLogger(__name__)
 
 NETRC_HOST = "urs.earthdata.nasa.gov"
+#: Lists the caller's own EDL tokens; answers 401 to an expired or revoked one.
+URS_TOKENS_URL = f"https://{NETRC_HOST}/api/users/tokens"
+
+
+def token_is_valid(token: str, *, timeout: float = 15.0) -> bool | None:
+    """Ask URS whether *token* is still accepted.
+
+    ``True``/``False`` from a 200/401; ``None`` when URS could not be reached
+    or answered something else, in which case the token is given the benefit
+    of the doubt rather than blocking a read.
+    """
+    import requests  # noqa: PLC0415
+
+    try:
+        # trust_env=False: with a netrc entry present, requests would replace
+        # the bearer header with basic auth and validate the *password*.
+        session = requests.Session()
+        session.trust_env = False
+        response = session.get(
+            URS_TOKENS_URL,
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=timeout,
+        )
+    except Exception as exc:  # noqa: BLE001 — offline, blocked or odd: not the token's fault
+        _logger.debug("Could not verify EARTHDATA_TOKEN with URS: %s", exc)
+        return None
+    if response.status_code == 200:
+        return True
+    if response.status_code in (401, 403):
+        return False
+    return None
 
 
 def netrc_path() -> Path | None:
@@ -51,6 +82,17 @@ def netrc_has_edl() -> bool:
         return False
 
 
+def _module_auth(earthaccess: Any) -> Any:
+    """earthaccess's process-wide ``Auth`` (``_auth`` since 0.18, ``__auth__`` before)."""
+    return getattr(earthaccess, "_auth", None) or getattr(earthaccess, "__auth__", None)
+
+
+def _module_store(earthaccess: Any) -> Any:
+    return getattr(earthaccess, "_store", None) or getattr(
+        earthaccess, "__store__", None
+    )
+
+
 class EarthdataProvider(Provider):
     name = "earthdata"
     title = "NASA Earthdata"
@@ -64,9 +106,13 @@ NASA Earthdata Login setup (once):
     earthaccess.login(persist=True)   # prompts; saves to ~/.netrc
 
 or, in scripts and CI, set one of:
-  - EARTHDATA_TOKEN                        (recommended; generate at urs.earthdata.nasa.gov,
-                                            user tokens expire after ~60 days)
-  - EARTHDATA_USERNAME + EARTHDATA_PASSWORD
+  - EARTHDATA_USERNAME + EARTHDATA_PASSWORD  (recommended for CI: earthaccess mints and
+                                              renews its own token from these, so nothing
+                                              expires)
+  - EARTHDATA_TOKEN                          (generate at urs.earthdata.nasa.gov; user tokens
+                                              expire after ~60 days, and an expired one is
+                                              ignored in favour of the credentials above
+                                              when they are also set)
 
 Register for a free account at https://urs.earthdata.nasa.gov"""
 
@@ -118,8 +164,8 @@ Register for a free account at https://urs.earthdata.nasa.gov"""
         """
         import earthaccess  # noqa: PLC0415
 
-        auth = getattr(earthaccess, "__auth__", None)
-        store = getattr(earthaccess, "__store__", None)
+        auth = _module_auth(earthaccess)
+        store = _module_store(earthaccess)
         if (
             auth is not None
             and getattr(auth, "authenticated", False)
@@ -128,6 +174,7 @@ Register for a free account at https://urs.earthdata.nasa.gov"""
             self._ensured = auth
             return auth
 
+        self._drop_expired_token()
         strategy = self.strategy()
         if strategy is None:
             raise self.error()
@@ -148,7 +195,7 @@ Register for a free account at https://urs.earthdata.nasa.gov"""
                     time.sleep(2)
                 continue
             if getattr(auth, "authenticated", False) and (
-                getattr(earthaccess, "__store__", None) is not None
+                _module_store(earthaccess) is not None
             ):
                 self._ensured = auth
                 return auth
@@ -158,6 +205,40 @@ Register for a free account at https://urs.earthdata.nasa.gov"""
             f"NASA Earthdata login failed (strategy {strategy!r}).",
             cause=str(last_exc) if last_exc is not None else None,
         ) from last_exc
+
+    def _drop_expired_token(self) -> None:
+        """Stop using an ``EARTHDATA_TOKEN`` that URS rejects when there is a fallback.
+
+        earthaccess trusts a token from the environment without checking it,
+        so an expired one (they last ~60 days) only surfaces as a 401 halfway
+        through a read. With a username and password also configured — the
+        CI secrets, or a netrc entry — the token is removed from this
+        process's environment and the login proceeds with those, which makes
+        earthaccess mint a fresh token itself. Without a fallback the token is
+        left in place and the error names the cause.
+        """
+        token = os.environ.get("EARTHDATA_TOKEN", "").strip()
+        if not token:
+            return
+        valid = token_is_valid(token)
+        if valid is not False:
+            return
+        fallback = (
+            os.environ.get("EARTHDATA_USERNAME")
+            and os.environ.get("EARTHDATA_PASSWORD")
+        ) or netrc_has_edl()
+        if not fallback:
+            raise self.error(
+                "EARTHDATA_TOKEN was rejected by Earthdata Login (user tokens expire "
+                "after about 60 days) and no EARTHDATA_USERNAME/EARTHDATA_PASSWORD or "
+                "netrc entry is configured to fall back on."
+            )
+        _logger.warning(
+            "EARTHDATA_TOKEN was rejected by Earthdata Login (expired?); logging in "
+            "with the username and password instead, which mints a new token."
+        )
+        os.environ.pop("EARTHDATA_TOKEN", None)
+        self._rejected_token = token
 
     # -- GDAL environment ------------------------------------------------------
 
@@ -174,7 +255,7 @@ Register for a free account at https://urs.earthdata.nasa.gov"""
             "GDAL_HTTP_COOKIEJAR": str(cookies),
             "GDAL_HTTP_UNSAFESSL": None,
         }
-        token = os.environ.get("EARTHDATA_TOKEN", "").strip()
+        token = os.environ.get("EARTHDATA_TOKEN", "").strip() or self._session_token()
         if token:
             options["GDAL_HTTP_AUTH"] = "BEARER"
             options["GDAL_HTTP_BEARER"] = token
@@ -184,6 +265,20 @@ Register for a free account at https://urs.earthdata.nasa.gov"""
             if path is not None and os.environ.get("NETRC"):
                 options["GDAL_HTTP_NETRC_FILE"] = str(path)
         return {k: v for k, v in options.items() if v is not None}
+
+    @staticmethod
+    def _session_token() -> str:
+        """The bearer token earthaccess obtained from a username/password login, if any."""
+        try:
+            import earthaccess  # noqa: PLC0415
+
+            auth = _module_auth(earthaccess)
+            if auth is not None and getattr(auth, "authenticated", False):
+                token = getattr(auth, "token", None) or {}
+                return str(token.get("access_token", "")).strip()
+        except Exception:  # noqa: BLE001 — GDAL falls back to the netrc dance
+            pass
+        return ""
 
     @contextlib.contextmanager
     def env(self) -> Iterator[dict[str, Any]]:
