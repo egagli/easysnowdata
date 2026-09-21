@@ -26,12 +26,15 @@ is a computation rather than a download::
 from __future__ import annotations
 
 import logging
+import re
 from collections.abc import Sequence
 from functools import partial
 from typing import Any
 
 import geopandas as gpd
+import numpy as np
 import pandas as pd
+import shapely
 import xarray as xr
 
 from easysnowdata import catalog, providers
@@ -48,9 +51,12 @@ __all__ = [
     "OPERA_COLLECTION",
     "OPERA_STATIC_COLLECTION",
     "OPERA_MASK_CLASSES",
+    "IW_INCIDENCE_RANGE",
     "search",
     "load",
     "local_incidence_angle",
+    "scene_geometry",
+    "incidence_angle_field",
 ]
 
 _logger = logging.getLogger(__name__)
@@ -220,8 +226,12 @@ LIA_PRODUCT = Product(
             resolution_m=30,
             temporal="static (DEM epoch)",
             notes=(
-                "computed with processing.sar.local_incidence_angle from the "
-                "Copernicus GLO-30 DEM; no credentials, any AOI, any orbit"
+                "an approximation: processing.sar.local_incidence_angle on the "
+                "Copernicus GLO-30 DEM, with the track's heading and a linear "
+                "across-swath incidence field read from a Planetary Computer RTC "
+                "scene footprint; no credentials, no layover/shadow mask. For the "
+                "exact geometry without OPERA, see "
+                "github.com/egagli/generate_sentinel1_local_incidence_angle_maps"
             ),
             title="computed from the Copernicus DEM",
             health=Probe(
@@ -238,8 +248,12 @@ LIA_PRODUCT = Product(
             requires=("earthengine",),
             resolution_m=30,
             temporal="2014-10/present",
-            notes="the legacy Earth Engine route, kept as a fallback (issue #10)",
-            title="Earth Engine (legacy)",
+            notes=(
+                "the S1_GRD angle band is the real per-pixel ellipsoidal incidence "
+                "angle of the chosen track; the terrain part is the same DEM "
+                "computation as source='dem'"
+            ),
+            title="Earth Engine (S1_GRD angle band)",
             health=Probe(
                 "Sentinel-1 GRD angle band (Earth Engine)",
                 partial(
@@ -555,6 +569,7 @@ def local_incidence_angle(
     *,
     source: str | None = None,
     orbit_state: str = "ascending",
+    relative_orbit: int | None = None,
     incidence_angle: float | xr.DataArray | None = None,
     resolution: float | None = None,
     crs: Any = "utm",
@@ -565,41 +580,92 @@ def local_incidence_angle(
 ) -> xr.Dataset:
     """Local incidence angle (and, where available, the layover/shadow mask).
 
+    The local incidence angle is a property of one acquisition geometry, not
+    of a place: it depends on which relative orbit (track) the scene came
+    from, whether the pass was ascending or descending, and where in the
+    swath a pixel sits (the ellipsoidal incidence angle runs from about 29°
+    at near range to 46° at far range in IW mode). The three routes trade
+    exactness for access:
+
+    ``"opera-static"`` (default, Earthdata Login)
+        The published answer. OPERA's RTC-S1-STATIC layers carry the local
+        incidence angle, the ellipsoidal incidence angle and the
+        layover/shadow mask **per burst**, computed from the orbit state
+        vectors and the Copernicus DEM. Bursts from several tracks cover most
+        places; pass *relative_orbit* to keep one track's bursts, otherwise
+        overlapping bursts are fused (max) into a single raster and the
+        geometry is mixed.
+    ``"dem"`` (no account)
+        An approximation from a DEM. The geometry is taken from a
+        representative Planetary Computer RTC scene of the chosen track:
+        the platform heading from the scene footprint's along-track edge,
+        the look azimuth from the heading and the look side, and the
+        ellipsoidal incidence angle as a field that grows linearly from the
+        near-range edge to the far-range edge of the swath. Every pass of a
+        relative orbit is assumed to share this geometry (the same assumption
+        the standalone LIA tool at
+        https://github.com/egagli/generate_sentinel1_local_incidence_angle_maps
+        makes; that tool computes the exact geometry from the GRD orbit file
+        with ``sarsen``, at the price of a SAFE download per track). The
+        result is within a few degrees of OPERA's on open slopes and does not
+        know about layover or shadow. When no RTC scene can be found the
+        nominal Sentinel-1 heading and a constant 39° are used, with a
+        warning.
+    ``"gee"`` (Earth Engine)
+        The ``COPERNICUS/S1_GRD`` ``angle`` band — the real per-pixel
+        ellipsoidal incidence angle of the chosen track — combined with the
+        Copernicus DEM and the same footprint-derived heading.
+
     Parameters
     ----------
+    aoi, time
+        The area, and (OPERA route) a time window for the search.
     source
-        ``"opera-static"`` (default) reads the per-burst OPERA static layers
-        and needs Earthdata Login. ``"dem"`` computes the angle from the
-        Copernicus DEM with no account at all. ``"gee"`` is the legacy Earth
-        Engine route.
+        ``"opera-static"``, ``"dem"`` or ``"gee"``.
     orbit_state
-        Which orbit geometry to compute for on the ``"dem"`` route
-        (``"ascending"`` or ``"descending"``).
+        ``"ascending"`` (default) or ``"descending"``: which pass geometry,
+        on the ``"dem"`` and ``"gee"`` routes.
+    relative_orbit
+        The Sentinel-1 track (``sat:relative_orbit``) to compute or select
+        for. ``None`` picks, on the ``"dem"``/``"gee"`` routes, the track of
+        that *orbit_state* with the most scenes over *aoi*; on the OPERA
+        route it keeps every burst.
     incidence_angle
-        Ellipsoidal incidence angle in degrees for the ``"dem"`` route;
-        defaults to 39°, the middle of Sentinel-1's IW swath.
+        Override for the ellipsoidal incidence angle on the ``"dem"`` route:
+        a scalar for the whole AOI or a raster aligned with the DEM.
     dem
-        A DEM to use instead of fetching the Copernicus DEM
-        (``"dem"`` route).
+        A DEM to use instead of fetching the Copernicus DEM (``"dem"`` route).
 
     Returns
     -------
     xarray.Dataset
-        ``local_incidence_angle`` in degrees, plus ``incidence_angle`` and the
-        categorical ``mask`` on the OPERA route.
+        ``local_incidence_angle`` and ``incidence_angle`` in degrees, plus the
+        categorical ``mask`` on the OPERA route; the geometry used is in the
+        attrs (``relative_orbit``, ``platform_heading``, ``look_azimuth``,
+        ``incidence_angle_model``).
     """
     src = resolve_source(LIA_PRODUCT, source or "opera-static")
     parsed = parse_aoi(aoi) if aoi is not None else None
     ensure_source(LIA_PRODUCT, src)
 
     if src.id == "opera-static":
-        ds = _lia_from_opera(parsed, time, resolution, crs, mask, chunks, **kwargs)
+        ds = _lia_from_opera(
+            parsed, time, resolution, crs, mask, chunks, relative_orbit, **kwargs
+        )
     elif src.id == "dem":
         ds = _lia_from_dem(
-            parsed, orbit_state, incidence_angle, resolution, crs, dem, chunks, **kwargs
+            parsed,
+            orbit_state,
+            relative_orbit,
+            incidence_angle,
+            resolution,
+            crs,
+            dem,
+            chunks,
+            **kwargs,
         )
     else:
-        ds = _lia_from_gee(parsed, orbit_state, chunks, **kwargs)
+        ds = _lia_from_gee(parsed, orbit_state, relative_orbit, chunks, **kwargs)
     return contract.finalize(
         ds,
         LIA_PRODUCT,
@@ -617,6 +683,7 @@ def _lia_from_opera(
     crs: Any,
     mask: bool,
     chunks: Any,
+    relative_orbit: int | None = None,
     **kwargs: Any,
 ) -> xr.Dataset:
     items = providers.stac.search(
@@ -626,6 +693,17 @@ def _lia_from_opera(
         raise ValueError(
             "No OPERA RTC-S1-STATIC granules cover this AOI; try source='dem'."
         )
+    if relative_orbit is not None:
+        # The burst id carries the track: OPERA_L2_RTC-S1-STATIC_T137-292394-IW3_…
+        wanted = f"_T{int(relative_orbit):03d}-"
+        kept = [it for it in items if wanted in _item_id(it)]
+        if not kept:
+            tracks = sorted({_track_of(_item_id(it)) for it in items} - {None})
+            raise ValueError(
+                f"No OPERA static bursts of track {relative_orbit} cover this AOI; "
+                f"the tracks that do: {tracks}."
+            )
+        items = kept
     bands = ["0_local_incidence_angle", "0_incidence_angle"]
     if mask:
         bands.append("0_mask")
@@ -642,12 +720,195 @@ def _lia_from_opera(
     ds = _rename_opera(ds)
     if "time" in ds.dims:  # static layers: collapse the (degenerate) time axis
         ds = ds.max(dim="time", keep_attrs=True)
+    # The COGs carry no band metadata, so name and unit the layers here the
+    # same way the DEM route does; plotting labels read these.
+    ds["local_incidence_angle"].attrs.update(
+        {"long_name": "local incidence angle", "units": "degrees"}
+    )
+    ds["incidence_angle"].attrs.update(
+        {"long_name": "ellipsoidal incidence angle", "units": "degrees"}
+    )
+    if "mask" in ds:
+        ds["mask"].attrs.setdefault("long_name", "layover and shadow mask")
+    tracks = sorted({_track_of(_item_id(it)) for it in items} - {None})
+    ds.attrs["relative_orbit"] = (
+        tracks[0] if len(tracks) == 1 else " ".join(map(str, tracks))
+    )
+    ds.attrs["incidence_angle_model"] = "OPERA RTC-S1-STATIC per-burst layers"
     return ds
+
+
+def _item_id(item: Any) -> str:
+    return str(
+        getattr(item, "id", None) or (item.get("id") if isinstance(item, dict) else "")
+    )
+
+
+def _track_of(item_id: str) -> int | None:
+    """The relative orbit encoded in an OPERA burst id (``…_T137-292394-IW3_…``)."""
+    match = re.search(r"_T(\d{3})-", str(item_id))
+    return int(match.group(1)) if match else None
+
+
+#: Ellipsoidal incidence angle at the near and far edges of the IW swath.
+IW_INCIDENCE_RANGE = (29.1, 46.0)
+
+
+def scene_geometry(
+    aoi: Any,
+    *,
+    orbit_state: str = "descending",
+    relative_orbit: int | None = None,
+    time: Any = "2023-01-01/2024-12-31",
+) -> dict[str, Any]:
+    """The acquisition geometry of one Sentinel-1 track over *aoi*, from a scene footprint.
+
+    Searches the Planetary Computer RTC collection for scenes of
+    *orbit_state* (and *relative_orbit* when given), takes the track with the
+    most scenes, and reads the geometry off a representative footprint:
+
+    ``platform_heading``
+        Azimuth of the footprint's along-track edge, oriented by
+        *orbit_state* (southward for descending, northward for ascending).
+        Sentinel-1's heading varies with latitude, so this beats a constant.
+    ``look_azimuth``
+        Heading plus 90° for the right-looking Sentinel-1
+        (``sar:observation_direction``).
+    ``near_range``, ``swath_width``
+        Position of the near-range edge along the look direction and the
+        swath's width, in the AOI's UTM metres — what
+        :func:`incidence_angle_field` turns into a per-pixel ellipsoidal
+        incidence angle.
+
+    Returns an empty dict when no scene is found.
+    """
+    parsed = parse_aoi(aoi)
+    query: dict[str, Any] = {"sat:orbit_state": {"eq": orbit_state}}
+    if relative_orbit is not None:
+        query["sat:relative_orbit"] = {"eq": int(relative_orbit)}
+    try:
+        items = providers.stac.search(
+            "planetary-computer", "sentinel-1-rtc", parsed, time, query=query
+        )
+    except Exception as exc:  # noqa: BLE001 — the caller falls back to constants
+        _logger.warning("Could not search Sentinel-1 scenes for the geometry: %s", exc)
+        return {}
+    items = list(items)
+    if not items:
+        return {}
+    by_track: dict[int, list[Any]] = {}
+    for item in items:
+        track = item.properties.get("sat:relative_orbit")
+        if track is not None:
+            by_track.setdefault(int(track), []).append(item)
+    if not by_track:
+        return {}
+    track = max(by_track, key=lambda t: len(by_track[t]))
+    item = by_track[track][0]
+    utm = parsed.utm_crs
+    footprint = gpd.GeoSeries([shapely.geometry.shape(item.geometry)], crs="EPSG:4326")
+    ring = np.asarray(footprint.to_crs(utm).iloc[0].exterior.coords)
+    heading = _along_track_heading(ring, orbit_state)
+    right = str(item.properties.get("sar:observation_direction", "right")) == "right"
+    look = sar_processing.look_azimuth(heading, looking="right" if right else "left")
+    ux, uy = np.sin(np.radians(look)), np.cos(np.radians(look))
+    along_look = ring[:, 0] * ux + ring[:, 1] * uy
+    return {
+        "relative_orbit": track,
+        "orbit_state": orbit_state,
+        "platform_heading": float(heading),
+        "look_azimuth": float(look),
+        "near_range": float(along_look.min()),
+        "swath_width": float(along_look.max() - along_look.min()),
+        "crs": str(utm),
+        "scene_id": _item_id(item),
+        "scenes_found": len(by_track[track]),
+    }
+
+
+def _along_track_heading(ring: np.ndarray, orbit_state: str) -> float:
+    """Heading (° clockwise from north) of the footprint edge that runs along track.
+
+    A GRD footprint is a parallelogram whose along-track edges are the two
+    that lie closest to Sentinel-1's nominal heading; their azimuth is
+    averaged and then oriented so a descending pass heads south.
+    """
+    nominal = sar_processing.S1_HEADING[orbit_state] % 180.0
+    azimuths = []
+    for (x0, y0), (x1, y1) in zip(ring[:-1], ring[1:], strict=True):
+        length = float(np.hypot(x1 - x0, y1 - y0))
+        if length < 1.0:
+            continue
+        az = float(np.degrees(np.arctan2(x1 - x0, y1 - y0))) % 180.0
+        diff = min(abs(az - nominal), 180.0 - abs(az - nominal))
+        azimuths.append((diff, az, length))
+    azimuths.sort()
+    along = [az for _, az, _ in azimuths[:2]] or [nominal]
+    # average on the circle mod 180
+    doubled = np.radians(2 * np.asarray(along))
+    mean = (
+        float(
+            np.degrees(np.arctan2(np.mean(np.sin(doubled)), np.mean(np.cos(doubled))))
+        )
+        / 2.0
+    ) % 180.0
+    # Orient the line: a descending pass heads south (90°–270°), an ascending
+    # pass north (270°–90° through 0°).
+    if orbit_state == "descending":
+        return mean if mean >= 90.0 else mean + 180.0
+    return mean if mean < 90.0 else mean + 180.0
+
+
+def incidence_angle_field(
+    dem: xr.DataArray,
+    geometry: dict[str, Any],
+    *,
+    swath: tuple[float, float] = IW_INCIDENCE_RANGE,
+) -> xr.DataArray:
+    """Ellipsoidal incidence angle across the swath, on the DEM's grid.
+
+    Linear from ``swath[0]`` at the near-range edge to ``swath[1]`` at the
+    far-range edge of the footprint in *geometry* (the true relation is
+    slightly convex; the linear model is within about a degree). Pixels
+    outside the footprint are clipped to the nearest edge.
+    """
+    from pyproj import Transformer  # noqa: PLC0415
+
+    x_dim, y_dim = ("x", "y") if "x" in dem.dims else ("longitude", "latitude")
+    xx, yy = np.meshgrid(dem[x_dim].values, dem[y_dim].values)
+    crs = dem.rio.crs
+    if crs is None or str(crs) != geometry["crs"]:
+        to_utm = Transformer.from_crs(
+            crs or "EPSG:4326", geometry["crs"], always_xy=True
+        )
+        xx, yy = to_utm.transform(xx, yy)
+    look = np.radians(geometry["look_azimuth"])
+    along_look = xx * np.sin(look) + yy * np.cos(look)
+    frac = (along_look - geometry["near_range"]) / max(geometry["swath_width"], 1.0)
+    frac = np.clip(frac, 0.0, 1.0)
+    values = swath[0] + frac * (swath[1] - swath[0])
+    field = xr.DataArray(
+        values.astype("float32"),
+        dims=(y_dim, x_dim),
+        coords={y_dim: dem[y_dim], x_dim: dem[x_dim]},
+    )
+    field.attrs = {
+        "long_name": "ellipsoidal incidence angle",
+        "units": "degrees",
+        "description": (
+            f"linear across the IW swath from {swath[0]}° at near range to "
+            f"{swath[1]}° at far range, from the footprint of {geometry.get('scene_id')}"
+        ),
+    }
+    if crs is not None:
+        field = field.rio.write_crs(crs)
+    return field
 
 
 def _lia_from_dem(
     parsed: Any,
     orbit_state: str,
+    relative_orbit: int | None,
     incidence_angle: float | xr.DataArray | None,
     resolution: float | None,
     crs: Any,
@@ -662,24 +923,51 @@ def _lia_from_dem(
         )
     if dem is None:
         dem = _copernicus_dem(parsed, resolution, crs, chunks, **kwargs)
-    angle = 39.0 if incidence_angle is None else incidence_angle
-    heading = sar_processing.S1_HEADING[orbit_state]
-    lia = sar_processing.local_incidence_angle(
-        dem, angle, sar_processing.look_azimuth(heading)
+    geometry = (
+        scene_geometry(parsed, orbit_state=orbit_state, relative_orbit=relative_orbit)
+        if parsed is not None
+        else {}
     )
+    if geometry:
+        heading = geometry["platform_heading"]
+        look = geometry["look_azimuth"]
+        model = (
+            f"track {geometry['relative_orbit']} geometry from scene "
+            f"{geometry['scene_id']}; incidence linear {IW_INCIDENCE_RANGE[0]}°–"
+            f"{IW_INCIDENCE_RANGE[1]}° across the swath"
+        )
+    else:
+        heading = sar_processing.S1_HEADING[orbit_state]
+        look = sar_processing.look_azimuth(heading)
+        model = "nominal Sentinel-1 heading and a constant 39° incidence angle"
+        if parsed is not None:
+            _logger.warning(
+                "No Sentinel-1 RTC scene found over this AOI to take the geometry "
+                "from; using the nominal %s heading (%.1f°) and a constant 39° "
+                "incidence angle.",
+                orbit_state,
+                heading,
+            )
+    if incidence_angle is not None:
+        angle: Any = incidence_angle
+        model += "; incidence angle supplied by the caller"
+    elif geometry:
+        angle = incidence_angle_field(dem, geometry)
+    else:
+        angle = 39.0
+    lia = sar_processing.local_incidence_angle(dem, angle, look)
     ds = lia.to_dataset(name="local_incidence_angle")
     ds["incidence_angle"] = (
         xr.full_like(lia, float(angle))
         if not isinstance(angle, xr.DataArray)
         else angle
     )
-    ds["incidence_angle"].attrs = {
-        "long_name": "ellipsoidal incidence angle",
-        "units": "degrees",
-        "description": "assumed constant across the AOI on the DEM route",
-    }
-    ds.attrs["look_azimuth"] = sar_processing.look_azimuth(heading)
-    ds.attrs["platform_heading"] = heading
+    ds["incidence_angle"].attrs.setdefault("long_name", "ellipsoidal incidence angle")
+    ds["incidence_angle"].attrs.setdefault("units", "degrees")
+    ds.attrs["look_azimuth"] = float(look)
+    ds.attrs["platform_heading"] = float(heading)
+    ds.attrs["relative_orbit"] = geometry.get("relative_orbit", "unknown")
+    ds.attrs["incidence_angle_model"] = model
     return ds
 
 
@@ -701,6 +989,10 @@ def _copernicus_dem(
         chunks=chunks,
         groupby="solar_day",
         catalog="planetary-computer",
+        # Elevation is continuous: interpolate it onto the metric grid rather
+        # than copying the nearest 1" pixel (which would fold its staircase
+        # into every slope and aspect).
+        resampling=kwargs.pop("resampling", "bilinear"),
         **kwargs,
     )["data"]
     if "time" in dem.dims:
@@ -709,17 +1001,31 @@ def _copernicus_dem(
 
 
 def _lia_from_gee(
-    parsed: Any, orbit_state: str, chunks: Any, **kwargs: Any
+    parsed: Any,
+    orbit_state: str,
+    relative_orbit: int | None,
+    chunks: Any,
+    **kwargs: Any,
 ) -> xr.Dataset:
-    """The legacy Earth Engine route: the S1_GRD angle band plus GLO-30."""
+    """The Earth Engine route: the S1_GRD angle band of one track plus GLO-30."""
     ee = providers.gee.ee()
-    geometry = providers.gee.geometry(parsed)
+    geometry_ee = providers.gee.geometry(parsed)
+    geometry = scene_geometry(
+        parsed, orbit_state=orbit_state, relative_orbit=relative_orbit
+    )
+    track = (
+        relative_orbit if relative_orbit is not None else geometry.get("relative_orbit")
+    )
     collection = (
         ee.ImageCollection("COPERNICUS/S1_GRD")
-        .filterBounds(geometry)
+        .filterBounds(geometry_ee)
         .filter(ee.Filter.eq("instrumentMode", "IW"))
         .filter(ee.Filter.eq("orbitProperties_pass", orbit_state.upper()))
     )
+    if track is not None:
+        collection = collection.filter(
+            ee.Filter.eq("relativeOrbitNumber_start", int(track))
+        )
     angle = collection.select("angle").median()
     ds = providers.gee.open_dataset(
         ee.ImageCollection([angle]),
@@ -736,11 +1042,18 @@ def _lia_from_gee(
     incidence = ds["incidence_angle"]
     if incidence.shape != dem.shape:
         incidence = incidence.rio.reproject_match(dem)
-    lia = sar_processing.local_incidence_angle(
-        dem,
-        incidence,
-        sar_processing.look_azimuth(sar_processing.S1_HEADING[orbit_state]),
-    )
+    heading = geometry.get("platform_heading", sar_processing.S1_HEADING[orbit_state])
+    look = geometry.get("look_azimuth", sar_processing.look_azimuth(heading))
+    lia = sar_processing.local_incidence_angle(dem, incidence, look)
     out = lia.to_dataset(name="local_incidence_angle")
     out["incidence_angle"] = incidence
+    out["incidence_angle"].attrs.update(
+        {"long_name": "ellipsoidal incidence angle", "units": "degrees"}
+    )
+    out.attrs["look_azimuth"] = float(look)
+    out.attrs["platform_heading"] = float(heading)
+    out.attrs["relative_orbit"] = track if track is not None else "unknown"
+    out.attrs["incidence_angle_model"] = (
+        "COPERNICUS/S1_GRD angle band (median over the track's scenes)"
+    )
     return out

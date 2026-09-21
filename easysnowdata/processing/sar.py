@@ -183,7 +183,11 @@ def local_incidence_angle(
     slope, aspect = slope_aspect(dem, degrees=False)
     look_rad = np.radians(look_azimuth_deg)
     theta_i = np.radians(incidence_angle)
-    phi_r = look_rad - aspect
+    # The look azimuth points from the sensor to the ground; a slope faces the
+    # radar when its aspect points back along it, so the range component is
+    # measured from the direction *toward* the sensor (look + 180°). Checked
+    # against the OPERA RTC-S1-STATIC layer for a descending track (2026-09).
+    phi_r = look_rad + np.pi - aspect
     alpha_r = np.arctan(np.tan(slope) * np.cos(phi_r))
     alpha_az = np.arctan(np.tan(slope) * np.sin(phi_r))
     cos_theta = (np.cos(alpha_az) * np.cos(theta_i - alpha_r)).clip(-1.0, 1.0)

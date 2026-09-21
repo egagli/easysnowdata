@@ -58,7 +58,10 @@ CATALOGS: dict[str, dict[str, Any]] = {
         "url": f"{CMR_CLOUDSTAC_URL}/ASF",
         "sign": False,
         "requires": ("earthdata",),
-        "gdal": {},
+        # datapool.asf.alaska.edu answers HEAD with 403 (API Gateway
+        # "MissingAuthenticationTokenException"), and GDAL's first request on a
+        # /vsicurl/ file is a HEAD; a ranged GET follows the EDL redirects fine.
+        "gdal": {"CPL_VSIL_CURL_USE_HEAD": "NO"},
     },
     "cmr-nsidc": {
         "url": f"{CMR_CLOUDSTAC_URL}/NSIDC_CPRD",

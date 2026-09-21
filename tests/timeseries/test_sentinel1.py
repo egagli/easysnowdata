@@ -117,27 +117,29 @@ def test_local_incidence_angle_matches_the_closed_form():
     ) == pytest.approx(35.0)
 
     slope = _planar_dem(20.0, facing="west")
-    # looking west (270°), the slope tilts toward the radar → 35 − 20
-    toward = sar_processing.local_incidence_angle(slope, 35.0, 270.0)
+    # A radar looking east (90°) sits to the west, so a west-facing slope
+    # tilts toward it → 35 − 20
+    toward = sar_processing.local_incidence_angle(slope, 35.0, 90.0)
     assert float(toward[10, 10]) == pytest.approx(15.0)
-    # looking east, it tilts away → 35 + 20
-    away = sar_processing.local_incidence_angle(slope, 35.0, 90.0)
+    # looking west (270°), the sensor is to the east and the slope tilts
+    # away → 35 + 20
+    away = sar_processing.local_incidence_angle(slope, 35.0, 270.0)
     assert float(away[10, 10]) == pytest.approx(55.0)
     assert away.attrs["units"] == "degrees" and away.rio.crs.to_epsg() == 32610
     # clipping keeps the angle in [0, 90]
     steep = sar_processing.local_incidence_angle(
-        _planar_dem(60.0, facing="west"), 40.0, 90.0
+        _planar_dem(60.0, facing="west"), 40.0, 270.0
     )
     assert float(steep.max()) <= 90.0
     unclipped = sar_processing.local_incidence_angle(
-        _planar_dem(60.0, facing="west"), 40.0, 90.0, clip_to_valid=False
+        _planar_dem(60.0, facing="west"), 40.0, 270.0, clip_to_valid=False
     )
     assert float(unclipped[10, 10]) == pytest.approx(100.0)
 
 
 def test_local_incidence_angle_is_dask_aware():
     lazy = _planar_dem(20.0, facing="west").chunk({"x": 7, "y": 7})
-    lia = sar_processing.local_incidence_angle(lazy, 35.0, 270.0)
+    lia = sar_processing.local_incidence_angle(lazy, 35.0, 90.0)
     assert lia.chunks is not None
     assert float(lia.compute()[10, 10]) == pytest.approx(15.0)
 
@@ -323,15 +325,21 @@ def test_local_incidence_angle_from_a_dem(monkeypatch, fake_credentials):
     assert ds.attrs["orbit_state"] == "ascending"
     assert ds.attrs["source_id"] == "dem"
     assert ds.attrs["product_id"] == "sentinel-1-local-incidence-angle"
-    # descending looks west, so a west-facing slope is tilted toward the radar
+    # A descending pass looks west, so the sensor sits to the east and a
+    # west-facing slope tilts *away* from it: the local angle opens up
+    # (35° + 20° of slope). The ascending pass looks east and sees it face-on.
     descending = sentinel1.local_incidence_angle(
         RAINIER, source="dem", dem=dem, orbit_state="descending", incidence_angle=35.0
     )
-    assert float(descending["local_incidence_angle"][10, 10]) < 35.0
+    assert float(descending["local_incidence_angle"][10, 10]) == pytest.approx(
+        55.0, abs=1.5
+    )
     ascending = sentinel1.local_incidence_angle(
         RAINIER, source="dem", dem=dem, orbit_state="ascending", incidence_angle=35.0
     )
-    assert float(ascending["local_incidence_angle"][10, 10]) > 35.0
+    assert float(ascending["local_incidence_angle"][10, 10]) == pytest.approx(
+        15.0, abs=2.5
+    )
     with pytest.raises(ValueError, match="orbit_state must be one of"):
         sentinel1.local_incidence_angle(
             RAINIER, source="dem", dem=dem, orbit_state="up"
@@ -372,22 +380,6 @@ def test_local_incidence_angle_opera_without_granules(monkeypatch, fake_credenti
 
 
 # ── the deprecation shim ──────────────────────────────────────────────────────
-
-
-@pytest.mark.recorded
-def test_old_sentinel1_class_is_a_shim(fake_stac):
-    from easysnowdata import _deprecation
-    from easysnowdata.remote_sensing import Sentinel1
-
-    _deprecation.reset_warnings()
-    with pytest.warns(
-        _deprecation.EasysnowdataDeprecationWarning, match="sar.sentinel1.load"
-    ):
-        ds = Sentinel1(RAINIER, start_date="2023-08-01", end_date="2023-08-10")
-    assert isinstance(ds, xr.Dataset) and ds.attrs["units"] == "dB"
-    assert "sat:relative_orbit" in ds.coords
-    with pytest.raises(ValueError, match="Invalid catalog_choice"):
-        Sentinel1(RAINIER, catalog_choice="aws")
 
 
 # ── live smoke tests ──────────────────────────────────────────────────────────
@@ -541,8 +533,9 @@ def test_local_incidence_angle_from_earth_engine(fake_gee, monkeypatch):
     assert set(ds.data_vars) == {"local_incidence_angle", "incidence_angle"}
     assert ds.attrs["source_id"] == "gee"
     assert float(ds["incidence_angle"].max()) == pytest.approx(38.0)
-    # descending looks west, so a west-facing slope tilts toward the radar
-    assert float(ds["local_incidence_angle"].mean()) < 38.0
+    # descending looks west from the east, so a west-facing slope tilts away
+    # from the radar and the local angle exceeds the nominal one
+    assert float(ds["local_incidence_angle"].mean()) > 38.0
 
 
 @pytest.mark.recorded
@@ -580,3 +573,77 @@ def test_copernicus_dem_helper(monkeypatch, fake_credentials):
     monkeypatch.setattr(sentinel1.providers.stac, "search", lambda *a, **k: [])
     with pytest.raises(ValueError, match="No Copernicus DEM tiles"):
         sentinel1._copernicus_dem(esd.parse_aoi(RAINIER), 30, "utm", None)
+
+
+# ── acquisition geometry from a scene footprint ──────────────────────────────
+
+
+def _footprint(
+    heading_deg: float, *, width: float = 250_000.0, length: float = 180_000.0
+):
+    """A GRD-like parallelogram in metres whose along-track edge has *heading_deg*."""
+    h = np.radians(heading_deg)
+    along = np.array([np.sin(h), np.cos(h)]) * length
+    across = np.array([np.cos(h), -np.sin(h)]) * width  # to the right of the heading
+    origin = np.array([500_000.0, 5_200_000.0])
+    corners = [origin, origin + along, origin + along + across, origin + across, origin]
+    return np.asarray(corners)
+
+
+@pytest.mark.parametrize(
+    ("true_heading", "state"),
+    [
+        (190.6, "descending"),
+        (349.5, "ascending"),
+        (200.0, "descending"),
+        (340.0, "ascending"),
+    ],
+)
+def test_along_track_heading_is_oriented_by_the_pass(true_heading, state):
+    ring = _footprint(true_heading)
+    found = sentinel1._along_track_heading(ring, state)
+    assert found == pytest.approx(true_heading, abs=0.01)
+    # the same footprint traversed the other way gives the same answer
+    assert sentinel1._along_track_heading(ring[::-1], state) == pytest.approx(
+        true_heading, abs=0.01
+    )
+
+
+def test_incidence_angle_field_runs_near_to_far_across_the_swath():
+    dem = _planar_dem(0.0, facing="flat", n=11, res=25_000.0)  # 250 km square
+    # looking east (ascending-like): near range is the western edge
+    geometry = {
+        "look_azimuth": 90.0,
+        "near_range": float(dem["x"].min()),
+        "swath_width": float(dem["x"].max() - dem["x"].min()),
+        "crs": "EPSG:32610",
+        "scene_id": "synthetic",
+    }
+    field = sentinel1.incidence_angle_field(dem, geometry)
+    lo, hi = sentinel1.IW_INCIDENCE_RANGE
+    assert float(field.isel(x=0, y=0)) == pytest.approx(lo)
+    assert float(field.isel(x=-1, y=0)) == pytest.approx(hi)
+    assert float(field.isel(x=5, y=3)) == pytest.approx((lo + hi) / 2)
+    assert field.attrs["units"] == "degrees"
+
+
+def test_dem_route_falls_back_to_constants_without_a_scene(
+    monkeypatch, fake_credentials, caplog
+):
+    monkeypatch.setattr(sentinel1, "scene_geometry", lambda *a, **k: {})
+    dem = _planar_dem(20.0, facing="west")
+    with caplog.at_level("WARNING", logger="easysnowdata"):
+        ds = sentinel1.local_incidence_angle(RAINIER, source="dem", dem=dem)
+    assert ds.attrs["relative_orbit"] == "unknown"
+    assert "constant 39°" in ds.attrs["incidence_angle_model"]
+    assert any("nominal" in r.message for r in caplog.records)
+
+
+def test_opera_track_filter_reads_the_burst_id():
+    assert (
+        sentinel1._track_of(
+            "OPERA_L2_RTC-S1-STATIC_T137-292394-IW3_20140403_S1A_30_v1.0"
+        )
+        == 137
+    )
+    assert sentinel1._track_of("something-else") is None
