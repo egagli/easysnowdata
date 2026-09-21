@@ -276,7 +276,7 @@ re-implement · **reference** = not a product; kept in §E as an access pattern 
 | ICESat-2 ATL06/ATL08 | laser altimetry heights | snow depth by differencing | NSIDC · HDF5 · EDL | medium; `icepyx`/`sliderule` exist | **wrap** |
 | S2/HLS snow cover (#9) | NDSI-threshold and let-it-snow style snow maps | turns imagery into a snow product; the most-asked feature | computed | medium | **follow-on** (NDSI first; algorithm links in E.3) |
 | 3DEP 1/3″ and lidar | US 10 m DEM, point clouds | finer terrain for small basins; `py3dep` already a dependency | S3/PC · COG/EPT · none | low | **follow-on** |
-| NASADEM | 30 m void-filled SRTM | alternative DEM where GLO-30 has artefacts | LPCLOUD/PC/GEE | low | **follow-on** |
+| NASADEM | 30 m void-filled SRTM | alternative DEM where GLO-30 has artefacts | PC/GEE | low | **shipped 0.3** as `product="nasadem"`, with SRTM GL1 (`"srtm"`, GEE) and ALOS World 3D (`"alos-dem"`) beside it |
 | Insolation proxies (CHILI, heat load) | topographic radiation indices | aspect control on melt timing (P4's CHILI classes) | GEE; or computed from a DEM with McCune & Keon 2002 | low | **rewrite** (CHILI exists) + **follow-on** (local computation) |
 | Dynamic World | 10 m near-real-time land cover | current-year land cover for masking | GEE | low | **follow-on** |
 | Hansen GFC 2025 | tree cover and loss year | forest change affects snow interception | GEE | low | **follow-on** |
