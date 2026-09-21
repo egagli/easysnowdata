@@ -1,6 +1,7 @@
 {
   "lines": [
     "Welcome to Pangeo Discourse",
+    "Decode GeoTIFF to GPU memory",
     "Pangeo Showcase: \"insitubatch: Streaming ML Batches from Cloud Zarr Without Resharding\" (September 16, 12 PM EDT / 16:00 UTC)",
     "Experiment: querying large Zarr datasets directly from PostgreSQL/PostGIS without ETL",
     "Xue: A binary format for animating weather forecasts in the browser",
@@ -28,7 +29,6 @@
     "AGU 2026 Session SY029. Open Source Tools for the Earth & Space Sciences: Breaking Discipline Silos to Accelerate Discovery",
     "[Data Announcement] Revamped chunking for ERA5 Zarr datasets on Earth Data Hub",
     "Computing the El Niño index from ERA5 with SQL",
-    "Best Practice for Machine Learning with Huge Datasets",
-    "Hiring a Senior Software Developer at OPeNDAP"
+    "Best Practice for Machine Learning with Huge Datasets"
   ]
 }

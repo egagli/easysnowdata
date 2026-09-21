@@ -13,16 +13,16 @@
     "url": "https://developers.google.com/earth-engine/datasets/catalog/CSP_ERGo_1_0_Global_ALOS_CHILI"
   },
   "ECMWF/ERA5_LAND/HOURLY": {
-    "end": "2026-09-11",
+    "end": "2026-09-15",
     "type": "IMAGE_COLLECTION",
-    "updated": "2026-09-17",
+    "updated": "2026-09-21",
     "url": "https://developers.google.com/earth-engine/datasets/catalog/ECMWF_ERA5_LAND_HOURLY",
     "window_days": 30
   },
   "OPERA/RTC/L2_V1/S1": {
-    "end": "2026-09-16",
+    "end": "2026-09-20",
     "type": "IMAGE_COLLECTION",
-    "updated": "2026-09-17",
+    "updated": "2026-09-21",
     "url": "https://developers.google.com/earth-engine/datasets/catalog/OPERA_RTC_L2_V1_S1",
     "window_days": 30
   },
@@ -33,9 +33,9 @@
     "url": "https://developers.google.com/earth-engine/datasets/catalog/USGS_WBD_2017_HUC08"
   },
   "projects/earthengine-legacy/assets/projects/climate-engine/snodas/daily": {
-    "end": "2026-09-16",
+    "end": "2026-09-19",
     "type": "IMAGE_COLLECTION",
-    "updated": "2026-09-17",
+    "updated": "2026-09-20",
     "url": "https://developers.google.com/earth-engine/datasets/catalog/projects_earthengine-legacy_assets_projects_climate-engine_snodas_daily",
     "window_days": 30
   },
