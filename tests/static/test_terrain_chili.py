@@ -117,17 +117,6 @@ class TestLoad:
         da = chili.load(RAINIER, chunks=None)
         assert da.chunks is None
 
-    def test_old_name_warns_and_rescales(self, fake_ee, monkeypatch):
-        from easysnowdata import _deprecation
-        from easysnowdata.topography import get_chili
-
-        _deprecation.reset_warnings()
-        with pytest.warns(
-            _deprecation.EasysnowdataDeprecationWarning, match="chili.load"
-        ):
-            da = get_chili(RAINIER)
-        assert float(da.max()) == pytest.approx(1.0)
-
 
 @pytest.mark.live
 @pytest.mark.requires_earthengine

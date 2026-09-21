@@ -1,5 +1,16 @@
-"""Optical processing: Sentinel-2 baseline harmonization, scale/offset,
-spectral indices, RGB composites and contrast stretches. Pure functions."""
+"""Optical processing: Sentinel-2 baseline harmonization, metadata-driven
+scale/offset, and the PlanetScope UDM2 mask decoder. Pure functions.
+
+Band arithmetic is deliberately *not* wrapped here. A normalized difference is
+one line of xarray, and hiding it behind ``ndsi(ds)`` obscured which bands
+were being used and what happened to negative reflectance::
+
+    ndsi = (s2["green"] - s2["swir16"]) / (s2["green"] + s2["swir16"])
+    rgb = s2[["red", "green", "blue"]].to_array("band").clip(0, 0.3) / 0.3
+    rgb.isel(time=0).plot.imshow(rgb="band")
+
+The gallery examples spell these out every time they are used.
+"""
 
 from __future__ import annotations
 
@@ -17,15 +28,6 @@ __all__ = [
     "S2_REFLECTANCE_BANDS",
     "harmonize_s2_baseline",
     "scale_offset",
-    "normalized_difference",
-    "ndsi",
-    "ndvi",
-    "ndwi",
-    "ndbi",
-    "evi",
-    "rgb",
-    "stretch_percentile",
-    "stretch_clahe",
     "UDM2_BANDS",
     "UDM2_BINARY_BANDS",
     "UDM1_BITS",
@@ -161,183 +163,6 @@ def scale_offset(
     if nodata_to_nan:
         result.attrs.pop("nodata", None)
     return result
-
-
-def normalized_difference(
-    a: xr.DataArray,
-    b: xr.DataArray,
-    *,
-    valid_range: tuple[float, float] | None = (-1.0, 1.0),
-) -> xr.DataArray:
-    """``(a - b) / (a + b)`` as float, NaN where the index is undefined.
-
-    A normalized difference of two non-negative quantities is in [-1, 1] by
-    construction. Surface reflectance is **not** always non-negative:
-    atmospheric correction over dark targets returns slightly negative values,
-    and where one band is a small negative and the other a small positive the
-    denominator approaches zero and the ratio explodes. Measured on HLS S30
-    over Mount Rainier, 2023-08-01/06, 120 m: green reaches -0.0135 and swir16
-    -0.0196, and 29 of 66 045 pixels come out beyond [-1, 1] — one of them at
-    -19.
-
-    Those pixels are not a darker or brighter surface, they are a division by
-    almost nothing, so they are masked rather than returned: the function
-    already did this for an exactly-zero denominator, and this is the same
-    guard widened to the case that actually occurs. Pass ``valid_range=None``
-    for the raw ratio.
-
-    Parameters
-    ----------
-    a, b
-        The two bands, in the order that makes the index positive for the
-        feature of interest.
-    valid_range
-        Results outside this range are set to NaN. ``None`` disables it.
-    """
-    a_f = a.astype("float32") if not np.issubdtype(a.dtype, np.floating) else a
-    b_f = b.astype("float32") if not np.issubdtype(b.dtype, np.floating) else b
-    denominator = a_f + b_f
-    index = (a_f - b_f) / denominator.where(denominator != 0)
-    if valid_range is not None:
-        low, high = valid_range
-        index = index.where((index >= low) & (index <= high))
-    return index.rename(None)
-
-
-def _band(ds: xr.Dataset, name: str) -> xr.DataArray:
-    if name not in ds:
-        raise KeyError(
-            f"Band {name!r} not in dataset; available: {list(ds.data_vars)}."
-        )
-    return ds[name]
-
-
-def ndsi(ds: xr.Dataset, green: str = "green", swir: str = "swir16") -> xr.DataArray:
-    """Normalized Difference Snow Index ``(green - swir16) / (green + swir16)``."""
-    return normalized_difference(_band(ds, green), _band(ds, swir)).assign_attrs(
-        long_name="NDSI"
-    )
-
-
-def ndvi(ds: xr.Dataset, nir: str = "nir", red: str = "red") -> xr.DataArray:
-    """Normalized Difference Vegetation Index ``(nir - red) / (nir + red)``."""
-    return normalized_difference(_band(ds, nir), _band(ds, red)).assign_attrs(
-        long_name="NDVI"
-    )
-
-
-def ndwi(ds: xr.Dataset, green: str = "green", nir: str = "nir") -> xr.DataArray:
-    """Normalized Difference Water Index (McFeeters) ``(green - nir) / (green + nir)``."""
-    return normalized_difference(_band(ds, green), _band(ds, nir)).assign_attrs(
-        long_name="NDWI"
-    )
-
-
-def ndbi(ds: xr.Dataset, nir: str = "nir", swir: str = "swir22") -> xr.DataArray:
-    """Normalized Difference Built-up Index as used here: ``(nir - swir22) / (nir + swir22)``."""
-    return normalized_difference(_band(ds, nir), _band(ds, swir)).assign_attrs(
-        long_name="NDBI"
-    )
-
-
-def evi(
-    ds: xr.Dataset, nir: str = "nir", red: str = "red", blue: str = "blue"
-) -> xr.DataArray:
-    """Enhanced Vegetation Index ``2.5 (nir - red) / (nir + 6 red - 7.5 blue + 1)`` (reflectance 0–1)."""
-    n, r, b = (_band(ds, k).astype("float32") for k in (nir, red, blue))
-    return (
-        (2.5 * (n - r) / (n + 6 * r - 7.5 * b + 1))
-        .rename(None)
-        .assign_attrs(long_name="EVI")
-    )
-
-
-def rgb(
-    ds: xr.Dataset,
-    bands: Sequence[str] = ("red", "green", "blue"),
-    *,
-    vmin: float | None = None,
-    vmax: float | None = None,
-    dim: str = "band",
-) -> xr.DataArray:
-    """Stack three bands into a ``band``-dimensioned float composite.
-
-    With *vmin*/*vmax* the values are linearly scaled to 0–1 and clipped.
-    """
-    if len(bands) != 3:
-        raise ValueError("rgb() needs exactly three band names.")
-    da = xr.concat(
-        [_band(ds, b).astype("float32") for b in bands],
-        dim=pd.Index(list(bands), name=dim),
-    )
-    if vmin is not None or vmax is not None:
-        lo = 0.0 if vmin is None else float(vmin)
-        hi = float(vmax) if vmax is not None else float(da.max())
-        da = ((da - lo) / (hi - lo)).clip(0, 1)
-    return da.transpose(dim, ...)
-
-
-def stretch_percentile(
-    composite: xr.DataArray,
-    lower: float = 2,
-    upper: float = 98,
-    *,
-    dim: str = "band",
-) -> xr.DataArray:
-    """Percentile contrast stretch per band, clipped to 0–1.
-
-    Percentiles are computed over all non-band dimensions (Dask arrays are
-    rechunked along them). Bands with no spread stay 0.
-    """
-    other = [d for d in composite.dims if d != dim]
-    data = (
-        composite.chunk({d: -1 for d in other})
-        if composite.chunks is not None
-        else composite
-    )
-    q = data.quantile([lower / 100, upper / 100], dim=other, skipna=True)
-    lo, hi = q.isel(quantile=0, drop=True), q.isel(quantile=1, drop=True)
-    span = (hi - lo).where(hi > lo)
-    return (
-        ((composite - lo) / span)
-        .clip(0, 1)
-        .fillna(0)
-        .transpose(*composite.dims)
-        .assign_attrs(composite.attrs)
-    )
-
-
-def stretch_clahe(
-    composite: xr.DataArray,
-    *,
-    clip_limit: float = 0.03,
-    nbins: int = 256,
-    kernel_size: int | None = None,
-    dim: str = "band",
-) -> xr.DataArray:
-    """Contrast Limited Adaptive Histogram Equalization per band (scikit-image).
-
-    Input should be 0–1 floats (see :func:`rgb`); NaNs are filled with 0 for
-    the equalisation and restored afterwards. Computes eagerly.
-    """
-    from skimage import exposure  # noqa: PLC0415
-
-    values = np.asarray(composite.transpose(dim, ...).values, dtype="float64")
-    nan_mask = np.isnan(values)
-    filled = np.clip(np.nan_to_num(values, nan=0.0), 0, 1)
-    out = np.empty_like(filled)
-    for i in range(filled.shape[0]):
-        out[i] = exposure.equalize_adapthist(
-            filled[i], clip_limit=clip_limit, nbins=nbins, kernel_size=kernel_size
-        )
-    out[nan_mask] = np.nan
-    result = xr.DataArray(
-        out.astype("float32"),
-        dims=composite.transpose(dim, ...).dims,
-        coords=composite.transpose(dim, ...).coords,
-        attrs=composite.attrs,
-    )
-    return result.transpose(*composite.dims)
 
 
 #: PlanetScope UDM2 band order (Planet's "Usable Data Mask" specification).

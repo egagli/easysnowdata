@@ -259,30 +259,6 @@ def test_load_without_credentials_names_the_free_alternative(no_credentials):
 # ── the deprecation shim ──────────────────────────────────────────────────────
 
 
-@pytest.mark.recorded
-def test_old_hls_class_is_a_shim(fake_stac):
-    from easysnowdata import _deprecation
-    from easysnowdata.remote_sensing import HLS
-
-    _deprecation.reset_warnings()
-    with pytest.warns(
-        _deprecation.EasysnowdataDeprecationWarning, match="optical.hls.load"
-    ):
-        ds = HLS(
-            RAINIER,
-            start_date="2023-08-01",
-            end_date="2023-08-10",
-            bands=["red", "Fmask"],
-            scale_data=False,
-            add_metadata=False,
-            add_platform=False,
-        )
-    assert isinstance(ds, xr.Dataset) and ds.sizes["time"] == 2
-    assert int(ds["red"].isel(time=0, y=0, x=0).values) == 3000
-    assert list(ds["product"].values) == ["L30", "S30"]
-    assert ds.attrs["product_id"] == "hls"
-
-
 # ── live smoke tests ──────────────────────────────────────────────────────────
 
 
@@ -315,13 +291,15 @@ def test_live_hls_load_cmr_lpcloud():
     )
     green = ds["green"].isel(time=0).compute()
     assert float(np.nanmax(green)) <= 2.0
-    ndsi = esd.processing.ndsi(ds).isel(time=0).compute()
-    assert -1.0 <= float(np.nanmin(ndsi)) <= float(np.nanmax(ndsi)) <= 1.0
+    scene = ds.isel(time=0)
+    ndsi = (
+        (scene["green"] - scene["swir16"]) / (scene["green"] + scene["swir16"])
+    ).compute()
     # Slightly negative surface reflectance over dark targets makes the
-    # denominator vanish on a handful of pixels; those are masked, not clipped,
-    # and must stay a handful rather than a hole in the scene.
-    extra = float(ndsi.isnull().mean() - ds["green"].isel(time=0).isnull().mean())
-    assert 0.0 <= extra < 0.01
+    # denominator vanish on a handful of pixels, so a raw NDSI can leave
+    # [-1, 1] there; those must stay a handful rather than a hole in the scene.
+    outside = float(((ndsi < -1) | (ndsi > 1)).mean())
+    assert 0.0 <= outside < 0.01
 
 
 @pytest.mark.live

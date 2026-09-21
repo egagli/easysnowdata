@@ -15,10 +15,10 @@ sd_hide_title: true
 
 **Snow-relevant geospatial data, one call each, as xarray.**
 
-Twenty-eight products — station observations, SAR and optical imagery, snow
-cover and SWE, DEMs, land cover, basins and reanalysis — behind one API that
-takes an area of interest and a time range, returns lazy Dask-backed xarray
-objects, and never downloads more than it has to.
+Thirty-two products — station observations from five networks, SAR and optical
+imagery, snow cover and SWE, five DEMs, land cover, basins and reanalysis —
+behind one API that takes an area of interest and a time range, returns lazy
+Dask-backed xarray objects, and never downloads more than it has to.
 
 ```{button-ref} installation
 :color: primary
@@ -36,9 +36,13 @@ aoi = (-121.94, 46.72, -121.54, 46.99)                      # Mount Rainier; any
 inv = esd.stations.inventory(aoi, daily_only=True)          # which snow stations are here
 obs = esd.stations.load(inv, variables=["swe", "snwd"], time="2023-10/2024-09")
 
-dem = esd.terrain.dem.load(aoi)                             # Copernicus GLO-30
+dem = esd.terrain.dem.load(aoi)                             # Copernicus GLO-30 …
+dem = esd.terrain.dem.load(aoi, product="3dep")             # … or NASADEM, SRTM, 3DEP, ALOS
 s1 = esd.sar.sentinel1.load(aoi, "2024-03", units="dB")     # Sentinel-1 RTC
 swe = esd.snow.snodas.load(aoi, "2024-03")                  # SNODAS, no account needed
+
+esd.plotting.map(dem, cmap="terrain")                       # equal aspect, scale bar, graticule
+esd.plotting.timeseries(obs["swe"])                         # calendar dates, units in [ ]
 ```
 
 ## Where to go
@@ -98,8 +102,10 @@ lazy, carry their CRS on both the `.rio` and `.odc` accessors, and carry
 `source`, `license` and `data_citation` in `.attrs`. Products with more than
 one route expose them through `source=`, so a Planetary Computer outage is one
 keyword away from an alternative. Credentials are checked before any network
-request, and the error says exactly how to fix them. See
-[Concepts](concepts.md) for the whole contract.
+request, and the error says exactly how to fix them. Processing that is one
+line of xarray (a normalized difference, a threshold) is written out rather than
+wrapped, so nothing about the pipeline is hidden. See [Concepts](concepts.md)
+for the whole contract.
 
 ## Citing
 
@@ -136,7 +142,6 @@ status
 :caption: Reference
 
 api/index
-notebooks
 contributing
 releasing
 changelog

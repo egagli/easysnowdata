@@ -162,18 +162,6 @@ def test_without_credentials_the_error_names_the_provider(no_credentials):
     assert 'source="' not in str(excinfo.value)
 
 
-@pytest.mark.recorded
-def test_binary_snow_works_on_the_viirs_byte(fake_nsidc):
-    ds = viirs.load(RAINIER, "2023-03-01")
-    binary = esd.processing.binary_snow(
-        ds["CGF_NDSI_Snow_Cover"], product="VNP10A1F", threshold=40
-    ).compute()
-    values = binary.values[~np.isnan(binary.values)]
-    assert set(np.unique(values)) <= {0.0, 1.0}
-    assert binary.attrs["source_product"] == "VNP10A1F"
-    assert np.isnan(binary.values).any()  # the fixture's cloud and fill pixels
-
-
 # ── live smoke tests ──────────────────────────────────────────────────────────
 
 
@@ -197,5 +185,6 @@ def test_live_viirs_load_cloud_gap_filled():
     spacing = float(np.abs(np.diff(ds["x"].values[:2])[0]))
     assert 370 < spacing < 380  # 375 m VIIRS pixels
     assert ds.attrs["source_id"] == "nsidc"
-    binary = esd.processing.binary_snow(band, product="VNP10A1F").isel(time=0).compute()
+    scene = band.isel(time=0).compute()
+    binary = (scene >= 40).where(scene <= 100)
     assert float(np.nanmean(binary)) >= 0.0

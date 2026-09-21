@@ -14,6 +14,7 @@ from collections.abc import Iterable, Mapping
 from typing import Any
 
 import numpy as np
+import rioxarray  # noqa: F401 — registers the .rio accessor every loader relies on
 import xarray as xr
 from pyproj import CRS
 

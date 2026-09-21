@@ -364,24 +364,6 @@ class TestGrdc:
     def test_wmo_without_an_aoi_returns_everything(self, local_archives):
         assert len(basins.grdc_wmo(None)) == 3
 
-    def test_old_names_warn_and_forward(self, local_archives, fake_wbd):
-        from easysnowdata import _deprecation
-        from easysnowdata.hydroclimatology import (
-            get_grdc_wmo_basins,
-            get_huc_geometries,
-        )
-
-        _deprecation.reset_warnings()
-        with pytest.warns(
-            _deprecation.EasysnowdataDeprecationWarning, match="basins.grdc_wmo"
-        ):
-            assert len(get_grdc_wmo_basins(RAINIER)) == 2
-        with pytest.warns(
-            _deprecation.EasysnowdataDeprecationWarning, match="basins.huc"
-        ):
-            gdf = get_huc_geometries(RAINIER, huc_level="08")
-        assert list(gdf.columns)[:2] == ["name", "huc8"]
-
 
 @pytest.mark.live
 class TestLive:

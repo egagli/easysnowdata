@@ -46,6 +46,7 @@ os.environ.setdefault("EASYSNOWDATA_QUIET", "1")
 from esd_docs import GALLERY_DIR, credential_free_pattern  # noqa: E402
 
 import easysnowdata  # noqa: E402
+from easysnowdata.catalog import KNOWN_THEMES  # noqa: E402
 
 # ── Project ───────────────────────────────────────────────────────────────────
 project = "easysnowdata"
@@ -79,11 +80,9 @@ exclude_patterns = [
     # sphinx-gallery reads these; Sphinx must not also try to parse the
     # per-theme README files as standalone documents.
     "gallery",
-    # Multi-gigabyte local downloads, never part of the site.
-    "examples/planet_data",
-    "examples/data",
-    # A local scratch notebook (untracked) that is not part of the docs.
-    "examples/sandbox.ipynb",
+    # The pre-0.3 notebooks lived here; the directory may still hold local
+    # scratch files and multi-gigabyte downloads that are never part of the site.
+    "examples",
     # sphinx-gallery writes a .py, .ipynb and .zip beside every generated
     # .rst; myst-nb claims .ipynb as a source suffix, so without this Sphinx
     # sees several candidate sources for one document.
@@ -106,10 +105,9 @@ myst_enable_extensions = [
 ]
 myst_heading_anchors = 3
 
-# The notebooks under docs/examples/ are the legacy long-form user guides.
-# They carry their own outputs, were run by hand against credentialed
-# sources, and are not re-executed here (REVAMP_PLAN §7.1). The gallery is
-# what CI runs.
+# myst-nb is kept for ``{code-cell}`` blocks in prose pages; nothing on the
+# site is a notebook that needs executing, so execution stays off. The
+# gallery is what CI runs.
 nb_execution_mode = "off"
 nb_merge_streams = True
 
@@ -167,16 +165,10 @@ sphinx_gallery_conf = {
     if GALLERY_MODE == "full"
     else credential_free_pattern(),
     "plot_gallery": "False" if GALLERY_MODE == "none" else "True",
-    "subsection_order": [
-        "gallery/stations",
-        "gallery/snow",
-        "gallery/sar",
-        "gallery/optical",
-        "gallery/terrain",
-        "gallery/land",
-        "gallery/hydro",
-        "gallery/climate",
-    ],
+    # One section per theme subpackage, in the catalog's order, then the
+    # cross-cutting tools (AOI, time, water years).
+    "subsection_order": [f"gallery/{theme}" for theme in KNOWN_THEMES]
+    + ["gallery/tools"],
     "within_subsection_order": "FileNameSortKey",
     "doc_module": ("easysnowdata",),
     "prefer_full_module": {"easysnowdata"},

@@ -125,17 +125,6 @@ class TestZenodoRoute:
         da = forest_cover.load(RAINIER, chunks={"x": 16, "y": 16})
         assert max(max(sizes) for sizes in da.chunks) <= 16
 
-    def test_old_name_warns_and_keeps_the_unmasked_default(self, local_geotiff):
-        from easysnowdata import _deprecation
-        from easysnowdata.remote_sensing import get_forest_cover_fraction
-
-        _deprecation.reset_warnings()
-        with pytest.warns(
-            _deprecation.EasysnowdataDeprecationWarning, match="forest_cover.load"
-        ):
-            da = get_forest_cover_fraction(RAINIER)
-        assert da.dtype == "uint8" and da.rio.nodata == 255
-
 
 @pytest.mark.recorded
 class TestGeeRoute:

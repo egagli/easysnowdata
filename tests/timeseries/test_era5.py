@@ -206,34 +206,6 @@ def test_gee_route_without_credentials_names_the_free_alternative(no_credentials
 # ── the deprecation shim ──────────────────────────────────────────────────────
 
 
-@pytest.mark.recorded
-def test_old_get_era5_still_works_with_a_warning(arco, monkeypatch):
-    from easysnowdata import _deprecation, hydroclimatology
-
-    _deprecation.reset_warnings()
-    with pytest.warns(
-        _deprecation.EasysnowdataDeprecationWarning, match="climate.era5.load"
-    ):
-        ds = hydroclimatology.get_era5(
-            bbox_input=RAINIER,
-            source="GCS",
-            start_date="2020-01-01",
-            end_date="2020-01-01",
-            initialize_ee=False,
-        )
-    assert ds["2m_temperature"].dims == ("time", "latitude", "longitude")
-    assert ds.attrs["product_id"] == "era5"
-
-
-def test_old_get_era5_keeps_its_validation_errors():
-    from easysnowdata import hydroclimatology
-
-    with pytest.raises(ValueError):
-        hydroclimatology.get_era5(bbox_input=RAINIER, source="INVALID")
-    with pytest.raises(ValueError, match="only serves hourly ERA5"):
-        hydroclimatology.get_era5(bbox_input=RAINIER, source="GCS", version="ERA5_LAND")
-
-
 # ── live smoke tests ──────────────────────────────────────────────────────────
 
 

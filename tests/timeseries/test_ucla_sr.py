@@ -226,42 +226,6 @@ def test_virtualization_uses_the_reference_cache(fake_nsidc, monkeypatch, tmp_pa
 # ── the deprecation shim ──────────────────────────────────────────────────────
 
 
-@pytest.mark.recorded
-def test_old_get_ucla_snow_reanalysis_is_a_shim(fake_nsidc):
-    from easysnowdata import _deprecation, hydroclimatology
-
-    _deprecation.reset_warnings()
-    with pytest.warns(
-        _deprecation.EasysnowdataDeprecationWarning, match="snow.ucla_sr.load"
-    ):
-        da = hydroclimatology.get_ucla_snow_reanalysis(
-            bbox_input=RAINIER, start_date="2019-10-01", end_date="2019-10-05"
-        )
-    assert isinstance(da, xr.DataArray)
-    assert "data_citation" in da.attrs
-    assert da.attrs["product_id"] == "ucla-snow-reanalysis"
-
-
-def test_old_stats_constant_still_resolves():
-    from easysnowdata.hydroclimatology import _UCLA_SR_STATS_INDEX
-
-    assert _UCLA_SR_STATS_INDEX == ucla_sr.STATS
-    assert len(set(_UCLA_SR_STATS_INDEX.values())) == len(_UCLA_SR_STATS_INDEX)
-
-
-@pytest.mark.recorded
-def test_old_loader_rejects_bad_stats_before_the_network(monkeypatch, fake_credentials):
-    from easysnowdata import hydroclimatology
-
-    monkeypatch.setattr(
-        ucla_sr.providers.earthdata,
-        "search",
-        lambda *a, **k: pytest.fail("network"),
-    )
-    with pytest.raises(ValueError, match="stats must be one of"):
-        hydroclimatology.get_ucla_snow_reanalysis(bbox_input=RAINIER, stats="mode")
-
-
 # ── live smoke tests ──────────────────────────────────────────────────────────
 
 

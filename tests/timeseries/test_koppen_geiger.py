@@ -143,33 +143,6 @@ def test_plotting_reads_the_flags(archive):
 # ── the deprecation shim ──────────────────────────────────────────────────────
 
 
-@pytest.mark.recorded
-def test_old_get_koppen_geiger_classes_still_works(archive):
-    from easysnowdata import _deprecation, hydroclimatology
-
-    _deprecation.reset_warnings()
-    with pytest.warns(
-        _deprecation.EasysnowdataDeprecationWarning, match="koppen_geiger.load"
-    ):
-        da = hydroclimatology.get_koppen_geiger_classes(
-            bbox_input=RAINIER, resolution="1 degree"
-        )
-    assert da.dims == ("latitude", "longitude") and da.dtype == np.uint8
-    assert da.chunks is None  # the old default was an eager read
-    assert "class_info" not in da.attrs and "cmap" not in da.attrs
-    assert "flag_values" in da.attrs
-
-
-@pytest.mark.recorded
-def test_old_loader_forwards_kwargs(archive):
-    from easysnowdata import hydroclimatology
-
-    da = hydroclimatology.get_koppen_geiger_classes(
-        bbox_input=RAINIER, resolution="1 degree", chunks={"x": 90, "y": 90}
-    )
-    assert da.chunks is not None
-
-
 # ── live smoke test ───────────────────────────────────────────────────────────
 
 

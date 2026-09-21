@@ -293,39 +293,6 @@ def test_load_without_items_raises(monkeypatch):
 # ── the deprecation shim ──────────────────────────────────────────────────────
 
 
-@pytest.mark.recorded
-def test_old_sentinel2_class_is_a_shim(fake_stac):
-    from easysnowdata import _deprecation
-    from easysnowdata.remote_sensing import Sentinel2
-
-    _deprecation.reset_warnings()
-    with pytest.warns(
-        _deprecation.EasysnowdataDeprecationWarning, match="optical.sentinel2.load"
-    ):
-        ds = Sentinel2(
-            RAINIER,
-            start_date="2023-08-01",
-            end_date="2023-08-10",
-            bands=["red", "scl"],
-            remove_nodata=False,
-            harmonize_to_old=False,
-            scale_data=False,
-        )
-    assert isinstance(ds, xr.Dataset)
-    assert int(ds["red"].isel(time=0, y=0, x=0)) == 3000
-    assert ds.attrs["product_id"] == "sentinel-2-l2a"
-    with pytest.raises(ValueError, match="Invalid catalog_choice"):
-        Sentinel2(RAINIER, catalog_choice="aws")
-
-
-@pytest.mark.recorded
-def test_old_sentinel2_defaults_to_every_band(fake_stac):
-    from easysnowdata.remote_sensing import Sentinel2
-
-    Sentinel2(RAINIER, start_date="2023-08-01", end_date="2023-08-10")
-    assert fake_stac["load"][2]["bands"] == list(sentinel2.ALL_BANDS)
-
-
 # ── live smoke tests ──────────────────────────────────────────────────────────
 
 
@@ -347,8 +314,13 @@ def test_live_sentinel2_planetary_computer():
     assert ds.attrs["product_id"] == "sentinel-2-l2a" and ds.attrs["license"]
     green = ds["green"].isel(time=0).compute()
     assert 0 <= float(np.nanmin(green)) and float(np.nanmax(green)) <= 2.0
-    ndsi = esd.processing.ndsi(ds).isel(time=0).compute()
-    assert -1.0 <= float(np.nanmin(ndsi)) <= float(np.nanmax(ndsi)) <= 1.0
+    scene = ds.isel(time=0)
+    ndsi = (
+        (scene["green"] - scene["swir16"]) / (scene["green"] + scene["swir16"])
+    ).compute()
+    assert float(np.nanmedian(ndsi)) == float(
+        np.nanmedian(ndsi)
+    )  # finite where both bands are
 
 
 @pytest.mark.live

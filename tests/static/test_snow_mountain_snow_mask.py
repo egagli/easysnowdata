@@ -128,19 +128,6 @@ class TestLayers:
             f"zip+{msm.ZENODO_FILES}/MODIS_mtnsnow_classes.zip!/MODIS_mtnsnow_classes.tif"
         )
 
-    def test_old_name_warns_and_forwards_data_product(self, local_archives):
-        from easysnowdata import _deprecation
-        from easysnowdata.remote_sensing import get_seasonal_mountain_snow_mask
-
-        _deprecation.reset_warnings()
-        with pytest.warns(
-            _deprecation.EasysnowdataDeprecationWarning, match="mountain_snow_mask.load"
-        ):
-            da = get_seasonal_mountain_snow_mask(RAINIER, data_product="snow")
-        assert da.name == "snow" and da.rio.nodata == 255
-        with pytest.raises(ValueError):
-            get_seasonal_mountain_snow_mask(RAINIER, data_product="invalid")
-
 
 @pytest.mark.live
 class TestLive:

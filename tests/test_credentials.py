@@ -14,7 +14,15 @@ import os
 import ee
 import pytest
 
-from easysnowdata.utils import _ee_credentials_from_token, initialize_earthengine
+from easysnowdata import auth
+from easysnowdata.auth.earthengine import (
+    credentials_from_token as _ee_credentials_from_token,
+)
+
+
+def initialize_earthengine(**kwargs):
+    return auth.get("earthengine").ensure(**kwargs)
+
 
 FAKE_OAUTH_TOKEN = {
     "client_id": "id",

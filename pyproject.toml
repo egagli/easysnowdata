@@ -27,6 +27,9 @@ dynamic = ["version"]
 dependencies = [
     "numpy",
     "matplotlib",
+    # Map furniture for easysnowdata.plotting: a scale bar and web basemaps.
+    "matplotlib-scalebar",
+    "contextily",
     "pandas",
     "geopandas>=1.1",
     "pyogrio>=0.12",
@@ -52,7 +55,6 @@ dependencies = [
     "pyyaml",
     "requests",
     "lxml",
-    "scikit-image",
     "tqdm",
     "dask",
     "zarr>=3.1",
@@ -122,17 +124,9 @@ replace = "date-released: '{now:%Y-%m-%d}'"
 [tool.ruff]
 target-version = "py312"
 line-length = 88
-# The network clients under easysnowdata/stations/clients/ came from
-# global_snow_networks with `git subtree` (§9 step 1). That repo deleted its
-# copy in 2026-09, so there is nothing left to sync and nothing left to keep
-# byte-identical; the exclusion stays only to keep a 7 000-line reformat out
-# of the migration. Dropping it is a fine follow-up.
-extend-exclude = [
-    "easysnowdata/stations/clients",
-    # The long-form notebooks are historical artefacts kept verbatim; they are
-    # not re-executed and are removed with the legacy API in Phase 5.
-    "docs/examples",
-]
+# docs/examples holds only untracked local scratch (the pre-0.3 notebooks are
+# gone); keep ruff out of it so a sandbox notebook cannot redden a local lint.
+extend-exclude = ["docs/examples"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP"]
@@ -165,18 +159,11 @@ markers = [
 filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]
 
 [tool.coverage.run]
-# The new modules (Phase 1); the legacy modules are covered by the live tier
-# until Phase 2 migrates them onto providers/.
 source = ["easysnowdata"]
 omit = [
     # From global_snow_networks (§9 step 1): ~7 000 lines exercised by the live
     # client tests in tests/stations/, which came over with them.
     "easysnowdata/stations/clients/*",
-    "easysnowdata/remote_sensing.py",
-    "easysnowdata/hydroclimatology.py",
-    "easysnowdata/topography.py",
-    "easysnowdata/automatic_weather_stations.py",
-    "easysnowdata/utils.py",
     "easysnowdata/_version.py",
 ]
 
@@ -197,6 +184,8 @@ platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"]
 python = ">=3.12,<3.15"
 numpy = "*"
 matplotlib = "*"
+matplotlib-scalebar = "*"
+contextily = "*"
 pandas = "*"
 geopandas = ">=1.1"
 pyogrio = ">=0.12"
@@ -221,7 +210,6 @@ pooch = "*"
 pyyaml = "*"
 requests = "*"
 lxml = "*"
-scikit-image = "*"
 tqdm = "*"
 dask = "*"
 zarr = ">=3.1"
@@ -245,11 +233,6 @@ pytest-cov = ">=7.1.0,<8"
 pytest-recording = ">=0.13.4,<0.14"
 pytest-xdist = ">=3.8.0,<4"
 packaging = ">=26.3,<27"
-# Notebook conveniences used by docs/examples, not imported by the package
-contextily = "*"
-folium = "*"
-mapclassify = "*"
-py3dep = "*"
 ruff = "*"
 pre-commit = "*"
 ipykernel = "*"

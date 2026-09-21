@@ -94,33 +94,3 @@ def test_every_migrated_product_points_at_its_theme_module():
         assert product.loader == loader
         assert callable(product.resolve_loader())
     assert catalog.validate_all(known_auth=tuple(esd.auth.PROVIDERS)) == []
-
-
-def test_old_names_still_work_and_warn():
-    from easysnowdata import _deprecation
-
-    old_names = {
-        esd.topography.get_copernicus_dem: "easysnowdata.terrain.dem.load",
-        esd.topography.get_chili: "easysnowdata.terrain.chili.load",
-        esd.remote_sensing.get_esa_worldcover: "easysnowdata.land.landcover.load",
-        esd.remote_sensing.get_nlcd_landcover: "easysnowdata.land.nlcd.load",
-        esd.remote_sensing.get_forest_cover_fraction: (
-            "easysnowdata.land.forest_cover.load"
-        ),
-        esd.remote_sensing.get_seasonal_snow_classification: (
-            "easysnowdata.snow.snow_classification.load"
-        ),
-        esd.remote_sensing.get_seasonal_mountain_snow_mask: (
-            "easysnowdata.snow.mountain_snow_mask.load"
-        ),
-        esd.hydroclimatology.get_huc_geometries: "easysnowdata.hydro.basins.huc",
-        esd.hydroclimatology.get_hydroBASINS: "easysnowdata.hydro.basins.hydrobasins",
-        esd.hydroclimatology.get_grdc_major_river_basins_of_the_world: (
-            "easysnowdata.hydro.basins.grdc_major"
-        ),
-        esd.hydroclimatology.get_grdc_wmo_basins: "easysnowdata.hydro.basins.grdc_wmo",
-    }
-    _deprecation.reset_warnings()
-    for function, replacement in old_names.items():
-        assert replacement in function.__deprecated__
-        assert "deprecated" in (function.__doc__ or "")

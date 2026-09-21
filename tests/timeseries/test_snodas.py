@@ -241,36 +241,6 @@ def test_gee_route_without_credentials_names_the_free_alternative(no_credentials
 # ── the deprecation shim ──────────────────────────────────────────────────────
 
 
-@pytest.mark.recorded
-def test_old_get_snodas_keeps_the_earth_engine_route(fake_gee):
-    from easysnowdata import _deprecation, hydroclimatology
-
-    _deprecation.reset_warnings()
-    with pytest.warns(
-        _deprecation.EasysnowdataDeprecationWarning, match="snow.snodas.load"
-    ):
-        ds = hydroclimatology.get_snodas(
-            bbox_input=RAINIER,
-            start_date="2020-01-01",
-            end_date="2020-01-02",
-            initialize_ee=False,
-        )
-    assert ds["SWE"].dims == ("time", "latitude", "longitude")
-    assert ds.attrs["source_id"] == "gee-climate-engine"
-
-
-def test_old_get_snodas_keeps_its_variable_validation():
-    from easysnowdata import hydroclimatology
-
-    with pytest.raises(ValueError, match="Invalid variables"):
-        hydroclimatology.get_snodas(
-            bbox_input=RAINIER,
-            start_date="2020-01-01",
-            end_date="2020-01-03",
-            variables=["NotAVariable"],
-        )
-
-
 # ── live smoke tests ──────────────────────────────────────────────────────────
 
 

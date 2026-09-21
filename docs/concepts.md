@@ -189,20 +189,31 @@ esd.auth.status()  # a table: provider, configured?, how, needed by
 (concepts-processing)=
 ## Processing is pure, plotting is separate
 
-Masking, scaling, baseline harmonization, dB conversion, band indices, RGB
-stretches, water-year coordinates and the local-incidence-angle computation
-are standalone functions in {py:obj}`easysnowdata.processing` that take and
-return xarray objects and do no I/O. Loaders call them for you through keyword
-options, but the raw product is always one call away.
+Masking, metadata-driven scaling, baseline harmonization, dB conversion,
+water-year coordinates and the local-incidence-angle computation are standalone
+functions in {py:obj}`easysnowdata.processing` that take and return xarray
+objects and do no I/O. Loaders call them for you through keyword options, but
+the raw product is always one call away.
+
+What is *not* wrapped is band arithmetic. A normalized difference, a threshold
+on a snow-cover byte or an RGB stretch is one line of xarray, and putting it
+behind a function name hid which bands were used and what happened to the
+sentinel values. The gallery writes these out every time:
 
 ```python
 s2 = esd.optical.sentinel2.load(aoi, "2024-03", mask="scl-default")  # convenience
 raw = esd.optical.sentinel2.load(aoi, "2024-03")  # nothing applied
-ndsi = esd.processing.normalized_difference(raw, "green", "swir16")
+ndsi = (raw["green"] - raw["swir16"]) / (raw["green"] + raw["swir16"])
 ```
 
-{py:obj}`easysnowdata.plotting` reads the CF flag attributes and registers
-named colormaps. It is optional — every product plots fine with plain xarray.
+{py:obj}`easysnowdata.plotting` is optional — every product plots fine with
+plain xarray and geopandas — but it is where the package's map and time-series
+conventions live: `map`, `categorical` and `points` give equal-aspect axes (a
+latitude-corrected aspect plus a `GeographicAxesWarning` for data in degrees),
+a colorbar matched to the map, a scale bar, a light latitude/longitude
+graticule and an optional web basemap; `timeseries` puts calendar dates on the
+x axis; and `label` writes `long name [units]`, square brackets always. Every
+piece of furniture is a keyword argument.
 
 (concepts-quiet)=
 ## No import-time side effects, and logging instead of printing

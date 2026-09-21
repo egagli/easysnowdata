@@ -1,8 +1,13 @@
-"""Snow-product processing: class tables, binary snow, SNODAS headers.
+"""Snow-product processing: class tables and the SNODAS flat-file reader.
 
 Pure functions (design contract §2.6). The class tables are the MODIS and
-VIIRS sentinel values that share a byte with the NDSI percentage, so they are
-what turns a raw granule into something a user can threshold.
+VIIRS sentinel values that share a byte with the NDSI percentage. Thresholding
+that byte is left to the user, in the open, because the choice of threshold
+and of what to do with cloud, night and water is the analysis::
+
+    ndsi = snow["CGF_NDSI_Snow_Cover"]
+    valid = ndsi <= 100                      # 200+ are the sentinels below
+    binary = (ndsi >= 40).where(valid)      # NaN where the pixel says nothing
 """
 
 from __future__ import annotations
@@ -21,8 +26,6 @@ __all__ = [
     "repair_fill_values",
     "NDSI_FLAGS",
     "MOD10A2_CLASSES",
-    "SNOW_COVER_THRESHOLD",
-    "binary_snow",
     "ndsi_flag_attrs",
     "parse_snodas_header",
     "snodas_members",
@@ -58,8 +61,6 @@ MOD10A2_CLASSES: dict[int, tuple[str, str]] = {
     254: ("detector_saturated", "#fdae61"),
     255: ("fill", "#ffffff"),
 }
-#: NSIDC's usual NDSI cut-off for "this pixel is snow".
-SNOW_COVER_THRESHOLD = 40
 
 
 def ndsi_flag_attrs(long_name: str = "NDSI snow cover") -> dict[str, Any]:
@@ -80,59 +81,6 @@ def ndsi_flag_attrs(long_name: str = "NDSI snow cover") -> dict[str, Any]:
             "meanings in flag_values/flag_meanings"
         ),
     }
-
-
-def binary_snow(
-    da: xr.DataArray,
-    *,
-    product: str = "MOD10A1",
-    threshold: int = SNOW_COVER_THRESHOLD,
-    keep_flags_as_nan: bool = True,
-) -> xr.DataArray:
-    """Turn a MODIS/VIIRS snow-cover band into a 0/1 snow mask.
-
-    Parameters
-    ----------
-    da
-        The raw band: an NDSI percentage byte (``MOD10A1``, ``MOD10A1F``,
-        ``VNP10A1``, ``VNP10A1F``) or the 8-day maximum extent
-        (``MOD10A2``/``MYD10A2``).
-    product
-        Which of those it is; only the ``A2`` products use the class table.
-    threshold
-        NDSI percentage at or above which a pixel counts as snow (default 40,
-        NSIDC's usual cut-off). Ignored for the ``A2`` products.
-    keep_flags_as_nan
-        Leave cloud, night, water and fill pixels as NaN (default) rather
-        than calling them "not snow".
-
-    Returns
-    -------
-    xarray.DataArray
-        ``1`` where snow, ``0`` where not, NaN where the pixel says nothing.
-    """
-    name = str(product).upper()
-    if name.endswith("A2"):
-        snow = (da == 200).astype("float32")
-        unusable = ~da.isin([200, 25, 100])
-    else:
-        snow = ((da >= threshold) & (da <= 100)).astype("float32")
-        unusable = da > 100
-    if keep_flags_as_nan:
-        snow = snow.where(~unusable)
-    out = snow.rename("binary_snow")
-    out.attrs = {
-        "long_name": "binary snow cover",
-        "units": "1",
-        "flag_values": [0, 1],
-        "flag_meanings": "no_snow snow",
-        "flag_colors": "#a6611a #2166ac",
-        "source_product": name,
-        "ndsi_threshold": threshold if not name.endswith("A2") else "n/a",
-    }
-    if hasattr(da, "rio") and getattr(da.rio, "crs", None) is not None:
-        out = out.rio.write_crs(da.rio.crs)
-    return out
 
 
 # ── SNODAS (NSIDC G02158) ─────────────────────────────────────────────────────

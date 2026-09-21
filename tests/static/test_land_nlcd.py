@@ -195,17 +195,6 @@ class TestLoad:
         da = nlcd.load(RAINIER, mask=True)
         assert da.dtype == "float32" and da.rio.encoded_nodata == 0
 
-    def test_old_name_warns_and_uses_the_official_release(self, fake_ee):
-        from easysnowdata import _deprecation
-        from easysnowdata.remote_sensing import get_nlcd_landcover
-
-        _deprecation.reset_warnings()
-        with pytest.warns(
-            _deprecation.EasysnowdataDeprecationWarning, match="nlcd.load"
-        ):
-            da = get_nlcd_landcover(RAINIER, layer="landcover", initialize_ee=False)
-        assert fake_ee["assets"] == [nlcd.RELEASE_ASSET] and da.attrs["source"] == "gee"
-
 
 @pytest.mark.live
 @pytest.mark.requires_earthengine

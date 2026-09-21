@@ -2,16 +2,13 @@
 
 Version 0.2 reorganised easysnowdata around **theme modules** — `snow`,
 `optical`, `sar`, `land`, `terrain`, `climate`, `hydro`, `stations` — each with
-one `load()` per product. Every function you used before still works and
-forwards to its replacement.
+one `load()` per product, and kept every old name as a deprecation shim that
+forwarded to its replacement. **Version 0.3 removed the shims**, as their
+warnings said it would: `easysnowdata.remote_sensing`, `hydroclimatology`,
+`topography`, `automatic_weather_stations` and `utils` no longer exist.
 
-**Nothing breaks in 0.2.** The old names warn and will be removed in **0.3.0**,
-so there is a release in between to move at your own pace.
-
-## Find out what you use
-
-The warnings are `DeprecationWarning`s, which Python hides by default. Turn
-them on for one run and the library tells you exactly what to change:
+If you still run 0.0.x code, install `easysnowdata==0.2.*`, turn deprecation
+warnings on, and let the library tell you what to change:
 
 ```python
 import warnings
@@ -20,13 +17,43 @@ warnings.filterwarnings("default", category=DeprecationWarning)
 
 ```text
 easysnowdata.topography.get_chili is deprecated since easysnowdata 0.1.0 and
-will be removed in 0.3.0. Use easysnowdata.terrain.chili.load instead. The new
-loader returns native values (normalize='minmax' keeps this AOI-relative
-rescaling) and names its dims latitude/longitude.
+will be removed in 0.3.0. Use easysnowdata.terrain.chili.load instead. …
 ```
 
 Each warning fires once per name per process, so a notebook gives you the whole
-list on one pass.
+list on one pass. Then upgrade to 0.3 with the table below.
+
+## Also gone in 0.3: the band-arithmetic helpers
+
+`processing.ndsi`, `ndvi`, `ndwi`, `ndbi`, `evi`, `normalized_difference`,
+`binary_snow`, `rgb`, `stretch_percentile`, `stretch_clahe` and `plotting.rgb`
+were removed because they hid one-line operations behind names. Write them out:
+
+```python
+ndsi = (s2["green"] - s2["swir16"]) / (s2["green"] + s2["swir16"])
+snow = (ndsi_byte >= 40).where(ndsi_byte <= 100)      # MODIS/VIIRS: >100 are sentinels
+rgb = s2[["red", "green", "blue"]].to_array("band").clip(0, 0.3) / 0.3
+rgb.isel(time=0).plot.imshow(rgb="band")
+```
+
+The masks (`apply_scl_mask`, `apply_fmask`), `harmonize_s2_baseline`,
+`scale_offset`, `decode_udm2`, the SAR helpers and the water-year helpers stay.
+
+## Changed values in 0.3: the DEM-computed local incidence angle
+
+`sar.sentinel1.local_incidence_angle(..., source="dem")` (and `source="gee"`)
+had the range-facing slope term with the wrong sign in 0.2, so slopes tilted
+toward the radar came out with a *larger* angle than slopes tilted away. The
+same route also assumed one nominal heading and a constant 39° incidence angle;
+it now takes the heading, look direction and across-swath incidence field from
+a representative scene of the chosen track (`relative_orbit=`). Recompute
+anything derived from it. The OPERA static-layer route
+(`source="opera-static"`, the default) reads a published product and was never
+affected.
+
+DEMs are now resampled **bilinearly** whenever `crs=` or `grid_resolution=`
+puts them on a new grid (`resampling=` to choose otherwise); 0.2 copied the
+nearest source pixel, which folds the 1 arc-second staircase into every slope.
 
 ## The renames
 

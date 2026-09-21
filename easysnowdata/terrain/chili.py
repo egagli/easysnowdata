@@ -13,7 +13,7 @@ surface temperature computed from ALOS World 3D-30m (Theobald et al. 2015),
 served at ~90 m between 70°N and 70°S. The Earth Engine asset stores the 0-1
 index scaled to 8 bits, so values come back on a 0-255 scale.
 
-Unlike the ``topography.get_chili`` shim this loader does **not** rescale by
+Unlike the pre-0.2 ``topography.get_chili`` this loader does **not** rescale by
 default: min-max normalization inside the AOI made values depend on the box
 that was requested, so the same pixel changed value with the window
 (``normalize="minmax"`` keeps that behaviour for one release).
@@ -81,7 +81,7 @@ def load(
     normalize
         ``False`` (default) returns the native 0-255 values, ``"index"``
         divides by 255 to give the 0-1 index, ``"minmax"`` (or ``True``)
-        rescales within the AOI — what ``topography.get_chili`` did.
+        rescales within the AOI — what the pre-0.2 ``get_chili`` did.
     chunks
         Dask chunks; ``None`` loads eagerly.
     mask

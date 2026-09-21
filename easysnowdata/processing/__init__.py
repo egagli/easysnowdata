@@ -3,11 +3,11 @@
 * :mod:`~easysnowdata.processing.masks` — Sentinel-2 SCL and HLS Fmask masks,
   nodata masking
 * :mod:`~easysnowdata.processing.optical` — baseline harmonization,
-  scale/offset, spectral indices, RGB composites and stretches
+  metadata-driven scale/offset, the UDM2 mask decoder
 * :mod:`~easysnowdata.processing.sar` — dB conversion, border-noise removal,
   slope/aspect and the local incidence angle
-* :mod:`~easysnowdata.processing.snow` — snow-product class tables, binary
-  snow and the SNODAS flat-file reader
+* :mod:`~easysnowdata.processing.snow` — snow-product class tables and the
+  SNODAS flat-file reader
 * :mod:`~easysnowdata.processing.wateryear` — vectorized water-year helpers
 * :mod:`~easysnowdata.processing.categorical` — CF flag attributes for
   categorical products (the contract's replacement for ``class_info`` dicts)
@@ -49,17 +49,8 @@ from easysnowdata.processing.optical import (
     UDM2_BANDS,
     UDM2_BINARY_BANDS,
     decode_udm2,
-    evi,
     harmonize_s2_baseline,
-    ndbi,
-    ndsi,
-    ndvi,
-    ndwi,
-    normalized_difference,
-    rgb,
     scale_offset,
-    stretch_clahe,
-    stretch_percentile,
     udm1_bit,
 )
 from easysnowdata.processing.sar import (
@@ -73,7 +64,6 @@ from easysnowdata.processing.sar import (
 from easysnowdata.processing.snow import (
     MOD10A2_CLASSES,
     NDSI_FLAGS,
-    binary_snow,
     ndsi_flag_attrs,
     parse_snodas_header,
 )
@@ -102,12 +92,10 @@ __all__ = [
     "NDSI_FLAGS",
     "add_water_year_coords",
     "apply_fmask",
-    "binary_snow",
     "apply_scl_mask",
     "day_of_water_year",
     "db_to_linear",
     "decode_udm2",
-    "evi",
     "flag_mask",
     "flags",
     "fmask_aerosol_level",
@@ -119,21 +107,13 @@ __all__ = [
     "local_incidence_angle",
     "look_azimuth",
     "mask_nodata",
-    "ndbi",
-    "ndsi",
-    "ndvi",
-    "ndwi",
     "ndsi_flag_attrs",
-    "normalized_difference",
     "parse_snodas_header",
     "remove_border_noise",
-    "rgb",
     "scale_offset",
     "scl_mask",
     "set_flags",
     "slope_aspect",
-    "stretch_clahe",
-    "stretch_percentile",
     "udm1_bit",
     "water_year",
     "water_year_start",

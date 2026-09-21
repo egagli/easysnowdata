@@ -51,6 +51,16 @@ a small AOI wants long time chunks; a single-date map wants spatial ones.
 load a coarser overview — most COG-backed products read an overview level
 rather than decimating full-resolution pixels.
 
+## Why does `esd.plotting.map` warn that my data are in a geographic CRS?
+
+Because a degree of longitude is shorter than a degree of latitude away from
+the equator, so plotting EPSG:4326 data with `aspect="equal"` stretches every
+shape by `1/cos(latitude)` — 46 % at Mount Rainier. The helper applies that
+correction to the axes and warns, so the figure is right and you know that
+distances still vary across it. To silence it, load the product on a projected
+grid (`crs="utm"` on the loaders that reproject) or pass
+`warn_geographic=False` to `finish_map`.
+
 ## Which CRS and dimension names do I get?
 
 `time`, `y`, `x` for projected grids; `time`, `latitude`, `longitude` for
@@ -107,13 +117,13 @@ applying it again costs you 1000 DN. The item property
 it. Planetary Computer and Earth Search's `sentinel-2-c1-l2a` still ship the
 offset in the pixels.
 
-## The old `easysnowdata.remote_sensing.get_*` functions still work — should I migrate?
+## My 0.0.x code calls `easysnowdata.remote_sensing.get_*` — where did it go?
 
-Yes, at your own pace. They are deprecation shims that call the new functions
-and emit `DeprecationWarning`; they are removed one minor release after 0.1.
-Each warning names its replacement. The
-[long-form notebooks](notebooks.md) still use the old API; the
-[gallery](auto_examples/index.rst) uses the new one.
+Version 0.2 kept those names as deprecation shims for one release, and 0.3
+removed them. [Migrating from 0.0.x](migration.md) lists every old name next to
+its replacement; the changes that are more than a rename are explained there
+too. Pin `easysnowdata<0.3` if you need the old names to keep running while
+you move.
 
 ## How do I cite this?
 
