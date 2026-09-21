@@ -63,6 +63,9 @@ __all__ = [
 _logger = logging.getLogger(__name__)
 
 TIMEOUT = 20  # seconds for HTTP requests
+#: Some hosts (HydroSHEDS behind its CDN, from cloud runners) answer 403 to
+#: the default ``python-requests`` agent and 200 to anything that names itself.
+USER_AGENT = "easysnowdata (+https://github.com/egagli/easysnowdata)"
 TEST_BBOX = (-121.94, 46.72, -121.54, 46.99)  # Mount Rainier
 
 
@@ -82,13 +85,15 @@ def http_first_byte(url: str) -> None:
         timeout=TIMEOUT,
         stream=True,
         allow_redirects=True,
-        headers={"Range": "bytes=0-0"},
+        headers={"Range": "bytes=0-0", "User-Agent": USER_AGENT},
     )
     status = response.status_code
     response.close()
     if status in (200, 206):
         return
-    head = requests.head(url, timeout=TIMEOUT, allow_redirects=True)
+    head = requests.head(
+        url, timeout=TIMEOUT, allow_redirects=True, headers={"User-Agent": USER_AGENT}
+    )
     if head.status_code in (200, 206):
         return
     raise RuntimeError(f"Unreachable: HTTP {status}")

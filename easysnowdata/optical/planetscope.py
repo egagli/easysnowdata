@@ -89,18 +89,15 @@ _UDM2_DOCS = "https://developers.planet.com/docs/data/udm-2/"
 
 
 def _health_probe() -> None:
-    """Authenticated ``GET https://api.planet.com/data/v1/`` — no quota spent."""
-    import requests  # noqa: PLC0415
+    """One authenticated ``GET /data/v1/searches`` through the SDK — no quota spent.
 
-    session = providers.planet.ensure()._session  # noqa: SLF001 — the SDK's session
-    auth_flow = getattr(session, "_client", None)
-    headers = {}
-    token = getattr(getattr(auth_flow, "auth", None), "value", None)
-    if token:
-        headers["Authorization"] = f"api-key {token}"
-    response = requests.get(providers.planet.DATA_API_URL, headers=headers, timeout=20)
-    if response.status_code != 200:
-        raise RuntimeError(f"Planet Data API returned HTTP {response.status_code}")
+    Goes through ``planet.Planet().data`` so the SDK's own auth stack signs
+    the request. The previous probe read the API key off a private
+    ``Auth.value`` attribute, which the SDK deprecated and now raises on.
+    """
+    client = providers.planet.ensure()
+    # A generator; pulling one page is one request against the Data API.
+    next(iter(client.data.list_searches(limit=1)), None)
 
 
 PRODUCT = Product(
