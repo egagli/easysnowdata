@@ -20,7 +20,7 @@ Sources (companion file §B.2):
     import easysnowdata as esd
     items = esd.optical.sentinel2.search(aoi, "2024-05", cloud_cover=30)
     s2 = esd.optical.sentinel2.load(aoi, "2024-05", mask="scl-default")
-    ndsi = esd.processing.ndsi(s2)
+    ndsi = (s2["green"] - s2["swir16"]) / (s2["green"] + s2["swir16"])
 
 ``load`` returns reflectance (scaled, harmonized to the pre-2022 baseline)
 with dims ``time``, ``y``, ``x`` in the AOI's UTM zone.

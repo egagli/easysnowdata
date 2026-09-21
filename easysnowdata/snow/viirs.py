@@ -2,8 +2,8 @@
 
 New in the rewrite and Eric's first priority (plan §12 Q11): VIIRS is the
 successor to MODIS snow cover as Terra winds down, at 375 m instead of 500 m
-and with the same NDSI byte convention, so
-:func:`easysnowdata.processing.binary_snow` works on both.
+and with the same NDSI byte convention, so the same threshold expression
+works on both.
 
 One source: NSIDC via ``earthaccess`` (``NSIDC_CPRD``, cloud-hosted). The
 granules are HDF-EOS5 (``.h5``), which — unlike the HDF4 MODIS granules —
@@ -16,7 +16,8 @@ which carries the sinusoidal corner coordinates.
     import easysnowdata as esd
     granules = esd.snow.viirs.search(aoi, "2023-03", product="VNP10A1F")
     snow = esd.snow.viirs.load(aoi, "2023-03", product="VNP10A1F")
-    binary = esd.processing.binary_snow(snow["CGF_NDSI_Snow_Cover"], product="VNP10A1F")
+    ndsi = snow["CGF_NDSI_Snow_Cover"]
+    binary = (ndsi >= 40).where(ndsi <= 100)   # sentinels (cloud, night …) → NaN
 """
 
 from __future__ import annotations
@@ -315,8 +316,8 @@ def load(
         ``Algorithm_Bit_Flags_QA``.
     mask
         ``True`` NaN-masks the sentinel values; the default keeps the raw
-        byte with its CF flags (see
-        :func:`easysnowdata.processing.binary_snow`).
+        byte with its CF flags, so ``(band >= 40).where(band <= 100)`` is the
+        usual binary mask.
     """
     src = resolve_source(PRODUCT, source)
     name = _product(product)

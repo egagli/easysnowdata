@@ -20,7 +20,8 @@ Sources (companion file §B.4):
     import easysnowdata as esd
     granules = esd.snow.modis.search(aoi, "2023-03", product="MOD10A1F")
     snow = esd.snow.modis.load(aoi, "2023-03", product="MOD10A1F")
-    binary = esd.processing.binary_snow(snow["CGF_NDSI_Snow_Cover"], product="MOD10A1F")
+    ndsi = snow["CGF_NDSI_Snow_Cover"]
+    binary = (ndsi >= 40).where(ndsi <= 100)   # sentinels (cloud, night …) → NaN
 """
 
 from __future__ import annotations
@@ -71,8 +72,18 @@ PRODUCTS: dict[str, tuple[str, str]] = {
 GRIDS = {name: grid for name, (grid, _) in PRODUCTS.items()}
 #: What ``load`` reads when ``variables=None``.
 DEFAULT_VARIABLES = {name: (variable,) for name, (_, variable) in PRODUCTS.items()}
-#: Products Planetary Computer mirrors, and under which collection id.
-PC_COLLECTIONS = {"MOD10A1": "modis-10A1-061", "MOD10A2": "modis-10A2-061"}
+#: Products Planetary Computer mirrors, and under which collection id. Each
+#: collection holds the Terra (MOD) and Aqua (MYD) granules together, so the
+#: search filters on ``platform`` — without that a daily mosaic silently mixes
+#: the two overpasses (verified 2026-09-21: 1.8 % of bytes differed from the
+#: NSIDC Terra granule over Mount Rainier; Terra-only matched it exactly).
+PC_COLLECTIONS = {
+    "MOD10A1": "modis-10A1-061",
+    "MYD10A1": "modis-10A1-061",
+    "MOD10A2": "modis-10A2-061",
+    "MYD10A2": "modis-10A2-061",
+}
+PC_PLATFORMS = {"MOD": "terra", "MYD": "aqua"}
 
 MODIS_VERSION = "61"
 _NSIDC_DOCS = "https://nsidc.org/data/mod10a1f/versions/61"
@@ -301,6 +312,7 @@ def search(
                 f"Planetary Computer mirrors only {list(PC_COLLECTIONS)}; "
                 f"{name} is on NSIDC (source='nsidc')."
             )
+        kwargs.setdefault("query", {"platform": {"eq": PC_PLATFORMS[name[:3]]}})
         items = providers.stac.search(
             "planetary-computer",
             PC_COLLECTIONS[name],
@@ -357,7 +369,7 @@ def load(
     mask
         ``True`` NaN-masks the sentinel values (cloud, night, fill …).
         The default keeps the raw byte with its CF flags, so nothing is lost;
-        :func:`easysnowdata.processing.binary_snow` turns it into a mask.
+        ``(band >= 40).where(band <= 100)`` is the usual binary mask.
     crs, resolution
         Reproject the native sinusoidal grid (default: keep it).
     """

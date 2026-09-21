@@ -58,11 +58,15 @@ HOSTED_COG_URL = (
     "SnowClass_GL_300m_10.0arcsec_2021_v01.0.tif"
 )
 #: Resolution name → (nominal grid label, the file's arc-unit label).
+#: Verified against the NSIDC-0768 directory listing on 2026-09-21: the archive
+#: has 10 arcsec, 30 arcsec, 2.5 arcmin and 0.5 degree grids, and spells them
+#: ``300m_10.0arcsec``, ``01km_30.0arcsec``, ``05km_2.50arcmin`` and
+#: ``50km_0.50degree`` (there is no 5 arcmin grid).
 RESOLUTIONS: dict[str, tuple[str, str]] = {
     "10arcsec": ("300m", "10.0arcsec"),
-    "2.5arcmin": ("2.5km", "2.5arcmin"),
-    "5arcmin": ("10km", "5.0arcmin"),
-    "30arcmin": ("0.5deg", "30.0arcmin"),
+    "30arcsec": ("01km", "30.0arcsec"),
+    "2.5arcmin": ("05km", "2.50arcmin"),
+    "30arcmin": ("50km", "0.50degree"),
 }
 #: The nine seasonal snow classes: value → (name, colour).
 SNOW_CLASSIFICATION_CLASSES: dict[int, tuple[str, str]] = {
@@ -83,15 +87,17 @@ EPOCH = "2021"
 
 
 def filename(resolution: str = "10arcsec", region: str = "GL") -> str:
-    """The NSIDC-0768 file name for a resolution and region (``GL`` or ``NA``)."""
+    """The NSIDC-0768 file name for a resolution and region (``GL``, ``NA`` or ``EA``)."""
     try:
         grid, arc = RESOLUTIONS[resolution]
     except KeyError:
         raise ValueError(
             f"Unknown resolution {resolution!r}; available: {', '.join(RESOLUTIONS)}."
         ) from None
-    if region not in ("GL", "NA"):
-        raise ValueError(f"region must be 'GL' (global) or 'NA', got {region!r}.")
+    if region not in ("GL", "NA", "EA"):
+        raise ValueError(
+            f"region must be 'GL' (global), 'NA' or 'EA' (Eurasia), got {region!r}."
+        )
     return f"SnowClass_{region}_{grid}_{arc}_{EPOCH}_v01.0.tif"
 
 
@@ -146,7 +152,8 @@ def load(
         ``"nsidc"`` (default, needs Earthdata Login) or ``"hosted-cog"``
         (credential-free, 10 arcsec global only, location likely to change).
     resolution, region
-        NSIDC route only: one of :data:`RESOLUTIONS` and ``"GL"`` or ``"NA"``.
+        NSIDC route only: one of :data:`RESOLUTIONS` and ``"GL"``, ``"NA"`` or
+        ``"EA"``.
     chunks
         Dask chunks; ``None`` loads eagerly.
     mask
@@ -243,8 +250,8 @@ PRODUCT = Product(
             notes=(
                 "authoritative; not cloud-hosted, the HTTPS directory redirects "
                 "to Earthdata Login, so files are cached locally on first use. "
-                "Also serves the 2.5 arcmin, 5 arcmin and 30 arcmin grids and "
-                "the North America subset"
+                "Also serves the 30 arcsec, 2.5 arcmin and 0.5 degree grids and "
+                "the North America and Eurasia subsets"
             ),
             title="NSIDC-0768",
             health=Probe(
