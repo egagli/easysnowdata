@@ -47,7 +47,8 @@ from easysnowdata.catalog import health
 from easysnowdata.catalog._access import resolve_source
 from easysnowdata.catalog._models import Probe, Product, Source, Variable
 from easysnowdata.processing import contract, wateryear
-from easysnowdata.stations import _frames, networks
+from easysnowdata.stations import _frames
+from easysnowdata.stations import networks as _nets
 
 __all__ = [
     "ARCHIVE_URL",
@@ -69,6 +70,11 @@ ARCHIVE_URL = f"{REPO}/raw/main/data/all_station_csvs.tar.xz"
 CSV_BASE = (
     "https://raw.githubusercontent.com/egagli/global_snow_networks/main/data/stations/"
 )
+
+#: How long a downloaded bundle is trusted before it is fetched again. The
+#: archive is rebuilt daily, so a day; the inventory, read over HTTP each
+#: time, would otherwise list stations the stale bundle does not hold.
+ARCHIVE_MAX_AGE = 24 * 3600
 
 #: Archive CSV column -> (standardized type, units).
 COLUMNS = {
@@ -195,8 +201,8 @@ def inventory(
     gdf = gdf.copy()
     if "station_id" not in gdf.columns and "network" in gdf.columns:
         gdf["station_id"] = [
-            networks_module().to_station_id(str(code), str(net))
-            if str(net) in networks_module().NETWORKS
+            _nets.to_station_id(str(code), str(net))
+            if str(net) in _nets.NETWORKS
             else str(code)
             for code, net in zip(gdf.index, gdf["network"], strict=True)
         ]
@@ -207,11 +213,6 @@ def inventory(
         )
     )
     return gdf
-
-
-def networks_module() -> Any:
-    """:mod:`easysnowdata.stations.networks` (the keyword shadows the name)."""
-    return networks
 
 
 def network_of(codes: list[str]) -> dict[str, str]:
@@ -233,12 +234,15 @@ def _parse_csv(text: str, code: str) -> pd.DataFrame:
 def _from_tarball(codes: set[str] | None) -> dict[str, pd.DataFrame]:
     """Every wanted station's CSV, out of the one bundled archive.
 
-    Downloaded once into the package cache by pooch, so a second call in the
-    same environment re-reads the local file. ``EASYSNOWDATA_CACHE_DIR`` moves
-    the cache root.
+    Downloaded into the package cache by pooch and re-read from there for a
+    day (:data:`ARCHIVE_MAX_AGE`), after which the daily rebuild is fetched
+    again. ``EASYSNOWDATA_CACHE_DIR`` moves the cache root.
     """
     path = providers.raster_http.fetch(
-        ARCHIVE_URL, "all_station_csvs.tar.xz", subdir="stations"
+        ARCHIVE_URL,
+        "all_station_csvs.tar.xz",
+        subdir="stations",
+        max_age=ARCHIVE_MAX_AGE,
     )
     _logger.info("Reading the bundled station archive at %s", path)
     frames: dict[str, pd.DataFrame] = {}
@@ -452,7 +456,7 @@ def _to_dataset(
             ds[type_name].attrs.update(
                 {
                     "units": units,
-                    "long_name": networks.TYPES[type_name][1],
+                    "long_name": _nets.TYPES[type_name][1],
                     "native_variables": column,
                     "interval": "daily",
                 }
@@ -493,17 +497,13 @@ PRODUCT = Product(
                 "the whole archive costs one request"
             ),
             title="global_snow_networks bundled archive",
-            # These two labels are inherited from the retired
-            # `snotel-ccss-stations` entry on purpose. They are the keys
-            # data_status/history.json and the README status table have
-            # recorded weekly since 2026-06, and the route they name — a
-            # station list and a station CSV on GitHub — is still exactly
-            # what they probe, just published by global_snow_networks now.
-            # Renaming them would start two fresh rows and orphan the
-            # history.
+            # The inventory and CSV probes were once labelled "SNOTEL/CCSS …"
+            # after the retired snotel_ccss_stations entry; the labels were
+            # renamed in 0.3 and data_status/history.json rewritten with them,
+            # so their history since 2026-06 is continuous.
             health=(
                 Probe(
-                    "SNOTEL/CCSS station list (GitHub)",
+                    "Snow station inventory (global_snow_networks)",
                     partial(health.http_first_byte, INVENTORY_URL),
                 ),
                 Probe(
@@ -522,7 +522,7 @@ PRODUCT = Product(
             notes="one request per station; cheaper than the bundle for a few",
             title="global_snow_networks per-station CSVs",
             health=Probe(
-                "SNOTEL/CCSS station CSV (GitHub)",
+                "Snow station CSV (global_snow_networks)",
                 partial(health.http_first_byte, f"{CSV_BASE}679_WA_SNTL.csv"),
             ),
         ),
@@ -539,7 +539,7 @@ PRODUCT = Product(
     ),
     license="Per contributing network; see each network's product entry",
     loader="easysnowdata.stations.archive.load",
-    examples=("stations/plot_station_archive.py",),
+    examples=("stations/plot_station_archive.py", "stations/plot_all_networks.py"),
     references=(REPO, f"{REPO}/blob/main/DESIGN.md"),
     tags=("swe", "snow depth", "stations", "archive", "daily"),
 )

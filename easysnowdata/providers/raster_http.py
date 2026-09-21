@@ -113,16 +113,36 @@ def fetch(
     subdir: str | None = None,
     known_hash: str | None = None,
     progressbar: bool = True,
+    max_age: float | None = None,
 ) -> Path:
     """Download *url* once into the cache with a plain GET and return the local path.
 
     For static archives whose hosts reject range requests or the HEAD request
     GDAL's ``/vsicurl`` sends first (GRDC). ``EASYSNOWDATA_CACHE_DIR`` moves
     the cache root.
+
+    Without a *known_hash* pooch never re-downloads an existing file, which is
+    right for a static release and wrong for an artefact that is republished:
+    *max_age* (in seconds) re-fetches a cached copy older than that, so the
+    daily-rebuilt station archive cannot lag its own inventory for ever on a
+    machine that downloaded it once.
     """
+    import time  # noqa: PLC0415
+
     import pooch  # noqa: PLC0415
 
     path = config.cache_dir(*([subdir] if subdir else []))
+    target = Path(path) / (fname or url.rsplit("/", 1)[-1])
+    if max_age is not None and target.exists():
+        age = time.time() - target.stat().st_mtime
+        if age > max_age:
+            _logger.info(
+                "Cached %s is %.0f h old (limit %.0f h); fetching it again.",
+                target.name,
+                age / 3600,
+                max_age / 3600,
+            )
+            target.unlink()
     local = pooch.retrieve(
         url,
         known_hash=known_hash,

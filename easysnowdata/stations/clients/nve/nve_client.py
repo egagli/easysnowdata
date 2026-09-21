@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 clients/nve/nve_client.py
 =========================
@@ -55,8 +54,14 @@ import requests
 
 from .._common import (
     coerce_list as _coerce_list,
+)
+from .._common import (
     date_str as _date_str,
+)
+from .._common import (
     filter_by_bbox as _filter_by_bbox,
+)
+from .._common import (
     request_with_retries,
 )
 
@@ -96,11 +101,11 @@ _MISSING_VALUES = {-9999, -9999.0}
 _MAX_PLAUSIBLE_CM = 1500.0
 
 # NVE parameter IDs for snow variables
-_PARAM_SWE   = 2003  # Snow Water Equivalent, "Snøens vannekvivalent" (m)
-_PARAM_SNWD  = 2002  # Snow depth, "Snødybde" (cm)
+_PARAM_SWE = 2003  # Snow Water Equivalent, "Snøens vannekvivalent" (m)
+_PARAM_SNWD = 2002  # Snow depth, "Snødybde" (cm)
 
 # Temporal resolution in minutes
-_RESOLUTION_DAILY  = 1440
+_RESOLUTION_DAILY = 1440
 _RESOLUTION_HOURLY = 60
 
 # Sildre station URL template
@@ -119,7 +124,7 @@ _SILDRE_URL = "https://sildre.nve.no/station/{station_id}"
 # HydAPI automatically takes precedence.
 _COORD_OVERRIDES: dict[str, tuple[float, float]] = {
     "1977.1.1": (28.19214, 85.57043),  # Langtang - Lower
-    "1977.1.4": (28.15441, 85.5625),   # Langtang - GangaLa (Ganja La)
+    "1977.1.4": (28.15441, 85.5625),  # Langtang - GangaLa (Ganja La)
     "1977.2.1": (28.13995, 84.54465),  # Mustang - Upper Snow Station
     "1977.2.2": (28.13093, 84.54485),  # Mustang - Lower snow station
 }
@@ -159,13 +164,13 @@ VARIABLES: dict[str, dict] = {
 
 #: Mapping from standardized type → NVE variable key(s) (priority order).
 _TYPE_TO_NVE_VARS: dict[str, list[str]] = {
-    "swe":  ["swe_m"],
+    "swe": ["swe_m"],
     "snwd": ["snwd_cm"],
 }
 
 #: Mapping from NVE parameter ID → variable key.
 _PARAM_TO_VAR: dict[int, str] = {
-    _PARAM_SWE:  "swe_m",
+    _PARAM_SWE: "swe_m",
     _PARAM_SNWD: "snwd_cm",
 }
 
@@ -174,13 +179,13 @@ _VAR_TO_PARAM: dict[str, int] = {v: k for k, v in _PARAM_TO_VAR.items()}
 
 #: Standardized interval → NVE ResolutionTime (minutes).
 _INTERVAL_TO_RESOLUTION: dict[str, int] = {
-    "daily":  _RESOLUTION_DAILY,
+    "daily": _RESOLUTION_DAILY,
     "hourly": _RESOLUTION_HOURLY,
 }
 
 #: NVE ResolutionTime → standardized interval name.
 _RESOLUTION_TO_INTERVAL: dict[int, str] = {
-    _RESOLUTION_DAILY:  "daily",
+    _RESOLUTION_DAILY: "daily",
     _RESOLUTION_HOURLY: "hourly",
 }
 
@@ -283,14 +288,19 @@ def _enrich_station(raw: dict) -> dict:
     if override is not None:
         o_lat, o_lon = override
         if (
-            lat is None or lon is None
+            lat is None
+            or lon is None
             or abs(lat - o_lat) > _COORD_OVERRIDE_TOLERANCE_DEG
             or abs(lon - o_lon) > _COORD_OVERRIDE_TOLERANCE_DEG
         ):
             logger.info(
                 "Station %s: HydAPI coordinates (%s, %s) are known to be "
                 "wrong — using override (%s, %s)",
-                sid, lat, lon, o_lat, o_lon,
+                sid,
+                lat,
+                lon,
+                o_lat,
+                o_lon,
             )
             lat, lon = o_lat, o_lon
             coords_overridden = True
@@ -316,8 +326,7 @@ def _enrich_station(raw: dict) -> dict:
         param_ids.add(pid)
         resolutions = s.get("resolutionList") or []
         if any(
-            _normalize_value(r.get("resTime")) == _RESOLUTION_DAILY
-            for r in resolutions
+            _normalize_value(r.get("resTime")) == _RESOLUTION_DAILY for r in resolutions
         ):
             daily_param_ids.add(pid)
 
@@ -337,6 +346,7 @@ def _enrich_station(raw: dict) -> dict:
 
 
 # ── Client ───────────────────────────────────────────────────────────────────
+
 
 class NVEClient:
     """
@@ -375,10 +385,12 @@ class NVEClient:
         self.backoff = backoff
         self._session = session or requests.Session()
         self._api_key = api_key
-        self._session.headers.update({
-            "accept": "application/json",
-            "User-Agent": "global-snow-networks/1.0",
-        })
+        self._session.headers.update(
+            {
+                "accept": "application/json",
+                "User-Agent": "global-snow-networks/1.0",
+            }
+        )
 
     def _authorize(self) -> None:
         """Put the API key on the session, resolving it on first use.
@@ -458,9 +470,7 @@ class NVEClient:
                         # Safety net: guarantee the queried parameter is
                         # present even if seriesList is missing/unparseable.
                         if pid not in sta["parameters"]:
-                            sta["parameters"] = sorted(
-                                set(sta["parameters"]) | {pid}
-                            )
+                            sta["parameters"] = sorted(set(sta["parameters"]) | {pid})
                         all_stations[sta["station_id"]] = sta
             stations = list(all_stations.values())
         else:
@@ -574,17 +584,19 @@ class NVEClient:
         raw = self._get("Series", params)
         series: list[dict] = []
         for item in raw.get("data") or []:
-            series.append({
-                "station_id": str(item.get("stationId") or ""),
-                "station_name": item.get("stationName") or "",
-                "parameter": item.get("parameter"),
-                "parameter_name": item.get("parameterName") or "",
-                "version_no": item.get("versionNo"),
-                "unit": item.get("unit") or "",
-                "serie_from": item.get("serieFrom") or "",
-                "serie_to": item.get("serieTo") or "",
-                "resolutions": item.get("resolutionList") or [],
-            })
+            series.append(
+                {
+                    "station_id": str(item.get("stationId") or ""),
+                    "station_name": item.get("stationName") or "",
+                    "parameter": item.get("parameter"),
+                    "parameter_name": item.get("parameterName") or "",
+                    "version_no": item.get("versionNo"),
+                    "unit": item.get("unit") or "",
+                    "serie_from": item.get("serieFrom") or "",
+                    "serie_to": item.get("serieTo") or "",
+                    "resolutions": item.get("resolutionList") or [],
+                }
+            )
         return series
 
     def _series_index(
@@ -783,10 +795,7 @@ class NVEClient:
         """
         # ── Resolve station IDs ────────────────────────────────────────────
         if station_ids is None and bbox is not None:
-            ids: list[str] = [
-                s["station_id"]
-                for s in self.get_all_stations(bbox=bbox)
-            ]
+            ids: list[str] = [s["station_id"] for s in self.get_all_stations(bbox=bbox)]
         elif station_ids is not None:
             ids = _coerce_list(station_ids)
         else:
@@ -821,7 +830,9 @@ class NVEClient:
         logger.info(
             "NVE series index: %d of %d requested station+parameter pairs "
             "have a series at resolution %d",
-            len(series_index), n_pairs, resolution,
+            len(series_index),
+            n_pairs,
+            resolution,
         )
         if not series_index and ids:
             # /Series listed nothing for stations that our own inventory
@@ -832,11 +843,10 @@ class NVEClient:
                 "/Series matched none of the %d requested stations at "
                 "resolution %d — falling back to direct observation "
                 "requests for all of them",
-                len(ids), resolution,
+                len(ids),
+                resolution,
             )
-            series_index = {
-                (sid, pid): "" for sid in ids for pid in wanted_params
-            }
+            series_index = {(sid, pid): "" for sid in ids for pid in wanted_params}
 
         records: list[dict] = []
         request_count = 0
@@ -849,7 +859,9 @@ class NVEClient:
                 if (sid, param_id) not in series_index:
                     logger.debug(
                         "Station %s has no %s series at resolution %d — skipping",
-                        sid, var_key, resolution,
+                        sid,
+                        var_key,
+                        resolution,
                     )
                     continue
                 data_from = series_index[(sid, param_id)]
@@ -862,25 +874,29 @@ class NVEClient:
                         time.sleep(_REQUEST_DELAY)
                     request_count += 1
                     try:
-                        obs_list.extend(self.get_observations(
-                            station_id=sid,
-                            parameter_id=param_id,
-                            begin_date=win_begin,
-                            end_date=win_end,
-                            resolution=resolution,
-                        ))
+                        obs_list.extend(
+                            self.get_observations(
+                                station_id=sid,
+                                parameter_id=param_id,
+                                begin_date=win_begin,
+                                end_date=win_end,
+                                resolution=resolution,
+                            )
+                        )
                     except NVEError as exc:
                         logger.warning(
                             "Failed to fetch %s for station %s (%s/%s): %s",
-                            var_key, sid, win_begin, win_end, exc,
+                            var_key,
+                            sid,
+                            win_begin,
+                            win_end,
+                            exc,
                         )
 
                 for obs in obs_list:
                     raw_val = _normalize_value(obs.get("value"))
                     value = converter(raw_val) if raw_val is not None else None
-                    if value is not None and not (
-                        0 <= value <= _MAX_PLAUSIBLE_CM
-                    ):
+                    if value is not None and not (0 <= value <= _MAX_PLAUSIBLE_CM):
                         value = None
                     # Extract date part from ISO timestamp
                     ts = str(obs.get("time") or obs.get("dateTime") or "")
@@ -931,8 +947,12 @@ class NVEClient:
         self._authorize()
         url = f"{self.base_url}/{endpoint}"
         response = request_with_retries(
-            self._session, url, params=params, error_cls=NVEError,
-            timeout=self.timeout, max_retries=self.max_retries,
+            self._session,
+            url,
+            params=params,
+            error_cls=NVEError,
+            timeout=self.timeout,
+            max_retries=self.max_retries,
             backoff=self.backoff,
         )
         return response.json()
@@ -940,11 +960,13 @@ class NVEClient:
 
 # ── Exception ────────────────────────────────────────────────────────────────
 
+
 class NVEError(Exception):
     """Raised when the NVE HydAPI returns an error or a request fails."""
 
 
 # ── Private helpers ───────────────────────────────────────────────────────────
+
 
 def _resolve_variables(
     variables: list[str] | str | None,
@@ -968,23 +990,17 @@ def _resolve_variables(
     """
     # Converters: swe is m → cm (× 100); snwd is cm → cm (identity)
     _converters: dict[str, Any] = {
-        "swe_m":   lambda x: round(x * 100.0, 3),
+        "swe_m": lambda x: round(x * 100.0, 3),
         "snwd_cm": lambda x: round(x, 3),
     }
 
     if variables is None:
         # Default: all snow variables
-        return [
-            (vk, _VAR_TO_PARAM[vk], _converters[vk])
-            for vk in ["swe_m", "snwd_cm"]
-        ]
+        return [(vk, _VAR_TO_PARAM[vk], _converters[vk]) for vk in ["swe_m", "snwd_cm"]]
 
     raw_vars = [variables] if isinstance(variables, str) else list(variables)
     if not raw_vars:
-        return [
-            (vk, _VAR_TO_PARAM[vk], _converters[vk])
-            for vk in ["swe_m", "snwd_cm"]
-        ]
+        return [(vk, _VAR_TO_PARAM[vk], _converters[vk]) for vk in ["swe_m", "snwd_cm"]]
     jobs: list[tuple[str, int, Any]] = []
     seen: set[str] = set()
     for v in raw_vars:

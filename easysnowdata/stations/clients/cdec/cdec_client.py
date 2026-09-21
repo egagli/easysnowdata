@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 clients/cdec/cdec_client.py
 ===========================
@@ -56,7 +55,11 @@ from bs4 import BeautifulSoup
 
 from .._common import (
     date_str as _date_str,
+)
+from .._common import (
     request_with_retries,
+)
+from .._common import (
     to_float as _to_float,
 )
 
@@ -80,8 +83,9 @@ _STATION_ID_RE = re.compile(r"^[A-Z0-9]{2,5}$")
 _CDEC_SRC = "CDEC JSONDataServlet (SensorNums={n})"
 
 
-def _sensor(name, short_name, stype, units, output_units, variable,
-            n, description, notes=""):
+def _sensor(
+    name, short_name, stype, units, output_units, variable, n, description, notes=""
+):
     return {
         "name": name,
         "short_name": short_name,
@@ -101,91 +105,186 @@ def _sensor(name, short_name, stype, units, output_units, variable,
 #: in-client conversion (DESIGN.md §3.5).
 SENSORS: dict[int, dict[str, str]] = {
     3: _sensor(
-        "Snow Water Content", "SNOW WC", "swe", "in", "cm", "swe_raw", 3,
+        "Snow Water Content",
+        "SNOW WC",
+        "swe",
+        "in",
+        "cm",
+        "swe_raw",
+        3,
         "Raw snow pillow reading (SWE, inches). Converted to cm by client.",
         "Prefer sensor 82 (SNO ADJ) when available.",
     ),
     18: _sensor(
-        "Snow Depth", "SNOW DP", "snwd", "in", "cm", "snwd", 18,
+        "Snow Depth",
+        "SNOW DP",
+        "snwd",
+        "in",
+        "cm",
+        "snwd",
+        18,
         "Ultrasonic snow depth sensor (inches). Converted to cm by client.",
     ),
     82: _sensor(
-        "Snow Water Content (Adjusted)", "SNO ADJ", "swe", "in", "cm",
-        "swe", 82,
+        "Snow Water Content (Adjusted)",
+        "SNO ADJ",
+        "swe",
+        "in",
+        "cm",
+        "swe",
+        82,
         "Quality-controlled SWE with calibration offset applied "
         "(preferred over sensor 3). Converted to cm by client.",
         "Preferred SWE sensor for CCSS automated pillows.",
     ),
     2: _sensor(
-        "Precipitation, Accumulated", "RAIN", "precip", "in", "mm",
-        "precip_accum", 2,
+        "Precipitation, Accumulated",
+        "RAIN",
+        "precip",
+        "in",
+        "mm",
+        "precip_accum",
+        2,
         "Accumulated precipitation (inches). Converted to mm by client.",
     ),
     45: _sensor(
-        "Precipitation, Incremental", "PPT INC", "precip", "in", "mm",
-        "precip_incr", 45,
+        "Precipitation, Incremental",
+        "PPT INC",
+        "precip",
+        "in",
+        "mm",
+        "precip_incr",
+        45,
         "Incremental precipitation (inches). Converted to mm by client.",
     ),
     16: _sensor(
-        "Precipitation, Tipping Bucket", "PPT TB", "precip", "in", "mm",
-        "precip_tb", 16,
+        "Precipitation, Tipping Bucket",
+        "PPT TB",
+        "precip",
+        "in",
+        "mm",
+        "precip_tb",
+        16,
         "Tipping-bucket precipitation (inches). Converted to mm by client.",
     ),
     4: _sensor(
-        "Temperature, Air", "TEMP", "temp", "°F", "°C", "air_temp", 4,
+        "Temperature, Air",
+        "TEMP",
+        "temp",
+        "°F",
+        "°C",
+        "air_temp",
+        4,
         "Instantaneous air temperature (°F). Converted to °C by client.",
     ),
     30: _sensor(
-        "Temperature, Air Average", "TEMP AV", "temp", "°F", "°C",
-        "air_temp_avg", 30,
+        "Temperature, Air Average",
+        "TEMP AV",
+        "temp",
+        "°F",
+        "°C",
+        "air_temp_avg",
+        30,
         "Daily average air temperature (°F). Converted to °C by client.",
     ),
     31: _sensor(
-        "Temperature, Air Maximum", "TEMP MX", "temp_max", "°F", "°C",
-        "air_temp_max", 31,
+        "Temperature, Air Maximum",
+        "TEMP MX",
+        "temp_max",
+        "°F",
+        "°C",
+        "air_temp_max",
+        31,
         "Daily maximum air temperature (°F). Converted to °C by client.",
     ),
     32: _sensor(
-        "Temperature, Air Minimum", "TEMP MN", "temp_min", "°F", "°C",
-        "air_temp_min", 32,
+        "Temperature, Air Minimum",
+        "TEMP MN",
+        "temp_min",
+        "°F",
+        "°C",
+        "air_temp_min",
+        32,
         "Daily minimum air temperature (°F). Converted to °C by client.",
     ),
     12: _sensor(
-        "Relative Humidity", "REL HUM", "rh", "%", "%", "rh", 12,
+        "Relative Humidity",
+        "REL HUM",
+        "rh",
+        "%",
+        "%",
+        "rh",
+        12,
         "Relative humidity (percent).",
     ),
     9: _sensor(
-        "Wind Speed", "WIND SP", "wind_spd", "mph", "km/h", "wind_spd", 9,
+        "Wind Speed",
+        "WIND SP",
+        "wind_spd",
+        "mph",
+        "km/h",
+        "wind_spd",
+        9,
         "Wind speed (mph). Converted to km/h by client.",
     ),
     10: _sensor(
-        "Wind Direction", "WIND DR", "wind_dir", "degrees", "degrees",
-        "wind_dir", 10,
+        "Wind Direction",
+        "WIND DR",
+        "wind_dir",
+        "degrees",
+        "degrees",
+        "wind_dir",
+        10,
         "Wind direction (degrees from north).",
     ),
     103: _sensor(
-        "Solar Radiation Average", "SOLAR AV", "solar", "W/m²", "W/m²",
-        "solar_avg", 103,
+        "Solar Radiation Average",
+        "SOLAR AV",
+        "solar",
+        "W/m²",
+        "W/m²",
+        "solar_avg",
+        103,
         "Average incoming solar radiation (W/m²).",
     ),
     283: _sensor(
-        "Soil Moisture, 10 cm", "SOIL M10", "soil_moisture", "%", "%",
-        "soil_moisture_10cm", 283,
+        "Soil Moisture, 10 cm",
+        "SOIL M10",
+        "soil_moisture",
+        "%",
+        "%",
+        "soil_moisture_10cm",
+        283,
         "Volumetric soil moisture at 10 cm depth (percent).",
     ),
     310: _sensor(
-        "Soil Moisture, 25 cm", "SOIL M25", "soil_moisture", "%", "%",
-        "soil_moisture_25cm", 310,
+        "Soil Moisture, 25 cm",
+        "SOIL M25",
+        "soil_moisture",
+        "%",
+        "%",
+        "soil_moisture_25cm",
+        310,
         "Volumetric soil moisture at 25 cm depth (percent).",
     ),
     286: _sensor(
-        "Soil Moisture, 50 cm", "SOIL M50", "soil_moisture", "%", "%",
-        "soil_moisture_50cm", 286,
+        "Soil Moisture, 50 cm",
+        "SOIL M50",
+        "soil_moisture",
+        "%",
+        "%",
+        "soil_moisture_50cm",
+        286,
         "Volumetric soil moisture at 50 cm depth (percent).",
     ),
     287: _sensor(
-        "Soil Moisture, 100 cm", "SOIL M100", "soil_moisture", "%", "%",
-        "soil_moisture_100cm", 287,
+        "Soil Moisture, 100 cm",
+        "SOIL M100",
+        "soil_moisture",
+        "%",
+        "%",
+        "soil_moisture_100cm",
+        287,
         "Volumetric soil moisture at 100 cm depth (percent).",
     ),
 }
@@ -198,31 +297,31 @@ SNOW_SENSORS: tuple[int, ...] = (3, 18, 82)
 # (transform, emitted unit).  Sensors not listed pass through unchanged
 # with their registry output_units (already metric).
 _SENSOR_CONVERSIONS: dict[int, Any] = {
-    3: lambda v: v * 2.54,                  # in → cm
+    3: lambda v: v * 2.54,  # in → cm
     18: lambda v: v * 2.54,
     82: lambda v: v * 2.54,
-    2: lambda v: v * 25.4,                  # in → mm
+    2: lambda v: v * 25.4,  # in → mm
     45: lambda v: v * 25.4,
     16: lambda v: v * 25.4,
-    4: lambda v: (v - 32.0) * 5.0 / 9.0,    # °F → °C
+    4: lambda v: (v - 32.0) * 5.0 / 9.0,  # °F → °C
     30: lambda v: (v - 32.0) * 5.0 / 9.0,
     31: lambda v: (v - 32.0) * 5.0 / 9.0,
     32: lambda v: (v - 32.0) * 5.0 / 9.0,
-    9: lambda v: v * 1.609344,              # mph → km/h
+    9: lambda v: v * 1.609344,  # mph → km/h
 }
 
 # Standardized type → CDEC sensor number(s) in priority order
 _TYPE_TO_SENSORS: dict[str, list[int]] = {
-    "swe":           [82, 3],
-    "snwd":          [18],
-    "precip":        [2, 45, 16],
-    "temp":          [4, 30],
-    "temp_max":      [31],
-    "temp_min":      [32],
-    "rh":            [12],
-    "wind_spd":      [9],
-    "wind_dir":      [10],
-    "solar":         [103],
+    "swe": [82, 3],
+    "snwd": [18],
+    "precip": [2, 45, 16],
+    "temp": [4, 30],
+    "temp_max": [31],
+    "temp_min": [32],
+    "rh": [12],
+    "wind_spd": [9],
+    "wind_dir": [10],
+    "solar": [103],
     "soil_moisture": [283, 310, 286, 287],
 }
 # CDEC duration code → standardized interval
@@ -259,9 +358,9 @@ DURATION_CODES: dict[str, str] = {
 
 # Standardized interval → CDEC duration code
 _INTERVAL_TO_CDEC_DURATION: dict[str, str] = {
-    "daily":     "D",
-    "hourly":    "H",
-    "monthly":   "M",
+    "daily": "D",
+    "hourly": "H",
+    "monthly": "M",
     "sub_daily": "E",
 }
 
@@ -274,15 +373,11 @@ def _resolve_variables_to_cdec_sensors(
         return list(SNOW_SENSORS)
     sensors: list[int] = []
     seen: set[int] = set()
-    var_list = (
-        [variables] if isinstance(variables, str) else list(variables)
-    )
+    var_list = [variables] if isinstance(variables, str) else list(variables)
     if not var_list:
         return list(SNOW_SENSORS)
     # Build reverse lookups
-    short_name_to_num = {
-        v["short_name"]: k for k, v in SENSORS.items()
-    }
+    short_name_to_num = {v["short_name"]: k for k, v in SENSORS.items()}
     name_to_num = {v["name"]: k for k, v in SENSORS.items()}
     for v in var_list:
         if v in _TYPE_TO_SENSORS:
@@ -312,6 +407,7 @@ def _resolve_variables_to_cdec_sensors(
 
 
 # ── Client ───────────────────────────────────────────────────────────────────
+
 
 class CDECClient:
     """
@@ -387,9 +483,7 @@ class CDECClient:
                         ),
                         "latitude": _to_float(row.get("latitude")),
                         "longitude": _to_float(row.get("longitude")),
-                        "april1_avg_swe_in": _to_float(
-                            row.get("april1_avg_swe_in")
-                        ),
+                        "april1_avg_swe_in": _to_float(row.get("april1_avg_swe_in")),
                         "measuring_agency": _str(row.get("measuring_agency")),
                         "is_snow_course": True,
                         "is_snow_pillow": False,
@@ -425,9 +519,7 @@ class CDECClient:
             if isinstance(t.columns, pd.MultiIndex):
                 t.columns = [col[-1] for col in t.columns]
             cols_lower = [str(c).lower().strip() for c in t.columns]
-            if "id" not in cols_lower and not any(
-                "station" in c for c in cols_lower
-            ):
+            if "id" not in cols_lower and not any("station" in c for c in cols_lower):
                 continue
             t = _normalise_snow_sensors_table(t)
             if t is None:
@@ -445,9 +537,7 @@ class CDECClient:
                         ),
                         "latitude": _to_float(row.get("latitude")),
                         "longitude": _to_float(row.get("longitude")),
-                        "april1_avg_swe_in": _to_float(
-                            row.get("april1_avg_swe_in")
-                        ),
+                        "april1_avg_swe_in": _to_float(row.get("april1_avg_swe_in")),
                         "operator": _str(row.get("operator")),
                         "is_snow_course": False,
                         "is_snow_pillow": True,
@@ -504,9 +594,7 @@ class CDECClient:
                 params["active"] = "Y"
 
             try:
-                html = self._get_html(
-                    f"{BASE_URL}/dynamicapp/staSearch", params=params
-                )
+                html = self._get_html(f"{BASE_URL}/dynamicapp/staSearch", params=params)
             except CDECError as exc:
                 logger.warning(
                     "Station search for sensor %d failed: %s", sensor_num, exc
@@ -564,9 +652,7 @@ class CDECClient:
                 elev_ft = sta.get("elevation_ft")
                 if elev_ft is not None:
                     try:
-                        sta["elevation_m"] = round(
-                            float(elev_ft) * 0.3048, 1
-                        )
+                        sta["elevation_m"] = round(float(elev_ft) * 0.3048, 1)
                     except (TypeError, ValueError):
                         pass
             # status
@@ -678,7 +764,7 @@ class CDECClient:
         results_by_id: dict[str, dict] = {}
 
         for i in range(0, len(station_ids), batch_size):
-            batch = station_ids[i: i + batch_size]
+            batch = station_ids[i : i + batch_size]
             params = {
                 "Stations": ",".join(batch),
                 "SensorNums": ",".join(str(s) for s in sensors),
@@ -721,9 +807,7 @@ class CDECClient:
                         value = None
 
                 v: dict[str, Any] = {
-                    "date": _normalise_cdec_date(
-                        str(record.get("date", ""))
-                    ),
+                    "date": _normalise_cdec_date(str(record.get("date", ""))),
                     "value": value,
                 }
                 if include_flags:
@@ -741,9 +825,7 @@ class CDECClient:
                             "sensorType": si.get("short_name", ""),
                             "sensorName": si.get("name", ""),
                             "durationCode": duration,
-                            "durationName": DURATION_CODES.get(
-                                duration, duration
-                            ),
+                            "durationName": DURATION_CODES.get(duration, duration),
                             "units": si.get("output_units", ""),
                         },
                         "values": [],
@@ -760,7 +842,6 @@ class CDECClient:
                 }
             )
         return output
-
 
     def get_all_stations(
         self,
@@ -785,7 +866,8 @@ class CDECClient:
         stations = self.get_stations(active_only=active_only)
         if bbox is not None:
             stations = [
-                s for s in stations
+                s
+                for s in stations
                 if s.get("latitude") is not None
                 and s.get("longitude") is not None
                 and bbox[1] <= float(s["latitude"]) <= bbox[3]
@@ -853,16 +935,9 @@ class CDECClient:
             On network / API failure.
         """
         if station_ids is None and bbox is not None:
-            ids = [
-                s["station_id"]
-                for s in self.get_all_stations(bbox=bbox)
-            ]
+            ids = [s["station_id"] for s in self.get_all_stations(bbox=bbox)]
         elif station_ids is not None:
-            ids = (
-                [station_ids]
-                if isinstance(station_ids, str)
-                else list(station_ids)
-            )
+            ids = [station_ids] if isinstance(station_ids, str) else list(station_ids)
         else:
             raise ValueError("Provide station_ids or bbox.")
         if not ids:
@@ -883,7 +958,11 @@ class CDECClient:
         sub_daily = cdec_duration in ("H", "E")
 
         raw = self._get_data_cdec(
-            ids, sensors, cdec_duration, begin_date, end_date,
+            ids,
+            sensors,
+            cdec_duration,
+            begin_date,
+            end_date,
             include_flags=include_flags,
         )
 
@@ -902,9 +981,7 @@ class CDECClient:
                 std_type = sensor_info.get("type", "other")
                 short_name = sensor_info.get("short_name", str(sensor_num))
                 dur_code = str(elem.get("durationCode", "D"))
-                std_interval = _CDEC_DURATION_TO_INTERVAL.get(
-                    dur_code, dur_code
-                )
+                std_interval = _CDEC_DURATION_TO_INTERVAL.get(dur_code, dur_code)
 
                 for rec in block.get("values", []):
                     ts = str(rec.get("date", ""))
@@ -916,11 +993,7 @@ class CDECClient:
                         existing = swe_by_ts.get(key)
                         # Sensor 82 (SNO ADJ, calibration-adjusted) always
                         # beats sensor 3 (raw pillow reading).
-                        if (
-                            existing is None
-                            or existing[0] != 82
-                            or sensor_num == 82
-                        ):
+                        if existing is None or existing[0] != 82 or sensor_num == 82:
                             swe_by_ts[key] = (sensor_num, v, flag)
                     else:
                         r: dict = {
@@ -986,19 +1059,26 @@ class CDECClient:
         params: dict[str, str] | None = None,
     ) -> requests.Response:
         return request_with_retries(
-            self._session, url, params=params, method=method,
-            error_cls=CDECError, timeout=self.timeout,
-            max_retries=self.max_retries, backoff=self.backoff,
+            self._session,
+            url,
+            params=params,
+            method=method,
+            error_cls=CDECError,
+            timeout=self.timeout,
+            max_retries=self.max_retries,
+            backoff=self.backoff,
         )
 
 
 # ── Exception ─────────────────────────────────────────────────────────────────
+
 
 class CDECError(Exception):
     """Raised when the CDEC API returns an error or a request fails."""
 
 
 # ── HTML parsing helpers ──────────────────────────────────────────────────────
+
 
 def _read_html_tables(html: str) -> list[pd.DataFrame]:
     """Return list of DataFrames parsed from HTML, or empty list on failure."""
@@ -1127,9 +1207,7 @@ def _parse_sta_meta_html(station_id: str, html: str) -> dict:
     """
     meta: dict[str, Any] = {
         "station_id": station_id.upper(),
-        "station_url": (
-            f"{BASE_URL}/dynamicapp/staMeta?station_id={station_id}"
-        ),
+        "station_url": (f"{BASE_URL}/dynamicapp/staMeta?station_id={station_id}"),
     }
     soup = BeautifulSoup(html, "html.parser")
 
@@ -1144,10 +1222,7 @@ def _parse_sta_meta_html(station_id: str, html: str) -> dict:
     # Table 0: station info — 4-column key-value layout
     flat: dict[str, str] = {}
     for row in tables[0].find_all("tr"):
-        cells = [
-            td.get_text(strip=True)
-            for td in row.find_all(["td", "th"])
-        ]
+        cells = [td.get_text(strip=True) for td in row.find_all(["td", "th"])]
         for k, v in zip(cells[::2], cells[1::2]):
             flat[k.lower()] = v
     meta["elevation_ft"] = _to_float(
@@ -1157,12 +1232,8 @@ def _parse_sta_meta_html(station_id: str, html: str) -> dict:
     meta["county"] = flat.get("county", "")
     meta["hydrologic_area"] = flat.get("hydrologic area", "")
     meta["nearby_city"] = flat.get("nearby city", "")
-    meta["latitude"] = _to_float(
-        flat.get("latitude", "").replace("\u00b0", "")
-    )
-    meta["longitude"] = _to_float(
-        flat.get("longitude", "").replace("\u00b0", "")
-    )
+    meta["latitude"] = _to_float(flat.get("latitude", "").replace("\u00b0", ""))
+    meta["longitude"] = _to_float(flat.get("longitude", "").replace("\u00b0", ""))
     meta["operator"] = flat.get("operator", "")
     meta["maintenance"] = flat.get("maintenance", "")
 
@@ -1173,8 +1244,7 @@ def _parse_sta_meta_html(station_id: str, html: str) -> dict:
         if rows:
             # Map header columns
             header_cells = [
-                td.get_text(strip=True).lower()
-                for td in rows[0].find_all(["td", "th"])
+                td.get_text(strip=True).lower() for td in rows[0].find_all(["td", "th"])
             ]
             col_idx: dict[str, int] = {}
             for i, h in enumerate(header_cells):
@@ -1191,18 +1261,13 @@ def _parse_sta_meta_html(station_id: str, html: str) -> dict:
                 elif "avail" in h:
                     col_idx["data_available"] = i
             for row in rows[1:]:
-                cells = [
-                    td.get_text(strip=True)
-                    for td in row.find_all(["td", "th"])
-                ]
+                cells = [td.get_text(strip=True) for td in row.find_all(["td", "th"])]
                 if not cells:
                     continue
 
                 def _cell(key: str) -> str:
                     idx = col_idx.get(key)
-                    return cells[idx] if idx is not None and idx < len(
-                        cells
-                    ) else ""
+                    return cells[idx] if idx is not None and idx < len(cells) else ""
 
                 snum_raw = _cell("sensor_num")
                 if not snum_raw:
@@ -1217,9 +1282,8 @@ def _parse_sta_meta_html(station_id: str, html: str) -> dict:
                 sensors_list.append(
                     {
                         "sensor_num": snum,
-                        "sensor_description": _cell(
-                            "sensor_description"
-                        ) or (cells[0] if cells else ""),
+                        "sensor_description": _cell("sensor_description")
+                        or (cells[0] if cells else ""),
                         "duration": _cell("duration"),
                         "short_name": _cell("short_name"),
                         "data_collection": _cell("data_collection"),
@@ -1232,6 +1296,7 @@ def _parse_sta_meta_html(station_id: str, html: str) -> dict:
 
 # ── Utility helpers ───────────────────────────────────────────────────────────
 
+
 def _normalise_cdec_date(date_str: str) -> str:
     """Normalise CDEC timestamps like '2023-1-1 16:00' by zero-padding the
     date part.  The time-of-day is PRESERVED ('YYYY-MM-DD HH:MM') so that
@@ -1242,9 +1307,7 @@ def _normalise_cdec_date(date_str: str) -> str:
     parts = date_part.split("-")
     if len(parts) == 3:
         try:
-            date_part = (
-                f"{int(parts[0]):04d}-{int(parts[1]):02d}-{int(parts[2]):02d}"
-            )
+            date_part = f"{int(parts[0]):04d}-{int(parts[1]):02d}-{int(parts[2]):02d}"
         except ValueError:
             date_part = date_part[:10]
     else:

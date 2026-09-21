@@ -23,7 +23,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from easysnowdata.catalog import _registry
+from easysnowdata.catalog import _models, _registry
 from easysnowdata.catalog._models import Product, Source
 
 __all__ = [
@@ -68,9 +68,10 @@ def latest_status(history: list[list[dict[str, Any]]]) -> dict[str, dict[str, An
 
     Keyed by the probe label alone, not by product and route: the label is
     what stays stable when a product is re-sourced, which is what keeps the
-    history continuous (§8 — two SNOTEL/CCSS labels are deliberately
-    inherited from a retired entry for exactly this reason), and it is the
-    only key the runs recorded before the catalog existed carry.
+    history continuous (§8 — the two station-archive labels were inherited
+    from a retired entry, then renamed in 0.3 with the history rewritten to
+    match), and it is the only key the runs recorded before the catalog
+    existed carry.
     """
     latest: dict[str, dict[str, Any]] = {}
     for run in history:  # newest first
@@ -363,7 +364,7 @@ def index_page(
     """Render the catalog index: every product, grouped by theme."""
     products = dict(products if products is not None else _registry.products())
     latest = latest or {}
-    themes = sorted({p.theme for p in products.values()})
+    themes = sorted({p.theme for p in products.values()}, key=_models.theme_order)
     lines = [
         "# Data catalog",
         "",
@@ -391,7 +392,7 @@ def index_page(
             (p for p in products.values() if p.theme == theme), key=lambda p: p.id
         )
         lines += [
-            f"## {theme}",
+            f"## {_models.THEME_TITLES.get(theme, theme)} (`esd.{theme}`)",
             "",
             "| product | id | routes | credentials | health |",
             "| --- | --- | --- | --- | --- |",
@@ -531,13 +532,20 @@ def credentials_page(products: dict[str, Product] | None = None) -> str:
         "",
         "| secret | used by |",
         "| --- | --- |",
-        "| `EARTHDATA_TOKEN` (or `EARTHDATA_USERNAME` + `EARTHDATA_PASSWORD`) | live tests, health probes, scheduled docs build |",
+        "| `EARTHDATA_USERNAME` + `EARTHDATA_PASSWORD` (`EARTHDATA_TOKEN` optional) | live tests, health probes, scheduled docs build |",
         "| `EARTHENGINE_TOKEN` | live tests, health probes, scheduled docs build |",
         "| `PL_API_KEY` | Planet live tests and the PlanetScope gallery example |",
         "| `NVE_API_KEY` | the NVE station live test and gallery example |",
         "",
         "Pull-request builds get none of them, by design: they run the offline test "
         "tiers and the credential-free subset of the gallery.",
+        "",
+        "Earthdata user tokens expire after about 60 days, which is how a green "
+        "pipeline turns red for no reason of its own. The workflows therefore hold "
+        "the username and password: `earthaccess` mints and renews a token from them "
+        "on every run, and if an `EARTHDATA_TOKEN` secret is also set and Earthdata "
+        "Login rejects it, the provider logs a warning and falls back to the "
+        "username and password rather than failing.",
         "",
     ]
     return "\n".join(lines)
@@ -614,7 +622,11 @@ def status_page(
     products: dict[str, Product] | None = None,
     now: Any = None,
 ) -> str:
-    """Render the health, latency and virtualization status page (§8)."""
+    """Render the health, latency and virtualization status page (§8).
+
+    Health rows are grouped by theme in catalog order, so the page reads like
+    the package does: one section per module, a product's routes together.
+    """
     products = dict(products if products is not None else _registry.products())
     latest = latest_status(history)
     run = history[0] if history else []
@@ -647,30 +659,33 @@ def status_page(
         "",
         "## Health",
         "",
-        "| route | product | status | last good | recent | note |",
-        "| --- | --- | --- | --- | --- | --- |",
+        "Grouped by module in catalog order; a product's routes are listed "
+        "together, the default route first.",
     ]
+    theme_of = {pid: p.theme for pid, p in products.items()}
+    order = {pid: i for i, pid in enumerate(products)}
+    grouped: dict[str, list[dict[str, Any]]] = {}
     for result in health:
-        label = result["source"]
-        product = result.get("product", "—")
-        good = next(
-            (
-                str(r.get("checked_at", ""))[:10]
-                for older in history
-                for r in older
-                if r["source"] == label and r["status"] == "pass"
+        theme = theme_of.get(str(result.get("product", "")), "retired")
+        grouped.setdefault(theme, []).append(result)
+    for theme in sorted(grouped, key=_models.theme_order):
+        known = theme in _models.KNOWN_THEMES
+        title = _models.THEME_TITLES.get(theme, theme.capitalize())
+        lines += [
+            "",
+            f"### {title}" + (f" (`esd.{theme}`)" if known else ""),
+            "",
+            "| route | product | status | last good | recent | note |",
+            "| --- | --- | --- | --- | --- | --- |",
+        ]
+        rows = sorted(
+            grouped[theme],
+            key=lambda r: (
+                order.get(str(r.get("product", "")), 10**6),
+                health.index(r),
             ),
-            "—",
         )
-        strip = "".join(
-            {"pass": "▪", "fail": "▴", "skip": "▫"}.get(status or "", " ")
-            for status in _series(history, label, "status")[-12:]
-        )
-        note = str(result.get("error") or "").replace("|", "\\|")[:90]
-        lines.append(
-            f"| {label} | `{product}` | {BADGES[result['status']]} | {good} | "
-            f"`{strip}` | {note} |"
-        )
+        lines += [_status_row(r, history) for r in rows]
     lines += [
         "",
         "`▪` answered · `▴` failed · `▫` skipped, oldest run on the left.",
@@ -688,7 +703,10 @@ def status_page(
             "| route | product | newest data | days behind | trend |",
             "| --- | --- | --- | --- | --- |",
         ]
-        for result in sorted(latency, key=lambda r: r["source"]):
+        for result in sorted(
+            latency,
+            key=lambda r: (order.get(str(r.get("product", "")), 10**6), r["source"]),
+        ):
             value = str(result.get("value", "")) or "—"
             lag = _lag_days(value, now) if result.get("value") else None
             series = [
@@ -776,6 +794,30 @@ def status_page(
             "",
         ]
     return "\n".join(lines)
+
+
+def _status_row(result: dict[str, Any], history: list[list[dict[str, Any]]]) -> str:
+    """One health row: route, product, badge, last good date, sparkline, note."""
+    label = result["source"]
+    product = result.get("product", "—")
+    good = next(
+        (
+            str(r.get("checked_at", ""))[:10]
+            for older in history
+            for r in older
+            if r["source"] == label and r["status"] == "pass"
+        ),
+        "—",
+    )
+    strip = "".join(
+        {"pass": "▪", "fail": "▴", "skip": "▫"}.get(status or "", " ")
+        for status in _series(history, label, "status")[-12:]
+    )
+    note = str(result.get("error") or "").replace("|", "\\|")[:90]
+    return (
+        f"| {label} | `{product}` | {BADGES[result['status']]} | {good} | "
+        f"`{strip}` | {note} |"
+    )
 
 
 def write_all(

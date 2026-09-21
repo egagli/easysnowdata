@@ -96,13 +96,16 @@ def test_interval_dicts_roundtrip():
 
 
 def test_swe_units_is_cm():
-    assert VARIABLES["swe_m"]["units"] == "cm", (
+    # DESIGN.md §3.2: `units` is the API's native unit, `output_units` what
+    # get_data() returns. SWE arrives in metres and leaves in centimetres.
+    assert VARIABLES["swe_m"]["units"] == "m"
+    assert VARIABLES["swe_m"]["output_units"] == "cm", (
         "swe_m should report cm (converted from metres)"
     )
 
 
 def test_snwd_units_is_cm():
-    assert VARIABLES["snwd_cm"]["units"] == "cm"
+    assert VARIABLES["snwd_cm"]["output_units"] == "cm"
 
 
 # ── _enrich_station (offline) ─────────────────────────────────────────────────

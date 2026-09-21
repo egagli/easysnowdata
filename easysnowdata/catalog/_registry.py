@@ -6,6 +6,7 @@ from collections.abc import Iterable, Mapping
 from types import MappingProxyType
 from typing import Any
 
+from easysnowdata.catalog import _models
 from easysnowdata.catalog._models import Product, validate
 
 __all__ = [
@@ -47,7 +48,8 @@ def get(product_id: str) -> Product:
 
 
 def themes() -> list[str]:
-    return sorted({p.theme for p in _PRODUCTS.values()})
+    """The themes with at least one product, in :data:`KNOWN_THEMES` order."""
+    return sorted({p.theme for p in _PRODUCTS.values()}, key=_models.theme_order)
 
 
 def _rows(items: Iterable[Product]) -> list[dict[str, Any]]:

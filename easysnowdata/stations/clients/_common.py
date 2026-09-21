@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 clients/_common.py
 ==================
@@ -14,8 +13,9 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Iterator
 from datetime import date, datetime
-from typing import Any, Iterator
+from typing import Any
 
 import requests
 
@@ -26,17 +26,19 @@ logger = logging.getLogger(__name__)
 #: The one shared interval vocabulary.  Clients map native duration codes
 #: to these values and back; values outside this set must never leak into
 #: records or artifacts.
-INTERVALS: frozenset[str] = frozenset({
-    "periodic",
-    "monthly",
-    "semi_monthly",
-    "daily",
-    "sub_daily",
-    "hourly",
-    "sub_hourly",
-    "instantaneous",
-    "annual",
-})
+INTERVALS: frozenset[str] = frozenset(
+    {
+        "periodic",
+        "monthly",
+        "semi_monthly",
+        "daily",
+        "sub_daily",
+        "hourly",
+        "sub_hourly",
+        "instantaneous",
+        "annual",
+    }
+)
 
 # ── Type vocabulary (DESIGN.md §3.2) ─────────────────────────────────────────
 
@@ -48,26 +50,28 @@ INTERVALS: frozenset[str] = frozenset({
 #: from ``precip``, a depth of *water*: they are not interconvertible, since
 #: 5 cm of new snow is roughly 5 mm of water rather than 50 mm. ``snwd`` is
 #: the snow already on the ground.
-TYPES: frozenset[str] = frozenset({
-    "swe",
-    "snwd",
-    "snowfall",
-    "temp",
-    "temp_max",
-    "temp_min",
-    "precip",
-    "rh",
-    "wind_spd",
-    "wind_gust",
-    "wind_dir",
-    "wind_run",
-    "solar",
-    "baro",
-    "density",
-    "snow_line",
-    "soil_moisture",
-    "other",
-})
+TYPES: frozenset[str] = frozenset(
+    {
+        "swe",
+        "snwd",
+        "snowfall",
+        "temp",
+        "temp_max",
+        "temp_min",
+        "precip",
+        "rh",
+        "wind_spd",
+        "wind_gust",
+        "wind_dir",
+        "wind_run",
+        "solar",
+        "baro",
+        "density",
+        "snow_line",
+        "soil_moisture",
+        "other",
+    }
+)
 
 # ── Missing-value sentinels (DESIGN.md §3.6) ─────────────────────────────────
 
@@ -79,6 +83,7 @@ MISSING_TOKENS: frozenset[str] = frozenset({"", "na", "nan", "null", "none"})
 
 
 # ── Small shared helpers ─────────────────────────────────────────────────────
+
 
 def coerce_list(value: list | tuple | set | str | int) -> list[str]:
     """Coerce a scalar or iterable of ids/codes to a list of strings."""
@@ -148,10 +153,11 @@ def filter_by_bbox(
 def chunk(items: list, size: int) -> Iterator[list]:
     """Yield successive ``size``-sized chunks of ``items``."""
     for i in range(0, len(items), size):
-        yield items[i:i + size]
+        yield items[i : i + size]
 
 
 # ── Shared HTTP retry loop (DESIGN.md §3.7) ──────────────────────────────────
+
 
 def request_with_retries(
     session: requests.Session,
@@ -177,18 +183,17 @@ def request_with_retries(
     """
     for attempt in range(1, max_retries + 1):
         try:
-            response = session.request(
-                method, url, params=params, timeout=timeout
-            )
+            response = session.request(method, url, params=params, timeout=timeout)
         except requests.exceptions.RequestException as exc:
             logger.warning(
                 "Request failed (attempt %d/%d): %s",
-                attempt, max_retries, exc,
+                attempt,
+                max_retries,
+                exc,
             )
             if attempt == max_retries:
                 raise error_cls(
-                    f"Request to {url} failed after "
-                    f"{max_retries} attempts: {exc}"
+                    f"Request to {url} failed after {max_retries} attempts: {exc}"
                 ) from exc
             time.sleep(backoff * attempt)
             continue
@@ -204,8 +209,7 @@ def request_with_retries(
 
         if response.status_code == 404:
             raise error_cls(
-                f"HTTP 404 Not Found: {url} "
-                f"(params={params!r}): {response.text[:300]}"
+                f"HTTP 404 Not Found: {url} (params={params!r}): {response.text[:300]}"
             )
 
         if response.status_code == 429:
@@ -216,27 +220,31 @@ def request_with_retries(
                     delay = float(backoff * attempt)
                 logger.warning(
                     "HTTP 429 from %s (attempt %d/%d) — retrying in %.1fs",
-                    url, attempt, max_retries, delay,
+                    url,
+                    attempt,
+                    max_retries,
+                    delay,
                 )
                 time.sleep(delay)
                 continue
             raise error_cls(
-                f"HTTP 429 Too Many Requests from {url} "
-                f"after {max_retries} attempts"
+                f"HTTP 429 Too Many Requests from {url} after {max_retries} attempts"
             )
 
         if response.status_code >= 500:
             logger.warning(
                 "HTTP %d from %s (attempt %d/%d) — retrying in %ds",
-                response.status_code, url,
-                attempt, max_retries, backoff * attempt,
+                response.status_code,
+                url,
+                attempt,
+                max_retries,
+                backoff * attempt,
             )
             if attempt < max_retries:
                 time.sleep(backoff * attempt)
                 continue
             raise error_cls(
-                f"HTTP {response.status_code} from {url} "
-                f"after {max_retries} attempts"
+                f"HTTP {response.status_code} from {url} after {max_retries} attempts"
             )
 
         raise error_cls(

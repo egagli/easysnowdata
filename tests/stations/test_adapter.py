@@ -526,7 +526,7 @@ def test_nve_client_is_constructible_without_a_key():
 
 
 def test_nve_raises_before_the_request_when_the_key_is_missing(monkeypatch):
-    from easysnowdata.utils import CredentialError
+    from easysnowdata.auth import CredentialError
 
     monkeypatch.delenv("NVE_API_KEY", raising=False)
     esd.auth.reset()
@@ -552,7 +552,7 @@ def test_the_nve_key_comes_from_the_auth_provider(monkeypatch):
 
 
 def test_loading_from_nve_without_a_key_names_the_provider(monkeypatch):
-    from easysnowdata.utils import CredentialError
+    from easysnowdata.auth import CredentialError
 
     monkeypatch.delenv("NVE_API_KEY", raising=False)
     esd.auth.reset()

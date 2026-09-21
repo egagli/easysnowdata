@@ -73,8 +73,8 @@ class TestRegistryContents:
             # Both station labels outlived the entry that introduced them:
             # they now probe the global_snow_networks archive, so the weekly
             # history keeps one continuous row each.
-            "SNOTEL/CCSS station list (GitHub)",
-            "SNOTEL/CCSS station CSV (GitHub)",
+            "Snow station inventory (global_snow_networks)",
+            "Snow station CSV (global_snow_networks)",
             "GRDC WMO basins",
             "Köppen-Geiger classification (figshare)",
             "ARCO-ERA5 (GCS anonymous)",
@@ -137,7 +137,14 @@ class TestQueries:
     def test_list_and_filters(self):
         table = catalog.list()
         assert isinstance(table, pd.DataFrame) and table.index.name == "id"
-        assert set(catalog.list(theme="terrain").index) == {"copernicus-dem", "chili"}
+        assert set(catalog.list(theme="terrain").index) == {
+            "copernicus-dem",
+            "nasadem",
+            "srtm",
+            "3dep",
+            "alos-dem",
+            "chili",
+        }
         assert "hls" in catalog.list(provider="stac").index
         # "huc" left this set in Phase 2: its default source is now the
         # credential-free USGS WBD REST service (§12 Q7).

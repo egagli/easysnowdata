@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 clients/yukon/yukon_client.py
 =============================
@@ -87,18 +86,27 @@ from __future__ import annotations
 import csv
 import io
 import logging
-import time
-from datetime import date, datetime
+from datetime import date
 from typing import Any
 
 import requests
 
 from .._common import (
     chunk as _chunked,
+)
+from .._common import (
     coerce_list as _coerce_list,
+)
+from .._common import (
     date_str as _date_str,
+)
+from .._common import (
     filter_by_bbox as _filter_by_bbox,
+)
+from .._common import (
     request_with_retries,
+)
+from .._common import (
     to_float as _to_float,
 )
 
@@ -133,13 +141,9 @@ _DATASET_URLS: dict[str, str] = {
 
 #: Operators, by station type.
 _OPERATORS: dict[str, str] = {
-    "SC": (
-        "Yukon Government Department of Environment, "
-        "Water Science and Stewardship"
-    ),
+    "SC": ("Yukon Government Department of Environment, Water Science and Stewardship"),
     "AWS": (
-        "Yukon Government Department of Environment, "
-        "Water Science and Stewardship"
+        "Yukon Government Department of Environment, Water Science and Stewardship"
     ),
     "ECCC": "Environment and Climate Change Canada",
 }
@@ -353,9 +357,7 @@ VARIABLES: dict[str, dict] = {
         "units": "kPa",
         "output_units": "hPa",
         "source": _YUKON_DATA_SOURCE + " (parameter 'barometric pressure')",
-        "description": (
-            "Barometric pressure. Converted in-client from kPa to hPa."
-        ),
+        "description": ("Barometric pressure. Converted in-client from kPa to hPa."),
         "notes": (
             "Native units: kPa; emitted as hPa (× 10), which is DESIGN.md "
             "§3.5's canonical unit for `baro` and what the DataBC client "
@@ -496,9 +498,7 @@ QUALIFIER_FLAGS: dict[str, str] = {
 
 #: Flags specific to ``/snow-survey/data``.
 SNOW_SURVEY_FLAGS: dict[str, str] = {
-    "Actual": (
-        "Averaged from actual snow depth and snow water equivalent readings"
-    ),
+    "Actual": ("Averaged from actual snow depth and snow water equivalent readings"),
     "Estimated SWE": (
         "Averaged from actual snow depth readings with snow water equivalent "
         "estimated from current depth and average historical density"
@@ -527,6 +527,7 @@ DATA_FLAGS: dict[str, str] = {
 
 # ── Helper functions ─────────────────────────────────────────────────────────
 
+
 def _to_bool(value: Any) -> bool:
     """Parse an AquaCache ``TRUE``/``FALSE`` CSV field."""
     return str(value).strip().upper() == "TRUE"
@@ -542,7 +543,7 @@ def _normalize_value(value: Any) -> float | None:
 
 #: Native → emitted conversions, keyed by variable (DESIGN.md §3.5).
 _OUTPUT_CONVERSIONS: dict[str, Any] = {
-    "swe_mm": lambda v: round(v / 10.0, 3),        # mm → cm
+    "swe_mm": lambda v: round(v / 10.0, 3),  # mm → cm
     "baro_press_kpa": lambda v: round(v * 10.0, 3),  # kPa → hPa
 }
 
@@ -594,8 +595,12 @@ def _strip_api_comments(text: str) -> str:
     start = 0
     for idx, line in enumerate(lines):
         stripped = line.strip()
-        if stripped.startswith('"#') or stripped.startswith("#") \
-                or stripped == '""' or stripped == "":
+        if (
+            stripped.startswith('"#')
+            or stripped.startswith("#")
+            or stripped == '""'
+            or stripped == ""
+        ):
             start = idx + 1
             continue
         break
@@ -618,9 +623,7 @@ def _parse_csv(text: str) -> list[dict]:
     reader = csv.DictReader(io.StringIO(body))
     if set(reader.fieldnames or []) == _STATUS_ENVELOPE_FIELDS:
         for row in reader:
-            logger.debug(
-                "API returned a status envelope: %s", row.get("message", "")
-            )
+            logger.debug("API returned a status envelope: %s", row.get("message", ""))
         return []
     return [dict(row) for row in reader]
 
@@ -766,7 +769,8 @@ def _station_state(
 
     logger.debug(
         "Station %s (%s) lies outside Yukon with no declared jurisdiction",
-        station_id, name,
+        station_id,
+        name,
     )
     return ""
 
@@ -784,6 +788,7 @@ def _course_status(last_survey: str | None) -> str:
 
 
 # ── Client ───────────────────────────────────────────────────────────────────
+
 
 class YukonClient:
     """
@@ -878,14 +883,14 @@ class YukonClient:
         if location_types is not None:
             wanted_types = {t.lower() for t in _coerce_list(location_types)}
             result = [
-                loc for loc in result
+                loc
+                for loc in result
                 if (loc.get("location_type") or "").lower() in wanted_types
             ]
         if networks is not None:
             wanted_nets = set(_coerce_list(networks))
             result = [
-                loc for loc in result
-                if wanted_nets & set(loc.get("networks") or [])
+                loc for loc in result if wanted_nets & set(loc.get("networks") or [])
             ]
         return _filter_by_bbox(result, bbox)
 
@@ -942,9 +947,7 @@ class YukonClient:
             result = [s for s in result if s.get("publicly_visible")]
         if location_ids is not None:
             wanted_locs = set(_coerce_list(location_ids))
-            result = [
-                s for s in result if str(s.get("location_id")) in wanted_locs
-            ]
+            result = [s for s in result if str(s.get("location_id")) in wanted_locs]
         if variables is not None:
             wanted_vars = set(_resolve_variables(variables))
             result = [s for s in result if s.get("variable") in wanted_vars]
@@ -1007,7 +1010,8 @@ class YukonClient:
             if not meta:
                 logger.debug(
                     "Snow course %s absent from /snow-survey/metadata — "
-                    "deriving survey dates from /snow-survey/data", code,
+                    "deriving survey dates from /snow-survey/data",
+                    code,
                 )
             first_survey = (meta.get("first_survey") or "").strip()
             last_survey = (meta.get("last_survey") or "").strip()
@@ -1023,42 +1027,42 @@ class YukonClient:
                     ("15-May", "may15_surveys"),
                 )
             }
-            stations.append({
-                "station_id": code,
-                "location_id": loc["location_id"],
-                "location_code": code,
-                # /locations carries the canonical name; metadata repeats it.
-                "name": loc["name"] or (meta.get("location_name") or "").strip(),
-                "latitude": loc["latitude"],
-                "longitude": loc["longitude"],
-                "elevation_m": loc["elevation_m"],
-                "state": _station_state(
-                    code, loc["name"], loc["latitude"], loc["longitude"]
-                ),
-                "station_type": "SC",
-                "network": SNOW_SURVEY_NETWORK,
-                "network_code": NETWORK_CODES["SC"],
-                "operator": _OPERATORS["SC"],
-                "status": _course_status(last_survey),
-                "note": loc.get("note") or (meta.get("note") or "").strip(),
-                "datum": loc.get("datum", ""),
-                "sub_basin": (meta.get("sub_basin") or "").strip(),
-                "first_survey": first_survey,
-                "last_survey": last_survey,
-                "survey_counts": surveys,
-                "has_survey_metadata": bool(meta),
-                "station_url": _EXPLORER_URL,
-                "dataset_url": _DATASET_URLS["SC"],
-                # Courses are measured manually for SWE and depth alike.
-                "variables": list(SNOW_VARIABLES),
-                "series": [],
-            })
+            stations.append(
+                {
+                    "station_id": code,
+                    "location_id": loc["location_id"],
+                    "location_code": code,
+                    # /locations carries the canonical name; metadata repeats it.
+                    "name": loc["name"] or (meta.get("location_name") or "").strip(),
+                    "latitude": loc["latitude"],
+                    "longitude": loc["longitude"],
+                    "elevation_m": loc["elevation_m"],
+                    "state": _station_state(
+                        code, loc["name"], loc["latitude"], loc["longitude"]
+                    ),
+                    "station_type": "SC",
+                    "network": SNOW_SURVEY_NETWORK,
+                    "network_code": NETWORK_CODES["SC"],
+                    "operator": _OPERATORS["SC"],
+                    "status": _course_status(last_survey),
+                    "note": loc.get("note") or (meta.get("note") or "").strip(),
+                    "datum": loc.get("datum", ""),
+                    "sub_basin": (meta.get("sub_basin") or "").strip(),
+                    "first_survey": first_survey,
+                    "last_survey": last_survey,
+                    "survey_counts": surveys,
+                    "has_survey_metadata": bool(meta),
+                    "station_url": _EXPLORER_URL,
+                    "dataset_url": _DATASET_URLS["SC"],
+                    # Courses are measured manually for SWE and depth alike.
+                    "variables": list(SNOW_VARIABLES),
+                    "series": [],
+                }
+            )
 
         if active_only:
             stations = [s for s in stations if s["status"] == "Active"]
-        return _filter_by_bbox(
-            sorted(stations, key=lambda s: s["station_id"]), bbox
-        )
+        return _filter_by_bbox(sorted(stations, key=lambda s: s["station_id"]), bbox)
 
     def _course_survey_span(self, location_code: str) -> tuple[str, str]:
         """Return ``(first, last)`` survey dates for a course from its data."""
@@ -1113,22 +1117,19 @@ class YukonClient:
         for series in self.get_timeseries():
             series_by_loc.setdefault(str(series["location_id"]), []).append(series)
 
-        locations = {
-            str(loc["location_id"]): loc for loc in self.get_locations()
-        }
+        locations = {str(loc["location_id"]): loc for loc in self.get_locations()}
 
         stations: list[dict] = []
         for loc_id, all_series in series_by_loc.items():
-            snow_series = [
-                s for s in all_series if s["variable"] in SNOW_VARIABLES
-            ]
+            snow_series = [s for s in all_series if s["variable"] in SNOW_VARIABLES]
             if not snow_series:
                 continue
             loc = locations.get(loc_id)
             if loc is None:
                 logger.debug(
                     "Timeseries reference location_id %s absent from "
-                    "/locations — skipping", loc_id,
+                    "/locations — skipping",
+                    loc_id,
                 )
                 continue
             loc_nets = set(loc.get("networks") or [])
@@ -1138,42 +1139,42 @@ class YukonClient:
             stype = "ECCC" if ECCC_NETWORK in loc_nets else "AWS"
             network = ECCC_NETWORK if stype == "ECCC" else SNOW_SURVEY_NETWORK
             status = (
-                "Active"
-                if any(s.get("active") for s in snow_series)
-                else "Inactive"
+                "Active" if any(s.get("active") for s in snow_series) else "Inactive"
             )
-            stations.append({
-                "station_id": loc["location_code"],
-                "location_id": loc["location_id"],
-                "location_code": loc["location_code"],
-                "name": loc["name"],
-                "latitude": loc["latitude"],
-                "longitude": loc["longitude"],
-                "elevation_m": loc["elevation_m"],
-                "state": _station_state(
-                    loc["location_code"], loc["name"],
-                    loc["latitude"], loc["longitude"],
-                ),
-                "station_type": stype,
-                "network": network,
-                "network_code": NETWORK_CODES[stype],
-                "operator": _OPERATORS[stype],
-                "status": status,
-                "note": loc.get("note", ""),
-                "alias": loc.get("alias", ""),
-                "datum": loc.get("datum", ""),
-                "networks": sorted(loc_nets),
-                "station_url": _EXPLORER_URL,
-                "dataset_url": _DATASET_URLS[stype],
-                "variables": sorted({s["variable"] for s in all_series}),
-                "series": sorted(all_series, key=lambda s: s["timeseries_id"]),
-            })
+            stations.append(
+                {
+                    "station_id": loc["location_code"],
+                    "location_id": loc["location_id"],
+                    "location_code": loc["location_code"],
+                    "name": loc["name"],
+                    "latitude": loc["latitude"],
+                    "longitude": loc["longitude"],
+                    "elevation_m": loc["elevation_m"],
+                    "state": _station_state(
+                        loc["location_code"],
+                        loc["name"],
+                        loc["latitude"],
+                        loc["longitude"],
+                    ),
+                    "station_type": stype,
+                    "network": network,
+                    "network_code": NETWORK_CODES[stype],
+                    "operator": _OPERATORS[stype],
+                    "status": status,
+                    "note": loc.get("note", ""),
+                    "alias": loc.get("alias", ""),
+                    "datum": loc.get("datum", ""),
+                    "networks": sorted(loc_nets),
+                    "station_url": _EXPLORER_URL,
+                    "dataset_url": _DATASET_URLS[stype],
+                    "variables": sorted({s["variable"] for s in all_series}),
+                    "series": sorted(all_series, key=lambda s: s["timeseries_id"]),
+                }
+            )
 
         if active_only:
             stations = [s for s in stations if s["status"] == "Active"]
-        return _filter_by_bbox(
-            sorted(stations, key=lambda s: s["station_id"]), bbox
-        )
+        return _filter_by_bbox(sorted(stations, key=lambda s: s["station_id"]), bbox)
 
     def get_all_stations(
         self,
@@ -1468,9 +1469,7 @@ class YukonClient:
         """
         params: dict[str, Any] = {
             "id": ",".join(_coerce_list(timeseries_ids)),
-            "start": (
-                str(begin_date)[:16] if begin_date else f"{_EPOCH} 00:00"
-            ),
+            "start": (str(begin_date)[:16] if begin_date else f"{_EPOCH} 00:00"),
             "limit": _ROW_LIMIT,
         }
         if end_date:
@@ -1581,8 +1580,13 @@ class YukonClient:
             return []
 
         interval_key = str(interval or "daily").lower()
-        if interval_key not in ("daily", "hourly", "sub_daily",
-                                "instantaneous", "periodic"):
+        if interval_key not in (
+            "daily",
+            "hourly",
+            "sub_daily",
+            "instantaneous",
+            "periodic",
+        ):
             # No silent fallback (DESIGN.md §3.6): anything unrecognised
             # used to be routed to the instantaneous endpoint.
             raise YukonError(
@@ -1641,7 +1645,8 @@ class YukonClient:
                 "No continuous series for %d requested station(s) and "
                 "variables %s — snow courses hold periodic data only "
                 "(interval='periodic')",
-                len(codes), var_keys,
+                len(codes),
+                var_keys,
             )
             return []
 
@@ -1666,7 +1671,8 @@ class YukonClient:
                 logger.warning(
                     "Row limit %d reached for timeseries %s — refetching "
                     "each series individually",
-                    _ROW_LIMIT, batch,
+                    _ROW_LIMIT,
+                    batch,
                 )
                 rows = []
                 for one in batch:
@@ -1688,9 +1694,7 @@ class YukonClient:
                 code = code_by_loc_id.get(str(ser["location_id"]))
                 if code is None:
                     continue
-                rec = self._build_record(
-                    row, ser, code, want_daily, include_flags
-                )
+                rec = self._build_record(row, ser, code, want_daily, include_flags)
                 if rec is not None:
                     records.append(rec)
         return records
@@ -1754,9 +1758,7 @@ class YukonClient:
             parts.append(f"grade:{grade}")
         if approval:
             parts.append(f"approval:{approval}")
-        for qual in _parse_pg_array(qualifiers) or (
-            [qualifiers] if qualifiers else []
-        ):
+        for qual in _parse_pg_array(qualifiers) or ([qualifiers] if qualifiers else []):
             parts.append(f"qualifier:{qual}")
         return "; ".join(parts)
 
@@ -1858,8 +1860,12 @@ class YukonClient:
         """
         url = f"{self.base_url}/{endpoint}"
         response = request_with_retries(
-            self._session, url, params=params, error_cls=YukonError,
-            timeout=self.timeout, max_retries=self.max_retries,
+            self._session,
+            url,
+            params=params,
+            error_cls=YukonError,
+            timeout=self.timeout,
+            max_retries=self.max_retries,
             backoff=self.backoff,
         )
         return response.text
@@ -1867,11 +1873,13 @@ class YukonClient:
 
 # ── Exception ────────────────────────────────────────────────────────────────
 
+
 class YukonError(Exception):
     """Raised when the Yukon AquaCache API returns an error or a request fails."""
 
 
 # ── Private helpers ───────────────────────────────────────────────────────────
+
 
 def _resolve_variables(variables: list[str] | str | None) -> list[str]:
     """

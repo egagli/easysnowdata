@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 clients/awdb_client.py
 ======================
@@ -56,9 +55,17 @@ import requests
 
 from .._common import (
     chunk as _chunk,
+)
+from .._common import (
     coerce_list as _coerce_list,
+)
+from .._common import (
     date_str as _date_str,
+)
+from .._common import (
     filter_by_bbox as _filter_by_bbox,
+)
+from .._common import (
     request_with_retries,
 )
 
@@ -72,9 +79,9 @@ BASE_URL = "https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1"
 # request.  We keep a comfortable margin below the documented 500,000 limit.
 _MAX_VALUES = 450_000
 
-_DEFAULT_TIMEOUT = 180      # seconds
+_DEFAULT_TIMEOUT = 180  # seconds
 _DEFAULT_RETRIES = 3
-_DEFAULT_BACKOFF = 6        # seconds (multiplied by attempt number)
+_DEFAULT_BACKOFF = 6  # seconds (multiplied by attempt number)
 
 #: Known AWDB element codes with standardized type and unit metadata.
 #: Elements not listed here are returned with ``type="other"``.
@@ -84,43 +91,162 @@ _DEFAULT_BACKOFF = 6        # seconds (multiplied by attempt number)
 _AWDB_DATA_SOURCE = "USDA NRCS AWDB REST API v1 — /data endpoint"
 
 VARIABLES: dict[str, dict] = {
-    "WTEQ":   {"name": "Snow Water Equivalent",          "type": "swe",       "units": "in",      "output_units": "cm",      "description": "Snow water equivalent. Converted in-client from inches to cm.", "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "SNWD":   {"name": "Snow Depth",                     "type": "snwd",      "units": "in",      "output_units": "cm",      "description": "Snow depth. Converted in-client from inches to cm.",            "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "TAVG":   {"name": "Average Air Temperature",         "type": "temp",      "units": "°F",      "output_units": "°C",      "description": "Daily average air temperature. Converted in-client to °C.",     "notes": "Preferred over TOBS for the `temp` type: it is the daily mean, whereas TOBS is a single instantaneous reading. Over Jan-Mar 2021 TOBS ran 1.0-2.2 °C colder than TAVG across four SNOTEL sites.", "source": _AWDB_DATA_SOURCE},
-    "TOBS":   {"name": "Air Temperature (observed)",     "type": "temp",      "units": "°F",      "output_units": "°C",      "description": "Instantaneous air temperature at observation time. Converted in-client to °C.", "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "TMAX":   {"name": "Maximum Air Temperature",        "type": "temp_max",  "units": "°F",      "output_units": "°C",      "description": "Daily maximum air temperature. Converted in-client to °C.",     "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "TMIN":   {"name": "Minimum Air Temperature",        "type": "temp_min",  "units": "°F",      "output_units": "°C",      "description": "Daily minimum air temperature. Converted in-client to °C.",     "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "PREC":   {"name": "Precipitation Accumulation",     "type": "precip",    "units": "in",      "output_units": "mm",      "description": "Cumulative seasonal precipitation accumulation. Converted in-client to mm.", "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "PRCP":   {"name": "Precipitation Increment",        "type": "precip",    "units": "in",      "output_units": "mm",      "description": "Precipitation increment since last observation. Converted in-client to mm.", "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "PRCPSA": {"name": "Precipitation Accumulation (storm)", "type": "precip","units": "in",      "output_units": "mm",      "description": "Storm-period precipitation accumulation. Converted in-client to mm.", "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "RHUM":   {"name": "Relative Humidity",              "type": "rh",        "units": "%",       "output_units": "%",       "description": "Relative humidity percentage.",                                 "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "WSPDV":  {"name": "Wind Speed Average",             "type": "wind_spd",  "units": "mph",     "output_units": "km/h",    "description": "Average wind speed. Converted in-client to km/h.",              "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "WSPDX":  {"name": "Wind Speed Maximum (Gust)",      "type": "wind_gust", "units": "mph",     "output_units": "km/h",    "description": "Maximum (gust) wind speed. Converted in-client to km/h.",       "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "WDIRV":  {"name": "Wind Direction",                 "type": "wind_dir",  "units": "degrees", "output_units": "degrees", "description": "Wind direction in degrees from north (0–360).",                "notes": "",  "source": _AWDB_DATA_SOURCE},
-    "SRADV":  {"name": "Solar Radiation Average",        "type": "solar",     "units": "W/m²",    "output_units": "W/m²",    "description": "Average solar radiation.",                                      "notes": "",  "source": _AWDB_DATA_SOURCE},
+    "WTEQ": {
+        "name": "Snow Water Equivalent",
+        "type": "swe",
+        "units": "in",
+        "output_units": "cm",
+        "description": "Snow water equivalent. Converted in-client from inches to cm.",
+        "notes": "",
+        "source": _AWDB_DATA_SOURCE,
+    },
+    "SNWD": {
+        "name": "Snow Depth",
+        "type": "snwd",
+        "units": "in",
+        "output_units": "cm",
+        "description": "Snow depth. Converted in-client from inches to cm.",
+        "notes": "",
+        "source": _AWDB_DATA_SOURCE,
+    },
+    "TAVG": {
+        "name": "Average Air Temperature",
+        "type": "temp",
+        "units": "°F",
+        "output_units": "°C",
+        "description": "Daily average air temperature. Converted in-client to °C.",
+        "notes": "Preferred over TOBS for the `temp` type: it is the daily mean, whereas TOBS is a single instantaneous reading. Over Jan-Mar 2021 TOBS ran 1.0-2.2 °C colder than TAVG across four SNOTEL sites.",
+        "source": _AWDB_DATA_SOURCE,
+    },
+    "TOBS": {
+        "name": "Air Temperature (observed)",
+        "type": "temp",
+        "units": "°F",
+        "output_units": "°C",
+        "description": "Instantaneous air temperature at observation time. Converted in-client to °C.",
+        "notes": "",
+        "source": _AWDB_DATA_SOURCE,
+    },
+    "TMAX": {
+        "name": "Maximum Air Temperature",
+        "type": "temp_max",
+        "units": "°F",
+        "output_units": "°C",
+        "description": "Daily maximum air temperature. Converted in-client to °C.",
+        "notes": "",
+        "source": _AWDB_DATA_SOURCE,
+    },
+    "TMIN": {
+        "name": "Minimum Air Temperature",
+        "type": "temp_min",
+        "units": "°F",
+        "output_units": "°C",
+        "description": "Daily minimum air temperature. Converted in-client to °C.",
+        "notes": "",
+        "source": _AWDB_DATA_SOURCE,
+    },
+    "PREC": {
+        "name": "Precipitation Accumulation",
+        "type": "precip",
+        "units": "in",
+        "output_units": "mm",
+        "description": "Cumulative seasonal precipitation accumulation. Converted in-client to mm.",
+        "notes": "",
+        "source": _AWDB_DATA_SOURCE,
+    },
+    "PRCP": {
+        "name": "Precipitation Increment",
+        "type": "precip",
+        "units": "in",
+        "output_units": "mm",
+        "description": "Precipitation increment since last observation. Converted in-client to mm.",
+        "notes": "",
+        "source": _AWDB_DATA_SOURCE,
+    },
+    "PRCPSA": {
+        "name": "Precipitation Accumulation (storm)",
+        "type": "precip",
+        "units": "in",
+        "output_units": "mm",
+        "description": "Storm-period precipitation accumulation. Converted in-client to mm.",
+        "notes": "",
+        "source": _AWDB_DATA_SOURCE,
+    },
+    "RHUM": {
+        "name": "Relative Humidity",
+        "type": "rh",
+        "units": "%",
+        "output_units": "%",
+        "description": "Relative humidity percentage.",
+        "notes": "",
+        "source": _AWDB_DATA_SOURCE,
+    },
+    "WSPDV": {
+        "name": "Wind Speed Average",
+        "type": "wind_spd",
+        "units": "mph",
+        "output_units": "km/h",
+        "description": "Average wind speed. Converted in-client to km/h.",
+        "notes": "",
+        "source": _AWDB_DATA_SOURCE,
+    },
+    "WSPDX": {
+        "name": "Wind Speed Maximum (Gust)",
+        "type": "wind_gust",
+        "units": "mph",
+        "output_units": "km/h",
+        "description": "Maximum (gust) wind speed. Converted in-client to km/h.",
+        "notes": "",
+        "source": _AWDB_DATA_SOURCE,
+    },
+    "WDIRV": {
+        "name": "Wind Direction",
+        "type": "wind_dir",
+        "units": "degrees",
+        "output_units": "degrees",
+        "description": "Wind direction in degrees from north (0–360).",
+        "notes": "",
+        "source": _AWDB_DATA_SOURCE,
+    },
+    "SRADV": {
+        "name": "Solar Radiation Average",
+        "type": "solar",
+        "units": "W/m²",
+        "output_units": "W/m²",
+        "description": "Average solar radiation.",
+        "notes": "",
+        "source": _AWDB_DATA_SOURCE,
+    },
 }
 
 # In-client metric conversions (DESIGN.md §3.5), keyed by element code.
 # (transform, emitted unit).  Elements not listed pass through with their
 # registry output_units (they are already metric).
 _METRIC_CONVERSIONS: dict[str, tuple] = {
-    "WTEQ":   (lambda v: v * 2.54, "cm"),
-    "SNWD":   (lambda v: v * 2.54, "cm"),
-    "TAVG":   (lambda v: (v - 32.0) * 5.0 / 9.0, "°C"),
-    "TOBS":   (lambda v: (v - 32.0) * 5.0 / 9.0, "°C"),
-    "TMAX":   (lambda v: (v - 32.0) * 5.0 / 9.0, "°C"),
-    "TMIN":   (lambda v: (v - 32.0) * 5.0 / 9.0, "°C"),
-    "PREC":   (lambda v: v * 25.4, "mm"),
-    "PRCP":   (lambda v: v * 25.4, "mm"),
+    "WTEQ": (lambda v: v * 2.54, "cm"),
+    "SNWD": (lambda v: v * 2.54, "cm"),
+    "TAVG": (lambda v: (v - 32.0) * 5.0 / 9.0, "°C"),
+    "TOBS": (lambda v: (v - 32.0) * 5.0 / 9.0, "°C"),
+    "TMAX": (lambda v: (v - 32.0) * 5.0 / 9.0, "°C"),
+    "TMIN": (lambda v: (v - 32.0) * 5.0 / 9.0, "°C"),
+    "PREC": (lambda v: v * 25.4, "mm"),
+    "PRCP": (lambda v: v * 25.4, "mm"),
     "PRCPSA": (lambda v: v * 25.4, "mm"),
-    "WSPDV":  (lambda v: v * 1.609344, "km/h"),
-    "WSPDX":  (lambda v: v * 1.609344, "km/h"),
+    "WSPDV": (lambda v: v * 1.609344, "km/h"),
+    "WSPDX": (lambda v: v * 1.609344, "km/h"),
 }
 
 # Unit codes that mean the payload is ALREADY metric — if AWDB ever serves
 # these for a convertible element, the transform must be skipped.
 _ALREADY_METRIC_UNIT_CODES = {
-    "cm", "mm", "m", "degC", "°C", "km/h", "kph", "metric",
+    "cm",
+    "mm",
+    "m",
+    "degC",
+    "°C",
+    "km/h",
+    "kph",
+    "metric",
 }
 
 #: The AWDB REST API v1 does not return per-value QC flags, so this
@@ -135,43 +261,43 @@ SNOW_ELEMENTS: tuple[str, ...] = ("WTEQ", "SNWD")
 
 # Standardized interval → AWDB duration name
 _INTERVAL_TO_AWDB_DURATION: dict[str, str] = {
-    "daily":         "DAILY",
-    "hourly":        "HOURLY",
-    "monthly":       "MONTHLY",
-    "semi_monthly":  "SEMIMONTHLY",
-    "annual":        "ANNUAL",
-    "sub_daily":     "HOURLY",
+    "daily": "DAILY",
+    "hourly": "HOURLY",
+    "monthly": "MONTHLY",
+    "semi_monthly": "SEMIMONTHLY",
+    "annual": "ANNUAL",
+    "sub_daily": "HOURLY",
     "instantaneous": "INSTANTANEOUS",
 }
 # AWDB duration name → standardized interval
 _AWDB_DURATION_TO_INTERVAL: dict[str, str] = {
-    "DAILY":         "daily",
-    "HOURLY":        "hourly",
-    "MONTHLY":       "monthly",
-    "SEMIMONTHLY":   "semi_monthly",
-    "ANNUAL":        "annual",
+    "DAILY": "daily",
+    "HOURLY": "hourly",
+    "MONTHLY": "monthly",
+    "SEMIMONTHLY": "semi_monthly",
+    "ANNUAL": "annual",
     "CALENDAR_YEAR": "annual",
-    "WATER_YEAR":    "annual",
-    "EVENT":         "sub_daily",
+    "WATER_YEAR": "annual",
+    "EVENT": "sub_daily",
     "INSTANTANEOUS": "instantaneous",
 }
 # Standardized type → AWDB element code(s)
 _TYPE_TO_ELEMENTS: dict[str, list[str]] = {
-    "swe":       ["WTEQ"],
-    "snwd":      ["SNWD"],
+    "swe": ["WTEQ"],
+    "snwd": ["SNWD"],
     # TAVG leads deliberately. Consumers that flatten several elements of one
     # type into a single series take the first non-null, so the daily mean
     # wins over the instantaneous reading — which is what CDEC already does
     # in practice, where only sensor 30 (TEMP AV) carries a daily series.
-    "temp":      ["TAVG", "TOBS", "TMAX", "TMIN"],
-    "temp_max":  ["TMAX"],
-    "temp_min":  ["TMIN"],
-    "precip":    ["PREC", "PRCP", "PRCPSA"],
-    "rh":        ["RHUM"],
-    "wind_spd":  ["WSPDV"],
+    "temp": ["TAVG", "TOBS", "TMAX", "TMIN"],
+    "temp_max": ["TMAX"],
+    "temp_min": ["TMIN"],
+    "precip": ["PREC", "PRCP", "PRCPSA"],
+    "rh": ["RHUM"],
+    "wind_spd": ["WSPDV"],
     "wind_gust": ["WSPDX"],
-    "wind_dir":  ["WDIRV"],
-    "solar":     ["SRADV"],
+    "wind_dir": ["WDIRV"],
+    "solar": ["SRADV"],
 }
 
 
@@ -211,6 +337,7 @@ def _resolve_variables_to_awdb(variables: list[str] | str | None) -> list[str]:
 
 
 # ── Client ───────────────────────────────────────────────────────────────────
+
 
 class AWDBClient:
     """
@@ -352,8 +479,7 @@ class AWDBClient:
         if states:
             states_set = {s.upper() for s in _coerce_list(states)}
             results = [
-                s for s in results
-                if s.get("stateCode", "").upper() in states_set
+                s for s in results if s.get("stateCode", "").upper() in states_set
             ]
         return results
 
@@ -439,12 +565,8 @@ class AWDBClient:
                 "stationTriplets": ",".join(batch),
                 "elements": elements_str,
                 "returnStationElements": "true",
-                "returnForecastPointMetadata": str(
-                    include_forecast_point
-                ).lower(),
-                "returnReservoirMetadata": str(
-                    include_reservoir
-                ).lower(),
+                "returnForecastPointMetadata": str(include_forecast_point).lower(),
+                "returnReservoirMetadata": str(include_reservoir).lower(),
                 "activeOnly": str(active_only).lower(),
             }
             if durations != "*":
@@ -568,16 +690,19 @@ class AWDBClient:
         elements = _coerce_list(elements)
 
         begin_str = _date_str(begin_date) if begin_date else "1800-01-01"
-        end_str   = _date_str(end_date)   if end_date   else date.today().isoformat()
+        end_str = _date_str(end_date) if end_date else date.today().isoformat()
 
-        n_days     = (date.fromisoformat(end_str) - date.fromisoformat(begin_str)).days + 1
+        n_days = (date.fromisoformat(end_str) - date.fromisoformat(begin_str)).days + 1
         n_elements = len(elements)
         # Cap at 75 stations per batch to avoid HTTP 414 (URL too long)
         batch_size = min(75, max(1, _MAX_VALUES // (n_elements * max(n_days, 1))))
 
         logger.debug(
             "get_data: %d stations, %d elements, %d days → batch_size=%d",
-            len(triplets), n_elements, n_days, batch_size,
+            len(triplets),
+            n_elements,
+            n_days,
+            batch_size,
         )
 
         # Accumulate results keyed by triplet so we can merge batches
@@ -586,11 +711,11 @@ class AWDBClient:
         for batch in _chunk(triplets, batch_size):
             params: dict[str, str] = {
                 "stationTriplets": ",".join(batch),
-                "elements":        ",".join(elements),
-                "duration":        duration,
-                "beginDate":       begin_str,
-                "endDate":         end_str,
-                "periodRef":       period_ref,
+                "elements": ",".join(elements),
+                "duration": duration,
+                "beginDate": begin_str,
+                "endDate": end_str,
+                "periodRef": period_ref,
             }
             if central_tendency_type:
                 params["centralTendencyType"] = central_tendency_type
@@ -598,7 +723,9 @@ class AWDBClient:
             batch_result = self._get("data", params)
 
             if not isinstance(batch_result, list):
-                logger.warning("Unexpected response type from /data: %s", type(batch_result))
+                logger.warning(
+                    "Unexpected response type from /data: %s", type(batch_result)
+                )
                 continue
 
             self._convert_data_response_to_metric(batch_result)
@@ -641,8 +768,7 @@ class AWDBClient:
                         self._convert_value_record(rec, transform)
                 elif values:
                     data_block["values"] = [
-                        self._convert_scalar_value(v, transform)
-                        for v in values
+                        self._convert_scalar_value(v, transform) for v in values
                     ]
 
                 if station_element.get("originalUnitCode"):
@@ -655,9 +781,7 @@ class AWDBClient:
     def _convert_value_record(rec: dict, transform) -> None:
         for key in ("value", "average", "median"):
             if key in rec:
-                rec[key] = AWDBClient._convert_scalar_value(
-                    rec.get(key), transform
-                )
+                rec[key] = AWDBClient._convert_scalar_value(rec.get(key), transform)
 
     @staticmethod
     def _convert_scalar_value(value: Any, transform) -> float | None:
@@ -703,7 +827,7 @@ class AWDBClient:
             not the flat records of :meth:`get_data`).
         """
         begin = f"{water_year - 1}-10-01"
-        end   = f"{water_year}-09-30"
+        end = f"{water_year}-09-30"
         return self._get_data_awdb(
             triplets=triplets,
             elements=elements,
@@ -712,7 +836,6 @@ class AWDBClient:
             end_date=end,
             **kwargs,
         )
-
 
     def get_normals(
         self,
@@ -758,7 +881,6 @@ class AWDBClient:
             end_date=f"{end_year}-09-30",
             central_tendency_type=central_tendency_type,
         )
-
 
     def get_all_stations(
         self,
@@ -869,9 +991,7 @@ class AWDBClient:
             for block in station_data.get("data", []):
                 elem_info = block.get("stationElement", {})
                 elem_code = str(elem_info.get("elementCode") or "")
-                dur_name = str(
-                    elem_info.get("durationName") or "DAILY"
-                ).upper()
+                dur_name = str(elem_info.get("durationName") or "DAILY").upper()
                 var_info = VARIABLES.get(elem_code, {})
                 units = str(
                     elem_info.get("convertedUnitCode")
@@ -926,8 +1046,12 @@ class AWDBClient:
         """
         url = f"{self.base_url}/{endpoint}"
         response = request_with_retries(
-            self._session, url, params=params, error_cls=AWDBError,
-            timeout=self.timeout, max_retries=self.max_retries,
+            self._session,
+            url,
+            params=params,
+            error_cls=AWDBError,
+            timeout=self.timeout,
+            max_retries=self.max_retries,
             backoff=self.backoff,
         )
         return response.json()
@@ -935,11 +1059,13 @@ class AWDBClient:
 
 # ── Exceptions ────────────────────────────────────────────────────────────────
 
+
 class AWDBError(Exception):
     """Raised when the AWDB API returns an error or a request fails."""
 
 
 # ── Private helpers ───────────────────────────────────────────────────────────
+
 
 def _enrich_awdb_station(sta: dict) -> None:
     """Add station_url, station_image_url, elevation_m, status in-place."""
@@ -948,9 +1074,7 @@ def _enrich_awdb_station(sta: dict) -> None:
     # station_url — NRCS site page for SNOTEL networks
     if not sta.get("station_url"):
         if network in {"SNTL", "SNTLT"} and sid:
-            sta["station_url"] = (
-                f"https://wcc.sc.egov.usda.gov/nwcc/site?sitenum={sid}"
-            )
+            sta["station_url"] = f"https://wcc.sc.egov.usda.gov/nwcc/site?sitenum={sid}"
         else:
             sta["station_url"] = ""
     # station_image_url — predictable NRCS SNOTEL photo URL
@@ -972,6 +1096,5 @@ def _enrich_awdb_station(sta: dict) -> None:
     if "status" not in sta:
         end = str(sta.get("endDate") or "")[:10]
         sta["status"] = (
-            "Active" if not end or end >= date.today().isoformat()
-            else "Inactive"
+            "Active" if not end or end >= date.today().isoformat() else "Inactive"
         )

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 clients/databc/databc_client.py
 ================================
@@ -119,6 +118,8 @@ import requests
 
 from .._common import (
     request_with_retries,
+)
+from .._common import (
     to_float as _to_float,
 )
 
@@ -149,9 +150,17 @@ _DAILY_UTC_HOUR = "16:00"
 # this set: sub-zero readings are real data (DESIGN.md §3.6 requires
 # per-type clamps, never blanket "negative = invalid" filters).
 _NON_NEGATIVE_VARS = {
-    "swe_mm", "snwd_cm", "precip_cumul_mm", "rh_pct",
-    "wind_dir_deg", "wind_spd_kmh", "wind_spd_peak_kmh", "wind_run_km",
-    "baro_press_hpa", "snow_line_m", "density_pct",
+    "swe_mm",
+    "snwd_cm",
+    "precip_cumul_mm",
+    "rh_pct",
+    "wind_dir_deg",
+    "wind_spd_kmh",
+    "wind_spd_peak_kmh",
+    "wind_run_km",
+    "baro_press_hpa",
+    "snow_line_m",
+    "density_pct",
 }
 
 # Coldest plausible air temperature (°C) — below this is a sentinel.
@@ -243,8 +252,7 @@ VARIABLES: dict[str, dict] = {
         "output_units": "km/h",
         "source": "ASWS (US.csv, current season only — no archive)",
         "description": (
-            "Average wind speed. "
-            "16:00 UTC reading used as daily canonical value."
+            "Average wind speed. 16:00 UTC reading used as daily canonical value."
         ),
         "notes": "No historical archive available.",
     },
@@ -255,8 +263,7 @@ VARIABLES: dict[str, dict] = {
         "output_units": "km/h",
         "source": "ASWS (UP.csv, current season only — no archive)",
         "description": (
-            "Peak (gust) wind speed. "
-            "16:00 UTC reading used as daily canonical value."
+            "Peak (gust) wind speed. 16:00 UTC reading used as daily canonical value."
         ),
         "notes": "No historical archive available.",
     },
@@ -306,18 +313,18 @@ VARIABLES: dict[str, dict] = {
 
 # Standardized type → DataBC variable key(s)
 _TYPE_TO_DATABC_VARS: dict[str, list[str]] = {
-    "swe":        ["swe_mm"],
-    "snwd":       ["snwd_cm"],
-    "temp":       ["air_temp_degc"],
-    "precip":     ["precip_cumul_mm"],
-    "baro":       ["baro_press_hpa"],
-    "wind_dir":   ["wind_dir_deg"],
-    "wind_spd":   ["wind_spd_kmh"],
-    "wind_gust":  ["wind_spd_peak_kmh"],
-    "wind_run":   ["wind_run_km"],
-    "rh":         ["rh_pct"],
-    "density":    ["density_pct"],
-    "snow_line":  ["snow_line_m"],
+    "swe": ["swe_mm"],
+    "snwd": ["snwd_cm"],
+    "temp": ["air_temp_degc"],
+    "precip": ["precip_cumul_mm"],
+    "baro": ["baro_press_hpa"],
+    "wind_dir": ["wind_dir_deg"],
+    "wind_spd": ["wind_spd_kmh"],
+    "wind_gust": ["wind_spd_peak_kmh"],
+    "wind_run": ["wind_run_km"],
+    "rh": ["rh_pct"],
+    "density": ["density_pct"],
+    "snow_line": ["snow_line_m"],
 }
 
 #: MSS data quality flags (``Survey Code`` field values).
@@ -330,6 +337,7 @@ DATA_FLAGS: dict[str, str] = {
 
 
 # ── Client ───────────────────────────────────────────────────────────────────
+
 
 class DataBCClient:
     """
@@ -442,14 +450,14 @@ class DataBCClient:
         list[dict]
             Combined list of ASWS and MSS stations.
         """
-        stations = (
-            self.get_asws_stations(active_only=active_only)
-            + self.get_mss_stations(active_only=active_only)
-        )
+        stations = self.get_asws_stations(
+            active_only=active_only
+        ) + self.get_mss_stations(active_only=active_only)
         if bbox is not None:
             min_lon, min_lat, max_lon, max_lat = bbox
             stations = [
-                s for s in stations
+                s
+                for s in stations
                 if s.get("latitude") is not None
                 and s.get("longitude") is not None
                 and min_lat <= float(s["latitude"]) <= max_lat
@@ -481,12 +489,11 @@ class DataBCClient:
         for sta in self.get_all_stations():
             if str(sta.get("location_id", "")).upper() != sid:
                 continue
-            source_tag = (
-                "ASWS" if sta.get("station_type") == "ASWS" else "MSS"
-            )
+            source_tag = "ASWS" if sta.get("station_type") == "ASWS" else "MSS"
             meta = dict(sta)
             meta["variables"] = {
-                key: vinfo for key, vinfo in VARIABLES.items()
+                key: vinfo
+                for key, vinfo in VARIABLES.items()
                 if source_tag in vinfo.get("source", "")
             }
             return meta
@@ -562,15 +569,10 @@ class DataBCClient:
         """
         if station_ids is None and bbox is not None:
             ids: list[str] | None = [
-                s["location_id"]
-                for s in self.get_all_stations(bbox=bbox)
+                s["location_id"] for s in self.get_all_stations(bbox=bbox)
             ]
         elif station_ids is not None:
-            ids = (
-                [station_ids]
-                if isinstance(station_ids, str)
-                else list(station_ids)
-            )
+            ids = [station_ids] if isinstance(station_ids, str) else list(station_ids)
         else:
             raise ValueError("Provide station_ids or bbox.")
 
@@ -587,11 +589,7 @@ class DataBCClient:
         if variables is None:
             var_list: list[str] = ["swe_mm", "snwd_cm"]
         else:
-            raw_vars = (
-                [variables]
-                if isinstance(variables, str)
-                else list(variables)
-            )
+            raw_vars = [variables] if isinstance(variables, str) else list(variables)
             resolved: list[str] = []
             for v in raw_vars:
                 if v in VARIABLES:
@@ -613,7 +611,8 @@ class DataBCClient:
             # ASWS stations — filter to IDs ending in 'P'
             asws_ids = (
                 [i for i in ids if str(i).upper().endswith("P")]
-                if ids is not None else None
+                if ids is not None
+                else None
             )
             if asws_ids is None or asws_ids:
                 # Map variable key → (fetch method, value col, type,
@@ -624,63 +623,107 @@ class DataBCClient:
                     (
                         "swe_mm",
                         self._get_asws_sw_hourly_data
-                        if hourly else self._get_asws_daily_data,
-                        "swe_mm", "swe", "cm",
+                        if hourly
+                        else self._get_asws_daily_data,
+                        "swe_mm",
+                        "swe",
+                        "cm",
                         lambda x: round(x / 10.0, 3),
                         False,
                     ),
                     (
-                        "snwd_cm", self._get_asws_sd_data,
-                        "snwd_cm", "snwd", "cm",
-                        lambda x: x, True,
+                        "snwd_cm",
+                        self._get_asws_sd_data,
+                        "snwd_cm",
+                        "snwd",
+                        "cm",
+                        lambda x: x,
+                        True,
                     ),
                     (
-                        "air_temp_degc", self._get_asws_ta_data,
-                        "air_temp_degc", "temp", "\u00b0C",
-                        lambda x: x, True,
+                        "air_temp_degc",
+                        self._get_asws_ta_data,
+                        "air_temp_degc",
+                        "temp",
+                        "\u00b0C",
+                        lambda x: x,
+                        True,
                     ),
                     (
-                        "precip_cumul_mm", self._get_asws_pc_data,
-                        "precip_cumul_mm", "precip", "mm",
-                        lambda x: x, True,
+                        "precip_cumul_mm",
+                        self._get_asws_pc_data,
+                        "precip_cumul_mm",
+                        "precip",
+                        "mm",
+                        lambda x: x,
+                        True,
                     ),
                     (
-                        "baro_press_hpa", self._get_asws_pa_data,
-                        "baro_press_hpa", "baro", "hPa",
-                        lambda x: x, True,
+                        "baro_press_hpa",
+                        self._get_asws_pa_data,
+                        "baro_press_hpa",
+                        "baro",
+                        "hPa",
+                        lambda x: x,
+                        True,
                     ),
                     (
-                        "wind_dir_deg", self._get_asws_ud_data,
-                        "wind_dir_deg", "wind_dir", "degrees",
-                        lambda x: x, True,
+                        "wind_dir_deg",
+                        self._get_asws_ud_data,
+                        "wind_dir_deg",
+                        "wind_dir",
+                        "degrees",
+                        lambda x: x,
+                        True,
                     ),
                     (
-                        "wind_spd_kmh", self._get_asws_us_data,
-                        "wind_spd_kmh", "wind_spd", "km/h",
-                        lambda x: x, True,
+                        "wind_spd_kmh",
+                        self._get_asws_us_data,
+                        "wind_spd_kmh",
+                        "wind_spd",
+                        "km/h",
+                        lambda x: x,
+                        True,
                     ),
                     (
-                        "wind_spd_peak_kmh", self._get_asws_up_data,
-                        "wind_spd_peak_kmh", "wind_gust", "km/h",
-                        lambda x: x, True,
+                        "wind_spd_peak_kmh",
+                        self._get_asws_up_data,
+                        "wind_spd_peak_kmh",
+                        "wind_gust",
+                        "km/h",
+                        lambda x: x,
+                        True,
                     ),
                     (
-                        "wind_run_km", self._get_asws_ur_data,
-                        "wind_run_km", "wind_run", "km",
-                        lambda x: x, True,
+                        "wind_run_km",
+                        self._get_asws_ur_data,
+                        "wind_run_km",
+                        "wind_run",
+                        "km",
+                        lambda x: x,
+                        True,
                     ),
                     (
-                        "rh_pct", self._get_asws_xr_data,
-                        "rh_pct", "rh", "%",
-                        lambda x: x, True,
+                        "rh_pct",
+                        self._get_asws_xr_data,
+                        "rh_pct",
+                        "rh",
+                        "%",
+                        lambda x: x,
+                        True,
                     ),
                 ]
                 emit_interval = "hourly" if hourly else "daily"
                 time_col = "datetime" if hourly else "date"
                 emit_vars = set(var_list) if var_list else None
                 for (
-                    var_key, method, val_col,
-                    std_type, units, converter, has_daily_only
+                    var_key,
+                    method,
+                    val_col,
+                    std_type,
+                    units,
+                    converter,
+                    has_daily_only,
                 ) in _var_methods:
                     if emit_vars and var_key not in emit_vars:
                         continue
@@ -696,7 +739,8 @@ class DataBCClient:
                     except DataBCError as exc:
                         logger.warning(
                             "get_data: %s fetch failed: %s",
-                            var_key, exc,
+                            var_key,
+                            exc,
                         )
                         continue
                     if df.empty or val_col not in df.columns:
@@ -704,8 +748,7 @@ class DataBCClient:
                     for _, row in df.iterrows():
                         raw_val = row.get(val_col)
                         if raw_val is None or (
-                            isinstance(raw_val, float)
-                            and math.isnan(raw_val)
+                            isinstance(raw_val, float) and math.isnan(raw_val)
                         ):
                             value = None
                         else:
@@ -715,9 +758,7 @@ class DataBCClient:
                                 value = None
                         ts = str(row.get(time_col, ""))
                         r: dict = {
-                            "station_id": str(
-                                row.get("location_id", "")
-                            ),
+                            "station_id": str(row.get("location_id", "")),
                             "date": ts[:10],
                             "variable": var_key,
                             "type": std_type,
@@ -739,7 +780,8 @@ class DataBCClient:
             # MSS stations
             mss_ids = (
                 [i for i in ids if not str(i).upper().endswith("P")]
-                if ids is not None else None
+                if ids is not None
+                else None
             )
             if mss_ids is None or mss_ids:
                 df_mss = self._get_mss_survey_data(
@@ -750,15 +792,10 @@ class DataBCClient:
                     include_flags=include_flags,
                 )
                 mss_col_map = {
-                    "swe_mm": ("swe", "cm",
-                               lambda x: round(x / 10.0, 3)),
+                    "swe_mm": ("swe", "cm", lambda x: round(x / 10.0, 3)),
                     "snwd_cm": ("snwd", "cm", lambda x: x),
-                    "density_pct": (
-                        "density", "%", lambda x: x
-                    ),
-                    "snow_line_m": (
-                        "snow_line", "m", lambda x: x
-                    ),
+                    "density_pct": ("density", "%", lambda x: x),
+                    "snow_line_m": ("snow_line", "m", lambda x: x),
                 }
                 emit_mss = var_list or list(mss_col_map.keys())
                 for _, row in df_mss.iterrows():
@@ -767,16 +804,10 @@ class DataBCClient:
                             continue
                         if var_key not in df_mss.columns:
                             continue
-                        std_type, units, converter = (
-                            mss_col_map[var_key]
-                        )
+                        std_type, units, converter = mss_col_map[var_key]
                         raw_val = row.get(var_key)
-                        if (
-                            raw_val is None
-                            or (
-                                isinstance(raw_val, float)
-                                and math.isnan(raw_val)
-                            )
+                        if raw_val is None or (
+                            isinstance(raw_val, float) and math.isnan(raw_val)
                         ):
                             value = None
                         else:
@@ -785,9 +816,7 @@ class DataBCClient:
                             except (TypeError, ValueError):
                                 value = None
                         r = {
-                            "station_id": str(
-                                row.get("location_id", "")
-                            ),
+                            "station_id": str(row.get("location_id", "")),
                             "date": str(row.get("date", ""))[:10],
                             "variable": var_key,
                             "type": std_type,
@@ -796,9 +825,7 @@ class DataBCClient:
                             "interval": "periodic",
                         }
                         if include_flags:
-                            r["flag"] = row.get(
-                                "survey_code", None
-                            )
+                            r["flag"] = row.get("survey_code", None)
                         records.append(r)
 
         return records
@@ -1310,9 +1337,7 @@ class DataBCClient:
         try:
             resp = self._request(url)
         except DataBCError as exc:
-            logger.warning(
-                "Could not load SnowAll/%s.csv: %s", location_id, exc
-            )
+            logger.warning("Could not load SnowAll/%s.csv: %s", location_id, exc)
             return pd.DataFrame(columns=_cols)
 
         df = pd.read_csv(io.StringIO(resp.text))
@@ -1351,12 +1376,7 @@ class DataBCClient:
                 location_id,
             )
             df["date"] = dt_series.dt.strftime("%Y-%m-%d")
-            df = (
-                df.dropna(subset=["date"])
-                .groupby("date")
-                .last()
-                .reset_index()
-            )
+            df = df.dropna(subset=["date"]).groupby("date").last().reset_index()
 
         df = df.drop(columns=["datetime_raw"], errors="ignore")
 
@@ -1372,9 +1392,9 @@ class DataBCClient:
         for num_col in ("swe_mm", "snwd_cm", "precip_cumul_mm"):
             df.loc[df[num_col] < 0, num_col] = float("nan")
         # Air temperature is legitimately negative; null only sentinels.
-        df.loc[
-            df["air_temp_degc"] < _MIN_PLAUSIBLE_TEMP_C, "air_temp_degc"
-        ] = float("nan")
+        df.loc[df["air_temp_degc"] < _MIN_PLAUSIBLE_TEMP_C, "air_temp_degc"] = float(
+            "nan"
+        )
 
         return df[_cols]
 
@@ -1424,21 +1444,15 @@ class DataBCClient:
         dfs = []
 
         try:
-            dfs.append(
-                self._load_mss_csv(f"{DATA_BASE}/allmss_current.csv")
-            )
+            dfs.append(self._load_mss_csv(f"{DATA_BASE}/allmss_current.csv"))
         except DataBCError as exc:
             logger.warning("Could not load allmss_current.csv: %s", exc)
 
         if archive:
             try:
-                dfs.append(
-                    self._load_mss_csv(f"{DATA_BASE}/allmss_archive.csv")
-                )
+                dfs.append(self._load_mss_csv(f"{DATA_BASE}/allmss_archive.csv"))
             except DataBCError as exc:
-                logger.warning(
-                    "Could not load allmss_archive.csv: %s", exc
-                )
+                logger.warning("Could not load allmss_archive.csv: %s", exc)
 
         if not dfs:
             return pd.DataFrame()
@@ -1491,9 +1505,7 @@ class DataBCClient:
         # Accept the disclaimer once per client session
         if not self._aqrt_disclaimer_accepted:
             try:
-                d = self._aqrt_session.get(
-                    f"{base}/Disclaimer", timeout=self.timeout
-                )
+                d = self._aqrt_session.get(f"{base}/Disclaimer", timeout=self.timeout)
                 d.raise_for_status()
                 match = re.search(
                     r'name="__RequestVerificationToken"[^>]+value="([^"]+)"',
@@ -1519,8 +1531,7 @@ class DataBCClient:
                 return None
 
         station_url = (
-            f"{base}/Data/Location/Summary"
-            f"/Location/{location_id}/Interval/Latest"
+            f"{base}/Data/Location/Summary/Location/{location_id}/Interval/Latest"
         )
         try:
             page = self._aqrt_session.get(station_url, timeout=self.timeout)
@@ -1546,9 +1557,7 @@ class DataBCClient:
                 return f"{base}/Data/GetFileById/{m.group(1)}"
             return None
         except Exception as exc:
-            logger.warning(
-                "Could not fetch image URL for %s: %s", location_id, exc
-            )
+            logger.warning("Could not fetch image URL for %s: %s", location_id, exc)
             return None
 
     # ── Internal helpers ──────────────────────────────────────────────────────
@@ -1582,12 +1591,8 @@ class DataBCClient:
             geom = feature.get("geometry") or {}
             coords = geom.get("coordinates", [None, None])
 
-            lat = props.get("LATITUDE") or (
-                coords[1] if len(coords) > 1 else None
-            )
-            lon = props.get("LONGITUDE") or (
-                coords[0] if coords else None
-            )
+            lat = props.get("LATITUDE") or (coords[1] if len(coords) > 1 else None)
+            lon = props.get("LONGITUDE") or (coords[0] if coords else None)
             location_id = str(props.get("LOCATION_ID") or "").strip()
             if not location_id:
                 continue
@@ -1607,9 +1612,7 @@ class DataBCClient:
             }
 
             if station_type == "ASWS":
-                sta["operator"] = str(
-                    props.get("OPERATOR") or ""
-                ).strip()
+                sta["operator"] = str(props.get("OPERATOR") or "").strip()
                 camera = str(props.get("CAMERA_URL") or "").strip()
                 sta["camera_url"] = camera if camera else None
 
@@ -1695,22 +1698,16 @@ class DataBCClient:
         time_col = "date" if daily_only else "datetime"
 
         if df.empty or len(df.columns) < 2:
-            return pd.DataFrame(
-                columns=[time_col, "location_id", value_col]
-            )
+            return pd.DataFrame(columns=[time_col, "location_id", value_col])
 
         date_col = df.columns[0]  # "DATE(UTC)"
 
         if daily_only:
             # Use only the 16:00 UTC reading as the canonical daily value
-            mask = df[date_col].astype(str).str.strip().str.endswith(
-                _DAILY_UTC_HOUR
-            )
+            mask = df[date_col].astype(str).str.strip().str.endswith(_DAILY_UTC_HOUR)
             df = df[mask].copy()
             if df.empty:
-                return pd.DataFrame(
-                    columns=[time_col, "location_id", value_col]
-                )
+                return pd.DataFrame(columns=[time_col, "location_id", value_col])
             df[time_col] = df[date_col].astype(str).str[:10]
         else:
             # Return all hourly rows; keep "YYYY-MM-DD HH:MM" format
@@ -1726,21 +1723,17 @@ class DataBCClient:
         )
 
         # Extract location ID from "1A01P Yellowhead Lake"
-        df_long["location_id"] = (
-            df_long["station_col"].str.split().str[0].str.strip()
-        )
+        df_long["location_id"] = df_long["station_col"].str.split().str[0].str.strip()
         df_long = df_long.drop(columns=["station_col"])
 
-        df_long[value_col] = pd.to_numeric(
-            df_long[value_col], errors="coerce"
-        )
+        df_long[value_col] = pd.to_numeric(df_long[value_col], errors="coerce")
         # Null sentinel / physically impossible values, scoped per type
         if value_col in _NON_NEGATIVE_VARS:
             df_long.loc[df_long[value_col] < 0, value_col] = float("nan")
         else:
-            df_long.loc[
-                df_long[value_col] < _MIN_PLAUSIBLE_TEMP_C, value_col
-            ] = float("nan")
+            df_long.loc[df_long[value_col] < _MIN_PLAUSIBLE_TEMP_C, value_col] = float(
+                "nan"
+            )
 
         return df_long[[time_col, "location_id", value_col]]
 
@@ -1787,9 +1780,7 @@ class DataBCClient:
         # Numeric coercion
         for num_col in ("swe_mm", "snwd_cm", "density_pct", "snow_line_m"):
             if num_col in df.columns:
-                df[num_col] = pd.to_numeric(
-                    df[num_col], errors="coerce"
-                )
+                df[num_col] = pd.to_numeric(df[num_col], errors="coerce")
 
         # Drop rows without a usable location_id or date
         df = df[
@@ -1805,17 +1796,21 @@ class DataBCClient:
         params: dict[str, str] | None = None,
     ) -> requests.Response:
         return request_with_retries(
-            self._session, url, params=params, error_cls=DataBCError,
-            timeout=self.timeout, max_retries=self.max_retries,
+            self._session,
+            url,
+            params=params,
+            error_cls=DataBCError,
+            timeout=self.timeout,
+            max_retries=self.max_retries,
             backoff=self.backoff,
         )
 
 
 # ── Exception ─────────────────────────────────────────────────────────────────
 
+
 class DataBCError(Exception):
     """Raised when a DataBC request fails."""
 
 
 # ── Utility ───────────────────────────────────────────────────────────────────
-

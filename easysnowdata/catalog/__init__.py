@@ -15,7 +15,15 @@ README status table) and, in Phase 4, the generated docs pages.
 from __future__ import annotations
 
 from easysnowdata.catalog import health
-from easysnowdata.catalog._models import Probe, Product, Source, Variable, validate
+from easysnowdata.catalog._models import (
+    KNOWN_THEMES,
+    THEME_TITLES,
+    Probe,
+    Product,
+    Source,
+    Variable,
+    validate,
+)
 from easysnowdata.catalog._registry import (
     describe,
     get,
@@ -30,6 +38,8 @@ from easysnowdata.catalog._registry import (
 )
 
 __all__ = [
+    "KNOWN_THEMES",
+    "THEME_TITLES",
     "Variable",
     "Probe",
     "Source",

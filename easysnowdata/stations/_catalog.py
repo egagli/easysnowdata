@@ -14,7 +14,7 @@ from __future__ import annotations
 from functools import partial
 from typing import Any
 
-from easysnowdata import catalog
+from easysnowdata import auth, catalog
 from easysnowdata.catalog import health
 from easysnowdata.catalog._models import Probe, Product, Source, Variable
 from easysnowdata.stations import networks
@@ -62,6 +62,23 @@ def _health_probe(label: str, url: str, requires: tuple[str, ...] | None = None)
     return Probe(label, partial(health.http_first_byte, url), requires=requires)
 
 
+def _nve_probe() -> None:
+    """``GET /Parameters`` with the ``X-API-Key`` header the endpoint requires.
+
+    A bare first-byte GET answers 401 even when the key is configured, which
+    is what the weekly check reported until this probe sent the header.
+    """
+    import requests  # noqa: PLC0415
+
+    response = requests.get(
+        f"{networks.NETWORKS['nve'].api_url}/Parameters",
+        headers=auth.get("nve").headers(),
+        timeout=health.TIMEOUT,
+    )
+    if response.status_code != 200:
+        raise RuntimeError(f"Unreachable: HTTP {response.status_code}")
+
+
 AWDB_PRODUCT = Product(
     id="awdb-stations",
     theme="stations",
@@ -77,7 +94,7 @@ AWDB_PRODUCT = Product(
     sources=(
         Source(
             id="awdb",
-            provider="vector_http",
+            provider="stations",
             location=networks.NETWORKS["awdb"].api_url,
             extent="western US, western Canada",
             temporal="~1978/present",
@@ -101,7 +118,7 @@ AWDB_PRODUCT = Product(
     ),
     license="Public domain (US government data)",
     loader=_LOADER,
-    examples=("stations/plot_awdb_stations.py",),
+    examples=("stations/plot_awdb_stations.py", "stations/plot_all_networks.py"),
     references=(
         "https://wcc.sc.egov.usda.gov/awdbRestApi/swagger-ui/index.html",
         "https://www.nrcs.usda.gov/wps/portal/wcc/home/",
@@ -122,7 +139,7 @@ CDEC_PRODUCT = Product(
     sources=(
         Source(
             id="cdec",
-            provider="vector_http",
+            provider="stations",
             location=networks.NETWORKS["cdec"].api_url,
             extent="California",
             temporal="~1920/present (courses), ~1980/present (pillows)",
@@ -148,7 +165,7 @@ CDEC_PRODUCT = Product(
     ),
     license="Public domain (California state government data)",
     loader=_LOADER,
-    examples=("stations/plot_cdec_stations.py",),
+    examples=("stations/plot_cdec_stations.py", "stations/plot_all_networks.py"),
     references=(
         "https://cdec.water.ca.gov/",
         "https://cdec.water.ca.gov/snow/current/snow/",
@@ -169,7 +186,7 @@ DATABC_PRODUCT = Product(
     sources=(
         Source(
             id="databc",
-            provider="vector_http",
+            provider="stations",
             location=networks.NETWORKS["databc"].api_url,
             extent="British Columbia",
             temporal="~1970/present",
@@ -198,7 +215,7 @@ DATABC_PRODUCT = Product(
     ),
     license="Open Government Licence – British Columbia",
     loader=_LOADER,
-    examples=("stations/plot_databc_stations.py",),
+    examples=("stations/plot_databc_stations.py", "stations/plot_all_networks.py"),
     references=(
         "https://catalogue.data.gov.bc.ca/dataset/snow-weather-stations-archive",
         "https://www.env.gov.bc.ca/wsd/data_searches/snow/",
@@ -219,7 +236,7 @@ NVE_PRODUCT = Product(
     sources=(
         Source(
             id="nve",
-            provider="vector_http",
+            provider="stations",
             location=networks.NETWORKS["nve"].api_url,
             requires=("nve",),
             extent="Norway",
@@ -231,16 +248,9 @@ NVE_PRODUCT = Product(
                 "depth"
             ),
             title="NVE HydAPI v1",
-            health=Probe(
-                "NVE stations (HydAPI)",
-                partial(
-                    health.http_first_byte,
-                    f"{networks.NETWORKS['nve'].api_url}/Parameters",
-                ),
-                # The endpoint answers 401 without the key, so the probe is
-                # only meaningful where the key is configured.
-                requires=("nve",),
-            ),
+            # The endpoint answers 401 without the key, so the probe is only
+            # meaningful where the key is configured — and it has to send it.
+            health=Probe("NVE stations (HydAPI)", _nve_probe, requires=("nve",)),
         ),
     ),
     variables=variables_for("nve"),
@@ -250,7 +260,7 @@ NVE_PRODUCT = Product(
     ),
     license="Norwegian Licence for Open Government Data (NLOD)",
     loader=_LOADER,
-    examples=("stations/plot_nve_stations.py",),
+    examples=("stations/plot_nve_stations.py", "stations/plot_all_networks.py"),
     references=(
         "https://hydapi.nve.no/UserDocumentation/",
         "https://sildre.nve.no/",
@@ -273,7 +283,7 @@ YUKON_PRODUCT = Product(
     sources=(
         Source(
             id="yukon",
-            provider="vector_http",
+            provider="stations",
             location=networks.NETWORKS["yukon"].api_url,
             extent="Yukon, with courses in northern BC and Alaska",
             temporal="~1975/present",
@@ -293,7 +303,7 @@ YUKON_PRODUCT = Product(
     ),
     license="Open Government Licence – Yukon",
     loader=_LOADER,
-    examples=("stations/plot_yukon_stations.py",),
+    examples=("stations/plot_yukon_stations.py", "stations/plot_all_networks.py"),
     references=(
         "https://service.yukon.ca/water-data/shiny/?page=home&lang=en",
         "https://yukon.ca/en/snow-survey-bulletin",

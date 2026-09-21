@@ -17,17 +17,42 @@ KNOWN_PROVIDERS = (
     "zarr_cloud",
     "vector_http",
     "planet",
+    # The snow-station network clients in easysnowdata.stations.clients.
+    "stations",
 )
+#: The product themes, in the order every listing uses: the catalog index,
+#: the status page, the README table, the API navigation and the gallery.
+#: One theme is one subpackage (``esd.snow``, ``esd.terrain`` …).
 KNOWN_THEMES = (
     "stations",
+    "snow",
     "sar",
     "optical",
-    "snow",
-    "land",
     "terrain",
-    "climate",
+    "land",
     "hydro",
+    "climate",
 )
+
+#: Display title per theme.
+THEME_TITLES: dict[str, str] = {
+    "stations": "Stations",
+    "snow": "Snow",
+    "sar": "SAR",
+    "optical": "Optical imagery",
+    "terrain": "Terrain",
+    "land": "Land cover",
+    "hydro": "Hydrography",
+    "climate": "Climate",
+}
+
+
+def theme_order(theme: str) -> tuple[int, str]:
+    """Sort key putting themes in :data:`KNOWN_THEMES` order, unknown ones last."""
+    try:
+        return (KNOWN_THEMES.index(theme), theme)
+    except ValueError:
+        return (len(KNOWN_THEMES), theme)
 
 
 @dataclass(frozen=True)
