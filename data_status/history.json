@@ -53,7 +53,7 @@
       "error": null
     },
     {
-      "source": "SNOTEL/CCSS station list (GitHub)",
+      "source": "Snow station inventory (global_snow_networks)",
       "product": "snow-station-archive",
       "route": "github-tarball",
       "kind": "health",
@@ -73,7 +73,7 @@
       "error": null
     },
     {
-      "source": "SNOTEL/CCSS station CSV (GitHub)",
+      "source": "Snow station CSV (global_snow_networks)",
       "product": "snow-station-archive",
       "route": "github-csv",
       "kind": "health",

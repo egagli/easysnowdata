@@ -33,59 +33,59 @@ and a recovery closes it; latency and DMR++ readiness are on the
 [status page](https://egagli.github.io/easysnowdata/status.html).
 
 <!-- DATA_STATUS_START -->
-_Last updated: 2026-09-21 17:40 UTC_  
+_Last updated: 2026-09-21 23:57 UTC_  
 _⚠️ = skipped (credentials not available in this run). Latency and virtualization probes are on the [status page](https://egagli.github.io/easysnowdata/status.html)._
 
-| Data Source | Latest (Sep 17) | Sep 14 | Sep 7 | Aug 31 |
+| Data Source | Latest (Sep 21) | Sep 17 | Sep 14 | Sep 7 |
 | :---------- | :------: | :------: | :------: | :------: |
-| AWDB stations (NRCS REST API) | ✅ | — | — | — |
-| CDEC stations (JSON data servlet) | ✅ | — | — | — |
-| BC snow stations (DataBC WFS) | ✅ | — | — | — |
-| NVE stations (HydAPI) | ⚠️ | — | — | — |
-| Yukon stations (AquaCache API) | ✅ | — | — | — |
+| AWDB stations (NRCS REST API) | ✅ | ✅ | — | — |
+| CDEC stations (JSON data servlet) | ✅ | ✅ | — | — |
+| BC snow stations (DataBC WFS) | ✅ | ✅ | — | — |
+| NVE stations (HydAPI) | <abbr title="RuntimeError: Unreachable: HTTP 401">❌</abbr> | ⚠️ | — | — |
+| Yukon stations (AquaCache API) | ✅ | ✅ | — | — |
 | Snow station inventory (global_snow_networks) | ✅ | ✅ | ✅ | ✅ |
-| Snow station archive tarball (global_snow_networks) | ✅ | — | — | — |
+| Snow station archive tarball (global_snow_networks) | ✅ | ✅ | — | — |
 | Snow station CSV (global_snow_networks) | ✅ | ✅ | ✅ | ✅ |
 | ARCO-ERA5 (GCS anonymous) | ✅ | ✅ | ✅ | ✅ |
 | ERA5 (Google Earth Engine) | ✅ | ✅ | ✅ | ✅ |
 | Köppen-Geiger classification (figshare) | ✅ | ✅ | ✅ | ✅ |
-| HUC geometries (USGS WBD REST) | ✅ | — | — | — |
+| HUC geometries (USGS WBD REST) | ✅ | ✅ | — | — |
 | HUC geometries (GEE/USGS WBD) | ✅ | ✅ | ✅ | ✅ |
 | HydroATLAS basins (figshare) | ✅ | ✅ | ✅ | ✅ |
-| HydroBASINS (HydroSHEDS regional zip) | ✅ | — | — | — |
-| HydroBASINS (GEE/HydroATLAS) | ✅ | — | — | — |
+| HydroBASINS (HydroSHEDS regional zip) | <abbr title="RuntimeError: Unreachable: HTTP 403">❌</abbr> | ✅ | — | — |
+| HydroBASINS (GEE/HydroATLAS) | ✅ | ✅ | — | — |
 | GRDC major river basins (World Bank) | ✅ | ✅ | ✅ | ✅ |
-| GRDC WMO basins | <abbr title="ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection r">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> |
-| MODIS snow cover MOD10A1F (NASA NSIDC) | ✅ | — | — | — |
-| MODIS snow cover MOD10A1 (Planetary Computer) | ✅ | — | — | — |
+| GRDC WMO basins | ✅ | <abbr title="ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection r">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> |
+| MODIS snow cover MOD10A1F (NASA NSIDC) | ✅ | ✅ | — | — |
+| MODIS snow cover MOD10A1 (Planetary Computer) | ✅ | ✅ | — | — |
 | Mountain snow mask (Zenodo) | ✅ | ✅ | ✅ | ✅ |
-| SNODAS (NSIDC G02158) | ✅ | — | — | — |
+| SNODAS (NSIDC G02158) | ✅ | ✅ | — | — |
 | SNODAS (GEE/Climate Engine) | ✅ | ✅ | ✅ | ✅ |
-| Sturm & Liston snow classification (NSIDC-0768) | ✅ | — | — | — |
+| Sturm & Liston snow classification (NSIDC-0768) | ✅ | ✅ | — | — |
 | Sturm & Liston snow classification (Azure) | ✅ | ✅ | ✅ | ✅ |
-| UCLA Snow Reanalysis (NASA NSIDC) | ✅ | ⚠️ | ⚠️ | ⚠️ |
-| HMA Snow Reanalysis (NASA NSIDC) | ✅ | — | — | — |
-| VIIRS snow cover VNP10A1F (NASA NSIDC) | ✅ | — | — | — |
+| UCLA Snow Reanalysis (NASA NSIDC) | ✅ | ✅ | ⚠️ | ⚠️ |
+| HMA Snow Reanalysis (NASA NSIDC) | ✅ | ✅ | — | — |
+| VIIRS snow cover VNP10A1F (NASA NSIDC) | ✅ | ✅ | — | — |
 | Forest cover fraction (Zenodo) | ✅ | ✅ | ✅ | ✅ |
-| Forest cover fraction (GEE/CGLS-LC100) | ✅ | — | — | — |
+| Forest cover fraction (GEE/CGLS-LC100) | ✅ | ✅ | — | — |
 | ESA WorldCover (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
-| ESA WorldCover (AWS bucket) | ✅ | — | — | — |
-| Annual NLCD (GEE community asset) | ✅ | — | — | — |
+| ESA WorldCover (AWS bucket) | ✅ | ✅ | — | — |
+| Annual NLCD (GEE community asset) | ✅ | ✅ | — | — |
 | NLCD (GEE/USGS) | ✅ | ✅ | ✅ | ✅ |
-| HLS L30 (CMR-STAC LPCLOUD) | ✅ | — | — | — |
-| HLS S30 (Planetary Computer) | ✅ | — | — | — |
-| PlanetScope (Planet Data API) | ⚠️ | — | — | — |
-| Sentinel-2 L2A (Planetary Computer) | ✅ | — | — | — |
-| Sentinel-2 L2A (Earth Search) | ✅ | — | — | — |
-| Sentinel-1 RTC (Planetary Computer) | ✅ | — | — | — |
-| Sentinel-1 RTC OPERA (CMR-STAC ASF) | ✅ | — | — | — |
-| Sentinel-1 RTC OPERA (Earth Engine) | ✅ | — | — | — |
-| Sentinel-1 static layers (CMR-STAC ASF) | ✅ | — | — | — |
-| Copernicus DEM for the incidence angle (Planetary Computer) | ✅ | — | — | — |
-| Sentinel-1 GRD angle band (Earth Engine) | ✅ | — | — | — |
+| HLS L30 (CMR-STAC LPCLOUD) | ✅ | ✅ | — | — |
+| HLS S30 (Planetary Computer) | ✅ | ✅ | — | — |
+| PlanetScope (Planet Data API) | <abbr title="DeprecationWarning: Auth.value has been deprecated.">❌</abbr> | ⚠️ | — | — |
+| Sentinel-2 L2A (Planetary Computer) | ✅ | ✅ | — | — |
+| Sentinel-2 L2A (Earth Search) | ✅ | ✅ | — | — |
+| Sentinel-1 RTC (Planetary Computer) | ✅ | ✅ | — | — |
+| Sentinel-1 RTC OPERA (CMR-STAC ASF) | ✅ | ✅ | — | — |
+| Sentinel-1 RTC OPERA (Earth Engine) | ✅ | ✅ | — | — |
+| Sentinel-1 static layers (CMR-STAC ASF) | ✅ | ✅ | — | — |
+| Copernicus DEM for the incidence angle (Planetary Computer) | ✅ | ✅ | — | — |
+| Sentinel-1 GRD angle band (Earth Engine) | ✅ | ✅ | — | — |
 | CHILI (GEE/CSP ERGo) | ✅ | ✅ | ✅ | ✅ |
 | Copernicus DEM (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
-| Copernicus DEM (Earth Search) | ✅ | — | — | — |
+| Copernicus DEM (Earth Search) | ✅ | ✅ | — | — |
 <!-- DATA_STATUS_END -->
 
 ## Installation
