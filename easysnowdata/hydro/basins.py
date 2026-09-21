@@ -576,6 +576,7 @@ HYDROBASINS_PRODUCT = Product(
     license="CC BY 4.0",
     doi="10.1038/s41597-019-0300-6",
     loader="easysnowdata.hydro.basins.hydrobasins",
+    examples=("hydro/plot_basins.py",),
     references=("https://www.hydrosheds.org/products/hydrobasins",),
     tags=("basins", "watersheds", "hydrobasins"),
 )
@@ -643,6 +644,7 @@ GRDC_WMO_PRODUCT = Product(
     ),
     license="Open (attribution)",
     loader="easysnowdata.hydro.basins.grdc_wmo",
+    examples=("hydro/plot_basins.py",),
     references=("https://www.bafg.de/GRDC",),
     tags=("basins", "wmo"),
 )

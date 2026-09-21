@@ -39,6 +39,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from easysnowdata.catalog import pages
+from easysnowdata.catalog._models import KNOWN_THEMES, THEME_TITLES
 
 if TYPE_CHECKING:  # pragma: no cover — Sphinx is only needed to run the build
     from sphinx.application import Sphinx
@@ -120,7 +121,7 @@ API_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ),
     (
         "Products",
-        ("stations", "snow", "sar", "optical", "terrain", "land", "hydro", "climate"),
+        KNOWN_THEMES,
     ),
     (
         "Processing and plotting",
@@ -130,16 +131,6 @@ API_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
         "Providers",
         ("providers",),
     ),
-    (
-        "Deprecated modules",
-        (
-            "remote_sensing",
-            "hydroclimatology",
-            "topography",
-            "automatic_weather_stations",
-            "utils",
-        ),
-    ),
 )
 
 TITLES = {
@@ -148,22 +139,10 @@ TITLES = {
     "catalog": "Catalog",
     "config": "Configuration",
     "temporal": "Time inputs",
-    "stations": "Stations",
-    "snow": "Snow",
-    "sar": "SAR",
-    "optical": "Optical",
-    "terrain": "Terrain",
-    "land": "Land cover",
-    "hydro": "Hydrography",
-    "climate": "Climate",
+    **THEME_TITLES,
     "processing": "Processing",
     "plotting": "Plotting",
     "providers": "Providers",
-    "remote_sensing": "remote_sensing (deprecated)",
-    "hydroclimatology": "hydroclimatology (deprecated)",
-    "topography": "topography (deprecated)",
-    "automatic_weather_stations": "automatic_weather_stations (deprecated)",
-    "utils": "utils (deprecated)",
 }
 
 
@@ -257,8 +236,9 @@ def _write_api_index(names: list[str]) -> str:
         "# API reference",
         "",
         "Every public function, grouped by subpackage. The `esd.<theme>.<product>`",
-        "modules are the ones to reach for; the deprecated modules at the bottom are",
-        "shims kept for one release (see [](../contributing.md)).",
+        "modules are the ones to reach for; `processing` and `plotting` are the",
+        "pure helpers they share, and `providers` is the generic access layer",
+        "underneath them.",
         "",
         "```{toctree}",
         ":maxdepth: 2",

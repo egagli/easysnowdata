@@ -1,5 +1,6 @@
 Stations
 ========
 
-Point observations of SWE and snow depth from five public snow networks, and
-the daily archive that pre-downloads them all.
+Point observations from five public snow networks (SNOTEL and AWDB, CDEC,
+DataBC, NVE, Yukon), the daily archive that pre-downloads them all, and one
+call that reads across every network.

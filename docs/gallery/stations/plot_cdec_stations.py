@@ -1,45 +1,83 @@
 """
-California snow pillows and snow courses
-========================================
+California snow pillows and courses (CDEC)
+==========================================
 
 The California Data Exchange Center serves the California Cooperative Snow
-Surveys: automated snow pillows reporting daily, and manual snow courses
-surveyed a few times a winter. Both are in the inventory; only the pillows
-carry a daily record, which is what ``daily_only`` selects.
-"""
+Surveys: automated snow pillows that report SWE, snow depth, precipitation and
+temperature daily (hourly at many), and manual snow courses surveyed around
+the first of the month through winter and spring. Both are in the inventory. Only
+the pillows have a daily record, so ``daily_only`` keeps the pillows.
 
-import matplotlib.pyplot as plt
+There is one route, ``source="cdec"``: CDEC's JSON data servlet for the
+values and its station pages for the metadata. No account is needed. Station
+codes are CDEC's three letters (``BLK``), the same in the global code.
+
+The figures show the stations of the central Sierra Nevada coloured by kind,
+one water year of SWE at the highest pillows in the box, and three contrasting
+water years at one pillow on a single October-to-September axis.
+"""
 
 import easysnowdata as esd
 
-aoi = (-120.6, 38.4, -119.6, 39.4)  # central Sierra Nevada
+aoi = (-120.6, 38.4, -119.6, 39.4)
 
 # %%
-# Everything CDEC has here, then just the daily sites.
+# Where the product comes from.
+for src in esd.catalog.get("cdec-stations").sources:
+    print(f"{src.id:20} {src.title:45} {', '.join(src.requires) or 'no account'}")
+
+# %%
+# Everything CDEC has in the box, and the pillows among them. The archive
+# inventory's ``daily_or_better`` is the pipeline's verdict after actually
+# retrieving daily values, not what CDEC's sensor list advertises.
 everything = esd.stations.inventory(aoi, networks="cdec")
-daily = esd.stations.inventory(aoi, networks="cdec", daily_only=True)
-print(f"{len(everything)} CDEC stations, {len(daily)} with a daily record")
+everything["kind"] = everything["daily_or_better"].map(
+    {True: "snow pillow (daily)", False: "snow course"}
+)
+print(everything["kind"].value_counts().to_string())
 
 # %%
-# Two contrasting winters at the daily sites: 2015 (a record-low snowpack)
-# and 2023 (a record-high one).
-lean = esd.stations.load(daily, variables="swe", time="2014-10/2015-09")
-fat = esd.stations.load(daily, variables="swe", time="2022-10/2023-09")
-
-fig, ax = plt.subplots(figsize=(9, 4.5))
-for label, obs, colour in (("WY2015", lean, "tab:orange"), ("WY2023", fat, "tab:blue")):
-    basin_mean = obs["swe"].mean(dim="station")
-    ax.plot(obs["dowy"], basin_mean, color=colour, label=label)
-ax.set_xlabel("day of water year (1 = 1 October)")
-ax.set_ylabel(f"mean SWE ({lean['swe'].attrs['units']})")
-ax.set_title("Central Sierra CCSS pillows: a lean winter and a fat one")
-ax.legend()
-fig.tight_layout()
+# Pillows and courses share the same basins; the courses are the older network
+# and many pillows were installed beside an existing course.
+ax = esd.plotting.points(
+    everything,
+    column="kind",
+    legend_label="CDEC site kind",
+    title="CDEC stations, central Sierra Nevada",
+)
 
 # %%
-# Where the stations sit, coloured by elevation.
-fig, ax = plt.subplots(figsize=(6, 6))
-everything.plot(ax=ax, color="lightgrey", markersize=12)
-daily.plot(ax=ax, column="elevation_m", legend=True, markersize=40, cmap="viridis")
-ax.set_title("CDEC stations (grey: no daily record)")
-fig.tight_layout()
+# One water year of SWE at the five highest pillows. CDEC carries two SWE
+# sensors, the raw pillow (3) and the adjusted one (82); the client prefers
+# the adjusted sensor and records what it used in ``native_variables``.
+daily = everything[everything["daily_or_better"].fillna(False).astype(bool)]
+highest = daily.nlargest(5, "elevation_m")
+obs = esd.stations.load(highest, variables="swe", time="2023-10/2024-09")
+print("native CDEC sensors behind `swe`:", obs["swe"].attrs["native_variables"])
+
+ax = esd.plotting.timeseries(obs["swe"], title="Water year 2024")
+
+# %%
+# Two of the five stop reporting in January. "Daily-verified" means the probe
+# retrieved daily values from the station, not that its record is gapless;
+# count the observations before trusting a seasonal statistic.
+print(obs["swe"].count(dim="time").to_series().to_string())
+
+# %%
+# Blue Lakes (2435 m) has reported since 1980. Three water years side by side:
+# 2015, the record-low snowpack; 2017 and 2023, two of the largest on record.
+blue_lakes = esd.stations.load("BLK", variables="swe", time="2014-10/2023-09")
+swe = blue_lakes["swe"]
+picked = swe.where(swe["water_year"].isin([2015, 2017, 2023]), drop=True)
+ax = esd.plotting.timeseries(
+    picked,
+    by_water_year=True,
+    title=f"{str(swe['name'].values[0]).title()}: a lean winter and two big ones",
+)
+
+# %%
+# In the lean year SWE never passed 25 cm and the pillow was bare by early
+# April. The big years did not just pile up more: their peaks came a month
+# later, in late April and May, and melt ran into July.
+peak = swe.groupby("water_year").max()
+print(peak.to_series().round(0).to_string())

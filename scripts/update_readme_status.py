@@ -99,7 +99,8 @@ def build_catalog_table() -> str:
     Generated rather than written, so a product added to the registry appears
     here without anyone remembering to edit the README.
     """
-    from easysnowdata import catalog  # noqa: PLC0415
+    from easysnowdata import catalog
+    from easysnowdata.catalog._models import theme_order
 
     products = catalog.products()
     by_theme: dict[str, list] = {}
@@ -113,7 +114,7 @@ def build_catalog_table() -> str:
         "| theme | products | open without an account |",
         "| --- | --- | --- |",
     ]
-    for theme in sorted(by_theme):
+    for theme in sorted(by_theme, key=theme_order):
         items = sorted(by_theme[theme], key=lambda p: p.id)
         free = sum(1 for p in items if p.credential_free_sources)
         names = ", ".join(f"[`{p.id}`]({CATALOG_URL}/{p.id}.html)" for p in items)

@@ -81,9 +81,7 @@ class TestCatalogEntry:
 
     def test_filenames(self):
         assert sc.filename() == "SnowClass_GL_300m_10.0arcsec_2021_v01.0.tif"
-        assert (
-            sc.filename("30arcmin") == "SnowClass_GL_0.5deg_30.0arcmin_2021_v01.0.tif"
-        )
+        assert sc.filename("30arcmin") == "SnowClass_GL_50km_0.50degree_2021_v01.0.tif"
         assert sc.filename("10arcsec", "NA").startswith("SnowClass_NA_300m")
         with pytest.raises(ValueError, match="Unknown resolution"):
             sc.filename("1km")
@@ -131,18 +129,6 @@ class TestHostedCogRoute:
         da = sc.load(RAINIER, source="hosted-cog", chunks={"x": 16, "y": 16})
         assert max(max(sizes) for sizes in da.chunks) <= 16
 
-    def test_old_name_warns_and_keeps_the_free_route(self, local_cog):
-        from easysnowdata import _deprecation
-        from easysnowdata.remote_sensing import get_seasonal_snow_classification
-
-        _deprecation.reset_warnings()
-        with pytest.warns(
-            _deprecation.EasysnowdataDeprecationWarning,
-            match="snow_classification.load",
-        ):
-            da = get_seasonal_snow_classification(RAINIER)
-        assert da.attrs["source"] == "hosted-cog" and da.rio.nodata == 9
-
 
 @pytest.mark.recorded
 class TestNsidcRoute:
@@ -159,9 +145,9 @@ class TestNsidcRoute:
         assert len(fake_earthdata["urls"]) == 1
 
     def test_coarse_grid_picks_another_file(self, fake_earthdata):
-        sc.load(RAINIER, resolution="5arcmin")
+        sc.load(RAINIER, resolution="2.5arcmin")
         assert fake_earthdata["urls"][0].endswith(
-            "SnowClass_GL_10km_5.0arcmin_2021_v01.0.tif"
+            "SnowClass_GL_05km_2.50arcmin_2021_v01.0.tif"
         )
 
     def test_missing_file_says_where_to_look(self, fake_earthdata, monkeypatch):

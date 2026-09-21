@@ -5,8 +5,8 @@ name: docs
 #   pull_request   — executes only the credential-free gallery examples and
 #                    reuses the cached outputs of the rest. No secrets, ever.
 #   push to main   — the same, then deploys, so a merge is live in minutes.
-#   schedule       — the full build with every provider secret: all 24 gallery
-#                    examples run against live data, and the result is
+#   schedule       — the full build with every provider secret: every gallery
+#                    example runs against live data, and the result is
 #                    deployed and cached for the credential-free builds above.
 #
 # Nothing rendered is committed. The site goes to the gh-pages branch as an
@@ -38,7 +38,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # The full build executes 24 examples against live providers.
+    # The full build executes every example against live providers.
     timeout-minutes: 90
     permissions:
       contents: write

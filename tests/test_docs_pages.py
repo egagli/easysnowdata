@@ -21,16 +21,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 GALLERY = REPO_ROOT / "docs" / "gallery"
 
 #: Products with no gallery example, and why. Anything else must have one.
-NO_EXAMPLE = {
-    "grdc-wmo-basins": (
-        "the upstream GRDC archive has answered 404 since at least June 2026, so "
-        "an example would fail on every build; the health probe tracks it instead"
-    ),
-    "hydrobasins": (
-        "the default figshare route is a 2.7 GB geodatabase and the per-region "
-        "HydroSHEDS route is 50-300 MB, too heavy to download on every docs build"
-    ),
-}
+#: Empty since 0.3: every product is drawn somewhere in the gallery.
+NO_EXAMPLE: dict[str, str] = {}
 
 
 @pytest.fixture(scope="module")
@@ -70,7 +62,11 @@ class TestGalleryLinks:
     def test_no_orphan_gallery_scripts(self):
         claimed = {e for p in catalog.products().values() for e in p.examples}
         on_disk = {
-            path.relative_to(GALLERY).as_posix() for path in GALLERY.rglob("plot_*.py")
+            path.relative_to(GALLERY).as_posix()
+            for path in GALLERY.rglob("plot_*.py")
+            # tools/ holds the cross-cutting examples (AOI, time, water years)
+            # that belong to no single product.
+            if path.relative_to(GALLERY).parts[0] != "tools"
         }
         assert on_disk - claimed == set(), (
             "gallery scripts no catalog entry claims: "
@@ -91,9 +87,11 @@ class TestCredentialMarkers:
         free = set(esd_docs.credential_free_examples())
         requirements = esd_docs.example_requirements()
         assert free == {n for n, needs in requirements.items() if not needs}
-        # Every theme keeps at least one example a pull request can run.
-        themes = {Path(name).parent.name for name in free}
-        assert themes == {p.theme for p in catalog.products().values()}
+        # The credentialed examples run in the scheduled build, which has the
+        # secrets; the pull-request build still needs something to execute.
+        assert len(free) >= 5
+        sections = {Path(name).parent.name for name in requirements}
+        assert sections <= {*catalog.KNOWN_THEMES, "tools"}
 
     def test_pattern_selects_exactly_the_free_examples(self, esd_docs):
         pattern = re.compile(esd_docs.credential_free_pattern())
@@ -102,12 +100,37 @@ class TestCredentialMarkers:
             assert hit is (not needs), name
 
     def test_a_marked_example_declares_what_its_product_needs(self, esd_docs):
-        # plot_ucla_sr.py only route is NSIDC, so it must be marked.
+        """A marker covers the default route, and names only routes that exist.
+
+        An example may go beyond its product's default route to compare a
+        credentialed alternative (SNODAS against its Earth Engine mirror), so
+        extra markers are allowed when some route of some product the example
+        draws requires them. The tools examples belong to no product and are
+        checked only for known providers.
+        """
         requirements = esd_docs.example_requirements()
+        claimed: dict[str, set[str]] = {}
+        for product in catalog.products().values():
+            for example in product.examples:
+                claimed.setdefault(example, set()).add(product.id)
+        for name, needs in requirements.items():
+            if name not in claimed:
+                assert Path(name).parts[0] == "tools", f"{name} is unclaimed"
+                continue
+            products = [catalog.get(pid) for pid in claimed[name]]
+            # the default route of at least one claiming product must be covered
+            defaults = [set(p.requires) for p in products]
+            assert any(d <= set(needs) for d in defaults), (
+                f"{name}: marker {needs} does not cover a default route ({defaults})"
+            )
+            offered = {r for p in products for s in p.sources for r in s.requires}
+            assert set(needs) <= offered, (
+                f"{name}: marker names {set(needs) - offered}, which no route "
+                "of its products requires"
+            )
+        # the two anchors that must stay marked
         assert requirements["snow/plot_ucla_sr.py"] == ("earthdata",)
         assert requirements["stations/plot_nve_stations.py"] == ("nve",)
-        # ...and one whose product has an open route is not.
-        assert requirements["snow/plot_snodas.py"] == ()
 
 
 class TestProductPage:

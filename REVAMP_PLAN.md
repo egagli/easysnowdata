@@ -1302,3 +1302,133 @@ live on 2026-09-15 unless noted):
 - The credential-provider pattern (§5) once implemented, as a worked example for
   `data-access/earthdata-and-earthaccess.md` and `gee-and-xee.md` (GDAL cookie jar + Dask
   workers is the non-obvious part).
+
+---
+
+## 15. Phase 5 review and the 0.3 cleanup (recorded 2026-09-21)
+
+A review pass over the executed phases, with the stations transfer (§9) as the
+focus, done on `main` after 0.2.0 shipped. What it found and what changed:
+
+**The stations transfer held up.** Option B as decided: one copy of the clients
+(`easysnowdata.stations.clients`), the adapter (`inventory`/`load`/`metadata`),
+the archive fast path, `global_snow_networks` importing this package. Two
+things were finished rather than redesigned: the vendored clients are now
+linted and formatted with the rest of the package (the ruff exclusion is gone —
+`ruff format` plus fifteen `UP` autofixes, no logic change), and the five
+network products declare `provider="stations"` instead of the borrowed
+`"vector_http"`. The two archive probe labels inherited from the retired
+`snotel-ccss-stations` entry were renamed to say what they probe (the
+five-network inventory and CSVs) and `data_status/history.json` was rewritten
+with the new labels, so nothing in the history was orphaned. The NVE probe was
+a genuine bug: it never sent `X-API-Key`, so the weekly check reported a 401
+whenever the key *was* configured (issue #23).
+
+**Deprecated surface removed (0.3).** `remote_sensing`, `hydroclimatology`,
+`topography`, `automatic_weather_stations`, `utils`, `_deprecation`, their
+tests, the pre-0.2 notebooks under `docs/examples/` and the `notebooks.md`
+page — the release the shims promised. One regression this exposed: the only
+`import rioxarray` in the package sat in the `topography` shim, so removing it
+un-registered `.rio` for every loader on a bare import; `processing.contract`
+now imports it, and `tests/test_easysnowdata.py` checks a fresh interpreter.
+
+**Processing pruned.** `normalized_difference`, `ndsi`, `ndvi`, `ndwi`, `ndbi`,
+`evi`, `binary_snow`, `rgb`, `stretch_percentile`, `stretch_clahe` and
+`plotting.rgb` are gone, and `scikit-image` with them. The rule (§2.6
+amended): processing helpers exist for what is *not* one line of xarray —
+bit-field masks, metadata-driven scale/offset, baseline harmonization, the
+SNODAS flat-file reader, the incidence-angle geometry, water years. Band
+arithmetic and thresholds are written out wherever they are used, so the
+gallery never hides which bands or which cut-off.
+
+**Terrain is five DEMs, not one.** `terrain.dem.load(aoi, product=…)` serves
+`copernicus-dem` (default; PC, Earth Search, and the 2024_1 release on GEE),
+`nasadem` (PC, GEE), `srtm` (GEE), `3dep` (10 m / 30 m over the US; PC, GEE)
+and `alos-dem` (PC v3.2, GEE v4.1), all through two code paths and one output
+contract, all resampling bilinearly (elevation is continuous; nearest would
+only copy the source staircase) so two routes to one DEM land on a common grid
+identically; `terrain.dem.compare()` tabulates the differences (resolution, extent,
+acquisition, vertical datum — EGM2008 / EGM96 / NAVD88 — surface vs terrain
+model). All thirteen routes verified live over Mount Rainier on 2026-09-21.
+
+**Plotting conventions (§2.7 amended).** `plotting.map`, `categorical`,
+`points`, `timeseries`, `label`, `finish_map`: equal aspect (latitude-corrected
+with a `GeographicAxesWarning` for EPSG:4326 data), colorbar matched to the
+map height, a small scale bar (`matplotlib-scalebar`), a light lat/lon
+graticule (pyproj, no cartopy), optional web basemap (`contextily`, Esri
+shaded relief by default), legends outside the axes, units in `[ ]` never
+`( )`, time axes always calendar dates (`by_water_year=True` for
+October-to-September overlays). Every piece is a keyword.
+
+**A sign error in the DEM-computed local incidence angle (0.2) is fixed.**
+`processing.sar.local_incidence_angle` measured the range-facing slope
+component from the look direction (sensor to ground) instead of from the
+direction back toward the sensor, so a slope facing the radar was given the
+*larger* angle. Found while the gallery compared it with the OPERA RTC-S1
+static layer; verified on a synthetic east-facing plane with a west-looking
+descending pass (35° nominal, 20° slope → 15.7°, not 55°). Every LIA computed
+with 0.2's `source="dem"` or `source="gee"` route is affected; the OPERA
+static layer route is not.
+
+**The DEM-route incidence angle now uses each track's real geometry.** Eric
+questioned whether a DEM plus constants could stand in for the acquisition
+geometry, and it could not well: Sentinel-1's heading varies with latitude
+and the ellipsoidal incidence angle runs 29°→46° across the IW swath, so a
+constant 39° and a nominal heading were the crude part. `sentinel1.
+scene_geometry()` now reads the heading (footprint along-track edge), look
+azimuth and swath position off a representative Planetary Computer RTC scene
+of the chosen `relative_orbit`, and `incidence_angle_field()` turns the swath
+position into a per-pixel angle (linear model, within ~1° of OPERA's band at
+Rainier). Against OPERA's per-burst layer the DEM route now agrees to a median
+5.6°/5.8° (descending track 13 / ascending 137) versus 7.1°/6.6° with the old
+constants; the remaining gap is DEM resolution and the absence of a
+layover/shadow model. Every pass of a track is assumed to share its geometry —
+the same assumption as Eric's `generate_sentinel1_local_incidence_angle_maps`
+tool, which computes the exact answer from the GRD orbit file with `sarsen`;
+that tool is referenced from the catalog entry rather than vendored, because
+OPERA's static layer already is the exact answer where Earthdata Login is
+available. `relative_orbit=` also filters the OPERA bursts (the track is in
+the burst id), the GEE route filters `relativeOrbitNumber_start`, and all
+three routes record `relative_orbit`, `platform_heading`, `look_azimuth` and
+`incidence_angle_model` in the attrs.
+
+**Every OPERA read from ASF had been failing.** `datapool.asf.alaska.edu` answers
+GDAL's initial `/vsicurl` HEAD with a 403 from API Gateway, so both the OPERA
+RTC-S1 backscatter route and the RTC-S1-STATIC incidence-angle route raised on
+first read even with a valid Earthdata login; the `cmr-asf` catalog now sets
+`CPL_VSIL_CURL_USE_HEAD=NO`. Found by the SAR gallery example, which now
+draws Planetary Computer RTC beside OPERA RTC-S1 and the OPERA layover/shadow
+mask. Open question from the same comparison: the OPERA descending geometry at
+47°N is best reproduced with a look azimuth near 260°, not the 280° that the
+`S1_HEADING` constant implies, so the headings are latitude-dependent and the
+constants are about 20° off there.
+
+**Earthdata tokens expire; CI should not.** EDL user tokens last about 60
+days and earthaccess trusts one from the environment without checking, so an
+expired `EARTHDATA_TOKEN` secret turns the whole pipeline red. The provider
+now asks URS whether the token is accepted (`token_is_valid`, through a
+`requests` session with `trust_env=False`, because a netrc entry would
+otherwise replace the bearer header with basic auth and validate the
+password instead) and, when it is not and a username/password or netrc entry
+exists, drops it and logs in with those — earthaccess then mints a fresh token,
+which the GDAL bearer options pick up. The recommended CI configuration is
+therefore `EARTHDATA_USERNAME` + `EARTHDATA_PASSWORD` (already secrets), with
+the token optional.
+
+**Two more product bugs the gallery rewrite exposed.** Planetary Computer's
+`modis-10A1-061` / `modis-10A2-061` collections hold Terra and Aqua granules
+together and `snow.modis` did not filter on `platform`, so its daily mosaic
+mixed the two overpasses (1.8 % of bytes differed from the NSIDC Terra granule;
+Terra-only matches it exactly) — fixed with a default platform query, and
+`MYD10A1`/`MYD10A2` are now selectable. `snow.snow_classification.RESOLUTIONS`
+named NSIDC-0768 files that do not exist (`2.5km_2.5arcmin`, `10km_5.0arcmin`,
+`0.5deg_30.0arcmin`); the archive's grids are `300m_10.0arcsec`,
+`01km_30.0arcsec`, `05km_2.50arcmin`, `50km_0.50degree`, plus an `EA` region.
+Both verified against the live archives on 2026-09-21.
+
+**Docs organised by module.** One `KNOWN_THEMES` order (stations, snow, sar,
+optical, terrain, land, hydro, climate) drives the catalog index, the status
+page (health rows grouped by theme), the README table, the API navigation and
+the gallery sections; a `tools` gallery section holds the cross-cutting
+examples (AOI and time parsing, the catalog, water years). Example titles name
+the product and its provider, never a place.

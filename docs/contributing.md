@@ -45,6 +45,25 @@ dependency is actually in `pixi.lock` rather than trusting the exit code.
 | `pixi run -e dev report-health` | print the issues the last health run would open |
 | `pixi run -e dev watch` | run the upstream watch and print the digest, writing nothing |
 
+## Credentials on your machine
+
+CI holds every provider secret, and the scheduled docs build and the weekly
+health check use them; GitHub never hands a secret back, so the same values
+have to reach your shell separately. Two ways that need no code:
+
+- **A `.env` file at the repo root** (already in `.gitignore`), one
+  `NAME=value` per line, loaded for a shell with `set -a; . ./.env; set +a`
+  before `pixi run …`. Good for `NVE_API_KEY`, `PL_API_KEY`,
+  `EARTHDATA_USERNAME` / `EARTHDATA_PASSWORD` and `EARTHENGINE_TOKEN`.
+- **The provider's own store**: `planet auth login` saves a Planet session
+  under `~/.planet/`, `earthaccess.login(persist=True)` writes `~/.netrc`, and
+  `earthengine authenticate` writes `~/.config/earthengine/credentials`. The
+  auth providers read all of these without any variable set.
+
+`esd.auth.status()` shows what was found and how. The `requires_*` test
+markers and the gallery's `# esd-requires:` lines skip cleanly when a
+credential is absent, so a partial set is fine for local work.
+
 ## The four test tiers
 
 Each tier answers a different question, and they are deliberately separate so
@@ -118,11 +137,20 @@ under, so renaming one starts its history over.
 ```
 
 ```{card} 5. A gallery example
-`docs/gallery/<theme>/plot_<product>.py`: load it for one AOI, draw one
-figure, say one thing that is true about the product and not obvious. Use the
+`docs/gallery/<theme>/plot_<product>.py`: load it for one AOI, draw one or two
+figures, say one thing that is true about the product and not obvious. Use the
 sphinx-gallery format — a docstring title with an `===` underline of exactly
 the right length, then `# %%` cells. List it in the catalog entry's
 `examples=` tuple.
+
+House style: the title names the product and its provider (`SNODAS snow water
+equivalent and depth (NOHRSC)`), never a place. A cell near the top prints the
+product's routes (`esd.catalog.get(pid).sources`). Maps go through
+`esd.plotting.map` / `categorical` / `points`, time series through
+`esd.plotting.timeseries`, so every figure has equal aspect, a scale bar, a
+graticule, units in `[ ]` and calendar dates without repeating the matplotlib.
+Band arithmetic and thresholds are written out, not wrapped. Where a product has
+two routes, show them side by side.
 
 If it needs credentials, put `# esd-requires: earthdata` (comma-separated, one
 or more providers) on the **first line, above the docstring**. That keeps it
@@ -156,9 +184,6 @@ blank squares. Its status table and catalog summary come from
 `scripts/update_readme_status.py`, between the sentinel comments — edit the
 catalog entry, not the README.
 
-The legacy notebooks under `docs/examples/` are historical. They are rendered
-as-is, never re-executed, and excluded from ruff. Do not reformat them.
-
 ## Style
 
 - `ruff format` and `ruff check` must pass: `pixi run -e lint lint`. Line
@@ -175,11 +200,9 @@ The network clients under `easysnowdata/stations/clients/` arrived here as a
 `git subtree` of
 [`global_snow_networks`](https://github.com/egagli/global_snow_networks). That
 repo deleted its copy in 2026-09 and imports these instead, so **this is now
-the only copy: fix a client here.** They are still excluded from ruff, which
-is no longer necessary and only avoids a 7 000-line reformat inside the
-migration; formatting them is a fine follow-up. Their contract is still
-global_snow_networks' `DESIGN.md` §3, and their tests are in
-`tests/stations/`.
+the only copy: fix a client here.** They are linted and formatted like the
+rest of the package. Their contract is still global_snow_networks'
+`DESIGN.md` §3, and their tests are in `tests/stations/`.
 
 ## Pull requests
 

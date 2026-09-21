@@ -21,21 +21,14 @@ import argparse
 import sys
 from pathlib import Path
 
+from easysnowdata.catalog import KNOWN_THEMES
+
 GALLERY = Path("docs/auto_examples")
 DEFAULT_OUT = Path("docs/_build/html/_static/gallery.webp")
 
-#: Themes in the order the gallery shows them, so the montage is stable
-#: between builds rather than filesystem-ordered.
-ORDER = (
-    "stations",
-    "snow",
-    "sar",
-    "optical",
-    "terrain",
-    "land",
-    "hydro",
-    "climate",
-)
+#: Themes in the order the gallery shows them — the catalog's order, then the
+#: cross-cutting tools section — so the montage is stable between builds.
+ORDER = (*KNOWN_THEMES, "tools")
 
 
 def _was_executed(thumb: Path) -> bool:

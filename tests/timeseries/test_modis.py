@@ -221,32 +221,7 @@ def test_nsidc_route_without_credentials_names_the_free_alternative(no_credentia
     assert 'source="planetary-computer"' in str(excinfo.value)
 
 
-# ── binary snow (pure processing) ────────────────────────────────────────────
-
-
-def test_binary_snow_thresholds_and_flags():
-    values = xr.DataArray(
-        np.array([0, 20, 40, 100, 200, 250, 255], dtype="uint8"), dims="x"
-    )
-    binary = snow_processing.binary_snow(values, product="MOD10A1")
-    assert list(binary.values[:4]) == [0.0, 0.0, 1.0, 1.0]
-    assert np.isnan(binary.values[4:]).all()  # sentinels say nothing
-    assert binary.attrs["flag_meanings"] == "no_snow snow"
-    assert binary.attrs["ndsi_threshold"] == 40
-
-    lower = snow_processing.binary_snow(values, product="VNP10A1", threshold=20)
-    assert list(lower.values[:3]) == [0.0, 1.0, 1.0]
-    kept = snow_processing.binary_snow(
-        values, product="MOD10A1", keep_flags_as_nan=False
-    )
-    assert list(kept.values[4:]) == [0.0, 0.0, 0.0]
-
-    extent = xr.DataArray(np.array([25, 200, 50, 100], dtype="uint8"), dims="x")
-    a2 = snow_processing.binary_snow(extent, product="MOD10A2")
-    assert list(a2.values[:2]) == [0.0, 1.0]
-    assert np.isnan(a2.values[2])  # cloud
-    assert a2.values[3] == 0.0  # lake ice is not snow
-    assert a2.attrs["ndsi_threshold"] == "n/a"
+# ── the CF flag attrs ─────────────────────────────────────────────────────────
 
 
 def test_ndsi_flag_attrs_are_plain_strings():
@@ -254,46 +229,6 @@ def test_ndsi_flag_attrs_are_plain_strings():
     assert attrs["units"] == "%" and attrs["valid_range"] == [0, 100]
     assert "cloud" in attrs["flag_meanings"]
     assert all(isinstance(v, (str, list)) for v in attrs.values())
-
-
-# ── the deprecation shim ──────────────────────────────────────────────────────
-
-
-@pytest.mark.recorded
-def test_old_modis_snow_class_is_a_shim(fake_stac):
-    from easysnowdata import _deprecation
-    from easysnowdata.remote_sensing import MODIS_snow
-
-    _deprecation.reset_warnings()
-    with pytest.warns(
-        _deprecation.EasysnowdataDeprecationWarning, match="snow.modis.load"
-    ):
-        ds = MODIS_snow(
-            RAINIER,
-            start_date="2023-01-01",
-            end_date="2023-01-20",
-            data_product="MOD10A2",
-            mute=True,
-        )
-    assert isinstance(ds, xr.Dataset)
-    assert "Maximum_Snow_Extent" in ds.data_vars
-    # MOD10A2 still comes from Planetary Computer, as it did before
-    assert ds.attrs["source_id"] == "planetary-computer"
-
-
-@pytest.mark.recorded
-def test_old_modis_snow_cgf_uses_nsidc(fake_nsidc):
-    from easysnowdata.remote_sensing import MODIS_snow
-
-    ds = MODIS_snow(
-        RAINIER,
-        start_date="2023-03-01",
-        end_date="2023-03-02",
-        data_product="MOD10A1F",
-        mute=True,
-    )
-    assert ds.attrs["source_id"] == "nsidc"
-    assert ds.attrs["modis_product"] == "MOD10A1F"
 
 
 # ── live smoke tests ──────────────────────────────────────────────────────────
@@ -316,7 +251,8 @@ def test_live_modis_load_planetary_computer():
     assert band.dims == ("time", "y", "x") and ds.sizes["time"] >= 1
     assert band.dtype == np.uint8 and band.rio.nodata == 255
     assert ds.rio.crs is not None and ds.odc.crs is not None
-    binary = esd.processing.binary_snow(band, product="MOD10A1").isel(time=0).compute()
+    scene = band.isel(time=0).compute()
+    binary = (scene >= 40).where(scene <= 100)  # NaN where the byte is a sentinel
     assert set(np.unique(binary.values[~np.isnan(binary.values)])) <= {0.0, 1.0}
 
 
