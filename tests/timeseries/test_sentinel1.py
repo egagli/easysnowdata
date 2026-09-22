@@ -199,6 +199,10 @@ def _item(when: str, *, orbit_state="ascending", relative_orbit=13, absolute_orb
     }
 
 
+def _id(item) -> str:
+    return item["id"] if isinstance(item, dict) else item.id
+
+
 def _dataset(values: dict[str, list[float]], times: list[str]) -> xr.Dataset:
     time = pd.to_datetime(times).values
     data = {}
@@ -237,6 +241,8 @@ def fake_stac(monkeypatch, fake_credentials):
 
     def load(item_arg, aoi=None, **kwargs):
         calls["load"] = kwargs
+        if isinstance(item_arg, list):  # the PC route hands over a GeoDataFrame
+            calls.setdefault("loads", []).append([_id(i) for i in item_arg])
         if "0_VV" in (kwargs.get("bands") or []):
             return _dataset({"0_VV": [0.1], "0_mask": [2]}, ["2023-08-04"])
         return _dataset({"vv": [0.1], "vh": [0.01]}, ["2023-08-04"])
@@ -277,6 +283,9 @@ def test_load_opera_route_renames_and_keeps_the_mask(fake_stac):
     assert fake_stac["load"]["catalog"] == "cmr-asf"
     assert fake_stac["load"]["groupby"] == "solar_day"
     assert set(ds.data_vars) == {"vv", "mask"}
+    # the stub item names no track in its id, so the per-track grouping files it
+    # under -1; the item's own sat:relative_orbit property then overrides it
+    assert list(ds["sat:relative_orbit"].values) == [13]
     assert ds["mask"].dtype == np.uint8 and ds["mask"].rio.nodata == 255
     assert ds["mask"].attrs["flag_meanings"].split()[2] == "layover"
     assert ds.attrs["source_id"] == "opera-rtc-s1"
@@ -285,6 +294,39 @@ def test_load_opera_route_renames_and_keeps_the_mask(fake_stac):
     )
     assert fake_stac["load"]["bands"] == ["0_VV"]
     assert "mask" not in no_mask.data_vars or True  # the stub always returns one
+
+
+@pytest.mark.recorded
+def test_load_opera_route_never_mixes_tracks(fake_stac, monkeypatch):
+    """Two tracks imaging the AOI on the same solar day stay two time steps."""
+    items = [
+        {
+            "id": "OPERA_L2_RTC-S1_T137-292392-IW3_20230805T020229Z_x_S1A_30_v1.0",
+            "properties": {"datetime": "2023-08-05T02:02:29Z"},
+        },
+        {
+            "id": "OPERA_L2_RTC-S1_T013-000001-IW1_20230805T142200Z_x_S1A_30_v1.0",
+            "properties": {"datetime": "2023-08-05T14:22:00Z"},
+        },
+    ]
+    monkeypatch.setattr(sentinel1.providers.stac, "search", lambda *a, **k: items)
+
+    def load(item_arg, aoi=None, **kwargs):
+        ids = [_id(i) for i in item_arg]
+        fake_stac.setdefault("loads", []).append(ids)
+        when = "2023-08-05T02:02" if "T137" in ids[0] else "2023-08-05T14:22"
+        return _dataset({"0_VV": [0.1], "0_mask": [0]}, [when])
+
+    monkeypatch.setattr(sentinel1.providers.stac, "load", load)
+    ds = sentinel1.load(RAINIER, "2023-08", source="opera-rtc-s1", bands=["vv"])
+    # one odc load per track, each with only that track's bursts …
+    assert sorted(len(ids) for ids in fake_stac["loads"]) == [1, 1]
+    assert all(
+        len({sentinel1._track_of(i) for i in ids}) == 1 for ids in fake_stac["loads"]
+    )
+    # … concatenated in time order and tagged with the track
+    assert ds.sizes["time"] == 2
+    assert list(ds["sat:relative_orbit"].values) == [137, 13]
 
 
 @pytest.mark.recorded
@@ -326,24 +368,43 @@ def test_local_incidence_angle_from_a_dem(monkeypatch, fake_credentials):
     dem = _planar_dem(20.0, facing="west")
     ds = sentinel1.local_incidence_angle(RAINIER, source="dem", dem=dem)
     assert set(ds.data_vars) == {"local_incidence_angle", "incidence_angle"}
-    assert ds["local_incidence_angle"].dims == ("y", "x")
+    # no relative_orbit → one raster per track, never fused
+    assert ds["local_incidence_angle"].dims == ("relative_orbit", "y", "x")
+    assert list(ds["relative_orbit"].values) == [13, 137]
+    assert list(ds["sat:orbit_state"].values) == ["descending", "ascending"]
+    assert ds["platform_heading"].sel(relative_orbit=137) == pytest.approx(
+        349.5, abs=0.05
+    )
+    assert "relative_orbit" not in ds.attrs and "orbit_state" not in ds.attrs
     lo, hi = sentinel1.IW_INCIDENCE_RANGE
-    assert lo <= float(ds["incidence_angle"][10, 10]) <= hi
-    assert ds.attrs["relative_orbit"] == 137
-    assert ds.attrs["orbit_state"] == "ascending"
+    assert lo <= float(ds["incidence_angle"][0, 10, 10]) <= hi
     assert ds.attrs["source_id"] == "dem"
     assert ds.attrs["product_id"] == "sentinel-1-local-incidence-angle"
+    # one pass direction keeps only its tracks
+    asc = sentinel1.local_incidence_angle(
+        RAINIER, source="dem", dem=dem, orbit_state="ascending"
+    )
+    assert list(asc["relative_orbit"].values) == [137]
+    # a requested track comes back as a plain (y, x) raster with the geometry in attrs
+    one = sentinel1.local_incidence_angle(
+        RAINIER, source="dem", dem=dem, relative_orbit=137
+    )
+    assert one["local_incidence_angle"].dims == ("y", "x")
+    assert (
+        one.attrs["relative_orbit"] == 137 and one.attrs["orbit_state"] == "ascending"
+    )
+    assert int(one["relative_orbit"]) == 137
     # A descending pass looks west, so the sensor sits to the east and a
     # west-facing slope tilts *away* from it: the local angle opens up
     # (35° + 20° of slope). The ascending pass looks east and sees it face-on.
     descending = sentinel1.local_incidence_angle(
-        RAINIER, source="dem", dem=dem, orbit_state="descending", incidence_angle=35.0
+        RAINIER, source="dem", dem=dem, relative_orbit=13, incidence_angle=35.0
     )
     assert float(descending["local_incidence_angle"][10, 10]) == pytest.approx(
         55.0, abs=1.5
     )
     ascending = sentinel1.local_incidence_angle(
-        RAINIER, source="dem", dem=dem, orbit_state="ascending", incidence_angle=35.0
+        RAINIER, source="dem", dem=dem, relative_orbit=137, incidence_angle=35.0
     )
     assert float(ascending["local_incidence_angle"][10, 10]) == pytest.approx(
         15.0, abs=2.5
@@ -368,6 +429,13 @@ def test_local_incidence_angle_from_opera_static(fake_stac, monkeypatch):
         )
 
     monkeypatch.setattr(sentinel1.providers.stac, "load", load)
+    monkeypatch.setattr(
+        sentinel1.providers.stac,
+        "search",
+        lambda *a, **k: [
+            {"id": "OPERA_L2_RTC-S1-STATIC_T137-292394-IW3_20140403_S1A_30_v1.0"}
+        ],
+    )
     ds = sentinel1.local_incidence_angle(RAINIER)
     assert fake_stac["load"]["bands"] == [
         "0_local_incidence_angle",
@@ -376,7 +444,9 @@ def test_local_incidence_angle_from_opera_static(fake_stac, monkeypatch):
     ]
     assert set(ds.data_vars) == {"local_incidence_angle", "incidence_angle", "mask"}
     assert "time" not in ds.dims  # the static layers collapse the degenerate axis
-    assert float(ds["local_incidence_angle"][0, 0]) == pytest.approx(22.0)
+    assert ds["local_incidence_angle"].dims == ("relative_orbit", "y", "x")
+    assert list(ds["relative_orbit"].values) == [137]
+    assert float(ds["local_incidence_angle"][0, 0, 0]) == pytest.approx(22.0)
     assert ds.attrs["source_id"] == "opera-static"
 
 
@@ -419,7 +489,8 @@ def test_live_sentinel1_search_opera_is_open():
 def test_live_local_incidence_angle_from_the_dem_needs_no_account():
     ds = sentinel1.local_incidence_angle(RAINIER, source="dem", resolution=90)
     lia = ds["local_incidence_angle"].compute()
-    assert lia.dims == ("y", "x")
+    assert lia.dims == ("relative_orbit", "y", "x")
+    assert len(ds["relative_orbit"]) >= 2  # Rainier sees four tracks
     assert ds.rio.crs.to_epsg() == 32610
     assert 0.0 <= float(np.nanmin(lia)) and float(np.nanmax(lia)) <= 90.0
     # Rainier's relief spreads the angle well away from the flat-earth value
@@ -429,26 +500,25 @@ def test_live_local_incidence_angle_from_the_dem_needs_no_account():
 
 @pytest.mark.live
 @pytest.mark.requires_earthaccess
-@pytest.mark.xfail(
-    reason=(
-        "ASF's datapool answers GDAL with 403. Measured 2026-09-17: a plain "
-        "requests GET of the same URL returns 206 through four redirects "
-        "(datapool → cumulus → urs.earthdata → CloudFront), while GDAL/curl "
-        "with GDAL_HTTP_NETRC never completes the handshake — no cookie is "
-        "issued for the ASF host even with an empty jar, and neither "
-        "CPL_VSIL_CURL_USE_HEAD=NO, GDAL_DISABLE_READDIR_ON_OPEN nor an "
-        "explicit GDAL_HTTP_USERPWD changes it. Not strict: CI authenticates "
-        "with EARTHDATA_TOKEN (a bearer header, a different code path), so "
-        "this may well pass there. The product has a credential-free route — "
-        "source='dem' — which the gallery example uses."
-    ),
-    strict=False,
-)
 def test_live_local_incidence_angle_from_opera_static():
+    """The published layer, one raster per track. (ASF's datapool used to
+    answer GDAL with 403; the URS netrc login in easysnowdata.auth fixed it.)"""
     ds = sentinel1.local_incidence_angle(RAINIER, resolution=90)
     assert "local_incidence_angle" in ds.data_vars and "mask" in ds.data_vars
+    assert ds["local_incidence_angle"].dims == ("relative_orbit", "y", "x")
+    assert len(ds["relative_orbit"]) >= 2  # Rainier sees four tracks
+    assert set(ds["sat:orbit_state"].values) <= {"ascending", "descending"}
     lia = ds["local_incidence_angle"].compute()
-    assert 0.0 <= float(np.nanmin(lia)) <= float(np.nanmax(lia)) <= 90.0
+    mask = ds["mask"].compute()
+    assert float(np.nanmin(lia)) >= 0.0
+    # OPERA does not clip: slopes facing away from the radar exceed 90°, and
+    # those pixels are (almost all) the ones its mask calls shadow
+    facing_away = lia > 90.0
+    assert float(facing_away.sum()) > 0
+    assert float((facing_away & (mask != 0)).sum()) / float(facing_away.sum()) > 0.9
+    # each track is a different geometry: the rasters are not copies of each other
+    first, second = lia.isel(relative_orbit=0), lia.isel(relative_orbit=1)
+    assert float(np.nanmedian(np.abs((first - second).values))) > 5.0
     assert ds["mask"].attrs["flag_meanings"].split()[2] == "layover"
 
 
@@ -544,8 +614,8 @@ def test_local_incidence_angle_from_earth_engine(fake_gee, monkeypatch):
     ds = sentinel1.local_incidence_angle(
         RAINIER, source="gee", orbit_state="descending"
     )
-    assert ds.attrs["relative_orbit"] == 13
-    assert ds.attrs["platform_heading"] == pytest.approx(190.6, abs=0.05)
+    assert list(ds["relative_orbit"].values) == [13]
+    assert float(ds["platform_heading"][0]) == pytest.approx(190.6, abs=0.05)
     assert set(ds.data_vars) == {"local_incidence_angle", "incidence_angle"}
     assert ds.attrs["source_id"] == "gee"
     assert float(ds["incidence_angle"].max()) == pytest.approx(38.0)
@@ -646,12 +716,16 @@ def test_incidence_angle_field_runs_near_to_far_across_the_swath():
 def test_dem_route_refuses_to_guess_without_a_scene(monkeypatch, fake_credentials):
     # No nominal heading, no constant incidence angle: without a scene of the
     # pass there is no geometry, and the route says so instead of inventing one.
-    monkeypatch.setattr(sentinel1, "scene_geometry", lambda *a, **k: {})
+    monkeypatch.setattr(sentinel1, "track_geometries", lambda *a, **k: {})
     dem = _planar_dem(20.0, facing="west")
+    with pytest.raises(ValueError, match="No Sentinel-1 RTC scene of any track"):
+        sentinel1.local_incidence_angle(RAINIER, source="dem", dem=dem)
     with pytest.raises(
         ValueError, match="No Sentinel-1 RTC scene of the ascending pass"
     ):
-        sentinel1.local_incidence_angle(RAINIER, source="dem", dem=dem)
+        sentinel1.local_incidence_angle(
+            RAINIER, source="dem", dem=dem, orbit_state="ascending"
+        )
     with pytest.raises(ValueError, match="relative orbit 5 found"):
         sentinel1.local_incidence_angle(
             RAINIER, source="dem", dem=dem, orbit_state="descending", relative_orbit=5
@@ -705,10 +779,15 @@ def test_scene_geometry_picks_the_busiest_track_and_reads_its_heading(monkeypatc
     monkeypatch.setattr(sentinel1.providers.stac, "search", search)
     g = sentinel1.scene_geometry(RAINIER, orbit_state="descending")
     assert g["relative_orbit"] == 13 and g["scenes_found"] == 3
+    assert g["orbit_state"] == "descending"
     assert g["platform_heading"] == pytest.approx(190.6, abs=0.05)
     assert g["look_azimuth"] == pytest.approx(280.6, abs=0.05)
     assert g["swath_width"] == pytest.approx(250_000.0, rel=0.01)
     assert seen["query"]["sat:orbit_state"] == {"eq": "descending"}
+    # every track, keyed by relative orbit
+    both = sentinel1.track_geometries(RAINIER)
+    assert sorted(both) == [13, 64]
+    assert both[64]["platform_heading"] == pytest.approx(192.0, abs=0.05)
     # a requested track becomes a query filter
     sentinel1.scene_geometry(RAINIER, orbit_state="descending", relative_orbit=64)
     assert seen["query"]["sat:relative_orbit"] == {"eq": 64}
@@ -775,9 +854,22 @@ def test_opera_route_filters_bursts_by_track(fake_stac, monkeypatch):
     assert ds.attrs["relative_orbit"] == 137
     with pytest.raises(ValueError, match=r"tracks that do: \[13, 137\]"):
         sentinel1.local_incidence_angle(RAINIER, relative_orbit=64)
-    # without a filter, every burst is fused and both tracks are recorded
+    # without a filter, each track is loaded on its own and stacked — never fused
+    loaded.clear()
+    all_ids: list[list[str]] = []
+    monkeypatch.setattr(
+        sentinel1.providers.stac,
+        "load",
+        lambda item_arg, aoi=None, **kw: (
+            all_ids.append([i["id"] for i in item_arg]),
+            load(item_arg, aoi, **kw),
+        )[1],
+    )
     ds = sentinel1.local_incidence_angle(RAINIER)
-    assert ds.attrs["relative_orbit"] == "13 137"
+    assert [[sentinel1._track_of(i) for i in ids] for ids in all_ids] == [[13], [137]]
+    assert list(ds["relative_orbit"].values) == [13, 137]
+    assert ds["local_incidence_angle"].dims == ("relative_orbit", "y", "x")
+    assert "relative_orbit" not in ds.attrs
 
 
 @pytest.mark.recorded
@@ -793,9 +885,13 @@ def test_gee_route_filters_the_track(fake_gee, monkeypatch):
         "search",
         lambda *a, **k: [_scene(13, "descending", 190.6)],
     )
-    ds = sentinel1.local_incidence_angle(
-        RAINIER, source="gee", orbit_state="descending"
-    )
+    ds = sentinel1.local_incidence_angle(RAINIER, source="gee", relative_orbit=13)
     assert ds.attrs["relative_orbit"] == 13
     assert ds.attrs["platform_heading"] == pytest.approx(190.6, abs=0.05)
     assert "angle band" in ds.attrs["incidence_angle_model"]
+    # the Earth Engine collection was filtered to that track and its pass
+    # calls["open"] records the collection's asset: the list holding the
+    # filtered S1_GRD stub (ee.ImageCollection([angle]))
+    inner = fake_gee["open"][0][0]
+    assert ("relativeOrbitNumber_start", 13) in inner.filters
+    assert ("orbitProperties_pass", "DESCENDING") in inner.filters

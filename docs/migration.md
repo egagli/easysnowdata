@@ -46,11 +46,29 @@ had the range-facing slope term with the wrong sign in 0.2, so slopes tilted
 toward the radar came out with a *larger* angle than slopes tilted away. The
 same route also assumed one nominal heading and a constant 39° incidence angle;
 it now takes the heading, look direction and across-swath incidence field from
-a representative scene of the chosen track (`relative_orbit=`), and raises
-rather than guess when no scene of that pass exists over the AOI. Recompute
-anything derived from it. The OPERA static-layer route
-(`source="opera-static"`, the default) reads a published product and was never
-affected.
+a representative scene of each track, and raises rather than guess when no
+scene of a requested track or pass exists over the AOI. Recompute anything
+derived from it. The OPERA static-layer route (`source="opera-static"`, the
+default) reads a published product and was never affected by the sign error.
+
+## Changed shape in 0.3: one raster per relative orbit, never fused
+
+The local incidence angle belongs to one acquisition geometry, so no route
+mixes tracks any more. `local_incidence_angle(aoi)` without `relative_orbit=`
+logs an INFO line and returns a `relative_orbit` dimension with one raster per
+track that crosses the AOI (with `sat:orbit_state`, and on the computed routes
+`platform_heading` and `look_azimuth`, as coordinates along it); the OPERA
+route used to fuse every burst with a max, and the DEM route used to pick the
+busiest track of one pass direction. `relative_orbit=137` still returns a plain
+`(y, x)` raster with the geometry in the attrs. `orbit_state=` now defaults to
+`None` (both directions) and only restricts which tracks are returned.
+`scene_geometry()` is kept; `track_geometries()` returns every track's geometry
+keyed by relative orbit.
+
+The OPERA backscatter route (`load(..., source="opera-rtc-s1")`) groups the
+bursts within each track before grouping by solar day, so a time step never
+holds two tracks, and tags each step with `sat:relative_orbit` (parsed from the
+burst id; OPERA items carry no orbit properties).
 
 DEMs are now resampled **bilinearly** whenever `crs=` or `grid_resolution=`
 puts them on a new grid (`resampling=` to choose otherwise); 0.2 copied the

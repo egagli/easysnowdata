@@ -1408,6 +1408,24 @@ constants implied: headings are latitude-dependent and the constants were about
 constant incidence angle survives anywhere; the DEM and Earth Engine routes raise
 when no scene of the pass exists over the AOI instead of guessing.
 
+**Geometries are never fused (2026-09-22).** Eric: "We should never ever mix
+geometries." `local_incidence_angle()` without `relative_orbit=` used to fuse
+every OPERA burst with a max (mixing four tracks at Rainier) and, on the DEM
+route, to pick the busiest track of one pass direction. It now logs an INFO line
+("No relative_orbit specified: returning a local incidence angle raster for each
+relative orbit within the AOI …") and returns a `relative_orbit` dimension with
+one raster per track, `sat:orbit_state`/`platform_heading`/`look_azimuth` as
+coordinates along it; `relative_orbit=` still gives a `(y, x)` raster.
+`track_geometries()` (every track's footprint geometry, keyed by track) replaces
+the busiest-track choice; `scene_geometry()` is its single-track reduction. The
+OPERA backscatter route groups bursts by track before solar day and tags
+`sat:relative_orbit` from the burst id, so a time step never holds two tracks.
+The SAR gallery page now compares OPERA and DEM-route LIA per track (median |Δ|
+5–6° at 60 m, bias −1 to −2°, RMSE ~8°) and Planetary Computer vs OPERA
+backscatter per track with OPERA's mask applied to both (medians within 0.25 dB,
+RMSE ~2.5 dB); the near-range tracks 13/64 lose 13 % of the AOI to layover
+against 4 % for 115/137.
+
 **Earthdata tokens expire; CI should not.** EDL user tokens last about 60
 days and earthaccess trusts one from the environment without checking, so an
 expired `EARTHDATA_TOKEN` secret turns the whole pipeline red. The provider

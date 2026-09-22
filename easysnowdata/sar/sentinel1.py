@@ -15,12 +15,16 @@ Sources (companion file §B.1):
     layers.
 
 Local incidence angle has its own three routes, and the credential-free one
-is a computation rather than a download::
+is a computation rather than a download. The angle belongs to one acquisition
+geometry, so the routes never fuse tracks: without ``relative_orbit=`` the
+result carries a ``relative_orbit`` dimension with one raster per track that
+crosses the AOI::
 
     import easysnowdata as esd
     s1 = esd.sar.sentinel1.load(aoi, "2023-10/2024-06", units="dB")
-    lia = esd.sar.sentinel1.local_incidence_angle(aoi)             # OPERA static
-    lia = esd.sar.sentinel1.local_incidence_angle(aoi, source="dem")   # no account
+    lia = esd.sar.sentinel1.local_incidence_angle(aoi)                  # every track
+    lia = esd.sar.sentinel1.local_incidence_angle(aoi, relative_orbit=137)  # one
+    lia = esd.sar.sentinel1.local_incidence_angle(aoi, source="dem")  # no account
 """
 
 from __future__ import annotations
@@ -56,6 +60,7 @@ __all__ = [
     "load",
     "local_incidence_angle",
     "scene_geometry",
+    "track_geometries",
     "incidence_angle_field",
 ]
 
@@ -195,7 +200,8 @@ LIA_PRODUCT = Product(
     description=(
         "The angle between the radar look vector and the terrain normal, with the "
         "layover and shadow mask: read from the OPERA RTC-S1-STATIC per-burst "
-        "layers, or computed from any DEM with no account at all (issue #10)."
+        "layers, or computed from any DEM with no account at all (issue #10). One "
+        "raster per relative orbit; tracks are never fused."
     ),
     sources=(
         Source(
@@ -333,6 +339,97 @@ def _rename_opera(ds: xr.Dataset) -> xr.Dataset:
     return ds.rename(mapping) if mapping else ds
 
 
+def _group_by_track(items: Sequence[Any]) -> dict[int, list[Any]]:
+    """OPERA items keyed by the relative orbit in their burst id (``_T137-``).
+
+    Items whose id carries no track are kept together under ``-1`` and
+    logged; in practice every OPERA RTC-S1 granule names its track.
+    """
+    groups: dict[int, list[Any]] = {}
+    for item in items:
+        track = _track_of(_item_id(item))
+        groups.setdefault(-1 if track is None else track, []).append(item)
+    if -1 in groups:
+        _logger.warning(
+            "%d OPERA item(s) carry no track in their id; kept as relative orbit -1.",
+            len(groups[-1]),
+        )
+    return dict(sorted(groups.items()))
+
+
+def _align_to(reference: xr.Dataset, other: xr.Dataset) -> xr.Dataset:
+    """*other* on *reference*'s grid (they are loaded on the same geobox, so
+    this is a no-op unless a float coordinate differs in the last place)."""
+    if all(other[d].equals(reference[d]) for d in ("x", "y") if d in other.dims):
+        return other
+    return other.reindex_like(reference[["x", "y"]], method="nearest")
+
+
+def _as_items(items: Sequence[Any]) -> list[Any]:
+    """STAC item dicts (from ``search``'s GeoDataFrame) back to ``pystac.Item``
+    for odc-stac; anything that is not a full item dict is passed through."""
+    import pystac  # noqa: PLC0415
+
+    out = []
+    for item in items:
+        if isinstance(item, dict) and item.get("type") == "Feature":
+            out.append(pystac.Item.from_dict(item))
+        else:
+            out.append(item)
+    return out
+
+
+def _load_opera_by_track(
+    items: Sequence[Any],
+    parsed: Any,
+    *,
+    bands: Sequence[str],
+    resolution: float | None,
+    crs: Any,
+    chunks: Any,
+    groupby: Any,
+    **kwargs: Any,
+) -> xr.Dataset:
+    """OPERA RTC-S1 bursts loaded one track at a time and stacked along ``time``.
+
+    Grouping by solar day alone would fuse bursts of two tracks that image
+    the AOI on the same day (an ascending evening pass and a descending
+    morning pass, or two adjacent tracks at a swath edge) into one raster
+    with two geometries. Each track is loaded on its own and tagged with
+    ``sat:relative_orbit`` before the pieces are concatenated in time order.
+    """
+    parts: list[xr.Dataset] = []
+    for track, group in _group_by_track(items).items():
+        part = providers.stac.load(
+            _as_items(group),
+            parsed,
+            bands=list(bands),
+            resolution=resolution,
+            crs=crs,
+            chunks=chunks,
+            groupby=groupby,
+            catalog="cmr-asf",
+            **kwargs,
+        )
+        part = _rename_opera(part)
+        if "time" in part.dims:
+            part = part.assign_coords(
+                {
+                    "sat:relative_orbit": (
+                        "time",
+                        np.full(part.sizes["time"], track, dtype="int16"),
+                    )
+                }
+            )
+        parts.append(part)
+    if len(parts) == 1:
+        ds = parts[0]
+    else:
+        parts = [parts[0], *(_align_to(parts[0], p) for p in parts[1:])]
+        ds = xr.concat(parts, dim="time", combine_attrs="override")
+    return ds.sortby("time") if "time" in ds.dims else ds
+
+
 def _add_orbit_coords(ds: xr.Dataset, items: Sequence[dict[str, Any]]) -> xr.Dataset:
     """Attach ``sat:orbit_state`` and ``sat:relative_orbit`` along ``time``."""
     if "time" not in ds.dims or not items:
@@ -462,6 +559,9 @@ def load(
     groupby
         odc-stac grouping; defaults to ``"sat:absolute_orbit"`` on Planetary
         Computer (one raster per pass) and ``"solar_day"`` for OPERA bursts.
+        OPERA bursts are grouped **within each relative orbit** first, so a
+        time step never mixes two tracks' geometries; the track rides along as
+        the ``sat:relative_orbit`` coordinate.
     border_noise
         Mask the falsely low values along scene edges in pre-2018 scenes
         (:func:`easysnowdata.processing.remove_border_noise`).
@@ -499,18 +599,16 @@ def load(
                 **kwargs,
             ).sortby("time")  # the PC Sentinel-1 items are not time-ordered
         else:
-            ds = providers.stac.load(
-                items,
+            ds = _load_opera_by_track(
+                item_dicts,
                 parsed,
                 bands=_opera_assets(polarisations, mask),
                 resolution=resolution,
                 crs=crs,
                 chunks=chunks,
                 groupby=groupby or "solar_day",
-                catalog="cmr-asf",
                 **kwargs,
-            ).sortby("time")
-            ds = _rename_opera(ds)
+            )
 
     for name in list(ds.data_vars):
         if name == "mask":
@@ -572,8 +670,8 @@ def local_incidence_angle(
     time: Any = None,
     *,
     source: str | None = None,
-    orbit_state: str = "ascending",
     relative_orbit: int | None = None,
+    orbit_state: str | None = None,
     incidence_angle: float | xr.DataArray | None = None,
     resolution: float | None = None,
     crs: Any = "utm",
@@ -588,37 +686,41 @@ def local_incidence_angle(
     of a place: it depends on which relative orbit (track) the scene came
     from, whether the pass was ascending or descending, and where in the
     swath a pixel sits (the ellipsoidal incidence angle runs from about 29°
-    at near range to 46° at far range in IW mode). The three routes trade
-    exactness for access:
+    at near range to 46° at far range in IW mode). Rasters of different
+    tracks are therefore **never fused**. With ``relative_orbit=`` the result
+    is one ``(y, x)`` raster for that track; without it, one raster per track
+    that crosses the AOI, stacked along a ``relative_orbit`` dimension with
+    ``sat:orbit_state`` (and, on the computed routes, ``platform_heading``
+    and ``look_azimuth``) as coordinates along it. An INFO log line says so.
+
+    The three routes trade exactness for access:
 
     ``"opera-static"`` (default, Earthdata Login)
         The published answer. OPERA's RTC-S1-STATIC layers carry the local
         incidence angle, the ellipsoidal incidence angle and the
         layover/shadow mask **per burst**, computed from the orbit state
-        vectors and the Copernicus DEM. Bursts from several tracks cover most
-        places; pass *relative_orbit* to keep one track's bursts, otherwise
-        overlapping bursts are fused (max) into a single raster and the
-        geometry is mixed.
+        vectors and the Copernicus DEM. The bursts of one track are mosaicked;
+        bursts of different tracks go to different ``relative_orbit`` slices.
     ``"dem"`` (no account)
-        An approximation from a DEM. The geometry is taken from a
-        representative Planetary Computer RTC scene of the chosen track:
-        the platform heading from the scene footprint's along-track edge,
-        the look azimuth from the heading and the look side, and the
-        ellipsoidal incidence angle as a field that grows linearly from the
-        near-range edge to the far-range edge of the swath. Every pass of a
-        relative orbit is assumed to share this geometry (the same assumption
-        the standalone LIA tool at
+        An approximation from a DEM. The geometry of each track is taken from
+        a representative Planetary Computer RTC scene: the platform heading
+        from the scene footprint's along-track edge, the look azimuth from
+        the heading and the look side, and the ellipsoidal incidence angle as
+        a field that grows linearly from the near-range edge to the far-range
+        edge of the swath. Every pass of a relative orbit is assumed to share
+        this geometry (the same assumption the standalone LIA tool at
         https://github.com/egagli/generate_sentinel1_local_incidence_angle_maps
         makes; that tool computes the exact geometry from the GRD orbit file
         with ``sarsen``, at the price of a SAFE download per track). The
         result is within a few degrees of OPERA's on open slopes and does not
-        know about layover or shadow. When no RTC scene of that pass can be
-        found over the AOI the route raises ``ValueError`` rather than guess:
-        the heading varies with latitude and the incidence angle with the
-        position in the swath, so there is no defensible default.
+        know about layover or shadow. When no RTC scene of a requested track
+        or pass can be found over the AOI the route raises ``ValueError``
+        rather than guess: the heading varies with latitude and the incidence
+        angle with the position in the swath, so there is no defensible
+        default.
     ``"gee"`` (Earth Engine)
         The ``COPERNICUS/S1_GRD`` ``angle`` band — the real per-pixel
-        ellipsoidal incidence angle of the chosen track — combined with the
+        ellipsoidal incidence angle of each track — combined with the
         Copernicus DEM and the same footprint-derived heading.
 
     Parameters
@@ -627,14 +729,15 @@ def local_incidence_angle(
         The area, and (OPERA route) a time window for the search.
     source
         ``"opera-static"``, ``"dem"`` or ``"gee"``.
-    orbit_state
-        ``"ascending"`` (default) or ``"descending"``: which pass geometry,
-        on the ``"dem"`` and ``"gee"`` routes.
     relative_orbit
-        The Sentinel-1 track (``sat:relative_orbit``) to compute or select
-        for. ``None`` picks, on the ``"dem"``/``"gee"`` routes, the track of
-        that *orbit_state* with the most scenes over *aoi*; on the OPERA
-        route it keeps every burst.
+        The Sentinel-1 track (``sat:relative_orbit``) to compute or select.
+        ``None`` (default) returns every track over *aoi* along a
+        ``relative_orbit`` dimension.
+    orbit_state
+        ``"ascending"`` or ``"descending"`` restricts the tracks to one pass
+        direction on the ``"dem"`` and ``"gee"`` routes; ``None`` (default)
+        keeps both. Ignored when *relative_orbit* is given (a track has one
+        pass direction) and on the OPERA route.
     incidence_angle
         Override for the ellipsoidal incidence angle on the ``"dem"`` route:
         a scalar for the whole AOI or a raster aligned with the DEM.
@@ -645,11 +748,13 @@ def local_incidence_angle(
     -------
     xarray.Dataset
         ``local_incidence_angle`` and ``incidence_angle`` in degrees, plus the
-        categorical ``mask`` on the OPERA route; the geometry used is in the
-        attrs (``relative_orbit``, ``platform_heading``, ``look_azimuth``,
-        ``incidence_angle_model``).
+        categorical ``mask`` on the OPERA route. With *relative_orbit* the
+        geometry used is in the attrs (``relative_orbit``, ``orbit_state``,
+        ``platform_heading``, ``look_azimuth``, ``incidence_angle_model``);
+        without it, the per-track values are coordinates along
+        ``relative_orbit``.
     """
-    if orbit_state not in ORBIT_STATES:
+    if orbit_state is not None and orbit_state not in ORBIT_STATES:
         raise ValueError(
             f"orbit_state must be one of {list(ORBIT_STATES)}, got {orbit_state!r}."
         )
@@ -658,11 +763,11 @@ def local_incidence_angle(
     ensure_source(LIA_PRODUCT, src)
 
     if src.id == "opera-static":
-        ds = _lia_from_opera(
+        tracks = _lia_from_opera(
             parsed, time, resolution, crs, mask, chunks, relative_orbit, **kwargs
         )
     elif src.id == "dem":
-        ds = _lia_from_dem(
+        tracks = _lia_from_dem(
             parsed,
             orbit_state,
             relative_orbit,
@@ -674,15 +779,69 @@ def local_incidence_angle(
             **kwargs,
         )
     else:
-        ds = _lia_from_gee(parsed, orbit_state, relative_orbit, chunks, **kwargs)
+        tracks = _lia_from_gee(parsed, orbit_state, relative_orbit, chunks, **kwargs)
+
+    if relative_orbit is None:
+        _logger.info(
+            "No relative_orbit specified: returning a local incidence angle raster "
+            "for each relative orbit within the AOI — tracks %s — along the "
+            "relative_orbit dimension. Tracks are never fused; select one with "
+            ".sel(relative_orbit=...) or pass relative_orbit=.",
+            ", ".join(str(t) for t, _ in tracks),
+        )
+    ds = _stack_tracks(tracks, single=relative_orbit is not None)
     return contract.finalize(
         ds,
         LIA_PRODUCT,
         src,
         variables=(),
         source_url=_OPERA_DOCS if src.id == "opera-static" else _PC_DOCS,
-        attrs={"orbit_state": orbit_state if src.id != "opera-static" else None},
     )
+
+
+#: The per-track pieces every route returns: ``(track, dataset)`` in track order,
+#: each dataset ``(y, x)`` with the geometry it used in ``attrs``.
+TrackRasters = list[tuple[int, xr.Dataset]]
+
+_TRACK_COORDS = (
+    ("sat:orbit_state", "orbit_state", object, "pass direction of the track"),
+    ("platform_heading", "platform_heading", "float32", "degrees clockwise from north"),
+    ("look_azimuth", "look_azimuth", "float32", "degrees clockwise from north"),
+    ("scene_id", "scene_id", object, "scene the geometry was read from"),
+)
+
+
+def _stack_tracks(tracks: TrackRasters, *, single: bool) -> xr.Dataset:
+    """One ``(y, x)`` Dataset for a requested track, or every track stacked
+    along a new ``relative_orbit`` dimension with the geometry as coordinates."""
+    if not tracks:  # pragma: no cover — every route raises before this
+        raise ValueError("No Sentinel-1 track covers this AOI.")
+    if single:
+        track, ds = tracks[0]
+        ds = ds.assign_coords(relative_orbit=track)
+        ds["relative_orbit"].attrs["long_name"] = "Sentinel-1 relative orbit"
+        ds.attrs["relative_orbit"] = track
+        return ds
+    reference = tracks[0][1]
+    parts = [reference, *(_align_to(reference, ds) for _, ds in tracks[1:])]
+    ds = xr.concat(
+        parts,
+        dim=pd.Index([t for t, _ in tracks], name="relative_orbit"),
+        combine_attrs="drop_conflicts",
+    )
+    ds["relative_orbit"].attrs["long_name"] = "Sentinel-1 relative orbit"
+    for coord, attr, dtype, description in _TRACK_COORDS:
+        values = [part.attrs.get(attr) for part in parts]
+        if all(v is None for v in values):
+            continue
+        ds = ds.assign_coords(
+            {coord: ("relative_orbit", np.asarray(values, dtype=dtype))}
+        )
+        ds[coord].attrs["description"] = description
+        ds.attrs.pop(attr, None)
+    for attr in ("relative_orbit", "orbit_state", "scene_id"):
+        ds.attrs.pop(attr, None)
+    return ds
 
 
 def _lia_from_opera(
@@ -694,63 +853,85 @@ def _lia_from_opera(
     chunks: Any,
     relative_orbit: int | None = None,
     **kwargs: Any,
-) -> xr.Dataset:
-    items = providers.stac.search(
-        "cmr-asf", OPERA_STATIC_COLLECTION, parsed, time, **kwargs
+) -> TrackRasters:
+    items = list(
+        providers.stac.search(
+            "cmr-asf", OPERA_STATIC_COLLECTION, parsed, time, **kwargs
+        )
     )
-    if not len(items):
+    if not items:
         raise ValueError(
             "No OPERA RTC-S1-STATIC granules cover this AOI; try source='dem'."
         )
+    groups = _group_by_track(items)
     if relative_orbit is not None:
         # The burst id carries the track: OPERA_L2_RTC-S1-STATIC_T137-292394-IW3_…
-        wanted = f"_T{int(relative_orbit):03d}-"
-        kept = [it for it in items if wanted in _item_id(it)]
-        if not kept:
-            tracks = sorted({_track_of(_item_id(it)) for it in items} - {None})
+        if int(relative_orbit) not in groups:
             raise ValueError(
                 f"No OPERA static bursts of track {relative_orbit} cover this AOI; "
-                f"the tracks that do: {tracks}."
+                f"the tracks that do: {[t for t in groups if t >= 0]}."
             )
-        items = kept
+        groups = {int(relative_orbit): groups[int(relative_orbit)]}
     bands = ["0_local_incidence_angle", "0_incidence_angle"]
     if mask:
         bands.append("0_mask")
-    ds = providers.stac.load(
-        items,
-        parsed,
-        bands=bands,
-        resolution=resolution,
-        crs=crs,
-        chunks=chunks,
-        groupby="solar_day",
-        catalog="cmr-asf",
+    # The pass direction of each track, from Planetary Computer scenes of the
+    # same tracks (OPERA static items carry no orbit properties). Best effort.
+    states = (
+        {t: g["orbit_state"] for t, g in track_geometries(parsed).items()}
+        if parsed is not None
+        else {}
     )
-    ds = _rename_opera(ds)
-    if "time" in ds.dims:  # static layers: collapse the (degenerate) time axis
-        ds = ds.max(dim="time", keep_attrs=True)
-    # The COGs carry no band metadata, so name and unit the layers here the
-    # same way the DEM route does; plotting labels read these.
-    ds["local_incidence_angle"].attrs.update(
-        {"long_name": "local incidence angle", "units": "degrees"}
-    )
-    ds["incidence_angle"].attrs.update(
-        {"long_name": "ellipsoidal incidence angle", "units": "degrees"}
-    )
-    if "mask" in ds:
-        ds["mask"].attrs.setdefault("long_name", "layover and shadow mask")
-    tracks = sorted({_track_of(_item_id(it)) for it in items} - {None})
-    ds.attrs["relative_orbit"] = (
-        tracks[0] if len(tracks) == 1 else " ".join(map(str, tracks))
-    )
-    ds.attrs["incidence_angle_model"] = "OPERA RTC-S1-STATIC per-burst layers"
-    return ds
+    tracks: TrackRasters = []
+    for track, group in groups.items():
+        ds = providers.stac.load(
+            group,
+            parsed,
+            bands=bands,
+            resolution=resolution,
+            crs=crs,
+            chunks=chunks,
+            groupby="solar_day",
+            catalog="cmr-asf",
+        )
+        ds = _rename_opera(ds)
+        if "time" in ds.dims:  # static layers: collapse the (degenerate) time axis
+            ds = ds.max(dim="time", keep_attrs=True)
+        # The COGs carry no band metadata, so name and unit the layers here the
+        # same way the DEM route does; plotting labels read these.
+        ds["local_incidence_angle"].attrs.update(
+            {"long_name": "local incidence angle", "units": "degrees"}
+        )
+        ds["incidence_angle"].attrs.update(
+            {"long_name": "ellipsoidal incidence angle", "units": "degrees"}
+        )
+        if "mask" in ds:
+            ds["mask"] = contract.set_categorical_nodata(ds["mask"], 255)
+            ds["mask"].attrs.update(LIA_PRODUCT.variables[-1].cf_attrs())
+        ds.attrs["incidence_angle_model"] = "OPERA RTC-S1-STATIC per-burst layers"
+        if track in states:
+            ds.attrs["orbit_state"] = states[track]
+        tracks.append((track, ds))
+    return tracks
 
 
 def _item_id(item: Any) -> str:
     return str(
         getattr(item, "id", None) or (item.get("id") if isinstance(item, dict) else "")
     )
+
+
+def _properties(item: Any) -> dict[str, Any]:
+    """A STAC item's properties, whether it is a ``pystac.Item`` or a dict."""
+    if isinstance(item, dict):
+        return item.get("properties") or {}
+    return getattr(item, "properties", None) or {}
+
+
+def _geometry(item: Any) -> dict[str, Any] | None:
+    if isinstance(item, dict):
+        return item.get("geometry")
+    return getattr(item, "geometry", None)
 
 
 def _track_of(item_id: str) -> int | None:
@@ -765,23 +946,26 @@ IW_INCIDENCE_RANGE = (29.1, 46.0)
 ORBIT_STATES = ("ascending", "descending")
 
 
-def scene_geometry(
+def track_geometries(
     aoi: Any,
     *,
-    orbit_state: str = "descending",
+    orbit_state: str | None = None,
     relative_orbit: int | None = None,
     time: Any = "2023-01-01/2024-12-31",
-) -> dict[str, Any]:
-    """The acquisition geometry of one Sentinel-1 track over *aoi*, from a scene footprint.
+) -> dict[int, dict[str, Any]]:
+    """The acquisition geometry of every Sentinel-1 track over *aoi*, by track.
 
-    Searches the Planetary Computer RTC collection for scenes of
-    *orbit_state* (and *relative_orbit* when given), takes the track with the
-    most scenes, and reads the geometry off a representative footprint:
+    Searches the Planetary Computer RTC collection for scenes over *aoi*
+    (restricted to *orbit_state* and/or *relative_orbit* when given), groups
+    them by ``sat:relative_orbit`` and reads each track's geometry off a
+    representative footprint:
 
+    ``orbit_state``
+        The pass direction, from the scene.
     ``platform_heading``
-        Azimuth of the footprint's along-track edge, oriented by
-        *orbit_state* (southward for descending, northward for ascending).
-        Sentinel-1's heading varies with latitude, so this beats a constant.
+        Azimuth of the footprint's along-track edge, oriented by the pass
+        (southward for descending, northward for ascending). Sentinel-1's
+        heading varies with latitude, so this beats a constant.
     ``look_azimuth``
         Heading plus 90° for the right-looking Sentinel-1
         (``sar:observation_direction``).
@@ -790,51 +974,87 @@ def scene_geometry(
         swath's width, in the AOI's UTM metres — the inputs
         :func:`incidence_angle_field` converts to a per-pixel ellipsoidal
         incidence angle.
+    ``scene_id``, ``scenes_found``
+        Which scene the geometry came from, and how many the track had.
 
-    Returns an empty dict when no scene is found.
+    Returns an empty dict when no scene is found (or the search fails).
     """
     parsed = parse_aoi(aoi)
-    query: dict[str, Any] = {"sat:orbit_state": {"eq": orbit_state}}
+    query: dict[str, Any] = {}
+    if orbit_state is not None:
+        query["sat:orbit_state"] = {"eq": orbit_state}
     if relative_orbit is not None:
         query["sat:relative_orbit"] = {"eq": int(relative_orbit)}
     try:
         items = providers.stac.search(
-            "planetary-computer", "sentinel-1-rtc", parsed, time, query=query
+            "planetary-computer", "sentinel-1-rtc", parsed, time, query=query or None
         )
-    except Exception as exc:  # noqa: BLE001 — the caller falls back to constants
+    except Exception as exc:  # noqa: BLE001 — the callers raise a clear error
         _logger.warning("Could not search Sentinel-1 scenes for the geometry: %s", exc)
-        return {}
-    items = list(items)
-    if not items:
         return {}
     by_track: dict[int, list[Any]] = {}
     for item in items:
-        track = item.properties.get("sat:relative_orbit")
-        if track is not None:
-            by_track.setdefault(int(track), []).append(item)
-    if not by_track:
-        return {}
-    track = max(by_track, key=lambda t: len(by_track[t]))
-    item = by_track[track][0]
+        properties = _properties(item)
+        track = properties.get("sat:relative_orbit")
+        state = properties.get("sat:orbit_state") or orbit_state
+        if track is None or state not in ORBIT_STATES or _geometry(item) is None:
+            continue
+        if orbit_state is not None and state != orbit_state:
+            continue
+        if relative_orbit is not None and int(track) != int(relative_orbit):
+            continue
+        by_track.setdefault(int(track), []).append(item)
     utm = parsed.utm_crs
-    footprint = gpd.GeoSeries([shapely.geometry.shape(item.geometry)], crs="EPSG:4326")
-    ring = np.asarray(footprint.to_crs(utm).iloc[0].exterior.coords)
-    heading = _along_track_heading(ring, orbit_state)
-    right = str(item.properties.get("sar:observation_direction", "right")) == "right"
-    look = sar_processing.look_azimuth(heading, looking="right" if right else "left")
-    ux, uy = np.sin(np.radians(look)), np.cos(np.radians(look))
-    along_look = ring[:, 0] * ux + ring[:, 1] * uy
-    return {
-        "relative_orbit": track,
-        "orbit_state": orbit_state,
-        "platform_heading": float(heading),
-        "look_azimuth": float(look),
-        "near_range": float(along_look.min()),
-        "swath_width": float(along_look.max() - along_look.min()),
-        "crs": str(utm),
-        "scene_id": _item_id(item),
-        "scenes_found": len(by_track[track]),
-    }
+    geometries: dict[int, dict[str, Any]] = {}
+    for track in sorted(by_track):
+        item = by_track[track][0]
+        properties = _properties(item)
+        state = str(properties.get("sat:orbit_state") or orbit_state)
+        footprint = gpd.GeoSeries(
+            [shapely.geometry.shape(_geometry(item))], crs="EPSG:4326"
+        )
+        ring = np.asarray(footprint.to_crs(utm).iloc[0].exterior.coords)
+        heading = _along_track_heading(ring, state)
+        right = str(properties.get("sar:observation_direction", "right")) == "right"
+        look = sar_processing.look_azimuth(
+            heading, looking="right" if right else "left"
+        )
+        ux, uy = np.sin(np.radians(look)), np.cos(np.radians(look))
+        along_look = ring[:, 0] * ux + ring[:, 1] * uy
+        geometries[track] = {
+            "relative_orbit": track,
+            "orbit_state": state,
+            "platform_heading": float(heading),
+            "look_azimuth": float(look),
+            "near_range": float(along_look.min()),
+            "swath_width": float(along_look.max() - along_look.min()),
+            "crs": str(utm),
+            "scene_id": _item_id(item),
+            "scenes_found": len(by_track[track]),
+        }
+    return geometries
+
+
+def scene_geometry(
+    aoi: Any,
+    *,
+    orbit_state: str | None = None,
+    relative_orbit: int | None = None,
+    time: Any = "2023-01-01/2024-12-31",
+) -> dict[str, Any]:
+    """The geometry of one track over *aoi*: :func:`track_geometries` reduced
+    to the requested *relative_orbit*, or else the track with the most scenes.
+
+    Returns an empty dict when no scene is found.
+    """
+    geometries = track_geometries(
+        aoi, orbit_state=orbit_state, relative_orbit=relative_orbit, time=time
+    )
+    if not geometries:
+        return {}
+    if relative_orbit is not None:
+        return geometries.get(int(relative_orbit), {})
+    return max(geometries.values(), key=lambda g: g["scenes_found"])
 
 
 def _along_track_heading(ring: np.ndarray, orbit_state: str) -> float:
@@ -919,12 +1139,13 @@ def incidence_angle_field(
     return field
 
 
-def _no_scene_error(orbit_state: str, relative_orbit: int | None) -> ValueError:
-    which = (
-        f"relative orbit {relative_orbit}"
-        if relative_orbit is not None
-        else f"the {orbit_state} pass"
-    )
+def _no_scene_error(orbit_state: str | None, relative_orbit: int | None) -> ValueError:
+    if relative_orbit is not None:
+        which = f"relative orbit {relative_orbit}"
+    elif orbit_state is not None:
+        which = f"the {orbit_state} pass"
+    else:
+        which = "any track"
     return ValueError(
         f"No Sentinel-1 RTC scene of {which} found over this AOI on Planetary "
         "Computer, so there is no pass geometry to compute the local incidence "
@@ -937,7 +1158,7 @@ def _no_scene_error(orbit_state: str, relative_orbit: int | None) -> ValueError:
 
 def _lia_from_dem(
     parsed: Any,
-    orbit_state: str,
+    orbit_state: str | None,
     relative_orbit: int | None,
     incidence_angle: float | xr.DataArray | None,
     resolution: float | None,
@@ -945,7 +1166,7 @@ def _lia_from_dem(
     dem: xr.DataArray | None,
     chunks: Any,
     **kwargs: Any,
-) -> xr.Dataset:
+) -> TrackRasters:
     if parsed is None:
         raise ValueError(
             "source='dem' needs an aoi: the pass geometry (heading, look "
@@ -953,39 +1174,48 @@ def _lia_from_dem(
             "Sentinel-1 RTC scene found over it. To use a geometry of your own, "
             "call easysnowdata.processing.sar.local_incidence_angle on the DEM."
         )
-    if dem is None:
-        dem = _copernicus_dem(parsed, resolution, crs, chunks, **kwargs)
-    geometry = scene_geometry(
+    geometries = track_geometries(
         parsed, orbit_state=orbit_state, relative_orbit=relative_orbit
     )
-    if not geometry:
+    if not geometries:
         raise _no_scene_error(orbit_state, relative_orbit)
-    heading = geometry["platform_heading"]
-    look = geometry["look_azimuth"]
-    model = (
-        f"track {geometry['relative_orbit']} geometry from scene "
-        f"{geometry['scene_id']}; incidence linear {IW_INCIDENCE_RANGE[0]}°–"
-        f"{IW_INCIDENCE_RANGE[1]}° across the swath"
-    )
-    if incidence_angle is not None:
-        angle: Any = incidence_angle
-        model += "; incidence angle supplied by the caller"
-    else:
-        angle = incidence_angle_field(dem, geometry)
-    lia = sar_processing.local_incidence_angle(dem, angle, look)
-    ds = lia.to_dataset(name="local_incidence_angle")
-    ds["incidence_angle"] = (
-        xr.full_like(lia, float(angle))
-        if not isinstance(angle, xr.DataArray)
-        else angle
-    )
-    ds["incidence_angle"].attrs.setdefault("long_name", "ellipsoidal incidence angle")
-    ds["incidence_angle"].attrs.setdefault("units", "degrees")
-    ds.attrs["look_azimuth"] = float(look)
-    ds.attrs["platform_heading"] = float(heading)
-    ds.attrs["relative_orbit"] = geometry["relative_orbit"]
-    ds.attrs["incidence_angle_model"] = model
-    return ds
+    if dem is None:
+        dem = _copernicus_dem(parsed, resolution, crs, chunks, **kwargs)
+    tracks: TrackRasters = []
+    for track, geometry in geometries.items():
+        heading = geometry["platform_heading"]
+        look = geometry["look_azimuth"]
+        model = (
+            f"track {track} geometry from scene {geometry['scene_id']}; incidence "
+            f"linear {IW_INCIDENCE_RANGE[0]}°–{IW_INCIDENCE_RANGE[1]}° across the swath"
+        )
+        if incidence_angle is not None:
+            angle: Any = incidence_angle
+            model += "; incidence angle supplied by the caller"
+        else:
+            angle = incidence_angle_field(dem, geometry)
+        lia = sar_processing.local_incidence_angle(dem, angle, look)
+        ds = lia.to_dataset(name="local_incidence_angle")
+        ds["incidence_angle"] = (
+            xr.full_like(lia, float(angle))
+            if not isinstance(angle, xr.DataArray)
+            else angle
+        )
+        ds["incidence_angle"].attrs.setdefault(
+            "long_name", "ellipsoidal incidence angle"
+        )
+        ds["incidence_angle"].attrs.setdefault("units", "degrees")
+        ds.attrs.update(
+            {
+                "orbit_state": geometry["orbit_state"],
+                "look_azimuth": float(look),
+                "platform_heading": float(heading),
+                "scene_id": geometry["scene_id"],
+                "incidence_angle_model": model,
+            }
+        )
+        tracks.append((track, ds))
+    return tracks
 
 
 def _copernicus_dem(
@@ -1019,60 +1249,64 @@ def _copernicus_dem(
 
 def _lia_from_gee(
     parsed: Any,
-    orbit_state: str,
+    orbit_state: str | None,
     relative_orbit: int | None,
     chunks: Any,
     **kwargs: Any,
-) -> xr.Dataset:
-    """The Earth Engine route: the S1_GRD angle band of one track plus GLO-30."""
+) -> TrackRasters:
+    """The Earth Engine route: the S1_GRD angle band of each track plus GLO-30."""
     ee = providers.gee.ee()
     geometry_ee = providers.gee.geometry(parsed)
-    geometry = scene_geometry(
+    geometries = track_geometries(
         parsed, orbit_state=orbit_state, relative_orbit=relative_orbit
     )
-    if not geometry:
+    if not geometries:
         raise _no_scene_error(orbit_state, relative_orbit)
-    track = (
-        relative_orbit if relative_orbit is not None else geometry.get("relative_orbit")
-    )
-    collection = (
-        ee.ImageCollection("COPERNICUS/S1_GRD")
-        .filterBounds(geometry_ee)
-        .filter(ee.Filter.eq("instrumentMode", "IW"))
-        .filter(ee.Filter.eq("orbitProperties_pass", orbit_state.upper()))
-    )
-    if track is not None:
-        collection = collection.filter(
-            ee.Filter.eq("relativeOrbitNumber_start", int(track))
-        )
-    angle = collection.select("angle").median()
-    ds = providers.gee.open_dataset(
-        ee.ImageCollection([angle]),
-        parsed,
-        chunks={} if chunks is None else chunks,
-        **kwargs,
-    )
-    if "angle" not in ds.data_vars:  # pragma: no cover — defensive
-        raise ValueError("Earth Engine returned no angle band for this AOI.")
-    ds = ds.rename({"angle": "incidence_angle"})
-    if "time" in ds.dims:
-        ds = ds.max(dim="time", keep_attrs=True)
     dem = _copernicus_dem(parsed, 30, "utm", chunks)
-    incidence = ds["incidence_angle"]
-    if incidence.shape != dem.shape:
-        incidence = incidence.rio.reproject_match(dem)
-    heading = geometry["platform_heading"]
-    look = geometry["look_azimuth"]
-    lia = sar_processing.local_incidence_angle(dem, incidence, look)
-    out = lia.to_dataset(name="local_incidence_angle")
-    out["incidence_angle"] = incidence
-    out["incidence_angle"].attrs.update(
-        {"long_name": "ellipsoidal incidence angle", "units": "degrees"}
-    )
-    out.attrs["look_azimuth"] = float(look)
-    out.attrs["platform_heading"] = float(heading)
-    out.attrs["relative_orbit"] = track if track is not None else "unknown"
-    out.attrs["incidence_angle_model"] = (
-        "COPERNICUS/S1_GRD angle band (median over the track's scenes)"
-    )
-    return out
+    tracks: TrackRasters = []
+    for track, geometry in geometries.items():
+        collection = (
+            ee.ImageCollection("COPERNICUS/S1_GRD")
+            .filterBounds(geometry_ee)
+            .filter(ee.Filter.eq("instrumentMode", "IW"))
+            .filter(
+                ee.Filter.eq("orbitProperties_pass", geometry["orbit_state"].upper())
+            )
+            .filter(ee.Filter.eq("relativeOrbitNumber_start", int(track)))
+        )
+        angle = collection.select("angle").median()
+        ds = providers.gee.open_dataset(
+            ee.ImageCollection([angle]),
+            parsed,
+            chunks={} if chunks is None else chunks,
+            **kwargs,
+        )
+        if "angle" not in ds.data_vars:  # pragma: no cover — defensive
+            raise ValueError("Earth Engine returned no angle band for this AOI.")
+        ds = ds.rename({"angle": "incidence_angle"})
+        if "time" in ds.dims:
+            ds = ds.max(dim="time", keep_attrs=True)
+        incidence = ds["incidence_angle"]
+        if incidence.shape != dem.shape:
+            incidence = incidence.rio.reproject_match(dem)
+        heading = geometry["platform_heading"]
+        look = geometry["look_azimuth"]
+        lia = sar_processing.local_incidence_angle(dem, incidence, look)
+        out = lia.to_dataset(name="local_incidence_angle")
+        out["incidence_angle"] = incidence
+        out["incidence_angle"].attrs.update(
+            {"long_name": "ellipsoidal incidence angle", "units": "degrees"}
+        )
+        out.attrs.update(
+            {
+                "orbit_state": geometry["orbit_state"],
+                "look_azimuth": float(look),
+                "platform_heading": float(heading),
+                "scene_id": geometry["scene_id"],
+                "incidence_angle_model": (
+                    "COPERNICUS/S1_GRD angle band (median over the track's scenes)"
+                ),
+            }
+        )
+        tracks.append((track, out))
+    return tracks
