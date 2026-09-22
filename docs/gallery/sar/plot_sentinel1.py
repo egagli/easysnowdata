@@ -99,10 +99,15 @@ fig.tight_layout()
 # box differs by about 2 dB between tracks for that reason alone. Mixed into
 # one series that becomes a twelve-day sawtooth with nothing to do with the
 # snow, which is why backscatter time series are split by relative orbit.
+#
+# Decibels are a logarithm, so the box is averaged in **linear power** and
+# converted afterwards: the mean of dB values is the geometric mean, which
+# sits 0.7–1 dB below the true mean power over terrain this varied.
 summer = esd.sar.sentinel1.load(
-    nisqually, "2023-06-01/2023-09-30", bands=["vv"], resolution=100
-)
-mean_vv = summer["vv"].mean(dim=["x", "y"]).compute()
+    nisqually, "2023-06-01/2023-09-30", bands=["vv"], resolution=100,
+    units="linear power",
+)  # fmt: skip
+mean_vv = esd.processing.sar.linear_to_db(summer["vv"].mean(dim=["x", "y"])).compute()
 mean_vv.attrs = {"long_name": "mean gamma0 VV over the box", "units": "dB"}
 
 fig, ax = plt.subplots(figsize=(9, 4.2))
@@ -266,10 +271,15 @@ fig.tight_layout()
 # %%
 # The statistics apply OPERA's mask to **both** rasters (only pixels OPERA
 # classes as neither layover nor shadow, valid in both) and compare the two
-# products pixel by pixel. Their medians agree to a quarter of a dB on every
-# track, Planetary Computer reading slightly brighter; the pixel-level spread
-# (a median difference near 1.4 dB, an RMSE near 2.5 dB) is what two
-# processors, two resamplings to a 60 m grid and speckle leave between them.
+# products pixel by pixel, in dB. Medians are exact in dB (the median commutes
+# with the logarithm); a difference in dB is the power *ratio* of the two
+# products, which is what a radiometric comparison should measure; and the
+# mean of those differences is the geometric-mean ratio, labelled "mean Δ"
+# rather than a linear-domain bias. Their medians agree to a quarter of a dB
+# on every track, Planetary Computer reading slightly brighter; the
+# pixel-level spread (a median difference near 1.4 dB, an RMSE near 2.5 dB)
+# is what two processors, two resamplings to a 60 m grid and speckle leave
+# between them.
 # The near-range tracks (13 and 64, the steeper incidence angles) lose three
 # times as much of the mountain to layover as the far-range pair.
 rows = []
@@ -286,7 +296,7 @@ for track in passes:
             "pixels": int(valid.sum()),
             "median PC [dB]": float(pc_vv.median()),
             "median OPERA [dB]": float(opera_vv.median()),
-            "bias PC−OPERA [dB]": float(diff.mean()),
+            "mean Δ PC−OPERA [dB]": float(diff.mean()),
             "median |Δ| [dB]": float(np.nanmedian(np.abs(diff.values))),
             "RMSE [dB]": float(np.sqrt((diff**2).mean())),
             "layover/shadow [%]": float(
