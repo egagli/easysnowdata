@@ -783,8 +783,8 @@ def scene_geometry(
         (``sar:observation_direction``).
     ``near_range``, ``swath_width``
         Position of the near-range edge along the look direction and the
-        swath's width, in the AOI's UTM metres — what
-        :func:`incidence_angle_field` turns into a per-pixel ellipsoidal
+        swath's width, in the AOI's UTM metres — the inputs
+        :func:`incidence_angle_field` converts to a per-pixel ellipsoidal
         incidence angle.
 
     Returns an empty dict when no scene is found.

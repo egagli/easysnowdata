@@ -35,6 +35,8 @@ import easysnowdata as esd
 
 aoi = (-121.94, 46.72, -121.54, 46.99)  # Mount Rainier, WA
 
+esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+
 # %%
 # Where each DEM comes from, and which routes need an account.
 for product in esd.terrain.dem.PRODUCTS:

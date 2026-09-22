@@ -45,15 +45,51 @@ def _health_rows(run: list[dict]) -> list[dict]:
     return [r for r in run if r.get("kind", "health") == "health"]
 
 
+def _module_groups(run: list[dict]) -> list[tuple[str | None, list[str]]]:
+    """Probe sources of *run* grouped under a module heading, in catalog order.
+
+    A row names its product, and the catalog knows the product's module; a
+    row without one (or for a product that has since left the catalog) goes
+    under a final *Retired* heading. When no row names a product at all there
+    is nothing to group by and a single unheaded table is returned.
+    """
+    from easysnowdata import catalog
+    from easysnowdata.catalog._models import THEME_TITLES, theme_order
+
+    products = catalog.products()
+    order = {pid: i for i, pid in enumerate(products)}
+    if not any(r.get("product") in products for r in run):
+        return [(None, [r["source"] for r in run])]
+
+    grouped: dict[str, list[dict]] = {}
+    for row in run:
+        product = products.get(str(row.get("product", "")))
+        grouped.setdefault(product.theme if product else "retired", []).append(row)
+
+    groups: list[tuple[str | None, list[str]]] = []
+    for theme in sorted(grouped, key=theme_order):
+        rows = sorted(
+            grouped[theme],
+            key=lambda r: (order.get(str(r.get("product", "")), 10**6), run.index(r)),
+        )
+        if theme in THEME_TITLES:
+            heading = f"{THEME_TITLES[theme]} (`esd.{theme}`)"
+        else:
+            heading = theme.capitalize()
+        groups.append((heading, [r["source"] for r in rows]))
+    return groups
+
+
 def build_table(history: list[list[dict]]) -> str:
-    """Build a Markdown status table from up to 4 weekly snapshots."""
+    """Build the Markdown status tables from up to 4 weekly snapshots.
+
+    One table per module, under a ``###`` heading with the module's name, so
+    the README reads the way the package is organised.
+    """
     weeks = [_health_rows(run) for run in history[:4]]
     weeks = [week for week in weeks if week]
     if not weeks:
         return "_No data yet — run `python scripts/check_data_sources.py` first._\n"
-
-    # Collect all source names in order from the most recent run
-    source_names = [r["source"] for r in weeks[0]]
 
     # Column headers: Latest + up to 3 prior weeks
     col_headers = []
@@ -65,8 +101,7 @@ def build_table(history: list[list[dict]]) -> str:
     header = "| Data Source | " + " | ".join(col_headers) + " |"
     separator = "| :---------- | " + " | ".join([":------:"] * len(col_headers)) + " |"
 
-    rows = []
-    for source in source_names:
+    def row_for(source: str) -> str:
         cells = []
         for week in weeks:
             match = next((r for r in week if r["source"] == source), None)
@@ -80,17 +115,21 @@ def build_table(history: list[list[dict]]) -> str:
                     cells.append(f'<abbr title="{tip}">{emoji}</abbr>')
                 else:
                     cells.append(emoji)
-        rows.append(f"| {source} | " + " | ".join(cells) + " |")
+        return f"| {source} | " + " | ".join(cells) + " |"
 
     now = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
-    note = (
-        f"_Last updated: {now}_  \n"
+    lines = [
+        f"_Last updated: {now}_  ",
         "_⚠️ = skipped (credentials not available in this run). "
         "Latency and virtualization probes are on the "
-        "[status page](https://egagli.github.io/easysnowdata/status.html)._\n"
-    )
-
-    return "\n".join([note, header, separator] + rows) + "\n"
+        "[status page](https://egagli.github.io/easysnowdata/status.html)._",
+    ]
+    for heading, sources in _module_groups(weeks[0]):
+        lines += [""]
+        if heading is not None:
+            lines += [f"### {heading}", ""]
+        lines += [header, separator, *(row_for(s) for s in sources)]
+    return "\n".join(lines) + "\n"
 
 
 def build_catalog_table() -> str:

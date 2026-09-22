@@ -28,6 +28,8 @@ import easysnowdata as esd
 aoi = (-121.94, 46.72, -121.54, 46.99)  # Mount Rainier
 week = "2023-03-01/2023-03-07"
 
+esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+
 # %%
 # Where the product comes from, and what each route asks for.
 for src in esd.catalog.get("era5").sources:

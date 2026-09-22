@@ -29,6 +29,8 @@ from matplotlib.lines import Line2D
 
 import easysnowdata as esd
 
+print(f"easysnowdata {esd.__version__}")
+
 # %%
 # Form 1: a ``(west, south, east, north)`` tuple in EPSG:4326. ``.bounds``
 # echoes it, ``.utm_crs`` is the UTM zone at the centroid (here zone 10N), and

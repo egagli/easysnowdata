@@ -87,8 +87,9 @@ and deselected everywhere else. Runs weekly in CI and on demand. Tests marked
 an Earth Engine account still gets a meaningful run.
 
 **docs** — the gallery is a test tier in disguise: every credential-free
-example is executed on every pull request, and the scheduled build executes all
-24 against live data with the secrets.
+example is executed on every pull request, and every push to `main` (and the
+weekly scheduled build) executes the whole gallery against live data with the
+secrets, so the published pages show every example's real output.
 
 Run the offline tiers before every commit and the live tier before claiming a
 data route works.
@@ -178,7 +179,7 @@ What *is* hand-written: `index.md`, `installation.md`, `concepts.md`,
 
 The README's header image is generated too: `scripts/make_montage.py` tiles
 the thumbnails of the executed gallery into `_static/gallery.webp`, which the
-scheduled docs build publishes and the README links to. It skips examples that
+docs build on `main` publishes and the README links to. It skips examples that
 did not run, so a build without credentials does not turn seven products into
 blank squares. Its status table and catalog summary come from
 `scripts/update_readme_status.py`, between the sentinel comments — edit the

@@ -21,6 +21,8 @@ one water year of SWE at one station from each network on a common time axis.
 
 import easysnowdata as esd
 
+print(f"easysnowdata {esd.__version__}")
+
 # %%
 # The five products and the routes behind them. Only NVE needs a credential.
 for product_id in sorted(esd.stations.PRODUCT_IDS.values()):

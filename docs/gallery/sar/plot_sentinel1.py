@@ -3,11 +3,13 @@
 Sentinel-1 RTC backscatter and local incidence angle
 ====================================================
 
-Sentinel-1 is C-band radar, so it sees through cloud and the polar night, and
-its backscatter drops when the snowpack turns wet: the reason it is the
-workhorse for melt-onset mapping. Radiometrically terrain-corrected (RTC)
-gamma0 removes the brightening and darkening the terrain itself imposes, so
-that slopes facing the radar can be compared with slopes facing away.
+Sentinel-1 is C-band radar: it images through cloud, by day and by night, and
+its backscatter responds to the snowpack's liquid water content and structure.
+That gives it a wide variety of applications, among them snowmelt phase
+delineation, wet snow detection and snow depth estimation. Radiometrically
+terrain-corrected (RTC) gamma0 removes the brightening and darkening the
+terrain itself imposes, so that slopes facing the radar can be compared with
+slopes facing away.
 
 Three routes serve the backscatter. ``source="planetary-computer"`` (the
 default) is 10 m scene-based RTC from 2014 onward, with no account.
@@ -31,6 +33,8 @@ import easysnowdata as esd
 
 aoi = (-121.94, 46.72, -121.54, 46.99)  # Mount Rainier
 nisqually = (-121.80, 46.82, -121.72, 46.88)  # its Nisqually glacier side
+
+esd.parse_aoi(aoi)  # the AOI as every loader below will see it
 
 # %%
 # Where the two products come from, and what each route asks for.

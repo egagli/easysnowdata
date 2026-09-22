@@ -720,8 +720,11 @@ look; the rest of this section applies to either. **Eric chose B (2026-09-15).**
   PC-vs-Earth-Search Sentinel-2 comparison; the CCSS 2023 percent-of-normal story) become
   `examples/howto/plot_*.py` or paired `.md` via jupytext — executed the same way, **no outputs
   in git**.
-- **Execution in CI**: a scheduled `docs-build` workflow with the same secrets as the live tests
-  executes the gallery and deploys; PR builds execute only the credential-free subset
+- **Execution in CI**: the `docs` workflow runs the full gallery with the same secrets as the
+  live tests on every push to `main` and on the weekly schedule, so the pages it deploys always
+  show real output (2026-09-22: pushes used to run the credential-free subset and reuse the
+  weekly cache, which left a changed credentialed example without output until Sunday); PR
+  builds execute only the credential-free subset
   (`filename_pattern` / `execute_ignore`) and reuse cached outputs for the rest, so they never
   need secrets. Rendered outputs live on the `gh-pages` branch (or a build cache artifact), not
   `main`. This matches the norm the stack projects follow: pre-render heavy or credentialed

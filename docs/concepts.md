@@ -9,7 +9,7 @@ re-deciding an interface.
 ## One spatial input: `aoi`
 
 Every loader's first argument is an area of interest, and it accepts four
-spellings of one:
+formats:
 
 ```python
 import geopandas as gpd

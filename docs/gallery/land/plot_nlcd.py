@@ -29,6 +29,8 @@ import easysnowdata as esd
 
 aoi = (-121.94, 46.72, -121.54, 46.99)  # Mount Rainier, WA
 
+esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+
 # %%
 # Where the product comes from: two Earth Engine assets, both need an account.
 for src in esd.catalog.get("nlcd").sources:

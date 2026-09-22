@@ -56,6 +56,7 @@ __all__ = [
     "example_requirements",
     "credential_free_examples",
     "credential_free_pattern",
+    "tight_matplotlib_scraper",
     "setup",
 ]
 
@@ -108,6 +109,28 @@ def credential_free_pattern() -> str:
     if not names:  # pragma: no cover — every theme has at least one free example
         return r"(?!x)x"  # matches nothing
     return r"[\\/](" + "|".join(re.escape(name) for name in names) + ")$"
+
+
+# ── the gallery's figure scraper ──────────────────────────────────────────────
+
+
+def tight_matplotlib_scraper(
+    block: object,
+    block_vars: dict[str, object],
+    gallery_conf: dict[str, object],
+    **kwargs: object,
+) -> str:
+    """sphinx-gallery's matplotlib scraper, saving every figure with a tight bounding box.
+
+    :mod:`easysnowdata.plotting` puts legends outside the axes on the right,
+    and a plain ``savefig`` clips whatever lies beyond the figure edge. Saving
+    with ``bbox_inches="tight"`` keeps the legend and trims the blank margin an
+    equal-aspect map leaves below itself.
+    """
+    from sphinx_gallery.scrapers import matplotlib_scraper  # noqa: PLC0415
+
+    kwargs.setdefault("bbox_inches", "tight")
+    return matplotlib_scraper(block, block_vars, gallery_conf, **kwargs)
 
 
 # ── generated API reference ───────────────────────────────────────────────────
@@ -231,7 +254,10 @@ def _write(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
 
 
-def _write_api_index(names: list[str]) -> str:
+def _write_api_index(groups: list[tuple[str, list[str]]]) -> str:
+    """The API landing page: one captioned toctree per group, so the sidebar
+    shows the subpackages under *Core*, *Products* and so on rather than as
+    one flat list."""
     lines = [
         "# API reference",
         "",
@@ -240,12 +266,21 @@ def _write_api_index(names: list[str]) -> str:
         "pure helpers they share, and `providers` is the generic access layer",
         "underneath them.",
         "",
-        "```{toctree}",
-        ":maxdepth: 2",
-        "",
     ]
-    lines += names
-    lines += ["```", ""]
+    for group, names in groups:
+        if not names:
+            continue
+        lines += [
+            f"## {group}",
+            "",
+            "```{toctree}",
+            ":maxdepth: 1",
+            f":caption: {group}",
+            "",
+            *names,
+            "```",
+            "",
+        ]
     return "\n".join(lines)
 
 
@@ -253,8 +288,10 @@ def generate_api(app: Sphinx) -> None:
     """Write ``docs/api/*.rst`` from the package's own ``__all__`` lists."""
     out = DOCS_DIR / "api"
     written: list[str] = []
+    groups: list[tuple[str, list[str]]] = []
     seen: set[str] = set()
-    for _group, names in API_GROUPS:
+    for group, names in API_GROUPS:
+        in_group: list[str] = []
         for name in names:
             try:
                 _write(out / f"{name}.rst", _api_page(name, seen))
@@ -262,7 +299,9 @@ def generate_api(app: Sphinx) -> None:
                 logger.warning("api page for %s failed: %s", name, exc)
                 continue
             written.append(name)
-    _write(out / "index.md", _write_api_index(written))
+            in_group.append(name)
+        groups.append((group, in_group))
+    _write(out / "index.md", _write_api_index(groups))
     # Hand autosummary the exact list of pages to scan. `autosummary_generate
     # = True` takes its list from `env.found_docs`, which is empty at
     # builder-inited on a *first* build — so on a fresh checkout no stub is

@@ -24,6 +24,8 @@ import pandas as pd
 
 import easysnowdata as esd
 
+print(f"easysnowdata {esd.__version__}")
+
 # %%
 # Where the product comes from.
 for src in esd.catalog.get("snow-station-archive").sources:

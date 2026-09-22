@@ -19,8 +19,9 @@ Gallery execution is chosen with ``ESD_DOCS_GALLERY``:
 
 ``full``
     Execute every example. Needs the provider credentials; examples whose
-    credentials are missing fail and are reported, so the scheduled build is
-    also a credential check.
+    credentials are missing fail and are reported, so the build is also a
+    credential check. This is what every push to ``main`` and the weekly
+    scheduled build run, so the published pages always show real output.
 ``free`` (the default)
     Execute only the examples that declare no ``# esd-requires:`` marker.
     This is what a pull request builds — no secrets, no live credentialed
@@ -43,7 +44,11 @@ sys.path.insert(0, str(HERE / "_ext"))
 # no "today" surprises in the examples.
 os.environ.setdefault("EASYSNOWDATA_QUIET", "1")
 
-from esd_docs import GALLERY_DIR, credential_free_pattern  # noqa: E402
+from esd_docs import (  # noqa: E402
+    GALLERY_DIR,
+    credential_free_pattern,
+    tight_matplotlib_scraper,
+)
 
 import easysnowdata  # noqa: E402
 from easysnowdata.catalog import KNOWN_THEMES  # noqa: E402
@@ -165,6 +170,9 @@ sphinx_gallery_conf = {
     if GALLERY_MODE == "full"
     else credential_free_pattern(),
     "plot_gallery": "False" if GALLERY_MODE == "none" else "True",
+    # Legends sit outside the axes; without a tight bounding box they are cut
+    # off at the figure edge.
+    "image_scrapers": (tight_matplotlib_scraper,),
     # One section per theme subpackage, in the catalog's order, then the
     # cross-cutting tools (AOI, time, water years).
     "subsection_order": [f"gallery/{theme}" for theme in KNOWN_THEMES]
@@ -186,7 +194,9 @@ sphinx_gallery_conf = {
     "only_warn_on_example_error": True,
     "abort_on_example_error": False,
     "line_numbers": False,
-    "nested_sections": False,
+    # One sidebar entry per module section with its examples nested under it,
+    # rather than a flat list of every example.
+    "nested_sections": True,
 }
 
 # ── HTML ──────────────────────────────────────────────────────────────────────

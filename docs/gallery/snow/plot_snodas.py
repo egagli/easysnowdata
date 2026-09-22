@@ -28,6 +28,8 @@ aoi = (-121.94, 46.72, -121.54, 46.99)  # Mount Rainier, WA
 when = "2024-03-10/2024-03-16"
 day = "2024-03-15"
 
+esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+
 # %%
 # Where the product comes from, and what each route asks for.
 for src in esd.catalog.get("snodas").sources:

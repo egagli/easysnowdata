@@ -26,6 +26,8 @@ import easysnowdata as esd
 
 aoi = (-121.80, 46.82, -121.72, 46.88)  # the Nisqually glacier side of Rainier
 
+esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+
 # %%
 # Where the product comes from, and what each route asks for.
 for src in esd.catalog.get("hls").sources:
@@ -49,6 +51,7 @@ print(hls["time"].values, hls["product"].values)
 
 ndsi = (hls["green"] - hls["swir16"]) / (hls["green"] + hls["swir16"])
 ndsi.attrs = {"long_name": "NDSI (green − SWIR 1.6 µm)"}
+ndsi
 
 # %%
 # Fmask is a bit field (cirrus, cloud, adjacent, shadow, snow/ice, water, and
@@ -74,6 +77,7 @@ fmask_class = esd.processing.set_flags(
     colors=["#d9d9d9", "#0000ff", "#ff96ff", "#c0c0c0", "#643200", "#64c8ff", "#ffffff"],
     long_name="Fmask class",
 )  # fmt: skip
+fmask_class
 
 # %%
 # One row per day: Sentinel-2 on the 15th, Landsat on the 16th. The composite

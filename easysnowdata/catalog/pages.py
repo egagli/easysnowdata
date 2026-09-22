@@ -387,28 +387,33 @@ def index_page(
         "```",
         "",
     ]
+    toctrees: list[str] = []
     for theme in themes:
         in_theme = sorted(
             (p for p in products.values() if p.theme == theme), key=lambda p: p.id
         )
+        title = f"{_models.THEME_TITLES.get(theme, theme)} (`esd.{theme}`)"
         lines += [
-            f"## {_models.THEME_TITLES.get(theme, theme)} (`esd.{theme}`)",
+            f"## {title}",
             "",
             "| product | id | routes | credentials | health |",
             "| --- | --- | --- | --- | --- |",
         ]
         lines += [_index_row(p, latest) for p in in_theme]
         lines += [""]
+        # One hidden toctree per module, captioned, so the sidebar groups the
+        # product pages under their module instead of listing all of them flat.
+        toctrees += [
+            "```{toctree}",
+            ":hidden:",
+            f":caption: {_models.THEME_TITLES.get(theme, theme)} (esd.{theme})",
+            "",
+            *(p.id for p in in_theme),
+            "```",
+            "",
+        ]
 
-    lines += [
-        "```{toctree}",
-        ":hidden:",
-        ":glob:",
-        "",
-        "*",
-        "```",
-        "",
-    ]
+    lines += toctrees
     return "\n".join(lines)
 
 

@@ -21,6 +21,8 @@ import matplotlib.pyplot as plt
 
 import easysnowdata as esd
 
+print(f"easysnowdata {esd.__version__}")
+
 # %%
 # Where the product comes from.
 for src in esd.catalog.get("yukon-stations").sources:
@@ -68,5 +70,5 @@ for station in obs["station"].values:
     print(
         f"{str(obs['name'].sel(station=station).values):34}"
         f" deepest {str(peak_snwd.sel(station=station).values)}"
-        f"  wettest {str(peak_swe.sel(station=station).values)}"
+        f"  peak SWE {str(peak_swe.sel(station=station).values)}"
     )

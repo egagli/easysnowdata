@@ -25,6 +25,8 @@ import easysnowdata as esd
 
 aoi = (-121.80, 46.82, -121.72, 46.88)  # the Nisqually glacier side of Rainier
 
+esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+
 # %%
 # Where the product comes from, and what each route asks for.
 for src in esd.catalog.get("sentinel-2-l2a").sources:
@@ -52,6 +54,7 @@ s2 = esd.optical.sentinel2.load(
 
 ndsi = (s2["green"] - s2["swir16"]) / (s2["green"] + s2["swir16"])
 ndsi.attrs = {"long_name": "NDSI (green − SWIR 1.6 µm)"}
+ndsi
 
 # %%
 # A true-colour composite is the three bands stacked on a ``band`` dimension

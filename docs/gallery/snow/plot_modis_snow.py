@@ -35,6 +35,8 @@ week = "2023-03-15/2023-03-22"
 clear_day = "2023-03-18"
 cloudy_day = "2023-03-19"
 
+esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+
 # %%
 # Where the product comes from, and what each route asks for.
 for src in esd.catalog.get("modis-snow").sources:

@@ -33,6 +33,8 @@ import easysnowdata as esd
 
 aoi = (-121.94, 46.72, -121.54, 46.99)  # Mount Rainier, WA
 
+esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+
 # %%
 # Where each product comes from, and what the route asks for.
 for product_id in ("huc", "hydrobasins", "grdc-major-river-basins", "grdc-wmo-basins"):

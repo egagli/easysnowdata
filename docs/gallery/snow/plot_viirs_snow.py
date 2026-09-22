@@ -31,6 +31,8 @@ aoi = (-121.94, 46.72, -121.54, 46.99)  # Mount Rainier, WA
 week = "2023-03-01/2023-03-07"
 day = "2023-03-04"
 
+esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+
 # %%
 # Where the product comes from, and what the route asks for.
 for src in esd.catalog.get("viirs-snow").sources:

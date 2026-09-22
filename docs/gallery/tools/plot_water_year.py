@@ -23,6 +23,8 @@ import pandas as pd
 import easysnowdata as esd
 from easysnowdata.processing import wateryear
 
+print(f"easysnowdata {esd.__version__}")
+
 # %%
 # The scalar helpers. ``water_year`` names the year, ``day_of_water_year``
 # counts from 1 on the first day of the season, ``water_year_start`` gives

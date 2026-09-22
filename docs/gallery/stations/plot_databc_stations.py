@@ -23,6 +23,8 @@ import easysnowdata as esd
 
 aoi = (-120.5, 49.5, -119.0, 51.0)
 
+esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+
 # %%
 # Where the product comes from.
 for src in esd.catalog.get("databc-stations").sources:

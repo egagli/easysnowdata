@@ -4,10 +4,12 @@ name: docs
 #
 #   pull_request   — executes only the credential-free gallery examples and
 #                    reuses the cached outputs of the rest. No secrets, ever.
-#   push to main   — the same, then deploys, so a merge is live in minutes.
-#   schedule       — the full build with every provider secret: every gallery
-#                    example runs against live data, and the result is
-#                    deployed and cached for the credential-free builds above.
+#   push to main   — the full build with every provider secret: every gallery
+#                    example runs against live data, so the pages that get
+#                    published always show real output. Deployed and cached
+#                    for the pull-request builds above.
+#   schedule       — the same full build, weekly, so the site and the cache
+#                    stay fresh when nothing has been pushed.
 #
 # Nothing rendered is committed. The site goes to the gh-pages branch as an
 # orphan commit (force_orphan) so its history does not accumulate the ~130 MB
@@ -56,7 +58,7 @@ jobs:
       - name: Decide which gallery to execute
         id: mode
         run: |
-          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.full }}" = "true" ]; then
+          if [ "${{ github.event_name }}" != "pull_request" ] && { [ "${{ github.event_name }}" != "workflow_dispatch" ] || [ "${{ inputs.full }}" = "true" ]; }; then
             echo "gallery=full" >> "$GITHUB_OUTPUT"
           else
             echo "gallery=free" >> "$GITHUB_OUTPUT"
@@ -65,7 +67,7 @@ jobs:
       # sphinx-gallery skips an example whose source md5 is unchanged and whose
       # output is already present, so restoring the last full build's output
       # means a pull request shows the credentialed examples' figures without
-      # holding any credentials. The key rotates weekly with the full build.
+      # holding any credentials. The key rotates with every full build.
       - name: Restore the executed gallery
         if: steps.mode.outputs.gallery != 'full'
         uses: actions/cache/restore@v4
@@ -81,8 +83,9 @@ jobs:
         env:
           ESD_DOCS_GALLERY: ${{ steps.mode.outputs.gallery }}
           EASYSNOWDATA_QUIET: "1"
-          # Absent on pull requests, by design: nothing in the credential-free
-          # build reads them, and a fork's PR cannot see them anyway.
+          # Present on pushes to main and scheduled runs; absent on pull
+          # requests by design: nothing in the credential-free build reads
+          # them, and a fork's PR cannot see them anyway.
           EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_TOKEN }}
           EARTHDATA_TOKEN: ${{ secrets.EARTHDATA_TOKEN }}
           EARTHDATA_USERNAME: ${{ secrets.EARTHDATA_USERNAME }}

@@ -25,7 +25,7 @@ def zip_url(url: str, member: str) -> str:
     """GDAL path for *member* inside the zip at *url*.
 
     Remote archives get rasterio's ``zip+https://…!/member`` spelling, which it
-    turns into ``/vsizip/vsicurl/https://…``.
+    expands to ``/vsizip/vsicurl/https://…``.
 
     A **local** archive is spelled as ``/vsizip/`` directly instead of going
     through a ``file://`` URI, because rasterio renders

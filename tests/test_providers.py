@@ -573,7 +573,7 @@ class TestRasterHttp:
     @pytest.mark.parametrize(
         ("url", "expected"),
         [
-            # Remote: rasterio's own spelling, which it turns into
+            # Remote: rasterio's own spelling, which it expands to
             # /vsizip/vsicurl/https://…
             ("https://h/a.zip", "zip+https://h/a.zip!/b.tif"),
             # Local: /vsizip/ directly. A POSIX absolute path keeps its leading

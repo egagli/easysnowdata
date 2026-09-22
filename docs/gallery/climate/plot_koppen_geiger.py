@@ -27,6 +27,8 @@ import pandas as pd
 
 import easysnowdata as esd
 
+print(f"easysnowdata {esd.__version__}")
+
 # %%
 # Where the product comes from, and what the route asks for.
 for src in esd.catalog.get("koppen-geiger").sources:

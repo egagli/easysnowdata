@@ -24,6 +24,8 @@ import easysnowdata as esd
 
 aoi = (-122.1, 46.6, -121.3, 47.1)
 
+esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+
 # %%
 # Where the product comes from.
 for src in esd.catalog.get("awdb-stations").sources:
@@ -63,15 +65,15 @@ fig.tight_layout()
 
 # %%
 # Snow depth peaks weeks before SWE does: the pack keeps taking on water as it
-# settles and densifies, so the deepest day and the wettest day are not the
-# same day.
+# settles and densifies, so the deepest day and the day of peak SWE are not
+# the same day.
 peak_snwd = obs["snwd"].idxmax(dim="time").dt.strftime("%Y-%m-%d")
 peak_swe = obs["swe"].idxmax(dim="time").dt.strftime("%Y-%m-%d")
 for station in obs["station"].values:
     print(
         f"{str(obs['name'].sel(station=station).values):16}"
         f" deepest {str(peak_snwd.sel(station=station).values)}"
-        f"  wettest {str(peak_swe.sel(station=station).values)}"
+        f"  peak SWE {str(peak_swe.sel(station=station).values)}"
     )
 
 # %%

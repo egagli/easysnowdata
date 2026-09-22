@@ -24,6 +24,8 @@ import matplotlib.pyplot as plt
 
 import easysnowdata as esd
 
+print(f"easysnowdata {esd.__version__}")
+
 # %%
 # Where the product comes from, and whether the key is configured.
 for src in esd.catalog.get("nve-stations").sources:
