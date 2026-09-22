@@ -18,6 +18,15 @@ from easysnowdata.stations import archive
 
 from .conftest import MORSE_LAKE_CODE, PARADISE_CODE, RAINIER
 
+# zarr 3 is async-native and runs its event loop in a helper thread. On
+# Windows asyncio wakes that loop through a socketpair on 127.0.0.1, which
+# `--disable-socket` refuses — so on Windows every store read failed and the
+# default route's fallback quietly served the tarball, failing three tests
+# with a misleading "source == github-tarball". Allowing the loopback host
+# keeps the network closed (any other connect still raises) and lets the
+# local fixture stores open on every platform.
+pytestmark = pytest.mark.allow_hosts(["127.0.0.1"])
+
 
 @pytest.fixture
 def local_archive(station_fixtures, monkeypatch):
@@ -152,8 +161,10 @@ def test_network_of_resolves_the_codes_whose_shape_is_ambiguous(local_archive):
 
 
 @pytest.mark.recorded
-def test_the_default_route_is_the_pages_store(local_archive):
+def test_the_default_route_is_the_pages_store(local_archive, caplog):
     ds = archive.load()
+    # If the store could not be opened the route fell back; say why.
+    assert ds.attrs["source"] == "github-pages-zarr", caplog.text
     assert isinstance(ds, xr.Dataset)
     assert set(ds.data_vars) == {"swe", "snwd"}
     assert ds["swe"].dims == ("station", "time")
@@ -161,7 +172,6 @@ def test_the_default_route_is_the_pages_store(local_archive):
     assert ds["swe"].attrs["units"] == "cm"
     assert ds["swe"].attrs["native_variables"] == "wteq_cm"
     assert ds["swe"].dtype == np.float64
-    assert ds.attrs["source"] == "github-pages-zarr"
     assert ds.attrs["source_url"] == archive.ZARR_URLS["by_time"]
     assert ds.attrs["product_id"] == "snow-station-archive"
     assert ds.attrs["interval"] == "daily"
