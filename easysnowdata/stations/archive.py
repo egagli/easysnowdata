@@ -327,6 +327,19 @@ def _from_csvs(codes: list[str]) -> dict[str, pd.DataFrame]:
     return frames
 
 
+def _open_store(url: str) -> xr.Dataset:
+    """The store at *url*, which is a URL on Pages or a local path in tests.
+
+    A path without a scheme is opened as an explicit local store: left to
+    URL parsing, a Windows drive letter (``C:\\…``) reads as a protocol.
+    """
+    if "://" in url:
+        return providers.zarr_cloud.open(url, consolidated=True)
+    from zarr.storage import LocalStore  # noqa: PLC0415
+
+    return xr.open_zarr(LocalStore(Path(url)), consolidated=True)
+
+
 def _layout_for(codes: list[str] | None) -> str:
     """Which store answers a request cheapest (see :data:`_BY_STATION_LIMIT`)."""
     if codes is not None and len(codes) <= _BY_STATION_LIMIT:
@@ -351,7 +364,7 @@ def _from_zarr(
 
     url = ZARR_URLS[layout]
     _logger.info("Reading the chunked station archive at %s", url)
-    store = providers.zarr_cloud.open(url, consolidated=True)
+    store = _open_store(url)
     wanted = [
         name for name, column in _STORE_COLUMNS.items() if COLUMNS[column][0] in types
     ]
