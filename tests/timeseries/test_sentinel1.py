@@ -145,18 +145,14 @@ def test_local_incidence_angle_is_dask_aware():
     assert float(lia.compute()[10, 10]) == pytest.approx(15.0)
 
 
-def test_look_azimuth_and_headings():
+def test_look_azimuth():
     assert sar_processing.look_azimuth(0.0) == 90.0
     assert sar_processing.look_azimuth(0.0, looking="left") == 270.0
     assert sar_processing.look_azimuth(350.0) == 80.0
-    assert set(sar_processing.S1_HEADING) == {"ascending", "descending"}
-    # Sentinel-1 ascending looks roughly east, descending roughly west
-    assert (
-        60 < sar_processing.look_azimuth(sar_processing.S1_HEADING["ascending"]) < 100
-    )
-    assert (
-        250 < sar_processing.look_azimuth(sar_processing.S1_HEADING["descending"]) < 300
-    )
+    # a right-looking sensor heading north-north-west looks east; heading
+    # south-south-west it looks west
+    assert 60 < sar_processing.look_azimuth(349.5) < 100
+    assert 250 < sar_processing.look_azimuth(190.6) < 300
 
 
 # ── search, replayed ──────────────────────────────────────────────────────────
@@ -318,11 +314,22 @@ def test_opera_route_without_credentials_names_the_free_alternative(no_credentia
 
 @pytest.mark.recorded
 def test_local_incidence_angle_from_a_dem(monkeypatch, fake_credentials):
+    # One scene per pass over the AOI, so each orbit_state has a track geometry.
+    monkeypatch.setattr(
+        sentinel1.providers.stac,
+        "search",
+        lambda *a, **k: [
+            _scene(137, "ascending", 349.5),
+            _scene(13, "descending", 190.6),
+        ],
+    )
     dem = _planar_dem(20.0, facing="west")
     ds = sentinel1.local_incidence_angle(RAINIER, source="dem", dem=dem)
     assert set(ds.data_vars) == {"local_incidence_angle", "incidence_angle"}
     assert ds["local_incidence_angle"].dims == ("y", "x")
-    assert float(ds["incidence_angle"][10, 10]) == pytest.approx(39.0)
+    lo, hi = sentinel1.IW_INCIDENCE_RANGE
+    assert lo <= float(ds["incidence_angle"][10, 10]) <= hi
+    assert ds.attrs["relative_orbit"] == 137
     assert ds.attrs["orbit_state"] == "ascending"
     assert ds.attrs["source_id"] == "dem"
     assert ds.attrs["product_id"] == "sentinel-1-local-incidence-angle"
@@ -528,9 +535,17 @@ def test_local_incidence_angle_from_earth_engine(fake_gee, monkeypatch):
         y=np.linspace(5180400.0, 5180300.0, 4), x=np.linspace(580000.0, 580400.0, 4)
     )
     monkeypatch.setattr(sentinel1, "_copernicus_dem", lambda *args, **kwargs: dem)
+    # the pass geometry comes from a Planetary Computer scene of the track
+    monkeypatch.setattr(
+        sentinel1.providers.stac,
+        "search",
+        lambda *a, **k: [_scene(13, "descending", 190.6)],
+    )
     ds = sentinel1.local_incidence_angle(
         RAINIER, source="gee", orbit_state="descending"
     )
+    assert ds.attrs["relative_orbit"] == 13
+    assert ds.attrs["platform_heading"] == pytest.approx(190.6, abs=0.05)
     assert set(ds.data_vars) == {"local_incidence_angle", "incidence_angle"}
     assert ds.attrs["source_id"] == "gee"
     assert float(ds["incidence_angle"].max()) == pytest.approx(38.0)
@@ -628,16 +643,21 @@ def test_incidence_angle_field_runs_near_to_far_across_the_swath():
     assert field.attrs["units"] == "degrees"
 
 
-def test_dem_route_falls_back_to_constants_without_a_scene(
-    monkeypatch, fake_credentials, caplog
-):
+def test_dem_route_refuses_to_guess_without_a_scene(monkeypatch, fake_credentials):
+    # No nominal heading, no constant incidence angle: without a scene of the
+    # pass there is no geometry, and the route says so instead of inventing one.
     monkeypatch.setattr(sentinel1, "scene_geometry", lambda *a, **k: {})
     dem = _planar_dem(20.0, facing="west")
-    with caplog.at_level("WARNING", logger="easysnowdata"):
-        ds = sentinel1.local_incidence_angle(RAINIER, source="dem", dem=dem)
-    assert ds.attrs["relative_orbit"] == "unknown"
-    assert "constant 39°" in ds.attrs["incidence_angle_model"]
-    assert any("nominal" in r.message for r in caplog.records)
+    with pytest.raises(
+        ValueError, match="No Sentinel-1 RTC scene of the ascending pass"
+    ):
+        sentinel1.local_incidence_angle(RAINIER, source="dem", dem=dem)
+    with pytest.raises(ValueError, match="relative orbit 5 found"):
+        sentinel1.local_incidence_angle(
+            RAINIER, source="dem", dem=dem, orbit_state="descending", relative_orbit=5
+        )
+    with pytest.raises(ValueError, match="needs an aoi"):
+        sentinel1.local_incidence_angle(None, source="dem", dem=dem)
 
 
 def test_opera_track_filter_reads_the_burst_id():

@@ -1398,10 +1398,12 @@ RTC-S1 backscatter route and the RTC-S1-STATIC incidence-angle route raised on
 first read even with a valid Earthdata login; the `cmr-asf` catalog now sets
 `CPL_VSIL_CURL_USE_HEAD=NO`. Found by the SAR gallery example, which now
 draws Planetary Computer RTC beside OPERA RTC-S1 and the OPERA layover/shadow
-mask. Open question from the same comparison: the OPERA descending geometry at
-47°N is best reproduced with a look azimuth near 260°, not the 280° that the
-`S1_HEADING` constant implies, so the headings are latitude-dependent and the
-constants are about 20° off there.
+mask. The same comparison showed the OPERA descending geometry at 47°N is best
+reproduced with a look azimuth near 260°, not the 280° the old `S1_HEADING`
+constants implied: headings are latitude-dependent and the constants were about
+20° off there. **Removed 2026-09-22** (Eric: "all bogus"). No nominal heading or
+constant incidence angle survives anywhere; the DEM and Earth Engine routes raise
+when no scene of the pass exists over the AOI instead of guessing.
 
 **Earthdata tokens expire; CI should not.** EDL user tokens last about 60
 days and earthaccess trusts one from the environment without checking, so an

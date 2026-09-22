@@ -46,7 +46,8 @@ had the range-facing slope term with the wrong sign in 0.2, so slopes tilted
 toward the radar came out with a *larger* angle than slopes tilted away. The
 same route also assumed one nominal heading and a constant 39° incidence angle;
 it now takes the heading, look direction and across-swath incidence field from
-a representative scene of the chosen track (`relative_orbit=`). Recompute
+a representative scene of the chosen track (`relative_orbit=`), and raises
+rather than guess when no scene of that pass exists over the AOI. Recompute
 anything derived from it. The OPERA static-layer route
 (`source="opera-static"`, the default) reads a published product and was never
 affected.

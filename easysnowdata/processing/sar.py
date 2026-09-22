@@ -14,7 +14,6 @@ __all__ = [
     "look_azimuth",
     "local_incidence_angle",
     "S1_BORDER_NOISE_CUTOFF",
-    "S1_HEADING",
 ]
 
 #: ESA's IPF 2.90 (2018-03-13) fixed border noise; earlier scenes need a threshold.
@@ -133,10 +132,6 @@ def look_azimuth(heading: float, *, looking: str = "right") -> float:
     return float((heading + offset) % 360.0)
 
 
-#: Platform heading of the Sentinel-1 orbits, in degrees clockwise from north.
-S1_HEADING = {"ascending": -12.5 % 360.0, "descending": 190.0}
-
-
 def local_incidence_angle(
     dem: xr.DataArray,
     incidence_angle: xr.DataArray | float,
@@ -159,7 +154,10 @@ def local_incidence_angle(
         raster aligned with *dem*.
     look_azimuth_deg
         Radar look azimuth in degrees clockwise from north (see
-        :func:`look_azimuth`; ``S1_HEADING`` has the Sentinel-1 headings).
+        :func:`look_azimuth`). The heading it comes from varies with latitude,
+        so take it from a scene footprint, as
+        :func:`easysnowdata.sar.sentinel1.scene_geometry` does, not from a
+        constant.
     clip_to_valid
         Clip the result to ``[0, 90]`` degrees; ``False`` keeps the raw
         arccosine, which exceeds 90° where the slope faces away from the
