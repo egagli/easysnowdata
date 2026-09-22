@@ -139,7 +139,9 @@ PRODUCT = Product(
             latency="~1-2 days",
             notes=(
                 "burst based, JPL OPERA; single-band COGs per polarization plus a "
-                "layover/shadow mask. CMR-STAC cloudstac/ASF, not stac.asf.alaska.edu"
+                "layover/shadow mask. CMR-STAC cloudstac/ASF, not stac.asf.alaska.edu. "
+                "ASF's datapool refuses a bearer token alone (EARTHDATA_TOKEN); the "
+                "reads need a netrc entry or EARTHDATA_USERNAME/EARTHDATA_PASSWORD"
             ),
             title="OPERA RTC-S1 (ASF)",
             health=Probe(
@@ -205,7 +207,9 @@ LIA_PRODUCT = Product(
             temporal="static, one granule per burst",
             notes=(
                 "ships local_incidence_angle, incidence_angle, mask (layover/shadow), "
-                "number_of_looks and the gamma0→beta0/sigma0 factors as COGs"
+                "number_of_looks and the gamma0→beta0/sigma0 factors as COGs. ASF's "
+                "datapool refuses a bearer token alone (EARTHDATA_TOKEN); the reads "
+                "need a netrc entry or EARTHDATA_USERNAME/EARTHDATA_PASSWORD"
             ),
             title="OPERA RTC-S1-STATIC (ASF)",
             health=Probe(

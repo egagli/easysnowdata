@@ -180,7 +180,8 @@ def test_load_stacks_both_products_with_coordinates(fake_stac):
     assert [c["product"] for c in loads] == ["L30", "S30"]
     assert loads[0]["catalog"] == "cmr-lpcloud"
     assert loads[0]["resolution"] == 30 and loads[0]["crs"] == "utm"
-    assert loads[0]["fail_on_error"] is False
+    # a failed read raises (odc-stac's default) rather than filling with nodata
+    assert "fail_on_error" not in loads[0]
 
     assert ds["red"].dims == ("time", "y", "x") and ds.sizes["time"] == 2
     assert list(ds["product"].values) == ["L30", "S30"]

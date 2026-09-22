@@ -253,7 +253,8 @@ class TestEarthdata:
         assert (
             written.read_text() == "machine urs.earthdata.nasa.gov login u password p\n"
         )
-        assert (written.stat().st_mode & 0o777) == 0o600
+        if os.name != "nt":  # Windows has no POSIX mode bits to check
+            assert (written.stat().st_mode & 0o777) == 0o600
         assert "GDAL_HTTP_BEARER" not in opts
         monkeypatch.setenv("EARTHDATA_PASSWORD", "changed")
         assert (

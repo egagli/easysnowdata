@@ -468,7 +468,9 @@ def load(
             groupby=groupby,
             stac_cfg=_stac_cfg(collection, product, band_names),
             catalog=_CATALOG_FOR_SOURCE[src.id],
-            fail_on_error=False,
+            # odc-stac's default raises on a failed read. The 0.2 loader passed
+            # fail_on_error=False, which turned a 401 on every band into a
+            # silently blank Dataset (the first full docs build on main).
             **kwargs,
         )
         if "time" in ds.dims:
