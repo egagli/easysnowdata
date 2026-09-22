@@ -85,7 +85,19 @@ def fake_planet(monkeypatch, fake_credentials):
             return {"id": "order-0001", "state": "queued"}
 
         def wait(self, order_id, **kw):
+            calls["wait_kwargs"] = kw
             return "success"
+
+        def list_orders(self, name=None, state=None, **kw):
+            calls["list_orders"] = {"name": name, "state": state}
+            return iter(
+                [
+                    o
+                    for o in calls.get("existing_orders", [])
+                    if (name is None or o["name"] == name)
+                    and (state is None or o["state"] == state)
+                ]
+            )
 
         def download_order(self, order_id, directory=None, **kw):
             calls["downloaded"] = (order_id, directory)
@@ -152,6 +164,8 @@ def test_search_returns_the_contract_frame(fake_planet):
     assert str(gdf["acquired"].iloc[0].date()) == "2023-07-01"
     assert gdf["snow_ice_percent"].iloc[0] == 30
     assert "planet_item" in gdf.columns
+    # The synthetic footprint contains the whole test box.
+    assert gdf["aoi_cover"].iloc[0] == pytest.approx(1.0)
     assert gdf.attrs == {"source": "orders-api", "item_type": "PSScene"}
 
     sent = fake_planet["search"]
@@ -193,6 +207,78 @@ def test_order_builds_a_clipped_request(fake_planet, ts_fixtures):
     assert clip["aoi"]["type"] == "Polygon"
     assert result["order_id"] == "order-0001" and result["state"] == "success"
     assert len(result["files"]) == 2
+
+
+def test_delivery_files_keep_only_the_rasters(tmp_path):
+    # A real delivery: manifest, item metadata JSON, AnalyticMS XML, two tifs.
+    names = [
+        "manifest.json",
+        "PSScene/20230815_185002_40_247c_metadata.json",
+        "PSScene/20230815_185002_40_247c_3B_AnalyticMS_metadata_clip.xml",
+        "PSScene/20230815_185002_40_247c_3B_AnalyticMS_SR_harmonized_clip.tif",
+        "PSScene/20230815_185002_40_247c_3B_udm2_clip.tif",
+    ]
+    for name in names:
+        (tmp_path / name).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / name).write_bytes(b"")
+    for delivery in (tmp_path, [tmp_path / n for n in names]):
+        files = planetscope._delivery_files(delivery)
+        assert [p.name for p in files["scene"]] == [
+            "20230815_185002_40_247c_3B_AnalyticMS_SR_harmonized_clip.tif"
+        ]
+        assert [p.name for p in files["udm2"]] == [
+            "20230815_185002_40_247c_3B_udm2_clip.tif"
+        ]
+
+
+@pytest.mark.recorded
+def test_order_waits_without_the_sdk_attempt_cap(fake_planet, ts_fixtures):
+    fake_planet["delivery_files"] = [ts_fixtures["planet_scene"]]
+    planetscope.order(RAINIER, items=["20230701_000000_00_0000"])
+    # The SDK default (200 polls × 5 s) gives up before most orders finish.
+    assert fake_planet["wait_kwargs"]["max_attempts"] == 0
+    assert fake_planet["wait_kwargs"]["delay"] >= 5
+
+
+@pytest.mark.recorded
+def test_named_order_reuses_an_earlier_success(fake_planet, ts_fixtures):
+    fake_planet["delivery_files"] = [ts_fixtures["planet_scene"]]
+    fake_planet["existing_orders"] = [
+        {
+            "id": "order-old",
+            "name": "docs-nisqually",
+            "state": "success",
+            "created_on": "2026-09-01T00:00:00Z",
+            "products": [{"item_ids": ["20230701_000000_00_0000"]}],
+        },
+        {
+            "id": "order-newer",
+            "name": "docs-nisqually",
+            "state": "success",
+            "created_on": "2026-09-10T00:00:00Z",
+            "products": [{"item_ids": ["20230702_000000_00_0000"]}],
+        },
+        {
+            "id": "order-failed",
+            "name": "docs-nisqually",
+            "state": "failed",
+            "created_on": "2026-09-20T00:00:00Z",
+            "products": [{"item_ids": ["20230703_000000_00_0000"]}],
+        },
+    ]
+    result = planetscope.order(RAINIER, items=["x"], name="docs-nisqually")
+    assert result["reused"] is True
+    assert result["order_id"] == "order-newer"
+    assert result["item_ids"] == ["20230702_000000_00_0000"]
+    assert fake_planet["downloaded"][0] == "order-newer"
+    assert "order_request" not in fake_planet  # nothing was ordered
+
+    # A different name, or reuse=False, places a new order.
+    result = planetscope.order(RAINIER, items=["x"], name="other")
+    assert result["reused"] is False and "order_request" in fake_planet
+    del fake_planet["order_request"]
+    result = planetscope.order(RAINIER, items=["x"], name="docs-nisqually", reuse=False)
+    assert result["reused"] is False and "order_request" in fake_planet
 
 
 @pytest.mark.recorded

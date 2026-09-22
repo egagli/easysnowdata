@@ -219,11 +219,17 @@ def _time_from_filename(path: Path) -> pd.Timestamp | None:
 
 
 def _delivery_files(order: Any) -> dict[str, list[Path]]:
-    """Group a delivered order's files into ``scene`` and ``udm2`` lists."""
+    """Group a delivered order's GeoTIFFs into ``scene`` and ``udm2`` lists.
+
+    A delivery also carries ``manifest.json``, the item metadata JSON and the
+    ``AnalyticMS_metadata`` XML; only the rasters are kept, whether *order* is
+    a directory or the file list an :func:`order` result holds.
+    """
     if isinstance(order, (str, Path)):
-        paths = sorted(Path(order).rglob("*.tif"))
+        paths = sorted(Path(order).rglob("*"))
     else:
         paths = [Path(p) for p in order]
+    paths = [p for p in paths if p.suffix.lower() in (".tif", ".tiff")]
     scenes = [p for p in paths if "udm2" not in p.name.lower()]
     udm2 = [p for p in paths if "udm2" in p.name.lower()]
     return {"scene": scenes, "udm2": udm2}
@@ -261,6 +267,14 @@ def search(
         Require these assets (e.g. ``["ortho_analytic_4b_sr", "ortho_udm2"]``).
     limit
         Maximum number of scenes.
+
+    Notes
+    -----
+    When *aoi* is given, an ``aoi_cover`` column holds the fraction of the
+    AOI inside each scene's footprint. Planet's ``clear_percent`` and
+    ``cloud_percent`` describe the whole scene, so a scene can be 98 % clear
+    and still touch only a corner of the box; sort on ``aoi_cover`` first
+    when choosing what to order.
     """
     src = resolve_source(PRODUCT, source)
     item_type = _item_type(item_type)
@@ -270,6 +284,15 @@ def search(
     )
     items = providers.planet.search([item_type], search_filter, limit=limit, **kwargs)
     gdf = providers.planet.items_to_geodataframe(items)
+    if aoi is not None and len(gdf):
+        parsed = parse_aoi(aoi)
+        if not parsed.is_global:
+            geom = parsed.geometry
+            gdf["aoi_cover"] = gdf.geometry.apply(
+                lambda g: (
+                    g.intersection(geom).area / geom.area if g is not None else 0.0
+                )
+            ).astype("float64")
     gdf.attrs = {"source": src.id, "item_type": item_type}
     return gdf
 
@@ -284,6 +307,7 @@ def order(
     harmonize: str | None = "Sentinel-2",
     composite: bool = False,
     name: str | None = None,
+    reuse: bool = True,
     wait: bool = True,
     download: bool = True,
     cloud_cover: float | None = None,
@@ -293,6 +317,12 @@ def order(
 
     **This spends the account's quota.** Returns a dict with ``order_id``,
     ``state``, ``files`` (when downloaded) and the request that was sent.
+
+    Give the order a *name* to make the call repeatable: with ``reuse=True``
+    (the default) a *name* that already belongs to a successful order on the
+    account is re-downloaded instead of re-ordered, so a notebook or a docs
+    build that runs again spends nothing. Planet keeps delivered results for
+    a limited time; when the old order is gone a new one is placed.
 
     Parameters
     ----------
@@ -307,11 +337,39 @@ def order(
         bundle includes the UDM2 mask.
     harmonize
         Radiometric harmonisation target (``"Sentinel-2"`` by default, or
-        ``None`` to skip it).
+        ``None`` to skip it). Planet's ``harmonize`` tool rescales PS2.SD and
+        PSB.SD surface reflectance, band by band, onto Sentinel-2's
+        radiometry so the two sensors can be mixed in one time series.
+    name, reuse
+        An order name, and whether an existing successful order of that name
+        is re-downloaded instead of ordered again (see above).
     """
     src = resolve_source(PRODUCT, "orders-api")
     item_type = _item_type(item_type)
     ensure_source(PRODUCT, src)
+    if name and reuse:
+        previous = providers.planet.find_order(name)
+        if previous is not None:
+            _logger.info(
+                "Reusing Planet order %r (%s, created %s); nothing is charged.",
+                name,
+                previous["id"],
+                previous.get("created_on", "?")[:10],
+            )
+            result = {
+                "order_id": previous["id"],
+                "state": previous.get("state"),
+                "item_ids": [
+                    i for prod in previous.get("products", []) for i in prod["item_ids"]
+                ],
+                "item_type": item_type,
+                "bundle": _bundle(bundle),
+                "order": previous,
+                "reused": True,
+            }
+            if download:
+                result["files"] = providers.planet.download_order(previous["id"])
+            return result
     if items is None:
         items = search(
             aoi, time, item_type=item_type, cloud_cover=cloud_cover, limit=50
@@ -335,6 +393,7 @@ def order(
         "item_type": item_type,
         "bundle": _bundle(bundle),
         "order": created,
+        "reused": False,
     }
     if wait:
         result["state"] = providers.planet.wait_order(order_id)

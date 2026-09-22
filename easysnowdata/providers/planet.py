@@ -38,6 +38,7 @@ __all__ = [
     "items_to_geodataframe",
     "product",
     "create_order",
+    "find_order",
     "wait_order",
     "download_order",
     "asset_url",
@@ -269,10 +270,37 @@ def create_order(
     return pl.orders.create_order(request)
 
 
-def wait_order(order_id: str, **kwargs: Any) -> str:
-    """Block until an order reaches a final state and return that state."""
+def find_order(name: str, *, state: str | None = "success") -> dict[str, Any] | None:
+    """Return the newest order called *name* (in *state*, if given), or ``None``.
+
+    A free ``GET`` of the account's order list; it is what lets a repeated
+    :func:`easysnowdata.optical.planetscope.order` call with the same *name*
+    re-download an earlier delivery instead of spending quota again.
+    """
     pl = ensure()
-    return pl.orders.wait(order_id, **kwargs)
+    matches = [
+        o
+        for o in pl.orders.list_orders(name=name, state=state)
+        if o.get("name") == name
+    ]
+    if not matches:
+        return None
+    return max(matches, key=lambda o: o.get("created_on", ""))
+
+
+def wait_order(
+    order_id: str, *, delay: int = 15, max_attempts: int = 0, **kwargs: Any
+) -> str:
+    """Block until an order reaches a final state and return that state.
+
+    A clipped PlanetScope order usually takes ten to forty minutes to run.
+    The SDK's own defaults (200 polls, five seconds apart) raise after about
+    seventeen minutes, before many orders finish, so this polls every
+    *delay* seconds with no attempt limit (``max_attempts=0``). Pass a
+    positive ``max_attempts`` to bound the wait.
+    """
+    pl = ensure()
+    return pl.orders.wait(order_id, delay=delay, max_attempts=max_attempts, **kwargs)
 
 
 def download_order(
