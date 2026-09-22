@@ -121,7 +121,9 @@ cloudy = (
 water = esd.processing.masks.fmask_bit(fmask, bits["water"]) == 1
 for step in range(hls.sizes["time"]):
     valid = fmask.isel(time=step) != esd.optical.hls.FMASK_NODATA
-    n = float(valid.sum())
+    n = max(
+        float(valid.sum()), 1.0
+    )  # a day with no valid pixels reads 0 %, not an error
     print(
         f"{str(hls['product'].values[step])} {str(hls['time'].values[step])[:10]}: "
         f"{float(cloudy.isel(time=step).sum()) / n:.0%} of pixels flagged cloud, "

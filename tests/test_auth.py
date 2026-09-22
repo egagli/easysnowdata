@@ -232,6 +232,35 @@ class TestEarthdata:
             assert effective["GDAL_HTTP_NETRC"] == "YES"
             assert effective["GDAL_HTTP_MAX_RETRY"] == "5"
 
+    def test_gdal_options_netrc_beats_a_token(self, clean_env, monkeypatch):
+        """ASF's redirect chain drops a bearer token; the URS login works everywhere."""
+        (clean_env / ".netrc").write_text(
+            "machine urs.earthdata.nasa.gov login me password secret\n"
+        )
+        monkeypatch.setenv("EARTHDATA_TOKEN", "abc")
+        opts = self.provider.gdal_options()
+        assert opts["GDAL_HTTP_NETRC"] == "YES"
+        assert opts["GDAL_HTTP_NETRC_FILE"] == str(clean_env / ".netrc")
+        assert "GDAL_HTTP_BEARER" not in opts
+
+    def test_gdal_options_username_password_write_a_netrc(self, clean_env, monkeypatch):
+        """The CI secrets have no netrc, so one is written to the cache for GDAL."""
+        monkeypatch.setenv("EARTHDATA_USERNAME", "u")
+        monkeypatch.setenv("EARTHDATA_PASSWORD", "p")
+        opts = self.provider.gdal_options()
+        written = Path(opts["GDAL_HTTP_NETRC_FILE"])
+        assert written.is_relative_to(clean_env / "cache")
+        assert (
+            written.read_text() == "machine urs.earthdata.nasa.gov login u password p\n"
+        )
+        assert (written.stat().st_mode & 0o777) == 0o600
+        assert "GDAL_HTTP_BEARER" not in opts
+        monkeypatch.setenv("EARTHDATA_PASSWORD", "changed")
+        assert (
+            "password changed"
+            in Path(self.provider.gdal_options()["GDAL_HTTP_NETRC_FILE"]).read_text()
+        )
+
     @pytest.fixture
     def fake_earthaccess(self, monkeypatch):
         import earthaccess
@@ -674,8 +703,10 @@ class TestEarthdataTokenFallback:
         # logged in with the environment strategy, and the token was gone by then
         assert fake_earthaccess["calls"] == [("environment", None)]
         assert "EARTHDATA_TOKEN" not in os.environ
-        # GDAL reads use the token earthaccess minted, not the rejected one
-        assert self.provider.gdal_options()["GDAL_HTTP_BEARER"] == "fresh"
+        # GDAL reads log in at URS with the password, not with the rejected token
+        opts = self.provider.gdal_options()
+        assert "GDAL_HTTP_BEARER" not in opts
+        assert "login u password p" in Path(opts["GDAL_HTTP_NETRC_FILE"]).read_text()
 
     def test_valid_token_is_kept(self, clean_env, monkeypatch, urs, fake_earthaccess):
         urs["status"] = 200

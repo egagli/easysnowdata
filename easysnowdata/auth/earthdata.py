@@ -245,9 +245,16 @@ Register for a free account at https://urs.earthdata.nasa.gov"""
     def gdal_options(self) -> dict[str, Any]:
         """GDAL options for ``/vsicurl`` reads of EDL-protected COGs.
 
-        A bearer token is sent directly; otherwise GDAL follows the EDL
-        redirect dance with the netrc entry and a cookie jar kept in the
-        easysnowdata cache directory (not the home directory).
+        With a username and password — a netrc entry, or the
+        ``EARTHDATA_USERNAME`` / ``EARTHDATA_PASSWORD`` variables — GDAL follows
+        the EDL redirect dance: the DAAC bounces the request to URS, libcurl
+        answers with the netrc credentials, and the session cookie lands in a
+        jar kept in the easysnowdata cache directory (not the home directory).
+        That is the one method every DAAC accepts. A bearer token is used only
+        when it is the sole credential: ASF's datapool hands a request across
+        three hosts and libcurl does not carry an ``Authorization`` header to
+        another host, so a token alone gets a 401 there (the CI runners, which
+        have no netrc, hit exactly this).
         """
         cookies = config.cache_dir("gdal") / "earthdata-cookies.txt"
         options: dict[str, Any] = {
@@ -255,16 +262,47 @@ Register for a free account at https://urs.earthdata.nasa.gov"""
             "GDAL_HTTP_COOKIEJAR": str(cookies),
             "GDAL_HTTP_UNSAFESSL": None,
         }
+        netrc_file = self._netrc_for_gdal()
+        if netrc_file is not None:
+            options["GDAL_HTTP_NETRC"] = "YES"
+            options["GDAL_HTTP_NETRC_FILE"] = str(netrc_file)
+            return {k: v for k, v in options.items() if v is not None}
         token = os.environ.get("EARTHDATA_TOKEN", "").strip() or self._session_token()
         if token:
             options["GDAL_HTTP_AUTH"] = "BEARER"
             options["GDAL_HTTP_BEARER"] = token
         else:
             options["GDAL_HTTP_NETRC"] = "YES"
-            path = netrc_path()
-            if path is not None and os.environ.get("NETRC"):
-                options["GDAL_HTTP_NETRC_FILE"] = str(path)
         return {k: v for k, v in options.items() if v is not None}
+
+    @staticmethod
+    def _netrc_for_gdal() -> Path | None:
+        """The netrc file GDAL should read, or ``None`` when there is no password.
+
+        A netrc file with a URS entry is used as it is. When the username and
+        password come from the environment instead (the CI secrets), a
+        one-entry netrc is written to the easysnowdata cache directory with
+        owner-only permissions and kept current, because libcurl can only take
+        credentials for the URS redirect from a file.
+        """
+        path = netrc_path()
+        if path is not None and netrc_has_edl():
+            return path
+        user = os.environ.get("EARTHDATA_USERNAME", "").strip()
+        password = os.environ.get("EARTHDATA_PASSWORD", "")
+        if not (user and password):
+            return None
+        target = config.cache_dir("gdal") / "earthdata-netrc"
+        text = f"machine {NETRC_HOST} login {user} password {password}\n"
+        try:
+            if not target.exists() or target.read_text(encoding="utf-8") != text:
+                target.touch(mode=0o600)
+                target.write_text(text, encoding="utf-8")
+            target.chmod(0o600)
+        except OSError as exc:  # pragma: no cover — a read-only cache dir
+            _logger.warning("Could not write %s for GDAL: %s", target, exc)
+            return None
+        return target
 
     @staticmethod
     def _session_token() -> str:
