@@ -912,10 +912,12 @@ that artefact (its `docs/STORAGE.md` and DESIGN.md §6.5). `easysnowdata`
 reads the inventory over HTTPS at call time; `archive.load()` reads the
 store by default, fetching only the chunks a request touches (one water year
 of every station 0.7 MB, one station's whole record 0.5 MB, against the
-27 MB bundle), and falls back to the `pooch`-cached bundle with a warning
-when the store cannot be read, so a Pages outage degrades rather than fails.
-The bundle stays published until this version is on PyPI and conda-forge,
-because older pins read nothing else.
+27 MB bundle), and falls back with a warning to the bundle attached to that
+repo's latest snapshot release when the store cannot be read, so a Pages
+outage degrades to a possibly-stale snapshot rather than failing (Releases
+are served from outside Pages). The daily-committed bundle on `main` was
+retired once 0.3.2 carried this fallback; 0.2.x and 0.3.1 read that file and
+must upgrade.
 
 **What `global_snow_networks` still owes this migration** is tracked in that
 repo as [`docs/EASYSNOWDATA_MIGRATION.md`](https://github.com/egagli/global_snow_networks/blob/main/docs/EASYSNOWDATA_MIGRATION.md):

@@ -12,8 +12,10 @@ about 28 MB. All are rebuilt daily.
 Three routes: ``source="github-pages-zarr"`` (default) reads the store and
 fetches only the chunks a request touches — under a megabyte for one water
 year of every station, or for one station's whole record — and falls back to
-the bundle if Pages cannot be read; ``source="github-tarball"`` downloads the
-bundle once into the package cache and reads every wanted CSV out of it;
+the snapshot bundle if Pages cannot be read; ``source="github-tarball"``
+downloads the bundle attached to the latest snapshot release (each has a
+Zenodo DOI) once into the package cache and reads every wanted CSV out of it,
+which is the route for a result that should cite a fixed snapshot;
 ``source="github-csv"`` fetches one CSV per station. None needs an account,
 not even for the Norwegian stations. The archive holds SWE and snow depth
 only.

@@ -16,10 +16,12 @@ artefacts that this module reads (§9 step 3):
     range requests, so a query fetches the chunks it touches — well under a
     megabyte for either of those — instead of the whole bundle. The default
     route.
-``data/all_station_csvs.tar.xz``
-    One ``date,wteq_cm,snwd_cm`` CSV per daily-or-better station, bundled.
-    About 28 MB, whole-file only; the route that predates the store, kept
-    so older pins keep working and as the fallback when Pages is down.
+``all_station_csvs.tar.xz`` on that repo's latest GitHub Release
+    One ``date,wteq_cm,snwd_cm`` CSV per daily-or-better station, bundled:
+    the periodic, DOI'd snapshot (a few times a year), about 28 MB and
+    whole-file only. The fallback when Pages is down, since Releases are
+    served from elsewhere — and the route to use when a result should be
+    pinned to a citable snapshot rather than to today's archive.
 
 ::
 
@@ -64,10 +66,12 @@ __all__ = [
     "MANIFEST_URL",
     "PAGES_BASE",
     "PRODUCT",
+    "RELEASES_API",
     "REPO",
     "ZARR_URLS",
     "csv_url",
     "inventory",
+    "latest_snapshot",
     "load",
     "manifest",
     "network_of",
@@ -77,7 +81,15 @@ _logger = logging.getLogger(__name__)
 
 REPO = "https://github.com/egagli/global_snow_networks"
 INVENTORY_URL = f"{REPO}/raw/main/all_snow_stations.geojson"
-ARCHIVE_URL = f"{REPO}/raw/main/data/all_station_csvs.tar.xz"
+#: The bundled CSVs of the latest snapshot release. Fixed-name asset, so this
+#: URL always resolves to the newest release; :func:`latest_snapshot` asks the
+#: API for the tag and date behind it. Until 2026-09 the bundle was a file
+#: committed daily on ``main``; that stopped once the Pages store took over
+#: the daily role (that repo's docs/STORAGE.md §3).
+ARCHIVE_URL = f"{REPO}/releases/latest/download/all_station_csvs.tar.xz"
+RELEASES_API = (
+    "https://api.github.com/repos/egagli/global_snow_networks/releases/latest"
+)
 CSV_BASE = (
     "https://raw.githubusercontent.com/egagli/global_snow_networks/main/data/stations/"
 )
@@ -100,9 +112,10 @@ _BY_STATION_LIMIT = 64
 #: output contract keeps the two-letter names the CSV columns abbreviate.
 _STORE_COLUMNS = {"swe": "wteq_cm", "snow_depth": "snwd_cm"}
 
-#: How long a downloaded bundle is trusted before it is fetched again. The
-#: archive is rebuilt daily, so a day; the inventory, read over HTTP each
-#: time, would otherwise list stations the stale bundle does not hold.
+#: How long a downloaded bundle is trusted before it is fetched again, when
+#: the release it came from could not be identified (the API was unreachable)
+#: and the cache file therefore cannot be named after its tag. A tag-named
+#: file is immutable and never re-fetched.
 ARCHIVE_MAX_AGE = 24 * 3600
 
 #: Archive CSV column -> (standardized type, units).
@@ -269,6 +282,31 @@ def _fetch_json(url: str) -> dict[str, Any]:
     return response.json()
 
 
+def latest_snapshot() -> dict[str, Any]:
+    """The newest snapshot release of ``global_snow_networks``.
+
+    ``{"tag", "published_at", "html_url", "tarball_url"}`` from the GitHub
+    releases API — the tag is what a Zenodo version DOI corresponds to, so
+    this is what to cite when a result came from the bundle. ``tarball_url``
+    is the bundled-CSV asset; ``None`` when the release carries none.
+    """
+    release = _fetch_json(RELEASES_API)
+    assets = release.get("assets") or []
+    tarball = None
+    for asset in assets:
+        name = str(asset.get("name", ""))
+        if name.startswith("all_station_csvs") and name.endswith(".tar.xz"):
+            tarball = asset.get("browser_download_url")
+            if name == "all_station_csvs.tar.xz":
+                break
+    return {
+        "tag": str(release.get("tag_name") or ""),
+        "published_at": str(release.get("published_at") or "")[:10],
+        "html_url": str(release.get("html_url") or ""),
+        "tarball_url": tarball,
+    }
+
+
 # ── reading the data ─────────────────────────────────────────────────────────
 
 
@@ -278,20 +316,53 @@ def _parse_csv(text: str, code: str) -> pd.DataFrame:
     return frame.set_index("date").sort_index()
 
 
-def _from_tarball(codes: set[str] | None) -> dict[str, pd.DataFrame]:
-    """Every wanted station's CSV, out of the one bundled archive.
+def _snapshot_tarball() -> tuple[str, dict[str, Any]]:
+    """URL of the latest snapshot's bundle, and what is known about the release.
 
-    Downloaded into the package cache by pooch and re-read from there for a
-    day (:data:`ARCHIVE_MAX_AGE`), after which the daily rebuild is fetched
-    again. ``EASYSNOWDATA_CACHE_DIR`` moves the cache root.
+    When the releases API cannot be reached the fixed-name download URL is
+    used blind — it still resolves to the newest release — and the returned
+    metadata is empty.
     """
+    try:
+        info = latest_snapshot()
+    except Exception as exc:  # noqa: BLE001 — the download URL works without it
+        _logger.warning(
+            "Could not read the latest snapshot release (%s); downloading the "
+            "bundle without knowing its tag.",
+            exc,
+        )
+        return ARCHIVE_URL, {}
+    return info.get("tarball_url") or ARCHIVE_URL, info
+
+
+def _from_tarball(
+    codes: set[str] | None,
+) -> tuple[dict[str, pd.DataFrame], dict[str, Any]]:
+    """Every wanted station's CSV, out of the latest snapshot's bundle.
+
+    Downloaded into the package cache by pooch. A bundle whose release tag is
+    known is cached under that tag and never re-fetched; one downloaded blind
+    is re-fetched after :data:`ARCHIVE_MAX_AGE`. ``EASYSNOWDATA_CACHE_DIR``
+    moves the cache root. Returns the frames and the release metadata.
+    """
+    url, info = _snapshot_tarball()
+    tag = info.get("tag")
     path = providers.raster_http.fetch(
-        ARCHIVE_URL,
-        "all_station_csvs.tar.xz",
+        url,
+        f"all_station_csvs-{tag}.tar.xz" if tag else "all_station_csvs.tar.xz",
         subdir="stations",
-        max_age=ARCHIVE_MAX_AGE,
+        max_age=None if tag else ARCHIVE_MAX_AGE,
     )
-    _logger.info("Reading the bundled station archive at %s", path)
+    if tag:
+        _logger.info(
+            "Reading the bundled station archive of snapshot %s (%s) at %s; the "
+            "daily archive on Pages may be ahead of it.",
+            tag,
+            info.get("published_at") or "date unknown",
+            path,
+        )
+    else:
+        _logger.info("Reading the bundled station archive at %s", path)
     frames: dict[str, pd.DataFrame] = {}
     with tarfile.open(path, mode="r:xz") as tar:
         for member in tar:
@@ -305,7 +376,7 @@ def _from_tarball(codes: set[str] | None) -> dict[str, pd.DataFrame]:
                 continue
             frames[code] = _parse_csv(handle.read().decode("utf-8"), code)
     _logger.info("Read %d station CSVs from the archive", len(frames))
-    return frames
+    return frames, {**info, "tarball_url": url}
 
 
 def _from_csvs(codes: list[str]) -> dict[str, pd.DataFrame]:
@@ -420,7 +491,7 @@ def load(
     time
         Any form :func:`easysnowdata.temporal.parse_time` accepts. Each
         station's series is cut to the window before the dense grid is built,
-        so a narrow window is cheap — but the bundle is still downloaded
+        so a narrow window is cheap — on the bundle route it is still downloaded
         whole, because that is how it is published.
     networks
         Keep only these networks.
@@ -432,12 +503,15 @@ def load(
         every station is one or two chunks). Its ``time`` axis is complete
         and daily between the first and last observation, and its values are
         stored as float32 (returned as float64), so they agree with the CSV
-        routes to float32 precision. When the store
-        cannot be read and no *source* was asked for, the tarball route below
-        is used instead, with a warning.
-        ``"github-tarball"`` downloads the one ~28 MB bundle and reads every
-        wanted CSV out of it; its ``time`` axis holds only days on which some
-        station observed.
+        routes to float32 precision. When the store cannot be read and no
+        *source* was asked for, the snapshot route below is used instead,
+        with a warning naming the snapshot.
+        ``"github-tarball"`` downloads the ~28 MB bundle of CSVs attached to
+        that repo's **latest snapshot release** — a few times a year, each
+        with a Zenodo DOI — and reads every wanted CSV out of it. Ask for it
+        when a result should be pinned to a citable snapshot; the Dataset's
+        ``snapshot_tag`` and ``snapshot_published_at`` say which one. Its
+        ``time`` axis holds only days on which some station observed.
         ``"github-csv"`` fetches one CSV per station instead, which needs
         neither a store nor a temporary file.
     hemisphere
@@ -500,19 +574,24 @@ def load(
             if source is not None:
                 raise
             # The store is a build artefact of a Pages deploy; the bundle is
-            # a committed file. Both hold the same observations, so a Pages
-            # outage (or a deploy that has not happened yet) degrades to a
-            # 28 MB download rather than an error (REVAMP_PLAN §9.3).
+            # a GitHub Release asset, served from elsewhere. So a Pages outage
+            # (or a deploy that has not happened yet) degrades to the latest
+            # snapshot — possibly months behind, and the warning says so —
+            # rather than to an error (REVAMP_PLAN §9.3).
+            src = product.source("github-tarball")
+            frames, snapshot = _from_tarball(set(codes) if codes is not None else None)
             _logger.warning(
-                "Could not read the chunked archive at %s (%s); reading the "
-                "bundled CSVs instead.",
+                "Could not read the chunked archive at %s (%s); read the bundled "
+                "CSVs of snapshot %s (%s) instead, which may be behind the daily "
+                "archive.",
                 ZARR_URLS[layout],
                 exc,
+                snapshot.get("tag") or "unknown",
+                snapshot.get("published_at") or "date unknown",
             )
-            src = product.source("github-tarball")
-            frames = _from_tarball(set(codes) if codes is not None else None)
             ds = _to_dataset(frames, wanted_types, codes, inv, hemisphere, window)
-            source_url = ARCHIVE_URL
+            source_url = snapshot["tarball_url"]
+            ds.attrs.update(_snapshot_attrs(snapshot))
         else:
             ds = _finish(grid, inv, hemisphere)
             source_url = ZARR_URLS[layout]
@@ -526,13 +605,23 @@ def load(
         ds = _to_dataset(frames, wanted_types, codes, inv, hemisphere, window)
         source_url = CSV_BASE
     else:
-        frames = _from_tarball(set(codes) if codes is not None else None)
+        frames, snapshot = _from_tarball(set(codes) if codes is not None else None)
         ds = _to_dataset(frames, wanted_types, codes, inv, hemisphere, window)
-        source_url = ARCHIVE_URL
+        source_url = snapshot["tarball_url"]
+        ds.attrs.update(_snapshot_attrs(snapshot))
 
     ds.attrs.update(contract.provenance(product, src, source_url=source_url))
     ds.attrs["interval"] = "daily"
     return ds
+
+
+def _snapshot_attrs(snapshot: dict[str, Any]) -> dict[str, str]:
+    """Which snapshot release a bundle-route Dataset came from, for its attrs."""
+    return {
+        "snapshot_tag": str(snapshot.get("tag") or ""),
+        "snapshot_published_at": str(snapshot.get("published_at") or ""),
+        "snapshot_url": str(snapshot.get("html_url") or ""),
+    }
 
 
 def _types(variables: Any) -> list[str]:
@@ -640,7 +729,8 @@ PRODUCT = Product(
         "pre-downloaded and published by global_snow_networks: a normalized "
         "station inventory as GeoJSON, a chunked Zarr store on its Pages site "
         "that a query reads only the touched chunks of, and one CSV per "
-        "station bundled into a single ~28 MB archive. The fast path for "
+        "station bundled into a single ~28 MB archive on each snapshot release. "
+        "The fast path for "
         "'everything daily' without hitting five APIs, refreshed daily. Most "
         "stations start around 1980; "
         "a few long snow courses reach back to 1896. SWE and snow depth only; for "
@@ -676,13 +766,14 @@ PRODUCT = Product(
             location=ARCHIVE_URL,
             extent="western US, western Canada, Norway, Yukon, California, BC",
             temporal="1896/present (most stations from ~1980)",
-            latency="daily rebuild",
+            latency="per snapshot release (a few times a year)",
             notes=(
-                "one ~28 MB download holding every station CSV; cached, so "
-                "the whole archive costs one request. The fallback when the "
-                "Pages store cannot be read"
+                "one ~28 MB download holding every station CSV of the latest "
+                "snapshot release (each has a Zenodo DOI); cached per tag. The "
+                "citable route, and the fallback when the Pages store cannot "
+                "be read"
             ),
-            title="global_snow_networks bundled archive",
+            title="global_snow_networks snapshot bundle (latest release)",
             # The inventory and CSV probes were once labelled "SNOTEL/CCSS …"
             # after the retired snotel_ccss_stations entry; the labels were
             # renamed in 0.3 and data_status/history.json rewritten with them,
@@ -694,7 +785,7 @@ PRODUCT = Product(
                 ),
                 Probe(
                     "Snow station archive tarball (global_snow_networks)",
-                    partial(health.http_first_byte, ARCHIVE_URL),
+                    partial(health.http_first_byte, RELEASES_API),
                 ),
             ),
         ),
