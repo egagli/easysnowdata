@@ -1,9 +1,9 @@
 """easysnowdata.stations.archive — the daily fast path.
 
-Offline, the two published artefacts are stood in for by the tiny fixtures
+Offline, the three published artefacts are stood in for by the tiny fixtures
 ``tests/stations/fixtures/make_fixtures.py`` writes, which are laid out
 exactly like the real ones. Live, one smoke test per route plus a check that
-the two routes agree.
+the routes agree.
 """
 
 from __future__ import annotations
@@ -30,8 +30,27 @@ def local_archive(station_fixtures, monkeypatch):
         "fetch",
         lambda *a, **k: station_fixtures["archive"],
     )
+    monkeypatch.setattr(
+        archive,
+        "ZARR_URLS",
+        {
+            "by_time": str(station_fixtures["zarr_by_time"]),
+            "by_station": str(station_fixtures["zarr_by_station"]),
+        },
+    )
     monkeypatch.setattr(archive, "_INVENTORY_CACHE", {})
     return station_fixtures
+
+
+@pytest.fixture
+def store_unreachable(local_archive, monkeypatch):
+    """The Pages store 404s (a deploy that has not happened, or an outage)."""
+    monkeypatch.setattr(
+        archive,
+        "ZARR_URLS",
+        {k: f"{v}.does-not-exist" for k, v in archive.ZARR_URLS.items()},
+    )
+    return local_archive
 
 
 # ── catalog entry ────────────────────────────────────────────────────────────
@@ -42,7 +61,12 @@ def test_catalog_entry_is_registered_from_this_module():
     assert product is archive.PRODUCT
     assert product.loader == "easysnowdata.stations.archive.load"
     assert product.resolve_loader() is archive.load
-    assert [s.id for s in product.sources] == ["github-tarball", "github-csv"]
+    assert [s.id for s in product.sources] == [
+        "github-pages-zarr",
+        "github-tarball",
+        "github-csv",
+    ]
+    assert product.default_source.id == "github-pages-zarr"
     assert product.requires == ()  # the archive needs no credential at all
     assert {v.name for v in product.variables} == {"swe", "snwd"}
     assert catalog.validate_all(known_auth=tuple(esd.auth.PROVIDERS)) == []
@@ -52,6 +76,17 @@ def test_urls_point_at_the_published_artefacts():
     assert archive.INVENTORY_URL.endswith("/all_snow_stations.geojson")
     assert archive.ARCHIVE_URL.endswith("/data/all_station_csvs.tar.xz")
     assert archive.csv_url(PARADISE_CODE).endswith(f"/stations/{PARADISE_CODE}.csv")
+    assert archive.PAGES_BASE == "https://egagli.github.io/global_snow_networks/archive"
+    assert archive.ZARR_URLS["by_time"].endswith("/archive/by_time.zarr")
+    assert archive.ZARR_URLS["by_station"].endswith("/archive/by_station.zarr")
+    assert archive.MANIFEST_URL.endswith("/archive/archive.json")
+
+
+def test_the_store_layout_follows_how_many_stations_are_named():
+    assert archive._layout_for(None) == "by_time"
+    assert archive._layout_for([PARADISE_CODE]) == "by_station"
+    assert archive._layout_for([str(i) for i in range(64)]) == "by_station"
+    assert archive._layout_for([str(i) for i in range(65)]) == "by_time"
 
 
 def test_the_archive_only_holds_swe_and_snow_depth():
@@ -117,7 +152,7 @@ def test_network_of_resolves_the_codes_whose_shape_is_ambiguous(local_archive):
 
 
 @pytest.mark.recorded
-def test_tarball_route_builds_the_station_time_dataset(local_archive):
+def test_the_default_route_is_the_pages_store(local_archive):
     ds = archive.load()
     assert isinstance(ds, xr.Dataset)
     assert set(ds.data_vars) == {"swe", "snwd"}
@@ -126,9 +161,95 @@ def test_tarball_route_builds_the_station_time_dataset(local_archive):
     assert ds["swe"].attrs["units"] == "cm"
     assert ds["swe"].attrs["native_variables"] == "wteq_cm"
     assert ds["swe"].dtype == np.float64
-    assert ds.attrs["source"] == "github-tarball"
+    assert ds.attrs["source"] == "github-pages-zarr"
+    assert ds.attrs["source_url"] == archive.ZARR_URLS["by_time"]
     assert ds.attrs["product_id"] == "snow-station-archive"
     assert ds.attrs["interval"] == "daily"
+
+
+@pytest.mark.recorded
+def test_tarball_route_builds_the_station_time_dataset(local_archive):
+    ds = archive.load(source="github-tarball")
+    assert set(ds.data_vars) == {"swe", "snwd"}
+    assert ds.sizes == {"station": 3, "time": 7}
+    assert ds["swe"].dtype == np.float64
+    assert ds.attrs["source"] == "github-tarball"
+    assert ds.attrs["source_url"] == archive.ARCHIVE_URL
+
+
+@pytest.mark.recorded
+def test_the_store_and_the_tarball_agree(local_archive):
+    """Same observations, two published forms — coordinates and all.
+
+    The store holds float32 (that repo's DESIGN.md §6.5) and the CSVs parse
+    as float64, so values agree to float32 precision, not bit for bit.
+    """
+    from_store = archive.load()
+    from_bundle = archive.load(source="github-tarball")
+    from_store.attrs.clear()
+    from_bundle.attrs.clear()
+    xr.testing.assert_identical(
+        from_store.drop_vars(list(from_store.data_vars)),
+        from_bundle.drop_vars(list(from_bundle.data_vars)),
+    )
+    for name in ("swe", "snwd"):
+        assert from_store[name].attrs == from_bundle[name].attrs
+        np.testing.assert_allclose(
+            from_store[name].values, from_bundle[name].values, rtol=1e-6, equal_nan=True
+        )
+
+
+@pytest.mark.recorded
+def test_a_few_named_stations_read_from_the_by_station_store(local_archive):
+    ds = archive.load([PARADISE_CODE, "QUA"])
+    assert ds.attrs["source_url"] == archive.ZARR_URLS["by_station"]
+    assert list(ds["station"].values) == [PARADISE_CODE, "QUA"]
+    assert ds["name"].sel(station=PARADISE_CODE).item() == "Paradise"
+
+
+@pytest.mark.recorded
+def test_the_store_route_gives_a_station_without_data_an_all_nan_row(local_archive):
+    ds = archive.load([PARADISE_CODE, "08AA-SC01"])
+    assert list(ds["station"].values) == [PARADISE_CODE, "08AA-SC01"]
+    assert np.isnan(ds["swe"].sel(station="08AA-SC01")).all()
+    assert np.isfinite(ds["swe"].sel(station=PARADISE_CODE)).any()
+
+
+@pytest.mark.recorded
+def test_the_store_route_narrows_time_and_variables(local_archive):
+    ds = archive.load(variables="swe", time="2023-10-01/2023-10-03")
+    assert set(ds.data_vars) == {"swe"}
+    assert ds.sizes["time"] == 3
+    assert str(ds["time"].values[0])[:10] == "2023-10-01"
+    assert list(ds["water_year"].values) == [2024, 2024, 2024]
+
+
+@pytest.mark.recorded
+def test_an_unreachable_store_falls_back_to_the_tarball_with_a_warning(
+    store_unreachable, caplog
+):
+    ds = archive.load()
+    assert ds.attrs["source"] == "github-tarball"
+    assert ds.sizes == {"station": 3, "time": 7}
+    assert "reading the bundled CSVs instead" in caplog.text
+
+
+@pytest.mark.recorded
+def test_an_unreachable_store_asked_for_by_name_fails(store_unreachable):
+    with pytest.raises(Exception, match="does-not-exist|No such|not found|Unable"):
+        archive.load(source="github-pages-zarr")
+
+
+def test_manifest_is_the_pages_archive_json(monkeypatch):
+    seen = {}
+
+    def fake_fetch(url):
+        seen["url"] = url
+        return {"built_from_commit": "abc123", "stores": {}}
+
+    monkeypatch.setattr(archive, "_fetch_json", fake_fetch)
+    assert archive.manifest()["built_from_commit"] == "abc123"
+    assert seen["url"] == archive.MANIFEST_URL
 
 
 @pytest.mark.recorded
@@ -229,13 +350,31 @@ def test_live_archive_csv_route():
 
 
 @pytest.mark.live
-def test_live_archive_tarball_route_agrees_with_the_csv_route():
+def test_live_archive_store_route():
+    ds = archive.load(
+        [PARADISE_CODE], source="github-pages-zarr", time="2024-01/2024-03"
+    )
+    assert ds.attrs["source"] == "github-pages-zarr"
+    assert ds.attrs["source_url"] == archive.ZARR_URLS["by_station"]
+    assert ds.sizes["station"] == 1
+    assert ds.sizes["time"] == 91  # the store's time axis is complete
+    assert 50.0 < float(np.nanmedian(ds["swe"])) < 500.0
+    assert archive.manifest()["built_from_commit"]
+
+
+@pytest.mark.live
+def test_live_archive_routes_agree():
     when = "2024-01-01/2024-03-31"
-    bundled = archive.load([PARADISE_CODE], time=when)
+    bundled = archive.load([PARADISE_CODE], source="github-tarball", time=when)
     per_station = archive.load([PARADISE_CODE], source="github-csv", time=when)
+    chunked = archive.load([PARADISE_CODE], source="github-pages-zarr", time=when)
     assert bundled.attrs["source"] == "github-tarball"
     np.testing.assert_allclose(
         bundled["swe"].values, per_station["swe"].values, equal_nan=True
+    )
+    # Same days in this window, so the complete axis and the observed axis agree
+    np.testing.assert_allclose(
+        chunked["swe"].values, bundled["swe"].values, equal_nan=True
     )
 
 

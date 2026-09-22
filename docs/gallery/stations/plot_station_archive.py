@@ -4,15 +4,19 @@ Daily snow-station archive (global_snow_networks)
 
 ``global_snow_networks`` pre-downloads daily SWE and snow depth for every
 station across the five networks whose daily record its probe has verified,
-and publishes two things: a normalized inventory of every station, periodic
-snow courses included, and one CSV per daily station bundled into a single
-archive of about 28 MB. Both are rebuilt daily.
+and publishes three things: a normalized inventory of every station, periodic
+snow courses included; the observations as a chunked Zarr store on its GitHub
+Pages site; and one CSV per daily station bundled into a single archive of
+about 28 MB. All are rebuilt daily.
 
-Two routes: ``source="github-tarball"`` (default) downloads the bundle once
-into the package cache and reads every wanted CSV out of it, which is the way
-to get all of it; ``source="github-csv"`` fetches one CSV per station, cheaper
-for a handful. Neither needs an account, not even for the Norwegian stations,
-which are already in the bundle. The archive holds SWE and snow depth only.
+Three routes: ``source="github-pages-zarr"`` (default) reads the store and
+fetches only the chunks a request touches — under a megabyte for one water
+year of every station, or for one station's whole record — and falls back to
+the bundle if Pages cannot be read; ``source="github-tarball"`` downloads the
+bundle once into the package cache and reads every wanted CSV out of it;
+``source="github-csv"`` fetches one CSV per station. None needs an account,
+not even for the Norwegian stations. The archive holds SWE and snow depth
+only.
 
 The figures show every daily station coloured by the length of its record,
 one water year of peak SWE against elevation for all of them, and one

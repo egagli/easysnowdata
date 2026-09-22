@@ -1,7 +1,7 @@
 """The daily station archive: everything daily, without hitting five APIs.
 
 ``global_snow_networks`` pre-downloads daily SWE and snow depth for every
-station its probe has verified as daily-or-better, and publishes two
+station its probe has verified as daily-or-better, and publishes three
 artefacts that this module reads (§9 step 3):
 
 ``all_snow_stations.geojson``
@@ -9,10 +9,17 @@ artefacts that this module reads (§9 step 3):
     26 normalized properties of that repo's DESIGN.md §6.1 — including
     ``daily_or_better``, which is the **probe's verdict** rather than what a
     network advertises about itself.
+``archive/*.zarr`` on that repo's GitHub Pages site
+    The same observations as the CSVs below, chunked (that repo's DESIGN.md
+    §6.5): ``by_time.zarr`` for "one water year, every station" and
+    ``by_station.zarr`` for "this station's whole record". Pages serves
+    range requests, so a query fetches the chunks it touches — well under a
+    megabyte for either of those — instead of the whole bundle. The default
+    route.
 ``data/all_station_csvs.tar.xz``
     One ``date,wteq_cm,snwd_cm`` CSV per daily-or-better station, bundled.
-    About 28 MB, and the cheapest way by far to get every station's whole
-    record — which, for a few long snow courses, reaches back to 1896.
+    About 28 MB, whole-file only; the route that predates the store, kept
+    so older pins keep working and as the fallback when Pages is down.
 
 ::
 
@@ -54,11 +61,15 @@ __all__ = [
     "ARCHIVE_URL",
     "CSV_BASE",
     "INVENTORY_URL",
+    "MANIFEST_URL",
+    "PAGES_BASE",
     "PRODUCT",
     "REPO",
+    "ZARR_URLS",
     "csv_url",
     "inventory",
     "load",
+    "manifest",
     "network_of",
 ]
 
@@ -70,6 +81,24 @@ ARCHIVE_URL = f"{REPO}/raw/main/data/all_station_csvs.tar.xz"
 CSV_BASE = (
     "https://raw.githubusercontent.com/egagli/global_snow_networks/main/data/stations/"
 )
+#: The chunked archive, rebuilt into that repo's Pages artefact on every
+#: deploy (its DESIGN.md §6.5). Two stores, same observations, two chunk
+#: layouts; ``archive.json`` beside them names the commit they were built from.
+PAGES_BASE = "https://egagli.github.io/global_snow_networks/archive"
+ZARR_URLS = {
+    "by_time": f"{PAGES_BASE}/by_time.zarr",
+    "by_station": f"{PAGES_BASE}/by_station.zarr",
+}
+MANIFEST_URL = f"{PAGES_BASE}/archive.json"
+
+#: Named stations up to this many read from ``by_station.zarr`` (one chunk of
+#: 64 stations holds a whole record); more than that, or every station, reads
+#: from ``by_time.zarr``, whose chunks hold 366 days of every station.
+_BY_STATION_LIMIT = 64
+
+#: Store array -> archive CSV column. The store spells snow depth out; the
+#: output contract keeps the two-letter names the CSV columns abbreviate.
+_STORE_COLUMNS = {"swe": "wteq_cm", "snow_depth": "snwd_cm"}
 
 #: How long a downloaded bundle is trusted before it is fetched again. The
 #: archive is rebuilt daily, so a day; the inventory, read over HTTP each
@@ -222,6 +251,24 @@ def network_of(codes: list[str]) -> dict[str, str]:
     return {str(code): str(net) for code, net in found.dropna().items()}
 
 
+def manifest() -> dict[str, Any]:
+    """``archive.json`` from the Pages store: when it was built, from which commit.
+
+    Useful for a data-availability statement — the commit pins exactly which
+    CSVs the store was built from — and for telling a stale Pages deploy from
+    a stale bundle.
+    """
+    return _fetch_json(MANIFEST_URL)
+
+
+def _fetch_json(url: str) -> dict[str, Any]:
+    import requests  # noqa: PLC0415
+
+    response = requests.get(url, timeout=60)
+    response.raise_for_status()
+    return response.json()
+
+
 # ── reading the data ─────────────────────────────────────────────────────────
 
 
@@ -280,6 +327,60 @@ def _from_csvs(codes: list[str]) -> dict[str, pd.DataFrame]:
     return frames
 
 
+def _layout_for(codes: list[str] | None) -> str:
+    """Which store answers a request cheapest (see :data:`_BY_STATION_LIMIT`)."""
+    if codes is not None and len(codes) <= _BY_STATION_LIMIT:
+        return "by_station"
+    return "by_time"
+
+
+def _from_zarr(
+    codes: list[str] | None,
+    types: list[str],
+    window: tuple[Any, Any] | None,
+    layout: str,
+) -> xr.Dataset:
+    """The wanted stations and days out of the Pages store, as a bare grid.
+
+    Only the chunks the selection touches are fetched. The result has
+    ``swe`` / ``snwd`` on ``(station, time)`` in float64 and nothing else;
+    :func:`_finish` puts the inventory metadata and water-year coordinates
+    on, the same way the CSV routes get them.
+    """
+    import numpy as np  # noqa: PLC0415
+
+    url = ZARR_URLS[layout]
+    _logger.info("Reading the chunked station archive at %s", url)
+    store = providers.zarr_cloud.open(url, consolidated=True)
+    wanted = [
+        name for name, column in _STORE_COLUMNS.items() if COLUMNS[column][0] in types
+    ]
+    ds = store[wanted]
+    # reindex, not sel: a code the store lacks (the probe has not verified it)
+    # becomes an all-NaN row, as on the CSV routes. With no codes named, the
+    # station axis is sorted, as the tarball route sorts it.
+    axis = (
+        [str(c) for c in codes]
+        if codes is not None
+        else sorted(str(c) for c in ds["station"].values)
+    )
+    ds = ds.reindex(station=axis)
+    if window is not None:
+        start, end = window
+        ds = ds.sel(time=slice(start, end))
+    ds = ds.reset_coords(drop=True).load()
+    ds = ds.rename({name: COLUMNS[_STORE_COLUMNS[name]][0] for name in wanted})
+    ds = ds.astype("float64")
+    times = pd.DatetimeIndex(ds["time"].values, name="time")
+    return xr.Dataset(
+        {name: (("station", "time"), ds[name].values) for name in ds.data_vars},
+        coords={
+            "station": np.array([str(c) for c in ds["station"].values], dtype="str"),
+            "time": times,
+        },
+    )
+
+
 def load(
     stations: Any = None,
     *,
@@ -311,11 +412,21 @@ def load(
     networks
         Keep only these networks.
     source
-        ``"github-tarball"`` (default) downloads the one ~28 MB bundle and
-        reads every wanted CSV out of it — right for more than a handful of
-        stations, and the only sane route for all of them.
-        ``"github-csv"`` fetches one CSV per station instead, which is
-        cheaper for a few stations and needs no temporary file.
+        ``"github-pages-zarr"`` (default) reads the chunked store on that
+        repo's Pages site and fetches only the chunks the request touches:
+        named stations up to 64 come from ``by_station.zarr`` (a whole record
+        is one chunk), anything wider from ``by_time.zarr`` (one water year of
+        every station is one or two chunks). Its ``time`` axis is complete
+        and daily between the first and last observation, and its values are
+        stored as float32 (returned as float64), so they agree with the CSV
+        routes to float32 precision. When the store
+        cannot be read and no *source* was asked for, the tarball route below
+        is used instead, with a warning.
+        ``"github-tarball"`` downloads the one ~28 MB bundle and reads every
+        wanted CSV out of it; its ``time`` axis holds only days on which some
+        station observed.
+        ``"github-csv"`` fetches one CSV per station instead, which needs
+        neither a store nor a temporary file.
     hemisphere
         Which water year to attach.
 
@@ -329,9 +440,11 @@ def load(
     Notes
     -----
     The whole archive is about 1 550 stations by 47 000 days, so asking for
-    all of it materializes roughly 1.2 GB of float64 (measured: 31 s and
-    under 2 GB of peak memory). Pass *time*, *aoi* or *stations* when you do
-    not need every cell.
+    all of it materializes roughly 1.2 GB of float64 (measured on the tarball
+    route: 31 s and under 2 GB of peak memory). Pass *time*, *aoi* or
+    *stations* when you do not need every cell — on the default route that
+    also cuts the download to the chunks touched, measured at 0.7 MB for one
+    water year of every station and 0.5 MB for one station's whole record.
 
     Examples
     --------
@@ -359,30 +472,54 @@ def load(
         if codes is not None:
             inv = inv.reindex(codes)
 
-    if src.id == "github-csv":
-        if codes is None:
-            raise ValueError(
-                'source="github-csv" fetches one CSV per station, so it needs '
-                "stations= or aoi=. Use the default tarball route for the "
-                "whole archive."
-            )
-        frames = _from_csvs(codes)
-    else:
-        frames = _from_tarball(set(codes) if codes is not None else None)
-
     window = None
     if time is not None:
         from easysnowdata.temporal import parse_time  # noqa: PLC0415
 
         window = parse_time(time)
-    ds = _to_dataset(frames, wanted_types, codes, inv, hemisphere, window)
-    ds.attrs.update(contract.provenance(product, src, source_url=_url_of(src)))
+
+    source_url: str
+    if src.id == "github-pages-zarr":
+        layout = _layout_for(codes)
+        try:
+            grid = _from_zarr(codes, wanted_types, window, layout)
+        except Exception as exc:  # noqa: BLE001 — any read failure: fall back
+            if source is not None:
+                raise
+            # The store is a build artefact of a Pages deploy; the bundle is
+            # a committed file. Both hold the same observations, so a Pages
+            # outage (or a deploy that has not happened yet) degrades to a
+            # 28 MB download rather than an error (REVAMP_PLAN §9.3).
+            _logger.warning(
+                "Could not read the chunked archive at %s (%s); reading the "
+                "bundled CSVs instead.",
+                ZARR_URLS[layout],
+                exc,
+            )
+            src = product.source("github-tarball")
+            frames = _from_tarball(set(codes) if codes is not None else None)
+            ds = _to_dataset(frames, wanted_types, codes, inv, hemisphere, window)
+            source_url = ARCHIVE_URL
+        else:
+            ds = _finish(grid, inv, hemisphere)
+            source_url = ZARR_URLS[layout]
+    elif src.id == "github-csv":
+        if codes is None:
+            raise ValueError(
+                'source="github-csv" fetches one CSV per station, so it needs '
+                "stations= or aoi=. Use the default route for the whole archive."
+            )
+        frames = _from_csvs(codes)
+        ds = _to_dataset(frames, wanted_types, codes, inv, hemisphere, window)
+        source_url = CSV_BASE
+    else:
+        frames = _from_tarball(set(codes) if codes is not None else None)
+        ds = _to_dataset(frames, wanted_types, codes, inv, hemisphere, window)
+        source_url = ARCHIVE_URL
+
+    ds.attrs.update(contract.provenance(product, src, source_url=source_url))
     ds.attrs["interval"] = "daily"
     return ds
-
-
-def _url_of(src: Any) -> str:
-    return ARCHIVE_URL if src.id == "github-tarball" else CSV_BASE
 
 
 def _types(variables: Any) -> list[str]:
@@ -451,6 +588,17 @@ def _to_dataset(
         arrays,
         coords={"station": np.array(station_axis, dtype="str"), "time": times},
     )
+    return _finish(ds, inv, hemisphere)
+
+
+def _finish(
+    ds: xr.Dataset, inv: gpd.GeoDataFrame | None, hemisphere: str
+) -> xr.Dataset:
+    """Variable attributes, station metadata and water-year coordinates.
+
+    The last step of every route, so a Dataset from the store and one from
+    the CSVs are the same shape with the same coordinates.
+    """
     for column, (type_name, units) in COLUMNS.items():
         if type_name in ds.data_vars:
             ds[type_name].attrs.update(
@@ -477,14 +625,38 @@ PRODUCT = Product(
         "Daily SWE and snow depth for every station whose daily "
         "record has been probe-verified, across all five networks, "
         "pre-downloaded and published by global_snow_networks: a normalized "
-        "station inventory as GeoJSON and one CSV per station, bundled into a "
-        "single ~28 MB archive. The fast path for 'everything daily' without "
-        "hitting five APIs, refreshed daily. Most stations start around 1980; "
+        "station inventory as GeoJSON, a chunked Zarr store on its Pages site "
+        "that a query reads only the touched chunks of, and one CSV per "
+        "station bundled into a single ~28 MB archive. The fast path for "
+        "'everything daily' without hitting five APIs, refreshed daily. Most "
+        "stations start around 1980; "
         "a few long snow courses reach back to 1896. SWE and snow depth only; for "
         "other variables, other intervals or quality flags, use "
         "easysnowdata.stations.load()."
     ),
     sources=(
+        Source(
+            id="github-pages-zarr",
+            provider="zarr_cloud",
+            location=PAGES_BASE,
+            extent="western US, western Canada, Norway, Yukon, California, BC",
+            temporal="1896/present (most stations from ~1980)",
+            latency="daily rebuild",
+            notes=(
+                "Zarr v3 on GitHub Pages, two chunk layouts; a query fetches "
+                "only the chunks it touches (one water year of every station "
+                "~0.7 MB, one station's whole record ~0.5 MB)"
+            ),
+            title="global_snow_networks chunked archive (Pages)",
+            health=(
+                Probe(
+                    "Snow station Zarr archive (global_snow_networks)",
+                    partial(
+                        health.http_first_byte, f"{ZARR_URLS['by_time']}/zarr.json"
+                    ),
+                ),
+            ),
+        ),
         Source(
             id="github-tarball",
             provider="raster_http",
@@ -494,7 +666,8 @@ PRODUCT = Product(
             latency="daily rebuild",
             notes=(
                 "one ~28 MB download holding every station CSV; cached, so "
-                "the whole archive costs one request"
+                "the whole archive costs one request. The fallback when the "
+                "Pages store cannot be read"
             ),
             title="global_snow_networks bundled archive",
             # The inventory and CSV probes were once labelled "SNOTEL/CCSS …"
