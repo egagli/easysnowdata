@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
+## [v0.3.1](https://github.com/egagli/easysnowdata/releases/tag/v0.3.1) - 2026-09-22
+
+<small>[Compare with v0.2.0](https://github.com/egagli/easysnowdata/compare/v0.2.0...v0.3.1)</small>
+
+### Fixed
+
+- fix(planetscope): make a real order work end to end; gallery renders a real scene ([bd25c45](https://github.com/egagli/easysnowdata/commit/bd25c45c4212db5b1a5e212dec2fe295a9f1f5d6) by egagli).
+- fix(archive): open a scheme-less store path as a local store ([d71b0ee](https://github.com/egagli/easysnowdata/commit/d71b0ee753cef56ec9fdc0dc248b85fda202b5b5) by Eric Gagliano).
+- fix(sar): never fuse Sentinel-1 geometries — one raster per relative orbit ([c9fbe53](https://github.com/egagli/easysnowdata/commit/c9fbe53433a9ed8a36edadca1f72cafe67b387d8) by egagli).
+- fix(hls): a failed band read raises instead of filling the Dataset with nodata ([101d97f](https://github.com/egagli/easysnowdata/commit/101d97f5aa482ed74c4185486dbc8a3710c4fb26) by egagli).
+- fix(auth): log in at URS with the netrc for GDAL reads whenever a password exists ([1b7a1a1](https://github.com/egagli/easysnowdata/commit/1b7a1a13a66f3e71288967e41dcc61723dac5922) by egagli).
+- fix(sar): drop the nominal Sentinel-1 heading and the constant 39° incidence angle ([736499e](https://github.com/egagli/easysnowdata/commit/736499e0fcfdef3c1f4bfdc9ea33c5417198806a) by egagli).
+- fix(snow): Terra-only MODIS mosaics from Planetary Computer; real NSIDC-0768 file names ([8bbbdbd](https://github.com/egagli/easysnowdata/commit/8bbbdbdbe6d6c11411c867b07f5d578a672233ec) by egagli).
+- fix(sar): incidence angle from each track's geometry, with the right sign; OPERA reads work ([d12dc9f](https://github.com/egagli/easysnowdata/commit/d12dc9f37684c9dfb73287c08e0c2472f11254f3) by egagli).
+- fix(health): probe Planet through the SDK, send a User-Agent on first-byte probes ([e5aeb82](https://github.com/egagli/easysnowdata/commit/e5aeb82fc28802f3539aaea69c93e3d185b32553) by egagli).
+- fix(stations): finish the transfer — format the clients, relabel the probes, refresh the archive ([fb1bf3e](https://github.com/egagli/easysnowdata/commit/fb1bf3e191e27ee7453e23830a99bd6c85731016) by egagli).
+- fix(deprecation): the shims promised removal in the release they shipped in ([24e93b5](https://github.com/egagli/easysnowdata/commit/24e93b549e928cb6cfabd103b8ae40f9d1581b07) by egagli).
+
 ## [v0.2.0](https://github.com/egagli/easysnowdata/releases/tag/v0.2.0) - 2026-09-17
 
 <small>[Compare with v0.0.26](https://github.com/egagli/easysnowdata/compare/v0.0.26...v0.2.0)</small>
