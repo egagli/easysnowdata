@@ -135,4 +135,5 @@ def no_network(monkeypatch):
     ):
         monkeypatch.setattr(getattr(clients, name), "get_all_stations", boom)
         monkeypatch.setattr(getattr(clients, name), "get_data", boom)
+        monkeypatch.setattr(getattr(clients, name), "get_metadata", boom)
     return boom

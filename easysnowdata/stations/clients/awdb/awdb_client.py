@@ -535,6 +535,14 @@ class AWDBClient:
         and then split further on request-size errors to avoid URL-length and
         payload-size limits.
 
+        A triplet AWDB rejects outright poisons its whole batch: the API
+        answers HTTP 400 for all 150 stations (seen 2026-09-22 with two USGS
+        gauges whose ids carry a hyphen, ``NV-16:CA:USGS`` and
+        ``NV-18:CA:USGS``). On a 400 the batch is bisected down to the
+        offender, which is skipped with a warning; asking for that one
+        triplet on its own still raises, since then there is nothing else to
+        answer for.
+
         Example
         -------
         >>> meta = client.get_metadata(
@@ -575,10 +583,18 @@ class AWDBClient:
             try:
                 batch_result = self._get("stations", params)
             except AWDBError as exc:
-                if not is_request_too_large_error(exc):
+                too_large = is_request_too_large_error(exc)
+                rejected = "400" in str(exc)
+                if not (too_large or rejected):
                     raise
                 if len(batch) == 1:
-                    raise
+                    if too_large or one_station:
+                        raise
+                    logger.warning(
+                        "AWDB rejects station triplet %s (HTTP 400); skipping it.",
+                        batch[0],
+                    )
+                    return []
                 mid = max(1, len(batch) // 2)
                 left = fetch_batch(batch[:mid])
                 right = fetch_batch(batch[mid:])
