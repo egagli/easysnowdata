@@ -325,3 +325,48 @@ def test_snowfall_is_not_filed_under_precipitation():
     # every `precip` series really is a depth of water, in mm
     for key in _TYPE_TO_YUKON_VARS["precip"]:
         assert VARIABLES[key]["output_units"] == "mm"
+
+
+# ── AWDB: a rejected triplet must not poison its batch ───────────────────────
+
+
+def test_awdb_get_metadata_bisects_a_rejected_batch_down_to_the_triplet(
+    monkeypatch, caplog
+):
+    """AWDB answers HTTP 400 for a whole 150-station batch when one triplet
+    is malformed (two USGS gauges with hyphenated ids do this). The client
+    bisects to the offender, skips it with a warning, and returns the rest."""
+    client = AWDBClient()
+    bad = "NV-16:CA:USGS"
+    requested: list[list[str]] = []
+
+    def fake_get(endpoint, params=None, **kwargs):
+        batch = params["stationTriplets"].split(",")
+        requested.append(batch)
+        if bad in batch:
+            raise AWDBError("HTTP 400 Bad Request: .../stations (params=...)")
+        return [
+            {"stationTriplet": t, "stationElements": [{"elementCode": "WTEQ"}]}
+            for t in batch
+        ]
+
+    monkeypatch.setattr(client, "_get", fake_get)
+    triplets = [f"{n}:CO:SNTL" for n in range(300, 310)] + [bad] + ["713:CO:SNTL"]
+    result = client.get_metadata(triplets, elements=["WTEQ"], durations=["DAILY"])
+
+    assert [m["stationTriplet"] for m in result] == [t for t in triplets if t != bad]
+    assert [bad] in requested  # bisected all the way down to the offender
+    assert f"rejects station triplet {bad}" in caplog.text
+
+
+def test_awdb_get_metadata_for_one_rejected_triplet_still_raises(monkeypatch):
+    """Skipping is for batches; a caller who asked for that one station gets
+    the error."""
+    client = AWDBClient()
+
+    def fake_get(endpoint, params=None, **kwargs):
+        raise AWDBError("HTTP 400 Bad Request")
+
+    monkeypatch.setattr(client, "_get", fake_get)
+    with pytest.raises(AWDBError, match="400"):
+        client.get_metadata("NV-16:CA:USGS")

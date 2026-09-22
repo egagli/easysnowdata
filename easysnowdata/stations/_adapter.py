@@ -225,7 +225,8 @@ def inventory(
             stations = client.get_all_stations(active_only=active_only, bbox=bbox)
         _logger.info("%s: %d stations", network, len(stations))
         frame = _frames.stations_to_geodataframe(stations, network)
-        frame["daily"] = _advertised_daily(stations, network)
+        with auth.env(*_nets.get(network).requires):
+            frame["daily"] = _advertised_daily(stations, network, client)
         frames.append(frame)
     gdf = (
         pd.concat(frames)
@@ -247,15 +248,61 @@ def inventory(
     return gdf
 
 
-def _advertised_daily(stations: list[dict], network: str) -> list[Any]:
+#: AWDB element codes for SWE and snow depth, the two the archive is about.
+_AWDB_SNOW_ELEMENTS = ("WTEQ", "SNWD")
+
+
+def _awdb_daily_triplets(client: Any, stations: list[dict]) -> set[str] | None:
+    """Triplets whose AWDB element inventory lists a DAILY WTEQ or SNWD.
+
+    AWDB's station list says nothing about elements, so this is one extra
+    ``/stations`` call per 150 triplets with ``returnStationElements`` — about
+    50 requests and 50 s for the whole network (measured 2026-09-22: 1 217 of
+    7 146 stations). ``None`` when the calls fail, so the flag degrades to
+    "unknown" rather than the inventory failing.
+    """
+    triplets = [str(s["stationTriplet"]) for s in stations if s.get("stationTriplet")]
+    if not triplets:
+        return set()
+    try:
+        metadata = client.get_metadata(
+            triplets, elements=list(_AWDB_SNOW_ELEMENTS), durations=["DAILY"]
+        )
+    except Exception as exc:  # noqa: BLE001 — a hint, not the verdict
+        _logger.warning(
+            "Could not read AWDB station elements (%s); the `daily` flag is "
+            "unknown for AWDB stations.",
+            exc,
+        )
+        return None
+    if isinstance(metadata, dict):
+        metadata = [metadata]
+    return {
+        str(m["stationTriplet"])
+        for m in metadata
+        if m.get("stationTriplet") and m.get("stationElements")
+    }
+
+
+def _advertised_daily(
+    stations: list[dict], network: str, client: Any = None
+) -> list[Any]:
     """What each network's station list *says* about daily SWE / snow depth.
 
     Advertised, never verified — DESIGN.md §4 is explicit that capability
-    flags are hints. ``None`` where the station list carries no signal at all:
-    AWDB's does not, because its element inventory needs a per-station
-    metadata call.
+    flags are hints. Four networks answer from their station list alone. AWDB
+    does not carry elements there, so given a *client* the flag comes from
+    one batched element-inventory call (:func:`_awdb_daily_triplets`);
+    without one, or when that call fails, it is ``None``.
     """
     out: list[Any] = []
+    if network == "awdb":
+        daily = _awdb_daily_triplets(client, stations) if client is not None else None
+        for station in stations:
+            out.append(
+                None if daily is None else str(station.get("stationTriplet")) in daily
+            )
+        return out
     for station in stations:
         if network == "cdec":
             out.append(

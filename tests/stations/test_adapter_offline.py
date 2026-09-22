@@ -190,8 +190,23 @@ class StubClient:
             for i, day in enumerate(days)
         ]
 
-    def get_metadata(self, station_id):
-        type(self).calls.append({"method": "get_metadata", "station_id": station_id})
+    def get_metadata(self, station_id, **kwargs):
+        type(self).calls.append(
+            {"method": "get_metadata", "station_id": station_id, **kwargs}
+        )
+        if isinstance(station_id, list):
+            # AWDB's batch form: one dict per station that has a matching
+            # element. Paradise has daily WTEQ; Morse Lake has nothing daily.
+            return [
+                {
+                    "stationTriplet": triplet,
+                    "stationElements": [
+                        {"elementCode": "WTEQ", "durationName": "DAILY"}
+                    ],
+                }
+                for triplet in station_id
+                if triplet == PARADISE_TRIPLET
+            ]
         return {"station_id": station_id, "series": []}
 
 
@@ -212,6 +227,10 @@ def stub_clients(monkeypatch):
     esd.auth.reset()
 
 
+def _last_call(stub: type[StubClient], method: str) -> dict:
+    return [c for c in stub.calls if c["method"] == method][-1]
+
+
 # ── inventory over the live clients ──────────────────────────────────────────
 
 
@@ -228,20 +247,51 @@ def test_inventory_queries_every_network_and_concatenates(stub_clients):
 
 def test_inventory_pushes_the_aoi_down_as_a_bbox(stub_clients):
     esd.stations.inventory(RAINIER, networks="awdb", source="clients")
-    call = stub_clients["awdb"].calls[-1]
+    call = _last_call(stub_clients["awdb"], "get_all_stations")
     assert call["bbox"] == pytest.approx(RAINIER)
 
 
 def test_inventory_passes_active_only_through(stub_clients):
     inv = esd.stations.inventory(networks="awdb", active_only=True, source="clients")
-    assert stub_clients["awdb"].calls[-1]["active_only"] is True
+    assert _last_call(stub_clients["awdb"], "get_all_stations")["active_only"] is True
     assert list(inv.index) == [PARADISE_CODE]
+
+
+def test_awdb_daily_flag_comes_from_one_batched_element_call(stub_clients):
+    """AWDB's station list carries no elements, so the adapter asks once.
+
+    One ``get_metadata`` per 150 triplets with ``elements=WTEQ,SNWD`` and
+    ``durations=DAILY``; a station is daily when it comes back with elements.
+    """
+    inv = esd.stations.inventory(networks="awdb", source="clients")
+    metadata_calls = [
+        c for c in stub_clients["awdb"].calls if c["method"] == "get_metadata"
+    ]
+    assert len(metadata_calls) == 1
+    assert metadata_calls[0]["station_id"] == [PARADISE_TRIPLET, "642:WA:SNTL"]
+    assert metadata_calls[0]["elements"] == ["WTEQ", "SNWD"]
+    assert metadata_calls[0]["durations"] == ["DAILY"]
+    assert bool(inv.loc[PARADISE_CODE, "daily"]) is True
+    assert bool(inv.loc["642_WA_SNTL", "daily"]) is False
+
+
+def test_awdb_daily_flag_is_unknown_when_the_element_call_fails(
+    stub_clients, monkeypatch, caplog
+):
+    def boom(self, station_id, **kwargs):
+        raise RuntimeError("AWDB is down")
+
+    monkeypatch.setattr(stub_clients["awdb"], "get_metadata", boom)
+    inv = esd.stations.inventory(networks="awdb", source="clients")
+    assert inv["daily"].isna().all()
+    assert "daily` flag is unknown" in caplog.text
 
 
 def test_advertised_daily_reads_each_networks_own_signal(stub_clients):
     inv = esd.stations.inventory(source="clients")
     # AWDB's station list carries no element inventory at all
-    assert inv.loc[PARADISE_CODE, "daily"] is None
+    assert bool(inv.loc[PARADISE_CODE, "daily"]) is True  # DAILY WTEQ element
+    assert bool(inv.loc["642_WA_SNTL", "daily"]) is False  # no daily element
     assert bool(inv.loc["QUA", "daily"]) is True
     assert bool(inv.loc["HNT", "daily"]) is False
     assert bool(inv.loc["1A01P", "daily"]) is True  # ASWS
@@ -252,11 +302,21 @@ def test_advertised_daily_reads_each_networks_own_signal(stub_clients):
     assert bool(inv.loc["08AA-SC01", "daily"]) is False
 
 
-def test_daily_only_drops_the_unknowns_on_the_live_route(stub_clients):
+def test_daily_only_keeps_the_advertised_stations_on_the_live_route(stub_clients):
     inv = esd.stations.inventory(daily_only=True, source="clients")
-    # AWDB reports nothing, so it cannot be kept by an advertised filter
+    assert set(inv["network"]) == set(networks.NETWORKS)
+    assert set(inv.index) == {PARADISE_CODE, "QUA", "1A01P", "12.142.0", "09AA-M1"}
+
+
+def test_daily_only_drops_the_unknowns_on_the_live_route(stub_clients, monkeypatch):
+    """A `None` flag (AWDB when its element call fails) is not "daily"."""
+
+    def boom(self, station_id, **kwargs):
+        raise RuntimeError("AWDB is down")
+
+    monkeypatch.setattr(stub_clients["awdb"], "get_metadata", boom)
+    inv = esd.stations.inventory(daily_only=True, source="clients")
     assert set(inv["network"]) == {"cdec", "databc", "nve", "yukon"}
-    assert set(inv.index) == {"QUA", "1A01P", "12.142.0", "09AA-M1"}
 
 
 def test_unknown_network_names_the_five(stub_clients):

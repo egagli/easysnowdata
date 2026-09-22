@@ -6,7 +6,7 @@ writing a vector file through geopandas in a process that has already imported
 rasterio crashes GDAL in this environment, so rasterio is imported first and
 the whole thing is kept out of the test process.
 
-Two fixtures, both scaled down from the real artefacts:
+Three fixtures, all scaled down from the real artefacts:
 
 ``inventory``
     A four-station GeoJSON with the properties ``all_snow_stations.geojson``
@@ -16,6 +16,12 @@ Two fixtures, both scaled down from the real artefacts:
 ``archive``
     A ``.tar.xz`` of ``date,wteq_cm,snwd_cm`` CSVs under ``stations/``, laid
     out exactly like ``data/all_station_csvs.tar.xz``.
+``zarr_by_time`` / ``zarr_by_station`` / ``manifest``
+    The same series as Zarr stores in the two chunk layouts that repo's
+    ``scripts/build_zarr_archive.py`` publishes (its DESIGN.md §6.5): format
+    3, consolidated metadata, float32 centimetres, ``swe`` and ``snow_depth``
+    on ``(station, time)``, a complete daily ``time`` axis, station metadata
+    as coordinates, and an ``archive.json`` manifest.
 """
 
 from __future__ import annotations
@@ -32,6 +38,7 @@ import geopandas as gpd  # isort: skip
 import numpy as np  # isort: skip
 import pandas as pd  # isort: skip
 import shapely  # isort: skip
+import xarray as xr  # isort: skip
 
 STATIONS = [
     {
@@ -193,6 +200,67 @@ def main(target: Path) -> None:
         path = target / f"{code}.csv"
         _series(code).to_csv(path, index=False)
         print(f"csv_{code}: {path}")
+
+    _write_zarr_stores(target)
+
+
+def _write_zarr_stores(target: Path) -> None:
+    """The CSV series again, as the two chunked stores Pages serves."""
+    import warnings
+
+    frames = {code: _series(code).set_index("date") for code in WITH_CSVS}
+    for frame in frames.values():
+        frame.index = pd.to_datetime(frame.index)
+    tmin = min(f.index.min() for f in frames.values())
+    tmax = max(f.index.max() for f in frames.values())
+    time = pd.date_range(tmin, tmax, freq="D")
+    codes = np.array(list(frames), dtype=str)
+    swe = np.full((len(codes), len(time)), np.nan, dtype="float32")
+    snd = np.full_like(swe, np.nan)
+    for i, frame in enumerate(frames.values()):
+        pos = (frame.index - tmin).days.to_numpy()
+        swe[i, pos] = frame["wteq_cm"].to_numpy(dtype="float32")
+        snd[i, pos] = frame["snwd_cm"].to_numpy(dtype="float32")
+    meta = {s["code"]: s for s in STATIONS}
+    ds = xr.Dataset(
+        {
+            "swe": (("station", "time"), swe, {"units": "cm"}),
+            "snow_depth": (("station", "time"), snd, {"units": "cm"}),
+        },
+        coords={
+            "station": codes,
+            "time": time,
+            "name": ("station", np.array([meta[c]["name"] for c in codes], dtype=str)),
+            "client": (
+                "station",
+                np.array([meta[c]["client"] for c in codes], dtype=str),
+            ),
+            "latitude": ("station", np.array([meta[c]["latitude"] for c in codes])),
+            "longitude": ("station", np.array([meta[c]["longitude"] for c in codes])),
+        },
+        attrs={"title": "global_snow_networks daily archive", "units": "cm"},
+    )
+    layouts = {
+        "by_time": (len(codes), min(366, len(time))),
+        "by_station": (min(64, len(codes)), len(time)),
+    }
+    manifest: dict = {"built_from_commit": "fixture", "stores": {}}
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*[Cc]onsolidated metadata.*")
+        for layout, chunks in layouts.items():
+            path = target / f"{layout}.zarr"
+            ds.assign_attrs(layout=layout).to_zarr(
+                path,
+                mode="w",
+                zarr_format=3,
+                consolidated=True,
+                encoding={name: {"chunks": chunks} for name in ds.data_vars},
+            )
+            manifest["stores"][path.name] = {"layout": layout}
+            print(f"zarr_{layout}: {path}")
+    manifest_path = target / "archive.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    print(f"manifest: {manifest_path}")
 
 
 if __name__ == "__main__":

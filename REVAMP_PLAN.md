@@ -907,10 +907,15 @@ every one of those reads degrades rather than failing:
 
 What that repo publishes, and when: its CI rebuilds `all_snow_stations.geojson`
 and the per-station CSVs daily and redeploys its Pages site from a build
-artefact. `easysnowdata` reads those over HTTPS at call time and caches the
-bundle with `pooch`. See that repo's `docs/STORAGE.md` for the proposal to
-move the archive to a chunked store, which would make the archive route fetch
-kilobytes per query instead of the whole 27 MB bundle.
+artefact — since 2026-09-22 with the archive as two chunked Zarr stores in
+that artefact (its `docs/STORAGE.md` and DESIGN.md §6.5). `easysnowdata`
+reads the inventory over HTTPS at call time; `archive.load()` reads the
+store by default, fetching only the chunks a request touches (one water year
+of every station 0.7 MB, one station's whole record 0.5 MB, against the
+27 MB bundle), and falls back to the `pooch`-cached bundle with a warning
+when the store cannot be read, so a Pages outage degrades rather than fails.
+The bundle stays published until this version is on PyPI and conda-forge,
+because older pins read nothing else.
 
 **What `global_snow_networks` still owes this migration** is tracked in that
 repo as [`docs/EASYSNOWDATA_MIGRATION.md`](https://github.com/egagli/global_snow_networks/blob/main/docs/EASYSNOWDATA_MIGRATION.md):
