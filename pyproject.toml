@@ -126,7 +126,9 @@ target-version = "py312"
 line-length = 88
 # docs/examples holds only untracked local scratch (the pre-0.3 notebooks are
 # gone); keep ruff out of it so a sandbox notebook cannot redden a local lint.
-extend-exclude = ["docs/examples"]
+# Newer ruff also lints the Python fences inside Markdown; ours are illustrative
+# snippets, not programs.
+extend-exclude = ["docs/examples", "*.md"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP"]

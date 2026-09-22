@@ -119,11 +119,20 @@ jobs:
           import pathlib, re, sys
 
           text = pathlib.Path("sphinx-warnings.txt").read_text(errors="replace")
+          # sphinx-gallery reports a failed example twice: once per example
+          # ("<script> unexpectedly failed to execute correctly:" + traceback)
+          # and once in a summary block. Both are cut out; a provider outage
+          # is on the example's page and in the step summary, not a docs bug.
           text = re.sub(
               r"WARNING: Here is a summary of the problems encountered.*?(?:-{70,}\n|\Z)",
               "",
               text,
               flags=re.S,
+          )
+          text = re.sub(
+              r"WARNING: ?\n\S+ unexpectedly failed to execute correctly:\n(?:[ \t].*\n?)*",
+              "",
+              text,
           )
           rest = [line for line in text.splitlines() if line.strip()]
           if rest:

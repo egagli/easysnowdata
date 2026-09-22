@@ -603,7 +603,7 @@ class TestRasterHttp:
         monkeypatch.setattr(
             pooch,
             "retrieve",
-            lambda url, known_hash, fname, path, progressbar: (
+            lambda url, known_hash, fname, path, **kw: (
                 seen.update(url=url, fname=fname, path=path, hash=known_hash)
                 or str(path / fname)
             ),
@@ -728,3 +728,46 @@ def test_package_exports():
         and providers.CLOUD_DEFAULTS["GDAL_HTTP_MAX_RETRY"] == "5"
     )
     assert providers.stac is stac and providers.zarr_cloud is zarr_cloud
+
+
+class TestFetchFreshness:
+    """raster_http.fetch(max_age=) re-downloads a stale cached file."""
+
+    def test_stale_file_is_removed_before_retrieve(self, tmp_path, monkeypatch):
+        import os
+        import time
+
+        import pooch
+
+        from easysnowdata.providers import raster_http
+
+        monkeypatch.setenv("EASYSNOWDATA_CACHE_DIR", str(tmp_path))
+        cached = tmp_path / "stations" / "bundle.tar.xz"
+        cached.parent.mkdir(parents=True)
+        cached.write_bytes(b"old")
+        old = time.time() - 3 * 24 * 3600
+        os.utime(cached, (old, old))
+        calls: list[dict] = []
+
+        def retrieve(url, known_hash, fname, path, downloader):
+            calls.append({"url": url, "fname": fname, "existed": cached.exists()})
+            (tmp_path / "stations" / fname).write_bytes(b"new")
+            return str(tmp_path / "stations" / fname)
+
+        monkeypatch.setattr(pooch, "retrieve", retrieve)
+        out = raster_http.fetch(
+            "https://example.org/bundle.tar.xz",
+            "bundle.tar.xz",
+            subdir="stations",
+            max_age=24 * 3600,
+        )
+        assert calls[0]["existed"] is False  # the stale copy was unlinked first
+        assert out.read_bytes() == b"new"
+        # a fresh copy is left alone
+        raster_http.fetch(
+            "https://example.org/bundle.tar.xz",
+            "bundle.tar.xz",
+            subdir="stations",
+            max_age=24 * 3600,
+        )
+        assert calls[1]["existed"] is True

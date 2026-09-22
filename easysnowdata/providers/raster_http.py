@@ -106,6 +106,9 @@ def open(  # noqa: A001 — mirrors rioxarray.open_rasterio
     return da
 
 
+USER_AGENT = "easysnowdata (+https://github.com/egagli/easysnowdata)"
+
+
 def fetch(
     url: str,
     fname: str | None = None,
@@ -148,6 +151,10 @@ def fetch(
         known_hash=known_hash,
         fname=fname or url.rsplit("/", 1)[-1],
         path=path,
-        progressbar=progressbar,
+        # Name ourselves: some hosts (HydroSHEDS from cloud runners) answer
+        # 403 to the default python-requests agent.
+        downloader=pooch.HTTPDownloader(
+            progressbar=progressbar, headers={"User-Agent": USER_AGENT}
+        ),
     )
     return Path(local)

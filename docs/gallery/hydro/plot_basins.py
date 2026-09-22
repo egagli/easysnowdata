@@ -1,3 +1,4 @@
+# esd-requires: earthengine
 """
 Basins: HUC, HydroBASINS and GRDC
 =================================
@@ -61,12 +62,22 @@ print(f"{len(huc12)} HUC12 sub-watersheds intersect the box")
 # and rounds coordinates to six decimals.
 
 # %%
-# HydroBASINS from the HydroSHEDS regional zip. The region (``na``, North and
-# Central America) is inferred from the AOI and the zip is cached after the
-# first download. ``PFAF_ID`` is the Pfafstetter code: every digit is one
-# level of nesting, so a level-8 basin's level-6 parent is its first six
-# digits. Level 8 here is 1 500 to 2 600 km² per basin, the size of a HUC8.
-hybas8 = esd.hydro.basins.hydrobasins(aoi, level=8, source="hydrosheds")
+# HydroBASINS, here from the HydroATLAS copy on Earth Engine. The HydroSHEDS
+# regional zip (``source="hydrosheds"``, no account, cached after the first
+# download) serves the same polygons, but that server refuses cloud-runner
+# addresses such as the one this page is built on, so the Earth Engine route
+# is used for the build; on your own machine either works. ``PFAF_ID`` is the
+# Pfafstetter code: every digit is one level of nesting, so a level-8 basin's
+# level-6 parent is its first six digits. Level 8 here is 1 500 to 2 600 km²
+# per basin, the size of a HUC8.
+hybas_source = "hydrosheds"
+try:
+    hybas8 = esd.hydro.basins.hydrobasins(aoi, level=8, source=hybas_source)
+except Exception as exc:  # the HydroSHEDS server blocks some networks
+    print(
+        f"HydroSHEDS route unavailable here ({type(exc).__name__}); using Earth Engine"
+    )
+    hybas8 = esd.hydro.basins.hydrobasins(aoi, level=8, source="gee")
 print(hybas8[["HYBAS_ID", "PFAF_ID", "SUB_AREA", "UP_AREA"]].to_string(index=False))
 
 # %%
@@ -149,7 +160,7 @@ print(
 # Columbia, and the North Pacific coastal basins), with the AOI in red. Right:
 # the GRDC major basin, the Columbia, with the same AOI as a dot, to show the
 # scale jump from a sub-watershed to a continental basin.
-hybas6 = esd.hydro.basins.hydrobasins(aoi, level=6, source="hydrosheds")
+hybas6 = esd.hydro.basins.hydrobasins(aoi, level=6, source=hybas_source)
 fig, axes = plt.subplots(1, 2, figsize=(12, 5.6))
 palette6 = dict(zip(hybas6["PFAF_ID"], ("#66c2a5", "#e6f598", "#8da0cb"), strict=True))
 hybas6.plot(

@@ -11,6 +11,7 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pytest
+import shapely
 import xarray as xr
 
 import easysnowdata as esd
@@ -647,3 +648,134 @@ def test_opera_track_filter_reads_the_burst_id():
         == 137
     )
     assert sentinel1._track_of("something-else") is None
+
+
+# ── scene_geometry and the per-track routes, on stubs ────────────────────────
+
+
+def _scene(track: int, state: str, heading: float, item_id: str = "S1A_x"):
+    """A Planetary Computer RTC item stub whose footprint runs along *heading*."""
+    import types
+
+    import geopandas as gpd
+
+    ring = _footprint(heading)
+    poly = gpd.GeoSeries([shapely.geometry.Polygon(ring)], crs="EPSG:32610").to_crs(
+        "EPSG:4326"
+    )
+    return types.SimpleNamespace(
+        id=item_id,
+        properties={
+            "sat:relative_orbit": track,
+            "sat:orbit_state": state,
+            "sar:observation_direction": "right",
+        },
+        geometry=shapely.geometry.mapping(poly.iloc[0]),
+    )
+
+
+def test_scene_geometry_picks_the_busiest_track_and_reads_its_heading(monkeypatch):
+    scenes = [_scene(13, "descending", 190.6)] * 3 + [_scene(64, "descending", 192.0)]
+    seen = {}
+
+    def search(catalog, collection, aoi, time, **kwargs):
+        seen.update(kwargs)
+        return scenes
+
+    monkeypatch.setattr(sentinel1.providers.stac, "search", search)
+    g = sentinel1.scene_geometry(RAINIER, orbit_state="descending")
+    assert g["relative_orbit"] == 13 and g["scenes_found"] == 3
+    assert g["platform_heading"] == pytest.approx(190.6, abs=0.05)
+    assert g["look_azimuth"] == pytest.approx(280.6, abs=0.05)
+    assert g["swath_width"] == pytest.approx(250_000.0, rel=0.01)
+    assert seen["query"]["sat:orbit_state"] == {"eq": "descending"}
+    # a requested track becomes a query filter
+    sentinel1.scene_geometry(RAINIER, orbit_state="descending", relative_orbit=64)
+    assert seen["query"]["sat:relative_orbit"] == {"eq": 64}
+
+
+def test_scene_geometry_is_empty_without_scenes(monkeypatch):
+    monkeypatch.setattr(sentinel1.providers.stac, "search", lambda *a, **k: [])
+    assert sentinel1.scene_geometry(RAINIER) == {}
+    no_track = [_scene(0, "ascending", 349.0)]
+    no_track[0].properties.pop("sat:relative_orbit")
+    monkeypatch.setattr(sentinel1.providers.stac, "search", lambda *a, **k: no_track)
+    assert sentinel1.scene_geometry(RAINIER) == {}
+
+    def boom(*a, **k):
+        raise RuntimeError("catalog down")
+
+    monkeypatch.setattr(sentinel1.providers.stac, "search", boom)
+    assert sentinel1.scene_geometry(RAINIER) == {}
+
+
+@pytest.mark.recorded
+def test_dem_route_uses_the_scene_geometry(monkeypatch, fake_credentials):
+    monkeypatch.setattr(
+        sentinel1.providers.stac,
+        "search",
+        lambda *a, **k: [_scene(137, "ascending", 349.5)],
+    )
+    dem = _planar_dem(20.0, facing="west")
+    ds = sentinel1.local_incidence_angle(
+        RAINIER, source="dem", dem=dem, relative_orbit=137
+    )
+    assert ds.attrs["relative_orbit"] == 137
+    assert ds.attrs["platform_heading"] == pytest.approx(349.5, abs=0.05)
+    assert "track 137" in ds.attrs["incidence_angle_model"]
+    # the incidence field varies across the swath instead of being constant
+    inc = ds["incidence_angle"]
+    lo, hi = sentinel1.IW_INCIDENCE_RANGE
+    assert lo <= float(inc.min()) <= float(inc.max()) <= hi
+
+
+@pytest.mark.recorded
+def test_opera_route_filters_bursts_by_track(fake_stac, monkeypatch):
+    items = [
+        {"id": "OPERA_L2_RTC-S1-STATIC_T013-000001-IW1_20140403_S1A_30_v1.0"},
+        {"id": "OPERA_L2_RTC-S1-STATIC_T137-000002-IW2_20140403_S1A_30_v1.0"},
+    ]
+    monkeypatch.setattr(sentinel1.providers.stac, "search", lambda *a, **k: items)
+    loaded = {}
+
+    def load(item_arg, aoi=None, **kwargs):
+        loaded["items"] = list(item_arg)
+        return _dataset(
+            {
+                "0_local_incidence_angle": [22.0],
+                "0_incidence_angle": [38.0],
+                "0_mask": [2],
+            },
+            ["2014-04-03"],
+        )
+
+    monkeypatch.setattr(sentinel1.providers.stac, "load", load)
+    ds = sentinel1.local_incidence_angle(RAINIER, relative_orbit=137)
+    assert [i["id"] for i in loaded["items"]] == [items[1]["id"]]
+    assert ds.attrs["relative_orbit"] == 137
+    with pytest.raises(ValueError, match=r"tracks that do: \[13, 137\]"):
+        sentinel1.local_incidence_angle(RAINIER, relative_orbit=64)
+    # without a filter, every burst is fused and both tracks are recorded
+    ds = sentinel1.local_incidence_angle(RAINIER)
+    assert ds.attrs["relative_orbit"] == "13 137"
+
+
+@pytest.mark.recorded
+def test_gee_route_filters_the_track(fake_gee, monkeypatch):
+    fake_gee["angle_mode"] = True
+    dem = _planar_dem(20.0, facing="west", n=4)
+    dem = dem.assign_coords(
+        y=np.linspace(5180400.0, 5180300.0, 4), x=np.linspace(580000.0, 580400.0, 4)
+    )
+    monkeypatch.setattr(sentinel1, "_copernicus_dem", lambda *args, **kwargs: dem)
+    monkeypatch.setattr(
+        sentinel1.providers.stac,
+        "search",
+        lambda *a, **k: [_scene(13, "descending", 190.6)],
+    )
+    ds = sentinel1.local_incidence_angle(
+        RAINIER, source="gee", orbit_state="descending"
+    )
+    assert ds.attrs["relative_orbit"] == 13
+    assert ds.attrs["platform_heading"] == pytest.approx(190.6, abs=0.05)
+    assert "angle band" in ds.attrs["incidence_angle_model"]
