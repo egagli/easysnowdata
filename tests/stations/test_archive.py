@@ -28,17 +28,45 @@ from .conftest import MORSE_LAKE_CODE, PARADISE_CODE, RAINIER
 pytestmark = pytest.mark.allow_hosts(["127.0.0.1"])
 
 
+FAKE_RELEASE = {
+    "tag_name": "v2026.09.22",
+    "published_at": "2026-09-22T19:31:00Z",
+    "html_url": "https://github.com/egagli/global_snow_networks/releases/tag/v2026.09.22",
+    "assets": [
+        {
+            "name": "all_station_csvs-v2026.09.22.tar.xz",
+            "browser_download_url": "https://example.test/all_station_csvs-v2026.09.22.tar.xz",
+        },
+        {
+            "name": "all_station_csvs.tar.xz",
+            "browser_download_url": "https://example.test/all_station_csvs.tar.xz",
+        },
+        {"name": "by_time.zarr-v2026.09.22.zip", "browser_download_url": "x"},
+    ],
+}
+
+
 @pytest.fixture
 def local_archive(station_fixtures, monkeypatch):
     """Point the archive module at the fixtures instead of GitHub."""
     monkeypatch.setattr(
         archive, "INVENTORY_URL", str(station_fixtures["inventory"]), raising=False
     )
-    monkeypatch.setattr(
-        archive.providers.raster_http,
-        "fetch",
-        lambda *a, **k: station_fixtures["archive"],
-    )
+    fetched: list[dict] = []
+
+    def fake_fetch(url, fname=None, **kwargs):
+        fetched.append({"url": url, "fname": fname, **kwargs})
+        return station_fixtures["archive"]
+
+    monkeypatch.setattr(archive.providers.raster_http, "fetch", fake_fetch)
+    station_fixtures["fetched"] = fetched  # type: ignore[assignment]
+
+    def fake_json(url):
+        if url == archive.RELEASES_API:
+            return FAKE_RELEASE
+        raise AssertionError(f"unexpected JSON fetch: {url}")
+
+    monkeypatch.setattr(archive, "_fetch_json", fake_json)
     monkeypatch.setattr(
         archive,
         "ZARR_URLS",
@@ -83,7 +111,10 @@ def test_catalog_entry_is_registered_from_this_module():
 
 def test_urls_point_at_the_published_artefacts():
     assert archive.INVENTORY_URL.endswith("/all_snow_stations.geojson")
-    assert archive.ARCHIVE_URL.endswith("/data/all_station_csvs.tar.xz")
+    assert archive.ARCHIVE_URL.endswith(
+        "/releases/latest/download/all_station_csvs.tar.xz"
+    )
+    assert archive.RELEASES_API.endswith("/global_snow_networks/releases/latest")
     assert archive.csv_url(PARADISE_CODE).endswith(f"/stations/{PARADISE_CODE}.csv")
     assert archive.PAGES_BASE == "https://egagli.github.io/global_snow_networks/archive"
     assert archive.ZARR_URLS["by_time"].endswith("/archive/by_time.zarr")
@@ -184,7 +215,47 @@ def test_tarball_route_builds_the_station_time_dataset(local_archive):
     assert ds.sizes == {"station": 3, "time": 7}
     assert ds["swe"].dtype == np.float64
     assert ds.attrs["source"] == "github-tarball"
-    assert ds.attrs["source_url"] == archive.ARCHIVE_URL
+    # The bundle is the latest snapshot release's fixed-name asset, and the
+    # result says which snapshot it came from.
+    assert ds.attrs["source_url"] == "https://example.test/all_station_csvs.tar.xz"
+    assert ds.attrs["snapshot_tag"] == "v2026.09.22"
+    assert ds.attrs["snapshot_published_at"] == "2026-09-22"
+    assert ds.attrs["snapshot_url"].endswith("/releases/tag/v2026.09.22")
+    fetched = local_archive["fetched"][-1]
+    assert fetched["fname"] == "all_station_csvs-v2026.09.22.tar.xz"  # cached per tag
+    assert fetched["max_age"] is None  # a tagged bundle is immutable
+
+
+def test_latest_snapshot_reads_the_release(monkeypatch):
+    monkeypatch.setattr(archive, "_fetch_json", lambda url: FAKE_RELEASE)
+    info = archive.latest_snapshot()
+    assert info["tag"] == "v2026.09.22"
+    assert info["published_at"] == "2026-09-22"
+    assert info["tarball_url"] == "https://example.test/all_station_csvs.tar.xz"
+
+
+def test_latest_snapshot_accepts_a_release_with_only_the_tagged_bundle(monkeypatch):
+    release = {**FAKE_RELEASE, "assets": FAKE_RELEASE["assets"][:1]}
+    monkeypatch.setattr(archive, "_fetch_json", lambda url: release)
+    assert archive.latest_snapshot()["tarball_url"].endswith("-v2026.09.22.tar.xz")
+
+
+@pytest.mark.recorded
+def test_bundle_route_survives_an_unreachable_releases_api(
+    local_archive, monkeypatch, caplog
+):
+    def boom(url):
+        raise RuntimeError("HTTP 403 rate limited")
+
+    monkeypatch.setattr(archive, "_fetch_json", boom)
+    ds = archive.load(source="github-tarball")
+    assert ds.sizes == {"station": 3, "time": 7}
+    assert ds.attrs["source_url"] == archive.ARCHIVE_URL  # the fixed-name URL, blind
+    assert ds.attrs["snapshot_tag"] == ""
+    fetched = local_archive["fetched"][-1]
+    assert fetched["fname"] == "all_station_csvs.tar.xz"
+    assert fetched["max_age"] == archive.ARCHIVE_MAX_AGE
+    assert "without knowing its tag" in caplog.text
 
 
 @pytest.mark.recorded
@@ -241,7 +312,9 @@ def test_an_unreachable_store_falls_back_to_the_tarball_with_a_warning(
     ds = archive.load()
     assert ds.attrs["source"] == "github-tarball"
     assert ds.sizes == {"station": 3, "time": 7}
-    assert "reading the bundled CSVs instead" in caplog.text
+    assert ds.attrs["snapshot_tag"] == "v2026.09.22"
+    assert "snapshot v2026.09.22 (2026-09-22)" in caplog.text
+    assert "may be behind the daily archive" in caplog.text
 
 
 @pytest.mark.recorded
@@ -378,9 +451,17 @@ def test_live_archive_store_route():
 
 
 @pytest.mark.live
+def test_live_latest_snapshot_has_a_bundle():
+    info = archive.latest_snapshot()
+    assert info["tag"].startswith("v")
+    assert info["tarball_url"] and info["tarball_url"].endswith(".tar.xz")
+
+
+@pytest.mark.live
 def test_live_archive_routes_agree():
     when = "2024-01-01/2024-03-31"
     bundled = archive.load([PARADISE_CODE], source="github-tarball", time=when)
+    assert bundled.attrs["snapshot_tag"]
     per_station = archive.load([PARADISE_CODE], source="github-csv", time=when)
     chunked = archive.load([PARADISE_CODE], source="github-pages-zarr", time=when)
     assert bundled.attrs["source"] == "github-tarball"
