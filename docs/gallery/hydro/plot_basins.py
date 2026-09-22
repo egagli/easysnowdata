@@ -33,7 +33,9 @@ import easysnowdata as esd
 
 aoi = (-121.94, 46.72, -121.54, 46.99)  # Mount Rainier, WA
 
-esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+box = esd.parse_aoi(aoi)
+utm = box.utm_crs  # the local maps are drawn in the AOI's UTM zone
+print(box, utm)
 
 # %%
 # Where each product comes from, and what the route asks for.
@@ -89,9 +91,11 @@ print(hybas8[["HYBAS_ID", "PFAF_ID", "SUB_AREA", "UP_AREA"]].to_string(index=Fal
 # agree closely; the units are not one-to-one, though: 78210029 covers
 # 1 520 km² of the 2 655 km² Upper Cowlitz HUC8, the rest falling in level-8
 # units that do not touch the box and so were not returned. Vector layers
-# draw with geopandas; ``finish_map`` adds the basemap, graticule and scale bar.
+# draw with geopandas, here reprojected to the AOI's UTM zone; ``finish_map``
+# adds the basemap, graticule and scale bar.
+huc8_utm, huc12_utm, hybas8_utm = (g.to_crs(utm) for g in (huc8, huc12, hybas8))
 fig, axes = plt.subplots(1, 2, figsize=(12, 5.6))
-huc12.plot(
+huc12_utm.plot(
     ax=axes[0],
     column="name",
     cmap="tab20",
@@ -99,8 +103,8 @@ huc12.plot(
     edgecolor="white",
     linewidth=0.5,
 )
-huc8.boundary.plot(ax=axes[0], color="black", linewidth=1.6)
-for _, row in huc8.iterrows():
+huc8_utm.boundary.plot(ax=axes[0], color="black", linewidth=1.6)
+for _, row in huc8_utm.iterrows():
     axes[0].annotate(
         row["name"],
         row.geometry.centroid.coords[0],
@@ -111,14 +115,14 @@ for _, row in huc8.iterrows():
 axes[0].set_title("HUC12 sub-watersheds inside the HUC8 subbasins (USGS WBD)")
 
 palette8 = dict(zip(hybas8["PFAF_ID"], ("#fdc086", "#beaed4", "#7fc97f"), strict=True))
-hybas8.plot(
+hybas8_utm.plot(
     ax=axes[1],
-    color=hybas8["PFAF_ID"].map(palette8),
+    color=hybas8_utm["PFAF_ID"].map(palette8),
     alpha=0.55,
     edgecolor="white",
     linewidth=0.8,
 )
-huc8.boundary.plot(ax=axes[1], color="black", linewidth=1.4, linestyle="--")
+huc8_utm.boundary.plot(ax=axes[1], color="black", linewidth=1.4, linestyle="--")
 axes[1].legend(
     handles=[
         *[
@@ -138,10 +142,11 @@ axes[1].legend(
     loc="lower right",
 )
 axes[1].set_title("HUC8 divides over HydroBASINS level 8")
+x0, y0, x1, y1 = box.to_crs(utm).total_bounds
 for ax in axes:
-    ax.set_xlim(aoi[0] - 0.4, aoi[2] + 0.4)
-    ax.set_ylim(aoi[1] - 0.3, aoi[3] + 0.3)
-    esd.plotting.finish_map(ax, huc8.crs, basemap=True)
+    ax.set_xlim(x0 - 30_000, x1 + 30_000)
+    ax.set_ylim(y0 - 30_000, y1 + 30_000)
+    esd.plotting.finish_map(ax, utm, basemap=True)
 fig.tight_layout()
 
 # %%

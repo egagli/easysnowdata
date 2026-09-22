@@ -23,7 +23,8 @@ import easysnowdata as esd
 
 aoi = (-120.5, 49.5, -119.0, 51.0)
 
-esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+box = esd.parse_aoi(aoi)
+print(box, box.utm_crs)  # the map below is drawn in the AOI's UTM zone
 
 # %%
 # Where the product comes from.
@@ -44,7 +45,7 @@ print(everything[["name", "kind", "elevation_m", "earliest_record_date"]].to_str
 # several pairs share a name: the automated site was put beside the course it
 # now supplements (``2F10`` and ``2F10P`` are both Silver Star Mountain).
 ax = esd.plotting.points(
-    everything,
+    everything.to_crs(box.utm_crs),
     column="kind",
     legend_label="BC site kind",
     title="BC snow stations, southern interior",

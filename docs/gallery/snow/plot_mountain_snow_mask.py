@@ -23,7 +23,10 @@ import easysnowdata as esd
 
 aoi = (-123.0, 46.0, -120.5, 48.0)  # the central Cascades, Puget Sound to Yakima
 
-esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+box = esd.parse_aoi(aoi)
+grid = box.to_geobox(crs="utm", resolution=500)  # every map below is drawn on this grid
+print(box)
+print(grid)
 
 # %%
 # Where the product comes from, and what the route asks for.
@@ -35,13 +38,21 @@ for src in esd.catalog.get("mountain-snow-mask").sources:
 # that is not mountain by the relief criterion, so the lowlands drop out and
 # the mask says where seasonal snow is also mountain snow. The all-terrain
 # layer keeps them and classifies the Puget lowlands as ephemeral.
-mountain = esd.snow.mountain_snow_mask.load(aoi, layer="mountain_snow")
-terrain = esd.snow.mountain_snow_mask.load(aoi, layer="snow")
+# The layers are geographic; the box is loaded with a 2 km margin and each
+# is drawn on the AOI's UTM grid, resampled nearest so the classes survive.
+mountain = esd.snow.mountain_snow_mask.load(box.buffer(2000), layer="mountain_snow")
+terrain = esd.snow.mountain_snow_mask.load(box.buffer(2000), layer="snow")
 print(mountain.attrs["flag_meanings"])
 
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
-esd.plotting.categorical(mountain, ax=axes[0], title="mountains only")
-esd.plotting.categorical(terrain, ax=axes[1], title="all terrain")
+esd.plotting.categorical(
+    mountain.odc.reproject(grid, resampling="nearest"),
+    ax=axes[0],
+    title="mountains only",
+)
+esd.plotting.categorical(
+    terrain.odc.reproject(grid, resampling="nearest"), ax=axes[1], title="all terrain"
+)
 fig.tight_layout()
 
 values, counts = np.unique(mountain.values, return_counts=True)
@@ -53,9 +64,9 @@ for value, count in zip(values, counts):
 # upstream record does not define the scale further, so it is kept as an
 # integer without a class table. Rainier's high terrain is where the MOD10A2
 # composites were most often indeterminate.
-clouds = esd.snow.mountain_snow_mask.load(aoi, layer="clouds")
+clouds = esd.snow.mountain_snow_mask.load(box.buffer(2000), layer="clouds")
 ax = esd.plotting.map(
-    clouds,
+    clouds.odc.reproject(grid, resampling="nearest"),
     cmap="magma_r",
     vmin=0,
     vmax=6,

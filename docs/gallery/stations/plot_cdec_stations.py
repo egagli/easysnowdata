@@ -21,7 +21,8 @@ import easysnowdata as esd
 
 aoi = (-120.6, 38.4, -119.6, 39.4)
 
-esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+box = esd.parse_aoi(aoi)
+print(box, box.utm_crs)  # the map below is drawn in the AOI's UTM zone
 
 # %%
 # Where the product comes from.
@@ -42,7 +43,7 @@ print(everything["kind"].value_counts().to_string())
 # Pillows and courses share the same basins; the courses are the older network
 # and many pillows were installed beside an existing course.
 ax = esd.plotting.points(
-    everything,
+    everything.to_crs(box.utm_crs),
     column="kind",
     legend_label="CDEC site kind",
     title="CDEC stations, central Sierra Nevada",

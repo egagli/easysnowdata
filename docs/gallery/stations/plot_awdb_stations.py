@@ -24,7 +24,8 @@ import easysnowdata as esd
 
 aoi = (-122.1, 46.6, -121.3, 47.1)
 
-esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+box = esd.parse_aoi(aoi)
+print(box, box.utm_crs)  # the map below is drawn in the AOI's UTM zone
 
 # %%
 # Where the product comes from.
@@ -44,7 +45,7 @@ print(everything["network_code"].value_counts().to_string())
 # The snow courses sit at the same passes as the SNOTEL sites, often a few
 # hundred metres apart: many of them predate the telemetry and were kept.
 ax = esd.plotting.points(
-    everything,
+    everything.to_crs(box.utm_crs),
     column="network_code",
     legend_label="AWDB site kind",
     title="AWDB stations around Mount Rainier",

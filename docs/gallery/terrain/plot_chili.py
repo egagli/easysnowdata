@@ -30,7 +30,10 @@ import easysnowdata as esd
 
 aoi = (-121.94, 46.72, -121.54, 46.99)  # Mount Rainier, WA
 
-esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+box = esd.parse_aoi(aoi)
+grid = box.to_geobox(crs="utm", resolution=90)  # every map below is drawn on this grid
+print(box)
+print(grid)
 
 # %%
 # Where the product comes from, and what it needs.
@@ -41,10 +44,13 @@ for src in esd.catalog.get("chili").sources:
 # The 0-1 index on the asset's own grid. Warm colours are warm slopes: the
 # south and west flanks of the volcano, and the south-facing walls of every
 # valley in the box.
-chili = esd.terrain.chili.load(aoi, normalize="index", chunks=None)
+# The asset is geographic; the box is loaded with a 1 km margin and drawn on
+# the AOI's UTM grid, bilinear because the index is continuous. The histogram
+# and the class fractions below use the native pixels.
+chili = esd.terrain.chili.load(box.buffer(1000), normalize="index", chunks=None)
 print(chili)
 esd.plotting.map(
-    chili,
+    chili.odc.reproject(grid, resampling="bilinear"),
     cmap="RdYlBu_r",
     vmin=0,
     vmax=1,
@@ -76,7 +82,11 @@ print({k: f"{v:.1%}" for k, v in fractions.items()})
 fig, (ax_map, ax_hist) = plt.subplots(
     1, 2, figsize=(13, 5), width_ratios=[1.35, 1], layout="constrained"
 )
-esd.plotting.categorical(classes, ax=ax_map, title="Heat-load classes")
+esd.plotting.categorical(
+    classes.odc.reproject(grid, resampling="nearest"),
+    ax=ax_map,
+    title="Heat-load classes",
+)
 # Bins of five 8-bit steps, aligned to the asset's own quantisation.
 ax_hist.hist(
     chili.values.ravel(), bins=(np.arange(0, 261, 5) - 0.5) / 255, color="0.55"

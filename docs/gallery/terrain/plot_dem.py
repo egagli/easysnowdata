@@ -35,7 +35,8 @@ import easysnowdata as esd
 
 aoi = (-121.94, 46.72, -121.54, 46.99)  # Mount Rainier, WA
 
-esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+box = esd.parse_aoi(aoi)
+print(box)
 
 # %%
 # Where each DEM comes from, and which routes need an account.
@@ -171,10 +172,12 @@ print(pd.DataFrame(rows).set_index("land cover").to_string())
 # 1 arc-second grid rather than the UTM grid above: the STAC and Earth Engine
 # routes resample with different kernels, and on slopes this steep that alone
 # is several metres, which would hide what is being compared.
-copernicus_2021 = esd.terrain.dem.load(aoi, chunks=None)
-copernicus_2024 = esd.terrain.dem.load(aoi, source="gee", chunks=None)
-nasadem = esd.terrain.dem.load(aoi, product="nasadem", chunks=None)
-srtm = esd.terrain.dem.load(aoi, product="srtm", chunks=None)
+# The box is loaded with a 1 km margin so the UTM grid the map uses is covered.
+margin = box.buffer(1000)
+copernicus_2021 = esd.terrain.dem.load(margin, chunks=None)
+copernicus_2024 = esd.terrain.dem.load(margin, source="gee", chunks=None)
+nasadem = esd.terrain.dem.load(margin, product="nasadem", chunks=None)
+srtm = esd.terrain.dem.load(margin, product="srtm", chunks=None)
 pairs = {
     "Copernicus 2024_1 minus 2021": copernicus_2024.interp_like(
         copernicus_2021, method="nearest"
@@ -197,7 +200,11 @@ diff = pairs["SRTM GL1 minus NASADEM"].assign_attrs(
     long_name="elevation difference", units="m"
 )
 esd.plotting.map(
-    diff, cmap="RdBu", vmin=-10, vmax=10, title="SRTM GL1 v3 minus NASADEM"
+    diff.odc.reproject(box.to_geobox(crs="utm", resolution=30), resampling="bilinear"),
+    cmap="RdBu",
+    vmin=-10,
+    vmax=10,
+    title="SRTM GL1 v3 minus NASADEM",
 )
 
 # %%

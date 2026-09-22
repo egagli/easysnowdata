@@ -28,7 +28,8 @@ import easysnowdata as esd
 
 aoi = (-123.0, 46.0, -120.5, 48.0)  # the central Cascades, Puget Sound to Yakima
 
-esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+box = esd.parse_aoi(aoi)
+print(box)
 
 # %%
 # Where the product comes from, and what each route asks for.
@@ -39,17 +40,35 @@ for src in esd.catalog.get("snow-classification").sources:
 # The 10 arcsec map through the credential-free COG: maritime snow on the
 # Cascade crest, montane forest on the flanks, ephemeral in the lowlands.
 # The colours and legend come from the CF flag attributes the loader attaches.
-fine = esd.snow.snow_classification.load(aoi, source="hosted-cog").compute()
+# Both grids are geographic; the box is loaded with a 5 km margin (more than
+# half a 2.5 arcmin cell) so the UTM grids the maps use are fully covered.
+fine = esd.snow.snow_classification.load(
+    box.buffer(5000), source="hosted-cog"
+).compute()
 print(fine.attrs["flag_meanings"])
 
 # %%
 # The 2.5 arcmin grid from NSIDC (a 37 MB download, cached after the first
 # call) beside it: the same classes, one pixel where the COG has 225.
-coarse = esd.snow.snow_classification.load(aoi, resolution="2.5arcmin").compute()
+coarse = esd.snow.snow_classification.load(
+    box.buffer(5000), resolution="2.5arcmin"
+).compute()
 
+# Drawn on the AOI's UTM zone at each product's own resolution (nearest, so
+# the classes survive); the comparison below stays on the native grids.
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
-esd.plotting.categorical(fine, ax=axes[0], title="hosted COG, 10 arcsec")
-esd.plotting.categorical(coarse, ax=axes[1], title="NSIDC-0768, 2.5 arcmin")
+esd.plotting.categorical(
+    fine.odc.reproject(box.to_geobox(crs="utm", resolution=300), resampling="nearest"),
+    ax=axes[0],
+    title="hosted COG, 10 arcsec",
+)
+esd.plotting.categorical(
+    coarse.odc.reproject(
+        box.to_geobox(crs="utm", resolution=4500), resampling="nearest"
+    ),
+    ax=axes[1],
+    title="NSIDC-0768, 2.5 arcmin",
+)
 fig.tight_layout()
 
 # %%

@@ -35,7 +35,10 @@ week = "2023-03-15/2023-03-22"
 clear_day = "2023-03-18"
 cloudy_day = "2023-03-19"
 
-esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+box = esd.parse_aoi(aoi)
+grid = box.to_geobox(crs="utm", resolution=500)  # every map below is drawn on this grid
+print(box)
+print(grid)
 
 # %%
 # Where the product comes from, and what each route asks for.
@@ -44,9 +47,17 @@ for src in esd.catalog.get("modis-snow").sources:
 
 # %%
 # A week of the daily product from the credential-free mirror. The loader
-# keeps the raw byte with its CF flags rather than deciding what you want.
-daily = esd.snow.modis.load(aoi, week, product="MOD10A1", source="planetary-computer")
-ndsi = daily["NDSI_Snow_Cover"].compute()
+# keeps the raw byte with its CF flags rather than deciding what you want, and
+# keeps the native sinusoidal grid, which at this longitude is sheared: north
+# is not up and a lat/lon box is a parallelogram on it. The maps are therefore
+# drawn on the AOI's UTM grid, with nearest-neighbour resampling so the coded
+# bytes survive; the box is loaded with a 1 km margin so that grid is fully
+# covered. The native array is kept for the byte comparison at the end.
+daily = esd.snow.modis.load(
+    box.buffer(1000), week, product="MOD10A1", source="planetary-computer"
+)
+native = daily["NDSI_Snow_Cover"].compute()
+ndsi = native.odc.reproject(grid, resampling="nearest")
 print(ndsi.attrs["flag_values"])
 print(ndsi.attrs["flag_meanings"])
 
@@ -99,8 +110,12 @@ ax.figure.tight_layout()
 # The 8-day maximum snow extent is a classified product, so it is drawn from
 # its class table. Its periods start on fixed days of the year (1, 9, 17, ...),
 # so the composite dated 14 March covers 14-21 March.
-extent = esd.snow.modis.load(aoi, week, product="MOD10A2", source="planetary-computer")
-composite = extent["Maximum_Snow_Extent"].isel(time=0)
+extent = esd.snow.modis.load(
+    box.buffer(1000), week, product="MOD10A2", source="planetary-computer"
+)
+composite = (
+    extent["Maximum_Snow_Extent"].isel(time=0).odc.reproject(grid, resampling="nearest")
+)
 print(f"composites in the window: {extent['time'].values.astype('datetime64[D]')}")
 
 ax = esd.plotting.categorical(composite, title="MOD10A2 maximum snow extent")
@@ -111,8 +126,13 @@ ax.figure.tight_layout()
 # forward through cloudy days. On the day the raw product saw only cloud it
 # still has a snow map.
 short = f"{cloudy_day}/{cloudy_day}"
-filled = esd.snow.modis.load(aoi, short, product="MOD10A1F")
-cgf = filled["CGF_NDSI_Snow_Cover"].sel(time=cloudy_day).compute()
+filled = esd.snow.modis.load(box.buffer(1000), short, product="MOD10A1F")
+cgf = (
+    filled["CGF_NDSI_Snow_Cover"]
+    .sel(time=cloudy_day)
+    .odc.reproject(grid, resampling="nearest")
+    .compute()
+)
 raw = ndsi.sel(time=cloudy_day)
 print(f"raw MOD10A1 valid pixels on {cloudy_day}: {int((raw <= 100).sum())}")
 print(f"MOD10A1F valid pixels on {cloudy_day}: {int((cgf <= 100).sum())}")
@@ -140,18 +160,25 @@ fig.tight_layout()
 
 # %%
 # The two routes, same granule: NSIDC's HDF-EOS2 file against the mirror's
-# COG on the clear day. They land on the same grid to within a few
-# micrometres, so the bytes can be compared directly and should be identical.
-archive = esd.snow.modis.load(aoi, f"{clear_day}/{clear_day}", product="MOD10A1")
+# COG on the clear day. On the native sinusoidal grid they land on the same
+# pixels to within a few micrometres, so the bytes can be compared directly
+# and should be identical; the comparison uses the native arrays and only the
+# difference is reprojected for drawing.
+archive = esd.snow.modis.load(
+    box.buffer(1000), f"{clear_day}/{clear_day}", product="MOD10A1"
+)
 nsidc = archive["NDSI_Snow_Cover"].sel(time=clear_day).compute()
-nsidc = nsidc.reindex_like(scene, method="nearest", tolerance=1)
-identical = float((nsidc.values == scene.values).mean()) * 100
+mirror = native.sel(time=clear_day)
+nsidc = nsidc.reindex_like(mirror, method="nearest", tolerance=1)
+identical = float((nsidc.values == mirror.values).mean()) * 100
 print(f"bytes identical between NSIDC and Planetary Computer: {identical:.2f} %")
 
-diff = (nsidc.astype("int16") - scene.astype("int16")).where(valid & (nsidc <= 100))
+diff = (nsidc.astype("int16") - mirror.astype("int16")).where(
+    (mirror <= 100) & (nsidc <= 100)
+)
 diff.attrs.update({"long_name": "NDSI, NSIDC minus Planetary Computer", "units": "%"})
 ax = esd.plotting.map(
-    diff,
+    diff.odc.reproject(grid, resampling="nearest"),
     cmap="RdBu",
     vmin=-10,
     vmax=10,

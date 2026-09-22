@@ -28,7 +28,10 @@ import easysnowdata as esd
 aoi = (-121.94, 46.72, -121.54, 46.99)  # Mount Rainier, WA
 water_year = "2019-10-01/2020-09-30"
 
-esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+box = esd.parse_aoi(aoi)
+grid = box.to_geobox(crs="utm", resolution=500)  # the map below is drawn on this grid
+print(box)
+print(grid)
 
 # %%
 # Where the product comes from, and what each route asks for.
@@ -38,9 +41,10 @@ for src in esd.catalog.get("ucla-snow-reanalysis").sources:
 # %%
 # One water year of the ensemble-mean SWE. A single granule is opened straight
 # through ``earthaccess.open``, which the ``virtualized`` attribute records.
-# The box is 366 days of 62 by 91 pixels, 8 MB, so it is pulled into memory
-# once and everything after this is instant.
-swe = esd.snow.ucla_sr.load(aoi, water_year).compute()
+# The box, loaded with a 1 km margin so the UTM grid is fully covered, is 366
+# days of about 65 by 95 pixels, under 10 MB, so it is pulled into memory once
+# and everything after this is instant.
+swe = esd.snow.ucla_sr.load(box.buffer(1000), water_year).compute()
 print(swe)
 print(f"virtualized={swe.attrs['virtualized']}, access={swe.attrs['access']}")
 
@@ -55,7 +59,11 @@ print(f"median {float(april.median()):.2f} m, maximum {float(april.max()):.1f} m
 print(f"pixels above 10 m (the ice cap): {int((april > 10).sum())}")
 
 ax = esd.plotting.map(
-    april, cmap="Blues", vmin=0, vmax=3, title="ensemble-mean SWE, 2020-04-01"
+    april.odc.reproject(grid, resampling="bilinear"),
+    cmap="Blues",
+    vmin=0,
+    vmax=3,
+    title="ensemble-mean SWE, 2020-04-01",
 )
 ax.figure.tight_layout()
 
@@ -81,7 +89,7 @@ print(f"peak basin-mean SWE {float(np.nanmax(mean.values)):.2f} m on {peak_day}"
 # %%
 # The ensemble spread: the same water year's standard deviation, drawn as a
 # band of one standard deviation around the mean.
-std = esd.snow.ucla_sr.load(aoi, water_year, stats="std").compute()
+std = esd.snow.ucla_sr.load(box.buffer(1000), water_year, stats="std").compute()
 spread = std.where(melts_out).mean(dim=["latitude", "longitude"])
 
 ax = esd.plotting.timeseries(mean, color="tab:blue", label="ensemble mean")

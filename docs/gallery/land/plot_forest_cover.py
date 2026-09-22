@@ -25,7 +25,10 @@ import easysnowdata as esd
 
 aoi = (-121.94, 46.72, -121.54, 46.99)  # Mount Rainier, WA
 
-esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+box = esd.parse_aoi(aoi)
+grid = box.to_geobox(crs="utm", resolution=100)  # the map below is drawn on this grid
+print(box)
+print(grid)
 
 # %%
 # Where the product comes from: the Zenodo GeoTIFF needs nothing, the Earth
@@ -36,13 +39,16 @@ for src in esd.catalog.get("forest-cover-fraction").sources:
 # %%
 # The 2019 tree-cover fraction. The 255 sentinel the product uses outside its
 # footprint is masked to NaN and kept as the encoded nodata.
-forest = esd.land.forest_cover.load(aoi, chunks=None)
+# The product is geographic; the box is loaded with a 1 km margin and drawn on
+# the AOI's UTM grid, bilinear because a fraction is continuous. The elevation
+# binning below uses the native pixels.
+forest = esd.land.forest_cover.load(box.buffer(1000), chunks=None)
 print(forest)
 print(
     f"pixels without a value (255 in the source): {float(forest.isnull().mean()):.1%}"
 )
 esd.plotting.map(
-    forest,
+    forest.odc.reproject(grid, resampling="bilinear"),
     cmap="Greens",
     vmin=0,
     vmax=100,

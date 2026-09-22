@@ -28,7 +28,12 @@ aoi = (-121.94, 46.72, -121.54, 46.99)  # Mount Rainier, WA
 when = "2024-03-10/2024-03-16"
 day = "2024-03-15"
 
-esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+box = esd.parse_aoi(aoi)
+grid = box.to_geobox(
+    crs="utm", resolution=1000
+)  # every map below is drawn on this grid
+print(box)
+print(grid)
 
 # %%
 # Where the product comes from, and what each route asks for.
@@ -40,7 +45,9 @@ for src in esd.catalog.get("snodas").sources:
 # downloading anything: the archive is one file per day at a predictable URL.
 print(esd.snow.snodas.search(aoi, when).to_string(index=False))
 
-snodas = esd.snow.snodas.load(aoi, when)
+# The archive is on a 1/120 degree geographic grid; the box is loaded with a
+# 2 km margin so the AOI's UTM grid the maps use is fully covered.
+snodas = esd.snow.snodas.load(box.buffer(2000), when)
 print(snodas)
 
 # %%
@@ -52,9 +59,21 @@ swe = snodas["SWE"].sel(time=day)
 depth = snodas["snow_depth"].sel(time=day)
 
 fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-esd.plotting.map(swe, ax=axes[0], cmap="Blues", vmin=0, vmax=3, title=f"SWE, {day}")
 esd.plotting.map(
-    depth, ax=axes[1], cmap="Purples", vmin=0, vmax=8, title=f"snow depth, {day}"
+    swe.odc.reproject(grid, resampling="bilinear"),
+    ax=axes[0],
+    cmap="Blues",
+    vmin=0,
+    vmax=3,
+    title=f"SWE, {day}",
+)
+esd.plotting.map(
+    depth.odc.reproject(grid, resampling="bilinear"),
+    ax=axes[1],
+    cmap="Purples",
+    vmin=0,
+    vmax=8,
+    title=f"snow depth, {day}",
 )
 fig.tight_layout()
 
@@ -69,7 +88,7 @@ print(
 # The same week from the Earth Engine mirror. Both routes land on the same
 # 1/120 degree grid, but their coordinate values differ in the twelfth decimal,
 # so snap the mirror onto the archive's coordinates before subtracting.
-mirror = esd.snow.snodas.load(aoi, when, source="gee-climate-engine")
+mirror = esd.snow.snodas.load(box.buffer(2000), when, source="gee-climate-engine")
 mirror = mirror.reindex(
     latitude=snodas["latitude"], longitude=snodas["longitude"], method="nearest"
 )
@@ -80,7 +99,7 @@ diff.attrs.update({"long_name": "SWE, Earth Engine minus NSIDC", "units": "mm"})
 print(f"largest absolute difference on {day}: {float(np.abs(diff).max()):.4f} mm")
 
 ax = esd.plotting.map(
-    diff,
+    diff.odc.reproject(grid, resampling="nearest"),
     cmap="RdBu",
     vmin=-0.01,
     vmax=0.01,

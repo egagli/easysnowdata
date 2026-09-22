@@ -54,17 +54,25 @@ ax.figure.tight_layout()
 # Mount Rainier at 1 km: the present period beside the end of the century under
 # SSP5-8.5. ``all_classes`` puts every class in the legend, so the same legend
 # serves both panels, in two columns to keep it shorter than the map.
-aoi = (-122.6, 46.4, -120.9, 47.3)
-present = esd.climate.koppen_geiger.load(aoi, resolution="1 km")
+# The 1 km grid is geographic; the box is loaded with a 2 km margin and both
+# periods are drawn on its UTM zone at 1 km, nearest so the classes survive.
+box = esd.parse_aoi((-122.6, 46.4, -120.9, 47.3))
+grid = box.to_geobox(crs="utm", resolution=1000)
+present = esd.climate.koppen_geiger.load(box.buffer(2000), resolution="1 km")
 future = esd.climate.koppen_geiger.load(
-    aoi, period="2071_2099", scenario="ssp585", resolution="1 km"
+    box.buffer(2000), period="2071_2099", scenario="ssp585", resolution="1 km"
 )
 print(present.attrs["archive_member"], "->", future.attrs["archive_member"])
 
 fig, axes = plt.subplots(1, 2, figsize=(12.5, 5.2), sharey=True)
-esd.plotting.categorical(present, ax=axes[0], legend=False, title="1991-2020")
 esd.plotting.categorical(
-    future,
+    present.odc.reproject(grid, resampling="nearest"),
+    ax=axes[0],
+    legend=False,
+    title="1991-2020",
+)
+esd.plotting.categorical(
+    future.odc.reproject(grid, resampling="nearest"),
     ax=axes[1],
     title="2071-2099, SSP5-8.5",
     legend_kwargs={"all_classes": True, "ncol": 2, "fontsize": 7},

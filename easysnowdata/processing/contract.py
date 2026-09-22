@@ -14,6 +14,7 @@ from collections.abc import Iterable, Mapping
 from typing import Any
 
 import numpy as np
+import odc.geo.xr  # noqa: F401 — registers the .odc accessor (``.odc.reproject`` and friends)
 import rioxarray  # noqa: F401 — registers the .rio accessor every loader relies on
 import xarray as xr
 from pyproj import CRS
@@ -94,7 +95,6 @@ def write_crs(obj: xr.Dataset | xr.DataArray, crs: Any) -> xr.Dataset | xr.DataA
     ``longitude``/``latitude``), and the dims are renamed to the contract's
     convention for the CRS kind.
     """
-    import odc.geo.xr  # noqa: F401, PLC0415 — registers the .odc accessor
 
     if crs is None:
         raise ValueError("The data carries no CRS and none was given.")

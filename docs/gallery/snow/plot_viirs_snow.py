@@ -31,7 +31,10 @@ aoi = (-121.94, 46.72, -121.54, 46.99)  # Mount Rainier, WA
 week = "2023-03-01/2023-03-07"
 day = "2023-03-04"
 
-esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+box = esd.parse_aoi(aoi)
+grid = box.to_geobox(crs="utm", resolution=375)  # every VIIRS map below is drawn on it
+print(box)
+print(grid)
 
 # %%
 # Where the product comes from, and what the route asks for.
@@ -39,16 +42,20 @@ for src in esd.catalog.get("viirs-snow").sources:
     print(f"{src.id:22} {src.title:45} {', '.join(src.requires) or 'no account'}")
 
 # %%
-# The gap-filled product with its persistence field.
+# The gap-filled product with its persistence field. The loader keeps the
+# native sinusoidal grid, which is sheared at this longitude (north is not
+# up), so the box is loaded with a 1 km margin and both fields are drawn on
+# the AOI's UTM grid at 375 m, resampled nearest-neighbour so the coded bytes
+# and day counts survive.
 viirs = esd.snow.viirs.load(
-    aoi,
+    box.buffer(1000),
     week,
     product="VNP10A1F",
     variables=["CGF_NDSI_Snow_Cover", "Cloud_Persistence"],
 )
 print(viirs)
-ndsi = viirs["CGF_NDSI_Snow_Cover"].compute()
-age = viirs["Cloud_Persistence"].compute()
+ndsi = viirs["CGF_NDSI_Snow_Cover"].odc.reproject(grid, resampling="nearest").compute()
+age = viirs["Cloud_Persistence"].odc.reproject(grid, resampling="nearest").compute()
 
 # %%
 # The NDSI on one day, and how many consecutive cloudy days the value behind
@@ -83,11 +90,16 @@ esd.plotting.map(
 fig.tight_layout()
 
 # %%
-# The MODIS gap-filled product for the same week, at 500 m. Four VIIRS pixels
-# span three MODIS pixels, on the same sinusoidal grid, so the two can be
-# compared over any box without reprojecting either.
-modis = esd.snow.modis.load(aoi, week, product="MOD10A1F")
-modis_ndsi = modis["CGF_NDSI_Snow_Cover"].compute()
+# The MODIS gap-filled product for the same week, at 500 m, on the same
+# sinusoidal grid (four VIIRS pixels span three MODIS pixels). It is drawn on
+# the same UTM zone at its own 500 m, and the box fractions below come from
+# the two UTM grids.
+modis = esd.snow.modis.load(box.buffer(1000), week, product="MOD10A1F")
+modis_ndsi = (
+    modis["CGF_NDSI_Snow_Cover"]
+    .odc.reproject(box.to_geobox(crs="utm", resolution=500), resampling="nearest")
+    .compute()
+)
 
 
 def binary(ndsi_bytes):

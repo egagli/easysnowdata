@@ -29,7 +29,10 @@ import easysnowdata as esd
 
 aoi = (-121.94, 46.72, -121.54, 46.99)  # Mount Rainier, WA
 
-esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+box = esd.parse_aoi(aoi)
+grid = box.to_geobox(crs="utm", resolution=30)  # every map below is drawn on this grid
+print(box)
+print(grid)
 
 # %%
 # Where the product comes from: two Earth Engine assets, both need an account.
@@ -40,13 +43,22 @@ for src in esd.catalog.get("nlcd").sources:
 # The whole annual record for the box: one 30 m map per year on the asset's
 # native Albers grid, 40 years in one lazy array. Selecting a year gives a
 # 2-D map that keeps its date as a scalar coordinate.
-landcover = esd.land.nlcd.load(aoi, time="1985/2024")
+# The box is loaded with a 1 km margin so the AOI's UTM grid the maps use is
+# fully covered; the class areas below are counted on the native Albers pixels.
+landcover = esd.land.nlcd.load(box.buffer(1000), time="1985/2024")
 print(landcover)
 first, last = landcover.isel(time=0), landcover.isel(time=-1)
 
 fig, axes = plt.subplots(1, 2, figsize=(14, 5.8), layout="constrained")
-esd.plotting.categorical(first, ax=axes[0], legend=False, title="Annual NLCD 1985")
-esd.plotting.categorical(last, ax=axes[1], title="Annual NLCD 2024")
+esd.plotting.categorical(
+    first.odc.reproject(grid, resampling="nearest"),
+    ax=axes[0],
+    legend=False,
+    title="Annual NLCD 1985",
+)
+esd.plotting.categorical(
+    last.odc.reproject(grid, resampling="nearest"), ax=axes[1], title="Annual NLCD 2024"
+)
 
 # %%
 # Class area through time, as the change since 1985. A pixel is 900 m², so a

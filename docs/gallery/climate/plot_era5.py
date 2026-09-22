@@ -19,16 +19,18 @@ reanalysis cell is: this 40 km box selects a single 0.25° ERA5 cell, and its
 temperature is that of the cell's average elevation, not of a summit.
 """
 
+import geopandas as gpd
 import pandas as pd
+import shapely
 import xarray as xr
-from matplotlib.patches import Rectangle
 
 import easysnowdata as esd
 
 aoi = (-121.94, 46.72, -121.54, 46.99)  # Mount Rainier
 week = "2023-03-01/2023-03-07"
 
-esd.parse_aoi(aoi)  # the AOI as every loader below will see it
+box = esd.parse_aoi(aoi)
+print(box)
 
 # %%
 # Where the product comes from, and what each route asks for.
@@ -82,30 +84,32 @@ ax.figure.tight_layout()
 # ERA5-Land runs a degree or two colder here because its 0.1° cells sit higher
 # on average than the one 0.25° ERA5 cell the box selects; neither is a summit
 # temperature. The map of the coldest hour shows the twenty ERA5-Land cells,
-# the single ERA5 cell outlined, and the summit marked.
+# the single ERA5 cell outlined, and the summit marked. The cells are
+# geographic; the map is drawn on the AOI's UTM grid at 1 km with nearest
+# resampling, which keeps every cell a sharp block, and the outline and the
+# summit are reprojected the same way.
 coldest = pd.Timestamp(t2m.sel(source=t2m["source"][1]).idxmin("time").item())
 frame = (land["temperature_2m"].sel(time=coldest) - 273.15).compute()
 frame.attrs = {"long_name": "ERA5-Land 2 m temperature", "units": "°C"}
+grid = box.to_geobox(crs="utm", resolution=1000)
 ax = esd.plotting.map(
-    frame,
+    frame.odc.reproject(grid, resampling="nearest"),
     cmap="coolwarm",
     title=f"ERA5-Land 2 m temperature, {coldest:%Y-%m-%d %H:%M} UTC",
 )
 lon, lat = float(era5["longitude"].item()), float(era5["latitude"].item())
-ax.add_patch(
-    Rectangle(
-        (lon - 0.125, lat - 0.125),
-        0.25,
-        0.25,
-        fill=False,
-        edgecolor="black",
-        linewidth=2,
-        label="the ERA5 cell the box selects (0.25°)",
-    )
+cell = gpd.GeoSeries(
+    [shapely.box(lon - 0.125, lat - 0.125, lon + 0.125, lat + 0.125)], crs="EPSG:4326"
+).to_crs(grid.crs)
+cell.boundary.plot(
+    ax=ax, color="black", linewidth=2, label="the ERA5 cell the box selects (0.25°)"
+)
+summit = gpd.GeoSeries([shapely.Point(-121.7603, 46.8523)], crs="EPSG:4326").to_crs(
+    grid.crs
 )
 ax.plot(
-    -121.7603,
-    46.8523,
+    summit.x.iloc[0],
+    summit.y.iloc[0],
     marker="^",
     color="black",
     markersize=9,
