@@ -1197,7 +1197,7 @@ neither is caused by Phase 2b:
 
 ---
 
-## 14. Notes to file in the knowledge bases (proposed, not yet filed)
+## 14. Notes to file in the knowledge bases (proposed 2026-09-15; filed to both inboxes 2026-09-15 and 2026-09-17)
 
 For `all_project_memory/INBOX.md`:
 - easysnowdata CI has been red since ≥ June 2026 on the GRDC/WMO basins URL; the health check
@@ -1412,8 +1412,11 @@ otherwise replace the bearer header with basic auth and validate the
 password instead) and, when it is not and a username/password or netrc entry
 exists, drops it and logs in with those — earthaccess then mints a fresh token,
 which the GDAL bearer options pick up. The recommended CI configuration is
-therefore `EARTHDATA_USERNAME` + `EARTHDATA_PASSWORD` (already secrets), with
-the token optional.
+therefore `EARTHDATA_USERNAME` + `EARTHDATA_PASSWORD`, with the token optional.
+**Not yet done (2026-09-22):** `EARTHDATA_TOKEN` is the repository's only Earthdata
+secret, and the first full docs build after this work failed on exactly that: six
+Earthdata examples raised `CredentialError` because the token had expired and there
+was nothing to fall back on. Adding the two secrets is the fix; the code is in place.
 
 **Two more product bugs the gallery rewrite exposed.** Planetary Computer's
 `modis-10A1-061` / `modis-10A2-061` collections hold Terra and Aqua granules

@@ -130,7 +130,9 @@ jobs:
               flags=re.S,
           )
           text = re.sub(
-              r"WARNING: ?\n\S+ unexpectedly failed to execute correctly:\n(?:[ \t].*\n?)*",
+              # A blank line separates "correctly:" from the indented traceback,
+              # so the block is "indented or empty lines" until the next warning.
+              r"WARNING: ?\n\S+ unexpectedly failed to execute correctly:\n(?:(?:[ \t].*)?\n)*",
               "",
               text,
           )
