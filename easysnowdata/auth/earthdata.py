@@ -9,12 +9,15 @@ Detection order (fixed, §5.2): ``EARTHDATA_TOKEN`` → ``EARTHDATA_USERNAME`` +
 
 from __future__ import annotations
 
+import base64
 import contextlib
+import json
 import logging
 import netrc
 import os
 import time
 from collections.abc import Iterator
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -22,42 +25,54 @@ from easysnowdata import config
 from easysnowdata._gdal import gdal_env
 from easysnowdata.auth._base import Detection, Provider
 
-__all__ = ["EarthdataProvider", "NETRC_HOST", "URS_TOKENS_URL", "token_is_valid"]
+__all__ = ["EarthdataProvider", "NETRC_HOST", "token_expiry", "token_is_valid"]
 
 _logger = logging.getLogger(__name__)
 
 NETRC_HOST = "urs.earthdata.nasa.gov"
-#: Lists the caller's own EDL tokens; answers 401 to an expired or revoked one.
-URS_TOKENS_URL = f"https://{NETRC_HOST}/api/users/tokens"
+#: Treat a token this close to its expiry as expired: a long read started a
+#: few seconds before ``exp`` would fail halfway through.
+EXPIRY_SKEW_S = 60
 
 
-def token_is_valid(token: str, *, timeout: float = 15.0) -> bool | None:
-    """Ask URS whether *token* is still accepted.
+def token_expiry(token: str) -> datetime | None:
+    """When an Earthdata Login user token expires, read from the token itself.
 
-    ``True``/``False`` from a 200/401; ``None`` when URS could not be reached
-    or answered something else, in which case the token is given the benefit
-    of the doubt rather than blocking a read.
+    EDL user tokens are signed JWTs whose payload carries ``exp`` (seconds
+    since the epoch). The payload is only base64url-decoded, not verified:
+    this answers "has it expired?", and a token that is forged or revoked
+    still fails at the first authenticated request. ``None`` when *token* is
+    not a JWT with an ``exp`` claim.
     """
-    import requests  # noqa: PLC0415
-
-    try:
-        # trust_env=False: with a netrc entry present, requests would replace
-        # the bearer header with basic auth and validate the *password*.
-        session = requests.Session()
-        session.trust_env = False
-        response = session.get(
-            URS_TOKENS_URL,
-            headers={"Authorization": f"Bearer {token}"},
-            timeout=timeout,
-        )
-    except Exception as exc:  # noqa: BLE001 — offline, blocked or odd: not the token's fault
-        _logger.debug("Could not verify EARTHDATA_TOKEN with URS: %s", exc)
+    parts = token.strip().split(".")
+    if len(parts) != 3:
         return None
-    if response.status_code == 200:
-        return True
-    if response.status_code in (401, 403):
-        return False
-    return None
+    payload = parts[1] + "=" * (-len(parts[1]) % 4)
+    try:
+        claims = json.loads(base64.urlsafe_b64decode(payload))
+        return datetime.fromtimestamp(float(claims["exp"]), UTC)
+    except (ValueError, KeyError, TypeError):
+        return None
+
+
+def token_is_valid(token: str, *, now: datetime | None = None) -> bool | None:
+    """Whether *token* is still inside its lifetime, without a network request.
+
+    ``True``/``False`` from the token's ``exp`` claim (with a
+    :data:`EXPIRY_SKEW_S` margin); ``None`` when that cannot be read, in which
+    case the token is given the benefit of the doubt rather than blocking a
+    read.
+
+    The check used to ask URS (``GET /api/users/tokens`` with the token as a
+    bearer). That endpoint manages tokens and only accepts a username and
+    password, so it answered 401 to every token, valid or not, and a
+    token-only setup was always reported as expired.
+    """
+    expiry = token_expiry(token)
+    if expiry is None:
+        return None
+    current = now or datetime.now(UTC)
+    return (expiry - current).total_seconds() > EXPIRY_SKEW_S
 
 
 def netrc_path() -> Path | None:
@@ -207,7 +222,7 @@ Register for a free account at https://urs.earthdata.nasa.gov"""
         ) from last_exc
 
     def _drop_expired_token(self) -> None:
-        """Stop using an ``EARTHDATA_TOKEN`` that URS rejects when there is a fallback.
+        """Stop using an expired ``EARTHDATA_TOKEN`` when there is a fallback.
 
         earthaccess trusts a token from the environment without checking it,
         so an expired one (they last ~60 days) only surfaces as a 401 halfway
@@ -223,19 +238,23 @@ Register for a free account at https://urs.earthdata.nasa.gov"""
         valid = token_is_valid(token)
         if valid is not False:
             return
+        expiry = token_expiry(token)
+        when = f" on {expiry:%Y-%m-%d %H:%M} UTC" if expiry else ""
         fallback = (
             os.environ.get("EARTHDATA_USERNAME")
             and os.environ.get("EARTHDATA_PASSWORD")
         ) or netrc_has_edl()
         if not fallback:
             raise self.error(
-                "EARTHDATA_TOKEN was rejected by Earthdata Login (user tokens expire "
-                "after about 60 days) and no EARTHDATA_USERNAME/EARTHDATA_PASSWORD or "
-                "netrc entry is configured to fall back on."
+                f"EARTHDATA_TOKEN expired{when} (user tokens last about 60 days; "
+                "generate a new one at urs.earthdata.nasa.gov) and no "
+                "EARTHDATA_USERNAME/EARTHDATA_PASSWORD or netrc entry is configured "
+                "to fall back on."
             )
         _logger.warning(
-            "EARTHDATA_TOKEN was rejected by Earthdata Login (expired?); logging in "
-            "with the username and password instead, which mints a new token."
+            "EARTHDATA_TOKEN expired%s; logging in with the username and password "
+            "instead, which mints a new token.",
+            when,
         )
         os.environ.pop("EARTHDATA_TOKEN", None)
         self._rejected_token = token

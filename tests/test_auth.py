@@ -651,22 +651,31 @@ class TestEarthdataTokenFallback:
 
     provider = auth.get("earthdata")
 
+    @staticmethod
+    def token(days: float) -> str:
+        """An EDL-shaped JWT expiring *days* from now (negative: already expired)."""
+        import base64
+        import json
+        import time as _time
+
+        def part(obj):
+            raw = json.dumps(obj).encode()
+            return base64.urlsafe_b64encode(raw).decode().rstrip("=")
+
+        exp = int(_time.time() + days * 86400)
+        header = {"typ": "JWT", "origin": "Earthdata Login", "alg": "RS256"}
+        return f"{part(header)}.{part({'type': 'User', 'uid': 'u', 'exp': exp})}.sig"
+
     @pytest.fixture
-    def urs(self, monkeypatch):
+    def no_network(self, monkeypatch):
+        """The expiry check must not ask URS (its token API refuses bearers)."""
         import requests
 
-        state = {"status": 401, "calls": 0}
+        def refuse(*args, **kwargs):
+            raise AssertionError("token_is_valid made a network request")
 
-        def get(self, url, headers=None, timeout=None):
-            state["calls"] += 1
-            assert self.trust_env is False  # or netrc basic auth masks the bearer
-            assert url == ed.URS_TOKENS_URL and headers["Authorization"].startswith(
-                "Bearer "
-            )
-            return types.SimpleNamespace(status_code=state["status"])
-
-        monkeypatch.setattr(requests.Session, "get", get)
-        return state
+        monkeypatch.setattr(requests.Session, "get", refuse)
+        monkeypatch.setattr(requests, "get", refuse)
 
     @pytest.fixture
     def fake_earthaccess(self, monkeypatch):
@@ -687,17 +696,21 @@ class TestEarthdataTokenFallback:
         monkeypatch.setattr(ed.time, "sleep", lambda s: None)
         return state
 
-    def test_token_is_valid_reads_the_status(self, urs):
-        assert ed.token_is_valid("t") is False
-        urs["status"] = 200
-        assert ed.token_is_valid("t") is True
-        urs["status"] = 500
-        assert ed.token_is_valid("t") is None
+    def test_token_is_valid_reads_the_expiry(self, no_network):
+        assert ed.token_is_valid(self.token(30)) is True
+        assert ed.token_is_valid(self.token(-1)) is False
+        # inside the skew margin counts as expired: a read would fail midway
+        assert ed.token_is_valid(self.token(30 / 86400)) is False
+        # not a JWT, or no exp claim: benefit of the doubt
+        assert ed.token_is_valid("not-a-jwt") is None
+        assert ed.token_is_valid("a.b.c") is None
+        expiry = ed.token_expiry(self.token(10))
+        assert expiry is not None and expiry.tzinfo is not None
 
     def test_rejected_token_falls_back_to_the_password(
-        self, clean_env, monkeypatch, urs, fake_earthaccess
+        self, clean_env, monkeypatch, no_network, fake_earthaccess
     ):
-        monkeypatch.setenv("EARTHDATA_TOKEN", "expired")
+        monkeypatch.setenv("EARTHDATA_TOKEN", self.token(-3))
         monkeypatch.setenv("EARTHDATA_USERNAME", "u")
         monkeypatch.setenv("EARTHDATA_PASSWORD", "p")
         self.provider.ensure()
@@ -709,26 +722,40 @@ class TestEarthdataTokenFallback:
         assert "GDAL_HTTP_BEARER" not in opts
         assert "login u password p" in Path(opts["GDAL_HTTP_NETRC_FILE"]).read_text()
 
-    def test_valid_token_is_kept(self, clean_env, monkeypatch, urs, fake_earthaccess):
-        urs["status"] = 200
-        monkeypatch.setenv("EARTHDATA_TOKEN", "good")
+    def test_valid_token_is_kept(
+        self, clean_env, monkeypatch, no_network, fake_earthaccess
+    ):
+        good = self.token(45)
+        monkeypatch.setenv("EARTHDATA_TOKEN", good)
         self.provider.ensure()
-        assert fake_earthaccess["calls"] == [("environment", "good")]
-        assert self.provider.gdal_options()["GDAL_HTTP_BEARER"] == "good"
+        assert fake_earthaccess["calls"] == [("environment", good)]
+        assert self.provider.gdal_options()["GDAL_HTTP_BEARER"] == good
+
+    def test_valid_token_is_kept_even_with_a_password(
+        self, clean_env, monkeypatch, no_network, fake_earthaccess
+    ):
+        # The bug this replaced: every token looked expired, so a valid one was
+        # silently swapped for the password whenever one was configured.
+        good = self.token(45)
+        monkeypatch.setenv("EARTHDATA_TOKEN", good)
+        monkeypatch.setenv("EARTHDATA_USERNAME", "u")
+        monkeypatch.setenv("EARTHDATA_PASSWORD", "p")
+        self.provider.ensure()
+        assert fake_earthaccess["calls"] == [("environment", good)]
+        assert os.environ["EARTHDATA_TOKEN"] == good
 
     def test_rejected_token_without_fallback_names_the_cause(
-        self, clean_env, monkeypatch, urs, fake_earthaccess
+        self, clean_env, monkeypatch, no_network, fake_earthaccess
     ):
-        monkeypatch.setenv("EARTHDATA_TOKEN", "expired")
+        monkeypatch.setenv("EARTHDATA_TOKEN", self.token(-3))
         monkeypatch.setattr(ed, "netrc_has_edl", lambda: False)
-        with pytest.raises(CredentialError, match="rejected"):
+        with pytest.raises(CredentialError, match=r"expired on 20\d\d-"):
             self.provider.ensure()
         assert fake_earthaccess["calls"] == []
 
-    def test_unreachable_urs_gives_the_token_the_benefit_of_the_doubt(
-        self, clean_env, monkeypatch, urs, fake_earthaccess
+    def test_an_unreadable_token_gets_the_benefit_of_the_doubt(
+        self, clean_env, monkeypatch, no_network, fake_earthaccess
     ):
-        urs["status"] = 503
         monkeypatch.setenv("EARTHDATA_TOKEN", "maybe")
         self.provider.ensure()
         assert fake_earthaccess["calls"] == [("environment", "maybe")]
