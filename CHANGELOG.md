@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
+## [v0.3.2](https://github.com/egagli/easysnowdata/releases/tag/v0.3.2) - 2026-09-23
+
+<small>[Compare with v0.3.1](https://github.com/egagli/easysnowdata/compare/v0.3.1...v0.3.2)</small>
+
 ## [v0.3.1](https://github.com/egagli/easysnowdata/releases/tag/v0.3.1) - 2026-09-22
 
 <small>[Compare with v0.2.0](https://github.com/egagli/easysnowdata/compare/v0.2.0...v0.3.1)</small>
