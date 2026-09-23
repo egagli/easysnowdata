@@ -105,7 +105,7 @@ exclude = [
 # The tag it creates is what hatch-vcs reads; the files below are the ones
 # that still carry a literal version.
 [tool.bumpversion]
-current_version = "0.3.1"
+current_version = "0.3.2"
 commit = true
 tag = true
 
