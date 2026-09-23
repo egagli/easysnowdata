@@ -144,6 +144,7 @@ class TestQueries:
             "3dep",
             "alos-dem",
             "chili",
+            "hillshade",
         }
         assert "hls" in catalog.list(provider="stac").index
         # "huc" left this set in Phase 2: its default source is now the

@@ -306,6 +306,18 @@ def make_all(directory: Path) -> dict[str, Path]:
         dtype="uint8",
     )
 
+    # Natural Earth shaded relief: uint8 brightness, no nodata, one GeoTIFF per zip.
+    hillshade_tif = _write_tif(
+        directory / "GRAY_HR_SR_OB_DR.tif",
+        np.resize(np.arange(40, 240, 5, dtype="uint8"), (32, 32)),
+        nodata=None,
+        tags={"TIFFTAG_SOFTWARE": "Adobe Photoshop CS5 Macintosh"},
+    )
+    out["hillshade_zip"] = directory / "GRAY_HR_SR_OB_DR.zip"
+    with zipfile.ZipFile(out["hillshade_zip"], "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.write(hillshade_tif, hillshade_tif.name)
+    hillshade_tif.unlink()
+
     out["wmo_zip"], out["hybas_zip"] = make_basin_zips(directory)
 
     left, right, grid = make_worldcover_tiles(directory)

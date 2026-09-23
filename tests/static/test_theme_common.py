@@ -20,6 +20,7 @@ from easysnowdata.processing import contract
 STATIC_MODULES = (
     "easysnowdata.terrain.dem",
     "easysnowdata.terrain.chili",
+    "easysnowdata.terrain.hillshade",
     "easysnowdata.land.landcover",
     "easysnowdata.land.nlcd",
     "easysnowdata.land.forest_cover",
@@ -60,7 +61,7 @@ def test_default_sentinel_is_shared():
 
 def test_theme_packages_are_exported():
     for theme, modules in (
-        (esd.terrain, ("dem", "chili")),
+        (esd.terrain, ("dem", "chili", "hillshade")),
         (esd.land, ("landcover", "nlcd", "forest_cover")),
         (esd.snow, ("snow_classification", "mountain_snow_mask")),
         (esd.hydro, ("basins",)),
