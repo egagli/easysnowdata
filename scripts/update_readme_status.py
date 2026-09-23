@@ -17,6 +17,7 @@ replaces the content between the sentinel comments in *readme*:
 from __future__ import annotations
 
 import argparse
+import html
 import json
 import re
 from datetime import UTC, datetime
@@ -110,8 +111,10 @@ def build_table(history: list[list[dict]]) -> str:
             else:
                 emoji = STATUS_EMOJI.get(match["status"], "?")
                 if match["status"] == "fail" and match.get("error"):
-                    # Truncate long errors in the tooltip
-                    tip = match["error"][:80].replace("|", "\\|")
+                    # Truncate long errors in the tooltip, and escape them: an
+                    # API error is often JSON, whose double quotes would end
+                    # the title attribute early and break the cell.
+                    tip = html.escape(match["error"][:80]).replace("|", "\\|")
                     cells.append(f'<abbr title="{tip}">{emoji}</abbr>')
                 else:
                     cells.append(emoji)

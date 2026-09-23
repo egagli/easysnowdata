@@ -145,6 +145,20 @@ class TestReadmeBlocks:
         assert "| A |" in table
         assert "A latency" not in table
 
+    def test_a_json_error_does_not_break_the_tooltip(self, status):
+        run = [
+            {
+                "source": "HLS",
+                "status": "fail",
+                "kind": "health",
+                "error": 'APIError: {"errors":["Oops! | down"]}',
+                "checked_at": "2026-09-23T00:00:00Z",
+            }
+        ]
+        row = status.build_table([run]).splitlines()[-1]
+        assert '<abbr title="APIError: {&quot;errors&quot;:[&quot;Oops! \\| down' in row
+        assert row.count('"') == 2  # only the attribute's own quotes
+
     def test_the_catalog_block_lists_every_product(self, status):
         from easysnowdata import catalog
 
