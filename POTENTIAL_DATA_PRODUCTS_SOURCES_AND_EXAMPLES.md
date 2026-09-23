@@ -55,7 +55,7 @@ Login) / GEE (Earth Engine) / key.
 | hydro | 🟢 HUC boundaries | USGS WBD ArcGIS REST / HyRiver `pynhd` (none) 🆕 default | GEE `USGS/WBD/2017/HUC*` (GEE) | see B.10 |
 | hydro | 🟢 HydroBASINS / BasinATLAS | figshare BasinATLAS gdb (none) | HydroSHEDS per-region zips (none); GEE `WWF/HydroATLAS/v1/Basins/level*` (GEE) | see B.10 |
 | hydro | 🟢 GRDC major river basins; GRDC/WMO basins | World Bank zip; `grdc.bafg.de` zip (none) | — | GET-first fetch (server rejects HEAD) |
-| stations | 🟢→🆕 Station SWE / snow depth / met | `global_snow_networks` clients: NRCS AWDB REST, CDEC, BC DataBC, NVE HydAPI (key), Yukon AquaCache (none/key) | pre-downloaded daily archive (none) | replaces the frozen `snotel_ccss_stations` CSVs |
+| stations | 🟢→🆕 Station SWE / snow depth / met | `easysnowdata.stations.clients` (moved from `global_snow_networks`): NRCS AWDB REST, CDEC, BC DataBC, NVE HydAPI (key), Yukon AquaCache (none/key) | pre-downloaded daily archive (none) | replaces the frozen `snotel_ccss_stations` CSVs |
 
 ### Tier 2 — cheap follow-ons (catalog entry + provider call; each a small PR)
 
@@ -81,7 +81,7 @@ Login) / GEE (Earth Engine) / key.
 | boundaries | 🆕 Countries, states/provinces, US counties, admin levels, Natural Earth layers, GMBA mountain ranges, RGI glacier outlines (7.0 / 6.0) | Natural Earth (none), US Census cartographic boundaries (none), geoBoundaries API (none), GMBA v2 on EarthEnv (none), RGI on NSIDC (EDL) or the OGGM mirror (6.0, none) | **shipped 2026-09-23** as `esd.boundaries` (`admin`, `natural_earth`, `mountains`, `glaciers`); see **F.1** |
 | climate | 🆕 Cloud frequency climatology (EarthEnv, Wilson & Jetz 2016) | `data.earthenv.org/cloud/MODCF_*.tif` (none; CC BY-NC 4.0) | 1 km MODIS cloud frequency 2000–2014: mean annual, monthly, inter-/intra-annual variability, seasonality; where optical snow products go blind; see **F.2** |
 | climate | Cloud cover from ERA5 | ARCO-ERA5 `total_cloud_cover`, `low_/medium_/high_cloud_cover` (none) | **works today** through `esd.climate.era5.load(..., variables=["total_cloud_cover"])` (verified in the store 2026-09-23); needs only a gallery example; see F.2 |
-| stations | 🆕 Station photos and camera links | NRCS `siteimages/{id}.jpg` (none), BC AQUARIUS portal and NuPoint satellite cameras (none), from the vendored clients | expose the `station_image_url` / `station_camera_url` fields `global_snow_networks` already renders; see **F.3** |
+| stations | 🆕 Station photos and camera links | NRCS `siteimages/{id}.jpg` (none), BC AQUARIUS portal and NuPoint satellite cameras (none), from the station clients | expose the `station_image_url` / `station_camera_url` fields `global_snow_networks` already renders; see **F.3** |
 
 ### Tier 3 — on the shelf (see C for why)
 
@@ -497,7 +497,7 @@ in the best-practices wiki rather than this package (**wiki**). Nothing is dropp
 | https://www.geoboundaries.org/api/current/gbOpen/USA/ADM1/ | geoBoundaries API (verified): JSON pointing to per-country ADM0–ADM5 GeoJSON, CC BY 4.0 | admin levels anywhere in the world | **product**, shipped (F.1) |
 | https://dmap-prod-oms-edc.s3.us-east-1.amazonaws.com/ORD/Ecoregions/us/us_eco_l3.zip | EPA Level III ecoregions (verified) | US stratification | **product** (F.1 follow-on) |
 | https://noaa-cdr-patmosx-radiances-and-clouds-pds.s3.amazonaws.com/index.html | PATMOS-x AVHRR cloud climate data record on AWS (bucket reachable) | a 1979-onward cloud record | **shelf** (F.2) |
-| `/home/eric/repos/global_snow_networks/scripts/create_all_stations_geojson.py` (`BC_CAMERA_URLS`, `awdb_image_url`) ; `scripts/generate_live_map.py` | where the live map's camera links and photos come from | the starting point for F.3 | **access pattern** (F.3) |
+| [`global_snow_networks`](https://github.com/egagli/global_snow_networks) `scripts/create_all_stations_geojson.py` (`BC_CAMERA_URLS`, `awdb_image_url`) ; `scripts/generate_live_map.py` | where the live map's camera links and photos come from | the starting point for F.3 | **access pattern** (F.3) |
 | https://www2.gov.bc.ca/gov/content/environment/air-land-water/water/water-science-data/water-data-tools/snow-survey-data/snow-station-satellite-cameras | BC snow-station satellite camera index | the authoritative list behind `BC_CAMERA_URLS` | **reference** (F.3) |
 
 ---

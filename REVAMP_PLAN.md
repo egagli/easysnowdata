@@ -872,6 +872,11 @@ Concretely:
    `easysnowdata>=0.2`, keep pipeline + map + data.
 6. NVE's `NVE_API_KEY` becomes an `auth` provider (§5).
 
+**Status 2026-09-23: all six done.** Two have moved on since: step 3's bundle is
+no longer read from `data/` on `main` (the archive is read from the Pages Zarr
+store, with the bundle on the latest snapshot release as the fallback; §9.3),
+and step 4's shim was removed in 0.3.
+
 ### 9.3 Which repository answers which request (recorded 2026-09-17)
 
 The rule, in one line: **`global_snow_networks` is an index and a bulk cache;
@@ -885,7 +890,6 @@ nothing in `easysnowdata.stations` treats it as the only way to get an answer.
 | `stations.load(aoi=…)` | the station list for that AOI | every observation |
 | `stations.inventory()` | ✅ default (`source="archive"`) | `source="clients"` |
 | `stations.archive.load()` | ✅ inventory and daily CSVs | — |
-| `automatic_weather_stations.StationCollection` | the station list | every observation |
 
 Why the inventory defaults to the archive rather than the five APIs: it is one
 HTTP request instead of five sweeps, its columns are normalized across
@@ -919,15 +923,12 @@ are served from outside Pages). The daily-committed bundle on `main` was
 retired once 0.3.2 carried this fallback; 0.2.x and 0.3.1 read that file and
 must upgrade.
 
-**What `global_snow_networks` still owes this migration** is tracked in that
-repo as [`docs/EASYSNOWDATA_MIGRATION.md`](https://github.com/egagli/global_snow_networks/blob/main/docs/EASYSNOWDATA_MIGRATION.md):
-switch 16 import lines across three scripts, delete `clients/*.py`, `utils/`
-and the six client test files, rehome the five
-`clients/*/<name>_stations.geojson` artefacts (which deleting the code
-directory orphans, and which DESIGN.md §6.2 names by path), and pin
-`easysnowdata>=0.2`. **All of it is blocked on releasing 0.2** — the pin
-cannot resolve before then — so the order is: merge this branch, release,
-then that PR.
+**What `global_snow_networks` owed this migration**, done 2026-09-17 and
+recorded in that repo's
+[`docs/EASYSNOWDATA_MIGRATION.md`](https://github.com/egagli/global_snow_networks/blob/main/docs/EASYSNOWDATA_MIGRATION.md):
+the import switch, deleting `clients/`, `utils/` and the client tests, rehoming
+the five `clients/*/<name>_stations.geojson` artefacts to `data/inventories/`,
+and a PyPI/conda-forge pin, now `easysnowdata>=0.3.2`.
 
 Keeping the two copies of the clients in step: **superseded 2026-09-17.**
 `global_snow_networks` deleted its `clients/` and `utils/` and now imports
