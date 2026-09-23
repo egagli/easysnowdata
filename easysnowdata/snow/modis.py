@@ -18,10 +18,10 @@ Sources (companion file §B.4):
 ::
 
     import easysnowdata as esd
-    granules = esd.snow.modis.search(aoi, "2023-03", product="MOD10A1F")
-    snow = esd.snow.modis.load(aoi, "2023-03", product="MOD10A1F")
-    ndsi = snow["CGF_NDSI_Snow_Cover"]
-    binary = (ndsi >= 40).where(ndsi <= 100)   # sentinels (cloud, night …) → NaN
+    granules_gdf = esd.snow.modis.search(aoi, "2023-03", product="MOD10A1F")
+    snow_ds = esd.snow.modis.load(aoi, "2023-03", product="MOD10A1F")
+    ndsi_da = snow_ds["CGF_NDSI_Snow_Cover"]
+    binary_da = (ndsi_da >= 40).where(ndsi_da <= 100)   # sentinels (cloud, night …) → NaN
 """
 
 from __future__ import annotations
@@ -369,7 +369,7 @@ def load(
     mask
         ``True`` NaN-masks the sentinel values (cloud, night, fill …).
         The default keeps the raw byte with its CF flags, so nothing is lost;
-        ``(band >= 40).where(band <= 100)`` is the usual binary mask.
+        ``(ndsi_da >= 40).where(ndsi_da <= 100)`` is the usual binary mask.
     crs, resolution
         Reproject the native sinusoidal grid (default: keep it).
     """
@@ -479,10 +479,10 @@ def _load_nsidc(
     datasets = []
     for when in sorted(per_date):
         tiles = per_date[when]
-        merged = tiles[0] if len(tiles) == 1 else _merge_tiles(tiles)
-        datasets.append(merged.expand_dims(time=[when]))
-    combined = xr.concat(datasets, dim="time") if len(datasets) > 1 else datasets[0]
-    return combined.sortby("time")
+        merged_ds = tiles[0] if len(tiles) == 1 else _merge_tiles(tiles)
+        datasets.append(merged_ds.expand_dims(time=[when]))
+    combined_ds = xr.concat(datasets, dim="time") if len(datasets) > 1 else datasets[0]
+    return combined_ds.sortby("time")
 
 
 def _merge_tiles(tiles: Sequence[xr.Dataset]) -> xr.Dataset:
@@ -492,6 +492,6 @@ def _merge_tiles(tiles: Sequence[xr.Dataset]) -> xr.Dataset:
     fields = list(tiles[0].data_vars)
     merged = {}
     for field in fields:
-        arrays = [tile[field] for tile in tiles]
+        arrays = [tile_ds[field] for tile_ds in tiles]
         merged[field] = merge_arrays(arrays)
     return xr.Dataset(merged)

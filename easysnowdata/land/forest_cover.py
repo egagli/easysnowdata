@@ -5,8 +5,8 @@
     import easysnowdata as esd
 
     aoi = (-121.94, 46.72, -121.54, 46.99)
-    forest = esd.land.forest_cover.load(aoi)                 # Zenodo GeoTIFF, 2019
-    forest = esd.land.forest_cover.load(aoi, source="gee")   # 2015-2019 epochs
+    forest_da = esd.land.forest_cover.load(aoi)                # Zenodo GeoTIFF, 2019
+    forest_da = esd.land.forest_cover.load(aoi, source="gee")  # 2015-2019 epochs
 
 The tree-cover fraction layer of CGLS-LC100 collection 3, epoch 2019 — the
 last epoch the service produced. The Zenodo GeoTIFF needs no credentials and

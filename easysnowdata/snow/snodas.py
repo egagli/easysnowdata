@@ -20,13 +20,13 @@ grows without bound over glaciers and eventually saturates the 16-bit field at
 saturated and they sit on Mount Rainier's and Mount Baker's summit ice caps,
 while the Rainier box's median is 0.86 m. Those values are the model's, not a
 reader artefact, so they are passed through untouched; mask them yourself
-(``ds["SWE"].where(ds["SWE"] < 30)``) when a basin contains glaciers.
+(``snodas_ds["SWE"].where(snodas_ds["SWE"] < 30)``) when a basin contains glaciers.
 
 ::
 
     import easysnowdata as esd
-    swe = esd.snow.snodas.load(aoi, "2024-03-01/2024-03-07")            # NSIDC
-    swe = esd.snow.snodas.load(aoi, "2024-03", source="gee-climate-engine")
+    snodas_ds = esd.snow.snodas.load(aoi, "2024-03-01/2024-03-07")       # NSIDC
+    snodas_ds = esd.snow.snodas.load(aoi, "2024-03", source="gee-climate-engine")
 """
 
 from __future__ import annotations
@@ -244,7 +244,7 @@ def search(
     if aoi is not None:
         parse_aoi(aoi)
     days = _days(time)
-    frame = pd.DataFrame(
+    days_df = pd.DataFrame(
         {
             "date": days,
             "url": [tar_url(day, region=region) for day in days]
@@ -252,8 +252,8 @@ def search(
             else [GEE_COLLECTION] * len(days),
         }
     )
-    frame.attrs = {"source": src.id, "region": region}
-    return frame
+    days_df.attrs = {"source": src.id, "region": region}
+    return days_df
 
 
 def load(

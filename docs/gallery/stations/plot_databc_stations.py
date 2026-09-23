@@ -33,19 +33,21 @@ for src in esd.catalog.get("databc-stations").sources:
 
 # %%
 # Everything in the box, with the automated sites marked.
-everything = esd.stations.inventory(aoi, networks="databc")
-everything["kind"] = everything["daily_or_better"].map(
+everything_gdf = esd.stations.inventory(aoi, networks="databc")
+everything_gdf["kind"] = everything_gdf["daily_or_better"].map(
     {True: "automated (ASWS)", False: "snow course (MSS)"}
 )
-print(everything["kind"].value_counts().to_string())
-print(everything[["name", "kind", "elevation_m", "earliest_record_date"]].to_string())
+print(everything_gdf["kind"].value_counts().to_string())
+print(
+    everything_gdf[["name", "kind", "elevation_m", "earliest_record_date"]].to_string()
+)
 
 # %%
 # The courses outnumber the automated sites almost four to one here, and
 # several pairs share a name: the automated site was put beside the course it
 # now supplements (``2F10`` and ``2F10P`` are both Silver Star Mountain).
 ax = esd.plotting.points(
-    everything.to_crs(box.utm_crs),
+    everything_gdf.to_crs(box.utm_crs),
     column="kind",
     legend_label="BC site kind",
     title="BC snow stations, southern interior",
@@ -54,13 +56,13 @@ ax = esd.plotting.points(
 # %%
 # SWE and snow depth through one water year at the automated sites. The daily
 # snow-depth value is the 16:00 UTC reading, the morning observation in BC.
-daily = everything[everything["daily_or_better"].fillna(False).astype(bool)]
-obs = esd.stations.load(daily, variables=["swe", "snwd"], time="2023-10/2024-09")
-print(obs["swe"].attrs)
+daily_gdf = everything_gdf[everything_gdf["daily_or_better"].fillna(False).astype(bool)]
+obs_ds = esd.stations.load(daily_gdf, variables=["swe", "snwd"], time="2023-10/2024-09")
+print(obs_ds["swe"].attrs)
 
 fig, axes = plt.subplots(2, 1, figsize=(9, 7), sharex=True)
-esd.plotting.timeseries(obs["swe"], ax=axes[0], title="Water year 2024")
-esd.plotting.timeseries(obs["snwd"], ax=axes[1], title="", legend=False)
+esd.plotting.timeseries(obs_ds["swe"], ax=axes[0], title="Water year 2024")
+esd.plotting.timeseries(obs_ds["snwd"], ax=axes[1], title="", legend=False)
 fig.tight_layout()
 
 # %%
@@ -68,7 +70,7 @@ fig.tight_layout()
 # inactive, and McCulloch's record begins in October 2024, after this water
 # year ends. The inventory's ``is_active`` and ``earliest_record_date`` say so
 # before anything is loaded; the count of observations says so after.
-print(obs["swe"].count(dim="time").to_series().to_string())
+print(obs_ds["swe"].count(dim="time").to_series().to_string())
 
 # %%
 # The snow variables are only part of what the automated sites report. For

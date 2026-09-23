@@ -56,10 +56,10 @@ print(from_shapely)
 # Form 3: a GeoDataFrame in another CRS. Loaders reproject it themselves, so a
 # basin outline in a projected CRS needs no ``to_crs`` first; ``source_crs``
 # remembers what came in.
-square_utm = gpd.GeoDataFrame(
+square_utm_gdf = gpd.GeoDataFrame(
     geometry=[shapely.box(590_000, 5_180_000, 610_000, 5_200_000)], crs="EPSG:32610"
 )
-from_gdf = esd.aoi.parse_aoi(square_utm)
+from_gdf = esd.aoi.parse_aoi(square_utm_gdf)
 print(from_gdf, "source_crs:", from_gdf.source_crs.to_string())
 
 # %%

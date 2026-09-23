@@ -5,10 +5,10 @@
     import easysnowdata as esd
 
     aoi = (-121.94, 46.72, -121.54, 46.99)                 # Mount Rainier
-    inv = esd.stations.inventory(aoi, daily_only=True)      # GeoDataFrame
-    obs = esd.stations.load(inv, variables=["swe", "snwd"],
-                            time="2023-10/2024-06")         # (station, time)
-    everything = esd.stations.archive.load()                # every daily station
+    stations_gdf = esd.stations.inventory(aoi, daily_only=True)  # GeoDataFrame
+    obs_ds = esd.stations.load(stations_gdf, variables=["swe", "snwd"],
+                               time="2023-10/2024-06")  # (station, time)
+    everything_ds = esd.stations.archive.load()  # every daily station
 
 Three layers, as ``global_snow_networks``' DESIGN.md §2 lays them out:
 

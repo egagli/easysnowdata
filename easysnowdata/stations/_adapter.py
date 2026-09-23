@@ -224,10 +224,10 @@ def inventory(
         with auth.env(*_nets.get(network).requires):
             stations = client.get_all_stations(active_only=active_only, bbox=bbox)
         _logger.info("%s: %d stations", network, len(stations))
-        frame = _frames.stations_to_geodataframe(stations, network)
+        network_gdf = _frames.stations_to_geodataframe(stations, network)
         with auth.env(*_nets.get(network).requires):
-            frame["daily"] = _advertised_daily(stations, network, client)
-        frames.append(frame)
+            network_gdf["daily"] = _advertised_daily(stations, network, client)
+        frames.append(network_gdf)
     gdf = (
         pd.concat(frames)
         if frames
@@ -443,11 +443,11 @@ def load(
     Examples
     --------
     >>> import easysnowdata as esd
-    >>> obs = esd.stations.load(["679_WA_SNTL", "642_WA_SNTL"],
-    ...                         variables=["swe", "snwd"],
-    ...                         time="2023-10/2024-06")       # doctest: +SKIP
+    >>> obs_ds = esd.stations.load(["679_WA_SNTL", "642_WA_SNTL"],
+    ...                            variables=["swe", "snwd"],
+    ...                            time="2023-10/2024-06")    # doctest: +SKIP
     """
-    inv: gpd.GeoDataFrame | None = None
+    inv_gdf: gpd.GeoDataFrame | None = None
     if stations is None:
         if aoi is None:
             raise ValueError(
@@ -455,21 +455,21 @@ def load(
                 "frame) or aoi= to choose them with."
             )
         try:
-            inv = inventory(aoi, networks=networks, daily_only=daily_only)
+            inv_gdf = inventory(aoi, networks=networks, daily_only=daily_only)
         except Exception as exc:  # noqa: BLE001 — the networks can list themselves
             _logger.warning(
                 "Could not read the station inventory to choose stations for "
                 "this AOI (%s); asking the networks directly instead.",
                 exc,
             )
-            inv = inventory(
+            inv_gdf = inventory(
                 aoi, networks=networks, daily_only=daily_only, source="clients"
             )
-        if inv.empty:
+        if inv_gdf.empty:
             raise ValueError("No stations found in that area of interest.")
-        stations = inv
+        stations = inv_gdf
     elif hasattr(stations, "columns"):
-        inv = stations
+        inv_gdf = stations
 
     grouped = _split(stations, networks)
     begin, end = _window(time)
@@ -506,10 +506,10 @@ def load(
         for network, ids in grouped.items()
         for station_id in ids
     ]
-    if inv is None:
-        inv = _metadata_frame(codes)
+    if inv_gdf is None:
+        inv_gdf = _metadata_frame(codes)
     ds = _frames.records_to_dataset(
-        records, metadata=inv, hemisphere=hemisphere, stations=codes
+        records, metadata=inv_gdf, hemisphere=hemisphere, stations=codes
     )
     return _finish(ds, products, sources, interval=interval)
 

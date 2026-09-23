@@ -42,32 +42,32 @@ for src in esd.catalog.get("era5").sources:
 # from ARCO-ERA5. The result is Dask-backed with ``time``, ``latitude``,
 # ``longitude`` dims, and the subset holds the native cells whose centres fall
 # in the box: at 0.25° that is a single cell here.
-era5 = esd.climate.era5.load(aoi, week, variables=["2m_temperature", "snow_depth"])
-print(era5)
+era5_ds = esd.climate.era5.load(aoi, week, variables=["2m_temperature", "snow_depth"])
+print(era5_ds)
 
 # %%
 # The same week from ERA5-Land on Earth Engine. ERA5-Land names the variable
 # ``temperature_2m`` and resolves the box into 4 x 5 cells at 0.1°.
-land = esd.climate.era5.load(
+land_ds = esd.climate.era5.load(
     aoi, week, variables=["temperature_2m"], source="gee", version="ERA5_LAND"
 )
-print(land)
+print(land_ds)
 
 
 # %%
 # Domain means in degrees Celsius, on one axis. ``timeseries`` labels the y
 # axis from the array's ``long_name`` and ``units`` attrs, so set them after
 # the conversion.
-def domain_mean_celsius(da):
-    out = (da.mean(dim=["latitude", "longitude"]) - 273.15).compute()
-    out.attrs = {"long_name": "2 m temperature", "units": "°C"}
-    return out
+def domain_mean_celsius(temperature_da):
+    mean_da = (temperature_da.mean(dim=["latitude", "longitude"]) - 273.15).compute()
+    mean_da.attrs = {"long_name": "2 m temperature", "units": "°C"}
+    return mean_da
 
 
-t2m = xr.concat(
+t2m_da = xr.concat(
     [
-        domain_mean_celsius(era5["2m_temperature"]),
-        domain_mean_celsius(land["temperature_2m"]),
+        domain_mean_celsius(era5_ds["2m_temperature"]),
+        domain_mean_celsius(land_ds["temperature_2m"]),
     ],
     dim=pd.Index(
         ["ERA5, ARCO-ERA5 on GCS (0.25°)", "ERA5-Land, Earth Engine (0.1°)"],
@@ -75,7 +75,7 @@ t2m = xr.concat(
     ),
 )
 ax = esd.plotting.timeseries(
-    t2m, title="Mount Rainier AOI, domain-mean 2 m temperature"
+    t2m_da, title="Mount Rainier AOI, domain-mean 2 m temperature"
 )
 ax.axhline(0, color="0.5", linestyle="--", linewidth=1)
 ax.figure.tight_layout()
@@ -88,16 +88,16 @@ ax.figure.tight_layout()
 # geographic; the map is drawn on the AOI's UTM grid at 1 km with nearest
 # resampling, which keeps every cell a sharp block, and the outline and the
 # summit are reprojected the same way.
-coldest = pd.Timestamp(t2m.sel(source=t2m["source"][1]).idxmin("time").item())
-frame = (land["temperature_2m"].sel(time=coldest) - 273.15).compute()
-frame.attrs = {"long_name": "ERA5-Land 2 m temperature", "units": "°C"}
+coldest = pd.Timestamp(t2m_da.sel(source=t2m_da["source"][1]).idxmin("time").item())
+coldest_da = (land_ds["temperature_2m"].sel(time=coldest) - 273.15).compute()
+coldest_da.attrs = {"long_name": "ERA5-Land 2 m temperature", "units": "°C"}
 grid = box.to_geobox(crs="utm", resolution=1000)
 ax = esd.plotting.map(
-    frame.odc.reproject(grid, resampling="nearest"),
+    coldest_da.odc.reproject(grid, resampling="nearest"),
     cmap="coolwarm",
     title=f"ERA5-Land 2 m temperature, {coldest:%Y-%m-%d %H:%M} UTC",
 )
-lon, lat = float(era5["longitude"].item()), float(era5["latitude"].item())
+lon, lat = float(era5_ds["longitude"].item()), float(era5_ds["latitude"].item())
 cell = gpd.GeoSeries(
     [shapely.box(lon - 0.125, lat - 0.125, lon + 0.125, lat + 0.125)], crs="EPSG:4326"
 ).to_crs(grid.crs)
@@ -130,4 +130,4 @@ for key in (
     "valid_time_stop",
     "valid_time_stop_era5t",
 ):
-    print(f"{key}: {era5.attrs[key]}")
+    print(f"{key}: {era5_ds.attrs[key]}")

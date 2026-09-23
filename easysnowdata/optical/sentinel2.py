@@ -18,9 +18,9 @@ Sources (companion file §B.2):
 ::
 
     import easysnowdata as esd
-    items = esd.optical.sentinel2.search(aoi, "2024-05", cloud_cover=30)
-    s2 = esd.optical.sentinel2.load(aoi, "2024-05", mask="scl-default")
-    ndsi = (s2["green"] - s2["swir16"]) / (s2["green"] + s2["swir16"])
+    items_gdf = esd.optical.sentinel2.search(aoi, "2024-05", cloud_cover=30)
+    s2_ds = esd.optical.sentinel2.load(aoi, "2024-05", mask="scl-default")
+    ndsi_da = (s2_ds["green"] - s2_ds["swir16"]) / (s2_ds["green"] + s2_ds["swir16"])
 
 ``load`` returns reflectance (scaled, harmonized to the pre-2022 baseline)
 with dims ``time``, ``y``, ``x`` in the AOI's UTM zone.
@@ -321,16 +321,18 @@ def _harmonize(
     if not days:
         return ds
     times = pd.DatetimeIndex(ds["time"].values).normalize()
-    where = xr.DataArray(
+    where_da = xr.DataArray(
         times.isin(sorted(days)), dims="time", coords={"time": ds["time"]}
     )
-    out = ds.copy()
+    harmonized_ds = ds.copy()
     for name in names:
-        shifted = out[name].clip(min=_BASELINE_OFFSET_DN) - _BASELINE_OFFSET_DN
-        out[name] = xr.where(where, shifted, out[name], keep_attrs=True).transpose(
-            *out[name].dims
+        shifted_da = (
+            harmonized_ds[name].clip(min=_BASELINE_OFFSET_DN) - _BASELINE_OFFSET_DN
         )
-    return out
+        harmonized_ds[name] = xr.where(
+            where_da, shifted_da, harmonized_ds[name], keep_attrs=True
+        ).transpose(*harmonized_ds[name].dims)
+    return harmonized_ds
 
 
 def _scale(ds: xr.Dataset, items: Sequence[Any], bands: Sequence[str]) -> xr.Dataset:
@@ -350,13 +352,13 @@ def _scale(ds: xr.Dataset, items: Sequence[Any], bands: Sequence[str]) -> xr.Dat
         scales[band] = float(found) if found else _REFLECTANCE_SCALE
     if not scales:
         return ds
-    out = ds.copy()
+    scaled_ds = ds.copy()
     for band, scale in scales.items():
         # Nodata (0) is already NaN at this point; keep the attrs.
-        out[band] = (out[band] * scale).assign_attrs(
+        scaled_ds[band] = (scaled_ds[band] * scale).assign_attrs(
             {**ds[band].attrs, "units": "1", "scale": scale}
         )
-    return out
+    return scaled_ds
 
 
 def _apply_mask(ds: xr.Dataset, mask: Any, bands: Sequence[str]) -> xr.Dataset:
@@ -375,12 +377,12 @@ def _apply_mask(ds: xr.Dataset, mask: Any, bands: Sequence[str]) -> xr.Dataset:
     elif mask is not True:
         classes = tuple(mask)
     data_bands = [b for b in ds.data_vars if b != "scl"]
-    masked = ds.copy()
-    keep = masks.scl_mask(ds["scl"], classes)
+    masked_ds = ds.copy()
+    keep_da = masks.scl_mask(ds["scl"], classes)
     for band in data_bands:
-        masked[band] = ds[band].where(keep)
-    masked.attrs["masked_scl_classes"] = " ".join(str(c) for c in classes)
-    return masked
+        masked_ds[band] = ds[band].where(keep_da)
+    masked_ds.attrs["masked_scl_classes"] = " ".join(str(c) for c in classes)
+    return masked_ds
 
 
 # ── public API ────────────────────────────────────────────────────────────────

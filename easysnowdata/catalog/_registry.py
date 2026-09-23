@@ -107,8 +107,8 @@ def list_products(
         items = [p for p in items if requires in p.requires]
     if credential_free is not None:
         items = [p for p in items if bool(p.credential_free_sources) is credential_free]
-    frame = pd.DataFrame(_rows(items), columns=list(_rows([]) or _COLUMNS))
-    return frame.set_index("id") if len(frame) else frame
+    products_df = pd.DataFrame(_rows(items), columns=list(_rows([]) or _COLUMNS))
+    return products_df.set_index("id") if len(products_df) else products_df
 
 
 _COLUMNS = [
@@ -131,10 +131,10 @@ def search(text: str) -> Any:
 
     import pandas as pd  # noqa: PLC0415
 
-    frame = pd.DataFrame(
+    matches_df = pd.DataFrame(
         _rows(p for p in _PRODUCTS.values() if hit(p)), columns=_COLUMNS
     )
-    return frame.set_index("id") if len(frame) else frame
+    return matches_df.set_index("id") if len(matches_df) else matches_df
 
 
 def describe(product_id: str) -> str:

@@ -44,9 +44,9 @@ for src in esd.catalog.get("ucla-snow-reanalysis").sources:
 # The box, loaded with a 1 km margin so the UTM grid is fully covered, is 366
 # days of about 65 by 95 pixels, under 10 MB, so it is pulled into memory once
 # and everything after this is instant.
-swe = esd.snow.ucla_sr.load(box.buffer(1000), water_year).compute()
-print(swe)
-print(f"virtualized={swe.attrs['virtualized']}, access={swe.attrs['access']}")
+swe_da = esd.snow.ucla_sr.load(box.buffer(1000), water_year).compute()
+print(swe_da)
+print(f"virtualized={swe_da.attrs['virtualized']}, access={swe_da.attrs['access']}")
 
 # %%
 # SWE on 1 April 2020. Like SNODAS, the reanalysis never melts perennial ice
@@ -54,12 +54,12 @@ print(f"virtualized={swe.attrs['virtualized']}, access={swe.attrs['access']}")
 # box is over 100 m while the median is under 1 m. Those are the model's
 # values, passed through untouched, and the colour scale is capped so the
 # seasonal snowpack around the mountain is visible.
-april = swe.sel(time="2020-04-01")
-print(f"median {float(april.median()):.2f} m, maximum {float(april.max()):.1f} m")
-print(f"pixels above 10 m (the ice cap): {int((april > 10).sum())}")
+april_da = swe_da.sel(time="2020-04-01")
+print(f"median {float(april_da.median()):.2f} m, maximum {float(april_da.max()):.1f} m")
+print(f"pixels above 10 m (the ice cap): {int((april_da > 10).sum())}")
 
 ax = esd.plotting.map(
-    april.odc.reproject(grid, resampling="bilinear"),
+    april_da.odc.reproject(grid, resampling="bilinear"),
     cmap="Blues",
     vmin=0,
     vmax=3,
@@ -71,32 +71,32 @@ ax.figure.tight_layout()
 # The water year as a basin mean over the seasonal snowpack only. A fixed cap
 # leaves glacier pixels with a few metres of carried-over SWE in the mean, so
 # the mask here is the water year itself: keep the pixels that melt out.
-melts_out = swe.min(dim="time") < 0.01
+melts_out_da = swe_da.min(dim="time") < 0.01
 print(
-    f"pixels that melt out in the water year: {int(melts_out.sum())} of {melts_out.size}"
+    f"pixels that melt out in the water year: {int(melts_out_da.sum())} of {melts_out_da.size}"
 )
-seasonal = swe.where(melts_out)
-mean = seasonal.mean(dim=["latitude", "longitude"])
-mean.attrs.update({"long_name": "basin-mean posterior SWE", "units": "m"})
+seasonal_da = swe_da.where(melts_out_da)
+mean_da = seasonal_da.mean(dim=["latitude", "longitude"])
+mean_da.attrs.update({"long_name": "basin-mean posterior SWE", "units": "m"})
 
-ax = esd.plotting.timeseries(mean, color="tab:blue")
+ax = esd.plotting.timeseries(mean_da, color="tab:blue")
 ax.set_ylim(bottom=0)
 ax.figure.tight_layout()
 
-peak_day = str(mean["time"].values[int(np.nanargmax(mean.values))])[:10]
-print(f"peak basin-mean SWE {float(np.nanmax(mean.values)):.2f} m on {peak_day}")
+peak_day = str(mean_da["time"].values[int(np.nanargmax(mean_da.values))])[:10]
+print(f"peak basin-mean SWE {float(np.nanmax(mean_da.values)):.2f} m on {peak_day}")
 
 # %%
 # The ensemble spread: the same water year's standard deviation, drawn as a
 # band of one standard deviation around the mean.
-std = esd.snow.ucla_sr.load(box.buffer(1000), water_year, stats="std").compute()
-spread = std.where(melts_out).mean(dim=["latitude", "longitude"])
+std_da = esd.snow.ucla_sr.load(box.buffer(1000), water_year, stats="std").compute()
+spread_da = std_da.where(melts_out_da).mean(dim=["latitude", "longitude"])
 
-ax = esd.plotting.timeseries(mean, color="tab:blue", label="ensemble mean")
+ax = esd.plotting.timeseries(mean_da, color="tab:blue", label="ensemble mean")
 ax.fill_between(
-    mean["time"].values,
-    (mean - spread).values,
-    (mean + spread).values,
+    mean_da["time"].values,
+    (mean_da - spread_da).values,
+    (mean_da + spread_da).values,
     color="tab:blue",
     alpha=0.25,
     linewidth=0,
@@ -112,7 +112,7 @@ ax.figure.tight_layout()
 #
 # .. code-block:: python
 #
-#     hma = esd.snow.ucla_sr.load(
+#     hma_da = esd.snow.ucla_sr.load(
 #         (80.0, 30.0, 81.0, 31.0), "2000-10-01/2001-09-30", region="hma"
 #     )
 print(f"reference cache for long series: {esd.config.cache_dir('virtual', 'ucla_sr')}")

@@ -5,9 +5,9 @@
     import easysnowdata as esd
 
     aoi = (-121.94, 46.72, -121.54, 46.99)
-    nlcd = esd.land.nlcd.load(aoi)                          # Annual NLCD, latest year
-    ts = esd.land.nlcd.load(aoi, time="1990/2024")          # one map per year
-    rel = esd.land.nlcd.load(aoi, source="gee", layer="impervious")   # 2021 release
+    nlcd_da = esd.land.nlcd.load(aoi)                                          # Annual NLCD, latest year
+    series_da = esd.land.nlcd.load(aoi, time="1990/2024")                      # one map per year
+    impervious_da = esd.land.nlcd.load(aoi, source="gee", layer="impervious")  # 2021 release
 
 Two Earth Engine routes: **Annual NLCD** (community asset, 1985-2024, the
 default because the official release is frozen at 2021) and the official

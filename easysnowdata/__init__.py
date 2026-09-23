@@ -31,6 +31,7 @@ __all__ = [
     "terrain",
     "land",
     "hydro",
+    "boundaries",
     "climate",
     # Processing, plotting, providers
     "processing",
@@ -41,6 +42,7 @@ __all__ = [
 from easysnowdata import (
     aoi,
     auth,
+    boundaries,
     catalog,
     climate,
     config,

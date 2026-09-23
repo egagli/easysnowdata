@@ -14,10 +14,10 @@ which carries the sinusoidal corner coordinates.
 ::
 
     import easysnowdata as esd
-    granules = esd.snow.viirs.search(aoi, "2023-03", product="VNP10A1F")
-    snow = esd.snow.viirs.load(aoi, "2023-03", product="VNP10A1F")
-    ndsi = snow["CGF_NDSI_Snow_Cover"]
-    binary = (ndsi >= 40).where(ndsi <= 100)   # sentinels (cloud, night …) → NaN
+    granules_gdf = esd.snow.viirs.search(aoi, "2023-03", product="VNP10A1F")
+    snow_ds = esd.snow.viirs.load(aoi, "2023-03", product="VNP10A1F")
+    ndsi_da = snow_ds["CGF_NDSI_Snow_Cover"]
+    binary_da = (ndsi_da >= 40).where(ndsi_da <= 100)   # sentinels (cloud, night …) → NaN
 """
 
 from __future__ import annotations
@@ -316,7 +316,7 @@ def load(
         ``Algorithm_Bit_Flags_QA``.
     mask
         ``True`` NaN-masks the sentinel values; the default keeps the raw
-        byte with its CF flags, so ``(band >= 40).where(band <= 100)`` is the
+        byte with its CF flags, so ``(ndsi_da >= 40).where(ndsi_da <= 100)`` is the
         usual binary mask.
     """
     src = resolve_source(PRODUCT, source)
@@ -342,24 +342,24 @@ def load(
         if when is None:  # pragma: no cover — defensive
             _logger.warning("Skipping %s: no date in the granule name.", path)
             continue
-        granule = _open_granule(path, fields, chunks, parsed, **kwargs)
-        per_date.setdefault(when, []).append(granule)
+        granule_ds = _open_granule(path, fields, chunks, parsed, **kwargs)
+        per_date.setdefault(when, []).append(granule_ds)
 
     datasets = []
     for when in sorted(per_date):
         tiles = per_date[when]
-        merged = tiles[0] if len(tiles) == 1 else _merge_tiles(tiles)
-        datasets.append(merged.expand_dims(time=[when]))
-    combined = xr.concat(datasets, dim="time") if len(datasets) > 1 else datasets[0]
-    combined = combined.sortby("time")
+        merged_ds = tiles[0] if len(tiles) == 1 else _merge_tiles(tiles)
+        datasets.append(merged_ds.expand_dims(time=[when]))
+    combined_ds = xr.concat(datasets, dim="time") if len(datasets) > 1 else datasets[0]
+    combined_ds = combined_ds.sortby("time")
 
-    combined = contract.apply_variables(
-        combined,
-        [v for v in PRODUCT.variables if v.name in combined.data_vars],
+    combined_ds = contract.apply_variables(
+        combined_ds,
+        [v for v in PRODUCT.variables if v.name in combined_ds.data_vars],
         mask=True if mask else False,
     )
     return contract.finalize(
-        combined,
+        combined_ds,
         PRODUCT,
         src,
         variables=(),
@@ -400,7 +400,7 @@ def _merge_tiles(tiles: Sequence[xr.Dataset]) -> xr.Dataset:
 
     return xr.Dataset(
         {
-            field: merge_arrays([tile[field] for tile in tiles])
+            field: merge_arrays([tile_ds[field] for tile_ds in tiles])
             for field in tiles[0].data_vars
         }
     )

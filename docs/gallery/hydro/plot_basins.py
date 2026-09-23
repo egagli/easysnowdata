@@ -49,10 +49,10 @@ for product_id in ("huc", "hydrobasins", "grdc-major-river-basins", "grdc-wmo-ba
 # HUC8 subbasins and HUC12 sub-watersheds from the REST service. The loader
 # pages the service in small blocks, because one unpaged HUC12 query over a
 # large box times out and comes back as HTML rather than GeoJSON.
-huc8 = esd.hydro.basins.huc(aoi, level=8)
-huc12 = esd.hydro.basins.huc(aoi, level=12)
-print(huc8[["name", "huc8", "areasqkm", "states"]].to_string(index=False))
-print(f"{len(huc12)} HUC12 sub-watersheds intersect the box")
+huc8_gdf = esd.hydro.basins.huc(aoi, level=8)
+huc12_gdf = esd.hydro.basins.huc(aoi, level=12)
+print(huc8_gdf[["name", "huc8", "areasqkm", "states"]].to_string(index=False))
+print(f"{len(huc12_gdf)} HUC12 sub-watersheds intersect the box")
 
 # %%
 # The same call with ``source="gee"`` returns the same columns from the 2017
@@ -60,7 +60,7 @@ print(f"{len(huc12)} HUC12 sub-watersheds intersect the box")
 #
 # .. code-block:: python
 #
-#     huc8_gee = esd.hydro.basins.huc(aoi, level=8, source="gee")
+#     huc8_gee_gdf = esd.hydro.basins.huc(aoi, level=8, source="gee")
 #
 # The geometries differ slightly from the REST service's, which is current
 # and rounds coordinates to six decimals.
@@ -76,13 +76,13 @@ print(f"{len(huc12)} HUC12 sub-watersheds intersect the box")
 # per basin, the size of a HUC8.
 hybas_source = "hydrosheds"
 try:
-    hybas8 = esd.hydro.basins.hydrobasins(aoi, level=8, source=hybas_source)
+    hybas8_gdf = esd.hydro.basins.hydrobasins(aoi, level=8, source=hybas_source)
 except Exception as exc:  # the HydroSHEDS server blocks some networks
     print(
         f"HydroSHEDS route unavailable here ({type(exc).__name__}); using Earth Engine"
     )
-    hybas8 = esd.hydro.basins.hydrobasins(aoi, level=8, source="gee")
-print(hybas8[["HYBAS_ID", "PFAF_ID", "SUB_AREA", "UP_AREA"]].to_string(index=False))
+    hybas8_gdf = esd.hydro.basins.hydrobasins(aoi, level=8, source="gee")
+print(hybas8_gdf[["HYBAS_ID", "PFAF_ID", "SUB_AREA", "UP_AREA"]].to_string(index=False))
 
 # %%
 # Left: HUC12s coloured by name inside the HUC8 outlines. Right: the HUC8
@@ -93,9 +93,11 @@ print(hybas8[["HYBAS_ID", "PFAF_ID", "SUB_AREA", "UP_AREA"]].to_string(index=Fal
 # units that do not touch the box and so were not returned. Vector layers
 # draw with geopandas, here reprojected to the AOI's UTM zone; ``finish_map``
 # adds the basemap, graticule and scale bar.
-huc8_utm, huc12_utm, hybas8_utm = (g.to_crs(utm) for g in (huc8, huc12, hybas8))
+huc8_utm_gdf, huc12_utm_gdf, hybas8_utm_gdf = (
+    basin_gdf.to_crs(utm) for basin_gdf in (huc8_gdf, huc12_gdf, hybas8_gdf)
+)
 fig, axes = plt.subplots(1, 2, figsize=(12, 5.6))
-huc12_utm.plot(
+huc12_utm_gdf.plot(
     ax=axes[0],
     column="name",
     cmap="tab20",
@@ -103,8 +105,8 @@ huc12_utm.plot(
     edgecolor="white",
     linewidth=0.5,
 )
-huc8_utm.boundary.plot(ax=axes[0], color="black", linewidth=1.6)
-for _, row in huc8_utm.iterrows():
+huc8_utm_gdf.boundary.plot(ax=axes[0], color="black", linewidth=1.6)
+for _, row in huc8_utm_gdf.iterrows():
     axes[0].annotate(
         row["name"],
         row.geometry.centroid.coords[0],
@@ -114,15 +116,17 @@ for _, row in huc8_utm.iterrows():
     )
 axes[0].set_title("HUC12 sub-watersheds inside the HUC8 subbasins (USGS WBD)")
 
-palette8 = dict(zip(hybas8["PFAF_ID"], ("#fdc086", "#beaed4", "#7fc97f"), strict=True))
-hybas8_utm.plot(
+palette8 = dict(
+    zip(hybas8_gdf["PFAF_ID"], ("#fdc086", "#beaed4", "#7fc97f"), strict=True)
+)
+hybas8_utm_gdf.plot(
     ax=axes[1],
-    color=hybas8_utm["PFAF_ID"].map(palette8),
+    color=hybas8_utm_gdf["PFAF_ID"].map(palette8),
     alpha=0.55,
     edgecolor="white",
     linewidth=0.8,
 )
-huc8_utm.boundary.plot(ax=axes[1], color="black", linewidth=1.4, linestyle="--")
+huc8_utm_gdf.boundary.plot(ax=axes[1], color="black", linewidth=1.4, linestyle="--")
 axes[1].legend(
     handles=[
         *[
@@ -154,12 +158,14 @@ fig.tight_layout()
 # river basins are one polygon each. The shipped area columns of the major
 # basins layer (``ACRES``, ``LAEA_HA``) are zero in this release, so the area
 # below is taken from the geometry in an equal-area projection.
-wmo = esd.hydro.basins.grdc_wmo(aoi)
-print(wmo[["WMOBB", "WMOBB_NAME", "REGNAME", "SUM_SUB_AREA"]].to_string(index=False))
-major = esd.hydro.basins.grdc_major(aoi)
-area_km2 = major.to_crs("ESRI:102008").area.iloc[0] / 1e6
+wmo_gdf = esd.hydro.basins.grdc_wmo(aoi)
 print(
-    f"{major.iloc[0]['NAME']} basin: shipped ACRES={major.iloc[0]['ACRES']}, geometry {area_km2:,.0f} km2"
+    wmo_gdf[["WMOBB", "WMOBB_NAME", "REGNAME", "SUM_SUB_AREA"]].to_string(index=False)
+)
+major_gdf = esd.hydro.basins.grdc_major(aoi)
+area_km2 = major_gdf.to_crs("ESRI:102008").area.iloc[0] / 1e6
+print(
+    f"{major_gdf.iloc[0]['NAME']} basin: shipped ACRES={major_gdf.iloc[0]['ACRES']}, geometry {area_km2:,.0f} km2"
 )
 
 # %%
@@ -167,17 +173,19 @@ print(
 # Columbia, and the North Pacific coastal basins), with the AOI in red. Right:
 # the GRDC major basin, the Columbia, with the same AOI as a dot, to show the
 # scale jump from a sub-watershed to a continental basin.
-hybas6 = esd.hydro.basins.hydrobasins(aoi, level=6, source=hybas_source)
+hybas6_gdf = esd.hydro.basins.hydrobasins(aoi, level=6, source=hybas_source)
 fig, axes = plt.subplots(1, 2, figsize=(12, 5.6))
-palette6 = dict(zip(hybas6["PFAF_ID"], ("#66c2a5", "#e6f598", "#8da0cb"), strict=True))
-hybas6.plot(
+palette6 = dict(
+    zip(hybas6_gdf["PFAF_ID"], ("#66c2a5", "#e6f598", "#8da0cb"), strict=True)
+)
+hybas6_gdf.plot(
     ax=axes[0],
-    color=hybas6["PFAF_ID"].map(palette6),
+    color=hybas6_gdf["PFAF_ID"].map(palette6),
     alpha=0.6,
     edgecolor="white",
     linewidth=0.8,
 )
-wmo.boundary.plot(ax=axes[0], color="black", linewidth=1.4)
+wmo_gdf.boundary.plot(ax=axes[0], color="black", linewidth=1.4)
 esd.aoi.parse_aoi(aoi).footprint.boundary.plot(ax=axes[0], color="red", linewidth=1.5)
 handles = [
     Patch(facecolor=c, alpha=0.6, label=f"PFAF {k}") for k, c in palette6.items()
@@ -187,12 +195,12 @@ handles += [
     Line2D([], [], color="red", linewidth=1.5, label="AOI"),
 ]
 axes[0].legend(handles=handles, fontsize=8, loc="upper right")
-x0, y0, x1, y1 = hybas6.total_bounds
+x0, y0, x1, y1 = hybas6_gdf.total_bounds
 axes[0].set_xlim(x0 - 0.2, x1 + 0.2)
 axes[0].set_ylim(y0 - 0.2, y1 + 0.2)
 axes[0].set_title("HydroBASINS level 6 inside the GRDC / WMO basins")
 
-major.plot(
+major_gdf.plot(
     ax=axes[1], facecolor="#cfe3f7", edgecolor="#1f4e79", linewidth=1.2, alpha=0.8
 )
 axes[1].plot(
@@ -201,7 +209,7 @@ axes[1].plot(
     color="red",
     markersize=6,
 )
-axes[1].set_title(f"GRDC major basin: {major.iloc[0]['NAME']}, {area_km2:,.0f} km²")
+axes[1].set_title(f"GRDC major basin: {major_gdf.iloc[0]['NAME']}, {area_km2:,.0f} km²")
 for ax in axes:
-    esd.plotting.finish_map(ax, hybas6.crs, basemap=True)
+    esd.plotting.finish_map(ax, hybas6_gdf.crs, basemap=True)
 fig.tight_layout()

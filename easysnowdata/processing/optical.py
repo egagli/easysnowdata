@@ -5,9 +5,9 @@ Band arithmetic is deliberately *not* wrapped here. A normalized difference is
 one line of xarray, and hiding it behind ``ndsi(ds)`` obscured which bands
 were being used and what happened to negative reflectance::
 
-    ndsi = (s2["green"] - s2["swir16"]) / (s2["green"] + s2["swir16"])
-    rgb = s2[["red", "green", "blue"]].to_array("band").clip(0, 0.3) / 0.3
-    rgb.isel(time=0).plot.imshow(rgb="band")
+    ndsi_da = (s2_ds["green"] - s2_ds["swir16"]) / (s2_ds["green"] + s2_ds["swir16"])
+    rgb_da = s2_ds[["red", "green", "blue"]].to_array("band").clip(0, 0.3) / 0.3
+    rgb_da.isel(time=0).plot.imshow(rgb="band")
 
 The gallery examples spell these out every time they are used.
 """
@@ -82,19 +82,19 @@ def harmonize_s2_baseline(
     cutoff_ts = pd.Timestamp(cutoff)
     if dim not in obj.dims:
         raise ValueError(f"{dim!r} is not a dimension of the input.")
-    is_new = obj[dim] >= np.datetime64(cutoff_ts)
+    is_new_da = obj[dim] >= np.datetime64(cutoff_ts)
 
     def _fix(da: xr.DataArray) -> xr.DataArray:
-        fixed = da.clip(min=offset) - offset
-        return xr.where(is_new, fixed, da, keep_attrs=True).transpose(*da.dims)
+        fixed_da = da.clip(min=offset) - offset
+        return xr.where(is_new_da, fixed_da, da, keep_attrs=True).transpose(*da.dims)
 
     if isinstance(obj, xr.DataArray):
         return _fix(obj)
     names = [b for b in (bands or S2_REFLECTANCE_BANDS) if b in obj.data_vars]
-    out = obj.copy()
+    harmonized_ds = obj.copy()
     for name in names:
-        out[name] = _fix(obj[name])
-    return out
+        harmonized_ds[name] = _fix(obj[name])
+    return harmonized_ds
 
 
 _SCALE_KEYS = ("scale", "scale_factor")
@@ -127,12 +127,12 @@ def scale_offset(
     and offset attrs are removed from the result so it cannot be applied twice.
     """
     if isinstance(obj, xr.Dataset):
-        out = obj.copy()
+        scaled_ds = obj.copy()
         for name in obj.data_vars:
             s = scale.get(name) if isinstance(scale, Mapping) else scale
             o = offset.get(name) if isinstance(offset, Mapping) else offset
-            out[name] = scale_offset(obj[name], s, o, nodata_to_nan=nodata_to_nan)
-        return out
+            scaled_ds[name] = scale_offset(obj[name], s, o, nodata_to_nan=nodata_to_nan)
+        return scaled_ds
 
     attrs = dict(obj.attrs)
     s = (
@@ -152,17 +152,17 @@ def scale_offset(
             da = da.where(da != nodata)
     if s is None and o is None and not nodata_to_nan:
         return da
-    result = da.astype("float32") if not np.issubdtype(da.dtype, np.floating) else da
+    scaled_da = da.astype("float32") if not np.issubdtype(da.dtype, np.floating) else da
     if s is not None and s != 1:
-        result = result * s
+        scaled_da = scaled_da * s
     if o is not None and o != 0:
-        result = result + o
-    result.attrs = {
+        scaled_da = scaled_da + o
+    scaled_da.attrs = {
         k: v for k, v in attrs.items() if k not in (*_SCALE_KEYS, *_OFFSET_KEYS)
     }
     if nodata_to_nan:
-        result.attrs.pop("nodata", None)
-    return result
+        scaled_da.attrs.pop("nodata", None)
+    return scaled_da
 
 
 #: PlanetScope UDM2 band order (Planet's "Usable Data Mask" specification).
@@ -234,27 +234,30 @@ def decode_udm2(
             f"got {len(layers)}."
         )
     out = {}
-    for name, layer in zip(UDM2_BANDS, layers, strict=False):
-        layer = layer.rename(name)
+    for name, layer_da in zip(UDM2_BANDS, layers, strict=False):
+        layer_da = layer_da.rename(name)
         if name in UDM2_BINARY_BANDS:
-            layer = layer.astype("uint8")
-            layer.attrs = {
+            layer_da = layer_da.astype("uint8")
+            layer_da.attrs = {
                 "long_name": f"UDM2 {name.replace('_', ' ')} mask",
                 "flag_values": [0, 1],
                 "flag_meanings": f"not_{name} {name}",
                 "flag_colors": "#00000000 #1f78b4",
             }
         elif name == "confidence":
-            layer.attrs = {"long_name": "UDM2 classification confidence", "units": "%"}
+            layer_da.attrs = {
+                "long_name": "UDM2 classification confidence",
+                "units": "%",
+            }
         else:
-            layer.attrs = {
+            layer_da.attrs = {
                 "long_name": "UDM1 unusable-data bit field",
                 "bit_meanings": " ".join(UDM1_BITS),
             }
-        out[name] = layer
-    dataset = xr.Dataset(out)
-    dataset.attrs["udm2_band_order"] = " ".join(UDM2_BANDS)
-    return dataset
+        out[name] = layer_da
+    udm2_ds = xr.Dataset(out)
+    udm2_ds.attrs["udm2_band_order"] = " ".join(UDM2_BANDS)
+    return udm2_ds
 
 
 def udm1_bit(unusable: xr.DataArray, flag: str) -> xr.DataArray:

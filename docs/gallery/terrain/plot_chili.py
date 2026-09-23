@@ -47,10 +47,10 @@ for src in esd.catalog.get("chili").sources:
 # The asset is geographic; the box is loaded with a 1 km margin and drawn on
 # the AOI's UTM grid, bilinear because the index is continuous. The histogram
 # and the class fractions below use the native pixels.
-chili = esd.terrain.chili.load(box.buffer(1000), normalize="index", chunks=None)
-print(chili)
+chili_da = esd.terrain.chili.load(box.buffer(1000), normalize="index", chunks=None)
+print(chili_da)
 esd.plotting.map(
-    chili.odc.reproject(grid, resampling="bilinear"),
+    chili_da.odc.reproject(grid, resampling="bilinear"),
     cmap="RdYlBu_r",
     vmin=0,
     vmax=1,
@@ -64,17 +64,17 @@ esd.plotting.map(
 # neutral band, and the summit cone is cool all round because it is steep and
 # high enough for slope to beat aspect.
 COOL, WARM = 0.448, 0.767
-classes = (chili >= COOL).astype("uint8") + (chili > WARM).astype("uint8")
-classes = esd.processing.categorical.set_flags(
-    classes.where(chili.notnull(), 255).astype("uint8"),
+classes_da = (chili_da >= COOL).astype("uint8") + (chili_da > WARM).astype("uint8")
+classes_da = esd.processing.categorical.set_flags(
+    classes_da.where(chili_da.notnull(), 255).astype("uint8"),
     [0, 1, 2],
     ["cool (< 0.448)", "neutral", "warm (> 0.767)"],
     ["#4575b4", "#ffffbf", "#d73027"],
     long_name="heat-load class",
 )
-classes = classes.rio.write_crs(chili.rio.crs).rio.write_nodata(255)
+classes_da = classes_da.rio.write_crs(chili_da.rio.crs).rio.write_nodata(255)
 fractions = {
-    name: float((classes == value).mean())
+    name: float((classes_da == value).mean())
     for value, name in zip([0, 1, 2], ["cool", "neutral", "warm"])
 }
 print({k: f"{v:.1%}" for k, v in fractions.items()})
@@ -83,13 +83,13 @@ fig, (ax_map, ax_hist) = plt.subplots(
     1, 2, figsize=(13, 5), width_ratios=[1.35, 1], layout="constrained"
 )
 esd.plotting.categorical(
-    classes.odc.reproject(grid, resampling="nearest"),
+    classes_da.odc.reproject(grid, resampling="nearest"),
     ax=ax_map,
     title="Heat-load classes",
 )
 # Bins of five 8-bit steps, aligned to the asset's own quantisation.
 ax_hist.hist(
-    chili.values.ravel(), bins=(np.arange(0, 261, 5) - 0.5) / 255, color="0.55"
+    chili_da.values.ravel(), bins=(np.arange(0, 261, 5) - 0.5) / 255, color="0.55"
 )
 for threshold, label in ((COOL, "cool"), (WARM, "warm")):
     ax_hist.axvline(threshold, color="k", linewidth=1)

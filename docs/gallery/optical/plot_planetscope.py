@@ -46,12 +46,14 @@ for src in esd.catalog.get("planetscope").sources:
 # most of them. ``clear_percent`` describes the whole frame, so the search
 # adds ``aoi_cover``: the fraction of the AOI inside each footprint. Pick on
 # coverage first, then on clarity.
-scenes = esd.optical.planetscope.search(
+scenes_gdf = esd.optical.planetscope.search(
     aoi, when, cloud_cover=20, asset_types=["ortho_analytic_4b_sr", "ortho_udm2"]
 )
-print(len(scenes), "scenes")
+print(len(scenes_gdf), "scenes")
 print(
-    scenes[["acquired", "instrument", "clear_percent", "snow_ice_percent", "aoi_cover"]]
+    scenes_gdf[
+        ["acquired", "instrument", "clear_percent", "snow_ice_percent", "aoi_cover"]
+    ]
     .sort_values(["aoi_cover", "clear_percent"], ascending=False)
     .to_string()
 )
@@ -77,10 +79,12 @@ print(
 # scene, averaged onto Sentinel-2's 10 m grid and compared with the L2A
 # acquisition nine minutes later, the per-band median difference is within
 # ±0.03 reflectance, with PlanetScope a little darker over snow.
-best = scenes.sort_values(["aoi_cover", "clear_percent"], ascending=False).head(1)
+best_gdf = scenes_gdf.sort_values(["aoi_cover", "clear_percent"], ascending=False).head(
+    1
+)
 order = esd.optical.planetscope.order(
     aoi,
-    items=best,
+    items=best_gdf,
     bundle="analytic_sr",
     harmonize="Sentinel-2",
     name="easysnowdata-docs-planetscope-nisqually-2023-08-15",
@@ -94,53 +98,55 @@ for path in order["files"]:
 # %%
 # With the delivery in hand the bands are named, scaled to reflectance, and
 # the UDM2 raster is decoded into its layers as 0/1 masks with CF flag
-# attributes, so ``ps["snow"]`` plots as a categorical map directly.
-ps = esd.optical.planetscope.load(aoi, order=order).compute()
-ps
+# attributes, so ``ps_ds["snow"]`` plots as a categorical map directly.
+ps_ds = esd.optical.planetscope.load(aoi, order=order).compute()
+ps_ds
 
 # %%
 # The composite uses the same fixed 0–0.5 stretch as the Sentinel-2 example,
 # so the two can be compared side by side. Snow fraction is UDM2 snow over
 # the usable (clear or snow) pixels.
-scene = ps.isel(time=0)
-rgb = scene[["red", "green", "blue"]].to_array("band").clip(0, 0.5) / 0.5
-print(f"snow fraction: {float(esd.optical.planetscope.snow_fraction(ps)[0]):.2f}")
+scene_ds = ps_ds.isel(time=0)
+rgb_da = scene_ds[["red", "green", "blue"]].to_array("band").clip(0, 0.5) / 0.5
+print(f"snow fraction: {float(esd.optical.planetscope.snow_fraction(ps_ds)[0]):.2f}")
 
 fig, axes = plt.subplots(1, 3, figsize=(17, 5.2))
-rgb.plot.imshow(rgb="band", ax=axes[0], add_labels=False)
+rgb_da.plot.imshow(rgb="band", ax=axes[0], add_labels=False)
 axes[0].set_title(
-    f"PlanetScope true colour, {str(scene['time'].values)[:10]}, 3 m\n"
+    f"PlanetScope true colour, {str(scene_ds['time'].values)[:10]}, 3 m\n"
     "© 2023 Planet Labs PBC"
 )
-esd.plotting.finish_map(axes[0], ps.rio.crs)
-esd.plotting.categorical(scene["snow"], ax=axes[1], title="UDM2 snow")
-esd.plotting.categorical(scene["clear"], ax=axes[2], title="UDM2 clear")
+esd.plotting.finish_map(axes[0], ps_ds.rio.crs)
+esd.plotting.categorical(scene_ds["snow"], ax=axes[1], title="UDM2 snow")
+esd.plotting.categorical(scene_ds["clear"], ax=axes[2], title="UDM2 clear")
 fig.tight_layout()
 
 # %%
 # The same box from Sentinel-2, which needs no account and no quota, as a
 # true-colour composite and as NDSI. The 3 m and 10 m views are of the same
 # afternoon: PlanetScope at 18:50 UTC, Sentinel-2 at 18:59 UTC.
-s2 = esd.optical.sentinel2.load(
+s2_ds = esd.optical.sentinel2.load(
     aoi, when, bands=["blue", "green", "red", "swir16", "scl"], mask="scl-default"
 ).compute()
-s2_scene = s2.isel(time=0)
+s2_scene_ds = s2_ds.isel(time=0)
 
-s2_rgb = s2_scene[["red", "green", "blue"]].to_array("band").clip(0, 0.5) / 0.5
-ndsi = (s2_scene["green"] - s2_scene["swir16"]) / (
-    s2_scene["green"] + s2_scene["swir16"]
+s2_rgb_da = s2_scene_ds[["red", "green", "blue"]].to_array("band").clip(0, 0.5) / 0.5
+ndsi_da = (s2_scene_ds["green"] - s2_scene_ds["swir16"]) / (
+    s2_scene_ds["green"] + s2_scene_ds["swir16"]
 )
-ndsi.attrs = {"long_name": "NDSI (green − SWIR 1.6 µm)"}
+ndsi_da.attrs = {"long_name": "NDSI (green − SWIR 1.6 µm)"}
 
 fig, axes = plt.subplots(1, 3, figsize=(17, 5.2))
-rgb.plot.imshow(rgb="band", ax=axes[0], add_labels=False)
+rgb_da.plot.imshow(rgb="band", ax=axes[0], add_labels=False)
 axes[0].set_title("PlanetScope, 3 m (© 2023 Planet Labs PBC)")
-esd.plotting.finish_map(axes[0], ps.rio.crs)
-s2_rgb.plot.imshow(rgb="band", ax=axes[1], add_labels=False)
-axes[1].set_title(f"Sentinel-2 true colour, {str(s2_scene['time'].values)[:10]}, 10 m")
-esd.plotting.finish_map(axes[1], s2.rio.crs)
+esd.plotting.finish_map(axes[0], ps_ds.rio.crs)
+s2_rgb_da.plot.imshow(rgb="band", ax=axes[1], add_labels=False)
+axes[1].set_title(
+    f"Sentinel-2 true colour, {str(s2_scene_ds['time'].values)[:10]}, 10 m"
+)
+esd.plotting.finish_map(axes[1], s2_ds.rio.crs)
 esd.plotting.map(
-    ndsi, ax=axes[2], cmap="Blues", vmin=-0.5, vmax=1.0,
+    ndsi_da, ax=axes[2], cmap="Blues", vmin=-0.5, vmax=1.0,
     title="Sentinel-2 NDSI, same box", cbar_label="NDSI",
 )  # fmt: skip
 fig.tight_layout()

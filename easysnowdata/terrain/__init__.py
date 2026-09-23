@@ -9,6 +9,9 @@ Products
     alternative route to each and the only one to SRTM proper.
 :mod:`~easysnowdata.terrain.chili`
     CHILI, the continuous heat-insolation load index (Earth Engine).
+:mod:`~easysnowdata.terrain.hillshade`
+    Natural Earth global shaded relief, a hillshade basemap at 1 or 2 arcmin
+    in five styles (no account).
 
 ::
 
@@ -19,10 +22,11 @@ Products
     esd.terrain.dem.load(aoi, product="3dep")            # 10 m over the US
     esd.terrain.dem.compare()                            # how the five differ
     esd.terrain.chili.load(aoi)
+    esd.terrain.hillshade.load(aoi)                      # basemap shading
 """
 
 from __future__ import annotations
 
-from easysnowdata.terrain import chili, dem
+from easysnowdata.terrain import chili, dem, hillshade
 
-__all__ = ["chili", "dem"]
+__all__ = ["chili", "dem", "hillshade"]

@@ -21,10 +21,10 @@ result carries a ``relative_orbit`` dimension with one raster per track that
 crosses the AOI::
 
     import easysnowdata as esd
-    s1 = esd.sar.sentinel1.load(aoi, "2023-10/2024-06", units="dB")
-    lia = esd.sar.sentinel1.local_incidence_angle(aoi)                  # every track
-    lia = esd.sar.sentinel1.local_incidence_angle(aoi, relative_orbit=137)  # one
-    lia = esd.sar.sentinel1.local_incidence_angle(aoi, source="dem")  # no account
+    s1_ds = esd.sar.sentinel1.load(aoi, "2023-10/2024-06", units="dB")
+    lia_ds = esd.sar.sentinel1.local_incidence_angle(aoi)  # every track
+    lia_ds = esd.sar.sentinel1.local_incidence_angle(aoi, relative_orbit=137)  # one
+    lia_ds = esd.sar.sentinel1.local_incidence_angle(aoi, source="dem")  # no account
 """
 
 from __future__ import annotations
@@ -357,12 +357,14 @@ def _group_by_track(items: Sequence[Any]) -> dict[int, list[Any]]:
     return dict(sorted(groups.items()))
 
 
-def _align_to(reference: xr.Dataset, other: xr.Dataset) -> xr.Dataset:
-    """*other* on *reference*'s grid (they are loaded on the same geobox, so
-    this is a no-op unless a float coordinate differs in the last place)."""
-    if all(other[d].equals(reference[d]) for d in ("x", "y") if d in other.dims):
-        return other
-    return other.reindex_like(reference[["x", "y"]], method="nearest")
+def _align_to(reference_ds: xr.Dataset, other_ds: xr.Dataset) -> xr.Dataset:
+    """*other_ds* on *reference_ds*'s grid (they are loaded on the same geobox,
+    so this is a no-op unless a float coordinate differs in the last place)."""
+    if all(
+        other_ds[d].equals(reference_ds[d]) for d in ("x", "y") if d in other_ds.dims
+    ):
+        return other_ds
+    return other_ds.reindex_like(reference_ds[["x", "y"]], method="nearest")
 
 
 def _as_items(items: Sequence[Any]) -> list[Any]:
@@ -400,7 +402,7 @@ def _load_opera_by_track(
     """
     parts: list[xr.Dataset] = []
     for track, group in _group_by_track(items).items():
-        part = providers.stac.load(
+        part_ds = providers.stac.load(
             _as_items(group),
             parsed,
             bands=list(bands),
@@ -411,21 +413,21 @@ def _load_opera_by_track(
             catalog="cmr-asf",
             **kwargs,
         )
-        part = _rename_opera(part)
-        if "time" in part.dims:
-            part = part.assign_coords(
+        part_ds = _rename_opera(part_ds)
+        if "time" in part_ds.dims:
+            part_ds = part_ds.assign_coords(
                 {
                     "sat:relative_orbit": (
                         "time",
-                        np.full(part.sizes["time"], track, dtype="int16"),
+                        np.full(part_ds.sizes["time"], track, dtype="int16"),
                     )
                 }
             )
-        parts.append(part)
+        parts.append(part_ds)
     if len(parts) == 1:
         ds = parts[0]
     else:
-        parts = [parts[0], *(_align_to(parts[0], p) for p in parts[1:])]
+        parts = [parts[0], *(_align_to(parts[0], p_ds) for p_ds in parts[1:])]
         ds = xr.concat(parts, dim="time", combine_attrs="override")
     return ds.sortby("time") if "time" in ds.dims else ds
 
@@ -446,23 +448,23 @@ def _add_orbit_coords(ds: xr.Dataset, items: Sequence[dict[str, Any]]) -> xr.Dat
                 "absolute_orbit": properties.get("sat:absolute_orbit"),
             }
         )
-    frame = pd.DataFrame(rows).dropna(subset=["time"]).sort_values("time")
-    if frame.empty:
+    frame_df = pd.DataFrame(rows).dropna(subset=["time"]).sort_values("time")
+    if frame_df.empty:
         return ds
     times = pd.DatetimeIndex(ds["time"].values)
-    matched = frame.set_index("time").reindex(
+    matched_df = frame_df.set_index("time").reindex(
         times, method="nearest", tolerance=pd.Timedelta("1D")
     )
     coords = {}
-    if matched["orbit_state"].notna().any():
+    if matched_df["orbit_state"].notna().any():
         coords["sat:orbit_state"] = (
             "time",
-            matched["orbit_state"].astype("object").values,
+            matched_df["orbit_state"].astype("object").values,
         )
-    if matched["relative_orbit"].notna().any():
+    if matched_df["relative_orbit"].notna().any():
         coords["sat:relative_orbit"] = (
             "time",
-            matched["relative_orbit"].fillna(-1).astype("int16").values,
+            matched_df["relative_orbit"].fillna(-1).astype("int16").values,
         )
     return ds.assign_coords(coords) if coords else ds
 
@@ -822,8 +824,8 @@ def _stack_tracks(tracks: TrackRasters, *, single: bool) -> xr.Dataset:
         ds["relative_orbit"].attrs["long_name"] = "Sentinel-1 relative orbit"
         ds.attrs["relative_orbit"] = track
         return ds
-    reference = tracks[0][1]
-    parts = [reference, *(_align_to(reference, ds) for _, ds in tracks[1:])]
+    reference_ds = tracks[0][1]
+    parts = [reference_ds, *(_align_to(reference_ds, ds) for _, ds in tracks[1:])]
     ds = xr.concat(
         parts,
         dim=pd.Index([t for t, _ in tracks], name="relative_orbit"),
@@ -831,7 +833,7 @@ def _stack_tracks(tracks: TrackRasters, *, single: bool) -> xr.Dataset:
     )
     ds["relative_orbit"].attrs["long_name"] = "Sentinel-1 relative orbit"
     for coord, attr, dtype, description in _TRACK_COORDS:
-        values = [part.attrs.get(attr) for part in parts]
+        values = [part_ds.attrs.get(attr) for part_ds in parts]
         if all(v is None for v in values):
             continue
         ds = ds.assign_coords(
@@ -1121,12 +1123,12 @@ def incidence_angle_field(
     frac = (along_look - geometry["near_range"]) / max(geometry["swath_width"], 1.0)
     frac = np.clip(frac, 0.0, 1.0)
     values = swath[0] + frac * (swath[1] - swath[0])
-    field = xr.DataArray(
+    field_da = xr.DataArray(
         values.astype("float32"),
         dims=(y_dim, x_dim),
         coords={y_dim: dem[y_dim], x_dim: dem[x_dim]},
     )
-    field.attrs = {
+    field_da.attrs = {
         "long_name": "ellipsoidal incidence angle",
         "units": "degrees",
         "description": (
@@ -1135,8 +1137,8 @@ def incidence_angle_field(
         ),
     }
     if crs is not None:
-        field = field.rio.write_crs(crs)
-    return field
+        field_da = field_da.rio.write_crs(crs)
+    return field_da
 
 
 def _no_scene_error(orbit_state: str | None, relative_orbit: int | None) -> ValueError:
@@ -1163,7 +1165,7 @@ def _lia_from_dem(
     incidence_angle: float | xr.DataArray | None,
     resolution: float | None,
     crs: Any,
-    dem: xr.DataArray | None,
+    dem_da: xr.DataArray | None,
     chunks: Any,
     **kwargs: Any,
 ) -> TrackRasters:
@@ -1179,8 +1181,8 @@ def _lia_from_dem(
     )
     if not geometries:
         raise _no_scene_error(orbit_state, relative_orbit)
-    if dem is None:
-        dem = _copernicus_dem(parsed, resolution, crs, chunks, **kwargs)
+    if dem_da is None:
+        dem_da = _copernicus_dem(parsed, resolution, crs, chunks, **kwargs)
     tracks: TrackRasters = []
     for track, geometry in geometries.items():
         heading = geometry["platform_heading"]
@@ -1193,11 +1195,11 @@ def _lia_from_dem(
             angle: Any = incidence_angle
             model += "; incidence angle supplied by the caller"
         else:
-            angle = incidence_angle_field(dem, geometry)
-        lia = sar_processing.local_incidence_angle(dem, angle, look)
-        ds = lia.to_dataset(name="local_incidence_angle")
+            angle = incidence_angle_field(dem_da, geometry)
+        lia_da = sar_processing.local_incidence_angle(dem_da, angle, look)
+        ds = lia_da.to_dataset(name="local_incidence_angle")
         ds["incidence_angle"] = (
-            xr.full_like(lia, float(angle))
+            xr.full_like(lia_da, float(angle))
             if not isinstance(angle, xr.DataArray)
             else angle
         )
@@ -1227,7 +1229,7 @@ def _copernicus_dem(
     )
     if not len(items):
         raise ValueError("No Copernicus DEM tiles cover this AOI.")
-    dem = providers.stac.load(
+    dem_da = providers.stac.load(
         items,
         parsed,
         bands=["data"],
@@ -1242,9 +1244,9 @@ def _copernicus_dem(
         resampling=kwargs.pop("resampling", "bilinear"),
         **kwargs,
     )["data"]
-    if "time" in dem.dims:
-        dem = dem.max(dim="time", keep_attrs=True)
-    return dem
+    if "time" in dem_da.dims:
+        dem_da = dem_da.max(dim="time", keep_attrs=True)
+    return dem_da
 
 
 def _lia_from_gee(
@@ -1262,7 +1264,7 @@ def _lia_from_gee(
     )
     if not geometries:
         raise _no_scene_error(orbit_state, relative_orbit)
-    dem = _copernicus_dem(parsed, 30, "utm", chunks)
+    dem_da = _copernicus_dem(parsed, 30, "utm", chunks)
     tracks: TrackRasters = []
     for track, geometry in geometries.items():
         collection = (
@@ -1286,18 +1288,18 @@ def _lia_from_gee(
         ds = ds.rename({"angle": "incidence_angle"})
         if "time" in ds.dims:
             ds = ds.max(dim="time", keep_attrs=True)
-        incidence = ds["incidence_angle"]
-        if incidence.shape != dem.shape:
-            incidence = incidence.rio.reproject_match(dem)
+        incidence_da = ds["incidence_angle"]
+        if incidence_da.shape != dem_da.shape:
+            incidence_da = incidence_da.rio.reproject_match(dem_da)
         heading = geometry["platform_heading"]
         look = geometry["look_azimuth"]
-        lia = sar_processing.local_incidence_angle(dem, incidence, look)
-        out = lia.to_dataset(name="local_incidence_angle")
-        out["incidence_angle"] = incidence
-        out["incidence_angle"].attrs.update(
+        lia_da = sar_processing.local_incidence_angle(dem_da, incidence_da, look)
+        track_ds = lia_da.to_dataset(name="local_incidence_angle")
+        track_ds["incidence_angle"] = incidence_da
+        track_ds["incidence_angle"].attrs.update(
             {"long_name": "ellipsoidal incidence angle", "units": "degrees"}
         )
-        out.attrs.update(
+        track_ds.attrs.update(
             {
                 "orbit_state": geometry["orbit_state"],
                 "look_azimuth": float(look),
@@ -1308,5 +1310,5 @@ def _lia_from_gee(
                 ),
             }
         )
-        tracks.append((track, out))
+        tracks.append((track, track_ds))
     return tracks

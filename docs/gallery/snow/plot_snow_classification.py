@@ -42,15 +42,15 @@ for src in esd.catalog.get("snow-classification").sources:
 # The colours and legend come from the CF flag attributes the loader attaches.
 # Both grids are geographic; the box is loaded with a 5 km margin (more than
 # half a 2.5 arcmin cell) so the UTM grids the maps use are fully covered.
-fine = esd.snow.snow_classification.load(
+fine_da = esd.snow.snow_classification.load(
     box.buffer(5000), source="hosted-cog"
 ).compute()
-print(fine.attrs["flag_meanings"])
+print(fine_da.attrs["flag_meanings"])
 
 # %%
 # The 2.5 arcmin grid from NSIDC (a 37 MB download, cached after the first
 # call) beside it: the same classes, one pixel where the COG has 225.
-coarse = esd.snow.snow_classification.load(
+coarse_da = esd.snow.snow_classification.load(
     box.buffer(5000), resolution="2.5arcmin"
 ).compute()
 
@@ -58,12 +58,14 @@ coarse = esd.snow.snow_classification.load(
 # the classes survive); the comparison below stays on the native grids.
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 esd.plotting.categorical(
-    fine.odc.reproject(box.to_geobox(crs="utm", resolution=300), resampling="nearest"),
+    fine_da.odc.reproject(
+        box.to_geobox(crs="utm", resolution=300), resampling="nearest"
+    ),
     ax=axes[0],
     title="hosted COG, 10 arcsec",
 )
 esd.plotting.categorical(
-    coarse.odc.reproject(
+    coarse_da.odc.reproject(
         box.to_geobox(crs="utm", resolution=4500), resampling="nearest"
     ),
     ax=axes[1],
@@ -74,17 +76,19 @@ fig.tight_layout()
 # %%
 # How well the coarse grid agrees with the fine one: sample the 10 arcsec map
 # at each 2.5 arcmin cell centre and count matches.
-sampled = fine.sel(
-    latitude=coarse["latitude"], longitude=coarse["longitude"], method="nearest"
+sampled_da = fine_da.sel(
+    latitude=coarse_da["latitude"], longitude=coarse_da["longitude"], method="nearest"
 )
-valid = (coarse != 9) & (sampled.values != 9)
-agree = (coarse.values == sampled.values) & valid.values
+valid_da = (coarse_da != 9) & (sampled_da.values != 9)
+agree = (coarse_da.values == sampled_da.values) & valid_da.values
 print(
     f"2.5 arcmin cells whose centre pixel at 10 arcsec has the same class: "
-    f"{int(agree.sum())} of {int(valid.sum())} ({100 * agree.sum() / valid.sum():.0f} %)"
+    f"{int(agree.sum())} of {int(valid_da.sum())} ({100 * agree.sum() / valid_da.sum():.0f} %)"
 )
-for value, name in zip(fine.attrs["flag_values"], fine.attrs["flag_meanings"].split()):
-    share = float((fine == value).mean()) * 100
+for value, name in zip(
+    fine_da.attrs["flag_values"], fine_da.attrs["flag_meanings"].split()
+):
+    share = float((fine_da == value).mean()) * 100
     if share:
         print(f"{name.replace('_', ' '):32} {share:5.1f} % of the 10 arcsec box")
-print(f"pixels compared: {int(np.prod(coarse.shape))}")
+print(f"pixels compared: {int(np.prod(coarse_da.shape))}")

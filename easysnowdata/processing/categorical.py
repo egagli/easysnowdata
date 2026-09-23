@@ -49,9 +49,9 @@ def set_flags(
         attrs["flag_colors"] = " ".join(colors)
     if long_name is not None:
         attrs["long_name"] = long_name
-    out = obj if inplace else obj.copy(deep=False)
-    out.attrs.update(attrs)
-    return out
+    flagged_da = obj if inplace else obj.copy(deep=False)
+    flagged_da.attrs.update(attrs)
+    return flagged_da
 
 
 def flags(obj: xr.DataArray | Mapping[str, Any]) -> pd.DataFrame:
@@ -105,13 +105,13 @@ def flag_mask(obj: xr.DataArray, *meanings: str) -> xr.DataArray:
 
     Meanings are matched case-insensitively after :func:`meaning_key` normalisation.
     """
-    table = flags(obj)
-    known = table["meaning"].str.lower()
+    flags_df = flags(obj)
+    known = flags_df["meaning"].str.lower()
     wanted = {meaning_key(m).lower() for m in meanings}
     unknown = wanted - set(known)
     if unknown:
         raise ValueError(
-            f"Unknown flag meanings {sorted(unknown)}; known: {list(table['meaning'])}."
+            f"Unknown flag meanings {sorted(unknown)}; known: {list(flags_df['meaning'])}."
         )
-    values = table.loc[known.isin(wanted), "value"].tolist()
+    values = flags_df.loc[known.isin(wanted), "value"].tolist()
     return obj.isin(values)

@@ -36,16 +36,16 @@ for src in esd.catalog.get("awdb-stations").sources:
 # Every AWDB station in the box, then only those whose daily record the
 # archive pipeline has actually retrieved. The ``network_code`` column is
 # AWDB's own kind-of-site code: ``SNTL`` for SNOTEL, ``SNOW`` for a course.
-everything = esd.stations.inventory(aoi, networks="awdb")
-daily = esd.stations.inventory(aoi, networks="awdb", daily_only=True)
-print(f"{len(everything)} AWDB stations, {len(daily)} with a daily record")
-print(everything["network_code"].value_counts().to_string())
+everything_gdf = esd.stations.inventory(aoi, networks="awdb")
+daily_gdf = esd.stations.inventory(aoi, networks="awdb", daily_only=True)
+print(f"{len(everything_gdf)} AWDB stations, {len(daily_gdf)} with a daily record")
+print(everything_gdf["network_code"].value_counts().to_string())
 
 # %%
 # The snow courses sit at the same passes as the SNOTEL sites, often a few
 # hundred metres apart: many of them predate the telemetry and were kept.
 ax = esd.plotting.points(
-    everything.to_crs(box.utm_crs),
+    everything_gdf.to_crs(box.utm_crs),
     column="network_code",
     legend_label="AWDB site kind",
     title="AWDB stations around Mount Rainier",
@@ -53,36 +53,36 @@ ax = esd.plotting.points(
 
 # %%
 # One water year of SWE and snow depth at the daily sites, in centimetres.
-obs = esd.stations.load(daily, variables=["swe", "snwd"], time="2023-10/2024-09")
-print(obs)
+obs_ds = esd.stations.load(daily_gdf, variables=["swe", "snwd"], time="2023-10/2024-09")
+print(obs_ds)
 
 # %%
 # The legend labels come from the ``name`` and ``elevation_m`` coordinates,
 # so the series read as stations rather than as codes.
 fig, axes = plt.subplots(2, 1, figsize=(9, 7), sharex=True)
-esd.plotting.timeseries(obs["swe"], ax=axes[0], title="Water year 2024")
-esd.plotting.timeseries(obs["snwd"], ax=axes[1], title="", legend=False)
+esd.plotting.timeseries(obs_ds["swe"], ax=axes[0], title="Water year 2024")
+esd.plotting.timeseries(obs_ds["snwd"], ax=axes[1], title="", legend=False)
 fig.tight_layout()
 
 # %%
 # Snow depth peaks weeks before SWE does: the pack keeps taking on water as it
 # settles and densifies, so the deepest day and the day of peak SWE are not
 # the same day.
-peak_snwd = obs["snwd"].idxmax(dim="time").dt.strftime("%Y-%m-%d")
-peak_swe = obs["swe"].idxmax(dim="time").dt.strftime("%Y-%m-%d")
-for station in obs["station"].values:
+peak_snwd_da = obs_ds["snwd"].idxmax(dim="time").dt.strftime("%Y-%m-%d")
+peak_swe_da = obs_ds["swe"].idxmax(dim="time").dt.strftime("%Y-%m-%d")
+for station in obs_ds["station"].values:
     print(
-        f"{str(obs['name'].sel(station=station).values):16}"
-        f" deepest {str(peak_snwd.sel(station=station).values)}"
-        f"  peak SWE {str(peak_swe.sel(station=station).values)}"
+        f"{str(obs_ds['name'].sel(station=station).values):16}"
+        f" deepest {str(peak_snwd_da.sel(station=station).values)}"
+        f"  peak SWE {str(peak_swe_da.sel(station=station).values)}"
     )
 
 # %%
 # Five water years at Paradise, overlaid on one October-to-September axis.
-paradise = esd.stations.load("679_WA_SNTL", variables="swe", time="2019-10/2024-09")
+paradise_ds = esd.stations.load("679_WA_SNTL", variables="swe", time="2019-10/2024-09")
 ax = esd.plotting.timeseries(
-    paradise["swe"],
+    paradise_ds["swe"],
     by_water_year=True,
-    title=f"{str(paradise['name'].values[0])}"
-    f" ({float(paradise['elevation_m'].values[0]):.0f} m): five water years",
+    title=f"{str(paradise_ds['name'].values[0])}"
+    f" ({float(paradise_ds['elevation_m'].values[0]):.0f} m): five water years",
 )

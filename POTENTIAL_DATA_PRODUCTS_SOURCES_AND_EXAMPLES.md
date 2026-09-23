@@ -8,6 +8,10 @@ dated; a row without a date was not checked live. Nothing collected so far is dr
 that is not a data product (an access pattern, a tool, a reference) still gets a row in §E with a
 note on whether and how it should be incorporated._
 
+_2026-09-23: added §F (plans for boundaries, cloud products and cameras), the Natural Earth
+hillshade that now ships as `esd.terrain.hillshade`, and their rows in §A, §C, §D and §E.
+The same day `esd.boundaries` shipped (§F.1)._
+
 Contents:
 
 - **A. Products in the rewrite** — what the new package ships, in three tiers
@@ -15,6 +19,7 @@ Contents:
 - **C. Evaluation of every product idea collected so far** — why each matters, how hard it is, verdict
 - **D. Example gallery** — the one-script-per-product examples and the multi-source how-tos
 - **E. Link register** — every link from the issues and idea dumps, what it is, why it matters, incorporate?
+- **F. Plans for new modules** — boundaries (F.1, shipped), cloud products (F.2), cameras and station imagery (F.3)
 
 ---
 
@@ -43,6 +48,7 @@ Login) / GEE (Earth Engine) / key.
 | land | 🟢 Forest cover fraction (CGLS-LC100 2019) | Zenodo 3939050 GeoTIFF (none) | GEE `COPERNICUS/Landcover/100m/Proba-V-C3/Global` (GEE) | no newer epoch exists |
 | terrain | 🟢 Copernicus DEM GLO-30/90 | Planetary Computer `cop-dem-glo-*` (none) | AWS `copernicus-dem-30m/90m` (none); Earth Search `cop-dem-glo-*` (none); GEE `COPERNICUS/DEM/GLO30_2024_1` (GEE) | see B.8 |
 | terrain | 🟢 CHILI | GEE `CSP/ERGo/1_0/Global/ALOS_CHILI` (GEE) | computed heat-load index from a DEM (none, later) | stop AOI-relative rescaling by default |
+| terrain | 🆕 Hillshade basemap (Natural Earth shaded relief) | Natural Earth S3 bucket, one zip per style and scale (none) | — | **shipped 2026-09-23** as `esd.terrain.hillshade.load`: five styles (plain shaded relief to Gray Earth with ocean bottom and drainages), 1:10m (1′) or 1:50m (2′), EPSG:4326 uint8, cached once, no reprojection; the layer from the runoff-onset `download_and_preprocess_hillshade.ipynb` |
 | climate | 🟢 ERA5 hourly | ARCO-ERA5 on GCS (none) | Earthmover Icechunk ERA5 (none); WeatherBench2 (none); NCAR `nsf-ncar-era5` (none); GEE (GEE) | see B.9 |
 | climate | 🟢 ERA5 / ERA5-Land daily & monthly | GEE `ECMWF/ERA5*` (GEE) | CDS ARCO Zarr data lake (CDS token, beta); DestinE EDH (token) | see B.9 |
 | climate | 🟢 Köppen-Geiger (Beck 2023) | figshare file 61012822 (none) | — | switch from stale v1 file; expose `period=` |
@@ -64,7 +70,7 @@ Login) / GEE (Earth Engine) / key.
 | snow | Sentinel-2 / HLS snow cover (issue #9) | computed in `processing` | NDSI + SCL/Fmask first; let-it-snow / Theia style later (links in E.3) |
 | terrain | 3DEP 1/3″ seamless; 3DEP lidar | `s3://prd-tnm` (none); PC `3dep-seamless` / `3dep-lidar` group; GEE `3dep` tag | US 10 m DEM; `py3dep` already a (currently unused) dependency |
 | terrain | NASADEM | LPCLOUD `NASADEM_HGT_001` (EDL); PC `nasadem`; GEE `NASA/NASADEM_HGT/001` | 30 m, void-filled SRTM heritage |
-| terrain | slope / aspect / hillshade / heat-load index | computed from any DEM | needed by the DEM-based incidence-angle fallback; McCune & Keon heat load (E.1) replaces GEE CHILI |
+| terrain | slope / aspect / hillshade / heat-load index | computed from any DEM | needed by the DEM-based incidence-angle fallback; McCune & Keon heat load (E.1) replaces GEE CHILI; `processing.sar.slope_aspect` already exists, and a DEM-resolution `hillshade(dem_da)` beside it would complement the 1–2 km Natural Earth basemap now in `terrain.hillshade` |
 | land | Dynamic World; Hansen GFC 2025 v1.13 | GEE (GEE) | annual/near-real-time land cover; forest loss year |
 | climate | Daymet V4R1 | ORNL `Daymet_Daily_V4R1` (EDL, cloud, **has DMR++ sidecars**); PC `daymet-daily-na` Zarr (none) | 1 km daily North America met, the standard forcing for snow models |
 | climate | gridMET; PRISM; NLDAS-2 | GEE `IDAHO_EPSCOR/GRIDMET`, `OREGONSTATE/PRISM/AN81d`, `NASA/NLDAS/FORA0125_H002` (GEE); PC `gridmet` Zarr; PRISM web service (none) | CONUS met forcings and normals |
@@ -72,12 +78,18 @@ Login) / GEE (Earth Engine) / key.
 | climate | GPM IMERG daily | GES DISC `GPM_3IMERGDF` v07 (EDL, cloud, **has DMR++**) | global precipitation where no gauge exists |
 | climate | NOAA PSL climate indices | text files (none) | ENSO/PDO/AO context for interannual snow variability; trivial to add as a small table loader |
 | stations | Canada MSC GeoMet; Swiss SLF IMIS; Synoptic/MesoWest | OGC API / REST (none / free token) | networks already scoped in `global_snow_networks` issues #2–#22 |
+| boundaries | 🆕 Countries, states/provinces, US counties, admin levels, Natural Earth layers, GMBA mountain ranges, RGI glacier outlines (7.0 / 6.0) | Natural Earth (none), US Census cartographic boundaries (none), geoBoundaries API (none), GMBA v2 on EarthEnv (none), RGI on NSIDC (EDL) or the OGGM mirror (6.0, none) | **shipped 2026-09-23** as `esd.boundaries` (`admin`, `natural_earth`, `mountains`, `glaciers`); see **F.1** |
+| climate | 🆕 Cloud frequency climatology (EarthEnv, Wilson & Jetz 2016) | `data.earthenv.org/cloud/MODCF_*.tif` (none; CC BY-NC 4.0) | 1 km MODIS cloud frequency 2000–2014: mean annual, monthly, inter-/intra-annual variability, seasonality; where optical snow products go blind; see **F.2** |
+| climate | Cloud cover from ERA5 | ARCO-ERA5 `total_cloud_cover`, `low_/medium_/high_cloud_cover` (none) | **works today** through `esd.climate.era5.load(..., variables=["total_cloud_cover"])` (verified in the store 2026-09-23); needs only a gallery example; see F.2 |
+| stations | 🆕 Station photos and camera links | NRCS `siteimages/{id}.jpg` (none), BC AQUARIUS portal and NuPoint satellite cameras (none), from the vendored clients | expose the `station_image_url` / `station_camera_url` fields `global_snow_networks` already renders; see **F.3** |
 
 ### Tier 3 — on the shelf (see C for why)
 
 GOES LST (#8), SWOT, RADARSAT-1, PALSAR-2, NISAR GCOV, HRRR Zarr (service ending),
-Sentinel-3 SYN, SMAP, MODIS albedo (MCD43), SnowEx campaign data, stream gauges, geoBoundaries,
-census/TIGER, GIBS/Worldview, declassified imagery, EOPF Zarr (watch).
+Sentinel-3 SYN, SMAP, MODIS albedo (MCD43), SnowEx campaign data, stream gauges,
+census population/TIGER tracts (P5), GIBS/Worldview, declassified imagery, EOPF Zarr (watch),
+per-scene cloud masks (MOD35/VIIRS CLDMSK swaths, GOES ABI clear-sky mask; F.2), third-party
+webcams (ski areas, DOT road cameras, PhenoCam; F.3). geoBoundaries moved from here to F.1.
 
 ---
 
@@ -300,7 +312,20 @@ re-implement · **reference** = not a product; kept in §E as an access pattern 
 | SnowEx campaign data | snow pits, GPR, lidar | method development | NSIDC · mixed · EDL | — | **shelf** |
 | Stream gauges (hydrocloud, USGS NWIS) | discharge | runoff onset validation (P2–P5) | REST · none | — | **wrap** HyRiver `pygeohydro`; hydrocloud station list as reference |
 | MetPy, metloom, SynopticPy | met-station and synoptic tooling | overlap with the station clients; MetPy for unit-aware met calculations | — | — | **reference** (metloom is a peer of the AWDB client; MetPy units could back `processing`) |
-| geoBoundaries, US census, TIGER, `censusdata` | admin boundaries, population | P5 basin-population work | GEE / PC | low | **shelf** (P5-specific; catalog entries when P5 needs them) |
+| geoBoundaries, US census, TIGER, `censusdata` | admin boundaries, population | P5 basin-population work | GEE / PC | low | **boundaries shipped** (F.1, 2026-09-23: geoBoundaries via `admin.admin`, Census via `admin.states`/`counties`); population and tracts stay **shelf** (P5-specific) |
+| Natural Earth vectors (countries, states/provinces, lakes, rivers, glaciated areas, populated places) | 1:10m / 1:50m / 1:110m cartographic vectors | outlines and labels for every map; country/state AOIs by name | `naciscdn.org` zipped shapefiles · none · public domain | low | **shipped** (F.1) |
+| US Census cartographic boundaries | states, counties (500k / 5m / 20m) | the authoritative US outlines; replaces a personal GeoJSON mirror of the 2010 files | `www2.census.gov/geo/tiger/GENZ{year}` zips · none · public domain | low | **shipped** (F.1) |
+| GMBA Mountain Inventory v2 | 8 000+ mountain-range polygons, hierarchical (Snethlage et al. 2022) | "which range is this", per-range statistics; the mountain definition to pair with the Wrzesien mask | EarthEnv zip · none · CC BY 4.0 | low | **shipped** (F.1) |
+| RGI 7.0 and 6.0 glacier outlines | global glacier polygons | glacier masks (the SNODAS glacier artefact, snow-vs-ice) | NSIDC-0770 · EDL; OGGM mirror (6.0) · none | low | **shipped** (F.1, `version=`) |
+| EPA Level III/IV ecoregions; RESOLVE Ecoregions 2017; PAD-US | ecological regions; protected areas | stratifying results; station and camera land ownership | EPA S3 zip (verified); others 🔍 | low | **follow-on** (F.1, still open) |
+| Overture Maps `divisions` | admin boundaries as GeoParquet, monthly releases | the cloud-native route with bbox pushdown | S3/Azure GeoParquet · none · ODbL | low–medium (release pinning) | **reference → later source** (F.1) |
+| EarthEnv cloud frequency (Wilson & Jetz 2016) | 1 km MODIS cloud climatology, 2000–2014 | where and when optical snow mapping loses days; campaign and sensor planning; context for the Wrzesien clouds layer | `data.earthenv.org` GeoTIFF (0.7–0.8 GB, striped, no overviews) · none · **CC BY-NC 4.0** | low | **follow-on** (F.2) |
+| ERA5 cloud cover | hourly total/low/medium/high cloud fraction, 0.25° | cloud as a melt-energy term (longwave, shortwave) | ARCO-ERA5 · none | none (already loadable) | **docs** (gallery example, F.2) |
+| MODIS/VIIRS gridded cloud flags (MOD09GA `state_1km`, VNP09GA QF) | daily per-pixel cloud state, 1 km | the inputs to EarthEnv; per-day cloud masks aligned with the snow products | GEE / LPCLOUD · EDL | low (VNP09GA already Tier 2) | **follow-on** (decode in `processing.masks`, F.2) |
+| MOD35 / VIIRS CLDMSK L2; GOES ABI ACM; PATMOS-x, CLARA-A3, ISCCP-H | swath cloud masks; geostationary clear-sky mask; AVHRR-era cloud climate records | sub-daily cloud (GOES), 40-year cloud trends | LAADS · EDL; AWS `noaa-goes`, `noaa-cdr-patmosx-…` · none | medium–high (swath/geostationary geometry) | **shelf** (F.2) |
+| Sentinel-2 Cloud Score+ | per-pixel S2 cloud score | a better S2 mask over snow than SCL | GEE `GOOGLE/CLOUD_SCORE_PLUS/V1/S2_HARMONIZED` · GEE | low | **follow-on** as `mask="cloud-score-plus"` (F.2) |
+| Station photos and camera links | NRCS site photos, BC ASWS photos and satellite cameras | what a site looks like (canopy, exposure) and what it looks like **now** | vendored clients · none | low | **follow-on** (F.3) |
+| Webcams: ski areas, DOT road cameras, NPS, FAA WeatherCams, PhenoCam, Windy webcams | third-party still-image cameras near snow | visual snow-on/snow-off checks and timelapses | mixed: open APIs (PhenoCam, Caltrans CWWP2, WSDOT with access code, NPS with key, Windy with key) vs vendor pages | medium each; terms of use vary | **shelf / reference** (F.3) |
 | GIBS / Worldview | tile services and browser | browse imagery, quicklooks for catalog pages | — | — | **reference** (use GIBS tiles for docs thumbnails, not analysis) |
 | Declassified imagery (USGS), keyhole viewer | 1960s–80s film | historical snow extent — a curiosity | USGS EROS | high | **shelf** |
 | UCS satellite database, CelesTrak | satellite catalog and TLEs | orbit/overpass computation (Eric's next-overpass tool) | CSV/TLE · none | — | **reference** (belongs with the overpass tool) |
@@ -335,6 +360,20 @@ sphinx-gallery), plus multi-source and access-pattern how-tos under `examples/ho
   Sentinel-2 scene, NDSI from both and the UDM2 snow band alongside (B.11); needs Planet
   credentials and spends quota, so it lives in the credentialed gallery subset and is executed
   only by the scheduled docs build.
+
+- `terrain/plot_hillshade.py` — **shipped 2026-09-23**: the default Natural Earth style over the
+  central Cascades, the Wrzesien mountain snow classes drawn over plain shaded relief, and the
+  globe in Robinson (the runoff-onset notebook's `gdalwarp` step, in memory).
+- `boundaries/plot_admin.py`, `plot_natural_earth.py`, `plot_mountains.py`, `plot_glaciers.py`
+  — **shipped 2026-09-23** (F.1): the world and the Pacific Northwest's states over the
+  hillshade (Natural Earth vs Census), Washington's counties and the HUC4 basins its polygon
+  selects, Norway from geoBoundaries; Natural Earth layers and coastline generalization; GMBA
+  units, the hierarchy above Rainier and seasonal mountain snow per range; RGI regions,
+  Rainier's glaciers, and RGI 6.0 against 7.0 at Aletsch.
+- `climate/plot_cloud_frequency.py` (F.2) — EarthEnv mean annual and monthly cloud frequency over
+  the Cascades next to ERA5 `total_cloud_cover` for the same months, and the fraction of
+  MOD10A1 days lost to cloud.
+- `stations/plot_station_photos.py` (F.3) — the SNOTEL Paradise site photo beside its SWE record.
 
 Each how-to doubles as a live integration test of two sources agreeing, and its thumbnail
 feeds the README gallery montage.
@@ -445,3 +484,196 @@ in the best-practices wiki rather than this package (**wiki**). Nothing is dropp
 | #1 | tests for all modules; datetime integrity for stations | **yes** — §6 of the plan (three test tiers); station datetime checks become offline tests on fixtures |
 | #3 | `clip_to_bbox` option on every loader | **yes** — `clip=` in the AOI contract (§2.1) |
 | #5 | HLS reads fail under an explicit Dask client (GDAL netrc not on workers) | **yes** — `auth.earthdata.env()` propagated via `odc.stac.configure_rio(client=...)` (§5) |
+
+### E.7 Boundaries, clouds, cameras and hillshade (added 2026-09-23)
+
+| Link | What it is | Why it matters | Incorporate? |
+| --- | --- | --- | --- |
+| https://www.earthenv.org/cloud | EarthEnv global 1 km cloud frequency (Wilson & Jetz 2016, PLoS Biol 14: e1002415, doi:10.1371/journal.pbio.1002415) | the cloud climatology for F.2; files at `https://data.earthenv.org/cloud/MODCF_<layer>.tif` | **product** (F.2) |
+| https://www.earthenv.org/mountains ; https://data.earthenv.org/mountains/standard/GMBA_Inventory_v2.0_standard.zip | GMBA Mountain Inventory v2 on the same host (zip verified 2026-09-23) | mountain-range polygons; same fetch pattern as the cloud files | **product**, shipped (F.1) |
+| https://naturalearth.s3.amazonaws.com/10m_raster/GRAY_HR_SR_OB_DR.zip ; https://www.naturalearthdata.com/downloads/10m-raster-data/10m-gray-earth/ | Natural Earth Gray Earth shaded relief (and its siblings) | the hillshade basemap | **product**, shipped as `terrain.hillshade` |
+| https://naciscdn.org/naturalearth/110m/cultural/ne_110m_admin_0_countries.zip ; https://naciscdn.org/naturalearth/10m/cultural/ne_10m_admin_1_states_provinces.zip ; https://naciscdn.org/naturalearth/10m/physical/ne_10m_glaciated_areas.zip | Natural Earth countries, states/provinces, glaciated areas (verified) | map outlines worldwide | **product**, shipped (F.1) |
+| https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_state_5m.zip (also `_20m`, `_500k`, `county_*`) | US Census cartographic boundary files (verified) | authoritative US states and counties; replaces the personal mirror of the 2010 files used before | **product**, shipped (F.1) |
+| https://www.geoboundaries.org/api/current/gbOpen/USA/ADM1/ | geoBoundaries API (verified): JSON pointing to per-country ADM0–ADM5 GeoJSON, CC BY 4.0 | admin levels anywhere in the world | **product**, shipped (F.1) |
+| https://dmap-prod-oms-edc.s3.us-east-1.amazonaws.com/ORD/Ecoregions/us/us_eco_l3.zip | EPA Level III ecoregions (verified) | US stratification | **product** (F.1 follow-on) |
+| https://noaa-cdr-patmosx-radiances-and-clouds-pds.s3.amazonaws.com/index.html | PATMOS-x AVHRR cloud climate data record on AWS (bucket reachable) | a 1979-onward cloud record | **shelf** (F.2) |
+| `/home/eric/repos/global_snow_networks/scripts/create_all_stations_geojson.py` (`BC_CAMERA_URLS`, `awdb_image_url`) ; `scripts/generate_live_map.py` | where the live map's camera links and photos come from | the starting point for F.3 | **access pattern** (F.3) |
+| https://www2.gov.bc.ca/gov/content/environment/air-land-water/water/water-science-data/water-data-tools/snow-survey-data/snow-station-satellite-cameras | BC snow-station satellite camera index | the authoritative list behind `BC_CAMERA_URLS` | **reference** (F.3) |
+
+---
+
+## F. Plans for new modules
+
+### F.1 Boundaries: the `esd.boundaries` theme (shipped 2026-09-23)
+
+**Asked (2026-09-23):** country and state boundaries in place of ad-hoc reads of a Natural
+Earth zip and a personal GeoJSON mirror of the 2010 Census states; then (same day, Eric)
+call the theme `boundaries`, put glacier outlines in it, include GMBA and RGI with a
+choice of RGI version, and replace the mirror link. The US Census cartographic boundary
+files it mirrors are now the source:
+`https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_state_5m.zip`.
+
+**What shipped.** A theme subpackage `easysnowdata/boundaries/` (added to `KNOWN_THEMES`
+after `hydro`), four modules, seven catalog products, one gallery example per module, and
+`esd.plotting.add_outline` to draw any of them over a map in its CRS. Every loader returns
+a GeoDataFrame in EPSG:4326 of the features that *intersect* the AOI (whole, not cut),
+through `contract.finalize_frame` (CRS, dropped Z, provenance), and every one is itself an
+AOI for the other loaders.
+
+```python
+import easysnowdata as esd
+
+world_gdf = esd.boundaries.admin.countries()                        # Natural Earth, 1:110m
+wa_gdf = esd.boundaries.admin.states(aoi)                           # US AOI → Census 1:5m
+bc_gdf = esd.boundaries.admin.states(country="CAN", name="British Columbia")
+counties_gdf = esd.boundaries.admin.counties(aoi, state="WA")       # Census
+kommuner_gdf = esd.boundaries.admin.admin(country="NOR", level=2)   # geoBoundaries ADM0-5
+lakes_gdf = esd.boundaries.natural_earth.load(aoi, layer="lakes")   # any Natural Earth layer
+ranges_gdf = esd.boundaries.mountains.load(aoi)                     # GMBA v2, basic units
+glaciers_gdf = esd.boundaries.glaciers.load(aoi)                    # RGI 7.0 (NSIDC, EDL)
+rgi6_gdf = esd.boundaries.glaciers.load(aoi, version="6.0", source="oggm-mirror")
+huc4_gdf = esd.hydro.basins.huc(wa_gdf, level=4)                    # a boundary is an AOI
+```
+
+| Product | Module | Sources (default first) | Notes |
+| --- | --- | --- | --- |
+| `countries` | `admin.countries` | Natural Earth 10m/50m/110m; geoBoundaries ADM0 | `iso3` from `ADM0_A3` (Natural Earth's `ISO_A3` is `-99` for France and Norway) |
+| `states-provinces` | `admin.states` | Natural Earth 10m/50m; US Census; geoBoundaries ADM1 | `source=None` picks the Census when the AOI or `country=` is US-only |
+| `us-counties` | `admin.counties` | US Census (500k / 5m / 20m, `year=`) | `state="WA"` or `"Washington"` |
+| `admin-boundaries` | `admin.admin` | geoBoundaries gbOpen | any level of any country; country inferred from the AOI; GeoJSON cached per release commit; each unit carries its `boundaryLicense` (CC BY 4.0 for most, ODbL for Norway) |
+| `natural-earth-vectors` | `natural_earth.load` | Natural Earth | any layer by name; the point-of-view country editions (`admin_0_countries_ind` …) |
+| `gmba-mountains` | `mountains.load` | EarthEnv | `subset="basic"` / `"300"` / `"all"` + `level=`, `extent="standard"` / `"broad"` |
+| `rgi-glaciers` | `glaciers.load` | NSIDC (EDL); OGGM mirror of GLIMS (6.0, no account) | `version="7.0"` (default) or `"6.0"`; `product="glaciers"` / `"complexes"` (7.0); regions looked up from the AOI, or `region=` |
+
+Shared columns lead every frame: `name`, `iso3`, `admin_level` (admin); `name`, `gmba_id`,
+`level`, `path` (GMBA); `rgi_id`, `name`, `area_km2`, `o1region` (RGI, the same for both
+versions). Gallery: `boundaries/plot_admin.py`, `plot_natural_earth.py`,
+`plot_mountains.py`, `plot_glaciers.py` (the last needs Earthdata for RGI 7.0).
+
+**Found while building it** (verified 2026-09-23):
+- NSIDC's `daacdata` tree (RGI 6.0 and 7.0) is not in CMR as granules; `earthaccess.download`
+  takes the HTTPS URLs directly. An anonymous GET redirects to the URS login page with a 200,
+  so a plain first-byte probe would pass on a broken route: the RGI probe is the new
+  `health.earthdata_https_first_byte`, which fails when it lands on URS.
+- The old GLIMS RGI 6.0 URLs (`glims.org/RGI/rgi60_files/`) are gone (404); OGGM mirrors
+  them at `cluster.klima.uni-bremen.de/~oggm/rgi/www.glims.org/RGI/rgi60_files/`, and the
+  NSIDC regions zip is byte-identical to it. There is no credential-free RGI 7.0 route.
+- **Around Mount Rainier, RGI 7.0 did not redraw anything**: all 167 outlines are RGI 6.0's
+  (`is_rgi6 = 1`), from 1959 and 1970 USGS mapping, not the year 2000 7.0 targets; 7.0 drops
+  nine unnamed 0.01 km² patches (176 → 167, 92.7 km² either way). Around the Great Aletsch
+  Glacier every 7.0 outline is new (2003) and the totals agree to 0.2%. Check `src_date`
+  before treating RGI as a year-2000 extent.
+- geoBoundaries' full-resolution Norway ADM0 is one GeoJSON object over GDAL's 200 MB limit;
+  the loader sets `OGR_GEOJSON_MAX_OBJ_SIZE=0`. Its Norway ADM1 is the 11 fylker of
+  2020–2023, not the 15 restored in 2024.
+- Natural Earth's parks layer is a multi-layer zip (`ne_10m_parks_and_protected_lands.zip`),
+  so it is not in the layer table.
+
+**Still open (follow-ons):** EPA Level III/IV and RESOLVE ecoregions, PAD-US protected areas
+(WDPA is non-commercial, reference only), and Overture `divisions` as a GeoParquet source once
+its monthly releases can be pinned. GADM stays reference-only (no redistribution).
+
+### F.2 Cloud products
+
+Cloud matters to snow work three ways. It is why optical snow products have gaps (the whole
+reason for MOD10A1F/VNP10A1F cloud-gap filling). Snow/cloud confusion is the main masking
+problem (E.3). And cloud is an energy-balance term in melt. The package already touches
+cloud in several places: the MOD10A1/VNP10A1 cloud class, VNP10A1F `Cloud_Persistence`,
+S2 SCL and HLS Fmask cloud classes (`processing.masks`), and the Wrzesien mask's `clouds`
+indeterminacy layer. What is missing is a **climatology** and a **per-day gridded cloud mask**.
+
+| | EarthEnv cloud frequency | ERA5 cloud cover | MOD09GA / VNP09GA cloud flags | MOD35 / VIIRS CLDMSK L2 | GOES ABI clear-sky mask (ACM) | S2 Cloud Score+ | AVHRR records (PATMOS-x, CLARA-A3, ISCCP-H) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Kind | climatology (MODIS 2000–2014, twice daily) | reanalysis, hourly | daily gridded QA bits | swath cloud mask | 5–15 min geostationary mask | per-pixel S2 score | 40-year cloud climate records |
+| Resolution | 30″ (~1 km), EPSG:4326 | 0.25° | 1 km / 750 m | 1 km / 750 m swath | 2 km | 10 m | 0.1°–0.25° |
+| Access | `data.earthenv.org/cloud/MODCF_<layer>.tif` | ARCO-ERA5 variables `total_cloud_cover`, `low_/medium_/high_cloud_cover` (verified 2026-09-23) | GEE / LPCLOUD (EDL) | LAADS (EDL) | AWS `noaa-goes` | GEE | AWS `noaa-cdr-patmosx-…`, CM SAF, NCEI |
+| Licence | **CC BY-NC 4.0** | Copernicus | open | open | open | open (GEE) | open |
+| Effort | low | **none**; loadable today | low (bit decoding) | medium (swath gridding) | high (see GOES, E.2) | low (GEE source) | medium |
+| Verdict | **follow-on** | **docs** | **follow-on** | shelf | shelf | **follow-on** | shelf |
+
+**EarthEnv (the link Eric flagged): `esd.climate.cloud_frequency.load(aoi, layer="meanannual" | "monthly" | "interannual_sd" | "intraannual_sd" | "seasonality_concentration" | …, month=None)`.**
+
+- Layers: mean annual; 12 monthly means (`MODCF_monthlymean_01` … `_12`); inter- and
+  intra-annual variability; 1° spatial variability; seasonality (concentration, θ); and a
+  cloud-forest prediction.
+- Checked 2026-09-23:
+  - 43200 × 21600 uint16, nodata 65535, deflate.
+  - **Striped (43200 × 1 blocks), with no tiles or overviews**, so a remote AOI read
+    decompresses whole rows.
+  - GDAL's `/vsicurl` refuses the host ("Range downloading not supported") **unless
+    `CPL_VSIL_CURL_USE_HEAD=NO`**; with that set, range reads work.
+- Values are cloud frequency × 100 🔍 (confirm the scaling against the paper before setting
+  `scale_factor`).
+- The loader should:
+  - read remotely with that GDAL option for small AOIs;
+  - fetch the whole 0.7–0.8 GB file into the cache for large or repeated use, as the
+    Wrzesien loader does;
+  - stack `layer="monthly"` into a `month` dimension.
+- Put the **non-commercial licence** in the catalog entry and on the page.
+- Citation: Wilson, A. M., & Jetz, W. (2016). *PLoS Biology* 14(3): e1002415.
+
+**ERA5 cloud cover** needs no code, only a gallery example, because it is already in the
+store `climate.era5` reads. **Per-day masks**: decode MOD09GA `state_1km` and VNP09GA QF cloud
+bits in `processing.masks` beside Fmask/SCL. These are the inputs EarthEnv was built from, on
+the same grid family as the snow products, and VNP09GA is already Tier 2. **Cloud Score+**
+becomes an S2 `mask=` option through the GEE route. The rest stays on the shelf with GOES
+(§E.2).
+
+### F.3 Cameras and station imagery
+
+**What exists today (traced 2026-09-23)**:
+
+- **Live camera links (`station_camera_url`): only 8 BC stations, from a hand-curated table.**
+  - The table lives only in `global_snow_networks`: `BC_CAMERA_URLS` in
+    `scripts/create_all_stations_geojson.py`, applied per BC location id.
+  - Each URL is a NuPoint Systems photo-slider page,
+    `https://pvs.nupointsystems.com/api/photo-slider-by-nsn?pass=<opaque token>#images-1`. The
+    tokens were copied by hand from the gov.bc.ca satellite-camera index (E.7). These are not
+    an API and not a scrape.
+  - Every other network hard-codes `None`.
+  - The BC WFS layer also returns a `CAMERA_URL` attribute. The vendored `databc_client`
+    stores it as `camera_url`, but gsn uses it only as a fallback for the *photo* field.
+  - `scripts/generate_live_map.py` renders the camera as a link ("🛰 View live satellite
+    camera") in the popup and side panel. It is never embedded.
+- **Still site photos (`station_image_url`): NRCS SNOTEL/SNTLT (988 stations) and BC ASWS (102).**
+  - **NRCS** is a URL template with no request made: `https://www.wcc.nrcs.usda.gov/siteimages/{stationId}.jpg`.
+    It is built in `easysnowdata/stations/clients/awdb/awdb_client.py` (`_enrich_awdb_station`)
+    and again, duplicated, in gsn's `awdb_image_url()`.
+  - **BC** is scraped from the AQUARIUS portal by `DataBCClient.get_station_image_url()`:
+    1. accept the disclaimer (a CSRF token, then a POST);
+    2. read the numeric location id from the location page;
+    3. regex `/Data/GetFileById/{n}` out of the summary page.
+  - **Yukon** returns `None`, because AquaCache has no imagery and the explorer is behind
+    Cloudflare. **CDEC and NVE** return `None`; photos for them are an open TODO in gsn's
+    `docs/UNIFICATION_PLAN.md`.
+  - The live map shows the photo as an `<img>` with a credit line.
+- **No ski-area, road or other webcams exist anywhere in either repo.** The map's Sentinel-2
+  chip is satellite context, not a camera.
+
+**Plan.**
+
+1. **Expose what the clients already know.** `esd.stations.inventory()` gains
+   `station_image_url` and `station_camera_url` columns, from the clients for NRCS and BC. The
+   BC camera table moves from gsn into the databc client (or a small data file next to it), so
+   gsn and easysnowdata read one copy. The duplicate `awdb_image_url()` goes the same way.
+   Add `esd.stations.photo(code)`, which returns the image (a PIL image or bytes) with its
+   credit, and a gallery example.
+2. **CDEC and NVE photos**: investigate as gsn's TODO says. CDEC station pages carry
+   photographs 🔍.
+3. **Third-party webcams** go in a later `esd.stations.cameras(aoi)` that returns a
+   GeoDataFrame of camera points (name, operator, image URL, update cadence, terms), not image
+   archives. The candidates, from most to least open:
+   - **PhenoCam**, which has an API and a documented archive, is used in the literature for
+     snow-on/snow-off, and has mountain sites 🔍;
+   - **Caltrans CWWP2** CCTV JSON per district 🔍;
+   - **WSDOT** Traveler Information API `HighwayCameras` (free access code; the Snoqualmie and
+     Stevens pass cameras) 🔍;
+   - **NPS API** `webcams` endpoint (free key; for example the Paradise cameras at Rainier) 🔍;
+   - **FAA WeatherCams**, which is dense in Alaska's mountains, with no documented API 🔍;
+   - **Windy Webcams API**, an aggregator that includes many ski-area cameras, with a free key
+     and terms-limited use 🔍;
+   - **ski resorts themselves**, which use vendor pages (Roundshot, Panomax) with no common
+     API and terms that usually forbid scraping, so they are **reference only**.
+4. Licensing is the constraint, not code. Camera images are mostly not redistributable, so the
+   package returns URLs and fetches on demand. Nothing is cached into git or the station archive.
+

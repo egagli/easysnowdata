@@ -29,6 +29,7 @@ __all__ = [
     "provenance",
     "apply_variables",
     "finalize",
+    "finalize_frame",
 ]
 
 #: Sentinel for "the package default" on a keyword whose ``None`` means something
@@ -128,25 +129,25 @@ def mask_continuous(
         nodata = da.rio.nodata if _has_rio(da) else None
     if nodata is None and _has_rio(da):
         nodata = da.rio.encoded_nodata
-    out = da if np.issubdtype(da.dtype, np.floating) else da.astype("float32")
+    masked_da = da if np.issubdtype(da.dtype, np.floating) else da.astype("float32")
     if nodata is not None and not (isinstance(nodata, float) and np.isnan(nodata)):
-        out = out.where(da != nodata)
-    out.attrs = {k: v for k, v in da.attrs.items() if k != "nodata"}
-    out.encoding = dict(da.encoding)
+        masked_da = masked_da.where(da != nodata)
+    masked_da.attrs = {k: v for k, v in da.attrs.items() if k != "nodata"}
+    masked_da.encoding = dict(da.encoding)
     if nodata is not None and not (isinstance(nodata, float) and np.isnan(nodata)):
-        out.encoding["_FillValue"] = nodata
-    if _has_rio(out):
-        out = out.rio.write_nodata(np.nan, inplace=False)
-    return out
+        masked_da.encoding["_FillValue"] = nodata
+    if _has_rio(masked_da):
+        masked_da = masked_da.rio.write_nodata(np.nan, inplace=False)
+    return masked_da
 
 
 def set_categorical_nodata(da: xr.DataArray, nodata: int | float) -> xr.DataArray:
     """Keep the source sentinel and record it as ``rio.nodata`` (and ``attrs['nodata']``)."""
-    out = da.copy(deep=False)
-    if _has_rio(out):
-        out = out.rio.write_nodata(nodata, inplace=False)
-    out.attrs["nodata"] = nodata
-    return out
+    marked_da = da.copy(deep=False)
+    if _has_rio(marked_da):
+        marked_da = marked_da.rio.write_nodata(nodata, inplace=False)
+    marked_da.attrs["nodata"] = nodata
+    return marked_da
 
 
 def _has_rio(obj: Any) -> bool:
@@ -211,11 +212,11 @@ def apply_variables(
     nodata preserved. ``mask=False`` skips the NaN masking (the raw product);
     ``mask=True`` also NaN-masks categorical variables.
     """
-    out = ds.copy()
+    applied_ds = ds.copy()
     for var in variables:
-        if var.name not in out.data_vars:
+        if var.name not in applied_ds.data_vars:
             continue
-        da = out[var.name]
+        da = applied_ds[var.name]
         cf = var.cf_attrs()
         if var.dtype and not var.categorical and mask is False:
             pass
@@ -230,8 +231,8 @@ def apply_variables(
         elif nodata is not None:
             da = set_categorical_nodata(da, nodata)
         da.attrs.update(cf)
-        out[var.name] = da
-    return out
+        applied_ds[var.name] = da
+    return applied_ds
 
 
 def finalize(
@@ -270,3 +271,23 @@ def finalize(
     if attrs:
         obj.attrs.update({k: v for k, v in attrs.items() if v is not None})
     return obj
+
+
+def finalize_frame(gdf: Any, product: Any, source: Any, **extra: Any) -> Any:
+    """Bring a loaded GeoDataFrame onto the output contract (§2.5).
+
+    EPSG:4326 (set when missing, reprojected otherwise), 2-D geometries (some
+    archives store a constant Z), and the provenance attrs in ``gdf.attrs``;
+    *extra* goes to :func:`provenance` (``source_url=`` and any product keys).
+    """
+    import shapely  # noqa: PLC0415
+
+    if gdf.crs is None:
+        gdf = gdf.set_crs("EPSG:4326")
+    elif gdf.crs.to_epsg() != 4326:
+        gdf = gdf.to_crs("EPSG:4326")
+    if len(gdf) and bool(gdf.geometry.has_z.any()):
+        gdf = gdf.copy()
+        gdf[gdf.geometry.name] = shapely.force_2d(gdf.geometry.values)
+    gdf.attrs.update(provenance(product, source, **extra))
+    return gdf

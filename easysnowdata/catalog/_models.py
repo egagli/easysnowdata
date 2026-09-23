@@ -31,6 +31,7 @@ KNOWN_THEMES = (
     "terrain",
     "land",
     "hydro",
+    "boundaries",
     "climate",
 )
 
@@ -43,6 +44,7 @@ THEME_TITLES: dict[str, str] = {
     "terrain": "Terrain",
     "land": "Land cover",
     "hydro": "Hydrography",
+    "boundaries": "Boundaries",
     "climate": "Climate",
 }
 

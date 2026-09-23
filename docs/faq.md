@@ -104,7 +104,7 @@ cap and Mount Baker. It is a NOHRSC model artefact, not a reader bug, so the
 values are passed through untouched. Mask them before taking a basin maximum:
 
 ```python
-seasonal = swe["SWE"].where(swe["SWE"] < 30)
+seasonal_da = snodas_ds["SWE"].where(snodas_ds["SWE"] < 30)
 ```
 
 ## Is the Sentinel-2 baseline offset applied twice?

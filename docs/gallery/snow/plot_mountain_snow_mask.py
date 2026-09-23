@@ -40,22 +40,24 @@ for src in esd.catalog.get("mountain-snow-mask").sources:
 # layer keeps them and classifies the Puget lowlands as ephemeral.
 # The layers are geographic; the box is loaded with a 2 km margin and each
 # is drawn on the AOI's UTM grid, resampled nearest so the classes survive.
-mountain = esd.snow.mountain_snow_mask.load(box.buffer(2000), layer="mountain_snow")
-terrain = esd.snow.mountain_snow_mask.load(box.buffer(2000), layer="snow")
-print(mountain.attrs["flag_meanings"])
+mountain_da = esd.snow.mountain_snow_mask.load(box.buffer(2000), layer="mountain_snow")
+terrain_da = esd.snow.mountain_snow_mask.load(box.buffer(2000), layer="snow")
+print(mountain_da.attrs["flag_meanings"])
 
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 esd.plotting.categorical(
-    mountain.odc.reproject(grid, resampling="nearest"),
+    mountain_da.odc.reproject(grid, resampling="nearest"),
     ax=axes[0],
     title="mountains only",
 )
 esd.plotting.categorical(
-    terrain.odc.reproject(grid, resampling="nearest"), ax=axes[1], title="all terrain"
+    terrain_da.odc.reproject(grid, resampling="nearest"),
+    ax=axes[1],
+    title="all terrain",
 )
 fig.tight_layout()
 
-values, counts = np.unique(mountain.values, return_counts=True)
+values, counts = np.unique(mountain_da.values, return_counts=True)
 for value, count in zip(values, counts):
     print(f"class {value:3d}: {count:6d} pixels")
 
@@ -64,9 +66,9 @@ for value, count in zip(values, counts):
 # upstream record does not define the scale further, so it is kept as an
 # integer without a class table. Rainier's high terrain is where the MOD10A2
 # composites were most often indeterminate.
-clouds = esd.snow.mountain_snow_mask.load(box.buffer(2000), layer="clouds")
+clouds_da = esd.snow.mountain_snow_mask.load(box.buffer(2000), layer="clouds")
 ax = esd.plotting.map(
-    clouds.odc.reproject(grid, resampling="nearest"),
+    clouds_da.odc.reproject(grid, resampling="nearest"),
     cmap="magma_r",
     vmin=0,
     vmax=6,

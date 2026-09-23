@@ -116,16 +116,18 @@ def stations_to_geodataframe(
                     continue
                 row[key] = value if _is_scalar(value) else str(value)
         rows.append(row)
-    frame = pd.DataFrame(rows, columns=["code", "station_id", *INVENTORY_COLUMNS])
+    station_df = pd.DataFrame(rows, columns=["code", "station_id", *INVENTORY_COLUMNS])
     if rows:
-        frame = pd.DataFrame(rows)
+        station_df = pd.DataFrame(rows)
         ordered = ["code", "station_id", *INVENTORY_COLUMNS]
-        frame = frame[[*ordered, *[c for c in frame.columns if c not in ordered]]]
+        station_df = station_df[
+            [*ordered, *[c for c in station_df.columns if c not in ordered]]
+        ]
     geometry = gpd.points_from_xy(
-        frame.get("longitude", pd.Series(dtype="float64")),
-        frame.get("latitude", pd.Series(dtype="float64")),
+        station_df.get("longitude", pd.Series(dtype="float64")),
+        station_df.get("latitude", pd.Series(dtype="float64")),
     )
-    gdf = gpd.GeoDataFrame(frame, geometry=geometry, crs="EPSG:4326")
+    gdf = gpd.GeoDataFrame(station_df, geometry=geometry, crs="EPSG:4326")
     return gdf.set_index("code")
 
 
@@ -146,31 +148,39 @@ def records_to_frame(records: Iterable[dict], network: str) -> pd.DataFrame:
     Sub-daily records carry ``datetime``; daily ones only ``date``. Both
     become one ``time`` column, so a mixed-interval request still lines up.
     """
-    frame = pd.DataFrame(list(records))
-    if frame.empty:
+    records_df = pd.DataFrame(list(records))
+    if records_df.empty:
         return pd.DataFrame(
             columns=["code", "station_id", "time", "variable", "type", "value", "units"]
         )
-    when = frame["datetime"] if "datetime" in frame.columns else frame["date"]
-    if "datetime" in frame.columns:
-        when = when.where(when.notna() & (when != ""), frame["date"])
-    frame["time"] = pd.to_datetime(when, format="mixed", utc=False, errors="coerce")
-    frame["code"] = [networks.to_code(str(sid), network) for sid in frame["station_id"]]
-    frame["value"] = pd.to_numeric(frame["value"], errors="coerce")
-    return frame
+    when = (
+        records_df["datetime"]
+        if "datetime" in records_df.columns
+        else records_df["date"]
+    )
+    if "datetime" in records_df.columns:
+        when = when.where(when.notna() & (when != ""), records_df["date"])
+    records_df["time"] = pd.to_datetime(
+        when, format="mixed", utc=False, errors="coerce"
+    )
+    records_df["code"] = [
+        networks.to_code(str(sid), network) for sid in records_df["station_id"]
+    ]
+    records_df["value"] = pd.to_numeric(records_df["value"], errors="coerce")
+    return records_df
 
 
-def _harmonize_units(frame: pd.DataFrame, type_name: str) -> tuple[pd.DataFrame, str]:
-    """Bring one type's values onto the canonical unit; returns (frame, units)."""
+def _harmonize_units(type_df: pd.DataFrame, type_name: str) -> tuple[pd.DataFrame, str]:
+    """Bring one type's values onto the canonical unit; returns (type_df, units)."""
     target = networks.canonical_units(type_name)
-    units = [u for u in frame["units"].dropna().unique().tolist() if u]
+    units = [u for u in type_df["units"].dropna().unique().tolist() if u]
     if not units:
-        return frame, target
+        return type_df, target
     if not target:
         target = units[0]
     if set(units) == {target}:
-        return frame, target
-    out = frame.copy()
+        return type_df, target
+    converted_df = type_df.copy()
     for unit in units:
         if unit == target:
             continue
@@ -178,7 +188,7 @@ def _harmonize_units(frame: pd.DataFrame, type_name: str) -> tuple[pd.DataFrame,
             type_name,
             unit,
             target,
-            variables=" ".join(sorted({str(v) for v in frame["variable"].dropna()})),
+            variables=" ".join(sorted({str(v) for v in type_df["variable"].dropna()})),
         )
         _logger.info(
             "Converting %s values from %s to %s (factor %g) so the variable "
@@ -188,10 +198,10 @@ def _harmonize_units(frame: pd.DataFrame, type_name: str) -> tuple[pd.DataFrame,
             target,
             factor,
         )
-        rows = out["units"] == unit
-        out.loc[rows, "value"] = out.loc[rows, "value"] * factor
-    out["units"] = target
-    return out, target
+        rows = converted_df["units"] == unit
+        converted_df.loc[rows, "value"] = converted_df.loc[rows, "value"] * factor
+    converted_df["units"] = target
+    return converted_df, target
 
 
 def records_to_dataset(
@@ -238,35 +248,35 @@ def records_to_dataset(
             )
         by_network = {network: list(records)}
     frames = [records_to_frame(recs, net) for net, recs in by_network.items()]
-    frames = [f for f in frames if not f.empty]
-    tidy = (
+    frames = [frame_df for frame_df in frames if not frame_df.empty]
+    tidy_df = (
         pd.concat(frames, ignore_index=True)
         if frames
         else records_to_frame([], next(iter(by_network), "awdb"))
     )
 
     codes = list(dict.fromkeys(stations or [])) or sorted(
-        tidy["code"].unique().tolist()
+        tidy_df["code"].unique().tolist()
     )
     data_vars: dict[str, Any] = {}
     var_attrs: dict[str, dict[str, Any]] = {}
-    times = pd.DatetimeIndex(sorted(tidy["time"].dropna().unique()), name="time")
-    for type_name, group in tidy.groupby("type", sort=True):
-        group, units = _harmonize_units(group, str(type_name))
+    times = pd.DatetimeIndex(sorted(tidy_df["time"].dropna().unique()), name="time")
+    for type_name, group_df in tidy_df.groupby("type", sort=True):
+        group_df, units = _harmonize_units(group_df, str(type_name))
         # A station can serve several native variables of one type (CDEC's
         # SNO ADJ and raw SWE both mean `swe`); the client orders them by its
         # own preference, so the first non-null wins.
-        pivot = group.pivot_table(
+        pivot_df = group_df.pivot_table(
             index="code",
             columns="time",
             values="value",
             aggfunc="first",
             dropna=False,
         )
-        pivot = pivot.reindex(index=codes, columns=times)
-        data_vars[str(type_name)] = (("station", "time"), pivot.to_numpy("float64"))
-        natives = sorted({str(v) for v in group["variable"].dropna().unique()})
-        intervals = sorted({str(v) for v in group["interval"].dropna().unique()})
+        pivot_df = pivot_df.reindex(index=codes, columns=times)
+        data_vars[str(type_name)] = (("station", "time"), pivot_df.to_numpy("float64"))
+        natives = sorted({str(v) for v in group_df["variable"].dropna().unique()})
+        intervals = sorted({str(v) for v in group_df["interval"].dropna().unique()})
         var_attrs[str(type_name)] = {
             "units": units,
             "long_name": networks.TYPES.get(str(type_name), ("", str(type_name)))[1],
@@ -288,12 +298,12 @@ def records_to_dataset(
 
 def _attach_metadata(
     ds: xr.Dataset,
-    metadata: gpd.GeoDataFrame | None,
+    metadata_gdf: gpd.GeoDataFrame | None,
     by_network: dict[str, Any],
 ) -> xr.Dataset:
     """Station metadata as non-dimension coordinates on ``station``."""
     codes = [str(c) for c in ds["station"].values]
-    if metadata is None or metadata.empty:
+    if metadata_gdf is None or metadata_gdf.empty:
         # Even without an inventory, say which network each station came from.
         lookup = {
             networks.to_code(str(sid), net): net
@@ -306,11 +316,11 @@ def _attach_metadata(
                 network=("station", [lookup.get(c, "") for c in codes])
             )
         return ds
-    frame = metadata.reindex(codes)
-    for column in frame.columns:
+    station_gdf = metadata_gdf.reindex(codes)
+    for column in station_gdf.columns:
         if column == "geometry":
             continue
-        values = frame[column]
+        values = station_gdf[column]
         if values.isna().all():
             continue
         # Nothing in a coordinate may be a Python object we cannot serialize:

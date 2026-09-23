@@ -784,7 +784,7 @@ class DataBCClient:
                 else None
             )
             if mss_ids is None or mss_ids:
-                df_mss = self._get_mss_survey_data(
+                mss_df = self._get_mss_survey_data(
                     location_ids=mss_ids or None,
                     begin_date=begin_date,
                     end_date=end_date,
@@ -798,11 +798,11 @@ class DataBCClient:
                     "snow_line_m": ("snow_line", "m", lambda x: x),
                 }
                 emit_mss = var_list or list(mss_col_map.keys())
-                for _, row in df_mss.iterrows():
+                for _, row in mss_df.iterrows():
                     for var_key in emit_mss:
                         if var_key not in mss_col_map:
                             continue
-                        if var_key not in df_mss.columns:
+                        if var_key not in mss_df.columns:
                             continue
                         std_type, units, converter = mss_col_map[var_key]
                         raw_val = row.get(var_key)
@@ -1716,26 +1716,26 @@ class DataBCClient:
         df = df.drop(columns=[date_col])
 
         # Melt to long format
-        df_long = df.melt(
+        long_df = df.melt(
             id_vars=[time_col],
             var_name="station_col",
             value_name=value_col,
         )
 
         # Extract location ID from "1A01P Yellowhead Lake"
-        df_long["location_id"] = df_long["station_col"].str.split().str[0].str.strip()
-        df_long = df_long.drop(columns=["station_col"])
+        long_df["location_id"] = long_df["station_col"].str.split().str[0].str.strip()
+        long_df = long_df.drop(columns=["station_col"])
 
-        df_long[value_col] = pd.to_numeric(df_long[value_col], errors="coerce")
+        long_df[value_col] = pd.to_numeric(long_df[value_col], errors="coerce")
         # Null sentinel / physically impossible values, scoped per type
         if value_col in _NON_NEGATIVE_VARS:
-            df_long.loc[df_long[value_col] < 0, value_col] = float("nan")
+            long_df.loc[long_df[value_col] < 0, value_col] = float("nan")
         else:
-            df_long.loc[df_long[value_col] < _MIN_PLAUSIBLE_TEMP_C, value_col] = float(
+            long_df.loc[long_df[value_col] < _MIN_PLAUSIBLE_TEMP_C, value_col] = float(
                 "nan"
             )
 
-        return df_long[[time_col, "location_id", value_col]]
+        return long_df[[time_col, "location_id", value_col]]
 
     def _load_mss_csv(self, url: str) -> pd.DataFrame:
         """Load a long-format MSS (manual snow survey) CSV."""

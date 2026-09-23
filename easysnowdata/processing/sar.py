@@ -56,9 +56,9 @@ def remove_border_noise(
     """
     if dim not in obj.dims:
         raise ValueError(f"{dim!r} is not a dimension of the input.")
-    is_old = obj[dim] < np.datetime64(pd.Timestamp(cutoff))
-    limit = xr.where(is_old, threshold, 0.0)
-    return obj.where(obj > limit)
+    is_old_da = obj[dim] < np.datetime64(pd.Timestamp(cutoff))
+    limit_da = xr.where(is_old_da, threshold, 0.0)
+    return obj.where(obj > limit_da)
 
 
 # ── terrain geometry for the local incidence angle ───────────────────────────
@@ -90,12 +90,12 @@ def slope_aspect(
             )
     dx = float(np.abs(np.diff(dem["x"].values[:2])[0])) if dem.sizes["x"] > 1 else 1.0
     dy = float(np.abs(np.diff(dem["y"].values[:2])[0])) if dem.sizes["y"] > 1 else 1.0
-    values = dem.astype("float64")
+    values_da = dem.astype("float64")
     # np.gradient over (y, x); y decreases downward on a north-up grid, so the
     # sign of the y derivative is flipped to point north.
-    gradients = xr.apply_ufunc(
+    gradients_da = xr.apply_ufunc(
         lambda block: np.stack(np.gradient(block, dy, dx), axis=-1),
-        values,
+        values_da,
         input_core_dims=[["y", "x"]],
         output_core_dims=[["y", "x", "gradient"]],
         dask="parallelized",
@@ -105,21 +105,21 @@ def slope_aspect(
             "allow_rechunk": True,
         },
     )
-    dz_dy = -gradients.isel(gradient=0, drop=True)
-    dz_dx = gradients.isel(gradient=1, drop=True)
-    slope = np.arctan(np.sqrt(dz_dx**2 + dz_dy**2))
-    aspect = np.arctan2(-dz_dx, dz_dy) % (2 * np.pi)
+    dz_dy_da = -gradients_da.isel(gradient=0, drop=True)
+    dz_dx_da = gradients_da.isel(gradient=1, drop=True)
+    slope_da = np.arctan(np.sqrt(dz_dx_da**2 + dz_dy_da**2))
+    aspect_da = np.arctan2(-dz_dx_da, dz_dy_da) % (2 * np.pi)
     if degrees:
-        slope = np.degrees(slope)
-        aspect = np.degrees(aspect)
-    slope = slope.rename("slope").assign_attrs(
+        slope_da = np.degrees(slope_da)
+        aspect_da = np.degrees(aspect_da)
+    slope_da = slope_da.rename("slope").assign_attrs(
         long_name="terrain slope", units="degrees" if degrees else "radians"
     )
-    aspect = aspect.rename("aspect").assign_attrs(
+    aspect_da = aspect_da.rename("aspect").assign_attrs(
         long_name="terrain aspect clockwise from north",
         units="degrees" if degrees else "radians",
     )
-    return slope, aspect
+    return slope_da, aspect_da
 
 
 def look_azimuth(heading: float, *, looking: str = "right") -> float:
@@ -178,22 +178,22 @@ def local_incidence_angle(
     where ``α_r`` and ``α_az`` are the terrain slope components in the range
     and azimuth directions.
     """
-    slope, aspect = slope_aspect(dem, degrees=False)
+    slope_da, aspect_da = slope_aspect(dem, degrees=False)
     look_rad = np.radians(look_azimuth_deg)
     theta_i = np.radians(incidence_angle)
     # The look azimuth points from the sensor to the ground; a slope faces the
     # radar when its aspect points back along it, so the range component is
     # measured from the direction *toward* the sensor (look + 180°). Checked
     # against the OPERA RTC-S1-STATIC layer for a descending track (2026-09).
-    phi_r = look_rad + np.pi - aspect
-    alpha_r = np.arctan(np.tan(slope) * np.cos(phi_r))
-    alpha_az = np.arctan(np.tan(slope) * np.sin(phi_r))
-    cos_theta = (np.cos(alpha_az) * np.cos(theta_i - alpha_r)).clip(-1.0, 1.0)
-    lia = np.degrees(np.arccos(cos_theta))
+    phi_r_da = look_rad + np.pi - aspect_da
+    alpha_r_da = np.arctan(np.tan(slope_da) * np.cos(phi_r_da))
+    alpha_az_da = np.arctan(np.tan(slope_da) * np.sin(phi_r_da))
+    cos_theta_da = (np.cos(alpha_az_da) * np.cos(theta_i - alpha_r_da)).clip(-1.0, 1.0)
+    lia_da = np.degrees(np.arccos(cos_theta_da))
     if clip_to_valid:
-        lia = lia.clip(0.0, 90.0)
-    lia = lia.rename("local_incidence_angle")
-    lia.attrs = {
+        lia_da = lia_da.clip(0.0, 90.0)
+    lia_da = lia_da.rename("local_incidence_angle")
+    lia_da.attrs = {
         "long_name": "local incidence angle",
         "units": "degrees",
         "description": (
@@ -202,5 +202,5 @@ def local_incidence_angle(
         ),
     }
     if hasattr(dem, "rio") and dem.rio.crs is not None:
-        lia = lia.rio.write_crs(dem.rio.crs)
-    return lia
+        lia_da = lia_da.rio.write_crs(dem.rio.crs)
+    return lia_da

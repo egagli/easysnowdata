@@ -20,18 +20,23 @@ from easysnowdata.processing import contract
 STATIC_MODULES = (
     "easysnowdata.terrain.dem",
     "easysnowdata.terrain.chili",
+    "easysnowdata.terrain.hillshade",
     "easysnowdata.land.landcover",
     "easysnowdata.land.nlcd",
     "easysnowdata.land.forest_cover",
     "easysnowdata.snow.snow_classification",
     "easysnowdata.snow.mountain_snow_mask",
     "easysnowdata.hydro.basins",
+    "easysnowdata.boundaries.admin",
+    "easysnowdata.boundaries.natural_earth",
+    "easysnowdata.boundaries.mountains",
+    "easysnowdata.boundaries.glaciers",
 )
 
 
 def test_no_theme_ships_its_own_contract_helper():
     """The Phase 2a duplicates are folded into processing.contract."""
-    for theme in ("terrain", "land", "snow", "hydro"):
+    for theme in ("terrain", "land", "snow", "hydro", "boundaries"):
         with pytest.raises(ImportError):
             importlib.import_module(f"easysnowdata.{theme}._common")
 
@@ -60,10 +65,14 @@ def test_default_sentinel_is_shared():
 
 def test_theme_packages_are_exported():
     for theme, modules in (
-        (esd.terrain, ("dem", "chili")),
+        (esd.terrain, ("dem", "chili", "hillshade")),
         (esd.land, ("landcover", "nlcd", "forest_cover")),
         (esd.snow, ("snow_classification", "mountain_snow_mask")),
         (esd.hydro, ("basins",)),
+        (
+            esd.boundaries,
+            ("admin", "natural_earth", "mountains", "glaciers"),
+        ),
     ):
         assert set(modules) <= set(theme.__all__)
         for name in modules:
@@ -72,7 +81,7 @@ def test_theme_packages_are_exported():
         assert theme.__doc__
         for name in theme.__all__:
             assert name in theme.__doc__
-    assert {"terrain", "land", "snow", "hydro"} <= set(esd.__all__)
+    assert {"terrain", "land", "snow", "hydro", "boundaries"} <= set(esd.__all__)
 
 
 def test_every_migrated_product_points_at_its_theme_module():

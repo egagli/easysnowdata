@@ -5,8 +5,8 @@
     import easysnowdata as esd
 
     aoi = (-121.94, 46.72, -121.54, 46.99)
-    chili = esd.terrain.chili.load(aoi)                     # native 0-255 values
-    index = esd.terrain.chili.load(aoi, normalize="index")  # the 0-1 index
+    chili_da = esd.terrain.chili.load(aoi)                     # native 0-255 values
+    index_da = esd.terrain.chili.load(aoi, normalize="index")  # the 0-1 index
 
 CHILI is a topographic index of the combined effect of solar radiation and
 surface temperature computed from ALOS World 3D-30m (Theobald et al. 2015),
@@ -51,8 +51,8 @@ def _normalized(da: xr.DataArray, normalize: bool | str) -> tuple[xr.DataArray, 
     if mode == "index":
         return da / INDEX_SCALE, "1 (0-1 heat-insolation load index)"
     if mode == "minmax":
-        low, high = da.min(), da.max()
-        return (da - low) / (high - low), "1 (min-max rescaled within the AOI)"
+        low_da, high_da = da.min(), da.max()
+        return (da - low_da) / (high_da - low_da), "1 (min-max rescaled within the AOI)"
     raise ValueError(
         f"normalize must be False, 'index' or 'minmax' (True), got {normalize!r}."
     )

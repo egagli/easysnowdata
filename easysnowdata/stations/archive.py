@@ -27,8 +27,8 @@ artefacts that this module reads (§9 step 3):
 
     import easysnowdata as esd
 
-    inv = esd.stations.archive.inventory(daily_only=True)   # one request
-    ds = esd.stations.archive.load(aoi=(-121.94, 46.72, -121.54, 46.99))
+    stations_gdf = esd.stations.archive.inventory(daily_only=True)  # one request
+    archive_ds = esd.stations.archive.load(aoi=(-121.94, 46.72, -121.54, 46.99))
 
 Both artefacts are refreshed daily by that repo's CI, so the archive is at
 most a day behind and covers only SWE and snow depth. For anything else — a
@@ -163,9 +163,9 @@ def csv_url(code: str) -> str:
 def _read_inventory(**kwargs: Any) -> gpd.GeoDataFrame:
     """The published inventory, memoized per process for the keyword set used."""
     key = repr(sorted(kwargs.items()))
-    cached = _INVENTORY_CACHE.get(key)
-    if cached is not None:
-        return cached
+    cached_gdf = _INVENTORY_CACHE.get(key)
+    if cached_gdf is not None:
+        return cached_gdf
     _logger.info("Reading the station inventory from %s", INVENTORY_URL)
     gdf = providers.vector_http.read(INVENTORY_URL, **kwargs)
     if "code" in gdf.columns:
@@ -312,8 +312,8 @@ def latest_snapshot() -> dict[str, Any]:
 
 def _parse_csv(text: str, code: str) -> pd.DataFrame:
     """One station CSV as a date-indexed frame (``date,wteq_cm,snwd_cm``)."""
-    frame = pd.read_csv(io.StringIO(text), parse_dates=["date"])
-    return frame.set_index("date").sort_index()
+    station_df = pd.read_csv(io.StringIO(text), parse_dates=["date"])
+    return station_df.set_index("date").sort_index()
 
 
 def _snapshot_tarball() -> tuple[str, dict[str, Any]]:
@@ -435,11 +435,11 @@ def _from_zarr(
 
     url = ZARR_URLS[layout]
     _logger.info("Reading the chunked station archive at %s", url)
-    store = _open_store(url)
+    store_ds = _open_store(url)
     wanted = [
         name for name, column in _STORE_COLUMNS.items() if COLUMNS[column][0] in types
     ]
-    ds = store[wanted]
+    ds = store_ds[wanted]
     # reindex, not sel: a code the store lacks (the probe has not verified it)
     # becomes an all-NaN row, as on the CSV routes. With no codes named, the
     # station axis is sorted, as the tarball route sorts it.
@@ -536,28 +536,28 @@ def load(
     Examples
     --------
     >>> import easysnowdata as esd
-    >>> ds = esd.stations.archive.load()          # every daily station  # doctest: +SKIP
+    >>> archive_ds = esd.stations.archive.load()  # every daily station  # doctest: +SKIP
     """
     product = catalog.get("snow-station-archive")
     src = resolve_source(product, source)
     wanted_types = _types(variables)
 
-    inv = stations if hasattr(stations, "columns") else None
+    inv_gdf = stations if hasattr(stations, "columns") else None
     codes: list[str] | None = None
-    if inv is not None:
-        codes = [str(c) for c in inv.index]
+    if inv_gdf is not None:
+        codes = [str(c) for c in inv_gdf.index]
     elif stations is not None:
         codes = [
             str(s) for s in ([stations] if isinstance(stations, str) else stations)
         ]
     elif aoi is not None or networks is not None:
-        inv = inventory(aoi, networks=networks, daily_only=True)
-        codes = [str(c) for c in inv.index]
+        inv_gdf = inventory(aoi, networks=networks, daily_only=True)
+        codes = [str(c) for c in inv_gdf.index]
 
-    if inv is None:
-        inv = inventory(daily_only=False)
+    if inv_gdf is None:
+        inv_gdf = inventory(daily_only=False)
         if codes is not None:
-            inv = inv.reindex(codes)
+            inv_gdf = inv_gdf.reindex(codes)
 
     window = None
     if time is not None:
@@ -569,7 +569,7 @@ def load(
     if src.id == "github-pages-zarr":
         layout = _layout_for(codes)
         try:
-            grid = _from_zarr(codes, wanted_types, window, layout)
+            grid_ds = _from_zarr(codes, wanted_types, window, layout)
         except Exception as exc:  # noqa: BLE001 — any read failure: fall back
             if source is not None:
                 raise
@@ -589,11 +589,11 @@ def load(
                 snapshot.get("tag") or "unknown",
                 snapshot.get("published_at") or "date unknown",
             )
-            ds = _to_dataset(frames, wanted_types, codes, inv, hemisphere, window)
+            ds = _to_dataset(frames, wanted_types, codes, inv_gdf, hemisphere, window)
             source_url = snapshot["tarball_url"]
             ds.attrs.update(_snapshot_attrs(snapshot))
         else:
-            ds = _finish(grid, inv, hemisphere)
+            ds = _finish(grid_ds, inv_gdf, hemisphere)
             source_url = ZARR_URLS[layout]
     elif src.id == "github-csv":
         if codes is None:
@@ -602,11 +602,11 @@ def load(
                 "stations= or aoi=. Use the default route for the whole archive."
             )
         frames = _from_csvs(codes)
-        ds = _to_dataset(frames, wanted_types, codes, inv, hemisphere, window)
+        ds = _to_dataset(frames, wanted_types, codes, inv_gdf, hemisphere, window)
         source_url = CSV_BASE
     else:
         frames, snapshot = _from_tarball(set(codes) if codes is not None else None)
-        ds = _to_dataset(frames, wanted_types, codes, inv, hemisphere, window)
+        ds = _to_dataset(frames, wanted_types, codes, inv_gdf, hemisphere, window)
         source_url = snapshot["tarball_url"]
         ds.attrs.update(_snapshot_attrs(snapshot))
 
@@ -642,7 +642,7 @@ def _to_dataset(
     frames: dict[str, pd.DataFrame],
     types: list[str],
     codes: list[str] | None,
-    inv: gpd.GeoDataFrame | None,
+    inv_gdf: gpd.GeoDataFrame | None,
     hemisphere: str,
     window: tuple[Any, Any] | None = None,
 ) -> xr.Dataset:
@@ -658,13 +658,14 @@ def _to_dataset(
     if window is not None:
         start, end = window
         frames = {
-            code: frame.loc[start:end]  # type: ignore[misc]
-            for code, frame in frames.items()
+            code: station_df.loc[start:end]  # type: ignore[misc]
+            for code, station_df in frames.items()
         }
     station_axis = codes if codes is not None else sorted(frames)
     if frames:
         times = pd.DatetimeIndex(
-            sorted({t for frame in frames.values() for t in frame.index}), name="time"
+            sorted({t for station_df in frames.values() for t in station_df.index}),
+            name="time",
         )
     else:
         times = pd.DatetimeIndex([], name="time")
@@ -676,11 +677,11 @@ def _to_dataset(
         if type_name not in types:
             continue
         values = np.full((len(station_axis), len(times)), np.nan, dtype="float64")
-        for code, frame in frames.items():
+        for code, station_df in frames.items():
             row = positions.get(code)
-            if row is None or column not in frame.columns:
+            if row is None or column not in station_df.columns:
                 continue
-            series = pd.to_numeric(frame[column], errors="coerce")
+            series = pd.to_numeric(station_df[column], errors="coerce")
             values[row, time_positions.reindex(series.index).to_numpy()] = (
                 series.to_numpy("float64")
             )
@@ -690,11 +691,11 @@ def _to_dataset(
         arrays,
         coords={"station": np.array(station_axis, dtype="str"), "time": times},
     )
-    return _finish(ds, inv, hemisphere)
+    return _finish(ds, inv_gdf, hemisphere)
 
 
 def _finish(
-    ds: xr.Dataset, inv: gpd.GeoDataFrame | None, hemisphere: str
+    ds: xr.Dataset, inv_gdf: gpd.GeoDataFrame | None, hemisphere: str
 ) -> xr.Dataset:
     """Variable attributes, station metadata and water-year coordinates.
 
@@ -711,7 +712,7 @@ def _finish(
                     "interval": "daily",
                 }
             )
-    ds = _frames._attach_metadata(ds, inv, {})
+    ds = _frames._attach_metadata(ds, inv_gdf, {})
     if ds.sizes.get("time", 0):
         ds = wateryear.add_water_year_coords(ds, hemisphere)
     return ds

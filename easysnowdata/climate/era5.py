@@ -14,9 +14,9 @@ Sources (companion file §B.9):
 ::
 
     import easysnowdata as esd
-    t2m = esd.climate.era5.load(aoi, "2020-01", variables=["2m_temperature"])
-    land = esd.climate.era5.load(aoi, "2020-01", version="ERA5_LAND",
-                                 cadence="daily", variables=["temperature_2m"])
+    t2m_ds = esd.climate.era5.load(aoi, "2020-01", variables=["2m_temperature"])
+    land_ds = esd.climate.era5.load(aoi, "2020-01", version="ERA5_LAND",
+                                    cadence="daily", variables=["temperature_2m"])
     esd.climate.era5.search()                        # variable inventory
 
 The ERA5 / ERA5T boundary of the ARCO store is exposed in the result attrs
@@ -199,13 +199,13 @@ def _wrap_longitudes(ds: xr.Dataset, keep_0_360: bool = False) -> xr.Dataset:
     """
     if "longitude" not in ds.coords or ds.sizes.get("longitude", 0) == 0:
         return ds
-    lon = ds["longitude"]
-    if float(lon.max()) <= 180.0:
+    lon_da = ds["longitude"]
+    if float(lon_da.max()) <= 180.0:
         return ds
     if keep_0_360:
         ds.attrs["longitude_convention"] = "0-360"
         return ds
-    return ds.assign_coords(longitude=((lon + 180) % 360) - 180).sortby("longitude")
+    return ds.assign_coords(longitude=((lon_da + 180) % 360) - 180).sortby("longitude")
 
 
 # ── public API ────────────────────────────────────────────────────────────────
@@ -236,21 +236,21 @@ def search(
         rows = [
             {
                 "variable": name,
-                "units": var.attrs.get("units"),
-                "long_name": var.attrs.get("long_name"),
-                "dims": tuple(var.dims),
+                "units": var_da.attrs.get("units"),
+                "long_name": var_da.attrs.get("long_name"),
+                "dims": tuple(var_da.dims),
             }
-            for name, var in ds.data_vars.items()
+            for name, var_da in ds.data_vars.items()
         ]
-        frame = pd.DataFrame(rows).set_index("variable")
-        frame.attrs = {
+        inventory_df = pd.DataFrame(rows).set_index("variable")
+        inventory_df.attrs = {
             "source": src.id,
             "time_start": ds.attrs.get("valid_time_start"),
             "time_stop": ds.attrs.get("valid_time_stop_era5t")
             or ds.attrs.get("valid_time_stop"),
             "time_stop_final": ds.attrs.get("valid_time_stop"),
         }
-        return frame
+        return inventory_df
     collection = GEE_COLLECTIONS[(version, cadence)]
     ee = providers.gee.ee()
     image = ee.ImageCollection(collection).first()
@@ -259,10 +259,14 @@ def search(
         {"variable": band.get("id"), "units": None, "long_name": None, "dims": ()}
         for band in info.get("bands", [])
     ]
-    frame = pd.DataFrame(rows, columns=["variable", "units", "long_name", "dims"])
-    frame = frame.set_index("variable") if len(frame) else frame
-    frame.attrs = {"source": src.id, "collection": collection}
-    return frame
+    inventory_df = pd.DataFrame(
+        rows, columns=["variable", "units", "long_name", "dims"]
+    )
+    inventory_df = (
+        inventory_df.set_index("variable") if len(inventory_df) else inventory_df
+    )
+    inventory_df.attrs = {"source": src.id, "collection": collection}
+    return inventory_df
 
 
 def load(

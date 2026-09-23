@@ -271,6 +271,229 @@ def make_basin_zips(directory: Path) -> tuple[Path, Path]:
     return wmo_zip, hybas_zip
 
 
+def _zip_shapefile(
+    frame, directory: Path, stem: str, archive: str, *, extra=()
+) -> Path:
+    """Write *frame* as ``<stem>.shp`` into the zip *archive* (plus *extra* members)."""
+    shape_dir = directory / f"_{stem}"
+    shape_dir.mkdir(exist_ok=True)
+    frame.to_file(shape_dir / f"{stem}.shp", driver="ESRI Shapefile")
+    path = directory / archive
+    mode = "a" if path.exists() else "w"
+    with zipfile.ZipFile(path, mode, zipfile.ZIP_DEFLATED) as zf:
+        for part in sorted(shape_dir.glob(f"{stem}.*")):
+            zf.write(part, part.name)
+        for name, text in extra:
+            zf.writestr(name, text)
+    for part in sorted(shape_dir.glob("*")):
+        part.unlink()
+    shape_dir.rmdir()
+    return path
+
+
+def make_boundary_archives(directory: Path) -> dict[str, Path]:
+    """Archives shaped like Natural Earth, Census, geoBoundaries, GMBA and RGI.
+
+    Rainier sits in the "USA" / "Washington" / "Pierce" units, the first GMBA
+    units and RGI region 2; everything else is placed so a Rainier AOI misses it.
+    """
+    import geopandas as gpd
+    import shapely
+
+    west, south, east, north = RAINIER
+    around = shapely.box(west - 1, south - 1, east + 1, north + 1)
+    north_of = shapely.box(west - 1, 49.0, east + 1, 52.0)
+    far = shapely.box(5.0, 58.0, 10.0, 62.0)
+    out: dict[str, Path] = {}
+
+    countries = gpd.GeoDataFrame(
+        {
+            "NAME": ["United States of America", "Canada", "Norway"],
+            "ADM0_A3": ["USA", "CAN", "NOR"],
+            "ISO_A3": ["USA", "CAN", "-99"],
+            "CONTINENT": ["North America", "North America", "Europe"],
+        },
+        geometry=[around, north_of, far],
+        crs="EPSG:4326",
+    )
+    out["ne_countries_zip"] = _zip_shapefile(
+        countries, directory, "ne_countries", "ne_admin_0_countries.zip"
+    )
+    admin1 = gpd.GeoDataFrame(
+        {
+            "name": ["Washington", "British Columbia", "Innlandet"],
+            "adm0_a3": ["USA", "CAN", "NOR"],
+        },
+        geometry=[around, north_of, far],
+        crs="EPSG:4326",
+    )
+    out["ne_states_zip"] = _zip_shapefile(
+        admin1, directory, "ne_states", "ne_admin_1_states_provinces.zip"
+    )
+    lakes = gpd.GeoDataFrame(
+        {"name": ["Mowich Lake", "Far Lake"], "scalerank": [9, 9]},
+        geometry=[shapely.box(west, south, west + 0.05, south + 0.05), far],
+        crs="EPSG:4326",
+    )
+    out["ne_lakes_zip"] = _zip_shapefile(lakes, directory, "ne_lakes", "ne_lakes.zip")
+
+    census_states = gpd.GeoDataFrame(
+        {
+            "NAME": ["Washington", "Oregon"],
+            "STUSPS": ["WA", "OR"],
+            "STATEFP": ["53", "41"],
+        },
+        geometry=[around, shapely.box(west - 1, 42.0, east + 1, south - 1.5)],
+        crs="EPSG:4269",
+    )
+    out["census_state_zip"] = _zip_shapefile(
+        census_states, directory, "cb_state", "cb_state.zip"
+    )
+    middle = (west + east) / 2
+    census_counties = gpd.GeoDataFrame(
+        {
+            "NAME": ["Pierce", "Lewis", "King", "Multnomah"],
+            "STUSPS": ["WA", "WA", "WA", "OR"],
+            "STATE_NAME": ["Washington", "Washington", "Washington", "Oregon"],
+            "GEOID": ["53053", "53041", "53033", "41051"],
+        },
+        geometry=[
+            shapely.box(west - 0.5, (south + north) / 2, middle, north + 0.5),
+            shapely.box(west - 0.5, south - 0.5, east + 0.5, (south + north) / 2),
+            shapely.box(west - 0.5, north + 0.6, east, north + 1.0),
+            shapely.box(-123.0, 45.4, -122.2, 45.7),
+        ],
+        crs="EPSG:4269",
+    )
+    out["census_county_zip"] = _zip_shapefile(
+        census_counties, directory, "cb_county", "cb_county.zip"
+    )
+
+    units = gpd.GeoDataFrame(
+        {
+            "shapeName": ["Washington", "Oregon"],
+            "shapeISO": ["US-WA", "US-OR"],
+            "shapeID": ["USA-ADM1-1", "USA-ADM1-2"],
+            "shapeGroup": ["USA", "USA"],
+            "shapeType": ["ADM1", "ADM1"],
+        },
+        geometry=[around, shapely.box(west - 1, 42.0, east + 1, south - 1.5)],
+        crs="EPSG:4326",
+    )
+    out["geoboundaries_geojson"] = directory / "geoBoundaries-USA-ADM1.geojson"
+    units.to_file(out["geoboundaries_geojson"], driver="GeoJSON")
+
+    path_prefix = "North America > American Cordillera > Pacific Coast Ranges"
+    ranges = gpd.GeoDataFrame(
+        {
+            "GMBA_V2_ID": [17024, 11202, 12159],
+            "MapName": ["Mount Rainier Massif", "Cascade Range", "Far Range"],
+            "Hier_Lvl": ["7", "4", "3"],
+            "Path": [
+                f"{path_prefix} > Cascade Range > Mount Rainier Massif",
+                f"{path_prefix} > Cascade Range",
+                "Europe > Far Range",
+            ],
+        },
+        geometry=[shapely.box(west, south, east, north), around, far],
+        crs="EPSG:4326",
+    )
+    for subset, suffix in (("basic", "_basic"), ("300", "_300"), ("all", "")):
+        stem = f"GMBA_Inventory_v2.0_standard{suffix}"
+        frame = ranges if subset == "all" else ranges.iloc[[0, 2]]
+        out[f"gmba_{subset}_zip"] = _zip_shapefile(
+            frame, directory, stem, f"{stem}.zip"
+        )
+
+    region_polys = [shapely.box(-170, 30, -100, 70), far]
+    out["rgi7_regions_zip"] = _zip_shapefile(
+        gpd.GeoDataFrame(
+            {
+                "o1region": ["02", "08"],
+                "full_name": ["Western Canada and USA", "Scandinavia"],
+            },
+            geometry=region_polys,
+            crs="EPSG:4326",
+        ),
+        directory,
+        "RGI2000-v7.0-o1regions",
+        "RGI2000-v7.0-regions.zip",
+    )
+    out["rgi6_regions_zip"] = _zip_shapefile(
+        gpd.GeoDataFrame(
+            {
+                "RGI_CODE": [2, 8],
+                "FULL_NAME": ["Western Canada and USA", "Scandinavia"],
+            },
+            geometry=region_polys,
+            crs="EPSG:4326",
+        ),
+        directory,
+        "00_rgi60_O1Regions",
+        "00_rgi60_regions.zip",
+    )
+    glacier_a = shapely.box(-121.78, 46.84, -121.74, 46.88)
+    glacier_b = shapely.box(-121.74, 46.84, -121.70, 46.88)
+    glacier_far = shapely.box(-123.5, 48.5, -123.4, 48.6)
+    out["rgi7_g02_zip"] = _zip_shapefile(
+        gpd.GeoDataFrame(
+            {
+                "rgi_id": [
+                    "RGI2000-v7.0-G-02-1",
+                    "RGI2000-v7.0-G-02-2",
+                    "RGI2000-v7.0-G-02-3",
+                ],
+                "glac_name": ["Emmons Glacier", "Winthrop Glacier", "Far Glacier"],
+                "area_km2": [10.59, 9.19, 0.5],
+                "o1region": ["02", "02", "02"],
+                "is_rgi6": [1, 1, 1],
+                "src_date": ["1970-09-01", "1970-09-01", "1970-09-01"],
+            },
+            geometry=[
+                shapely.force_3d(g, 1500.0) for g in (glacier_a, glacier_b, glacier_far)
+            ],
+            crs="EPSG:4326",
+        ),
+        directory,
+        "RGI2000-v7.0-G-02_western_canada_usa",
+        "RGI2000-v7.0-G-02_western_canada_usa.zip",
+    )
+    out["rgi7_c02_zip"] = _zip_shapefile(
+        gpd.GeoDataFrame(
+            {
+                "rgi_id": ["RGI2000-v7.0-C-02-1"],
+                "area_km2": [19.78],
+                "o1region": ["02"],
+            },
+            geometry=[shapely.force_3d(glacier_a.union(glacier_b), 1500.0)],
+            crs="EPSG:4326",
+        ),
+        directory,
+        "RGI2000-v7.0-C-02_western_canada_usa",
+        "RGI2000-v7.0-C-02_western_canada_usa.zip",
+    )
+    out["rgi6_02_zip"] = _zip_shapefile(
+        gpd.GeoDataFrame(
+            {
+                "RGIId": ["RGI60-02.1", "RGI60-02.2", "RGI60-02.3"],
+                "Name": ["Emmons Glacier WA", "Winthrop Glacier WA", "WA"],
+                "Area": [10.594, 9.195, 0.01],
+                "O1Region": ["2", "2", "2"],
+            },
+            geometry=[
+                glacier_a,
+                glacier_b,
+                shapely.box(-121.70, 46.84, -121.69, 46.85),
+            ],
+            crs="EPSG:4326",
+        ),
+        directory,
+        "02_rgi60_WesternCanadaUS",
+        "02_rgi60_WesternCanadaUS.zip",
+    )
+    return out
+
+
 def make_all(directory: Path) -> dict[str, Path]:
     """Write every fixture into *directory* and return the paths by name."""
     directory = Path(directory)
@@ -306,6 +529,18 @@ def make_all(directory: Path) -> dict[str, Path]:
         dtype="uint8",
     )
 
+    # Natural Earth shaded relief: uint8 brightness, no nodata, one GeoTIFF per zip.
+    hillshade_tif = _write_tif(
+        directory / "GRAY_HR_SR_OB_DR.tif",
+        np.resize(np.arange(40, 240, 5, dtype="uint8"), (32, 32)),
+        nodata=None,
+        tags={"TIFFTAG_SOFTWARE": "Adobe Photoshop CS5 Macintosh"},
+    )
+    out["hillshade_zip"] = directory / "GRAY_HR_SR_OB_DR.zip"
+    with zipfile.ZipFile(out["hillshade_zip"], "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.write(hillshade_tif, hillshade_tif.name)
+    hillshade_tif.unlink()
+
     out["wmo_zip"], out["hybas_zip"] = make_basin_zips(directory)
 
     left, right, grid = make_worldcover_tiles(directory)
@@ -324,6 +559,9 @@ def make_all(directory: Path) -> dict[str, Path]:
     worldcover_item["properties"]["start_datetime"] = "2021-01-01T00:00:00Z"
     out["worldcover_item"] = directory / "worldcover_item.json"
     out["worldcover_item"].write_text(json.dumps(worldcover_item))
+    # Vector archives last: geopandas is imported by now, and nothing below
+    # writes a raster (see the module docstring).
+    out.update(make_boundary_archives(directory))
     return out
 
 

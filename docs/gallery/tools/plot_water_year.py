@@ -73,14 +73,19 @@ print(
 # Rainier) from the station archive. The loader has already called
 # ``add_water_year_coords``, so ``water_year`` and ``dowy`` ride along the
 # ``time`` dimension; calling it again is harmless and shows what it adds.
-obs = esd.stations.archive.load(["679_WA_SNTL"], time="2018-10/2024-09")
-obs = wateryear.add_water_year_coords(obs)
-swe = obs["swe"].sel(station="679_WA_SNTL")
-print(swe.coords["water_year"].values[:3], "...", swe.coords["dowy"].values[:3], "...")
+obs_ds = esd.stations.archive.load(["679_WA_SNTL"], time="2018-10/2024-09")
+obs_ds = wateryear.add_water_year_coords(obs_ds)
+swe_da = obs_ds["swe"].sel(station="679_WA_SNTL")
+print(
+    swe_da.coords["water_year"].values[:3],
+    "...",
+    swe_da.coords["dowy"].values[:3],
+    "...",
+)
 
 # %%
 # On calendar dates first: the seasons are easy to count, hard to compare.
-ax = esd.plotting.timeseries(swe, title=f"{swe['name'].item()} SNOTEL, daily SWE")
+ax = esd.plotting.timeseries(swe_da, title=f"{swe_da['name'].item()} SNOTEL, daily SWE")
 ax.figure.tight_layout()
 
 # %%
@@ -88,25 +93,31 @@ ax.figure.tight_layout()
 # October-to-September axis, labelled WY2019 to WY2024, so the timing of
 # accumulation and melt-out lines up across years.
 ax = esd.plotting.timeseries(
-    swe, by_water_year=True, title=f"{swe['name'].item()} SNOTEL, SWE by water year"
+    swe_da,
+    by_water_year=True,
+    title=f"{swe_da['name'].item()} SNOTEL, SWE by water year",
 )
 ax.figure.tight_layout()
 
 # %%
 # Because ``water_year`` is a plain integer coordinate, ``groupby`` works
 # directly. Peak SWE and the day it was reached, per season.
-peak = swe.groupby("water_year").max()
-peak_dowy = swe.groupby("water_year").map(lambda s: s["dowy"][int(s.argmax("time"))])
-peak_date = swe.groupby("water_year").map(lambda s: s["time"][int(s.argmax("time"))])
-summary = pd.DataFrame(
-    {
-        "peak SWE [cm]": peak.values,
-        "day of water year": peak_dowy.values,
-        "date": pd.DatetimeIndex(peak_date.values).date,
-    },
-    index=[f"WY{int(y)}" for y in peak["water_year"].values],
+peak_da = swe_da.groupby("water_year").max()
+peak_dowy_da = swe_da.groupby("water_year").map(
+    lambda season_da: season_da["dowy"][int(season_da.argmax("time"))]
 )
-print(summary.to_string())
+peak_date_da = swe_da.groupby("water_year").map(
+    lambda season_da: season_da["time"][int(season_da.argmax("time"))]
+)
+summary_df = pd.DataFrame(
+    {
+        "peak SWE [cm]": peak_da.values,
+        "day of water year": peak_dowy_da.values,
+        "date": pd.DatetimeIndex(peak_date_da.values).date,
+    },
+    index=[f"WY{int(y)}" for y in peak_da["water_year"].values],
+)
+print(summary_df.to_string())
 
 # %%
 # For the yearly maximum alone there is a pandas idiom that needs no helper at
@@ -114,17 +125,17 @@ print(summary.to_string())
 # ``resample(time="YS-OCT")`` bins from each 1 October to the next 30
 # September; its labels are the *start* dates, which is why the coordinate
 # version reads more naturally as WY2019, WY2020 ...
-by_offset = swe.resample(time="YS-OCT").max()
-print(by_offset.to_series().rename("peak SWE [cm]").to_string())
-assert (by_offset.values == peak.values).all()
+by_offset_da = swe_da.resample(time="YS-OCT").max()
+print(by_offset_da.to_series().rename("peak SWE [cm]").to_string())
+assert (by_offset_da.values == peak_da.values).all()
 
 # %%
 # The peaks as bars. A year like WY2022 that peaked late shows up in the
 # table above, not here: bar charts hide timing, which is what the overlay
 # was for.
 fig, ax = plt.subplots(figsize=(7, 3.8))
-ax.bar(summary.index, summary["peak SWE [cm]"], color="#3b6ea8", width=0.7)
-for label, row in summary.iterrows():
+ax.bar(summary_df.index, summary_df["peak SWE [cm]"], color="#3b6ea8", width=0.7)
+for label, row in summary_df.iterrows():
     ax.annotate(
         row["date"].strftime("%-d %b"),
         (label, row["peak SWE [cm]"]),
@@ -135,8 +146,8 @@ for label, row in summary.iterrows():
         textcoords="offset points",
     )
 ax.set_ylabel("peak SWE [cm]")
-ax.set_ylim(0, summary["peak SWE [cm]"].max() * 1.12)
-ax.set_title(f"{swe['name'].item()} SNOTEL, peak SWE per water year")
+ax.set_ylim(0, summary_df["peak SWE [cm]"].max() * 1.12)
+ax.set_title(f"{swe_da['name'].item()} SNOTEL, peak SWE per water year")
 ax.grid(True, axis="y", color="0.85", linewidth=0.6)
 ax.set_axisbelow(True)
 for side in ("top", "right"):

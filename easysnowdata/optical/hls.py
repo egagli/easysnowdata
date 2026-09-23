@@ -16,8 +16,8 @@ Scene metadata comes from STAC properties, not from the per-granule XML the
 old ``HLS`` class fetched one request at a time::
 
     import easysnowdata as esd
-    items = esd.optical.hls.search(aoi, "2023-08", cloud_cover=40)
-    hls = esd.optical.hls.load(aoi, "2023-08", mask="fmask-default")
+    items_gdf = esd.optical.hls.search(aoi, "2023-08", cloud_cover=40)
+    hls_ds = esd.optical.hls.load(aoi, "2023-08", mask="fmask-default")
 
 ``load`` returns one ``Dataset`` with both products stacked on ``time`` and a
 ``product`` coordinate (``L30``/``S30``) saying where each scene came from.
@@ -302,33 +302,33 @@ def _apply_mask(ds: xr.Dataset, mask: Any) -> xr.Dataset:
                 f"Unknown Fmask flags {sorted(unknown)}; known: {list(masks.FMASK_BITS)} "
                 f"and aerosol levels {list(masks.FMASK_AEROSOL_LEVELS)}."
             )
-    keep = masks.fmask_mask(ds["Fmask"], flags, aerosol)
-    out = ds.copy()
+    keep_da = masks.fmask_mask(ds["Fmask"], flags, aerosol)
+    masked_ds = ds.copy()
     for band in ds.data_vars:
         if band != "Fmask":
-            out[band] = ds[band].where(keep)
-    out.attrs["masked_fmask_flags"] = " ".join([*flags, *aerosol])
+            masked_ds[band] = ds[band].where(keep_da)
+    masked_ds.attrs["masked_fmask_flags"] = " ".join([*flags, *aerosol])
     _logger.info(
         "Fmask cloud detection is unreliable over snow and ice; masked %s.",
         ", ".join([*flags, *aerosol]),
     )
-    return out
+    return masked_ds
 
 
 def _scale(ds: xr.Dataset) -> xr.Dataset:
-    out = ds.copy()
+    scaled_ds = ds.copy()
     for band in ds.data_vars:
         if band == "Fmask":
             continue
         scale = ANGLE_SCALE if band in QUALITY_BANDS else REFLECTANCE_SCALE
-        out[band] = (out[band] * scale).assign_attrs(
+        scaled_ds[band] = (scaled_ds[band] * scale).assign_attrs(
             {
                 **ds[band].attrs,
                 "units": "deg" if band in QUALITY_BANDS else "1",
                 "scale": scale,
             }
         )
-    return out
+    return scaled_ds
 
 
 # ── public API ────────────────────────────────────────────────────────────────
@@ -376,16 +376,16 @@ def search(
             gdf["platform"] = [_platform_of(item, product) for item in gdf["stac_item"]]
             frames.append(gdf)
     if not frames:
-        empty = providers.stac.items_to_geodataframe([])
-        empty["product"] = pd.Series(dtype="object")
-        empty["platform"] = pd.Series(dtype="object")
-        empty.attrs = {"source": src.id, "products": names}
-        return empty
-    combined = pd.concat(frames)
-    combined = combined.sort_values("datetime")
-    combined = gpd.GeoDataFrame(combined, geometry="geometry", crs="EPSG:4326")
-    combined.attrs = {"source": src.id, "products": names}
-    return combined
+        empty_gdf = providers.stac.items_to_geodataframe([])
+        empty_gdf["product"] = pd.Series(dtype="object")
+        empty_gdf["platform"] = pd.Series(dtype="object")
+        empty_gdf.attrs = {"source": src.id, "products": names}
+        return empty_gdf
+    combined_gdf = pd.concat(frames)
+    combined_gdf = combined_gdf.sort_values("datetime")
+    combined_gdf = gpd.GeoDataFrame(combined_gdf, geometry="geometry", crs="EPSG:4326")
+    combined_gdf.attrs = {"source": src.id, "products": names}
+    return combined_gdf
 
 
 def load(
@@ -483,30 +483,30 @@ def load(
             )
         datasets.append(ds)
 
-    combined = (
+    combined_ds = (
         datasets[0]
         if len(datasets) == 1
         else xr.concat(
             datasets, dim="time", join="outer", combine_attrs="drop_conflicts"
         )
     )
-    combined = combined.sortby("time")
-    combined = contract.apply_variables(
-        combined,
-        [v for v in PRODUCT.variables if v.name in combined.data_vars],
+    combined_ds = combined_ds.sortby("time")
+    combined_ds = contract.apply_variables(
+        combined_ds,
+        [v for v in PRODUCT.variables if v.name in combined_ds.data_vars],
         mask=False,
     )
     if mask_nodata:
-        for band in list(combined.data_vars):
+        for band in list(combined_ds.data_vars):
             if band == "Fmask":
                 continue
             nodata = ANGLE_NODATA if band in QUALITY_BANDS else REFLECTANCE_NODATA
-            combined[band] = contract.mask_continuous(combined[band], nodata)
+            combined_ds[band] = contract.mask_continuous(combined_ds[band], nodata)
     if scale:
-        combined = _scale(combined)
-    combined = _apply_mask(combined, mask)
-    combined = contract.finalize(
-        combined,
+        combined_ds = _scale(combined_ds)
+    combined_ds = _apply_mask(combined_ds, mask)
+    combined_ds = contract.finalize(
+        combined_ds,
         PRODUCT,
         src,
         variables=(),
@@ -516,7 +516,7 @@ def load(
             "scaled_to_reflectance": str(bool(scale)),
         },
     )
-    return combined
+    return combined_ds
 
 
 def _split_items(items: Any) -> dict[str, Any]:
@@ -530,11 +530,11 @@ def _split_items(items: Any) -> dict[str, Any]:
             item.to_dict(transform_hrefs=False) if hasattr(item, "to_dict") else item
             for item in items
         ]
-    frame = providers.stac.items_to_geodataframe(dicts) if dicts else None
-    if frame is None or not len(frame):
+    frame_gdf = providers.stac.items_to_geodataframe(dicts) if dicts else None
+    if frame_gdf is None or not len(frame_gdf):
         return {product: [] for product in PRODUCTS}
-    frame["product"] = [
+    frame_gdf["product"] = [
         _product_of(item, str(item.get("collection", "")))
-        for item in frame["stac_item"]
+        for item in frame_gdf["stac_item"]
     ]
-    return {product: frame[frame["product"] == product] for product in PRODUCTS}
+    return {product: frame_gdf[frame_gdf["product"] == product] for product in PRODUCTS}

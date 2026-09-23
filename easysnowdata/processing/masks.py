@@ -131,11 +131,11 @@ def fmask_mask(
     *remove* names Fmask bits (:data:`FMASK_BITS`); *aerosol_remove* names
     aerosol levels (:data:`FMASK_AEROSOL_LEVELS`). Fill pixels (255) are removed.
     """
-    bad = fmask == 255
+    bad_da = fmask == 255
     for name in remove:
         if name not in FMASK_BITS:
             raise ValueError(f"Unknown Fmask flag {name!r}; known: {list(FMASK_BITS)}.")
-        bad = bad | (fmask_bit(fmask, FMASK_BITS[name]) == 1)
+        bad_da = bad_da | (fmask_bit(fmask, FMASK_BITS[name]) == 1)
     if aerosol_remove:
         levels = []
         for name in aerosol_remove:
@@ -144,8 +144,8 @@ def fmask_mask(
                     f"Unknown aerosol level {name!r}; known: {list(FMASK_AEROSOL_LEVELS)}."
                 )
             levels.append(FMASK_AEROSOL_LEVELS[name])
-        bad = bad | fmask_aerosol_level(fmask).isin(levels)
-    return ~bad
+        bad_da = bad_da | fmask_aerosol_level(fmask).isin(levels)
+    return ~bad_da
 
 
 def apply_fmask(
@@ -174,10 +174,10 @@ def mask_nodata(
     Variables without a known nodata value are returned unchanged.
     """
     if isinstance(obj, xr.Dataset):
-        out = obj.copy()
+        masked_ds = obj.copy()
         for name in obj.data_vars:
-            out[name] = mask_nodata(obj[name], nodata)
-        return out
+            masked_ds[name] = mask_nodata(obj[name], nodata)
+        return masked_ds
     value = nodata
     if value is None:
         value = obj.attrs.get("nodata")
@@ -185,6 +185,6 @@ def mask_nodata(
         value = getattr(getattr(obj, "rio", None), "nodata", None)
     if value is None or (isinstance(value, float) and np.isnan(value)):
         return obj
-    masked = obj.where(obj != value)
-    masked.attrs = {k: v for k, v in obj.attrs.items() if k != "nodata"}
-    return masked
+    masked_da = obj.where(obj != value)
+    masked_da.attrs = {k: v for k, v in obj.attrs.items() if k != "nodata"}
+    return masked_da
