@@ -560,8 +560,9 @@ versions). Gallery: `boundaries/plot_admin.py`, `plot_natural_earth.py`,
   `earthaccess.download` saves that page as the "zip". It works with the username and
   password (env or netrc), which is what CI holds. The loader now detects the login page
   and says so; the Earthdata setup text on the credentials page names the limit.
-  (Separately, `auth.earthdata.token_is_valid` gets a 401 from `/api/users/tokens` even for
-  a freshly issued token, so a token-only setup is treated as expired — not yet fixed.)
+  (Separately, `auth.earthdata.token_is_valid` asked URS `/api/users/tokens`, which accepts
+  only a username and password, so every token looked expired; #49 reads the token's JWT
+  `exp` claim instead.)
 - The Census 2025 cartographic files appeared in March 2026 with the same columns;
   `CENSUS_YEAR` moved to 2025 (2026-09-23), and the watch has a `[[file]]` entry on the
   2026 URL whose 404 → 206 is the signal for the next move.
