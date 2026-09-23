@@ -493,7 +493,7 @@ in the best-practices wiki rather than this package (**wiki**). Nothing is dropp
 | https://www.earthenv.org/mountains ; https://data.earthenv.org/mountains/standard/GMBA_Inventory_v2.0_standard.zip | GMBA Mountain Inventory v2 on the same host (zip verified 2026-09-23) | mountain-range polygons; same fetch pattern as the cloud files | **product**, shipped (F.1) |
 | https://naturalearth.s3.amazonaws.com/10m_raster/GRAY_HR_SR_OB_DR.zip ; https://www.naturalearthdata.com/downloads/10m-raster-data/10m-gray-earth/ | Natural Earth Gray Earth shaded relief (and its siblings) | the hillshade basemap | **product**, shipped as `terrain.hillshade` |
 | https://naciscdn.org/naturalearth/110m/cultural/ne_110m_admin_0_countries.zip ; https://naciscdn.org/naturalearth/10m/cultural/ne_10m_admin_1_states_provinces.zip ; https://naciscdn.org/naturalearth/10m/physical/ne_10m_glaciated_areas.zip | Natural Earth countries, states/provinces, glaciated areas (verified) | map outlines worldwide | **product**, shipped (F.1) |
-| https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_state_5m.zip (also `_20m`, `_500k`, `county_*`) | US Census cartographic boundary files (verified) | authoritative US states and counties; replaces the personal mirror of the 2010 files used before | **product**, shipped (F.1) |
+| https://www2.census.gov/geo/tiger/GENZ2025/shp/cb_2025_us_state_5m.zip (also `_20m`, `_500k`, `county_*`) | US Census cartographic boundary files (verified) | authoritative US states and counties; replaces the personal mirror of the 2010 files used before | **product**, shipped (F.1) |
 | https://www.geoboundaries.org/api/current/gbOpen/USA/ADM1/ | geoBoundaries API (verified): JSON pointing to per-country ADM0–ADM5 GeoJSON, CC BY 4.0 | admin levels anywhere in the world | **product**, shipped (F.1) |
 | https://dmap-prod-oms-edc.s3.us-east-1.amazonaws.com/ORD/Ecoregions/us/us_eco_l3.zip | EPA Level III ecoregions (verified) | US stratification | **product** (F.1 follow-on) |
 | https://noaa-cdr-patmosx-radiances-and-clouds-pds.s3.amazonaws.com/index.html | PATMOS-x AVHRR cloud climate data record on AWS (bucket reachable) | a 1979-onward cloud record | **shelf** (F.2) |
@@ -511,7 +511,7 @@ Earth zip and a personal GeoJSON mirror of the 2010 Census states; then (same da
 call the theme `boundaries`, put glacier outlines in it, include GMBA and RGI with a
 choice of RGI version, and replace the mirror link. The US Census cartographic boundary
 files it mirrors are now the source:
-`https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_state_5m.zip`.
+`https://www2.census.gov/geo/tiger/GENZ2025/shp/cb_2025_us_state_5m.zip`.
 
 **What shipped.** A theme subpackage `easysnowdata/boundaries/` (added to `KNOWN_THEMES`
 after `hydro`), four modules, seven catalog products, one gallery example per module, and
@@ -555,6 +555,16 @@ versions). Gallery: `boundaries/plot_admin.py`, `plot_natural_earth.py`,
   takes the HTTPS URLs directly. An anonymous GET redirects to the URS login page with a 200,
   so a plain first-byte probe would pass on a broken route: the RGI probe is the new
   `health.earthdata_https_first_byte`, which fails when it lands on URS.
+- NSIDC's `daacdata` tree does **not** accept a bearer `EARTHDATA_TOKEN` on its own: a
+  token-only `earthaccess` session lands on the URS login page (200), and
+  `earthaccess.download` saves that page as the "zip". It works with the username and
+  password (env or netrc), which is what CI holds. The loader now detects the login page
+  and says so; the Earthdata setup text on the credentials page names the limit.
+  (Separately, `auth.earthdata.token_is_valid` gets a 401 from `/api/users/tokens` even for
+  a freshly issued token, so a token-only setup is treated as expired — not yet fixed.)
+- The Census 2025 cartographic files appeared in March 2026 with the same columns;
+  `CENSUS_YEAR` moved to 2025 (2026-09-23), and the watch has a `[[file]]` entry on the
+  2026 URL whose 404 → 206 is the signal for the next move.
 - The old GLIMS RGI 6.0 URLs (`glims.org/RGI/rgi60_files/`) are gone (404); OGGM mirrors
   them at `cluster.klima.uni-bremen.de/~oggm/rgi/www.glims.org/RGI/rgi60_files/`, and the
   NSIDC regions zip is byte-identical to it. There is no credential-free RGI 7.0 route.

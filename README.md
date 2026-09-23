@@ -8,10 +8,12 @@
 **A Python package to easily retrieve data relevant to snow science.**
 
 `easysnowdata` unifies access to a wide range of snow-relevant geospatial
-datasets — weather stations, satellite imagery, climate reanalysis, DEMs, and
-more — under a consistent API that returns xarray objects. The emphasis is on
-minimising downloads and local computation by leveraging cloud-optimised data
-formats wherever possible.
+datasets — weather stations, satellite imagery, snow products, climate
+reanalysis, DEMs and a hillshade, basins, and boundaries from countries and
+counties to mountain ranges and glacier outlines — under a consistent API that
+returns xarray objects (and GeoDataFrames for vector products). The emphasis is
+on minimising downloads and local computation by leveraging cloud-optimised
+data formats wherever possible.
 
 ## Gallery
 
@@ -31,6 +33,11 @@ Every route of every product is probed weekly. A failure opens an issue
 labelled [`data-source`](https://github.com/egagli/easysnowdata/issues?q=label%3Adata-source)
 and a recovery closes it; latency and DMR++ readiness are on the
 [status page](https://egagli.github.io/easysnowdata/status.html).
+
+What a probe cannot see — a reprocessed collection, a republished file, a new
+release (the next Census year, a new RGI version) — is caught by a weekly
+[upstream watch](WATCHLIST.toml) that opens one digest issue labelled
+[`upstream-watch`](https://github.com/egagli/easysnowdata/issues?q=label%3Aupstream-watch).
 
 <!-- DATA_STATUS_START -->
 _Last updated: 2026-09-22 01:46 UTC_  

@@ -15,10 +15,12 @@ sd_hide_title: true
 
 **Snow-relevant geospatial data, one call each, as xarray.**
 
-Thirty-two products — station observations from five networks, SAR and optical
-imagery, snow cover and SWE, five DEMs, land cover, basins and reanalysis —
-behind one API that takes an area of interest and a time range, returns lazy
-Dask-backed xarray objects, and never downloads more than it has to.
+Forty products — station observations from five networks, SAR and optical
+imagery, snow cover and SWE, five DEMs and a hillshade, land cover, basins,
+reanalysis, and the boundaries that frame them: countries, states, counties,
+mountain ranges and glacier outlines — behind one API that takes an area of
+interest and a time range, returns lazy Dask-backed xarray objects (and
+GeoDataFrames for vector products), and never downloads more than it has to.
 
 ```{button-ref} installation
 :color: primary
@@ -39,9 +41,14 @@ obs_ds = esd.stations.load(inv_gdf, variables=["swe", "snwd"], time="2023-10/202
 dem_da = esd.terrain.dem.load(aoi)                          # Copernicus GLO-30 …
 dem_da = esd.terrain.dem.load(aoi, product="3dep")          # … or NASADEM, SRTM, 3DEP, ALOS
 s1_ds = esd.sar.sentinel1.load(aoi, "2024-03", units="dB")  # Sentinel-1 RTC
-snodas_ds = esd.snow.snodas.load(aoi, "2024-03")             # SNODAS, no account needed
+snodas_ds = esd.snow.snodas.load(aoi, "2024-03")            # SNODAS, no account needed
 
-esd.plotting.map(dem_da, cmap="terrain")                    # equal aspect, scale bar, graticule
+counties_gdf = esd.boundaries.admin.counties(aoi)           # Pierce and Lewis (US Census)
+ranges_gdf = esd.boundaries.mountains.load(aoi)             # GMBA mountain ranges
+glaciers_gdf = esd.boundaries.glaciers.load(aoi)            # RGI 7.0; version="6.0" too
+
+ax = esd.plotting.map(dem_da, cmap="terrain")               # equal aspect, scale bar, graticule
+esd.plotting.add_outline(ax, glaciers_gdf)                  # vectors in the map's CRS
 esd.plotting.timeseries(obs_ds["swe"])                      # calendar dates, units in [ ]
 ```
 
@@ -99,7 +106,8 @@ Every loader takes the same `aoi` (a bounding-box tuple, a shapely geometry, a
 GeoDataFrame in any CRS, or an `odc.geo.GeoBox`) and the same `time` (anything
 pandas or STAC understands). Search and load are separate calls. Results are
 lazy, carry their CRS on both the `.rio` and `.odc` accessors, and carry
-`source`, `license` and `data_citation` in `.attrs`. Products with more than
+`source`, `license` and `data_citation` in `.attrs` — GeoDataFrames too, which
+come back in EPSG:4326 holding the whole features that touch the AOI. Products with more than
 one route expose them through `source=`, so a Planetary Computer outage is one
 keyword away from an alternative. Credentials are checked before any network
 request, and the error says exactly how to fix them. Processing that is one
