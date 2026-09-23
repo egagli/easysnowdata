@@ -9,7 +9,8 @@ that is not a data product (an access pattern, a tool, a reference) still gets a
 note on whether and how it should be incorporated._
 
 _2026-09-23: added §F (plans for boundaries, cloud products and cameras), the Natural Earth
-hillshade that now ships as `esd.terrain.hillshade`, and their rows in §A, §C, §D and §E._
+hillshade that now ships as `esd.terrain.hillshade`, and their rows in §A, §C, §D and §E.
+The same day `esd.boundaries` shipped (§F.1)._
 
 Contents:
 
@@ -18,7 +19,7 @@ Contents:
 - **C. Evaluation of every product idea collected so far** — why each matters, how hard it is, verdict
 - **D. Example gallery** — the one-script-per-product examples and the multi-source how-tos
 - **E. Link register** — every link from the issues and idea dumps, what it is, why it matters, incorporate?
-- **F. Plans for new modules** — boundaries (F.1), cloud products (F.2), cameras and station imagery (F.3)
+- **F. Plans for new modules** — boundaries (F.1, shipped), cloud products (F.2), cameras and station imagery (F.3)
 
 ---
 
@@ -77,7 +78,7 @@ Login) / GEE (Earth Engine) / key.
 | climate | GPM IMERG daily | GES DISC `GPM_3IMERGDF` v07 (EDL, cloud, **has DMR++**) | global precipitation where no gauge exists |
 | climate | NOAA PSL climate indices | text files (none) | ENSO/PDO/AO context for interannual snow variability; trivial to add as a small table loader |
 | stations | Canada MSC GeoMet; Swiss SLF IMIS; Synoptic/MesoWest | OGC API / REST (none / free token) | networks already scoped in `global_snow_networks` issues #2–#22 |
-| boundaries | 🆕 Country, state/province, county and admin-level boundaries; mountain ranges | Natural Earth (none), US Census cartographic boundaries (none), geoBoundaries API (none), GMBA Mountain Inventory v2 on EarthEnv (none) | a new `esd.boundaries` theme; map outlines, AOIs by name, per-state and per-range summaries; see **F.1** |
+| boundaries | 🆕 Countries, states/provinces, US counties, admin levels, Natural Earth layers, GMBA mountain ranges, RGI glacier outlines (7.0 / 6.0) | Natural Earth (none), US Census cartographic boundaries (none), geoBoundaries API (none), GMBA v2 on EarthEnv (none), RGI on NSIDC (EDL) or the OGGM mirror (6.0, none) | **shipped 2026-09-23** as `esd.boundaries` (`admin`, `natural_earth`, `mountains`, `glaciers`); see **F.1** |
 | climate | 🆕 Cloud frequency climatology (EarthEnv, Wilson & Jetz 2016) | `data.earthenv.org/cloud/MODCF_*.tif` (none; CC BY-NC 4.0) | 1 km MODIS cloud frequency 2000–2014: mean annual, monthly, inter-/intra-annual variability, seasonality; where optical snow products go blind; see **F.2** |
 | climate | Cloud cover from ERA5 | ARCO-ERA5 `total_cloud_cover`, `low_/medium_/high_cloud_cover` (none) | **works today** through `esd.climate.era5.load(..., variables=["total_cloud_cover"])` (verified in the store 2026-09-23); needs only a gallery example; see F.2 |
 | stations | 🆕 Station photos and camera links | NRCS `siteimages/{id}.jpg` (none), BC AQUARIUS portal and NuPoint satellite cameras (none), from the vendored clients | expose the `station_image_url` / `station_camera_url` fields `global_snow_networks` already renders; see **F.3** |
@@ -311,12 +312,12 @@ re-implement · **reference** = not a product; kept in §E as an access pattern 
 | SnowEx campaign data | snow pits, GPR, lidar | method development | NSIDC · mixed · EDL | — | **shelf** |
 | Stream gauges (hydrocloud, USGS NWIS) | discharge | runoff onset validation (P2–P5) | REST · none | — | **wrap** HyRiver `pygeohydro`; hydrocloud station list as reference |
 | MetPy, metloom, SynopticPy | met-station and synoptic tooling | overlap with the station clients; MetPy for unit-aware met calculations | — | — | **reference** (metloom is a peer of the AWDB client; MetPy units could back `processing`) |
-| geoBoundaries, US census, TIGER, `censusdata` | admin boundaries, population | P5 basin-population work | GEE / PC | low | **boundaries → follow-on** (F.1, 2026-09-23); population and tracts stay **shelf** (P5-specific) |
-| Natural Earth vectors (countries, states/provinces, lakes, rivers, glaciated areas, populated places) | 1:10m / 1:50m / 1:110m cartographic vectors | outlines and labels for every map; country/state AOIs by name | `naciscdn.org` zipped shapefiles · none · public domain | low | **follow-on** (F.1 phase A) |
-| US Census cartographic boundaries | states, counties (500k / 5m / 20m) | the authoritative US outlines; replaces the personal `eric.clst.org` mirror of the 2010 files | `www2.census.gov/geo/tiger/GENZ{year}` zips · none · public domain | low | **follow-on** (F.1 phase A) |
-| GMBA Mountain Inventory v2 | 8 000+ mountain-range polygons, hierarchical (Snethlage et al. 2022) | "which range is this", per-range statistics; the mountain definition to pair with the Wrzesien mask | EarthEnv zip · none · CC BY 4.0 🔍 | low | **follow-on** (F.1 phase B) |
-| RGI 7.0 glacier outlines | global glacier polygons | glacier masks (the SNODAS glacier artefact, snow-vs-ice) | NSIDC-0770 · EDL 🔍 | low | **follow-on** (F.1 phase C, or `snow` theme) |
-| EPA Level III/IV ecoregions; RESOLVE Ecoregions 2017; PAD-US | ecological regions; protected areas | stratifying results; station and camera land ownership | EPA S3 zip (verified); others 🔍 | low | **follow-on** (F.1 phase C) |
+| geoBoundaries, US census, TIGER, `censusdata` | admin boundaries, population | P5 basin-population work | GEE / PC | low | **boundaries shipped** (F.1, 2026-09-23: geoBoundaries via `admin.admin`, Census via `admin.states`/`counties`); population and tracts stay **shelf** (P5-specific) |
+| Natural Earth vectors (countries, states/provinces, lakes, rivers, glaciated areas, populated places) | 1:10m / 1:50m / 1:110m cartographic vectors | outlines and labels for every map; country/state AOIs by name | `naciscdn.org` zipped shapefiles · none · public domain | low | **shipped** (F.1) |
+| US Census cartographic boundaries | states, counties (500k / 5m / 20m) | the authoritative US outlines; replaces a personal GeoJSON mirror of the 2010 files | `www2.census.gov/geo/tiger/GENZ{year}` zips · none · public domain | low | **shipped** (F.1) |
+| GMBA Mountain Inventory v2 | 8 000+ mountain-range polygons, hierarchical (Snethlage et al. 2022) | "which range is this", per-range statistics; the mountain definition to pair with the Wrzesien mask | EarthEnv zip · none · CC BY 4.0 | low | **shipped** (F.1) |
+| RGI 7.0 and 6.0 glacier outlines | global glacier polygons | glacier masks (the SNODAS glacier artefact, snow-vs-ice) | NSIDC-0770 · EDL; OGGM mirror (6.0) · none | low | **shipped** (F.1, `version=`) |
+| EPA Level III/IV ecoregions; RESOLVE Ecoregions 2017; PAD-US | ecological regions; protected areas | stratifying results; station and camera land ownership | EPA S3 zip (verified); others 🔍 | low | **follow-on** (F.1, still open) |
 | Overture Maps `divisions` | admin boundaries as GeoParquet, monthly releases | the cloud-native route with bbox pushdown | S3/Azure GeoParquet · none · ODbL | low–medium (release pinning) | **reference → later source** (F.1) |
 | EarthEnv cloud frequency (Wilson & Jetz 2016) | 1 km MODIS cloud climatology, 2000–2014 | where and when optical snow mapping loses days; campaign and sensor planning; context for the Wrzesien clouds layer | `data.earthenv.org` GeoTIFF (0.7–0.8 GB, striped, no overviews) · none · **CC BY-NC 4.0** | low | **follow-on** (F.2) |
 | ERA5 cloud cover | hourly total/low/medium/high cloud fraction, 0.25° | cloud as a melt-energy term (longwave, shortwave) | ARCO-ERA5 · none | none (already loadable) | **docs** (gallery example, F.2) |
@@ -363,8 +364,12 @@ sphinx-gallery), plus multi-source and access-pattern how-tos under `examples/ho
 - `terrain/plot_hillshade.py` — **shipped 2026-09-23**: the default Natural Earth style over the
   central Cascades, the Wrzesien mountain snow classes drawn over plain shaded relief, and the
   globe in Robinson (the runoff-onset notebook's `gdalwarp` step, in memory).
-- `boundaries/plot_boundaries.py` (F.1) — Washington's outline and its counties over the
-  hillshade, the GMBA ranges intersecting the AOI, and `parse_aoi` on a state polygon.
+- `boundaries/plot_admin.py`, `plot_natural_earth.py`, `plot_mountains.py`, `plot_glaciers.py`
+  — **shipped 2026-09-23** (F.1): the world and the Pacific Northwest's states over the
+  hillshade (Natural Earth vs Census), Washington's counties and the HUC4 basins its polygon
+  selects, Norway from geoBoundaries; Natural Earth layers and coastline generalization; GMBA
+  units, the hierarchy above Rainier and seasonal mountain snow per range; RGI regions,
+  Rainier's glaciers, and RGI 6.0 against 7.0 at Aletsch.
 - `climate/plot_cloud_frequency.py` (F.2) — EarthEnv mean annual and monthly cloud frequency over
   the Cascades next to ERA5 `total_cloud_cover` for the same months, and the fraction of
   MOD10A1 days lost to cloud.
@@ -485,13 +490,12 @@ in the best-practices wiki rather than this package (**wiki**). Nothing is dropp
 | Link | What it is | Why it matters | Incorporate? |
 | --- | --- | --- | --- |
 | https://www.earthenv.org/cloud | EarthEnv global 1 km cloud frequency (Wilson & Jetz 2016, PLoS Biol 14: e1002415, doi:10.1371/journal.pbio.1002415) | the cloud climatology for F.2; files at `https://data.earthenv.org/cloud/MODCF_<layer>.tif` | **product** (F.2) |
-| https://www.earthenv.org/mountains ; https://data.earthenv.org/mountains/standard/GMBA_Inventory_v2.0_standard.zip | GMBA Mountain Inventory v2 on the same host (zip verified 2026-09-23) | mountain-range polygons; same fetch pattern as the cloud files | **product** (F.1 phase B) |
+| https://www.earthenv.org/mountains ; https://data.earthenv.org/mountains/standard/GMBA_Inventory_v2.0_standard.zip | GMBA Mountain Inventory v2 on the same host (zip verified 2026-09-23) | mountain-range polygons; same fetch pattern as the cloud files | **product**, shipped (F.1) |
 | https://naturalearth.s3.amazonaws.com/10m_raster/GRAY_HR_SR_OB_DR.zip ; https://www.naturalearthdata.com/downloads/10m-raster-data/10m-gray-earth/ | Natural Earth Gray Earth shaded relief (and its siblings) | the hillshade basemap | **product**, shipped as `terrain.hillshade` |
-| https://naciscdn.org/naturalearth/110m/cultural/ne_110m_admin_0_countries.zip ; https://naciscdn.org/naturalearth/10m/cultural/ne_10m_admin_1_states_provinces.zip ; https://naciscdn.org/naturalearth/10m/physical/ne_10m_glaciated_areas.zip | Natural Earth countries, states/provinces, glaciated areas (verified) | map outlines worldwide | **product** (F.1 phase A) |
-| http://eric.clst.org/assets/wiki/uploads/Stuff/gz_2010_us_040_00_5m.json | a personal GeoJSON mirror of the Census **2010** 1:5m state boundaries | the URL in use today; convenient but third-party and 16 years old | **no** — use the Census source it mirrors (next row) |
-| https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_state_20m.zip (also `_5m`, `_500k`, `county_*`) | US Census cartographic boundary files (verified) | authoritative US states and counties | **product** (F.1 phase A) |
-| https://www.geoboundaries.org/api/current/gbOpen/USA/ADM1/ | geoBoundaries API (verified): JSON pointing to per-country ADM0–ADM5 GeoJSON, CC BY 4.0 | admin levels anywhere in the world | **product** (F.1 phase B) |
-| https://dmap-prod-oms-edc.s3.us-east-1.amazonaws.com/ORD/Ecoregions/us/us_eco_l3.zip | EPA Level III ecoregions (verified) | US stratification | **product** (F.1 phase C) |
+| https://naciscdn.org/naturalearth/110m/cultural/ne_110m_admin_0_countries.zip ; https://naciscdn.org/naturalearth/10m/cultural/ne_10m_admin_1_states_provinces.zip ; https://naciscdn.org/naturalearth/10m/physical/ne_10m_glaciated_areas.zip | Natural Earth countries, states/provinces, glaciated areas (verified) | map outlines worldwide | **product**, shipped (F.1) |
+| https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_state_5m.zip (also `_20m`, `_500k`, `county_*`) | US Census cartographic boundary files (verified) | authoritative US states and counties; replaces the personal mirror of the 2010 files used before | **product**, shipped (F.1) |
+| https://www.geoboundaries.org/api/current/gbOpen/USA/ADM1/ | geoBoundaries API (verified): JSON pointing to per-country ADM0–ADM5 GeoJSON, CC BY 4.0 | admin levels anywhere in the world | **product**, shipped (F.1) |
+| https://dmap-prod-oms-edc.s3.us-east-1.amazonaws.com/ORD/Ecoregions/us/us_eco_l3.zip | EPA Level III ecoregions (verified) | US stratification | **product** (F.1 follow-on) |
 | https://noaa-cdr-patmosx-radiances-and-clouds-pds.s3.amazonaws.com/index.html | PATMOS-x AVHRR cloud climate data record on AWS (bucket reachable) | a 1979-onward cloud record | **shelf** (F.2) |
 | `/home/eric/repos/global_snow_networks/scripts/create_all_stations_geojson.py` (`BC_CAMERA_URLS`, `awdb_image_url`) ; `scripts/generate_live_map.py` | where the live map's camera links and photos come from | the starting point for F.3 | **access pattern** (F.3) |
 | https://www2.gov.bc.ca/gov/content/environment/air-land-water/water/water-science-data/water-data-tools/snow-survey-data/snow-station-satellite-cameras | BC snow-station satellite camera index | the authoritative list behind `BC_CAMERA_URLS` | **reference** (F.3) |
@@ -500,100 +504,74 @@ in the best-practices wiki rather than this package (**wiki**). Nothing is dropp
 
 ## F. Plans for new modules
 
-### F.1 Boundaries: a new `esd.boundaries` theme
+### F.1 Boundaries: the `esd.boundaries` theme (shipped 2026-09-23)
 
-**What Eric asked (2026-09-23):** country and state boundaries, as in
+**Asked (2026-09-23):** country and state boundaries in place of ad-hoc reads of a Natural
+Earth zip and a personal GeoJSON mirror of the 2010 Census states; then (same day, Eric)
+call the theme `boundaries`, put glacier outlines in it, include GMBA and RGI with a
+choice of RGI version, and replace the mirror link. The US Census cartographic boundary
+files it mirrors are now the source:
+`https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_state_5m.zip`.
 
-```python
-states_gdf = gpd.read_file("http://eric.clst.org/assets/wiki/uploads/Stuff/gz_2010_us_040_00_5m.json")
-world_gdf = gpd.read_file("https://naciscdn.org/naturalearth/110m/cultural/ne_110m_admin_0_countries.zip")
-```
-
-**Where it goes: a new theme subpackage, `easysnowdata/boundaries/`.** One theme is one
-subpackage (`catalog._models.KNOWN_THEMES`), and boundaries do not fit an existing one. `hydro`
-is watersheds, and a country is not a basin; `terrain` and `land` are rasters. A theme of its
-own also gives boundaries their own catalog section, gallery folder and API page. Adding it
-takes an entry in `KNOWN_THEMES` / `THEME_TITLES` (after `hydro`), `docs/api/boundaries.rst`,
-`docs/gallery/boundaries/`, and the `esd.__init__` import. "`reference`" is the alternative
-name if the theme should also hold non-political outlines (mountains, ecoregions, glaciers).
-`boundaries` reads better at the call site, and mountain ranges are boundaries too.
-
-**Nothing new is needed underneath.** `providers.vector_http.read` already pushes an AOI down
-as `mask=`/`bbox=`, `providers.raster_http.fetch` caches a zip once with a named User-Agent, and
-`hydro/basins.py` is the template: a GeoDataFrame in EPSG:4326 of the features that *intersect*
-the AOI (whole features, not cut at the edge), with provenance in `.attrs`.
-
-**Proposed API**
+**What shipped.** A theme subpackage `easysnowdata/boundaries/` (added to `KNOWN_THEMES`
+after `hydro`), four modules, seven catalog products, one gallery example per module, and
+`esd.plotting.add_outline` to draw any of them over a map in its CRS. Every loader returns
+a GeoDataFrame in EPSG:4326 of the features that *intersect* the AOI (whole, not cut),
+through `contract.finalize_frame` (CRS, dropped Z, provenance), and every one is itself an
+AOI for the other loaders.
 
 ```python
 import easysnowdata as esd
 
-world_gdf = esd.boundaries.countries()                           # Natural Earth 1:110m, whole world
-wa_gdf = esd.boundaries.states(aoi)                              # US → Census; elsewhere → Natural Earth admin-1
-bc_gdf = esd.boundaries.states(country="CAN", name="British Columbia")
-counties_gdf = esd.boundaries.counties(aoi, state="WA")          # Census, US only
-adm2_gdf = esd.boundaries.admin(aoi, level=2, country="NOR")     # geoBoundaries ADM0–ADM5, any country
-ranges_gdf = esd.boundaries.mountains(aoi)                       # GMBA v2 (phase B)
-lakes_gdf = esd.boundaries.natural_earth("lakes", scale="10m")   # any Natural Earth vector layer
-esd.hydro.basins.huc(esd.boundaries.states(name="Washington"), level=4)  # a boundary is an AOI
+world_gdf = esd.boundaries.admin.countries()                        # Natural Earth, 1:110m
+wa_gdf = esd.boundaries.admin.states(aoi)                           # US AOI → Census 1:5m
+bc_gdf = esd.boundaries.admin.states(country="CAN", name="British Columbia")
+counties_gdf = esd.boundaries.admin.counties(aoi, state="WA")       # Census
+kommuner_gdf = esd.boundaries.admin.admin(country="NOR", level=2)   # geoBoundaries ADM0-5
+lakes_gdf = esd.boundaries.natural_earth.load(aoi, layer="lakes")   # any Natural Earth layer
+ranges_gdf = esd.boundaries.mountains.load(aoi)                     # GMBA v2, basic units
+glaciers_gdf = esd.boundaries.glaciers.load(aoi)                    # RGI 7.0 (NSIDC, EDL)
+rgi6_gdf = esd.boundaries.glaciers.load(aoi, version="6.0", source="oggm-mirror")
+huc4_gdf = esd.hydro.basins.huc(wa_gdf, level=4)                    # a boundary is an AOI
 ```
 
-- `scale=` follows Natural Earth (`"110m"` default for `countries()` with no AOI, `"10m"` when an
-  AOI is given, `"50m"` between). For Census it maps to `"20m"`/`"5m"`/`"500k"`.
-- `name=` / `iso3=` / `country=` filter by attribute after the spatial read. Every returned
-  frame carries the same small set of normalized columns: `name`, `iso3`, `admin_level`,
-  `source_id`, then the source's own columns.
-- `source=` works as everywhere else. Each function is one catalog product
-  (`natural-earth-countries`, `us-census-boundaries`, `geoboundaries`, `gmba-mountains`, …) with
-  a health probe (`http_first_byte` on the zip; a GET of the geoBoundaries API).
-- A small plotting helper, `esd.plotting.add_outline(ax, gdf, crs=None, **style)`, draws
-  outlines in the map's CRS. With `terrain.hillshade` it gives a complete context map in three lines.
+| Product | Module | Sources (default first) | Notes |
+| --- | --- | --- | --- |
+| `countries` | `admin.countries` | Natural Earth 10m/50m/110m; geoBoundaries ADM0 | `iso3` from `ADM0_A3` (Natural Earth's `ISO_A3` is `-99` for France and Norway) |
+| `states-provinces` | `admin.states` | Natural Earth 10m/50m; US Census; geoBoundaries ADM1 | `source=None` picks the Census when the AOI or `country=` is US-only |
+| `us-counties` | `admin.counties` | US Census (500k / 5m / 20m, `year=`) | `state="WA"` or `"Washington"` |
+| `admin-boundaries` | `admin.admin` | geoBoundaries gbOpen | any level of any country; country inferred from the AOI; GeoJSON cached per release commit; each unit carries its `boundaryLicense` (CC BY 4.0 for most, ODbL for Norway) |
+| `natural-earth-vectors` | `natural_earth.load` | Natural Earth | any layer by name; the point-of-view country editions (`admin_0_countries_ind` …) |
+| `gmba-mountains` | `mountains.load` | EarthEnv | `subset="basic"` / `"300"` / `"all"` + `level=`, `extent="standard"` / `"broad"` |
+| `rgi-glaciers` | `glaciers.load` | NSIDC (EDL); OGGM mirror of GLIMS (6.0, no account) | `version="7.0"` (default) or `"6.0"`; `product="glaciers"` / `"complexes"` (7.0); regions looked up from the AOI, or `region=` |
 
-**Sources and defaults**
+Shared columns lead every frame: `name`, `iso3`, `admin_level` (admin); `name`, `gmba_id`,
+`level`, `path` (GMBA); `rgi_id`, `name`, `area_km2`, `o1region` (RGI, the same for both
+versions). Gallery: `boundaries/plot_admin.py`, `plot_natural_earth.py`,
+`plot_mountains.py`, `plot_glaciers.py` (the last needs Earthdata for RGI 7.0).
 
-| | Natural Earth | US Census cartographic boundaries | geoBoundaries (gbOpen) | GADM 4.1 | Overture `divisions` |
-| --- | --- | --- | --- | --- | --- |
-| Coverage | world: admin-0 (110m/50m/10m), admin-1 (50m/10m) | US: nation, states, counties, … (500k/5m/20m), yearly | world, per country ADM0–ADM5; CGAZ global composite | world ADM0–ADM5 | world, monthly releases |
-| Format / access | zipped shapefile on `naciscdn.org` (verified) | zipped shapefile, `GENZ{year}/shp/cb_{year}_us_{layer}_{res}.zip` (2024 verified) | API → GeoJSON (verified); also GEE `WM/geoLab/geoBoundaries` | GeoPackage download | GeoParquet on S3/Azure (bbox pushdown) |
-| Licence | public domain | public domain | CC BY 4.0 | **no redistribution, non-commercial** | ODbL |
-| Role | **default** for countries and non-US admin-1 | **default** for US states and counties | **default** for `admin(level=…)` | reference only (licence) | later cloud-native source, once releases can be pinned |
+**Found while building it** (verified 2026-09-23):
+- NSIDC's `daacdata` tree (RGI 6.0 and 7.0) is not in CMR as granules; `earthaccess.download`
+  takes the HTTPS URLs directly. An anonymous GET redirects to the URS login page with a 200,
+  so a plain first-byte probe would pass on a broken route: the RGI probe is the new
+  `health.earthdata_https_first_byte`, which fails when it lands on URS.
+- The old GLIMS RGI 6.0 URLs (`glims.org/RGI/rgi60_files/`) are gone (404); OGGM mirrors
+  them at `cluster.klima.uni-bremen.de/~oggm/rgi/www.glims.org/RGI/rgi60_files/`, and the
+  NSIDC regions zip is byte-identical to it. There is no credential-free RGI 7.0 route.
+- **Around Mount Rainier, RGI 7.0 did not redraw anything**: all 167 outlines are RGI 6.0's
+  (`is_rgi6 = 1`), from 1959 and 1970 USGS mapping, not the year 2000 7.0 targets; 7.0 drops
+  nine unnamed 0.01 km² patches (176 → 167, 92.7 km² either way). Around the Great Aletsch
+  Glacier every 7.0 outline is new (2003) and the totals agree to 0.2%. Check `src_date`
+  before treating RGI as a year-2000 extent.
+- geoBoundaries' full-resolution Norway ADM0 is one GeoJSON object over GDAL's 200 MB limit;
+  the loader sets `OGR_GEOJSON_MAX_OBJ_SIZE=0`. Its Norway ADM1 is the 11 fylker of
+  2020–2023, not the 15 restored in 2024.
+- Natural Earth's parks layer is a multi-layer zip (`ne_10m_parks_and_protected_lands.zip`),
+  so it is not in the layer table.
 
-**Two things to watch.** (1) Natural Earth draws disputed borders from one point of view by
-default, and publishes per-country point-of-view variants (`ne_10m_admin_0_countries_<iso>`).
-The catalog page should say so, and `pov=` can expose the variants. (2) The `eric.clst.org`
-URL is a personal mirror of the **2010** Census 1:5m states. Use the Census source it mirrors,
-which is current and stable.
-
-**Datasets worth including, beyond countries and states** (ordered by snow relevance):
-
-1. **GMBA Mountain Inventory v2** (Snethlage et al. 2022): mountain-range polygons at several
-   hierarchy levels, hosted on EarthEnv (the same host as F.2's cloud files). Useful for "which
-   range", per-range summaries, and pairing a mountain definition with the Wrzesien mask.
-   **Phase B.**
-2. **Glacier outlines**: RGI 7.0 (NSIDC-0770 🔍) for analysis, and Natural Earth
-   `glaciated_areas` (verified) for maps. They mask the SNODAS glacier artefact and separate
-   snow from ice. Decide whether they belong under `snow` instead. **Phase C.**
-3. **US counties and states from Census**: **phase A**, next to Natural Earth.
-4. **geoBoundaries ADM1–ADM2**: sub-national units outside the US (Norwegian fylker and
-   kommuner for the NVE stations, Canadian provinces for BC/Yukon). **Phase B.**
-5. **Ecoregions**: EPA Level III/IV for the US (verified), RESOLVE 2017 globally 🔍. For
-   stratifying results. **Phase C.**
-6. **Protected areas**: PAD-US for US parks, wilderness and national forests 🔍 (station and
-   camera land ownership, access). WDPA globally is non-commercial, so reference only.
-   **Phase C.**
-7. **Natural Earth physical and cultural layers** (lakes, rivers, coastline, populated
-   places), through the generic `natural_earth(layer)`, for map context and labels. **Phase A.**
-8. Lakes and rivers for analysis (HydroLAKES, HydroRIVERS) belong in `hydro`, not here.
-
-**Phasing.** A: the theme, `countries`, `states`, `counties`, `natural_earth`, `add_outline`,
-`plot_boundaries.py`. B: `admin(level=…)` via geoBoundaries, `mountains()` via GMBA. C:
-ecoregions, protected areas, glacier outlines, and an Overture source. Tests follow the static
-pattern: tiny zipped-shapefile / GeoJSON fixtures in `tests/static/make_fixtures.py`, a
-recorded geoBoundaries API response, and one live smoke test per source.
-
-**Open questions for Eric:** the theme name (`boundaries` or `reference`); whether glacier
-outlines live here or in `snow`; whether `states()` should switch to Census automatically for
-US AOIs (proposed) or always default to Natural Earth for consistency.
+**Still open (follow-ons):** EPA Level III/IV and RESOLVE ecoregions, PAD-US protected areas
+(WDPA is non-commercial, reference only), and Overture `divisions` as a GeoParquet source once
+its monthly releases can be pinned. GADM stays reference-only (no redistribution).
 
 ### F.2 Cloud products
 
