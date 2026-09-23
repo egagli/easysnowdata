@@ -38,39 +38,45 @@ for src in esd.catalog.get("sentinel-2-l2a").sources:
 # acquisition and ESA's 2024 reprocessing of it (two ``s2:processing_baseline``
 # values per tile per day), so a day can return twice the items you expect.
 # ``load`` groups by solar day, which folds them into one time step.
-items = esd.optical.sentinel2.search(aoi, "2023-08-15", cloud_cover=40)
-print(items[["datetime", "eo:cloud_cover", "s2:processing_baseline"]].to_string())
+items_gdf = esd.optical.sentinel2.search(aoi, "2023-08-15", cloud_cover=40)
+print(items_gdf[["datetime", "eo:cloud_cover", "s2:processing_baseline"]].to_string())
 
 # %%
 # Load the scene at its native 10 m, masked with the default SCL classes
 # (no data, saturated, shadows, clouds, cirrus). Band arithmetic stays in the
 # open: NDSI is one line of xarray.
-s2 = esd.optical.sentinel2.load(
+s2_ds = esd.optical.sentinel2.load(
     aoi,
-    items=items,
+    items=items_gdf,
     bands=["blue", "green", "red", "swir16", "scl"],
     mask="scl-default",
 ).compute()
 
-ndsi = (s2["green"] - s2["swir16"]) / (s2["green"] + s2["swir16"])
-ndsi.attrs = {"long_name": "NDSI (green − SWIR 1.6 µm)"}
-ndsi
+ndsi_da = (s2_ds["green"] - s2_ds["swir16"]) / (s2_ds["green"] + s2_ds["swir16"])
+ndsi_da.attrs = {"long_name": "NDSI (green − SWIR 1.6 µm)"}
+ndsi_da
 
 # %%
 # A true-colour composite is the three bands stacked on a ``band`` dimension
 # and stretched to a fixed reflectance range (0–0.5 here, so snow saturates to
 # white and rock keeps its texture). xarray draws it directly.
-rgb = s2[["red", "green", "blue"]].to_array("band").isel(time=0)
-rgb = rgb.clip(0, 0.5) / 0.5
+rgb_da = s2_ds[["red", "green", "blue"]].to_array("band").isel(time=0)
+rgb_da = rgb_da.clip(0, 0.5) / 0.5
 
 fig, axes = plt.subplots(1, 3, figsize=(17, 5.2))
-rgb.plot.imshow(rgb="band", ax=axes[0], add_labels=False)
+rgb_da.plot.imshow(rgb="band", ax=axes[0], add_labels=False)
 axes[0].set_title("True colour (0–0.5 reflectance), 2023-08-15")
-esd.plotting.finish_map(axes[0], s2.rio.crs)
+esd.plotting.finish_map(axes[0], s2_ds.rio.crs)
 esd.plotting.map(
-    ndsi, ax=axes[1], cmap="Blues", vmin=-0.5, vmax=1.0, title="NDSI", cbar_label="NDSI"
+    ndsi_da,
+    ax=axes[1],
+    cmap="Blues",
+    vmin=-0.5,
+    vmax=1.0,
+    title="NDSI",
+    cbar_label="NDSI",
 )
-esd.plotting.categorical(s2["scl"], ax=axes[2], title="Scene classification (SCL)")
+esd.plotting.categorical(s2_ds["scl"], ax=axes[2], title="Scene classification (SCL)")
 for ax in axes[1:]:
     ax.set_ylabel("")  # the panels share their latitude axis
 fig.tight_layout()
@@ -84,13 +90,13 @@ fig.tight_layout()
 # step the two catalogs would disagree by 0.1 in reflectance everywhere, which
 # in a SWIR band is the difference between snow and rock.
 window = dict(bands=["green", "swir16"], resolution=20)
-pc = esd.optical.sentinel2.load(aoi, "2023-08-15", **window).compute()
-es = esd.optical.sentinel2.load(
+pc_ds = esd.optical.sentinel2.load(aoi, "2023-08-15", **window).compute()
+es_ds = esd.optical.sentinel2.load(
     aoi, "2023-08-15", source="earth-search", **window
 ).compute()
 
-for name, ds in (("planetary-computer", pc), ("earth-search", es)):
-    median = float(np.nanmedian(ds["green"].values))
+for name, catalog_ds in (("planetary-computer", pc_ds), ("earth-search", es_ds)):
+    median = float(np.nanmedian(catalog_ds["green"].values))
     print(f"{name:20} median green reflectance {median:.4f}")
 
 # %%
@@ -102,31 +108,39 @@ for name, ds in (("planetary-computer", pc), ("earth-search", es)):
 # 0.1): the two archives hold different processings of the same acquisition.
 # The acquisition timestamps differ by a few minutes (tile time versus
 # datatake time), so the time coordinate is dropped before subtracting.
-ndsi_pc = ((pc["green"] - pc["swir16"]) / (pc["green"] + pc["swir16"])).isel(time=0)
-ndsi_es = ((es["green"] - es["swir16"]) / (es["green"] + es["swir16"])).isel(time=0)
-diff = pc["green"].isel(time=0, drop=True) - es["green"].isel(time=0, drop=True)
-diff.attrs = {"long_name": "green reflectance, Planetary Computer − Earth Search"}
+ndsi_pc_da = (
+    (pc_ds["green"] - pc_ds["swir16"]) / (pc_ds["green"] + pc_ds["swir16"])
+).isel(time=0)
+ndsi_es_da = (
+    (es_ds["green"] - es_ds["swir16"]) / (es_ds["green"] + es_ds["swir16"])
+).isel(time=0)
+diff_da = pc_ds["green"].isel(time=0, drop=True) - es_ds["green"].isel(
+    time=0, drop=True
+)
+diff_da.attrs = {"long_name": "green reflectance, Planetary Computer − Earth Search"}
 
 fig, axes = plt.subplots(1, 3, figsize=(17, 5.2))
 esd.plotting.map(
-    ndsi_pc, ax=axes[0], cmap="Blues", vmin=-0.5, vmax=1.0,
+    ndsi_pc_da, ax=axes[0], cmap="Blues", vmin=-0.5, vmax=1.0,
     title="NDSI, Planetary Computer", cbar_label="NDSI",
 )  # fmt: skip
 esd.plotting.map(
-    ndsi_es, ax=axes[1], cmap="Blues", vmin=-0.5, vmax=1.0,
+    ndsi_es_da, ax=axes[1], cmap="Blues", vmin=-0.5, vmax=1.0,
     title="NDSI, Earth Search", cbar_label="NDSI",
 )  # fmt: skip
 esd.plotting.map(
-    diff, ax=axes[2], cmap="RdBu_r", vmin=-0.05, vmax=0.05,
+    diff_da, ax=axes[2], cmap="RdBu_r", vmin=-0.05, vmax=0.05,
     title="Green reflectance difference", cbar_label="PC − Earth Search",
 )  # fmt: skip
 for ax in axes[1:]:
     ax.set_ylabel("")
 fig.tight_layout()
 
-ok = np.isfinite(diff.values)
-correlation = np.corrcoef(pc["green"].values[0][ok], es["green"].values[0][ok])[0, 1]
+ok = np.isfinite(diff_da.values)
+correlation = np.corrcoef(pc_ds["green"].values[0][ok], es_ds["green"].values[0][ok])[
+    0, 1
+]
 print(
     f"green reflectance: correlation {correlation:.3f}, "
-    f"median |difference| {float(np.nanmedian(np.abs(diff.values))):.4f}"
+    f"median |difference| {float(np.nanmedian(np.abs(diff_da.values))):.4f}"
 )

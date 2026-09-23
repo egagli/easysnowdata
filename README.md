@@ -187,23 +187,23 @@ import easysnowdata as esd
 aoi = (-121.94, 46.72, -121.54, 46.99)          # Mount Rainier; any AOI form works
 
 # Snow stations: which are here, then one water year of observations
-inv = esd.stations.inventory(aoi, daily_only=True)
-obs = esd.stations.load(inv, variables=["swe", "snwd"], time="2023-10/2024-09")
+inv_gdf = esd.stations.inventory(aoi, daily_only=True)
+obs_ds = esd.stations.load(inv_gdf, variables=["swe", "snwd"], time="2023-10/2024-09")
 
 # Terrain, SAR and snow water equivalent — lazy, Dask-backed, CRS attached
-dem = esd.terrain.dem.load(aoi)                             # Copernicus GLO-30 (default)
-dem = esd.terrain.dem.load(aoi, product="3dep")             # or NASADEM, SRTM, 3DEP, ALOS
-s1 = esd.sar.sentinel1.load(aoi, "2024-03", units="dB")     # Sentinel-1 RTC
-swe = esd.snow.snodas.load(aoi, "2024-03")                  # SNODAS, no account
+dem_da = esd.terrain.dem.load(aoi)                          # Copernicus GLO-30 (default)
+dem_da = esd.terrain.dem.load(aoi, product="3dep")          # or NASADEM, SRTM, 3DEP, ALOS
+s1_ds = esd.sar.sentinel1.load(aoi, "2024-03", units="dB")  # Sentinel-1 RTC
+snodas_ds = esd.snow.snodas.load(aoi, "2024-03")             # SNODAS, no account
 
 # Optical, masked, and a snow index written out rather than hidden in a helper
-s2 = esd.optical.sentinel2.load(aoi, "2024-03", mask="scl-default")
-ndsi = (s2["green"] - s2["swir16"]) / (s2["green"] + s2["swir16"])
+s2_ds = esd.optical.sentinel2.load(aoi, "2024-03", mask="scl-default")
+ndsi_da = (s2_ds["green"] - s2_ds["swir16"]) / (s2_ds["green"] + s2_ds["swir16"])
 
 # Maps with equal aspect, a scale bar and a graticule; legends from CF flags
-esd.plotting.map(dem, cmap="terrain")
+esd.plotting.map(dem_da, cmap="terrain")
 esd.plotting.categorical(esd.land.landcover.load(aoi))
-esd.plotting.timeseries(obs["swe"])                         # calendar dates, units in [ ]
+esd.plotting.timeseries(obs_ds["swe"])                      # calendar dates, units in [ ]
 
 # What is available, and what it needs
 esd.catalog.search("swe")

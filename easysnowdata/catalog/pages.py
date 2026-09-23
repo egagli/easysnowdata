@@ -189,25 +189,57 @@ def quickstart(product: Product) -> list[str]:
     if product.id == "snow-station-archive":
         return lines + [
             "",
-            "inv = esd.stations.archive.inventory(aoi)      # one HTTP request",
-            "obs = esd.stations.archive.load(inv)           # SWE and snow depth",
+            "inv_gdf = esd.stations.archive.inventory(aoi)  # one HTTP request",
+            "obs_ds = esd.stations.archive.load(inv_gdf)    # SWE and snow depth",
         ]
     try:
-        params = list(inspect.signature(product.resolve_loader()).parameters)
+        signature = inspect.signature(product.resolve_loader())
     except (ImportError, TypeError, ValueError):  # pragma: no cover
-        params = ["aoi"]
+        signature = None
+    params = list(signature.parameters) if signature is not None else ["aoi"]
 
     if params[:1] == ["stations"]:
         network = product.id.removesuffix("-stations")
         return lines + [
             "",
-            f'inv = esd.stations.inventory(aoi, networks="{network}")',
-            'obs = esd.stations.load(inv, variables=["swe", "snwd"],',
-            '                        time="2023-10/2024-09")',
+            f'inv_gdf = esd.stations.inventory(aoi, networks="{network}")',
+            'obs_ds = esd.stations.load(inv_gdf, variables=["swe", "snwd"],',
+            '                           time="2023-10/2024-09")',
         ]
     second = params[1] if len(params) > 1 else ""
     extra = {"time": ', time="2024-03"', "level": ", level=8"}.get(second, "")
-    return lines + [f"data = {dotted}(aoi{extra})"]
+    name = _result_name(product, signature)
+    return lines + [f"{name} = {dotted}(aoi{extra})"]
+
+
+#: Loader return annotation → the variable-name suffix the examples use.
+_SUFFIXES = {
+    "GeoDataFrame": "_gdf",
+    "DataFrame": "_df",
+    "Dataset": "_ds",
+    "DataArray": "_da",
+}
+
+
+def _result_name(product: Product, signature: Any) -> str:
+    """The snippet's variable name: the loader's stem plus a type suffix.
+
+    The stem is the loader's name, or its module's for a plain ``load``
+    (``terrain.dem.load`` → ``dem``, ``hydro.basins.huc`` → ``huc``); the
+    suffix follows the return annotation (``xr.DataArray`` → ``_da``,
+    ``xr.Dataset`` → ``_ds``, ``gpd.GeoDataFrame`` → ``_gdf``). Falls back to
+    ``data`` when the annotation is missing or unrecognised.
+    """
+    module, _, attr = product.loader.replace(":", ".").rpartition(".")
+    stem = module.rpartition(".")[2] if attr == "load" else attr
+    annotation = getattr(signature, "return_annotation", None)
+    text = (
+        annotation
+        if isinstance(annotation, str)
+        else getattr(annotation, "__name__", "")
+    )
+    suffix = _SUFFIXES.get(str(text).rpartition(".")[2])
+    return f"{stem}{suffix}" if suffix and stem.isidentifier() else "data"
 
 
 def _credentials_note(product: Product) -> list[str]:

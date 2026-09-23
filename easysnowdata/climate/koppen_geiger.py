@@ -7,11 +7,11 @@ four resolutions, so this loader exposes ``period=`` and ``scenario=``
 alongside ``resolution=``::
 
     import easysnowdata as esd
-    kg = esd.climate.koppen_geiger.load(aoi)                      # 1991-2020, 0.1°
-    kg = esd.climate.koppen_geiger.load(aoi, period="2071_2099",
-                                        scenario="ssp245", resolution="1 km")
-    esd.climate.koppen_geiger.search()                            # what is in the archive
-    esd.plotting.categorical(kg)                                  # CF flags → legend
+    kg_da = esd.climate.koppen_geiger.load(aoi)               # 1991-2020, 0.1°
+    kg_da = esd.climate.koppen_geiger.load(aoi, period="2071_2099",
+                                           scenario="ssp245", resolution="1 km")
+    esd.climate.koppen_geiger.search()                        # what is in the archive
+    esd.plotting.categorical(kg_da)                           # CF flags → legend
 
 The 30 classes are returned as the source ``uint8`` values with CF
 ``flag_values`` / ``flag_meanings`` / ``flag_colors``; 0 is ocean and is kept
@@ -228,9 +228,9 @@ def search(
                         "member": _member(period, scenario, token),
                     }
                 )
-    frame = pd.DataFrame(rows)
-    frame.attrs = {"source": src.id, "url": ZIP_URL}
-    return frame
+    archive_df = pd.DataFrame(rows)
+    archive_df.attrs = {"source": src.id, "url": ZIP_URL}
+    return archive_df
 
 
 def load(

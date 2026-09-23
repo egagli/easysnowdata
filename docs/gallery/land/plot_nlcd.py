@@ -45,19 +45,21 @@ for src in esd.catalog.get("nlcd").sources:
 # 2-D map that keeps its date as a scalar coordinate.
 # The box is loaded with a 1 km margin so the AOI's UTM grid the maps use is
 # fully covered; the class areas below are counted on the native Albers pixels.
-landcover = esd.land.nlcd.load(box.buffer(1000), time="1985/2024")
-print(landcover)
-first, last = landcover.isel(time=0), landcover.isel(time=-1)
+landcover_da = esd.land.nlcd.load(box.buffer(1000), time="1985/2024")
+print(landcover_da)
+first_da, last_da = landcover_da.isel(time=0), landcover_da.isel(time=-1)
 
 fig, axes = plt.subplots(1, 2, figsize=(14, 5.8), layout="constrained")
 esd.plotting.categorical(
-    first.odc.reproject(grid, resampling="nearest"),
+    first_da.odc.reproject(grid, resampling="nearest"),
     ax=axes[0],
     legend=False,
     title="Annual NLCD 1985",
 )
 esd.plotting.categorical(
-    last.odc.reproject(grid, resampling="nearest"), ax=axes[1], title="Annual NLCD 2024"
+    last_da.odc.reproject(grid, resampling="nearest"),
+    ax=axes[1],
+    title="Annual NLCD 2024",
 )
 
 # %%
@@ -67,7 +69,7 @@ esd.plotting.categorical(
 # heavily before the 1990s: the shrub/scrub of those cuts shrinks year by year
 # as the stands close back into evergreen forest, and the two curves are
 # close to mirror images. Perennial ice/snow does not move at all.
-classes = esd.processing.categorical.flags(landcover).set_index("value")
+classes_df = esd.processing.categorical.flags(landcover_da).set_index("value")
 follow = {
     42: "Evergreen forest",
     52: "Shrub/scrub",
@@ -76,16 +78,16 @@ follow = {
 }
 fig, ax = plt.subplots(figsize=(9, 4.2))
 for value, name in follow.items():
-    area_km2 = (landcover == value).sum(dim=("y", "x")) * 900 / 1e6
+    area_km2_da = (landcover_da == value).sum(dim=("y", "x")) * 900 / 1e6
     print(
-        f"{name:22} {float(area_km2.isel(time=0)):7.1f} km² in 1985, "
-        f"{float(area_km2.isel(time=-1)):7.1f} km² in 2024"
+        f"{name:22} {float(area_km2_da.isel(time=0)):7.1f} km² in 1985, "
+        f"{float(area_km2_da.isel(time=-1)):7.1f} km² in 2024"
     )
     ax.plot(
-        landcover["time"].values,
-        (area_km2 - area_km2.isel(time=0)).values,
+        landcover_da["time"].values,
+        (area_km2_da - area_km2_da.isel(time=0)).values,
         label=name,
-        color=classes.loc[value, "color"],
+        color=classes_df.loc[value, "color"],
         linewidth=1.8,
     )
 ax.axhline(0, color="0.3", linewidth=0.8)

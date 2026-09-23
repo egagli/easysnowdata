@@ -338,25 +338,25 @@ esd.catalog.list(theme="snow")
 esd.catalog.describe("sentinel-1-rtc")             # sources, creds, resolution, notes, citation
 
 # Search/load split, lazy, source selectable
-items = esd.sar.sentinel1.search(aoi, time="2023-10/2024-06")             # GeoDataFrame
-s1 = esd.sar.sentinel1.load(aoi, time="2023-10/2024-06",
-                            source="opera-rtc-s1", bands=["VV", "VH"], units="dB")
-lia = esd.sar.sentinel1.local_incidence_angle(aoi)                        # OPERA static layer,
+items_gdf = esd.sar.sentinel1.search(aoi, time="2023-10/2024-06")         # GeoDataFrame
+s1_ds = esd.sar.sentinel1.load(aoi, time="2023-10/2024-06",
+                               source="opera-rtc-s1", bands=["VV", "VH"], units="dB")
+lia_ds = esd.sar.sentinel1.local_incidence_angle(aoi)                     # OPERA static layer,
                                                                           # GEE/DEM fallback
-s2 = esd.optical.sentinel2.load(aoi, time="2024-05", mask="scl-default", harmonize=True)
-ndsi = esd.processing.normalized_difference(s2, "green", "swir16")
+s2_ds = esd.optical.sentinel2.load(aoi, time="2024-05", mask="scl-default", harmonize=True)
+ndsi_da = esd.processing.normalized_difference(s2_ds, "green", "swir16")
 
-swe = esd.snow.snodas.load(aoi, time="2024-03", variables=["SWE"], source="nsidc")
-ucla = esd.snow.ucla_sr.load(aoi, time="1985-10/2021-09", variable="SWE_Post",
-                             virtualize="auto", access="auto")          # virtual Zarr over 36 water
+swe_ds = esd.snow.snodas.load(aoi, time="2024-03", variables=["SWE"], source="nsidc")
+ucla_da = esd.snow.ucla_sr.load(aoi, time="1985-10/2021-09", variable="SWE_Post",
+                                virtualize="auto", access="auto")       # virtual Zarr over 36 water
                                                                         # years; direct S3 if in us-west-2
-dem = esd.terrain.dem.load(aoi, source="copernicus-glo30")                # or "aws-cop30", "3dep"
-basins = esd.hydro.basins.load(aoi, level=8, source="usgs-wbd")           # no GEE needed
+dem_da = esd.terrain.dem.load(aoi, source="copernicus-glo30")             # or "aws-cop30", "3dep"
+basins_gdf = esd.hydro.basins.load(aoi, level=8, source="usgs-wbd")       # no GEE needed
 
 # Stations (from global_snow_networks clients)
-inv = esd.stations.inventory(aoi=aoi, daily_only=True)                     # GeoDataFrame
-obs = esd.stations.load(inv.index[:5], variables=["swe", "snwd"],
-                        time="2023-10/2024-06")                            # xr.Dataset (station, time)
+inv_gdf = esd.stations.inventory(aoi=aoi, daily_only=True)                 # GeoDataFrame
+obs_ds = esd.stations.load(inv_gdf.index[:5], variables=["swe", "snwd"],
+                           time="2023-10/2024-06")                         # xr.Dataset (station, time)
 
 # Plotting helpers read CF flag attrs; nothing lives in .attrs but strings/numbers
 esd.plotting.categorical(esd.snow.snow_classification.load(aoi))

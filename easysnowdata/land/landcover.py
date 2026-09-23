@@ -5,10 +5,10 @@
     import easysnowdata as esd
 
     aoi = (-121.94, 46.72, -121.54, 46.99)
-    lc = esd.land.landcover.load(aoi)                          # v200 (2021), PC
-    lc = esd.land.landcover.load(aoi, version="v100")          # v100 (2020)
-    lc = esd.land.landcover.load(aoi, source="aws-open-data")  # unsigned bucket
-    esd.plotting.categorical(lc)
+    lc_da = esd.land.landcover.load(aoi)                          # v200 (2021), PC
+    lc_da = esd.land.landcover.load(aoi, version="v100")          # v100 (2020)
+    lc_da = esd.land.landcover.load(aoi, source="aws-open-data")  # unsigned bucket
+    esd.plotting.categorical(lc_da)
 
 WorldCover ended at v200 (2021); ESA names Copernicus LCFM on CDSE as the
 successor, and Dynamic World (Earth Engine) is the route to "what is the land
@@ -81,10 +81,10 @@ def _tiles(aoi: Any, version: str) -> gpd.GeoDataFrame:
     path = providers.raster_http.fetch(
         GRID_URL, "esa_worldcover_grid.geojson", subdir="worldcover", progressbar=False
     )
-    grid = providers.vector_http.read(path, aoi)
-    grid = grid.rename(columns={"ll_tile": "tile"})
-    grid["url"] = [tile_url(tile, version) for tile in grid["tile"]]
-    return grid
+    grid_gdf = providers.vector_http.read(path, aoi)
+    grid_gdf = grid_gdf.rename(columns={"ll_tile": "tile"})
+    grid_gdf["url"] = [tile_url(tile, version) for tile in grid_gdf["tile"]]
+    return grid_gdf
 
 
 def _version_of(item: Any) -> str | None:
@@ -192,10 +192,11 @@ def _load_tiles(tiles, aoi, version, chunks, kwargs):
     ]
     if len(parts) == 1:
         return parts[0]
-    merged = xr.combine_by_coords(
-        [part.to_dataset(name="map") for part in parts], combine_attrs="drop_conflicts"
+    merged_da = xr.combine_by_coords(
+        [part_da.to_dataset(name="map") for part_da in parts],
+        combine_attrs="drop_conflicts",
     )["map"]
-    return merged.rio.write_crs(parts[0].rio.crs)
+    return merged_da.rio.write_crs(parts[0].rio.crs)
 
 
 def load(

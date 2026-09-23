@@ -30,18 +30,18 @@ for src in esd.catalog.get("yukon-stations").sources:
 
 # %%
 # No area of interest: the whole network is small enough to list at once.
-everything = esd.stations.inventory(networks="yukon")
-everything["kind"] = everything["daily_or_better"].map(
+everything_gdf = esd.stations.inventory(networks="yukon")
+everything_gdf["kind"] = everything_gdf["daily_or_better"].map(
     {True: "automated (daily)", False: "snow course"}
 )
-print(everything["kind"].value_counts().to_string())
+print(everything_gdf["kind"].value_counts().to_string())
 
 # %%
 # A few of the courses the survey operates sit across the border in northern
 # British Columbia and Alaska, so ``state`` is not always ``YT``.
-print(everything["state"].value_counts().to_string())
+print(everything_gdf["state"].value_counts().to_string())
 ax = esd.plotting.points(
-    everything,
+    everything_gdf,
     column="kind",
     legend_label="Yukon site kind",
     title="Yukon Snow Survey Network",
@@ -49,14 +49,14 @@ ax = esd.plotting.points(
 
 # %%
 # One water year of SWE and snow depth at two automated sites.
-obs = esd.stations.load(
+obs_ds = esd.stations.load(
     ["09AA-M1", "09BA-M7"], variables=["swe", "snwd"], time="2023-10/2024-09"
 )
-print(obs)
+print(obs_ds)
 
 fig, axes = plt.subplots(2, 1, figsize=(9, 7), sharex=True)
-esd.plotting.timeseries(obs["swe"], ax=axes[0], title="Water year 2024")
-esd.plotting.timeseries(obs["snwd"], ax=axes[1], title="", legend=False)
+esd.plotting.timeseries(obs_ds["swe"], ax=axes[0], title="Water year 2024")
+esd.plotting.timeseries(obs_ds["snwd"], ax=axes[1], title="", legend=False)
 fig.tight_layout()
 
 # %%
@@ -64,11 +64,11 @@ fig.tight_layout()
 # an order of magnitude below a Cascades SNOTEL site. Snow depth flattens out
 # in March while SWE keeps rising for another month, and the whole pack goes
 # in about two weeks at the end of April.
-peak_snwd = obs["snwd"].idxmax(dim="time").dt.strftime("%Y-%m-%d")
-peak_swe = obs["swe"].idxmax(dim="time").dt.strftime("%Y-%m-%d")
-for station in obs["station"].values:
+peak_snwd_da = obs_ds["snwd"].idxmax(dim="time").dt.strftime("%Y-%m-%d")
+peak_swe_da = obs_ds["swe"].idxmax(dim="time").dt.strftime("%Y-%m-%d")
+for station in obs_ds["station"].values:
     print(
-        f"{str(obs['name'].sel(station=station).values):34}"
-        f" deepest {str(peak_snwd.sel(station=station).values)}"
-        f"  peak SWE {str(peak_swe.sel(station=station).values)}"
+        f"{str(obs_ds['name'].sel(station=station).values):34}"
+        f" deepest {str(peak_snwd_da.sel(station=station).values)}"
+        f"  peak SWE {str(peak_swe_da.sel(station=station).values)}"
     )

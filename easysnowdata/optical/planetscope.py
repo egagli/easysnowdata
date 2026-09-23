@@ -17,10 +17,10 @@ companion §B.11). Two routes, and the difference is quota:
 ::
 
     import easysnowdata as esd
-    scenes = esd.optical.planetscope.search(aoi, "2023-07-01/2023-07-02")
-    order = esd.optical.planetscope.order(aoi, items=scenes.head(1))   # spends quota
-    ps = esd.optical.planetscope.load(aoi, order=order)
-    udm2 = esd.processing.decode_udm2(ps["udm2"])                      # snow band
+    scenes_gdf = esd.optical.planetscope.search(aoi, "2023-07-01/2023-07-02")
+    order = esd.optical.planetscope.order(aoi, items=scenes_gdf.head(1))  # spends quota
+    ps_ds = esd.optical.planetscope.load(aoi, order=order)
+    udm2_ds = esd.processing.decode_udm2(ps_ds["udm2"])  # snow band
 
 Planet imagery is not redistributable, so nothing in this repository contains
 a real scene: the tests run on synthetic deliveries and scrubbed Data API
@@ -444,18 +444,21 @@ def open_delivery(
         scenes.append(ds)
         times.append(_time_from_filename(path) or pd.Timestamp("1970-01-01"))
     ds = xr.concat(
-        [s.expand_dims(time=[t]) for s, t in zip(scenes, times, strict=True)],
+        [
+            scene_ds.expand_dims(time=[t])
+            for scene_ds, t in zip(scenes, times, strict=True)
+        ],
         dim="time",
     ).sortby("time")
 
     if files["udm2"]:
         masks_by_time = []
         for path, when in zip(files["udm2"], times, strict=False):
-            udm2 = providers.raster_http.open(
+            udm2_da = providers.raster_http.open(
                 path, parsed, chunks=chunks, squeeze=False, **kwargs
             )
-            decoded = optical_processing.decode_udm2(udm2)
-            masks_by_time.append(decoded.expand_dims(time=[when]))
+            decoded_ds = optical_processing.decode_udm2(udm2_da)
+            masks_by_time.append(decoded_ds.expand_dims(time=[when]))
         udm2_ds = xr.concat(masks_by_time, dim="time").sortby("time")
         ds = ds.merge(udm2_ds, compat="override", join="left")
 
@@ -575,7 +578,10 @@ def load(
             or pd.Timestamp("1970-01-01")
         )
     ds = xr.concat(
-        [a.expand_dims(time=[t]) for a, t in zip(arrays, times, strict=True)],
+        [
+            scene_ds.expand_dims(time=[t])
+            for scene_ds, t in zip(arrays, times, strict=True)
+        ],
         dim="time",
     )
     if mask_nodata:
@@ -606,6 +612,8 @@ def snow_fraction(
     A convenience over the decoded mask: ``snow / (clear + snow)`` computed on
     the pixels UDM2 considers usable at all.
     """
-    snow = udm2["snow"].astype("float32")
-    usable = (udm2["clear"].astype("float32") + snow).where(lambda x: x > 0)
-    return (snow / usable).mean(dim=list(dims)).rename("snow_fraction")
+    snow_da = udm2["snow"].astype("float32")
+    usable_da = (udm2["clear"].astype("float32") + snow_da).where(
+        lambda total_da: total_da > 0
+    )
+    return (snow_da / usable_da).mean(dim=list(dims)).rename("snow_fraction")

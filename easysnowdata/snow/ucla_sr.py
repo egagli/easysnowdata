@@ -18,7 +18,7 @@ Mount Rainier box for January 2020 — the median is 0.14 m and the 90th
 percentile 1.09 m, both seasonally sensible, while 135 of 5 642 pixels exceed
 10 m and the maximum reaches 105.9 m on the summit ice cap. Those are the
 model's values, passed through untouched; mask them
-(``da.where(da < 10)``) before taking a basin maximum where there are
+(``swe_da.where(swe_da < 10)``) before taking a basin maximum where there are
 glaciers.
 
 Virtualization (plan §4.9)
@@ -34,8 +34,8 @@ second call over the same granules skips the scan.
 ::
 
     import easysnowdata as esd
-    swe = esd.snow.ucla_sr.load(aoi, "2019-10/2021-09")                  # WUS
-    swe = esd.snow.ucla_sr.load(aoi, "2000-10/2001-09", region="hma")    # HMA
+    swe_da = esd.snow.ucla_sr.load(aoi, "2019-10/2021-09")                # WUS
+    swe_da = esd.snow.ucla_sr.load(aoi, "2000-10/2001-09", region="hma")  # HMA
 """
 
 from __future__ import annotations

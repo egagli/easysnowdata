@@ -13,7 +13,7 @@ A northern-hemisphere water year starts 1 October and is named for the
 calendar year in which it *ends* (WY 2021 = 2020-10-01 … 2021-09-30); a
 southern-hemisphere one starts 1 April and is named for the year it starts.
 For aggregation prefer the pandas anchored offsets:
-``ds.resample(time="YS-OCT").max()``. Day-of-water-year has no pandas
+``swe_ds.resample(time="YS-OCT").max()``. Day-of-water-year has no pandas
 primitive, hence :func:`day_of_water_year` and :func:`add_water_year_coords`.
 """
 
@@ -160,11 +160,14 @@ def add_water_year_coords(
     """
     if dim not in obj.dims:
         raise ValueError(f"{dim!r} is not a dimension of the input.")
-    times = obj[dim]
+    times_da = obj[dim]
     wy_name, dowy_name = names
     return obj.assign_coords(
         {
-            wy_name: (dim, np.asarray(water_year(times, hemisphere).values)),
-            dowy_name: (dim, np.asarray(day_of_water_year(times, hemisphere).values)),
+            wy_name: (dim, np.asarray(water_year(times_da, hemisphere).values)),
+            dowy_name: (
+                dim,
+                np.asarray(day_of_water_year(times_da, hemisphere).values),
+            ),
         }
     )

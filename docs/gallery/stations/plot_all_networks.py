@@ -35,19 +35,19 @@ for product_id in sorted(esd.stations.PRODUCT_IDS.values()):
 # %%
 # Every station with a probe-verified daily record, across all five networks,
 # in one request. AWDB is two thirds of the total.
-inv = esd.stations.inventory(daily_only=True)
-print(inv["network"].value_counts().to_string())
+inv_gdf = esd.stations.inventory(daily_only=True)
+print(inv_gdf["network"].value_counts().to_string())
 
 # %%
 # The map spans from Alaska to Svalbard, and to the four stations NVE serves
 # in Nepal. A degree of longitude is short at 70°N, so the axes are drawn with
 # a latitude-corrected aspect, and the scale bar is right at the central latitude.
 ax = esd.plotting.points(
-    inv,
+    inv_gdf,
     column="network",
     markersize=6,
     figsize=(12, 5),
-    title=f"{len(inv)} daily snow stations in five networks",
+    title=f"{len(inv_gdf)} daily snow stations in five networks",
 )
 
 # %%
@@ -56,22 +56,22 @@ ax = esd.plotting.points(
 # CDEC or DataBC code is looked up in the inventory. The five requests go to
 # five clients and come back on one ``(station, time)`` grid.
 codes = ["679_WA_SNTL", "CSL", "1A01P", "12.142.0", "09AA-M1"]
-obs = esd.stations.load(codes, variables="swe", time="2023-10/2024-09")
-print(obs["network"].to_series().to_string())
+obs_ds = esd.stations.load(codes, variables="swe", time="2023-10/2024-09")
+print(obs_ds["network"].to_series().to_string())
 
 # %%
 # One water year of SWE, in centimetres everywhere: the clients convert AWDB's
 # inches and DataBC's millimetres before the values are merged.
 ax = esd.plotting.timeseries(
-    obs["swe"], title="Water year 2024, one station per network"
+    obs_ds["swe"], title="Water year 2024, one station per network"
 )
 
 # %%
 # With several networks in one Dataset, ``attrs["source"]`` joins the source
 # ids, and the per-station truth is the ``network`` coordinate.
-print(obs.attrs["source"])
-print(obs.attrs["source_title"])
-print(obs["swe"].attrs)
+print(obs_ds.attrs["source"])
+print(obs_ds.attrs["source_title"])
+print(obs_ds["swe"].attrs)
 
 # %%
 # For every daily station at once, :func:`easysnowdata.stations.archive.load`

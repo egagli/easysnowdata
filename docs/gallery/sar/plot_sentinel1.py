@@ -66,29 +66,31 @@ for product in ("sentinel-1-rtc", "sentinel-1-local-incidence-angle"):
 # relative orbit ride along as coordinates on ``time``: four tracks cross this
 # mountain every twelve days, two ascending (evening) and two descending
 # (morning).
-s1 = esd.sar.sentinel1.load(
+s1_ds = esd.sar.sentinel1.load(
     aoi, "2023-08-01/2023-08-15", bands=["vv", "vh"], resolution=40
 ).compute()
 for when, state, orbit in zip(
-    s1["time"].values, s1["sat:orbit_state"].values, s1["sat:relative_orbit"].values
+    s1_ds["time"].values,
+    s1_ds["sat:orbit_state"].values,
+    s1_ds["sat:relative_orbit"].values,
 ):
     print(f"{str(when)[:19]}  {state:10}  relative orbit {orbit}")
 
 # %%
 # One pass in both polarisations. VH is 6–8 dB weaker than VV over the same
 # ground; the fixed −25 to 0 dB range keeps the two panels comparable.
-first = s1.isel(time=0)
+first_ds = s1_ds.isel(time=0)
 stamp = (
-    f"{str(first['time'].values)[:10]}, {str(first['sat:orbit_state'].values)} "
-    f"orbit {int(first['sat:relative_orbit'])}"
+    f"{str(first_ds['time'].values)[:10]}, {str(first_ds['sat:orbit_state'].values)} "
+    f"orbit {int(first_ds['sat:relative_orbit'])}"
 )
 fig, axes = plt.subplots(1, 2, figsize=(13, 5))
 esd.plotting.map(
-    first["vv"], ax=axes[0], cmap="Greys_r", vmin=-25, vmax=0,
+    first_ds["vv"], ax=axes[0], cmap="Greys_r", vmin=-25, vmax=0,
     title=f"VV, {stamp}", cbar_label="gamma0 VV [dB]",
 )  # fmt: skip
 esd.plotting.map(
-    first["vh"], ax=axes[1], cmap="Greys_r", vmin=-25, vmax=0,
+    first_ds["vh"], ax=axes[1], cmap="Greys_r", vmin=-25, vmax=0,
     title=f"VH, {stamp}", cbar_label="gamma0 VH [dB]",
 )  # fmt: skip
 fig.tight_layout()
@@ -103,19 +105,21 @@ fig.tight_layout()
 # Decibels are a logarithm, so the box is averaged in **linear power** and
 # converted afterwards: the mean of dB values is the geometric mean, which
 # sits 0.7–1 dB below the true mean power over terrain this varied.
-summer = esd.sar.sentinel1.load(
+summer_ds = esd.sar.sentinel1.load(
     nisqually, "2023-06-01/2023-09-30", bands=["vv"], resolution=100,
     units="linear power",
 )  # fmt: skip
-mean_vv = esd.processing.sar.linear_to_db(summer["vv"].mean(dim=["x", "y"])).compute()
-mean_vv.attrs = {"long_name": "mean gamma0 VV over the box", "units": "dB"}
+mean_vv_da = esd.processing.sar.linear_to_db(
+    summer_ds["vv"].mean(dim=["x", "y"])
+).compute()
+mean_vv_da.attrs = {"long_name": "mean gamma0 VV over the box", "units": "dB"}
 
 fig, ax = plt.subplots(figsize=(9, 4.2))
-for orbit in np.unique(mean_vv["sat:relative_orbit"].values):
-    passes = mean_vv.where(mean_vv["sat:relative_orbit"] == orbit, drop=True)
-    state = str(passes["sat:orbit_state"].values[0])
+for orbit in np.unique(mean_vv_da["sat:relative_orbit"].values):
+    orbit_vv_da = mean_vv_da.where(mean_vv_da["sat:relative_orbit"] == orbit, drop=True)
+    state = str(orbit_vv_da["sat:orbit_state"].values[0])
     esd.plotting.timeseries(
-        passes,
+        orbit_vv_da,
         ax=ax,
         marker="o",
         markersize=4,
@@ -142,17 +146,17 @@ fig.tight_layout()
 # east from the west (Sentinel-1 is right-looking), descending passes look
 # west from the east, so a slope that faces one track at a grazing angle faces
 # the other almost head-on.
-opera_lia = esd.sar.sentinel1.local_incidence_angle(aoi, resolution=60).compute()
-dem_lia = esd.sar.sentinel1.local_incidence_angle(
+opera_lia_ds = esd.sar.sentinel1.local_incidence_angle(aoi, resolution=60).compute()
+dem_lia_ds = esd.sar.sentinel1.local_incidence_angle(
     aoi, source="dem", resolution=60
 ).compute()
-print(opera_lia["local_incidence_angle"].dims, dict(opera_lia.sizes))
-for track in dem_lia["relative_orbit"].values:
-    geometry = dem_lia.sel(relative_orbit=track)
+print(opera_lia_ds["local_incidence_angle"].dims, dict(opera_lia_ds.sizes))
+for track in dem_lia_ds["relative_orbit"].values:
+    geometry_ds = dem_lia_ds.sel(relative_orbit=track)
     print(
-        f"track {int(track):3d}: {str(geometry['sat:orbit_state'].values):10} "
-        f"heading {float(geometry['platform_heading']):6.1f}°, "
-        f"look azimuth {float(geometry['look_azimuth']):6.1f}°"
+        f"track {int(track):3d}: {str(geometry_ds['sat:orbit_state'].values):10} "
+        f"heading {float(geometry_ds['platform_heading']):6.1f}°, "
+        f"look azimuth {float(geometry_ds['look_azimuth']):6.1f}°"
     )
 
 # %%
@@ -160,17 +164,17 @@ for track in dem_lia["relative_orbit"].values:
 # orbit. OPERA leaves layover and shadow as no data (the white patches) and
 # names them in its mask; the DEM route has no such model and fills those
 # pixels with a clipped angle.
-tracks = [int(t) for t in opera_lia["relative_orbit"].values]
+tracks = [int(t) for t in opera_lia_ds["relative_orbit"].values]
 fig, axes = plt.subplots(len(tracks), 2, figsize=(13, 4.8 * len(tracks)))
 for row, track in enumerate(tracks):
-    state = str(dem_lia["sat:orbit_state"].sel(relative_orbit=track).values)
+    state = str(dem_lia_ds["sat:orbit_state"].sel(relative_orbit=track).values)
     esd.plotting.map(
-        opera_lia["local_incidence_angle"].sel(relative_orbit=track),
+        opera_lia_ds["local_incidence_angle"].sel(relative_orbit=track),
         ax=axes[row, 0], cmap="magma", vmin=0, vmax=90,
         title=f"Track {track} ({state}): OPERA static layer",
     )  # fmt: skip
     esd.plotting.map(
-        dem_lia["local_incidence_angle"].sel(relative_orbit=track),
+        dem_lia_ds["local_incidence_angle"].sel(relative_orbit=track),
         ax=axes[row, 1], cmap="magma", vmin=0, vmax=90,
         title=f"Track {track} ({state}): computed from the Copernicus DEM",
     )  # fmt: skip
@@ -188,26 +192,26 @@ fig.tight_layout()
 # terrain where a 60 m slope is least like the real one.
 rows = []
 for track in tracks:
-    published = opera_lia["local_incidence_angle"].sel(relative_orbit=track)
-    approx = dem_lia["local_incidence_angle"].sel(relative_orbit=track)
-    clear = opera_lia["mask"].sel(relative_orbit=track) == 0
-    valid = clear & published.notnull() & approx.notnull()
-    gap = (approx - published).where(valid)
+    published_da = opera_lia_ds["local_incidence_angle"].sel(relative_orbit=track)
+    approx_da = dem_lia_ds["local_incidence_angle"].sel(relative_orbit=track)
+    clear_da = opera_lia_ds["mask"].sel(relative_orbit=track) == 0
+    valid_da = clear_da & published_da.notnull() & approx_da.notnull()
+    gap_da = (approx_da - published_da).where(valid_da)
     rows.append(
         {
             "relative orbit": track,
-            "pass": str(dem_lia["sat:orbit_state"].sel(relative_orbit=track).values),
-            "pixels": int(valid.sum()),
-            "median OPERA [°]": float(published.where(valid).median()),
-            "median DEM [°]": float(approx.where(valid).median()),
-            "bias DEM−OPERA [°]": float(gap.mean()),
-            "median |Δ| [°]": float(np.nanmedian(np.abs(gap.values))),
-            "p90 |Δ| [°]": float(np.nanpercentile(np.abs(gap.values), 90)),
-            "RMSE [°]": float(np.sqrt((gap**2).mean())),
+            "pass": str(dem_lia_ds["sat:orbit_state"].sel(relative_orbit=track).values),
+            "pixels": int(valid_da.sum()),
+            "median OPERA [°]": float(published_da.where(valid_da).median()),
+            "median DEM [°]": float(approx_da.where(valid_da).median()),
+            "bias DEM−OPERA [°]": float(gap_da.mean()),
+            "median |Δ| [°]": float(np.nanmedian(np.abs(gap_da.values))),
+            "p90 |Δ| [°]": float(np.nanpercentile(np.abs(gap_da.values), 90)),
+            "RMSE [°]": float(np.sqrt((gap_da**2).mean())),
         }
     )
-lia_stats = pd.DataFrame(rows).set_index("relative orbit")
-print(lia_stats.round(1).to_string())
+lia_stats_df = pd.DataFrame(rows).set_index("relative orbit")
+print(lia_stats_df.round(1).to_string())
 
 # %%
 # Backscatter, track by track
@@ -223,45 +227,45 @@ print(lia_stats.round(1).to_string())
 # where the geometry defeats terrain correction. OPERA leaves radar shadow and
 # layover as no data (the white patches), while Planetary Computer fills those
 # pixels with values no RTC can make physical.
-pc = esd.sar.sentinel1.load(
+pc_ds = esd.sar.sentinel1.load(
     aoi, "2023-08-01/2023-08-15", bands=["vv"], resolution=60
 ).compute()
-opera = esd.sar.sentinel1.load(
+opera_ds = esd.sar.sentinel1.load(
     aoi, "2023-08-01/2023-08-15", bands=["vv"], source="opera-rtc-s1", resolution=60
 ).compute()
-for when, orbit in zip(opera["time"].values, opera["sat:relative_orbit"].values):
+for when, orbit in zip(opera_ds["time"].values, opera_ds["sat:relative_orbit"].values):
     print(f"OPERA {str(when)[:19]}  relative orbit {orbit}")
 
 
-def one_pass(ds, track):
-    """The first time step of *track* in *ds*, as a (y, x) Dataset."""
-    return ds.isel(
-        time=int(np.flatnonzero(ds["sat:relative_orbit"].values == track)[0])
+def one_pass(s1_ds, track):
+    """The first time step of *track* in *s1_ds*, as a (y, x) Dataset."""
+    return s1_ds.isel(
+        time=int(np.flatnonzero(s1_ds["sat:relative_orbit"].values == track)[0])
     )
 
 
 passes = [
     t
-    for t in np.unique(pc["sat:relative_orbit"].values)
-    if t in opera["sat:relative_orbit"].values
+    for t in np.unique(pc_ds["sat:relative_orbit"].values)
+    if t in opera_ds["sat:relative_orbit"].values
 ]
 fig, axes = plt.subplots(len(passes), 3, figsize=(19, 4.8 * len(passes)))
 for row, track in enumerate(passes):
-    p, o = one_pass(pc, track), one_pass(opera, track)
-    day = str(p["time"].values)[:10]
-    state = str(p["sat:orbit_state"].values)
+    pc_pass_ds, opera_pass_ds = one_pass(pc_ds, track), one_pass(opera_ds, track)
+    day = str(pc_pass_ds["time"].values)[:10]
+    state = str(pc_pass_ds["sat:orbit_state"].values)
     esd.plotting.map(
-        p["vv"], ax=axes[row, 0], cmap="Greys_r", vmin=-25, vmax=0,
+        pc_pass_ds["vv"], ax=axes[row, 0], cmap="Greys_r", vmin=-25, vmax=0,
         title=f"Track {track} ({state}), {day}: Planetary Computer RTC",
         cbar_label="gamma0 VV [dB]",
     )  # fmt: skip
     esd.plotting.map(
-        o["vv"], ax=axes[row, 1], cmap="Greys_r", vmin=-25, vmax=0,
+        opera_pass_ds["vv"], ax=axes[row, 1], cmap="Greys_r", vmin=-25, vmax=0,
         title=f"Track {track} ({state}), {day}: OPERA RTC-S1",
         cbar_label="gamma0 VV [dB]",
     )  # fmt: skip
     esd.plotting.categorical(
-        o["mask"], ax=axes[row, 2], legend=row == 0,
+        opera_pass_ds["mask"], ax=axes[row, 2], legend=row == 0,
         title=f"Track {track}: OPERA layover and shadow",
     )  # fmt: skip
     for ax in axes[row, 1:]:
@@ -284,25 +288,34 @@ fig.tight_layout()
 # times as much of the mountain to layover as the far-range pair.
 rows = []
 for track in passes:
-    p, o = one_pass(pc, track), one_pass(opera, track)
-    valid = (o["mask"] == 0) & p["vv"].notnull() & o["vv"].notnull()
-    pc_vv, opera_vv = p["vv"].where(valid), o["vv"].where(valid)
-    diff = pc_vv - opera_vv
+    pc_pass_ds, opera_pass_ds = one_pass(pc_ds, track), one_pass(opera_ds, track)
+    valid_da = (
+        (opera_pass_ds["mask"] == 0)
+        & pc_pass_ds["vv"].notnull()
+        & opera_pass_ds["vv"].notnull()
+    )
+    pc_vv_da, opera_vv_da = (
+        pc_pass_ds["vv"].where(valid_da),
+        opera_pass_ds["vv"].where(valid_da),
+    )
+    diff_da = pc_vv_da - opera_vv_da
     rows.append(
         {
             "relative orbit": int(track),
-            "pass": str(p["sat:orbit_state"].values),
-            "date": str(p["time"].values)[:10],
-            "pixels": int(valid.sum()),
-            "median PC [dB]": float(pc_vv.median()),
-            "median OPERA [dB]": float(opera_vv.median()),
-            "mean Δ PC−OPERA [dB]": float(diff.mean()),
-            "median |Δ| [dB]": float(np.nanmedian(np.abs(diff.values))),
-            "RMSE [dB]": float(np.sqrt((diff**2).mean())),
+            "pass": str(pc_pass_ds["sat:orbit_state"].values),
+            "date": str(pc_pass_ds["time"].values)[:10],
+            "pixels": int(valid_da.sum()),
+            "median PC [dB]": float(pc_vv_da.median()),
+            "median OPERA [dB]": float(opera_vv_da.median()),
+            "mean Δ PC−OPERA [dB]": float(diff_da.mean()),
+            "median |Δ| [dB]": float(np.nanmedian(np.abs(diff_da.values))),
+            "RMSE [dB]": float(np.sqrt((diff_da**2).mean())),
             "layover/shadow [%]": float(
-                100 * (o["mask"].isin([1, 2, 3])).sum() / o["mask"].notnull().sum()
+                100
+                * (opera_pass_ds["mask"].isin([1, 2, 3])).sum()
+                / opera_pass_ds["mask"].notnull().sum()
             ),
         }
     )
-backscatter_stats = pd.DataFrame(rows).set_index("relative orbit")
-print(backscatter_stats.round(2).to_string())
+backscatter_stats_df = pd.DataFrame(rows).set_index("relative orbit")
+print(backscatter_stats_df.round(2).to_string())

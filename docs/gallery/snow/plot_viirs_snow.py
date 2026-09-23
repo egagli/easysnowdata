@@ -47,30 +47,34 @@ for src in esd.catalog.get("viirs-snow").sources:
 # up), so the box is loaded with a 1 km margin and both fields are drawn on
 # the AOI's UTM grid at 375 m, resampled nearest-neighbour so the coded bytes
 # and day counts survive.
-viirs = esd.snow.viirs.load(
+viirs_ds = esd.snow.viirs.load(
     box.buffer(1000),
     week,
     product="VNP10A1F",
     variables=["CGF_NDSI_Snow_Cover", "Cloud_Persistence"],
 )
-print(viirs)
-ndsi = viirs["CGF_NDSI_Snow_Cover"].odc.reproject(grid, resampling="nearest").compute()
-age = viirs["Cloud_Persistence"].odc.reproject(grid, resampling="nearest").compute()
+print(viirs_ds)
+ndsi_da = (
+    viirs_ds["CGF_NDSI_Snow_Cover"].odc.reproject(grid, resampling="nearest").compute()
+)
+age_da = (
+    viirs_ds["Cloud_Persistence"].odc.reproject(grid, resampling="nearest").compute()
+)
 
 # %%
 # The NDSI on one day, and how many consecutive cloudy days the value behind
 # each pixel has been carried through. In this week some pixels on the
 # mountain had not been seen clearly for over a month, which is the number to
 # check before trusting a gap-filled value.
-scene = ndsi.sel(time=day)
-valid = scene <= 100
+scene_da = ndsi_da.sel(time=day)
+valid_da = scene_da <= 100
 print(
-    f"oldest observation carried forward on {day}: {int(age.sel(time=day).max())} days"
+    f"oldest observation carried forward on {day}: {int(age_da.sel(time=day).max())} days"
 )
 
 fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 esd.plotting.map(
-    scene.where(valid),
+    scene_da.where(valid_da),
     ax=axes[0],
     cmap="Blues",
     vmin=0,
@@ -79,7 +83,7 @@ esd.plotting.map(
     cbar_label="NDSI [%]",
 )
 esd.plotting.map(
-    age.sel(time=day),
+    age_da.sel(time=day),
     ax=axes[1],
     cmap="magma_r",
     vmin=0,
@@ -94,19 +98,19 @@ fig.tight_layout()
 # sinusoidal grid (four VIIRS pixels span three MODIS pixels). It is drawn on
 # the same UTM zone at its own 500 m, and the box fractions below come from
 # the two UTM grids.
-modis = esd.snow.modis.load(box.buffer(1000), week, product="MOD10A1F")
-modis_ndsi = (
-    modis["CGF_NDSI_Snow_Cover"]
+modis_ds = esd.snow.modis.load(box.buffer(1000), week, product="MOD10A1F")
+modis_ndsi_da = (
+    modis_ds["CGF_NDSI_Snow_Cover"]
     .odc.reproject(box.to_geobox(crs="utm", resolution=500), resampling="nearest")
     .compute()
 )
 
 
-def binary(ndsi_bytes):
+def binary(ndsi_bytes_da):
     """Snow at NDSI ≥ 40 %, NaN where the byte is a sentinel."""
-    snow = (ndsi_bytes >= 40).where(ndsi_bytes <= 100)
+    snow_da = (ndsi_bytes_da >= 40).where(ndsi_bytes_da <= 100)
     return esd.processing.set_flags(
-        snow,
+        snow_da,
         [0, 1],
         ["no snow", "snow"],
         ["#a6611a", "#2166ac"],
@@ -115,31 +119,33 @@ def binary(ndsi_bytes):
 
 
 fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-esd.plotting.categorical(binary(scene), ax=axes[0], title=f"VIIRS 375 m, {day}")
+esd.plotting.categorical(binary(scene_da), ax=axes[0], title=f"VIIRS 375 m, {day}")
 esd.plotting.categorical(
-    binary(modis_ndsi.sel(time=day)), ax=axes[1], title=f"MODIS 500 m, {day}"
+    binary(modis_ndsi_da.sel(time=day)), ax=axes[1], title=f"MODIS 500 m, {day}"
 )
 fig.tight_layout()
 
 # %%
 # The snow-covered fraction of the box from both sensors on one calendar axis.
-fractions = xr.concat(
+fractions_da = xr.concat(
     [
-        binary(ndsi).mean(dim=["y", "x"]),
-        binary(modis_ndsi).mean(dim=["y", "x"]),
+        binary(ndsi_da).mean(dim=["y", "x"]),
+        binary(modis_ndsi_da).mean(dim=["y", "x"]),
     ],
     dim=pd.Index(["VIIRS VNP10A1F, 375 m", "MODIS MOD10A1F, 500 m"], name="sensor"),
 )
-fractions.attrs.update({"long_name": "snow-covered fraction of the box", "units": "1"})
+fractions_da.attrs.update(
+    {"long_name": "snow-covered fraction of the box", "units": "1"}
+)
 
-ax = esd.plotting.timeseries(fractions, marker="o")
+ax = esd.plotting.timeseries(fractions_da, marker="o")
 ax.set_ylim(0, 1)
 ax.figure.tight_layout()
 
-difference = fractions.sel(sensor="VIIRS VNP10A1F, 375 m") - fractions.sel(
+difference_da = fractions_da.sel(sensor="VIIRS VNP10A1F, 375 m") - fractions_da.sel(
     sensor="MODIS MOD10A1F, 500 m"
 )
 print(
-    f"mean VIIRS minus MODIS snow fraction over the week: {float(difference.mean()):+.3f}"
+    f"mean VIIRS minus MODIS snow fraction over the week: {float(difference_da.mean()):+.3f}"
 )
-print(f"largest daily gap: {float(np.abs(difference).max()):.3f}")
+print(f"largest daily gap: {float(np.abs(difference_da).max()):.3f}")

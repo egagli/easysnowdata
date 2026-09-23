@@ -590,13 +590,13 @@ def map(  # noqa: A001 — the natural name for the natural thing
     -------
     matplotlib.axes.Axes
     """
-    data = _squeeze(da)
+    squeezed_da = _squeeze(da)
     crs = _crs_of(da)
     if ax is None:
-        ax = _new_axes(data, crs, figsize)
+        ax = _new_axes(squeezed_da, crs, figsize)
     imshow_kwargs.setdefault("add_colorbar", False)
     imshow_kwargs.setdefault("add_labels", False)
-    image = data.plot.imshow(ax=ax, **imshow_kwargs)
+    image = squeezed_da.plot.imshow(ax=ax, **imshow_kwargs)
     if colorbar:
         _matched_colorbar(
             ax, image, cbar_label if cbar_label is not None else label(da)
@@ -628,15 +628,15 @@ def categorical(
 
     Returns the matplotlib ``Axes``.
     """
-    data = _squeeze(da)
+    squeezed_da = _squeeze(da)
     crs = _crs_of(da)
     if ax is None:
-        ax = _new_axes(data, crs, figsize)
-    cmap, norm, table = colormap_from_flags(da)
+        ax = _new_axes(squeezed_da, crs, figsize)
+    cmap, norm, flags_df = colormap_from_flags(da)
     imshow_kwargs.setdefault("add_colorbar", False)
     imshow_kwargs.setdefault("add_labels", False)
     imshow_kwargs.setdefault("interpolation", "nearest")
-    data.plot.imshow(ax=ax, cmap=cmap, norm=norm, **imshow_kwargs)
+    squeezed_da.plot.imshow(ax=ax, cmap=cmap, norm=norm, **imshow_kwargs)
     if legend:
         kwargs = dict(_LEGEND_OUTSIDE)
         kwargs.update({"fontsize": 8, "handlelength": 1.2, "borderaxespad": 0.0})
@@ -647,8 +647,8 @@ def categorical(
             try:
                 present = set(
                     np.unique(
-                        np.asarray(data.values)[
-                            np.isfinite(np.asarray(data.values, dtype="float64"))
+                        np.asarray(squeezed_da.values)[
+                            np.isfinite(np.asarray(squeezed_da.values, dtype="float64"))
                         ]
                     ).tolist()
                 )
@@ -764,17 +764,17 @@ def points(
 # ── time series ───────────────────────────────────────────────────────────────
 
 
-def _series_label(obj: xr.DataArray, key: Any, hue: str) -> str:
+def _series_label(da: xr.DataArray, key: Any, hue: str) -> str:
     """``"Paradise (1650 m)"`` from the station coordinates when they exist."""
     parts = []
-    if "name" in obj.coords and hue in obj["name"].dims:
-        name = str(obj["name"].sel({hue: key}).values)
+    if "name" in da.coords and hue in da["name"].dims:
+        name = str(da["name"].sel({hue: key}).values)
         if name:
             parts.append(name)
     if not parts:
         parts.append(str(key))
-    if "elevation_m" in obj.coords and hue in obj["elevation_m"].dims:
-        elev = obj["elevation_m"].sel({hue: key}).values
+    if "elevation_m" in da.coords and hue in da["elevation_m"].dims:
+        elev = da["elevation_m"].sel({hue: key}).values
         try:
             if np.isfinite(float(elev)):
                 parts.append(f"({float(elev):.0f} m)")
@@ -864,8 +864,8 @@ def timeseries(
     times = pd.DatetimeIndex(da["time"].values)
     plot_kwargs.setdefault("linewidth", 1.4)
     if by_water_year:
-        series = da.squeeze() if hue and da.sizes[hue] == 1 else da
-        if series.ndim != 1:
+        series_da = da.squeeze() if hue and da.sizes[hue] == 1 else da
+        if series_da.ndim != 1:
             raise ValueError(
                 "by_water_year overlays one series; select one station first."
             )
@@ -876,7 +876,7 @@ def timeseries(
         for year in np.unique(years):
             rows = years == year
             x = start + pd.to_timedelta(np.asarray(dowy)[rows] - 1, unit="D")
-            ax.plot(x, series.values[rows], label=f"WY{int(year)}", **plot_kwargs)
+            ax.plot(x, series_da.values[rows], label=f"WY{int(year)}", **plot_kwargs)
         _water_year_axis(ax)
         ax.set_xlim(start, start + pd.Timedelta(days=365))
         ax.set_xlabel(
@@ -914,27 +914,27 @@ def timeseries(
 
 
 def colormap_from_flags(obj: xr.DataArray | dict[str, Any]) -> tuple[Any, Any, Any]:
-    """Return ``(cmap, norm, table)`` for a categorical array's CF flags.
+    """Return ``(cmap, norm, flags_df)`` for a categorical array's CF flags.
 
     The norm maps each ``flag_value`` to its own colour regardless of gaps
     between values (5, 37, 200 …).
     """
     import matplotlib.colors as mcolors  # noqa: PLC0415
 
-    table = flags(obj).sort_values("value").reset_index(drop=True)
-    colors = [c if c is not None else "#808080" for c in table["color"]]
+    flags_df = flags(obj).sort_values("value").reset_index(drop=True)
+    colors = [c if c is not None else "#808080" for c in flags_df["color"]]
     cmap = mcolors.ListedColormap(colors, name="easysnowdata_flags")
     # BoundaryNorm sends values outside the flag range to the colormap's
     # under/over colours, which default to the first and last class. A nodata
     # sentinel such as 0 (ocean) would then be painted as class one.
     cmap.set_under("none")
     cmap.set_over("none")
-    values = table["value"].to_numpy(dtype="float64")
+    values = flags_df["value"].to_numpy(dtype="float64")
     edges = np.concatenate(
         [[values[0] - 0.5], (values[:-1] + values[1:]) / 2, [values[-1] + 0.5]]
     )
     norm = mcolors.BoundaryNorm(edges, cmap.N)
-    return cmap, norm, table
+    return cmap, norm, flags_df
 
 
 def legend_handles(
@@ -947,16 +947,16 @@ def legend_handles(
     """
     from matplotlib.patches import Patch  # noqa: PLC0415
 
-    table = flags(obj).sort_values("value")
+    flags_df = flags(obj).sort_values("value")
     if present is not None:
-        keep = table["value"].isin(list(present))
+        keep = flags_df["value"].isin(list(present))
         if keep.any():
-            table = table[keep]
+            flags_df = flags_df[keep]
     handles = [
         Patch(facecolor=c or "#808080", edgecolor="black", linewidth=0.4)
-        for c in table["color"]
+        for c in flags_df["color"]
     ]
-    labels = [str(m).replace("_", " ") for m in table["meaning"]]
+    labels = [str(m).replace("_", " ") for m in flags_df["meaning"]]
     return handles, labels
 
 

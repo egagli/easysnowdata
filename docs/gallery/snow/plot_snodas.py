@@ -47,20 +47,20 @@ print(esd.snow.snodas.search(aoi, when).to_string(index=False))
 
 # The archive is on a 1/120 degree geographic grid; the box is loaded with a
 # 2 km margin so the AOI's UTM grid the maps use is fully covered.
-snodas = esd.snow.snodas.load(box.buffer(2000), when)
-print(snodas)
+snodas_ds = esd.snow.snodas.load(box.buffer(2000), when)
+print(snodas_ds)
 
 # %%
 # One day of SWE and snow depth. SNODAS never melts perennial ice out, so SWE
 # grows without bound over glaciers and saturates the 16-bit field at
 # 32.767 m: the pinned pixels on the summit are Rainier's ice cap, not a
 # reader artefact, and they are passed through untouched.
-swe = snodas["SWE"].sel(time=day)
-depth = snodas["snow_depth"].sel(time=day)
+swe_da = snodas_ds["SWE"].sel(time=day)
+depth_da = snodas_ds["snow_depth"].sel(time=day)
 
 fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 esd.plotting.map(
-    swe.odc.reproject(grid, resampling="bilinear"),
+    swe_da.odc.reproject(grid, resampling="bilinear"),
     ax=axes[0],
     cmap="Blues",
     vmin=0,
@@ -68,7 +68,7 @@ esd.plotting.map(
     title=f"SWE, {day}",
 )
 esd.plotting.map(
-    depth.odc.reproject(grid, resampling="bilinear"),
+    depth_da.odc.reproject(grid, resampling="bilinear"),
     ax=axes[1],
     cmap="Purples",
     vmin=0,
@@ -77,29 +77,29 @@ esd.plotting.map(
 )
 fig.tight_layout()
 
-saturated = int((swe > 30).sum())
-seasonal = snodas["SWE"].where(snodas["SWE"] < 30)
+saturated = int((swe_da > 30).sum())
+seasonal_da = snodas_ds["SWE"].where(snodas_ds["SWE"] < 30)
 print(f"pixels saturated by the glacier artefact on {day}: {saturated}")
 print(
-    f"median SWE without them: {float(seasonal.sel(time=day).compute().median()):.2f} m"
+    f"median SWE without them: {float(seasonal_da.sel(time=day).compute().median()):.2f} m"
 )
 
 # %%
 # The same week from the Earth Engine mirror. Both routes land on the same
 # 1/120 degree grid, but their coordinate values differ in the twelfth decimal,
 # so snap the mirror onto the archive's coordinates before subtracting.
-mirror = esd.snow.snodas.load(box.buffer(2000), when, source="gee-climate-engine")
-mirror = mirror.reindex(
-    latitude=snodas["latitude"], longitude=snodas["longitude"], method="nearest"
+mirror_ds = esd.snow.snodas.load(box.buffer(2000), when, source="gee-climate-engine")
+mirror_ds = mirror_ds.reindex(
+    latitude=snodas_ds["latitude"], longitude=snodas_ds["longitude"], method="nearest"
 )
 # SNODAS stores SWE as integer millimetres, and the two routes divide by 1000
 # in float32 independently, so what is left is the rounding of that division.
-diff = ((mirror["SWE"].sel(time=day) - swe) * 1000).compute()
-diff.attrs.update({"long_name": "SWE, Earth Engine minus NSIDC", "units": "mm"})
-print(f"largest absolute difference on {day}: {float(np.abs(diff).max()):.4f} mm")
+diff_da = ((mirror_ds["SWE"].sel(time=day) - swe_da) * 1000).compute()
+diff_da.attrs.update({"long_name": "SWE, Earth Engine minus NSIDC", "units": "mm"})
+print(f"largest absolute difference on {day}: {float(np.abs(diff_da).max()):.4f} mm")
 
 ax = esd.plotting.map(
-    diff.odc.reproject(grid, resampling="nearest"),
+    diff_da.odc.reproject(grid, resampling="nearest"),
     cmap="RdBu",
     vmin=-0.01,
     vmax=0.01,
@@ -111,18 +111,18 @@ ax.figure.tight_layout()
 # %%
 # Basin-mean SWE from both routes on one calendar axis, glaciers masked. The
 # two lines sit on top of each other, which is the point.
-archive_mean = seasonal.mean(dim=["latitude", "longitude"]).compute()
-mirror_mean = (
-    mirror["SWE"].where(mirror["SWE"] < 30).mean(dim=["latitude", "longitude"])
+archive_mean_da = seasonal_da.mean(dim=["latitude", "longitude"]).compute()
+mirror_mean_da = (
+    mirror_ds["SWE"].where(mirror_ds["SWE"] < 30).mean(dim=["latitude", "longitude"])
 ).compute()
-for series in (archive_mean, mirror_mean):
-    series.attrs.update(
+for series_da in (archive_mean_da, mirror_mean_da):
+    series_da.attrs.update(
         {"long_name": "basin-mean SWE, seasonal snow only", "units": "m"}
     )
 
-ax = esd.plotting.timeseries(archive_mean, marker="o", label="NSIDC G02158")
+ax = esd.plotting.timeseries(archive_mean_da, marker="o", label="NSIDC G02158")
 esd.plotting.timeseries(
-    mirror_mean,
+    mirror_mean_da,
     ax=ax,
     marker="x",
     linestyle="--",

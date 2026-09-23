@@ -30,10 +30,10 @@ list on one pass. Then upgrade to 0.3 with the table below.
 were removed because they hid one-line operations behind names. Write them out:
 
 ```python
-ndsi = (s2["green"] - s2["swir16"]) / (s2["green"] + s2["swir16"])
-snow = (ndsi_byte >= 40).where(ndsi_byte <= 100)      # MODIS/VIIRS: >100 are sentinels
-rgb = s2[["red", "green", "blue"]].to_array("band").clip(0, 0.3) / 0.3
-rgb.isel(time=0).plot.imshow(rgb="band")
+ndsi_da = (s2_ds["green"] - s2_ds["swir16"]) / (s2_ds["green"] + s2_ds["swir16"])
+snow_da = (ndsi_byte_da >= 40).where(ndsi_byte_da <= 100)  # MODIS/VIIRS: >100 are sentinels
+rgb_da = s2_ds[["red", "green", "blue"]].to_array("band").clip(0, 0.3) / 0.3
+rgb_da.isel(time=0).plot.imshow(rgb="band")
 ```
 
 The masks (`apply_scl_mask`, `apply_fmask`), `harmonize_s2_baseline`,
@@ -123,8 +123,8 @@ and then read a `.data` attribute from. They are `load()` functions returning
 the `xarray.Dataset` directly:
 
 ```python
-s2 = esd.remote_sensing.Sentinel2(bbox, start_date="2023-08-01").data
-s2 = esd.optical.sentinel2.load(bbox, time="2023-08-01/2023-08-31")
+s2_ds = esd.remote_sensing.Sentinel2(bbox, start_date="2023-08-01").data
+s2_ds = esd.optical.sentinel2.load(bbox, time="2023-08-01/2023-08-31")
 ```
 
 Searching without loading is `optical.sentinel2.search()`.
@@ -136,8 +136,8 @@ carry the standard `flag_values` / `flag_meanings` / `flag_colors` attributes,
 which any CF-aware tool understands, and this package draws them:
 
 ```python
-lc = esd.land.landcover.load(aoi)
-esd.plotting.categorical(lc)          # also: colormap_from_flags, legend_handles
+lc_da = esd.land.landcover.load(aoi)
+esd.plotting.categorical(lc_da)       # also: colormap_from_flags, legend_handles
 ```
 
 ### Some defaults moved to a better source
@@ -168,9 +168,9 @@ now a shim over `easysnowdata.stations`, which talks to the five network APIs
 publishes:
 
 ```python
-gdf = esd.stations.inventory(aoi=aoi)                  # GeoDataFrame
-ds = esd.stations.load(gdf, variables=["swe", "snwd"]) # xarray Dataset
-ds = esd.stations.archive.load(aoi=aoi)                # the bulk daily archive
+stations_gdf = esd.stations.inventory(aoi=aoi)                       # GeoDataFrame
+obs_ds = esd.stations.load(stations_gdf, variables=["swe", "snwd"])  # xarray Dataset
+archive_ds = esd.stations.archive.load(aoi=aoi)                      # the bulk daily archive
 ```
 
 One thing to know if you used the old archive for **air temperature**: it holds

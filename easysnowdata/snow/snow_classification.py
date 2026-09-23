@@ -5,9 +5,9 @@
     import easysnowdata as esd
 
     aoi = (-121.94, 46.72, -121.54, 46.99)
-    snow_class = esd.snow.snow_classification.load(aoi)                     # NSIDC-0768
-    snow_class = esd.snow.snow_classification.load(aoi, source="hosted-cog")  # no login
-    esd.plotting.categorical(snow_class)
+    snow_class_da = esd.snow.snow_classification.load(aoi)                       # NSIDC-0768
+    snow_class_da = esd.snow.snow_classification.load(aoi, source="hosted-cog")  # no login
+    esd.plotting.categorical(snow_class_da)
 
 Six seasonal snow classes (tundra, boreal forest, maritime, ephemeral,
 prairie, montane forest) plus ice and ocean, from air-temperature,

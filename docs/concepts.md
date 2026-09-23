@@ -66,8 +66,8 @@ Water years are first class:
 ```python
 from easysnowdata.processing import add_water_year_coords
 
-obs = add_water_year_coords(obs)  # adds `water_year` and `dowy` coords
-obs.resample(time="YS-OCT").max()  # water-year aggregation, the xarray way
+obs_ds = add_water_year_coords(obs_ds)  # adds `water_year` and `dowy` coords
+obs_ds.resample(time="YS-OCT").max()  # water-year aggregation, the xarray way
 ```
 
 `dowy` is day of water year, 1 on 1 October (northern hemisphere; pass
@@ -82,8 +82,8 @@ Loaders return Dask-backed xarray objects and never call `.compute()`. A
 bytes move when you compute, plot or write.
 
 ```python
-s1 = esd.sar.sentinel1.load(aoi, "2024-03")  # seconds: STAC search only
-s1.mean("time").compute()  # now the COGs are read
+s1_ds = esd.sar.sentinel1.load(aoi, "2024-03")  # seconds: STAC search only
+s1_ds.mean("time").compute()  # now the COGs are read
 ```
 
 `chunks=` is passed through, and the default is the source's native chunking
@@ -110,9 +110,9 @@ STAC properties as columns. Inspect it, filter it, and hand what survives to
 
 ```python
 items = esd.optical.sentinel2.search(aoi, "2024-03", cloud_cover=30)
-items[["datetime", "eo:cloud_cover", "s2:mgrs_tile"]]
-best = items.sort_values("eo:cloud_cover").head(3)
-data = esd.optical.sentinel2.load(aoi, items=best)
+items_gdf[["datetime", "eo:cloud_cover", "s2:mgrs_tile"]]
+best_gdf = items_gdf.sort_values("eo:cloud_cover").head(3)
+s2_ds = esd.optical.sentinel2.load(aoi, items=best_gdf)
 ```
 
 (concepts-output)=
@@ -201,9 +201,9 @@ behind a function name hid which bands were used and what happened to the
 sentinel values. The gallery writes these out every time:
 
 ```python
-s2 = esd.optical.sentinel2.load(aoi, "2024-03", mask="scl-default")  # convenience
-raw = esd.optical.sentinel2.load(aoi, "2024-03")  # nothing applied
-ndsi = (raw["green"] - raw["swir16"]) / (raw["green"] + raw["swir16"])
+s2_ds = esd.optical.sentinel2.load(aoi, "2024-03", mask="scl-default")  # convenience
+raw_ds = esd.optical.sentinel2.load(aoi, "2024-03")  # nothing applied
+ndsi_da = (raw_ds["green"] - raw_ds["swir16"]) / (raw_ds["green"] + raw_ds["swir16"])
 ```
 
 {py:obj}`easysnowdata.plotting` is optional — every product plots fine with

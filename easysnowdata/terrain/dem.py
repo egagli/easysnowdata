@@ -11,12 +11,12 @@ stereo model CHILI is derived from. ``PRODUCTS`` lists them and
     import easysnowdata as esd
 
     aoi = (-121.94, 46.72, -121.54, 46.99)
-    dem = esd.terrain.dem.load(aoi)                                # Copernicus GLO-30
-    dem = esd.terrain.dem.load(aoi, product="nasadem")             # SRTM heritage, no account
-    dem = esd.terrain.dem.load(aoi, product="3dep", resolution=10) # US 10 m
-    dem = esd.terrain.dem.load(aoi, product="srtm")                # SRTM GL1 v3 on Earth Engine
-    dem = esd.terrain.dem.load(aoi, source="earth-search")         # the same GLO-30, unsigned AWS
-    items = esd.terrain.dem.search(aoi, product="3dep")            # the covering tiles
+    dem_da = esd.terrain.dem.load(aoi)                                 # Copernicus GLO-30
+    dem_da = esd.terrain.dem.load(aoi, product="nasadem")              # SRTM heritage, no account
+    dem_da = esd.terrain.dem.load(aoi, product="3dep", resolution=10)  # US 10 m
+    dem_da = esd.terrain.dem.load(aoi, product="srtm")                 # SRTM GL1 v3 on Earth Engine
+    dem_da = esd.terrain.dem.load(aoi, source="earth-search")          # the same GLO-30, unsigned AWS
+    items_gdf = esd.terrain.dem.search(aoi, product="3dep")            # the covering tiles
 
 Every product returns ``elevation`` in metres with the same dims, CRS
 handling and provenance attributes; the vertical datum is in
@@ -513,8 +513,8 @@ def _reproject(
     geobox = parsed.to_geobox(resolution=grid_resolution, crs=crs)
     # The same method the STAC routes hand odc.stac.load, so the same DEM from
     # two routes lands on a common grid identically.
-    out = xr_reproject(da, geobox, resampling=resampling)
-    return contract.write_crs(out, geobox.crs)
+    reprojected_da = xr_reproject(da, geobox, resampling=resampling)
+    return contract.write_crs(reprojected_da, geobox.crs)
 
 
 def _is_geographic(crs: Any) -> bool:

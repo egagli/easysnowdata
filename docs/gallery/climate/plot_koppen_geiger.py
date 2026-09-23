@@ -37,17 +37,17 @@ for src in esd.catalog.get("koppen-geiger").sources:
 # %%
 # What the archive holds, without downloading it: one row per period,
 # scenario and resolution.
-inventory = esd.climate.koppen_geiger.search()
-print(f"{len(inventory)} rasters in the archive")
-print(inventory[inventory["resolution"] == "1 km"].head(8).to_string(index=False))
+inventory_df = esd.climate.koppen_geiger.search()
+print(f"{len(inventory_df)} rasters in the archive")
+print(inventory_df[inventory_df["resolution"] == "1 km"].head(8).to_string(index=False))
 
 # %%
 # The Pacific Northwest at the default 0.1° for the default period, 1991-2020.
 # The legend lists only the classes that occur in the array; the value 0 is
 # ocean and is kept as the nodata sentinel, so it draws as nothing.
-pnw = esd.climate.koppen_geiger.load((-125.0, 42.0, -116.0, 49.5))
-print(pnw)
-ax = esd.plotting.categorical(pnw, title="Köppen-Geiger classes, 1991-2020, 0.1°")
+pnw_da = esd.climate.koppen_geiger.load((-125.0, 42.0, -116.0, 49.5))
+print(pnw_da)
+ax = esd.plotting.categorical(pnw_da, title="Köppen-Geiger classes, 1991-2020, 0.1°")
 ax.figure.tight_layout()
 
 # %%
@@ -58,21 +58,21 @@ ax.figure.tight_layout()
 # periods are drawn on its UTM zone at 1 km, nearest so the classes survive.
 box = esd.parse_aoi((-122.6, 46.4, -120.9, 47.3))
 grid = box.to_geobox(crs="utm", resolution=1000)
-present = esd.climate.koppen_geiger.load(box.buffer(2000), resolution="1 km")
-future = esd.climate.koppen_geiger.load(
+present_da = esd.climate.koppen_geiger.load(box.buffer(2000), resolution="1 km")
+future_da = esd.climate.koppen_geiger.load(
     box.buffer(2000), period="2071_2099", scenario="ssp585", resolution="1 km"
 )
-print(present.attrs["archive_member"], "->", future.attrs["archive_member"])
+print(present_da.attrs["archive_member"], "->", future_da.attrs["archive_member"])
 
 fig, axes = plt.subplots(1, 2, figsize=(12.5, 5.2), sharey=True)
 esd.plotting.categorical(
-    present.odc.reproject(grid, resampling="nearest"),
+    present_da.odc.reproject(grid, resampling="nearest"),
     ax=axes[0],
     legend=False,
     title="1991-2020",
 )
 esd.plotting.categorical(
-    future.odc.reproject(grid, resampling="nearest"),
+    future_da.odc.reproject(grid, resampling="nearest"),
     ax=axes[1],
     title="2071-2099, SSP5-8.5",
     legend_kwargs={"all_classes": True, "ncol": 2, "fontsize": 7},
@@ -85,20 +85,22 @@ fig.tight_layout()
 # cold dry-summer belts (Dsc, Dsb) and the summit tundra (ET) shrink, and the
 # hot-summer Csa, absent today, takes over most of what was warm-summer Csb.
 # This is a 1 km grid in degrees, so the counts are pixels, not km².
-symbols = esd.processing.flags(present).set_index("value")["meaning"]
-land = (present.values != 0) & (future.values != 0)
-table = (
+symbols = esd.processing.flags(present_da).set_index("value")["meaning"]
+land = (present_da.values != 0) & (future_da.values != 0)
+table_df = (
     pd.DataFrame(
         {
-            "1991-2020": pd.Series(present.values[land].ravel()).value_counts(),
-            "2071-2099 SSP5-8.5": pd.Series(future.values[land].ravel()).value_counts(),
+            "1991-2020": pd.Series(present_da.values[land].ravel()).value_counts(),
+            "2071-2099 SSP5-8.5": pd.Series(
+                future_da.values[land].ravel()
+            ).value_counts(),
         }
     )
     .fillna(0)
     .astype(int)
 )
-table.index = [symbols[v] for v in table.index]
-table["change"] = table["2071-2099 SSP5-8.5"] - table["1991-2020"]
-print(table.sort_values("change").to_string())
-changed = np.mean(present.values[land] != future.values[land])
+table_df.index = [symbols[v] for v in table_df.index]
+table_df["change"] = table_df["2071-2099 SSP5-8.5"] - table_df["1991-2020"]
+print(table_df.sort_values("change").to_string())
+changed = np.mean(present_da.values[land] != future_da.values[land])
 print(f"{changed:.0%} of the land pixels change class")

@@ -42,13 +42,13 @@ for src in esd.catalog.get("forest-cover-fraction").sources:
 # The product is geographic; the box is loaded with a 1 km margin and drawn on
 # the AOI's UTM grid, bilinear because a fraction is continuous. The elevation
 # binning below uses the native pixels.
-forest = esd.land.forest_cover.load(box.buffer(1000), chunks=None)
-print(forest)
+forest_da = esd.land.forest_cover.load(box.buffer(1000), chunks=None)
+print(forest_da)
 print(
-    f"pixels without a value (255 in the source): {float(forest.isnull().mean()):.1%}"
+    f"pixels without a value (255 in the source): {float(forest_da.isnull().mean()):.1%}"
 )
 esd.plotting.map(
-    forest.odc.reproject(grid, resampling="bilinear"),
+    forest_da.odc.reproject(grid, resampling="bilinear"),
     cmap="Greens",
     vmin=0,
     vmax=100,
@@ -59,11 +59,11 @@ esd.plotting.map(
 # Tree cover against elevation. The Copernicus DEM is 1 arc-second on the same
 # geographic grid family, so it is sampled onto the 100 m forest grid with a
 # bilinear interpolation; the pixels are then binned by 100 m of elevation.
-dem = esd.terrain.dem.load(aoi, chunks=None).interp_like(forest, method="linear")
+dem_da = esd.terrain.dem.load(aoi, chunks=None).interp_like(forest_da, method="linear")
 edges = np.arange(500, 3100, 100)
 centres = edges[:-1] + 50
-elevation = dem.values.ravel()
-cover = forest.values.ravel()
+elevation = dem_da.values.ravel()
+cover = forest_da.values.ravel()
 valid = np.isfinite(elevation) & np.isfinite(cover)
 which = np.digitize(elevation[valid], edges) - 1
 median, low, high = (np.full(len(centres), np.nan) for _ in range(3))
@@ -81,8 +81,8 @@ ax.fill_betweenx(centres, low, high, color="#74c476", alpha=0.4, label="25-75 %"
 ax.plot(median, centres, color="#006d2c", linewidth=2, label="median")
 ax.axhline(treeline, color="0.3", linestyle="--", linewidth=1)
 ax.text(100, treeline, f" treeline ≈ {treeline:.0f} m", va="bottom", ha="right")
-ax.set_xlabel(esd.plotting.label(forest))
-ax.set_ylabel(esd.plotting.label(dem, name="elevation"))
+ax.set_xlabel(esd.plotting.label(forest_da))
+ax.set_ylabel(esd.plotting.label(dem_da, name="elevation"))
 ax.set_xlim(0, 100)
 ax.set_ylim(edges[0], float(np.nanmax(centres[np.isfinite(median)])) + 150)
 ax.set_title("Tree cover by elevation band")
@@ -96,5 +96,5 @@ fig.tight_layout()
 #
 # .. code-block:: python
 #
-#     epochs = esd.land.forest_cover.load(aoi, source="gee", time="2015/2019")
-#     epochs.mean(dim=("y", "x")).plot()
+#     epochs_da = esd.land.forest_cover.load(aoi, source="gee", time="2015/2019")
+#     epochs_da.mean(dim=("y", "x")).plot()

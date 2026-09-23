@@ -457,19 +457,19 @@ class CDECClient:
         url = f"{BASE_URL}/reportapp/javareports?name=SnowCourses"
         html = self._get_html(url)
         courses = []
-        for t in _read_html_tables(html):
+        for table_df in _read_html_tables(html):
             # Flatten multi-level column headers (pandas returns tuples for
             # tables with a spanning header row)
-            if isinstance(t.columns, pd.MultiIndex):
-                t.columns = [col[-1] for col in t.columns]
+            if isinstance(table_df.columns, pd.MultiIndex):
+                table_df.columns = [col[-1] for col in table_df.columns]
             # Identify the snow courses table by looking for an "ID" column
-            cols_lower = [str(c).lower().strip() for c in t.columns]
+            cols_lower = [str(c).lower().strip() for c in table_df.columns]
             if "id" not in cols_lower:
                 continue
-            t = _normalise_snow_courses_table(t)
-            if t is None:
+            table_df = _normalise_snow_courses_table(table_df)
+            if table_df is None:
                 continue
-            for _, row in t.iterrows():
+            for _, row in table_df.iterrows():
                 sid = str(row.get("station_id", "")).strip().upper()
                 if not _STATION_ID_RE.match(sid):
                     continue
@@ -515,16 +515,16 @@ class CDECClient:
         url = f"{BASE_URL}/reportapp/javareports?name=SnowSensors"
         html = self._get_html(url)
         pillows = []
-        for t in _read_html_tables(html):
-            if isinstance(t.columns, pd.MultiIndex):
-                t.columns = [col[-1] for col in t.columns]
-            cols_lower = [str(c).lower().strip() for c in t.columns]
+        for table_df in _read_html_tables(html):
+            if isinstance(table_df.columns, pd.MultiIndex):
+                table_df.columns = [col[-1] for col in table_df.columns]
+            cols_lower = [str(c).lower().strip() for c in table_df.columns]
             if "id" not in cols_lower and not any("station" in c for c in cols_lower):
                 continue
-            t = _normalise_snow_sensors_table(t)
-            if t is None:
+            table_df = _normalise_snow_sensors_table(table_df)
+            if table_df is None:
                 continue
-            for _, row in t.iterrows():
+            for _, row in table_df.iterrows():
                 sid = str(row.get("station_id", "")).strip().upper()
                 if not _STATION_ID_RE.match(sid):
                     continue
@@ -1097,11 +1097,11 @@ def _parse_station_search_html(html: str) -> list[dict]:
     4: Longitude, 5: Latitude, 6: Elevation (ft), 7: Operator, 8: Map
     """
     tables = _read_html_tables(html)
-    for t in tables:
-        if len(t.columns) < 7:
+    for table_df in tables:
+        if len(table_df.columns) < 7:
             continue
         # Identify station table: first data column should look like IDs
-        col0 = t.iloc[1:, 0].dropna().astype(str).str.strip()
+        col0 = table_df.iloc[1:, 0].dropna().astype(str).str.strip()
         if col0.str.match(r"^[A-Z0-9]{2,5}$").sum() < 3:
             continue
 
@@ -1116,11 +1116,11 @@ def _parse_station_search_html(html: str) -> list[dict]:
             "elevation_ft",
             "operator",
         ]
-        extra = [f"_col{i}" for i in range(8, len(t.columns))]
-        t.columns = names + extra
+        extra = [f"_col{i}" for i in range(8, len(table_df.columns))]
+        table_df.columns = names + extra
 
         stations = []
-        for _, row in t.iterrows():
+        for _, row in table_df.iterrows():
             sid = str(row.get("station_id", "")).strip().upper()
             if not _STATION_ID_RE.match(sid):
                 continue
@@ -1143,11 +1143,11 @@ def _parse_station_search_html(html: str) -> list[dict]:
 
 
 def _normalise_snow_courses_table(
-    t: pd.DataFrame,
+    table_df: pd.DataFrame,
 ) -> pd.DataFrame | None:
     """Rename columns of the SnowCourses table to standard names."""
     col_map: dict[Any, str] = {}
-    for col in t.columns:
+    for col in table_df.columns:
         c = str(col).lower().strip()
         if c == "id":
             col_map[col] = "station_id"
@@ -1167,15 +1167,15 @@ def _normalise_snow_courses_table(
             col_map[col] = "measuring_agency"
     if "station_id" not in col_map.values():
         return None
-    return t.rename(columns=col_map)
+    return table_df.rename(columns=col_map)
 
 
 def _normalise_snow_sensors_table(
-    t: pd.DataFrame,
+    table_df: pd.DataFrame,
 ) -> pd.DataFrame | None:
     """Rename columns of the SnowSensors table to standard names."""
     col_map: dict[Any, str] = {}
-    for col in t.columns:
+    for col in table_df.columns:
         c = str(col).lower().strip()
         if c == "id":
             col_map[col] = "station_id"
@@ -1193,7 +1193,7 @@ def _normalise_snow_sensors_table(
             col_map[col] = "operator"
     if "station_id" not in col_map.values():
         return None
-    return t.rename(columns=col_map)
+    return table_df.rename(columns=col_map)
 
 
 def _parse_sta_meta_html(station_id: str, html: str) -> dict:

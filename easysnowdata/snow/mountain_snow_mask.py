@@ -5,10 +5,10 @@
     import easysnowdata as esd
 
     aoi = (-121.94, 46.72, -121.54, 46.99)
-    mask = esd.snow.mountain_snow_mask.load(aoi)                   # mountains
-    snow = esd.snow.mountain_snow_mask.load(aoi, layer="snow")     # all terrain
-    cloud = esd.snow.mountain_snow_mask.load(aoi, layer="clouds")  # indeterminacy
-    esd.plotting.categorical(mask)
+    mask_da = esd.snow.mountain_snow_mask.load(aoi)                   # mountains
+    snow_da = esd.snow.mountain_snow_mask.load(aoi, layer="snow")     # all terrain
+    cloud_da = esd.snow.mountain_snow_mask.load(aoi, layer="clouds")  # indeterminacy
+    esd.plotting.categorical(mask_da)
 
 MODIS MOD10A2 snow-cover extent and the GTOPO30 elevation model, classified at
 30 arcsec into little-to-no, ephemeral and seasonal snow, with mountains

@@ -5,9 +5,9 @@ VIIRS sentinel values that share a byte with the NDSI percentage. Thresholding
 that byte is left to the user, in the open, because the choice of threshold
 and of what to do with cloud, night and water is the analysis::
 
-    ndsi = snow["CGF_NDSI_Snow_Cover"]
-    valid = ndsi <= 100                      # 200+ are the sentinels below
-    binary = (ndsi >= 40).where(valid)      # NaN where the pixel says nothing
+    ndsi_da = snow_ds["CGF_NDSI_Snow_Cover"]
+    valid_da = ndsi_da <= 100                       # 200+ are the sentinels below
+    binary_da = (ndsi_da >= 40).where(valid_da)     # NaN where the pixel says nothing
 """
 
 from __future__ import annotations

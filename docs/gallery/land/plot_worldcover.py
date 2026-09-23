@@ -39,16 +39,16 @@ for src in esd.catalog.get("esa-worldcover").sources:
 # 100 m² and class areas are a count. Tree cover fills the valleys and stops
 # at the treeline; above it WorldCover sees bare rock, snow and ice, and a
 # ring of grassland in the subalpine meadows between.
-landcover = esd.land.landcover.load(aoi, crs="utm", grid_resolution=10, chunks=None)
-print(landcover)
-esd.plotting.categorical(landcover, title="ESA WorldCover v200 (2021)")
+landcover_da = esd.land.landcover.load(aoi, crs="utm", grid_resolution=10, chunks=None)
+print(landcover_da)
+esd.plotting.categorical(landcover_da, title="ESA WorldCover v200 (2021)")
 
-classes = esd.processing.categorical.flags(landcover)
-values, counts = np.unique(landcover.values, return_counts=True)
+classes_df = esd.processing.categorical.flags(landcover_da)
+values, counts = np.unique(landcover_da.values, return_counts=True)
 area = pd.Series(counts * 100 / 1e6, index=values).rename("area [km²]")
-table = classes.set_index("value")["meaning"].str.replace("_", " ").to_frame()
-table = table.join(area, how="inner").sort_values("area [km²]", ascending=False)
-print(table.round(1).to_string())
+table_df = classes_df.set_index("value")["meaning"].str.replace("_", " ").to_frame()
+table_df = table_df.join(area, how="inner").sort_values("area [km²]", ascending=False)
+print(table_df.round(1).to_string())
 
 # %%
 # 2020 (v100) against 2021 (v200). The versions differ in algorithm as well
@@ -58,21 +58,23 @@ print(table.round(1).to_string())
 # treeline, and the alpine classes (moss and lichen, bare ground, snow and
 # ice) against each other on the mountain, where which one wins depends on
 # the summer scenes each version saw.
-earlier = esd.land.landcover.load(
+earlier_da = esd.land.landcover.load(
     aoi, version="v100", crs="utm", grid_resolution=10, chunks=None
 )
-names = classes.set_index("value")["meaning"].str.replace("_", " ")
-flips = pd.DataFrame({"v100": earlier.values.ravel(), "v200": landcover.values.ravel()})
-flips = flips[flips["v100"] != flips["v200"]]
-print(
-    f"pixels that change class between v100 and v200: {len(flips) / landcover.size:.1%}"
+names = classes_df.set_index("value")["meaning"].str.replace("_", " ")
+flips_df = pd.DataFrame(
+    {"v100": earlier_da.values.ravel(), "v200": landcover_da.values.ravel()}
 )
-top = flips.value_counts().head(6).rename("area [km²]") * 100 / 1e6
+flips_df = flips_df[flips_df["v100"] != flips_df["v200"]]
+print(
+    f"pixels that change class between v100 and v200: {len(flips_df) / landcover_da.size:.1%}"
+)
+top = flips_df.value_counts().head(6).rename("area [km²]") * 100 / 1e6
 top.index = [f"{names[a]} -> {names[b]}" for a, b in top.index]
 print(top.round(1).to_string())
 
 fig, axes = plt.subplots(1, 2, figsize=(14, 5.6), layout="constrained")
 esd.plotting.categorical(
-    earlier, ax=axes[0], legend=False, title="WorldCover v100 (2020)"
+    earlier_da, ax=axes[0], legend=False, title="WorldCover v100 (2020)"
 )
-esd.plotting.categorical(landcover, ax=axes[1], title="WorldCover v200 (2021)")
+esd.plotting.categorical(landcover_da, ax=axes[1], title="WorldCover v200 (2021)")

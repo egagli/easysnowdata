@@ -5,10 +5,10 @@
     import easysnowdata as esd
 
     aoi = (-121.94, 46.72, -121.54, 46.99)
-    huc = esd.hydro.basins.huc(aoi, level=12)          # USGS WBD, no credentials
-    atlas = esd.hydro.basins.hydrobasins(aoi, level=5)  # BasinATLAS attributes
-    major = esd.hydro.basins.grdc_major(aoi)            # GRDC major river basins
-    wmo = esd.hydro.basins.grdc_wmo(aoi)                # GRDC / WMO basins
+    huc_gdf = esd.hydro.basins.huc(aoi, level=12)           # USGS WBD, no credentials
+    atlas_gdf = esd.hydro.basins.hydrobasins(aoi, level=5)  # BasinATLAS attributes
+    major_gdf = esd.hydro.basins.grdc_major(aoi)            # GRDC major river basins
+    wmo_gdf = esd.hydro.basins.grdc_wmo(aoi)                # GRDC / WMO basins
 
 Four products share this module because they answer the same question with
 different geographies. Every loader returns a :class:`geopandas.GeoDataFrame`

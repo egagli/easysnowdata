@@ -68,29 +68,29 @@ dems = {
     "3DEP 10 m": esd.terrain.dem.load(aoi, product="3dep", resolution=10, **grid),
     "ALOS World 3D": esd.terrain.dem.load(aoi, product="alos", **grid),
 }
-for name, dem in dems.items():
+for name, dem_da in dems.items():
     print(
-        f"{name:18} {dem.sizes['y']}x{dem.sizes['x']} px  "
-        f"{dem.attrs['vertical_datum']:8} {dem.attrs['surface']}"
+        f"{name:18} {dem_da.sizes['y']}x{dem_da.sizes['x']} px  "
+        f"{dem_da.attrs['vertical_datum']:8} {dem_da.attrs['surface']}"
     )
-reference = dems["Copernicus GLO-30"]
+reference_da = dems["Copernicus GLO-30"]
 
 # %%
 # Elevation on a shared colour scale. The four look alike at this scale,
 # which is the point: the choice of DEM matters in the differences, not in
 # the map.
-vmin = min(float(dem.min()) for dem in dems.values())
-vmax = max(float(dem.max()) for dem in dems.values())
+vmin = min(float(dem_da.min()) for dem_da in dems.values())
+vmax = max(float(dem_da.max()) for dem_da in dems.values())
 fig, axes = plt.subplots(2, 2, figsize=(12, 10.5), layout="constrained")
-for ax, (name, dem) in zip(axes.ravel(), dems.items()):
+for ax, (name, dem_da) in zip(axes.ravel(), dems.items()):
     esd.plotting.map(
-        dem, ax=ax, cmap="terrain", vmin=vmin, vmax=vmax, colorbar=False, title=name
+        dem_da, ax=ax, cmap="terrain", vmin=vmin, vmax=vmax, colorbar=False, title=name
     )
 fig.colorbar(
     axes[0, 0].images[0],
     ax=axes.ravel().tolist(),
     shrink=0.6,
-    label=esd.plotting.label(reference, name="elevation"),
+    label=esd.plotting.label(reference_da, name="elevation"),
 )
 fig.suptitle("Four DEMs on one 30 m UTM grid")
 
@@ -100,14 +100,14 @@ fig.suptitle("Four DEMs on one 30 m UTM grid")
 # stereo models smooth over, and the radar models show speckle on the glaciers.
 light = LightSource(azdeg=315, altdeg=45)
 fig, axes = plt.subplots(2, 2, figsize=(12, 10.5), layout="constrained")
-for ax, (name, dem) in zip(axes.ravel(), dems.items()):
-    shade = light.hillshade(np.nan_to_num(dem.values), vert_exag=1, dx=30, dy=30)
-    x, y = dem.x.values, dem.y.values
+for ax, (name, dem_da) in zip(axes.ravel(), dems.items()):
+    shade = light.hillshade(np.nan_to_num(dem_da.values), vert_exag=1, dx=30, dy=30)
+    x, y = dem_da.x.values, dem_da.y.values
     ax.imshow(
         shade, cmap="gray", extent=(x[0], x[-1], y[-1], y[0]), interpolation="nearest"
     )
     ax.set_title(name)
-    esd.plotting.finish_map(ax, dem.rio.crs)
+    esd.plotting.finish_map(ax, dem_da.rio.crs)
 fig.suptitle("Hillshade (illumination from the north-west)")
 
 # %%
@@ -116,16 +116,16 @@ fig.suptitle("Hillshade (illumination from the north-west)")
 # of order a metre is expected before any real difference; the structure in
 # the maps is what is left after that.
 differences = {
-    f"{name} minus Copernicus": (dem - reference).assign_attrs(
+    f"{name} minus Copernicus": (dem_da - reference_da).assign_attrs(
         long_name="elevation difference", units="m"
     )
-    for name, dem in dems.items()
+    for name, dem_da in dems.items()
     if name != "Copernicus GLO-30"
 }
 fig, axes = plt.subplots(1, 3, figsize=(17, 5.6), layout="constrained")
-for ax, (name, diff) in zip(axes, differences.items()):
+for ax, (name, diff_da) in zip(axes, differences.items()):
     esd.plotting.map(
-        diff, ax=ax, cmap="RdBu", vmin=-30, vmax=30, colorbar=False, title=name
+        diff_da, ax=ax, cmap="RdBu", vmin=-30, vmax=30, colorbar=False, title=name
     )
 fig.colorbar(
     axes[0].images[0],
@@ -133,11 +133,11 @@ fig.colorbar(
     shrink=0.8,
     label=esd.plotting.label(next(iter(differences.values()))),
 )
-for name, diff in differences.items():
+for name, diff_da in differences.items():
     print(
-        f"{name:32} median {float(diff.median()):6.2f} m   "
-        f"spread (16-84 %) {float(diff.quantile(0.16)):6.2f} to "
-        f"{float(diff.quantile(0.84)):6.2f} m"
+        f"{name:32} median {float(diff_da.median()):6.2f} m   "
+        f"spread (16-84 %) {float(diff_da.quantile(0.16)):6.2f} to "
+        f"{float(diff_da.quantile(0.84)):6.2f} m"
     )
 
 # %%
@@ -146,12 +146,12 @@ for name, diff in differences.items():
 # well below the radar surface, over snow, bare rock and grass the two agree
 # to about the datum offset. The forest number is a canopy height, not an
 # error in either product.
-landcover = esd.land.landcover.load(aoi, **grid)
-canopy = differences["3DEP 10 m minus Copernicus"]
-classes = esd.processing.categorical.flags(landcover)
+landcover_da = esd.land.landcover.load(aoi, **grid)
+canopy_da = differences["3DEP 10 m minus Copernicus"]
+classes_df = esd.processing.categorical.flags(landcover_da)
 rows = []
-for value, meaning in zip(classes["value"], classes["meaning"]):
-    pixels = landcover.values == value
+for value, meaning in zip(classes_df["value"], classes_df["meaning"]):
+    pixels = landcover_da.values == value
     if pixels.sum() < 1000:
         continue
     rows.append(
@@ -159,7 +159,7 @@ for value, meaning in zip(classes["value"], classes["meaning"]):
             "land cover": meaning.replace("_", " "),
             "pixels": int(pixels.sum()),
             "median 3DEP - Copernicus [m]": round(
-                float(np.nanmedian(canopy.values[pixels])), 2
+                float(np.nanmedian(canopy_da.values[pixels])), 2
             ),
         }
     )
@@ -174,21 +174,22 @@ print(pd.DataFrame(rows).set_index("land cover").to_string())
 # is several metres, which would hide what is being compared.
 # The box is loaded with a 1 km margin so the UTM grid the map uses is covered.
 margin = box.buffer(1000)
-copernicus_2021 = esd.terrain.dem.load(margin, chunks=None)
-copernicus_2024 = esd.terrain.dem.load(margin, source="gee", chunks=None)
-nasadem = esd.terrain.dem.load(margin, product="nasadem", chunks=None)
-srtm = esd.terrain.dem.load(margin, product="srtm", chunks=None)
+copernicus_2021_da = esd.terrain.dem.load(margin, chunks=None)
+copernicus_2024_da = esd.terrain.dem.load(margin, source="gee", chunks=None)
+nasadem_da = esd.terrain.dem.load(margin, product="nasadem", chunks=None)
+srtm_da = esd.terrain.dem.load(margin, product="srtm", chunks=None)
 pairs = {
-    "Copernicus 2024_1 minus 2021": copernicus_2024.interp_like(
-        copernicus_2021, method="nearest"
+    "Copernicus 2024_1 minus 2021": copernicus_2024_da.interp_like(
+        copernicus_2021_da, method="nearest"
     )
-    - copernicus_2021,
-    "SRTM GL1 minus NASADEM": srtm.interp_like(nasadem, method="nearest") - nasadem,
+    - copernicus_2021_da,
+    "SRTM GL1 minus NASADEM": srtm_da.interp_like(nasadem_da, method="nearest")
+    - nasadem_da,
 }
-for name, diff in pairs.items():
+for name, diff_da in pairs.items():
     print(
-        f"{name:30} median {float(diff.median()):5.2f} m   "
-        f"pixels within 1 m: {float((abs(diff) < 1).mean()) * 100:5.1f} %"
+        f"{name:30} median {float(diff_da.median()):5.2f} m   "
+        f"pixels within 1 m: {float((abs(diff_da) < 1).mean()) * 100:5.1f} %"
     )
 
 # %%
@@ -196,11 +197,13 @@ for name, diff in pairs.items():
 # drawing is the other one. NASADEM is not SRTM with its voids filled: the
 # reprocessing re-unwrapped the radar phase and re-registered the tiles, and
 # on Rainier's slopes the surface moved by metres either way.
-diff = pairs["SRTM GL1 minus NASADEM"].assign_attrs(
+diff_da = pairs["SRTM GL1 minus NASADEM"].assign_attrs(
     long_name="elevation difference", units="m"
 )
 esd.plotting.map(
-    diff.odc.reproject(box.to_geobox(crs="utm", resolution=30), resampling="bilinear"),
+    diff_da.odc.reproject(
+        box.to_geobox(crs="utm", resolution=30), resampling="bilinear"
+    ),
     cmap="RdBu",
     vmin=-10,
     vmax=10,
@@ -211,5 +214,7 @@ esd.plotting.map(
 # ``search`` returns the tiles a STAC route would read, as a GeoDataFrame.
 # 3DEP tiles carry the date of their newest source, which is how to tell
 # lidar from legacy coverage before loading anything.
-tiles = esd.terrain.dem.search(aoi, product="3dep", resolution=10)
-print(tiles[["gsd", "start_datetime", "end_datetime", "threedep:region"]].to_string())
+tiles_gdf = esd.terrain.dem.search(aoi, product="3dep", resolution=10)
+print(
+    tiles_gdf[["gsd", "start_datetime", "end_datetime", "threedep:region"]].to_string()
+)
