@@ -357,6 +357,17 @@ class TestInternals:
         plotting.add_graticule(ax, projected.rio.crs, step=(0.05, 0.02))
         assert any("°" in t.get_text() for t in ax.get_xticklabels())
 
+    def test_graticule_on_a_global_projected_map(self):
+        # Robinson's corners lie outside the projection and transform to inf;
+        # the graticule used to take its range from the edges alone and crash.
+        from pyproj import CRS
+
+        fig, ax = plt.subplots()
+        ax.set_xlim(-17_005_833, 17_014_167)
+        ax.set_ylim(-8_634_845, 8_625_155)
+        plotting.add_graticule(ax, CRS.from_user_input("ESRI:54030"))
+        assert len(ax.lines) > 10  # meridians and parallels across the globe
+
     def test_corner_notes_stack_into_one_line(self, projected):
         fig, ax = plt.subplots()
         plotting._corner_note(ax, "one")

@@ -240,24 +240,16 @@ def add_graticule(
         lon0, lon1, lat0, lat1 = min(x0, x1), max(x0, x1), min(y0, y1), max(y0, y1)
     else:
         to_lonlat = Transformer.from_crs(crs, "EPSG:4326", always_xy=True)
-        edge = np.linspace(0, 1, 60)
-        xs = np.concatenate(
-            [
-                x0 + (x1 - x0) * edge,
-                np.full(60, x1),
-                x1 - (x1 - x0) * edge,
-                np.full(60, x0),
-            ]
-        )
-        ys = np.concatenate(
-            [
-                np.full(60, y0),
-                y0 + (y1 - y0) * edge,
-                np.full(60, y1),
-                y1 - (y1 - y0) * edge,
-            ]
-        )
-        lons, lats = to_lonlat.transform(xs, ys)
+        # Sample the whole view, not only its edges: on a global map (Robinson,
+        # Mollweide) the corners lie outside the projection's outline and
+        # transform to inf, and the edges alone then miss most of the globe.
+        xs, ys = np.meshgrid(np.linspace(x0, x1, 60), np.linspace(y0, y1, 60))
+        lons, lats = to_lonlat.transform(xs.ravel(), ys.ravel())
+        valid = np.isfinite(lons) & np.isfinite(lats)
+        if not valid.any():
+            return
+        lons = np.clip(lons[valid], -180.0, 180.0)
+        lats = np.clip(lats[valid], -90.0, 90.0)
         lon0, lon1, lat0, lat1 = np.min(lons), np.max(lons), np.min(lats), np.max(lats)
     if step is None:
         step_lon = _nice_step(lon1 - lon0)
