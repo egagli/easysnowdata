@@ -163,8 +163,8 @@ filterwarnings = ["ignore::DeprecationWarning", "ignore::UserWarning"]
 [tool.coverage.run]
 source = ["easysnowdata"]
 omit = [
-    # The network clients: ~7 000 lines exercised mostly by the live client
-    # tests in tests/stations/, which the offline coverage run cannot reach.
+    # From global_snow_networks (§9 step 1): ~7 000 lines exercised by the live
+    # client tests in tests/stations/, which came over with them.
     "easysnowdata/stations/clients/*",
     "easysnowdata/_version.py",
 ]
