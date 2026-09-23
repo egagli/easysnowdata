@@ -1,0 +1,9 @@
+{
+  "https://naturalearth.s3.amazonaws.com/10m_raster/GRAY_HR_SR_OB_DR.zip": {
+    "etag": "\"fd00e7f53dfbf151fe112fed4f69fc78\"",
+    "last_modified": "Wed, 08 Sep 2021 06:29:47 GMT",
+    "length": "91669338",
+    "status": 206,
+    "url": "https://naturalearth.s3.amazonaws.com/10m_raster/GRAY_HR_SR_OB_DR.zip"
+  }
+}

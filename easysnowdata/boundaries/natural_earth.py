@@ -152,11 +152,11 @@ PRODUCT = Product(
             id="natural-earth",
             provider="vector_http",
             location=f"{NATURAL_EARTH_URL}/<scale>/<category>/ne_<scale>_<layer>.zip",
-            temporal="static (v5.1)",
+            temporal="static (v5.1.1; a few layers 5.0.0)",
             notes="one zipped shapefile per layer and scale, cached on first use",
             title="Natural Earth",
             health=Probe(
-                "Natural Earth lakes",
+                "Natural Earth vector layers (naciscdn)",
                 partial(health.http_first_byte, url("lakes", "110m")),
             ),
         ),

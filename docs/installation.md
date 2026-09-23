@@ -84,7 +84,7 @@ import easysnowdata as esd
 
 print(esd.__version__)
 esd.auth.status()  # which providers are configured; network-free
-esd.catalog.list()  # the 28 products
+esd.catalog.list()  # every product, by theme
 ```
 
 On an interactive session `import easysnowdata` prints a single line naming

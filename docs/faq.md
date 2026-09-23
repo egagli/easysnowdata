@@ -16,16 +16,37 @@ The [catalog](catalog/index.md) is the same information as a website, and the
 
 ## Do I need an account?
 
-For 22 of 28 products, no. The rest need one of five providers, and most of
-those have a credential-free alternative route — `source="planetary-computer"`
-for HLS and MODIS, `source="hosted-cog"` for the snow classification,
-`source="dem"` for the local incidence angle. [Credentials](credentials.md)
+For 33 of 40 products, no: each has at least one route that needs no
+account. The other seven need NASA Earthdata, Earth Engine, Planet or an NVE
+key. Where a product's default route needs an account there is usually an open
+alternative — `source="planetary-computer"` for HLS and MODIS,
+`source="hosted-cog"` for the snow classification, `source="dem"` for the local
+incidence angle, and `source="oggm-mirror"` for RGI 6.0 glacier outlines. [Credentials](credentials.md)
 lists which products need what, and `esd.auth.status()` says what you already
 have configured.
 
 `CredentialError` is raised before any network request and its message
 contains the setup steps, so you never discover a missing account halfway
 through a download.
+
+## Which state, county, mountain range or glacier is this?
+
+Ask `esd.boundaries` with the same AOI; every answer is a GeoDataFrame of the
+whole features that touch it:
+
+```python
+esd.boundaries.admin.states(aoi)  # US AOI → US Census; elsewhere Natural Earth
+esd.boundaries.admin.counties(aoi)  # US counties
+esd.boundaries.admin.admin(aoi, level=2)  # any country, any level (geoBoundaries)
+esd.boundaries.mountains.load(aoi, subset="all")  # every GMBA range above the AOI
+esd.boundaries.glaciers.load(aoi)  # RGI 7.0 outlines (Earthdata Login)
+```
+
+Draw any of them over a map with `esd.plotting.add_outline(ax, gdf)`, which
+reprojects to the map's CRS and keeps its extent. For glaciers, check
+`src_date` before treating the outlines as year-2000 extents: around Mount
+Rainier RGI 7.0 reuses RGI 6.0's outlines from 1959-1970 mapping (the
+[glacier example](auto_examples/boundaries/plot_glaciers.rst) shows it).
 
 ## Why is `load` instant? Where is my data?
 

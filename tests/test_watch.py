@@ -87,6 +87,10 @@ class TestWatchlist:
             for product in entry.get("products", [])
         }
         assert {"modis-snow", "viirs-snow", "hls", "sentinel-1-rtc", "era5"} <= watched
+        # Every boundaries product and the hillshade: static files that are
+        # still republished (Census yearly, RGI versions, a mirror for RGI 6.0).
+        boundaries = set(catalog.list(theme="boundaries").index)
+        assert boundaries | {"hillshade"} <= watched
 
 
 class TestClassify:

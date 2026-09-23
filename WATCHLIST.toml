@@ -164,6 +164,44 @@ products = ["hydrobasins"]
 
 # Station inventories: a count per network, so stations added or retired show
 # up as a delta. NRCS adds SNOTEL sites every year.
+# Boundaries and the hillshade: one representative archive per source. An
+# ETag or length change means the upstream republished it; the cached copy in
+# ~/.cache/easysnowdata is then stale until it is cleared.
+[[file]]
+id = "file-natural-earth-hillshade"
+url = "https://naturalearth.s3.amazonaws.com/10m_raster/GRAY_HR_SR_OB_DR.zip"
+products = ["hillshade"]
+
+[[file]]
+id = "file-natural-earth-countries"
+url = "https://naciscdn.org/naturalearth/10m/cultural/ne_10m_admin_0_countries.zip"
+products = ["countries", "states-provinces", "natural-earth-vectors"]
+
+[[file]]
+id = "file-census-states"
+# The release the loader defaults to (admin.CENSUS_YEAR).
+url = "https://www2.census.gov/geo/tiger/GENZ2025/shp/cb_2025_us_state_20m.zip"
+products = ["states-provinces", "us-counties"]
+
+[[file]]
+id = "file-census-next-release"
+# Next year's file: a 404 until the Census Bureau publishes it (the 2025 files
+# appeared in March 2026). The status changing to 206 is the signal to move
+# admin.CENSUS_YEAR and the two URLs here on by a year.
+url = "https://www2.census.gov/geo/tiger/GENZ2026/shp/cb_2026_us_state_20m.zip"
+products = ["states-provinces", "us-counties"]
+
+[[file]]
+id = "file-gmba-300"
+url = "https://data.earthenv.org/mountains/standard/GMBA_Inventory_v2.0_standard_300.zip"
+products = ["gmba-mountains"]
+
+[[file]]
+id = "file-rgi6-oggm-mirror"
+# The credential-free RGI 6.0 route: a mirror, so it can vanish without notice.
+url = "https://cluster.klima.uni-bremen.de/~oggm/rgi/www.glims.org/RGI/rgi60_files/00_rgi60_regions.zip"
+products = ["rgi-glaciers"]
+
 [[stations]]
 id = "stations-counts"
 networks = ["awdb", "cdec", "databc", "yukon"]
@@ -225,7 +263,7 @@ keywords = ["nsidc", "lp daac", "asf", "urs", "earthdata login"]
 [[page]]
 id = "page-nsidc-updates"
 url = "https://nsidc.org/data/data-programs/nsidc-daac/data-updates"
-products = ["modis-snow", "viirs-snow", "ucla-snow-reanalysis", "snow-classification", "snodas"]
+products = ["modis-snow", "viirs-snow", "ucla-snow-reanalysis", "snow-classification", "snodas", "rgi-glaciers"]
 
 [[page]]
 id = "page-asf-daac"
@@ -269,6 +307,24 @@ id = "page-gee-community-catalog"
 url = "https://gee-community-catalog.org/changelog/"
 products = ["snodas", "nlcd"]
 
+[[page]]
+id = "page-nsidc-rgi7"
+url = "https://nsidc.org/data/nsidc-0770/versions/7"
+products = ["rgi-glaciers"]
+
+[[page]]
+id = "page-glims-rgi"
+# Where a new RGI version (7.1, 8) is announced.
+url = "https://www.glims.org/RGI/"
+products = ["rgi-glaciers"]
+keywords = ["version", "rgi 7", "rgi 8"]
+
+[[page]]
+id = "page-earthenv-mountains"
+url = "https://www.earthenv.org/mountains"
+products = ["gmba-mountains"]
+keywords = ["version", "v2.1", "v3"]
+
 [[feed]]
 id = "feed-asf-search-changelog"
 url = "https://raw.githubusercontent.com/asfadmin/Discovery-asf_search/master/CHANGELOG.md"
@@ -279,3 +335,13 @@ id = "feed-pangeo-discourse"
 url = "https://discourse.pangeo.io/latest.json"
 products = []
 keywords = ["zarr", "icechunk", "virtualizarr", "stac", "era5", "snow"]
+
+[[feed]]
+id = "feed-natural-earth-vector-changelog"
+url = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/CHANGELOG"
+products = ["countries", "states-provinces", "natural-earth-vectors"]
+
+[[feed]]
+id = "feed-geoboundaries-releases"
+url = "https://github.com/wmgeolab/geoBoundaries/releases.atom"
+products = ["countries", "states-provinces", "admin-boundaries"]

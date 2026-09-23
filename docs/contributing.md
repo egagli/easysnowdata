@@ -104,7 +104,10 @@ Put it in `easysnowdata/<theme>/<product>.py` with module-level `search` and
 `load` functions. Take `aoi` first and `time` second; accept `source=`; return
 lazy xarray. Build the return value with `processing.contract.finalize()` so
 the dims, CRS, nodata policy and provenance attributes come out right without
-you re-deciding them. Read [Concepts](concepts.md) once before you start.
+you re-deciding them. A vector product returns a GeoDataFrame through
+`processing.contract.finalize_frame()` instead (EPSG:4326, 2-D, provenance in
+`.attrs`); fetch its archive once with `providers.raster_http.fetch` and read
+it with `providers.vector_http.read`, which pushes the AOI down. Read [Concepts](concepts.md) once before you start.
 ```
 
 ```{card} 2. Add the catalog entry
@@ -131,7 +134,10 @@ The minimal request that shows the route is alive: a first-byte GET for a
 static file, a one-item STAC search, a `getInfo()` for Earth Engine, an
 `earthaccess` search for NSIDC. Reuse the helpers in
 `easysnowdata.catalog.health`. **GET first, not HEAD** — some servers (GRDC)
-answer HEAD with a 400 that looks exactly like a 404.
+answer HEAD with a 400 that looks exactly like a 404. For a file behind
+Earthdata Login that is not in CMR (NSIDC's `daacdata` tree), use
+`earthdata_https_first_byte`: an anonymous GET there lands on the login page
+with a 200, which a plain first-byte probe would count as a pass.
 
 Give the probe a stable `label`. It is the key the weekly history is stored
 under, so renaming one starts its history over.
@@ -147,7 +153,8 @@ the right length, then `# %%` cells. List it in the catalog entry's
 House style: the title names the product and its provider (`SNODAS snow water
 equivalent and depth (NOHRSC)`), never a place. A cell near the top prints the
 product's routes (`esd.catalog.get(pid).sources`). Maps go through
-`esd.plotting.map` / `categorical` / `points`, time series through
+`esd.plotting.map` / `categorical` / `points`, vectors over them through
+`esd.plotting.add_outline`, time series through
 `esd.plotting.timeseries`, so every figure has equal aspect, a scale bar, a
 graticule, units in `[ ]` and calendar dates without repeating the matplotlib.
 Band arithmetic and thresholds are written out, not wrapped. Where a product has
@@ -159,7 +166,19 @@ out of the credential-free pull-request build; the marker itself never appears
 on the rendered page.
 ```
 
-```{card} 6. Check the loop closed
+```{card} 6. An upstream watch entry
+Add the product to `WATCHLIST.toml`, where `scripts/watch.py` looks every week
+for the change a health probe cannot see: a CMR revision, a republished file
+(`[[file]]`: ETag, length, status), a changelog or release feed, a
+provider news page. A health probe says the route still answers; the watch
+says what it answers with has changed. For a file that will be superseded
+(yearly releases), watch next year's URL too: its 404 turning into a 206 is
+the signal to move on. Seed the snapshot once with
+`pixi run -e dev python scripts/watch.py --watchlist <just-the-new-entries.toml>`
+so the first weekly digest compares rather than records.
+```
+
+```{card} 7. Check the loop closed
 `pixi run -e test-py313 test-unit` — `tests/test_docs_pages.py` fails if the product
 has no example, if the example file is missing, or if a gallery script no
 product claims has appeared. `pixi run -e docs docs-fast` then shows you the

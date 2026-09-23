@@ -25,8 +25,11 @@ the AOI from it. ``region=`` bypasses the lookup; a whole-world read needs
 ``region=`` (every region is roughly a gigabyte).
 
 **Sources.** ``"nsidc"`` (default) is the archive of record for both
-versions and needs an Earthdata Login. ``"oggm-mirror"`` is OGGM's
-credential-free mirror of the original GLIMS release files for **6.0 only**.
+versions and needs an Earthdata Login — as a username and password
+(``EARTHDATA_USERNAME``/``EARTHDATA_PASSWORD`` or a ``~/.netrc`` entry): NSIDC's
+on-premises archive does not accept a bearer ``EARTHDATA_TOKEN`` on its own.
+``"oggm-mirror"`` is OGGM's credential-free mirror of the original GLIMS
+release files for **6.0 only**.
 
 The first columns are the same for both versions: ``rgi_id``, ``name``,
 ``area_km2`` and ``o1region``, followed by the version's own attributes (for
@@ -38,6 +41,7 @@ Z coordinate, which is dropped.
 from __future__ import annotations
 
 import logging
+import zipfile
 from functools import partial
 from typing import Any
 
@@ -207,9 +211,22 @@ def url(
 def _fetch(archive_url: str, src: Source, version: str) -> Any:
     """Download one archive into the cache: through Earthdata Login, or plainly."""
     subdir = f"boundaries/rgi/{version}"
-    if src.requires:
-        return providers.earthdata.download([archive_url], subdir)[0]
-    return providers.raster_http.fetch(archive_url, subdir=subdir)
+    if not src.requires:
+        return providers.raster_http.fetch(archive_url, subdir=subdir)
+    path = providers.earthdata.download([archive_url], subdir)[0]
+    if not zipfile.is_zipfile(path):
+        # NSIDC's on-premises tree ignores a bearer token and answers with the
+        # Earthdata login page (HTTP 200), which earthaccess saves as the file.
+        path.unlink(missing_ok=True)
+        raise RuntimeError(
+            f"NSIDC returned the Earthdata login page instead of "
+            f"{archive_url.rsplit('/', 1)[-1]}. Its on-premises archive (daacdata) "
+            "accepts a username and password (EARTHDATA_USERNAME and "
+            "EARTHDATA_PASSWORD, or a ~/.netrc entry) but not a bearer "
+            'EARTHDATA_TOKEN on its own. For RGI 6.0, source="oggm-mirror" needs '
+            "no account."
+        )
+    return path
 
 
 def regions(
@@ -352,14 +369,25 @@ PRODUCT = Product(
             temporal="static (7.0: 2023, outlines targeted at 2000; 6.0: 2017)",
             notes=(
                 "NSIDC-0770, the archive of record for both versions; one zipped "
-                "shapefile per region (3-190 MB), cached on first use"
+                "shapefile per region (3-190 MB), cached on first use; needs the "
+                "Earthdata username and password (a bearer token alone is not "
+                "accepted by NSIDC's on-premises archive)"
             ),
             title="NSIDC (Earthdata Login)",
-            health=Probe(
-                "RGI 7.0 region outlines (NSIDC)",
-                partial(
-                    health.earthdata_https_first_byte,
-                    f"{NSIDC_RGI7}/RGI2000-v7.0-regions.zip",
+            health=(
+                Probe(
+                    "RGI 7.0 glacier outlines (NSIDC)",
+                    partial(
+                        health.earthdata_https_first_byte,
+                        f"{NSIDC_RGI7}/RGI2000-v7.0-regions.zip",
+                    ),
+                ),
+                Probe(
+                    "RGI 6.0 glacier outlines (NSIDC)",
+                    partial(
+                        health.earthdata_https_first_byte,
+                        f"{NSIDC_RGI6}/nsidc0770_00.rgi60.regions.zip",
+                    ),
                 ),
             ),
         ),
@@ -374,7 +402,7 @@ PRODUCT = Product(
             ),
             title="OGGM mirror of GLIMS (6.0)",
             health=Probe(
-                "RGI 6.0 region outlines (OGGM mirror)",
+                "RGI 6.0 glacier outlines (OGGM mirror)",
                 partial(health.http_first_byte, f"{OGGM_RGI6}/00_rgi60_regions.zip"),
             ),
         ),

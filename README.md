@@ -8,10 +8,12 @@
 **A Python package to easily retrieve data relevant to snow science.**
 
 `easysnowdata` unifies access to a wide range of snow-relevant geospatial
-datasets — weather stations, satellite imagery, climate reanalysis, DEMs, and
-more — under a consistent API that returns xarray objects. The emphasis is on
-minimising downloads and local computation by leveraging cloud-optimised data
-formats wherever possible.
+datasets — weather stations, satellite imagery, snow products, climate
+reanalysis, DEMs and a hillshade, basins, and boundaries from countries and
+counties to mountain ranges and glacier outlines — under a consistent API that
+returns xarray objects (and GeoDataFrames for vector products). The emphasis is
+on minimising downloads and local computation by leveraging cloud-optimised
+data formats wherever possible.
 
 ## Gallery
 
@@ -32,93 +34,125 @@ labelled [`data-source`](https://github.com/egagli/easysnowdata/issues?q=label%3
 and a recovery closes it; latency and DMR++ readiness are on the
 [status page](https://egagli.github.io/easysnowdata/status.html).
 
+What a probe cannot see — a reprocessed collection, a republished file, a new
+release (the next Census year, a new RGI version) — is caught by a weekly
+[upstream watch](WATCHLIST.toml) that opens one digest issue labelled
+[`upstream-watch`](https://github.com/egagli/easysnowdata/issues?q=label%3Aupstream-watch).
+
 <!-- DATA_STATUS_START -->
-_Last updated: 2026-09-22 01:46 UTC_  
+_Last updated: 2026-09-23 22:33 UTC_  
 _⚠️ = skipped (credentials not available in this run). Latency and virtualization probes are on the [status page](https://egagli.github.io/easysnowdata/status.html)._
 
 ### Stations (`esd.stations`)
 
-| Data Source | Latest (Sep 21) | Sep 17 | Sep 14 | Sep 7 |
+| Data Source | Latest (Sep 23) | Sep 21 | Sep 17 | Sep 14 |
 | :---------- | :------: | :------: | :------: | :------: |
-| AWDB stations (NRCS REST API) | ✅ | ✅ | — | — |
-| CDEC stations (JSON data servlet) | ✅ | ✅ | — | — |
-| BC snow stations (DataBC WFS) | ✅ | ✅ | — | — |
-| NVE stations (HydAPI) | <abbr title="RuntimeError: Unreachable: HTTP 401">❌</abbr> | ⚠️ | — | — |
-| Yukon stations (AquaCache API) | ✅ | ✅ | — | — |
+| AWDB stations (NRCS REST API) | ✅ | ✅ | ✅ | — |
+| CDEC stations (JSON data servlet) | ✅ | ✅ | ✅ | — |
+| BC snow stations (DataBC WFS) | ✅ | ✅ | ✅ | — |
+| NVE stations (HydAPI) | ✅ | <abbr title="RuntimeError: Unreachable: HTTP 401">❌</abbr> | ⚠️ | — |
+| Yukon stations (AquaCache API) | ✅ | ✅ | ✅ | — |
+| Snow station Zarr archive (global_snow_networks) | ✅ | — | — | — |
 | Snow station inventory (global_snow_networks) | ✅ | ✅ | ✅ | ✅ |
-| Snow station archive tarball (global_snow_networks) | ✅ | ✅ | — | — |
+| Snow station archive tarball (global_snow_networks) | ✅ | ✅ | ✅ | — |
 | Snow station CSV (global_snow_networks) | ✅ | ✅ | ✅ | ✅ |
 
 ### Snow (`esd.snow`)
 
-| Data Source | Latest (Sep 21) | Sep 17 | Sep 14 | Sep 7 |
+| Data Source | Latest (Sep 23) | Sep 21 | Sep 17 | Sep 14 |
 | :---------- | :------: | :------: | :------: | :------: |
-| MODIS snow cover MOD10A1F (NASA NSIDC) | ✅ | ✅ | — | — |
-| MODIS snow cover MOD10A1 (Planetary Computer) | ✅ | ✅ | — | — |
+| MODIS snow cover MOD10A1F (NASA NSIDC) | ✅ | ✅ | ✅ | — |
+| MODIS snow cover MOD10A1 (Planetary Computer) | ✅ | ✅ | ✅ | — |
 | Mountain snow mask (Zenodo) | ✅ | ✅ | ✅ | ✅ |
-| SNODAS (NSIDC G02158) | ✅ | ✅ | — | — |
+| SNODAS (NSIDC G02158) | ✅ | ✅ | ✅ | — |
 | SNODAS (GEE/Climate Engine) | ✅ | ✅ | ✅ | ✅ |
-| Sturm & Liston snow classification (NSIDC-0768) | ✅ | ✅ | — | — |
+| Sturm & Liston snow classification (NSIDC-0768) | ✅ | ✅ | ✅ | — |
 | Sturm & Liston snow classification (Azure) | ✅ | ✅ | ✅ | ✅ |
-| UCLA Snow Reanalysis (NASA NSIDC) | ✅ | ✅ | ⚠️ | ⚠️ |
-| HMA Snow Reanalysis (NASA NSIDC) | ✅ | ✅ | — | — |
-| VIIRS snow cover VNP10A1F (NASA NSIDC) | ✅ | ✅ | — | — |
+| UCLA Snow Reanalysis (NASA NSIDC) | <abbr title="RuntimeError: WUS_UCLA_SR: no granules found.">❌</abbr> | ✅ | ✅ | ⚠️ |
+| HMA Snow Reanalysis (NASA NSIDC) | <abbr title="RuntimeError: HMA_SR_D: no granules found.">❌</abbr> | ✅ | ✅ | — |
+| VIIRS snow cover VNP10A1F (NASA NSIDC) | ✅ | ✅ | ✅ | — |
 
 ### SAR (`esd.sar`)
 
-| Data Source | Latest (Sep 21) | Sep 17 | Sep 14 | Sep 7 |
+| Data Source | Latest (Sep 23) | Sep 21 | Sep 17 | Sep 14 |
 | :---------- | :------: | :------: | :------: | :------: |
-| Sentinel-1 RTC (Planetary Computer) | ✅ | ✅ | — | — |
-| Sentinel-1 RTC OPERA (CMR-STAC ASF) | ✅ | ✅ | — | — |
-| Sentinel-1 RTC OPERA (Earth Engine) | ✅ | ✅ | — | — |
-| Sentinel-1 static layers (CMR-STAC ASF) | ✅ | ✅ | — | — |
-| Copernicus DEM for the incidence angle (Planetary Computer) | ✅ | ✅ | — | — |
-| Sentinel-1 GRD angle band (Earth Engine) | ✅ | ✅ | — | — |
+| Sentinel-1 RTC (Planetary Computer) | ✅ | ✅ | ✅ | — |
+| Sentinel-1 RTC OPERA (CMR-STAC ASF) | <abbr title="APIError: {&quot;errors&quot;:[&quot;Oops! Something has gone wrong. We have been alerted and a">❌</abbr> | ✅ | ✅ | — |
+| Sentinel-1 RTC OPERA (Earth Engine) | ✅ | ✅ | ✅ | — |
+| Sentinel-1 static layers (CMR-STAC ASF) | <abbr title="APIError: {&quot;errors&quot;:[&quot;Oops! Something has gone wrong. We have been alerted and a">❌</abbr> | ✅ | ✅ | — |
+| Copernicus DEM for the incidence angle (Planetary Computer) | ✅ | ✅ | ✅ | — |
+| Sentinel-1 GRD angle band (Earth Engine) | ✅ | ✅ | ✅ | — |
 
 ### Optical imagery (`esd.optical`)
 
-| Data Source | Latest (Sep 21) | Sep 17 | Sep 14 | Sep 7 |
+| Data Source | Latest (Sep 23) | Sep 21 | Sep 17 | Sep 14 |
 | :---------- | :------: | :------: | :------: | :------: |
-| HLS L30 (CMR-STAC LPCLOUD) | ✅ | ✅ | — | — |
-| HLS S30 (Planetary Computer) | ✅ | ✅ | — | — |
-| PlanetScope (Planet Data API) | <abbr title="DeprecationWarning: Auth.value has been deprecated.">❌</abbr> | ⚠️ | — | — |
-| Sentinel-2 L2A (Planetary Computer) | ✅ | ✅ | — | — |
-| Sentinel-2 L2A (Earth Search) | ✅ | ✅ | — | — |
+| HLS L30 (CMR-STAC LPCLOUD) | <abbr title="APIError: {&quot;errors&quot;:[&quot;Oops! Something has gone wrong. We have been alerted and a">❌</abbr> | ✅ | ✅ | — |
+| HLS S30 (Planetary Computer) | ✅ | ✅ | ✅ | — |
+| PlanetScope (Planet Data API) | ✅ | <abbr title="DeprecationWarning: Auth.value has been deprecated.">❌</abbr> | ⚠️ | — |
+| Sentinel-2 L2A (Planetary Computer) | ✅ | ✅ | ✅ | — |
+| Sentinel-2 L2A (Earth Search) | ✅ | ✅ | ✅ | — |
 
 ### Terrain (`esd.terrain`)
 
-| Data Source | Latest (Sep 21) | Sep 17 | Sep 14 | Sep 7 |
+| Data Source | Latest (Sep 23) | Sep 21 | Sep 17 | Sep 14 |
 | :---------- | :------: | :------: | :------: | :------: |
 | CHILI (GEE/CSP ERGo) | ✅ | ✅ | ✅ | ✅ |
 | Copernicus DEM (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
-| Copernicus DEM (Earth Search) | ✅ | ✅ | — | — |
+| Copernicus DEM (Earth Search) | ✅ | ✅ | ✅ | — |
+| Copernicus DEM (Earth Engine) | ✅ | — | — | — |
+| NASADEM (Planetary Computer) | ✅ | — | — | — |
+| NASADEM (Earth Engine) | ✅ | — | — | — |
+| SRTM GL1 (Earth Engine) | ✅ | — | — | — |
+| 3DEP seamless (Planetary Computer) | ✅ | — | — | — |
+| 3DEP 10 m (Earth Engine) | ✅ | — | — | — |
+| ALOS World 3D (Planetary Computer) | ✅ | — | — | — |
+| ALOS World 3D (Earth Engine) | ✅ | — | — | — |
+| Natural Earth hillshade (S3) | ✅ | — | — | — |
 
 ### Land cover (`esd.land`)
 
-| Data Source | Latest (Sep 21) | Sep 17 | Sep 14 | Sep 7 |
+| Data Source | Latest (Sep 23) | Sep 21 | Sep 17 | Sep 14 |
 | :---------- | :------: | :------: | :------: | :------: |
 | Forest cover fraction (Zenodo) | ✅ | ✅ | ✅ | ✅ |
-| Forest cover fraction (GEE/CGLS-LC100) | ✅ | ✅ | — | — |
+| Forest cover fraction (GEE/CGLS-LC100) | ✅ | ✅ | ✅ | — |
 | ESA WorldCover (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
-| ESA WorldCover (AWS bucket) | ✅ | ✅ | — | — |
-| Annual NLCD (GEE community asset) | ✅ | ✅ | — | — |
+| ESA WorldCover (AWS bucket) | ✅ | ✅ | ✅ | — |
+| Annual NLCD (GEE community asset) | ✅ | ✅ | ✅ | — |
 | NLCD (GEE/USGS) | ✅ | ✅ | ✅ | ✅ |
 
 ### Hydrography (`esd.hydro`)
 
-| Data Source | Latest (Sep 21) | Sep 17 | Sep 14 | Sep 7 |
+| Data Source | Latest (Sep 23) | Sep 21 | Sep 17 | Sep 14 |
 | :---------- | :------: | :------: | :------: | :------: |
-| HUC geometries (USGS WBD REST) | ✅ | ✅ | — | — |
+| HUC geometries (USGS WBD REST) | ✅ | ✅ | ✅ | — |
 | HUC geometries (GEE/USGS WBD) | ✅ | ✅ | ✅ | ✅ |
 | HydroATLAS basins (figshare) | ✅ | ✅ | ✅ | ✅ |
-| HydroBASINS (HydroSHEDS regional zip) | <abbr title="RuntimeError: Unreachable: HTTP 403">❌</abbr> | ✅ | — | — |
-| HydroBASINS (GEE/HydroATLAS) | ✅ | ✅ | — | — |
+| HydroBASINS (HydroSHEDS regional zip) | ✅ | <abbr title="RuntimeError: Unreachable: HTTP 403">❌</abbr> | ✅ | — |
+| HydroBASINS (GEE/HydroATLAS) | ✅ | ✅ | ✅ | — |
 | GRDC major river basins (World Bank) | ✅ | ✅ | ✅ | ✅ |
-| GRDC WMO basins | ✅ | <abbr title="ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection r">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> |
+| GRDC WMO basins | ✅ | ✅ | <abbr title="ConnectionError: (&#x27;Connection aborted.&#x27;, ConnectionResetError(104, &#x27;Connection r">❌</abbr> | <abbr title="RuntimeError: Unreachable: HTTP 404">❌</abbr> |
+
+### Boundaries (`esd.boundaries`)
+
+| Data Source | Latest (Sep 23) | Sep 21 | Sep 17 | Sep 14 |
+| :---------- | :------: | :------: | :------: | :------: |
+| Natural Earth countries (naciscdn) | ✅ | — | — | — |
+| geoBoundaries countries (ADM0, gbOpen) | ✅ | — | — | — |
+| Natural Earth states and provinces (naciscdn) | ✅ | — | — | — |
+| US Census states (cartographic boundaries) | ✅ | — | — | — |
+| geoBoundaries states and provinces (ADM1, gbOpen) | ✅ | — | — | — |
+| US Census counties (cartographic boundaries) | ✅ | — | — | — |
+| geoBoundaries admin units (ADM2, gbOpen) | ✅ | — | — | — |
+| RGI 7.0 glacier outlines (NSIDC) | ✅ | — | — | — |
+| RGI 6.0 glacier outlines (NSIDC) | ✅ | — | — | — |
+| RGI 6.0 glacier outlines (OGGM mirror) | ✅ | — | — | — |
+| GMBA mountains (EarthEnv) | ✅ | — | — | — |
+| Natural Earth vector layers (naciscdn) | ✅ | — | — | — |
 
 ### Climate (`esd.climate`)
 
-| Data Source | Latest (Sep 21) | Sep 17 | Sep 14 | Sep 7 |
+| Data Source | Latest (Sep 23) | Sep 21 | Sep 17 | Sep 14 |
 | :---------- | :------: | :------: | :------: | :------: |
 | ARCO-ERA5 (GCS anonymous) | ✅ | ✅ | ✅ | ✅ |
 | ERA5 (Google Earth Engine) | ✅ | ✅ | ✅ | ✅ |

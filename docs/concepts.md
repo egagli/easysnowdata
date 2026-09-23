@@ -92,6 +92,13 @@ inconsistent about it: **`chunks=None` means "load eagerly"**, as in odc-stac
 and rioxarray. The package default is a separate sentinel, so
 `load(aoi, chunks=None)` computes now and `load(aoi)` stays lazy.
 
+Vector products — basins, stations inventories, boundaries, mountain ranges,
+glacier outlines — are the exception: they are small, so they come back as an
+in-memory GeoDataFrame. What keeps them cheap is that each archive is
+downloaded once into the easysnowdata cache (`EASYSNOWDATA_CACHE_DIR` moves it)
+and read with the AOI pushed down, so only the intersecting features are
+parsed.
+
 :::{admonition} Subset wide stores before you chunk them
 :class: warning
 
@@ -109,7 +116,7 @@ STAC properties as columns. Inspect it, filter it, and hand what survives to
 `load`. Nothing prints; nothing is downloaded.
 
 ```python
-items = esd.optical.sentinel2.search(aoi, "2024-03", cloud_cover=30)
+items_gdf = esd.optical.sentinel2.search(aoi, "2024-03", cloud_cover=30)
 items_gdf[["datetime", "eo:cloud_cover", "s2:mgrs_tile"]]
 best_gdf = items_gdf.sort_values("eo:cloud_cover").head(3)
 s2_ds = esd.optical.sentinel2.load(aoi, items=best_gdf)
@@ -144,6 +151,21 @@ Attributes
 Units
 : metric, always. Station values are centimetres because that is what the
   networks report; gridded SWE is metres.
+
+Vector products
+: a GeoDataFrame in EPSG:4326 (reprojected from the source's CRS, 2-D even
+  where the archive stores a constant Z) holding the features that
+  **intersect** the AOI, whole rather than cut at its edge. The provenance
+  attributes above are in `gdf.attrs`. A product family leads with the same
+  columns whatever the source — `name`, `iso3`, `admin_level` for
+  administrative units; `rgi_id`, `name`, `area_km2`, `o1region` for either
+  RGI version — and keeps the source's own columns after them. A returned
+  GeoDataFrame is itself an AOI:
+
+  ```python
+  wa_gdf = esd.boundaries.admin.states(name="Washington", country="USA")
+  huc4_gdf = esd.hydro.basins.huc(wa_gdf, level=4)
+  ```
 
 Categorical products additionally carry CF flag attributes — `flag_values`,
 `flag_meanings`, `flag_colors`, `long_name` — which is what lets the plotting

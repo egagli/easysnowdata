@@ -73,7 +73,7 @@ NATURAL_EARTH_URL = "https://naciscdn.org/naturalearth"
 CENSUS_URL = "https://www2.census.gov/geo/tiger"
 GEOBOUNDARIES_API = "https://www.geoboundaries.org/api/current/gbOpen"
 #: The newest cartographic boundary release; ``year=`` picks another.
-CENSUS_YEAR = 2024
+CENSUS_YEAR = 2025
 #: Census cartographic resolutions (1:500,000, 1:5,000,000, 1:20,000,000).
 CENSUS_RESOLUTIONS = ("500k", "5m", "20m")
 #: Natural Earth scales (1:10, 1:50 and 1:110 million).
@@ -493,7 +493,7 @@ _NATURAL_EARTH_CITATION = (
     "Natural Earth. Free vector and raster map data @ naturalearthdata.com."
 )
 _CENSUS_CITATION = (
-    "U.S. Census Bureau (2024). Cartographic Boundary Files. "
+    "U.S. Census Bureau (2025). Cartographic Boundary Files. "
     "https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html"
 )
 _GEOBOUNDARIES_CITATION = (
@@ -502,22 +502,22 @@ _GEOBOUNDARIES_CITATION = (
 )
 
 
-def _natural_earth_source(layer: str, scale_note: str) -> Source:
+def _natural_earth_source(layer: str, what: str, scale_note: str) -> Source:
     return Source(
         id="natural-earth",
         provider="vector_http",
         location=f"{NATURAL_EARTH_URL}/<scale>/cultural/ne_<scale>_{layer}.zip",
-        temporal="static (v5.1)",
+        temporal="static (v5.1.1; a few layers 5.0.0)",
         notes=f"zipped shapefile, cached on first use; {scale_note}",
         title="Natural Earth",
         health=Probe(
-            f"Natural Earth {layer}",
+            f"Natural Earth {what} (naciscdn)",
             partial(health.http_first_byte, natural_earth_url(layer, "50m")),
         ),
     )
 
 
-def _census_source(layer: str) -> Source:
+def _census_source(layer: str, what: str) -> Source:
     return Source(
         id="us-census",
         provider="vector_http",
@@ -527,26 +527,36 @@ def _census_source(layer: str) -> Source:
         notes="1:500k, 1:5m or 1:20m zipped shapefile, NAD83 reprojected to EPSG:4326",
         title="US Census cartographic boundaries",
         health=Probe(
-            f"US Census {layer} boundaries",
+            f"US Census {what} (cartographic boundaries)",
             partial(health.http_first_byte, census_url(layer, "20m")),
         ),
     )
 
 
-def _geoboundaries_source(level: str) -> Source:
+def _probe_geoboundaries(iso3: str, level: int) -> None:
+    """The gbOpen record answers, and the GeoJSON it points to is reachable.
+
+    The API and the files live on different hosts (the files are GitHub
+    release assets), so checking the API alone would miss a broken download.
+    """
+    meta = _geoboundaries_meta(iso3, level)
+    health.http_first_byte(meta["gjDownloadURL"])
+
+
+def _geoboundaries_source(levels: str, what: str, level: int) -> Source:
     return Source(
         id="geoboundaries",
         provider="vector_http",
         location=f"{GEOBOUNDARIES_API}/<ISO3>/ADM<level>/",
         temporal="continuously updated",
         notes=(
-            f"{level}; one country per request through the gbOpen API, GeoJSON "
+            f"{levels}; one country per request through the gbOpen API, GeoJSON "
             "cached per release"
         ),
         title="geoBoundaries (gbOpen)",
         health=Probe(
-            f"geoBoundaries API ({level})",
-            partial(health.http_first_byte, f"{GEOBOUNDARIES_API}/NOR/ADM1/"),
+            f"geoBoundaries {what} (ADM{level}, gbOpen)",
+            partial(_probe_geoboundaries, "NOR", level),
         ),
     )
 
@@ -566,8 +576,10 @@ COUNTRIES_PRODUCT = Product(
         "geoBoundaries ADM0 country by country."
     ),
     sources=(
-        _natural_earth_source("admin_0_countries", "1:10m, 1:50m and 1:110m"),
-        _geoboundaries_source("ADM0"),
+        _natural_earth_source(
+            "admin_0_countries", "countries", "1:10m, 1:50m and 1:110m"
+        ),
+        _geoboundaries_source("ADM0", "countries", 0),
     ),
     variables=_LEAD_VARIABLES,
     citation=_NATURAL_EARTH_CITATION,
@@ -590,9 +602,11 @@ STATES_PRODUCT = Product(
         "states and provinces worldwide from Natural Earth, or geoBoundaries ADM1."
     ),
     sources=(
-        _natural_earth_source("admin_1_states_provinces", "1:10m and 1:50m"),
-        _census_source("state"),
-        _geoboundaries_source("ADM1"),
+        _natural_earth_source(
+            "admin_1_states_provinces", "states and provinces", "1:10m and 1:50m"
+        ),
+        _census_source("state", "states"),
+        _geoboundaries_source("ADM1", "states and provinces", 1),
     ),
     variables=_LEAD_VARIABLES,
     citation=f"{_NATURAL_EARTH_CITATION} {_CENSUS_CITATION}",
@@ -611,7 +625,7 @@ COUNTIES_PRODUCT = Product(
     theme="boundaries",
     title="US counties (Census cartographic boundaries)",
     description="US counties and county equivalents from the Census Bureau.",
-    sources=(_census_source("county"),),
+    sources=(_census_source("county", "counties"),),
     variables=_LEAD_VARIABLES,
     citation=_CENSUS_CITATION,
     license="Public domain (US government data)",
@@ -631,7 +645,7 @@ ADMIN_PRODUCT = Product(
         "ADM0 to ADM5 units for any country from geoBoundaries' open release "
         "(counties, districts, municipalities…)."
     ),
-    sources=(_geoboundaries_source("ADM0-ADM5"),),
+    sources=(_geoboundaries_source("ADM0-ADM5", "admin units", 2),),
     variables=_LEAD_VARIABLES,
     citation=_GEOBOUNDARIES_CITATION,
     license="CC BY 4.0 for most countries (each unit carries its boundaryLicense)",
