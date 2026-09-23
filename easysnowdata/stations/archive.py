@@ -784,9 +784,11 @@ PRODUCT = Product(
                     "Snow station inventory (global_snow_networks)",
                     partial(health.http_first_byte, INVENTORY_URL),
                 ),
+                # The asset itself, not RELEASES_API: the API kept answering
+                # on 2026-09-23 while the fixed-name asset was a 404.
                 Probe(
                     "Snow station archive tarball (global_snow_networks)",
-                    partial(health.http_first_byte, RELEASES_API),
+                    partial(health.http_first_byte, ARCHIVE_URL),
                 ),
             ),
         ),

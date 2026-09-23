@@ -161,8 +161,9 @@ hourly ERA5 from ARCO-ERA5 without an Earth Engine account, and
 
 ## Stations
 
-`automatic_weather_stations.StationCollection` read a frozen CSV archive. It is
-now a shim over `easysnowdata.stations`, which talks to the five network APIs
+`automatic_weather_stations.StationCollection` read a frozen CSV archive. It
+was a shim in 0.2 and is gone since 0.3; use `easysnowdata.stations`, which
+talks to the five network APIs
 (AWDB, CDEC, DataBC, NVE, Yukon AquaCache) and to the daily archive that
 [`global_snow_networks`](https://github.com/egagli/global_snow_networks)
 publishes:

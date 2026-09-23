@@ -6,7 +6,7 @@ and exposes a consistent interface for fetching stations, metadata, and
 time-series data.
 
 > The normative client contract (method signatures, record schema, units,
-> intervals, error behaviour) lives in [DESIGN.md](../DESIGN.md) §3.  This
+> intervals, error behaviour) lives in [DESIGN.md](https://github.com/egagli/global_snow_networks/blob/main/DESIGN.md) §3.  This
 > file documents each client's API surface and source-specific quirks;
 > where they disagree, `DESIGN.md` wins.
 
@@ -27,7 +27,7 @@ time-series data.
 
 ## 1. Design Philosophy
 
-See [DESIGN.md](../DESIGN.md) §3 for the full contract.  Summary:
+See [DESIGN.md](https://github.com/egagli/global_snow_networks/blob/main/DESIGN.md) §3 for the full contract.  Summary:
 
 - **One client per data source.**  Each client encapsulates HTTP requests,
   batching, retry logic, HTML/JSON parsing, and response normalisation.
@@ -55,7 +55,7 @@ See [DESIGN.md](../DESIGN.md) §3 for the full contract.  Summary:
 
 ## 2. AWDBClient
 
-**Module:** `clients.awdb.awdb_client`
+**Module:** `easysnowdata.stations.clients.awdb.awdb_client`
 **Class:** `AWDBClient`
 **API:** [AWDB REST API v1](https://wcc.sc.egov.usda.gov/awdbRestApi/swagger-ui/index.html)
 
@@ -183,7 +183,7 @@ norms = client.get_normals("303:CO:SNTL", ["WTEQ"], normal_period="1991-2020")
 
 ## 3. CDECClient
 
-**Module:** `clients.cdec.cdec_client`
+**Module:** `easysnowdata.stations.clients.cdec.cdec_client`
 **Class:** `CDECClient`
 **Source:** [CDEC — California Data Exchange Center](https://cdec.water.ca.gov)
 **Operator:** California Department of Water Resources (CA DWR)
@@ -363,7 +363,7 @@ https://cdec.water.ca.gov/dynamicapp/staMeta?station_id={ID}
 
 ## 4. DataBCClient
 
-**Module:** `clients.databc.databc_client`
+**Module:** `easysnowdata.stations.clients.databc.databc_client`
 **Class:** `DataBCClient`
 **Source:** [BC Data Catalogue](https://catalogue.data.gov.bc.ca) + [BC env.gov.bc.ca CSV files](https://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/)
 **Operator:** BC Ministry of Environment (BC ENV)
@@ -576,7 +576,7 @@ https://bcmoe-prod.aquaticinformatics.net/Data/Location/Summary/Location/{ID}/In
 
 ## 5. NVEClient
 
-**Module:** `clients.nve.nve_client`
+**Module:** `easysnowdata.stations.clients.nve.nve_client`
 **Class:** `NVEClient`
 **API:** [NVE HydAPI v1](https://hydapi.nve.no/)
 
@@ -737,7 +737,7 @@ per API key — the client spaces requests and honours `Retry-After` on 429.
 
 ## 6. YukonClient
 
-**Module:** `clients.yukon.yukon_client`
+**Module:** `easysnowdata.stations.clients.yukon.yukon_client`
 **Class:** `YukonClient`
 **API:** [AquaCache API v1](https://service.yukon.ca/water-data/api/v1/openapi.json)
 **Operator:** Yukon Government Department of Environment, Water Science and
@@ -1031,11 +1031,14 @@ with linear backoff up to `max_retries` attempts.
 ## 8. Adding a New Client
 
 The full normative contract and checklist live in
-[DESIGN.md](../DESIGN.md) §3 and the
-[new-client issue template](../.github/ISSUE_TEMPLATE/new_client.md).
-In brief, to add support for a new data source:
+[DESIGN.md](https://github.com/egagli/global_snow_networks/blob/main/DESIGN.md) §3 and the
+[new-client issue template](https://github.com/egagli/global_snow_networks/issues/new?template=new_client.md),
+both in `global_snow_networks`: a new network needs code in both
+repositories. In brief:
 
-1. Create `clients/{source}/` directory with `__init__.py` and
+**In this repository (easysnowdata), first:**
+
+1. Create `easysnowdata/stations/clients/{source}/` with `__init__.py` and
    `{source}_client.py`.
 2. Implement a `{Source}Client` class with at minimum:
    - `get_all_stations(active_only=False, bbox=None)` → `list[dict]`
@@ -1047,8 +1050,12 @@ In brief, to add support for a new data source:
 5. Return metric units for every variable (cm for SWE and snow depth —
    see the DESIGN.md §3.5 units table).
 6. Export the class from `clients/{source}/__init__.py`.
-7. Add to `clients/__init__.py`.
-8. Add to `scripts/create_all_stations_geojson.py`:
+7. Add to `easysnowdata/stations/clients/__init__.py`.
+8. Document the client in this README.
+
+**Then in [`global_snow_networks`](https://github.com/egagli/global_snow_networks), once a release carries the client:**
+
+9. Add to `scripts/create_all_stations_geojson.py`:
    - Add `run_{source}_workflow()` that returns `(all_features, daily_features)`,
      where `daily_features` is filtered on the advertised `has_daily_swe` /
      `has_daily_snwd` flags (the combined inventory keeps *every* feature;
@@ -1075,21 +1082,21 @@ In brief, to add support for a new data source:
        reports: `{name, type, interval, units, description, notes,
        begin_date, end_date, n_obs}` (the last three `None` where the
        source doesn't say). `type` uses the standardized vocabulary;
-       `interval` uses the shared enum from `clients/_common.py`.
+       `interval` uses the shared enum from
+       `easysnowdata.stations.clients._common`.
      - the daily candidate flags — set via `_daily_candidate_props(data_vars)`,
        which derives `has_daily_swe` / `has_daily_snwd` (advertised) and
        initializes `daily_or_better` / `daily_verified` / `daily_provenance`
        for the probe in `get_all_stations_data.py` to verify (DESIGN.md §4).
-9. Add to `scripts/get_all_stations_data.py` with a `refresh_{source}()`.
-10. Add the network to `scripts/generate_live_map.py`:
+10. Add to `scripts/get_all_stations_data.py` with a `refresh_{source}()`.
+11. Add the network to `scripts/generate_live_map.py`:
     - Add an entry in `NET_LABELS` (`"CODE": "Human Name"`)
     - Add an SVG shape entry in `NET_SHAPES`
     - Add a `case "CODE"` in `buildIcon()` to assign a Leaflet marker shape
     - The legend is built dynamically from `MAP_META.available_networks`,
       so no further changes to the legend HTML are needed.
-11. Document in this README.
-12. Update `README.md` (root): add to the Networks section and update the
-    comparison table.
+12. Update that repository's `README.md`: add to the Networks section and
+    update the comparison table.
 
 **Key invariants:**
 
