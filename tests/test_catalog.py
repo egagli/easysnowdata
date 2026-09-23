@@ -112,6 +112,7 @@ class TestRegistryContents:
         assert set(catalog.themes()) == {
             "stations",
             "hydro",
+            "boundaries",
             "climate",
             "snow",
             "land",

@@ -46,6 +46,7 @@ __all__ = [
     "add_scalebar",
     "add_graticule",
     "add_basemap",
+    "add_outline",
     "colormap_from_flags",
     "legend_handles",
     "register_colormap",
@@ -439,6 +440,8 @@ def finish_map(
     from pyproj import CRS  # noqa: PLC0415
 
     crs_obj = None if crs is None else CRS.from_user_input(str(crs))
+    # Remembered so add_outline can draw vectors in the map's CRS.
+    ax._esd_crs = crs_obj
     geographic = crs_obj is None or crs_obj.is_geographic
     if geographic:
         lat = _mid_latitude(ax, crs_obj)
@@ -465,6 +468,59 @@ def finish_map(
         add_graticule(ax, crs_obj, **(graticule if isinstance(graticule, dict) else {}))
     if scalebar:
         add_scalebar(ax, crs_obj, **(scalebar if isinstance(scalebar, dict) else {}))
+    return ax
+
+
+def add_outline(
+    ax: Any,
+    gdf: Any,
+    crs: Any = None,
+    *,
+    label: str | None = None,
+    keep_extent: bool = True,
+    **plot_kwargs: Any,
+) -> Any:
+    """Draw *gdf* (boundaries, basins, glaciers) over a map, in the map's CRS.
+
+    Parameters
+    ----------
+    ax
+        Axes a map was drawn on (by :func:`map`, :func:`categorical` or
+        :func:`points`).
+    gdf
+        Polygons or lines; reprojected to the map's CRS.
+    crs
+        The map's CRS. Defaults to the one :func:`finish_map` recorded on
+        *ax*, else EPSG:4326.
+    label
+        Legend entry for the outlines.
+    keep_extent
+        Keep the map's extent rather than zooming out to the whole outlines
+        (a state or country usually reaches far beyond the map).
+    **plot_kwargs
+        Passed to :meth:`geopandas.GeoDataFrame.plot`; the defaults are
+        ``edgecolor="black"``, ``linewidth=0.8`` and no fill. Pass
+        ``column=`` (with ``cmap=``, ``legend=`` …) or ``facecolor=`` to fill
+        the polygons as well.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+    """
+    target = crs if crs is not None else getattr(ax, "_esd_crs", None)
+    outline_gdf = gdf.to_crs(target if target is not None else "EPSG:4326")
+    had_data = ax.has_data()
+    x_limits, y_limits = ax.get_xlim(), ax.get_ylim()
+    style: dict[str, Any] = {"edgecolor": "black", "linewidth": 0.8, "zorder": 3}
+    if not {"column", "color", "facecolor"} & set(plot_kwargs):
+        style["facecolor"] = "none"
+    style.update(plot_kwargs)
+    if label is not None:
+        style["label"] = label
+    outline_gdf.plot(ax=ax, **style)
+    if keep_extent and had_data:
+        ax.set_xlim(x_limits)
+        ax.set_ylim(y_limits)
     return ax
 
 

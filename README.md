@@ -162,7 +162,7 @@ Planetary Computer and anonymous GCS access require no credentials.
 ## What is in it
 
 <!-- CATALOG_START -->
-32 products across 8 themes, each with one or more access routes:
+40 products across 9 themes, each with one or more access routes:
 
 | theme | products | open without an account |
 | --- | --- | --- |
@@ -170,9 +170,10 @@ Planetary Computer and anonymous GCS access require no credentials.
 | **snow** | [`modis-snow`](https://egagli.github.io/easysnowdata/catalog/modis-snow.html), [`mountain-snow-mask`](https://egagli.github.io/easysnowdata/catalog/mountain-snow-mask.html), [`snodas`](https://egagli.github.io/easysnowdata/catalog/snodas.html), [`snow-classification`](https://egagli.github.io/easysnowdata/catalog/snow-classification.html), [`ucla-snow-reanalysis`](https://egagli.github.io/easysnowdata/catalog/ucla-snow-reanalysis.html), [`viirs-snow`](https://egagli.github.io/easysnowdata/catalog/viirs-snow.html) | 4 of 6 |
 | **sar** | [`sentinel-1-local-incidence-angle`](https://egagli.github.io/easysnowdata/catalog/sentinel-1-local-incidence-angle.html), [`sentinel-1-rtc`](https://egagli.github.io/easysnowdata/catalog/sentinel-1-rtc.html) | 2 of 2 |
 | **optical** | [`hls`](https://egagli.github.io/easysnowdata/catalog/hls.html), [`planetscope`](https://egagli.github.io/easysnowdata/catalog/planetscope.html), [`sentinel-2-l2a`](https://egagli.github.io/easysnowdata/catalog/sentinel-2-l2a.html) | 2 of 3 |
-| **terrain** | [`3dep`](https://egagli.github.io/easysnowdata/catalog/3dep.html), [`alos-dem`](https://egagli.github.io/easysnowdata/catalog/alos-dem.html), [`chili`](https://egagli.github.io/easysnowdata/catalog/chili.html), [`copernicus-dem`](https://egagli.github.io/easysnowdata/catalog/copernicus-dem.html), [`nasadem`](https://egagli.github.io/easysnowdata/catalog/nasadem.html), [`srtm`](https://egagli.github.io/easysnowdata/catalog/srtm.html) | 4 of 6 |
+| **terrain** | [`3dep`](https://egagli.github.io/easysnowdata/catalog/3dep.html), [`alos-dem`](https://egagli.github.io/easysnowdata/catalog/alos-dem.html), [`chili`](https://egagli.github.io/easysnowdata/catalog/chili.html), [`copernicus-dem`](https://egagli.github.io/easysnowdata/catalog/copernicus-dem.html), [`hillshade`](https://egagli.github.io/easysnowdata/catalog/hillshade.html), [`nasadem`](https://egagli.github.io/easysnowdata/catalog/nasadem.html), [`srtm`](https://egagli.github.io/easysnowdata/catalog/srtm.html) | 5 of 7 |
 | **land** | [`esa-worldcover`](https://egagli.github.io/easysnowdata/catalog/esa-worldcover.html), [`forest-cover-fraction`](https://egagli.github.io/easysnowdata/catalog/forest-cover-fraction.html), [`nlcd`](https://egagli.github.io/easysnowdata/catalog/nlcd.html) | 2 of 3 |
 | **hydro** | [`grdc-major-river-basins`](https://egagli.github.io/easysnowdata/catalog/grdc-major-river-basins.html), [`grdc-wmo-basins`](https://egagli.github.io/easysnowdata/catalog/grdc-wmo-basins.html), [`huc`](https://egagli.github.io/easysnowdata/catalog/huc.html), [`hydrobasins`](https://egagli.github.io/easysnowdata/catalog/hydrobasins.html) | 4 of 4 |
+| **boundaries** | [`admin-boundaries`](https://egagli.github.io/easysnowdata/catalog/admin-boundaries.html), [`countries`](https://egagli.github.io/easysnowdata/catalog/countries.html), [`gmba-mountains`](https://egagli.github.io/easysnowdata/catalog/gmba-mountains.html), [`natural-earth-vectors`](https://egagli.github.io/easysnowdata/catalog/natural-earth-vectors.html), [`rgi-glaciers`](https://egagli.github.io/easysnowdata/catalog/rgi-glaciers.html), [`states-provinces`](https://egagli.github.io/easysnowdata/catalog/states-provinces.html), [`us-counties`](https://egagli.github.io/easysnowdata/catalog/us-counties.html) | 7 of 7 |
 | **climate** | [`era5`](https://egagli.github.io/easysnowdata/catalog/era5.html), [`koppen-geiger`](https://egagli.github.io/easysnowdata/catalog/koppen-geiger.html) | 2 of 2 |
 <!-- CATALOG_END -->
 
@@ -194,14 +195,20 @@ obs_ds = esd.stations.load(inv_gdf, variables=["swe", "snwd"], time="2023-10/202
 dem_da = esd.terrain.dem.load(aoi)                          # Copernicus GLO-30 (default)
 dem_da = esd.terrain.dem.load(aoi, product="3dep")          # or NASADEM, SRTM, 3DEP, ALOS
 s1_ds = esd.sar.sentinel1.load(aoi, "2024-03", units="dB")  # Sentinel-1 RTC
-snodas_ds = esd.snow.snodas.load(aoi, "2024-03")             # SNODAS, no account
+snodas_ds = esd.snow.snodas.load(aoi, "2024-03")            # SNODAS, no account
+
+# Boundaries as GeoDataFrames: states, counties, mountain ranges, glaciers
+wa_gdf = esd.boundaries.admin.states(aoi)                   # Washington (US Census)
+ranges_gdf = esd.boundaries.mountains.load(aoi)             # GMBA Mountain Inventory v2
+glaciers_gdf = esd.boundaries.glaciers.load(aoi)            # RGI 7.0; version="6.0" too
 
 # Optical, masked, and a snow index written out rather than hidden in a helper
 s2_ds = esd.optical.sentinel2.load(aoi, "2024-03", mask="scl-default")
 ndsi_da = (s2_ds["green"] - s2_ds["swir16"]) / (s2_ds["green"] + s2_ds["swir16"])
 
 # Maps with equal aspect, a scale bar and a graticule; legends from CF flags
-esd.plotting.map(dem_da, cmap="terrain")
+ax = esd.plotting.map(dem_da, cmap="terrain")
+esd.plotting.add_outline(ax, glaciers_gdf)                  # vectors in the map's CRS
 esd.plotting.categorical(esd.land.landcover.load(aoi))
 esd.plotting.timeseries(obs_ds["swe"])                      # calendar dates, units in [ ]
 

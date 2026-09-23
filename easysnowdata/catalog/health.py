@@ -99,6 +99,32 @@ def http_first_byte(url: str) -> None:
     raise RuntimeError(f"Unreachable: HTTP {status}")
 
 
+def earthdata_https_first_byte(url: str) -> None:
+    """:func:`http_first_byte` through Earthdata Login, for DAAC files outside CMR.
+
+    NSIDC's ``daacdata`` tree answers an anonymous GET with a redirect to the
+    URS login page, which :func:`http_first_byte` would count as a pass;
+    ``earthaccess``'s session follows the OAuth redirect with the credentials.
+    """
+    auth.get("earthdata").ensure()
+    import earthaccess  # noqa: PLC0415
+
+    session = earthaccess.get_requests_https_session()
+    response = session.get(
+        url,
+        timeout=TIMEOUT,
+        stream=True,
+        allow_redirects=True,
+        headers={"Range": "bytes=0-0", "User-Agent": USER_AGENT},
+    )
+    status = response.status_code
+    final = response.url
+    response.close()
+    if status in (200, 206) and "urs.earthdata.nasa.gov" not in final:
+        return
+    raise RuntimeError(f"Unreachable through Earthdata Login: HTTP {status} ({final})")
+
+
 def stac_search(
     api_url: str,
     collection: str,

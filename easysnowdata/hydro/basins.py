@@ -102,12 +102,7 @@ def _resolve(product_id: str, source: str | None) -> tuple[Any, Any]:
 
 def _finish(gdf: gpd.GeoDataFrame, product, src, **extra: Any) -> gpd.GeoDataFrame:
     """EPSG:4326 plus the provenance attrs every product carries (§2.5)."""
-    if gdf.crs is None:
-        gdf = gdf.set_crs("EPSG:4326")
-    elif gdf.crs.to_epsg() != 4326:
-        gdf = gdf.to_crs("EPSG:4326")
-    gdf.attrs.update(contract.provenance(product, src, **extra))
-    return gdf
+    return contract.finalize_frame(gdf, product, src, **extra)
 
 
 def _level(level: Any, *, low: int = 1, high: int = 12) -> int:

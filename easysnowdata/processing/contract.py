@@ -29,6 +29,7 @@ __all__ = [
     "provenance",
     "apply_variables",
     "finalize",
+    "finalize_frame",
 ]
 
 #: Sentinel for "the package default" on a keyword whose ``None`` means something
@@ -270,3 +271,23 @@ def finalize(
     if attrs:
         obj.attrs.update({k: v for k, v in attrs.items() if v is not None})
     return obj
+
+
+def finalize_frame(gdf: Any, product: Any, source: Any, **extra: Any) -> Any:
+    """Bring a loaded GeoDataFrame onto the output contract (§2.5).
+
+    EPSG:4326 (set when missing, reprojected otherwise), 2-D geometries (some
+    archives store a constant Z), and the provenance attrs in ``gdf.attrs``;
+    *extra* goes to :func:`provenance` (``source_url=`` and any product keys).
+    """
+    import shapely  # noqa: PLC0415
+
+    if gdf.crs is None:
+        gdf = gdf.set_crs("EPSG:4326")
+    elif gdf.crs.to_epsg() != 4326:
+        gdf = gdf.to_crs("EPSG:4326")
+    if len(gdf) and bool(gdf.geometry.has_z.any()):
+        gdf = gdf.copy()
+        gdf[gdf.geometry.name] = shapely.force_2d(gdf.geometry.values)
+    gdf.attrs.update(provenance(product, source, **extra))
+    return gdf

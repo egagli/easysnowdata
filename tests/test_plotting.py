@@ -368,6 +368,41 @@ class TestInternals:
         plotting.add_graticule(ax, CRS.from_user_input("ESRI:54030"))
         assert len(ax.lines) > 10  # meridians and parallels across the globe
 
+    def test_add_outline_reprojects_and_keeps_the_extent(self, projected):
+        import shapely
+
+        ax = plotting.map(projected, colorbar=False)
+        limits = (ax.get_xlim(), ax.get_ylim())
+        # A lon/lat polygon far larger than the map: drawn in the map's UTM CRS,
+        # without zooming the axes out to it.
+        outline_gdf = gpd.GeoDataFrame(
+            geometry=[shapely.box(-124.0, 45.0, -120.0, 48.0)], crs="EPSG:4326"
+        )
+        before = len(ax.collections)
+        plotting.add_outline(ax, outline_gdf, edgecolor="red")
+        assert (ax.get_xlim(), ax.get_ylim()) == limits
+        assert len(ax.collections) == before + 1
+        drawn = ax.collections[-1].get_paths()[0].vertices
+        assert (
+            drawn[:, 0].min() < 500_000 < drawn[:, 0].max()
+        )  # UTM metres, not degrees
+        assert ax.collections[-1].get_facecolor().size == 0 or (
+            ax.collections[-1].get_facecolor()[0][3] == 0
+        )
+
+    def test_add_outline_can_fill_and_zoom(self):
+        import shapely
+
+        fig, ax = plt.subplots()
+        outline_gdf = gpd.GeoDataFrame(
+            {"value": [1.0, 2.0]},
+            geometry=[shapely.box(0, 0, 1, 1), shapely.box(1, 0, 2, 1)],
+            crs="EPSG:4326",
+        )
+        plotting.add_outline(ax, outline_gdf, column="value", cmap="Blues")
+        assert ax.get_xlim()[1] >= 2  # an empty axes takes the outlines' extent
+        assert ax.collections[-1].get_facecolor()[0][3] > 0
+
     def test_corner_notes_stack_into_one_line(self, projected):
         fig, ax = plt.subplots()
         plotting._corner_note(ax, "one")
