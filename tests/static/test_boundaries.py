@@ -198,8 +198,8 @@ class TestStates:
         assert (
             wa_gdf["name"].tolist() == ["Washington"] and wa_gdf.crs.to_epsg() == 4326
         )
-        assert wa_gdf.attrs["resolution"] == "1:5m" and wa_gdf.attrs["year"] == 2024
-        assert "cb_2024_us_state_5m.zip" in archives[-1]["url"]
+        assert wa_gdf.attrs["resolution"] == "1:5m" and wa_gdf.attrs["year"] == 2025
+        assert "cb_2025_us_state_5m.zip" in archives[-1]["url"]
 
     def test_country_selects_the_source(self, archives):
         bc_gdf = admin.states(country="CAN", name="british columbia")
@@ -443,6 +443,21 @@ class TestLive:
     def test_rgi7_nsidc(self):
         glaciers_gdf = glaciers.load(RAINIER)
         assert len(glaciers_gdf) > 150 and glaciers_gdf.attrs["source"] == "nsidc"
+
+
+@pytest.mark.recorded
+def test_a_login_page_instead_of_the_zip_is_explained(tmp_path, monkeypatch):
+    login_page = tmp_path / "RGI2000-v7.0-regions.zip"
+
+    def download(urls, subdir, **kwargs):
+        login_page.write_text("<html>Earthdata Login</html>")
+        return [login_page]
+
+    monkeypatch.setattr(providers.earthdata, "download", download)
+    monkeypatch.setattr(glaciers, "ensure_source", lambda product, source: {})
+    with pytest.raises(RuntimeError, match="EARTHDATA_USERNAME"):
+        glaciers.regions()
+    assert not login_page.exists()  # not left in the cache to fail again
 
 
 class TestEarthdataProbe:

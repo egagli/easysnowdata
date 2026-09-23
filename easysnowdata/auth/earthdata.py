@@ -114,6 +114,10 @@ or, in scripts and CI, set one of:
                                               ignored in favour of the credentials above
                                               when they are also set)
 
+A token alone does not reach NSIDC's on-premises archive (the RGI glacier
+outlines): it answers with the login page. Use the username and password
+(or the netrc) for those.
+
 Register for a free account at https://urs.earthdata.nasa.gov"""
 
     # -- detection -------------------------------------------------------------
