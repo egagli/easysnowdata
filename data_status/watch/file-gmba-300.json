@@ -1,0 +1,9 @@
+{
+  "https://data.earthenv.org/mountains/standard/GMBA_Inventory_v2.0_standard_300.zip": {
+    "etag": "\"f122623cf5043c33232bb0f5eccbde8a\"",
+    "last_modified": "Tue, 08 Feb 2022 16:34:30 GMT",
+    "length": "32120389",
+    "status": 206,
+    "url": "https://data.earthenv.org/mountains/standard/GMBA_Inventory_v2.0_standard_300.zip"
+  }
+}
