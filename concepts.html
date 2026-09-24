@@ -1,0 +1,904 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Concepts &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="_static/documentation_options.js?v=16fc681a"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'concepts';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Credentials" href="credentials.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.3.dev19" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Concepts</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="concepts">
+<h1>Concepts<a class="headerlink" href="#concepts" title="Link to this heading">#</a></h1>
+<p>Twelve rules that every loader in the package follows. They are short on
+purpose: once you know them, a product you have never used behaves the way you
+expect, and adding one is a matter of filling in a catalog entry rather than
+re-deciding an interface.</p>
+<section id="one-spatial-input-aoi">
+<span id="concepts-aoi"></span><h2>One spatial input: <code class="docutils literal notranslate"><span class="pre">aoi</span></code><a class="headerlink" href="#one-spatial-input-aoi" title="Link to this heading">#</a></h2>
+<p>Every loader’s first argument is an area of interest, and it accepts four
+formats:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shapely</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">easysnowdata</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">esd</span>
+
+<span class="n">esd</span><span class="o">.</span><span class="n">terrain</span><span class="o">.</span><span class="n">dem</span><span class="o">.</span><span class="n">load</span><span class="p">((</span><span class="o">-</span><span class="mf">121.94</span><span class="p">,</span> <span class="mf">46.72</span><span class="p">,</span> <span class="o">-</span><span class="mf">121.54</span><span class="p">,</span> <span class="mf">46.99</span><span class="p">))</span>  <span class="c1"># (W, S, E, N) in EPSG:4326</span>
+<span class="n">esd</span><span class="o">.</span><span class="n">terrain</span><span class="o">.</span><span class="n">dem</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">shapely</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="o">-</span><span class="mf">121.94</span><span class="p">,</span> <span class="mf">46.72</span><span class="p">,</span> <span class="o">-</span><span class="mf">121.54</span><span class="p">,</span> <span class="mf">46.99</span><span class="p">))</span>
+<span class="n">esd</span><span class="o">.</span><span class="n">terrain</span><span class="o">.</span><span class="n">dem</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">&quot;basin.geojson&quot;</span><span class="p">))</span>  <span class="c1"># any CRS; reprojected for you</span>
+<span class="n">esd</span><span class="o">.</span><span class="n">terrain</span><span class="o">.</span><span class="n">dem</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">geobox</span><span class="p">)</span>  <span class="c1"># an odc.geo.GeoBox — exact grid</span>
+</pre></div>
+</div>
+<p>Internally all four become an <a class="reference internal" href="generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI" title="easysnowdata.aoi.AOI"><code class="xref py py-obj docutils literal notranslate"><span class="pre">easysnowdata.aoi.AOI</span></code></a>: a target grid
+(<code class="docutils literal notranslate"><span class="pre">GeoBox</span></code>) plus a footprint (<code class="docutils literal notranslate"><span class="pre">GeoDataFrame</span></code>). Pass a <code class="docutils literal notranslate"><span class="pre">GeoBox</span></code> when you need
+output on a grid you already have — the loader will not resample to a grid of
+its own choosing.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">aoi</span> <span class="o">=</span> <span class="n">esd</span><span class="o">.</span><span class="n">parse_aoi</span><span class="p">(</span><span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">&quot;basin.geojson&quot;</span><span class="p">))</span>
+<span class="n">aoi</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span> <span class="n">aoi</span><span class="o">.</span><span class="n">utm_crs</span><span class="p">,</span> <span class="n">aoi</span><span class="o">.</span><span class="n">to_geobox</span><span class="p">(</span><span class="n">resolution</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Two knobs worth knowing:</p>
+<dl class="simple myst">
+<dt><code class="docutils literal notranslate"><span class="pre">clip</span></code></dt><dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> by default — the result is cut to the AOI. <code class="docutils literal notranslate"><span class="pre">clip=False</span></code> returns the
+covering tiles or granules whole, which is what you want when the AOI is a
+point, when you are mosaicking yourself, or when you need the untouched
+source pixels.</p>
+</dd>
+<dt>Antimeridian</dt><dd><p>An AOI that crosses ±180° is split before it reaches a STAC API, which is
+the form those APIs expect. You do not need to do anything.</p>
+</dd>
+</dl>
+</section>
+<section id="one-temporal-input-time">
+<span id="concepts-time"></span><h2>One temporal input: <code class="docutils literal notranslate"><span class="pre">time</span></code><a class="headerlink" href="#one-temporal-input-time" title="Link to this heading">#</a></h2>
+<p>Anything pandas or STAC understands, and partial dates expand to the period
+they name:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">esd</span><span class="o">.</span><span class="n">snow</span><span class="o">.</span><span class="n">snodas</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="s2">&quot;2024-03&quot;</span><span class="p">)</span>  <span class="c1"># the whole month</span>
+<span class="n">esd</span><span class="o">.</span><span class="n">snow</span><span class="o">.</span><span class="n">snodas</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;2024-03-01&quot;</span><span class="p">,</span> <span class="s2">&quot;2024-03-15&quot;</span><span class="p">))</span>  <span class="c1"># inclusive pair</span>
+<span class="n">esd</span><span class="o">.</span><span class="n">snow</span><span class="o">.</span><span class="n">snodas</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="s2">&quot;2023-10/2024-06&quot;</span><span class="p">)</span>  <span class="c1"># STAC syntax</span>
+<span class="n">esd</span><span class="o">.</span><span class="n">snow</span><span class="o">.</span><span class="n">snodas</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="s2">&quot;2024-03/&quot;</span><span class="p">)</span>  <span class="c1"># open end = now, at call time</span>
+</pre></div>
+</div>
+<p>“Now” is computed when you call, never when the module is imported, so a
+long-running kernel does not quietly freeze its own idea of today.</p>
+<p>Water years are first class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_water_year_coords</span>
+
+<span class="n">obs_ds</span> <span class="o">=</span> <span class="n">add_water_year_coords</span><span class="p">(</span><span class="n">obs_ds</span><span class="p">)</span>  <span class="c1"># adds `water_year` and `dowy` coords</span>
+<span class="n">obs_ds</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="s2">&quot;YS-OCT&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>  <span class="c1"># water-year aggregation, the xarray way</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">dowy</span></code> is day of water year, 1 on 1 October (northern hemisphere; pass
+<code class="docutils literal notranslate"><span class="pre">hemisphere=&quot;southern&quot;</span></code> for 1 April). It is a plain integer coordinate, so it
+can be swapped in as a plotting axis or grouped on directly.</p>
+</section>
+<section id="lazy-by-default">
+<span id="concepts-lazy"></span><h2>Lazy by default<a class="headerlink" href="#lazy-by-default" title="Link to this heading">#</a></h2>
+<p>Loaders return Dask-backed xarray objects and never call <code class="docutils literal notranslate"><span class="pre">.compute()</span></code>. A
+<code class="docutils literal notranslate"><span class="pre">load</span></code> that returns instantly has done a metadata read, not a data read; the
+bytes move when you compute, plot or write.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">s1_ds</span> <span class="o">=</span> <span class="n">esd</span><span class="o">.</span><span class="n">sar</span><span class="o">.</span><span class="n">sentinel1</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="s2">&quot;2024-03&quot;</span><span class="p">)</span>  <span class="c1"># seconds: STAC search only</span>
+<span class="n">s1_ds</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>  <span class="c1"># now the COGs are read</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">chunks=</span></code> is passed through, and the default is the source’s native chunking
+where it is known. One subtlety worth naming, because the ecosystem is
+inconsistent about it: <strong><code class="docutils literal notranslate"><span class="pre">chunks=None</span></code> means “load eagerly”</strong>, as in odc-stac
+and rioxarray. The package default is a separate sentinel, so
+<code class="docutils literal notranslate"><span class="pre">load(aoi,</span> <span class="pre">chunks=None)</span></code> computes now and <code class="docutils literal notranslate"><span class="pre">load(aoi)</span></code> stays lazy.</p>
+<p>Vector products — basins, stations inventories, boundaries, mountain ranges,
+glacier outlines — are the exception: they are small, so they come back as an
+in-memory GeoDataFrame. What keeps them cheap is that each archive is
+downloaded once into the easysnowdata cache (<code class="docutils literal notranslate"><span class="pre">EASYSNOWDATA_CACHE_DIR</span></code> moves it)
+and read with the AOI pushed down, so only the intersecting features are
+parsed.</p>
+<div class="warning admonition">
+<p class="admonition-title">Subset wide stores before you chunk them</p>
+<p>Opening a 273-variable hourly store like ARCO-ERA5 <em>with</em> a <code class="docutils literal notranslate"><span class="pre">chunks=</span></code> argument
+builds a Dask graph over the whole archive before you have selected anything —
+enough to exhaust memory. The ERA5 loader opens with <code class="docutils literal notranslate"><span class="pre">chunks=None</span></code>, selects,
+and only then chunks. Do the same with any wide cloud-native store you add.</p>
+</div>
+</section>
+<section id="search-and-load-are-separate">
+<span id="concepts-search"></span><h2>Search and load are separate<a class="headerlink" href="#search-and-load-are-separate" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">search</span></code> returns a GeoDataFrame of the items or granules that match, with the
+STAC properties as columns. Inspect it, filter it, and hand what survives to
+<code class="docutils literal notranslate"><span class="pre">load</span></code>. Nothing prints; nothing is downloaded.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">items_gdf</span> <span class="o">=</span> <span class="n">esd</span><span class="o">.</span><span class="n">optical</span><span class="o">.</span><span class="n">sentinel2</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="s2">&quot;2024-03&quot;</span><span class="p">,</span> <span class="n">cloud_cover</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">items_gdf</span><span class="p">[[</span><span class="s2">&quot;datetime&quot;</span><span class="p">,</span> <span class="s2">&quot;eo:cloud_cover&quot;</span><span class="p">,</span> <span class="s2">&quot;s2:mgrs_tile&quot;</span><span class="p">]]</span>
+<span class="n">best_gdf</span> <span class="o">=</span> <span class="n">items_gdf</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;eo:cloud_cover&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">s2_ds</span> <span class="o">=</span> <span class="n">esd</span><span class="o">.</span><span class="n">optical</span><span class="o">.</span><span class="n">sentinel2</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="n">items</span><span class="o">=</span><span class="n">best_gdf</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="what-comes-back">
+<span id="concepts-output"></span><h2>What comes back<a class="headerlink" href="#what-comes-back" title="Link to this heading">#</a></h2>
+<dl class="simple myst">
+<dt>Dims</dt><dd><p><code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">x</span></code> for projected grids; <code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">latitude</span></code>, <code class="docutils literal notranslate"><span class="pre">longitude</span></code> for
+geographic (EPSG:4326) ones. That is the odc-stac convention and the one
+ERA5-style data already uses.</p>
+</dd>
+<dt>CRS</dt><dd><p>always written with <strong>both</strong> the <code class="docutils literal notranslate"><span class="pre">.rio</span></code> and <code class="docutils literal notranslate"><span class="pre">.odc</span></code> accessors — they read the
+same metadata, and writing both means neither library has to guess.</p>
+</dd>
+<dt>Nodata</dt><dd><p><strong>categorical products keep the source sentinel</strong> with <code class="docutils literal notranslate"><span class="pre">rio.nodata</span></code> set, so
+a land-cover class map still has integer classes; <strong>continuous products are
+NaN-masked</strong> with <code class="docutils literal notranslate"><span class="pre">encoded_nodata</span></code> preserved so the original value is
+recoverable. <code class="docutils literal notranslate"><span class="pre">mask=</span></code> overrides either way.</p>
+</dd>
+<dt>Attributes</dt><dd><p>only strings and numbers, never Python objects — that is what lets a result
+round-trip through Zarr and netCDF. Every product carries <code class="docutils literal notranslate"><span class="pre">source</span></code>,
+<code class="docutils literal notranslate"><span class="pre">source_url</span></code>, <code class="docutils literal notranslate"><span class="pre">product_id</span></code>, <code class="docutils literal notranslate"><span class="pre">data_citation</span></code>, <code class="docutils literal notranslate"><span class="pre">license</span></code> and
+<code class="docutils literal notranslate"><span class="pre">easysnowdata_version</span></code>. <code class="docutils literal notranslate"><span class="pre">ds.attrs[&quot;source&quot;]</span></code> is the <strong>source id</strong>, so it
+hands straight back to <code class="docutils literal notranslate"><span class="pre">load(source=...)</span></code>; the human-readable name is in
+<code class="docutils literal notranslate"><span class="pre">source_title</span></code>.</p>
+</dd>
+<dt>Units</dt><dd><p>metric, always. Station values are centimetres because that is what the
+networks report; gridded SWE is metres.</p>
+</dd>
+<dt>Vector products</dt><dd><p>a GeoDataFrame in EPSG:4326 (reprojected from the source’s CRS, 2-D even
+where the archive stores a constant Z) holding the features that
+<strong>intersect</strong> the AOI, whole rather than cut at its edge. The provenance
+attributes above are in <code class="docutils literal notranslate"><span class="pre">gdf.attrs</span></code>. A product family leads with the same
+columns whatever the source — <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">iso3</span></code>, <code class="docutils literal notranslate"><span class="pre">admin_level</span></code> for
+administrative units; <code class="docutils literal notranslate"><span class="pre">rgi_id</span></code>, <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">area_km2</span></code>, <code class="docutils literal notranslate"><span class="pre">o1region</span></code> for either
+RGI version — and keeps the source’s own columns after them. A returned
+GeoDataFrame is itself an AOI:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">wa_gdf</span> <span class="o">=</span> <span class="n">esd</span><span class="o">.</span><span class="n">boundaries</span><span class="o">.</span><span class="n">admin</span><span class="o">.</span><span class="n">states</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Washington&quot;</span><span class="p">,</span> <span class="n">country</span><span class="o">=</span><span class="s2">&quot;USA&quot;</span><span class="p">)</span>
+<span class="n">huc4_gdf</span> <span class="o">=</span> <span class="n">esd</span><span class="o">.</span><span class="n">hydro</span><span class="o">.</span><span class="n">basins</span><span class="o">.</span><span class="n">huc</span><span class="p">(</span><span class="n">wa_gdf</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<p>Categorical products additionally carry CF flag attributes — <code class="docutils literal notranslate"><span class="pre">flag_values</span></code>,
+<code class="docutils literal notranslate"><span class="pre">flag_meanings</span></code>, <code class="docutils literal notranslate"><span class="pre">flag_colors</span></code>, <code class="docutils literal notranslate"><span class="pre">long_name</span></code> — which is what lets the plotting
+helpers draw a correct legend without any callable living in <code class="docutils literal notranslate"><span class="pre">.attrs</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">esd</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">categorical</span><span class="p">(</span><span class="n">esd</span><span class="o">.</span><span class="n">land</span><span class="o">.</span><span class="n">landcover</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">aoi</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="several-routes-to-the-same-product">
+<span id="concepts-sources"></span><h2>Several routes to the same product<a class="headerlink" href="#several-routes-to-the-same-product" title="Link to this heading">#</a></h2>
+<p>A product can be served by more than one provider, and that is treated as
+normal rather than exceptional. The first source listed is the default;
+<code class="docutils literal notranslate"><span class="pre">source=</span></code> picks another; the return contract does not change.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">esd</span><span class="o">.</span><span class="n">terrain</span><span class="o">.</span><span class="n">dem</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">aoi</span><span class="p">)</span>  <span class="c1"># Planetary Computer</span>
+<span class="n">esd</span><span class="o">.</span><span class="n">terrain</span><span class="o">.</span><span class="n">dem</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">&quot;earth-search&quot;</span><span class="p">)</span>  <span class="c1"># AWS Open Data, same output</span>
+</pre></div>
+</div>
+<p>This is the escape hatch when a provider has an outage, when you want to avoid
+an account, or when you are in a cloud region where one route is direct S3 and
+the other is not. Each product’s catalog page compares its routes side by
+side, with resolution, extent, temporal coverage, latency and what differs.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">esd</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">describe</span><span class="p">(</span><span class="s2">&quot;copernicus-dem&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="credentials-are-lazy-uniform-and-checked-early">
+<span id="concepts-credentials"></span><h2>Credentials are lazy, uniform and checked early<a class="headerlink" href="#credentials-are-lazy-uniform-and-checked-early" title="Link to this heading">#</a></h2>
+<p>A product declares what it needs (<code class="docutils literal notranslate"><span class="pre">requires=(&quot;earthdata&quot;,)</span></code>); the provider is
+initialised on first use; a missing credential raises <code class="docutils literal notranslate"><span class="pre">CredentialError</span></code>
+<strong>before</strong> any network request, naming the setup steps and any credential-free
+alternative for that product. See <a class="reference internal" href="credentials.html"><span class="std std-doc">Credentials</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">esd</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">status</span><span class="p">()</span>  <span class="c1"># a table: provider, configured?, how, needed by</span>
+</pre></div>
+</div>
+</section>
+<section id="processing-is-pure-plotting-is-separate">
+<span id="concepts-processing"></span><h2>Processing is pure, plotting is separate<a class="headerlink" href="#processing-is-pure-plotting-is-separate" title="Link to this heading">#</a></h2>
+<p>Masking, metadata-driven scaling, baseline harmonization, dB conversion,
+water-year coordinates and the local-incidence-angle computation are standalone
+functions in <code class="xref py py-obj docutils literal notranslate"><span class="pre">easysnowdata.processing</span></code> that take and return xarray
+objects and do no I/O. Loaders call them for you through keyword options, but
+the raw product is always one call away.</p>
+<p>What is <em>not</em> wrapped is band arithmetic. A normalized difference, a threshold
+on a snow-cover byte or an RGB stretch is one line of xarray, and putting it
+behind a function name hid which bands were used and what happened to the
+sentinel values. The gallery writes these out every time:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">s2_ds</span> <span class="o">=</span> <span class="n">esd</span><span class="o">.</span><span class="n">optical</span><span class="o">.</span><span class="n">sentinel2</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="s2">&quot;2024-03&quot;</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="s2">&quot;scl-default&quot;</span><span class="p">)</span>  <span class="c1"># convenience</span>
+<span class="n">raw_ds</span> <span class="o">=</span> <span class="n">esd</span><span class="o">.</span><span class="n">optical</span><span class="o">.</span><span class="n">sentinel2</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="s2">&quot;2024-03&quot;</span><span class="p">)</span>  <span class="c1"># nothing applied</span>
+<span class="n">ndsi_da</span> <span class="o">=</span> <span class="p">(</span><span class="n">raw_ds</span><span class="p">[</span><span class="s2">&quot;green&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">raw_ds</span><span class="p">[</span><span class="s2">&quot;swir16&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">raw_ds</span><span class="p">[</span><span class="s2">&quot;green&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">raw_ds</span><span class="p">[</span><span class="s2">&quot;swir16&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">easysnowdata.plotting</span></code> is optional — every product plots fine with
+plain xarray and geopandas — but it is where the package’s map and time-series
+conventions live: <code class="docutils literal notranslate"><span class="pre">map</span></code>, <code class="docutils literal notranslate"><span class="pre">categorical</span></code> and <code class="docutils literal notranslate"><span class="pre">points</span></code> give equal-aspect axes (a
+latitude-corrected aspect plus a <code class="docutils literal notranslate"><span class="pre">GeographicAxesWarning</span></code> for data in degrees),
+a colorbar matched to the map, a scale bar, a light latitude/longitude
+graticule and an optional web basemap; <code class="docutils literal notranslate"><span class="pre">timeseries</span></code> puts calendar dates on the
+x axis; and <code class="docutils literal notranslate"><span class="pre">label</span></code> writes <code class="docutils literal notranslate"><span class="pre">long</span> <span class="pre">name</span> <span class="pre">[units]</span></code>, square brackets always. Every
+piece of furniture is a keyword argument.</p>
+</section>
+<section id="no-import-time-side-effects-and-logging-instead-of-printing">
+<span id="concepts-quiet"></span><h2>No import-time side effects, and logging instead of printing<a class="headerlink" href="#no-import-time-side-effects-and-logging-instead-of-printing" title="Link to this heading">#</a></h2>
+<p>Importing the package configures nothing global: GDAL and rasterio settings
+live in context managers around the reads that need them, and <code class="docutils literal notranslate"><span class="pre">xr.set_options</span></code>
+is never called on your behalf. Progress goes to
+<code class="docutils literal notranslate"><span class="pre">logging.getLogger(&quot;easysnowdata&quot;)</span></code> — INFO for progress, DEBUG for URLs,
+WARNING for fallbacks — so you choose the verbosity:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;easysnowdata&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The single exception is the one-line credential summary printed in interactive
+sessions, which makes no network request and is silenced with
+<code class="docutils literal notranslate"><span class="pre">EASYSNOWDATA_QUIET=1</span></code>.</p>
+</section>
+<section id="every-product-has-four-artefacts">
+<span id="concepts-artefacts"></span><h2>Every product has four artefacts<a class="headerlink" href="#every-product-has-four-artefacts" title="Link to this heading">#</a></h2>
+<p>A product is not finished until it has a catalog entry, an offline test, a
+live smoke test, a health probe and a gallery example. The catalog entry is
+what generates its docs page and its health row, so the set stays in step.
+<a class="reference internal" href="contributing.html"><span class="std std-doc">Contributing</span></a> turns that into a checklist.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="installation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Installation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="credentials.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Credentials</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#one-spatial-input-aoi">One spatial input: <code class="docutils literal notranslate"><span class="pre">aoi</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#one-temporal-input-time">One temporal input: <code class="docutils literal notranslate"><span class="pre">time</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lazy-by-default">Lazy by default</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#search-and-load-are-separate">Search and load are separate</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-comes-back">What comes back</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#several-routes-to-the-same-product">Several routes to the same product</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#credentials-are-lazy-uniform-and-checked-early">Credentials are lazy, uniform and checked early</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#processing-is-pure-plotting-is-separate">Processing is pure, plotting is separate</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#no-import-time-side-effects-and-logging-instead-of-printing">No import-time side effects, and logging instead of printing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#every-product-has-four-artefacts">Every product has four artefacts</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/egagli/easysnowdata/edit/main/docs/concepts.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

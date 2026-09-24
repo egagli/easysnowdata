@@ -1,0 +1,1319 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Mountain snow mask (Wrzesien et al.) &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../_static/documentation_options.js?v=16fc681a"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/snow/plot_mountain_snow_mask';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="SNODAS snow water equivalent and depth (NOHRSC)" href="plot_snodas.html" />
+    <link rel="prev" title="MODIS snow cover (MOD10A1, MOD10A1F, MOD10A2)" href="plot_modis_snow.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.3.dev19" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../stations/index.html">Stations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_all_networks.html">All five station networks in one call</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_awdb_stations.html">SNOTEL and snow courses (USDA NRCS AWDB)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_cdec_stations.html">California snow pillows and courses (CDEC)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_databc_stations.html">British Columbia snow stations (DataBC)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_nve_stations.html">Norwegian snow stations (NVE HydAPI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_station_archive.html">Daily snow-station archive (global_snow_networks)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_yukon_stations.html">Yukon snow stations (AquaCache)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Snow</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="plot_modis_snow.html">MODIS snow cover (MOD10A1, MOD10A1F, MOD10A2)</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Mountain snow mask (Wrzesien et al.)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_snodas.html">SNODAS snow water equivalent and depth (NOHRSC)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_snow_classification.html">Seasonal snow classification (Sturm and Liston)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_ucla_sr.html">UCLA snow reanalysis (Margulis et al.)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_viirs_snow.html">VIIRS snow cover (VNP10A1F)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../sar/index.html">SAR</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sar/plot_sentinel1.html">Sentinel-1 RTC backscatter and local incidence angle</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../optical/index.html">Optical imagery</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../optical/plot_hls.html">HLS surface reflectance (Landsat and Sentinel-2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../optical/plot_planetscope.html">PlanetScope surface reflectance and UDM2 (Planet)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../optical/plot_sentinel2.html">Sentinel-2 L2A surface reflectance</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../terrain/index.html">Terrain</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../terrain/plot_chili.html">CHILI heat-load index (CSP ERGo)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../terrain/plot_dem.html">Digital elevation models: Copernicus, NASADEM, SRTM, 3DEP, ALOS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../terrain/plot_hillshade.html">Hillshade: Natural Earth shaded relief as a basemap</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../land/index.html">Land cover</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../land/plot_forest_cover.html">Forest cover fraction (CGLS-LC100)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../land/plot_nlcd.html">NLCD land cover, annual (USGS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../land/plot_worldcover.html">ESA WorldCover land cover</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../hydro/index.html">Hydrography</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../hydro/plot_basins.html">Basins: HUC, HydroBASINS and GRDC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../boundaries/index.html">Boundaries</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../boundaries/plot_admin.html">Countries, states, counties and admin units</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../boundaries/plot_glaciers.html">Glacier outlines: Randolph Glacier Inventory 7.0 and 6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../boundaries/plot_mountains.html">Mountain ranges: GMBA Mountain Inventory v2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../boundaries/plot_natural_earth.html">Natural Earth map layers: lakes, rivers, glaciers, places</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../climate/index.html">Climate and reanalysis</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../climate/plot_era5.html">ERA5 reanalysis (ARCO-ERA5 and Earth Engine)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../climate/plot_koppen_geiger.html">Köppen-Geiger climate classification (Beck et al.)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tools/index.html">Tools</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tools/plot_aoi_time_catalog.html">Areas of interest, time ranges and the catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools/plot_water_year.html">Water years and day of water year</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Example gallery</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Snow</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Mountain snow mask (Wrzesien et al.)</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-snow-plot-mountain-snow-mask-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="mountain-snow-mask-wrzesien-et-al">
+<span id="sphx-glr-auto-examples-snow-plot-mountain-snow-mask-py"></span><h1>Mountain snow mask (Wrzesien et al.)<a class="headerlink" href="#mountain-snow-mask-wrzesien-et-al" title="Link to this heading">#</a></h1>
+<p>Wrzesien et al. (2019) classified the MODIS MOD10A2 snow-cover record for
+2000-2016 at 30 arcsec into little-to-no, ephemeral and seasonal snow, and
+intersected it with a mountain definition based on GTOPO30 relief. The result
+is three layers: <code class="docutils literal notranslate"><span class="pre">mountain_snow</span></code> (the classes over mountains only),
+<code class="docutils literal notranslate"><span class="pre">snow</span></code> (the same classes over all terrain) and <code class="docutils literal notranslate"><span class="pre">clouds</span></code> (how often the
+composite was indeterminate because of cloud).</p>
+<p>One route, <code class="docutils literal notranslate"><span class="pre">source=&quot;zenodo&quot;</span></code>, with no credentials: one zipped GeoTIFF per
+layer, fetched once into the easysnowdata cache.</p>
+<p>The figures show the mountain and all-terrain layers side by side across the
+central Cascades and Puget lowlands, and the cloud-indeterminacy layer.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">easysnowdata</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">esd</span>
+
+<a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">123.0</span><span class="p">,</span> <span class="mf">46.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">120.5</span><span class="p">,</span> <span class="mf">48.0</span><span class="p">)</span>  <span class="c1"># the central Cascades, Puget Sound to Yakima</span>
+
+<a href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI" title="easysnowdata.AOI" class="sphx-glr-backref-module-easysnowdata sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">box</span></a> <span class="o">=</span> <span class="n">esd</span><span class="o">.</span><span class="n">parse_aoi</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="p">)</span>
+<span class="n">grid</span> <span class="o">=</span> <a href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI.to_geobox" title="easysnowdata.AOI.to_geobox" class="sphx-glr-backref-module-easysnowdata sphx-glr-backref-type-py-method"><span class="n">box</span><span class="o">.</span><span class="n">to_geobox</span></a><span class="p">(</span><span class="n">crs</span><span class="o">=</span><span class="s2">&quot;utm&quot;</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>  <span class="c1"># every map below is drawn on this grid</span>
+<span class="nb">print</span><span class="p">(</span><a href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI" title="easysnowdata.AOI" class="sphx-glr-backref-module-easysnowdata sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">box</span></a><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>AOI(bounds=(-123.0000, 46.0000, -120.5000, 48.0000), clip=True)
+GeoBox((451, 388), Affine(500.0, 0.0, 500000.0,
+       0.0, -500.0, 5319500.0), CRS(&#39;EPSG:32610&#39;))
+</pre></div>
+</div>
+<p>Where the product comes from, and what the route asks for.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <a href="../../generated/easysnowdata.catalog.get.html#easysnowdata.catalog.get" title="easysnowdata.catalog.get" class="sphx-glr-backref-module-easysnowdata-catalog sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">get</span></a><span class="p">(</span><span class="s2">&quot;mountain-snow-mask&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sources</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">src</span><span class="o">.</span><span class="n">id</span></a><span class="si">:</span><span class="s2">22</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">src</span><span class="o">.</span><span class="n">title</span></a><span class="si">:</span><span class="s2">45</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">src</span><span class="o">.</span><span class="n">requires</span></a><span class="p">)</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">&#39;no account&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>zenodo                 Zenodo zip                                    no account
+</pre></div>
+</div>
+<p>The two class layers. In the mountain layer, <code class="docutils literal notranslate"><span class="pre">Fill</span></code> (255) is every pixel
+that is not mountain by the relief criterion, so the lowlands drop out and
+the mask says where seasonal snow is also mountain snow. The all-terrain
+layer keeps them and classifies the Puget lowlands as ephemeral.
+The layers are geographic; the box is loaded with a 2 km margin and each
+is drawn on the AOI’s UTM grid, resampled nearest so the classes survive.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mountain_da</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.snow.mountain_snow_mask.load.html#easysnowdata.snow.mountain_snow_mask.load" title="easysnowdata.snow.mountain_snow_mask.load" class="sphx-glr-backref-module-easysnowdata-snow-mountain_snow_mask sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">snow</span><span class="o">.</span><span class="n">mountain_snow_mask</span><span class="o">.</span><span class="n">load</span></a><span class="p">(</span><a href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI.buffer" title="easysnowdata.AOI.buffer" class="sphx-glr-backref-module-easysnowdata sphx-glr-backref-type-py-method"><span class="n">box</span><span class="o">.</span><span class="n">buffer</span></a><span class="p">(</span><span class="mi">2000</span><span class="p">),</span> <span class="n">layer</span><span class="o">=</span><span class="s2">&quot;mountain_snow&quot;</span><span class="p">)</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">terrain_da</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.snow.mountain_snow_mask.load.html#easysnowdata.snow.mountain_snow_mask.load" title="easysnowdata.snow.mountain_snow_mask.load" class="sphx-glr-backref-module-easysnowdata-snow-mountain_snow_mask sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">snow</span><span class="o">.</span><span class="n">mountain_snow_mask</span><span class="o">.</span><span class="n">load</span></a><span class="p">(</span><a href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI.buffer" title="easysnowdata.AOI.buffer" class="sphx-glr-backref-module-easysnowdata sphx-glr-backref-type-py-method"><span class="n">box</span><span class="o">.</span><span class="n">buffer</span></a><span class="p">(</span><span class="mi">2000</span><span class="p">),</span> <span class="n">layer</span><span class="o">=</span><span class="s2">&quot;snow&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.attrs.html#xarray.DataArray.attrs" title="xarray.DataArray.attrs" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">mountain_da</span><span class="o">.</span><span class="n">attrs</span></a><span class="p">[</span><span class="s2">&quot;flag_meanings&quot;</span><span class="p">])</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<a href="../../generated/easysnowdata.plotting.categorical.html#easysnowdata.plotting.categorical" title="easysnowdata.plotting.categorical" class="sphx-glr-backref-module-easysnowdata-plotting sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">categorical</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mountain_da</span></a><span class="o">.</span><span class="n">odc</span><span class="o">.</span><span class="n">reproject</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">resampling</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">),</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;mountains only&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="../../generated/easysnowdata.plotting.categorical.html#easysnowdata.plotting.categorical" title="easysnowdata.plotting.categorical" class="sphx-glr-backref-module-easysnowdata-plotting sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">categorical</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">terrain_da</span></a><span class="o">.</span><span class="n">odc</span><span class="o">.</span><span class="n">reproject</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">resampling</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">),</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;all terrain&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.tight_layout.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">()</span>
+
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">values</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counts</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.unique.html#numpy.unique" title="numpy.unique" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">unique</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">mountain_da</span><span class="o">.</span><span class="n">values</span></a><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">for</span> <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.uint8" title="numpy.uint8" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">value</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.int64" title="numpy.int64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">count</span></a> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">values</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">counts</span></a><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;class </span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.uint8" title="numpy.uint8" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">value</span></a><span class="si">:</span><span class="s2">3d</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.int64" title="numpy.int64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">count</span></a><span class="si">:</span><span class="s2">6d</span><span class="si">}</span><span class="s2"> pixels&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_mountain_snow_mask_001.png" srcset="../../_images/sphx_glr_plot_mountain_snow_mask_001.png" alt="mountains only, all terrain" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  0%|                                              | 0.00/13.7M [00:00&lt;?, ?B/s]
+  0%|                                      | 11.3k/13.7M [00:00&lt;02:09, 106kB/s]
+  0%|                                      | 39.9k/13.7M [00:00&lt;01:44, 130kB/s]
+  1%|▎                                     | 96.3k/13.7M [00:00&lt;00:52, 259kB/s]
+  1%|▍                                      | 135k/13.7M [00:00&lt;00:46, 292kB/s]
+  1%|▌                                      | 201k/13.7M [00:00&lt;00:38, 354kB/s]
+  2%|▊                                      | 278k/13.7M [00:00&lt;00:32, 415kB/s]
+  3%|█▏                                     | 421k/13.7M [00:01&lt;00:23, 562kB/s]
+  4%|█▍                                     | 502k/13.7M [00:01&lt;00:23, 560kB/s]
+  4%|█▋                                     | 583k/13.7M [00:01&lt;00:23, 559kB/s]
+  5%|██                                     | 714k/13.7M [00:01&lt;00:19, 663kB/s]
+  6%|██▍                                    | 861k/13.7M [00:01&lt;00:16, 769kB/s]
+  7%|██▋                                    | 943k/13.7M [00:01&lt;00:17, 707kB/s]
+  8%|███                                   | 1.09M/13.7M [00:01&lt;00:15, 798kB/s]
+  9%|███▎                                  | 1.17M/13.7M [00:02&lt;00:17, 725kB/s]
+ 10%|███▋                                  | 1.32M/13.7M [00:02&lt;00:15, 810kB/s]
+ 11%|████                                  | 1.45M/13.7M [00:02&lt;00:14, 836kB/s]
+ 11%|████▎                                 | 1.53M/13.7M [00:02&lt;00:15, 759kB/s]
+ 12%|████▌                                 | 1.63M/13.7M [00:02&lt;00:16, 730kB/s]
+ 13%|████▉                                 | 1.76M/13.7M [00:02&lt;00:15, 779kB/s]
+ 13%|█████                                 | 1.84M/13.7M [00:02&lt;00:16, 714kB/s]
+ 15%|█████▌                                | 1.99M/13.7M [00:03&lt;00:14, 802kB/s]
+ 15%|█████▊                                | 2.07M/13.7M [00:03&lt;00:15, 730kB/s]
+ 16%|█████▉                                | 2.15M/13.7M [00:03&lt;00:16, 680kB/s]
+ 16%|██████▏                               | 2.22M/13.7M [00:03&lt;00:18, 618kB/s]
+ 17%|██████▍                               | 2.32M/13.7M [00:03&lt;00:18, 626kB/s]
+ 18%|██████▊                               | 2.45M/13.7M [00:03&lt;00:15, 707kB/s]
+ 19%|███████                               | 2.53M/13.7M [00:03&lt;00:16, 665kB/s]
+ 19%|███████▎                              | 2.63M/13.7M [00:04&lt;00:16, 668kB/s]
+ 20%|███████▌                              | 2.71M/13.7M [00:04&lt;00:17, 635kB/s]
+ 21%|███████▊                              | 2.81M/13.7M [00:04&lt;00:16, 646kB/s]
+ 21%|███████▉                              | 2.87M/13.7M [00:04&lt;00:18, 588kB/s]
+ 22%|████████▍                             | 3.02M/13.7M [00:04&lt;00:15, 708kB/s]
+ 23%|████████▌                             | 3.10M/13.7M [00:04&lt;00:15, 665kB/s]
+ 24%|█████████                             | 3.25M/13.7M [00:04&lt;00:13, 767kB/s]
+ 25%|█████████▍                            | 3.38M/13.7M [00:05&lt;00:12, 807kB/s]
+ 26%|█████████▊                            | 3.53M/13.7M [00:05&lt;00:11, 868kB/s]
+ 27%|██████████                            | 3.62M/13.7M [00:05&lt;00:12, 806kB/s]
+ 27%|██████████▍                           | 3.76M/13.7M [00:05&lt;00:11, 832kB/s]
+ 29%|██████████▊                           | 3.90M/13.7M [00:05&lt;00:11, 884kB/s]
+ 29%|███████████▏                          | 4.02M/13.7M [00:05&lt;00:11, 855kB/s]
+ 30%|███████████▍                          | 4.12M/13.7M [00:05&lt;00:12, 793kB/s]
+ 31%|███████████▋                          | 4.20M/13.7M [00:06&lt;00:13, 725kB/s]
+ 31%|███████████▉                          | 4.28M/13.7M [00:06&lt;00:13, 676kB/s]
+ 32%|████████████▎                         | 4.43M/13.7M [00:06&lt;00:11, 775kB/s]
+ 33%|████████████▋                         | 4.56M/13.7M [00:06&lt;00:11, 812kB/s]
+ 34%|█████████████                         | 4.70M/13.7M [00:06&lt;00:10, 872kB/s]
+ 35%|█████████████▍                        | 4.84M/13.7M [00:06&lt;00:10, 880kB/s]
+ 36%|█████████████▋                        | 4.92M/13.7M [00:06&lt;00:10, 798kB/s]
+ 37%|█████████████▉                        | 5.00M/13.7M [00:07&lt;00:11, 723kB/s]
+ 38%|██████████████▎                       | 5.15M/13.7M [00:07&lt;00:10, 797kB/s]
+ 39%|██████████████▋                       | 5.29M/13.7M [00:07&lt;00:09, 860kB/s]
+ 40%|███████████████                       | 5.41M/13.7M [00:07&lt;00:09, 837kB/s]
+ 41%|███████████████▍                      | 5.54M/13.7M [00:07&lt;00:09, 855kB/s]
+ 42%|███████████████▊                      | 5.69M/13.7M [00:07&lt;00:08, 902kB/s]
+ 42%|████████████████▏                     | 5.80M/13.7M [00:08&lt;00:09, 868kB/s]
+ 43%|████████████████▎                     | 5.89M/13.7M [00:08&lt;00:09, 787kB/s]
+ 44%|████████████████▌                     | 5.97M/13.7M [00:08&lt;00:10, 713kB/s]
+ 44%|████████████████▊                     | 6.04M/13.7M [00:08&lt;00:11, 647kB/s]
+ 45%|█████████████████                     | 6.13M/13.7M [00:08&lt;00:11, 636kB/s]
+ 46%|█████████████████▎                    | 6.22M/13.7M [00:08&lt;00:11, 648kB/s]
+ 47%|█████████████████▋                    | 6.37M/13.7M [00:08&lt;00:09, 757kB/s]
+ 47%|█████████████████▉                    | 6.47M/13.7M [00:09&lt;00:09, 731kB/s]
+ 48%|██████████████████▏                   | 6.55M/13.7M [00:09&lt;00:10, 679kB/s]
+ 49%|██████████████████▋                   | 6.70M/13.7M [00:09&lt;00:08, 778kB/s]
+ 50%|██████████████████▊                   | 6.78M/13.7M [00:09&lt;00:09, 706kB/s]
+ 50%|███████████████████                   | 6.85M/13.7M [00:09&lt;00:10, 640kB/s]
+ 51%|███████████████████▍                  | 6.98M/13.7M [00:09&lt;00:09, 714kB/s]
+ 52%|███████████████████▋                  | 7.07M/13.7M [00:09&lt;00:09, 702kB/s]
+ 52%|███████████████████▉                  | 7.17M/13.7M [00:10&lt;00:09, 694kB/s]
+ 53%|████████████████████▏                 | 7.27M/13.7M [00:10&lt;00:09, 689kB/s]
+ 54%|████████████████████▍                 | 7.35M/13.7M [00:10&lt;00:09, 651kB/s]
+ 54%|████████████████████▋                 | 7.44M/13.7M [00:10&lt;00:09, 625kB/s]
+ 55%|█████████████████████                 | 7.57M/13.7M [00:10&lt;00:08, 706kB/s]
+ 56%|█████████████████████▎                | 7.65M/13.7M [00:10&lt;00:09, 662kB/s]
+ 57%|█████████████████████▋                | 7.79M/13.7M [00:10&lt;00:07, 768kB/s]
+ 58%|█████████████████████▉                | 7.91M/13.7M [00:11&lt;00:07, 774kB/s]
+ 58%|██████████████████████▏               | 7.99M/13.7M [00:11&lt;00:08, 702kB/s]
+ 59%|██████████████████████▌               | 8.10M/13.7M [00:11&lt;00:07, 728kB/s]
+ 60%|██████████████████████▊               | 8.19M/13.7M [00:11&lt;00:08, 679kB/s]
+ 61%|███████████████████████               | 8.29M/13.7M [00:11&lt;00:07, 678kB/s]
+ 61%|███████████████████████▎              | 8.40M/13.7M [00:11&lt;00:07, 711kB/s]
+ 62%|███████████████████████▌              | 8.48M/13.7M [00:11&lt;00:07, 666kB/s]
+ 63%|███████████████████████▉              | 8.61M/13.7M [00:12&lt;00:06, 734kB/s]
+ 64%|████████████████████████▎             | 8.76M/13.7M [00:12&lt;00:06, 814kB/s]
+ 65%|████████████████████████▌             | 8.84M/13.7M [00:12&lt;00:06, 738kB/s]
+ 65%|████████████████████████▊             | 8.94M/13.7M [00:12&lt;00:06, 721kB/s]
+ 66%|█████████████████████████             | 9.01M/13.7M [00:12&lt;00:07, 654kB/s]
+ 66%|█████████████████████████▎            | 9.09M/13.7M [00:12&lt;00:07, 611kB/s]
+ 67%|█████████████████████████▍            | 9.17M/13.7M [00:12&lt;00:07, 596kB/s]
+ 68%|█████████████████████████▊            | 9.28M/13.7M [00:13&lt;00:06, 654kB/s]
+ 69%|██████████████████████████▏           | 9.43M/13.7M [00:13&lt;00:05, 758kB/s]
+ 70%|██████████████████████████▌           | 9.56M/13.7M [00:13&lt;00:05, 798kB/s]
+ 71%|██████████████████████████▊           | 9.64M/13.7M [00:13&lt;00:05, 723kB/s]
+ 71%|███████████████████████████           | 9.72M/13.7M [00:13&lt;00:05, 680kB/s]
+ 72%|███████████████████████████▎          | 9.81M/13.7M [00:13&lt;00:05, 645kB/s]
+ 73%|███████████████████████████▋          | 9.94M/13.7M [00:13&lt;00:05, 722kB/s]
+ 73%|███████████████████████████▉          | 10.0M/13.7M [00:14&lt;00:05, 708kB/s]
+ 74%|████████████████████████████▎         | 10.2M/13.7M [00:14&lt;00:04, 797kB/s]
+ 76%|████████████████████████████▋         | 10.3M/13.7M [00:14&lt;00:03, 860kB/s]
+ 76%|████████████████████████████▉         | 10.4M/13.7M [00:14&lt;00:04, 779kB/s]
+ 77%|█████████████████████████████▎        | 10.5M/13.7M [00:14&lt;00:04, 773kB/s]
+ 78%|█████████████████████████████▋        | 10.7M/13.7M [00:14&lt;00:03, 809kB/s]
+ 79%|█████████████████████████████▊        | 10.7M/13.7M [00:15&lt;00:03, 736kB/s]
+ 80%|██████████████████████████████▎       | 10.9M/13.7M [00:15&lt;00:03, 819kB/s]
+ 80%|██████████████████████████████▍       | 11.0M/13.7M [00:15&lt;00:03, 741kB/s]
+ 81%|██████████████████████████████▉       | 11.1M/13.7M [00:15&lt;00:03, 823kB/s]
+ 82%|███████████████████████████████▎      | 11.2M/13.7M [00:15&lt;00:02, 843kB/s]
+ 83%|███████████████████████████████▌      | 11.3M/13.7M [00:15&lt;00:03, 765kB/s]
+ 83%|███████████████████████████████▋      | 11.4M/13.7M [00:15&lt;00:03, 699kB/s]
+ 85%|████████████████████████████████▏     | 11.6M/13.7M [00:16&lt;00:02, 793kB/s]
+ 85%|████████████████████████████████▎     | 11.6M/13.7M [00:16&lt;00:02, 725kB/s]
+ 86%|████████████████████████████████▊     | 11.8M/13.7M [00:16&lt;00:02, 810kB/s]
+ 87%|████████████████████████████████▉     | 11.9M/13.7M [00:16&lt;00:02, 736kB/s]
+ 88%|█████████████████████████████████▎    | 12.0M/13.7M [00:16&lt;00:02, 718kB/s]
+ 88%|█████████████████████████████████▍    | 12.0M/13.7M [00:16&lt;00:02, 671kB/s]
+ 89%|█████████████████████████████████▉    | 12.2M/13.7M [00:16&lt;00:01, 772kB/s]
+ 90%|██████████████████████████████████▎   | 12.3M/13.7M [00:17&lt;00:01, 808kB/s]
+ 91%|██████████████████████████████████▋   | 12.5M/13.7M [00:17&lt;00:01, 870kB/s]
+ 92%|███████████████████████████████████   | 12.6M/13.7M [00:17&lt;00:01, 877kB/s]
+ 93%|███████████████████████████████████▎  | 12.7M/13.7M [00:17&lt;00:01, 816kB/s]
+ 94%|███████████████████████████████████▋  | 12.8M/13.7M [00:17&lt;00:00, 839kB/s]
+ 95%|████████████████████████████████████  | 13.0M/13.7M [00:17&lt;00:00, 855kB/s]
+ 96%|████████████████████████████████████▍ | 13.1M/13.7M [00:17&lt;00:00, 902kB/s]
+ 97%|████████████████████████████████████▊ | 13.3M/13.7M [00:18&lt;00:00, 932kB/s]
+ 98%|█████████████████████████████████████▏| 13.4M/13.7M [00:18&lt;00:00, 855kB/s]
+ 98%|█████████████████████████████████████▍| 13.5M/13.7M [00:18&lt;00:00, 799kB/s]
+ 99%|█████████████████████████████████████▋| 13.5M/13.7M [00:18&lt;00:00, 729kB/s]
+100%|█████████████████████████████████████▊| 13.6M/13.7M [00:18&lt;00:00, 679kB/s]
+  0%|                                              | 0.00/13.7M [00:00&lt;?, ?B/s]
+100%|█████████████████████████████████████| 13.7M/13.7M [00:00&lt;00:00, 94.9GB/s]
+
+  0%|                                              | 0.00/13.9M [00:00&lt;?, ?B/s]
+  0%|                                     | 12.3k/13.9M [00:00&lt;03:06, 74.7kB/s]
+  0%|                                      | 39.9k/13.9M [00:00&lt;01:39, 140kB/s]
+  1%|▎                                      | 113k/13.9M [00:00&lt;00:45, 302kB/s]
+  1%|▌                                      | 179k/13.9M [00:00&lt;00:37, 364kB/s]
+  2%|▊                                      | 268k/13.9M [00:00&lt;00:30, 455kB/s]
+  2%|▉                                      | 345k/13.9M [00:00&lt;00:28, 481kB/s]
+  3%|█▏                                     | 442k/13.9M [00:01&lt;00:28, 478kB/s]
+  4%|█▍                                     | 508k/13.9M [00:01&lt;00:28, 471kB/s]
+  4%|█▋                                     | 590k/13.9M [00:01&lt;00:26, 498kB/s]
+  5%|█▉                                     | 688k/13.9M [00:01&lt;00:24, 551kB/s]
+  6%|██▏                                    | 803k/13.9M [00:01&lt;00:21, 624kB/s]
+  6%|██▌                                    | 901k/13.9M [00:01&lt;00:20, 640kB/s]
+  7%|██▊                                    | 998k/13.9M [00:01&lt;00:19, 650kB/s]
+  8%|██▉                                   | 1.08M/13.9M [00:02&lt;00:20, 624kB/s]
+  9%|███▎                                  | 1.23M/13.9M [00:02&lt;00:17, 742kB/s]
+  9%|███▌                                  | 1.31M/13.9M [00:02&lt;00:18, 689kB/s]
+ 10%|███▊                                  | 1.39M/13.9M [00:02&lt;00:19, 652kB/s]
+ 11%|████▏                                 | 1.52M/13.9M [00:02&lt;00:17, 726kB/s]
+ 12%|████▍                                 | 1.64M/13.9M [00:02&lt;00:16, 745kB/s]
+ 12%|████▋                                 | 1.73M/13.9M [00:02&lt;00:16, 721kB/s]
+ 13%|█████                                 | 1.85M/13.9M [00:03&lt;00:16, 742kB/s]
+ 14%|█████▍                                | 1.98M/13.9M [00:03&lt;00:15, 790kB/s]
+ 15%|█████▋                                | 2.08M/13.9M [00:03&lt;00:15, 755kB/s]
+ 15%|█████▉                                | 2.16M/13.9M [00:03&lt;00:16, 698kB/s]
+ 16%|██████▏                               | 2.27M/13.9M [00:03&lt;00:16, 727kB/s]
+ 17%|██████▍                               | 2.36M/13.9M [00:03&lt;00:17, 678kB/s]
+ 18%|██████▋                               | 2.47M/13.9M [00:03&lt;00:16, 712kB/s]
+ 18%|███████                               | 2.57M/13.9M [00:04&lt;00:16, 699kB/s]
+ 19%|███████▎                              | 2.68M/13.9M [00:04&lt;00:15, 727kB/s]
+ 20%|███████▋                              | 2.80M/13.9M [00:04&lt;00:14, 747kB/s]
+ 21%|███████▊                              | 2.88M/13.9M [00:04&lt;00:15, 693kB/s]
+ 21%|████████                              | 2.98M/13.9M [00:04&lt;00:15, 689kB/s]
+ 22%|████████▌                             | 3.12M/13.9M [00:04&lt;00:13, 786kB/s]
+ 23%|████████▉                             | 3.27M/13.9M [00:05&lt;00:12, 855kB/s]
+ 25%|█████████▎                            | 3.42M/13.9M [00:05&lt;00:11, 905kB/s]
+ 25%|█████████▌                            | 3.52M/13.9M [00:05&lt;00:12, 837kB/s]
+ 26%|█████████▉                            | 3.63M/13.9M [00:05&lt;00:12, 822kB/s]
+ 27%|██████████▏                           | 3.73M/13.9M [00:05&lt;00:13, 779kB/s]
+ 27%|██████████▍                           | 3.83M/13.9M [00:05&lt;00:13, 748kB/s]
+ 28%|██████████▋                           | 3.93M/13.9M [00:05&lt;00:13, 727kB/s]
+ 29%|███████████                           | 4.07M/13.9M [00:06&lt;00:12, 814kB/s]
+ 30%|███████████▎                          | 4.17M/13.9M [00:06&lt;00:12, 772kB/s]
+ 31%|███████████▌                          | 4.25M/13.9M [00:06&lt;00:13, 707kB/s]
+ 32%|███████████▉                          | 4.40M/13.9M [00:06&lt;00:11, 800kB/s]
+ 32%|████████████▏                         | 4.48M/13.9M [00:06&lt;00:12, 730kB/s]
+ 33%|████████████▍                         | 4.58M/13.9M [00:06&lt;00:13, 715kB/s]
+ 34%|████████████▊                         | 4.68M/13.9M [00:06&lt;00:13, 702kB/s]
+ 34%|█████████████                         | 4.78M/13.9M [00:07&lt;00:13, 695kB/s]
+ 35%|█████████████▏                        | 4.86M/13.9M [00:07&lt;00:13, 657kB/s]
+ 36%|█████████████▌                        | 4.97M/13.9M [00:07&lt;00:12, 697kB/s]
+ 37%|██████████████                        | 5.17M/13.9M [00:07&lt;00:09, 893kB/s]
+ 38%|██████████████▍                       | 5.28M/13.9M [00:07&lt;00:10, 863kB/s]
+ 39%|██████████████▊                       | 5.45M/13.9M [00:07&lt;00:08, 944kB/s]
+ 40%|███████████████                       | 5.54M/13.9M [00:07&lt;00:09, 864kB/s]
+ 41%|███████████████▍                      | 5.68M/13.9M [00:08&lt;00:09, 877kB/s]
+ 42%|███████████████▊                      | 5.79M/13.9M [00:08&lt;00:09, 849kB/s]
+ 43%|████████████████▎                     | 5.99M/13.9M [00:08&lt;00:07, 997kB/s]
+ 44%|████████████████▋                     | 6.10M/13.9M [00:08&lt;00:08, 936kB/s]
+ 44%|████████████████▉                     | 6.20M/13.9M [00:08&lt;00:09, 855kB/s]
+ 45%|█████████████████▏                    | 6.30M/13.9M [00:08&lt;00:09, 799kB/s]
+ 46%|█████████████████▌                    | 6.44M/13.9M [00:08&lt;00:08, 865kB/s]
+ 47%|█████████████████▉                    | 6.56M/13.9M [00:09&lt;00:08, 844kB/s]
+ 49%|██████████████████                   | 6.80M/13.9M [00:09&lt;00:06, 1.10MB/s]
+ 50%|██████████████████▋                  | 7.03M/13.9M [00:09&lt;00:05, 1.24MB/s]
+ 52%|███████████████████                  | 7.20M/13.9M [00:09&lt;00:05, 1.21MB/s]
+ 53%|███████████████████▍                 | 7.33M/13.9M [00:09&lt;00:05, 1.12MB/s]
+ 54%|███████████████████▊                 | 7.47M/13.9M [00:09&lt;00:05, 1.09MB/s]
+ 54%|████████████████████▋                 | 7.59M/13.9M [00:09&lt;00:06, 998kB/s]
+ 56%|████████████████████▋                | 7.78M/13.9M [00:10&lt;00:05, 1.10MB/s]
+ 57%|████████████████████▉                | 7.90M/13.9M [00:10&lt;00:06, 1.00MB/s]
+ 57%|█████████████████████▊                | 8.00M/13.9M [00:10&lt;00:06, 913kB/s]
+ 58%|██████████████████████▏               | 8.14M/13.9M [00:10&lt;00:06, 943kB/s]
+ 59%|██████████████████████▍               | 8.24M/13.9M [00:10&lt;00:06, 864kB/s]
+ 60%|██████████████████████▉               | 8.42M/13.9M [00:10&lt;00:05, 975kB/s]
+ 61%|███████████████████████▎              | 8.54M/13.9M [00:10&lt;00:05, 918kB/s]
+ 62%|███████████████████████▋              | 8.67M/13.9M [00:11&lt;00:05, 914kB/s]
+ 63%|███████████████████████▉              | 8.77M/13.9M [00:11&lt;00:06, 843kB/s]
+ 64%|████████████████████████▏             | 8.88M/13.9M [00:11&lt;00:06, 824kB/s]
+ 64%|████████████████████████▍             | 8.98M/13.9M [00:11&lt;00:06, 780kB/s]
+ 65%|████████████████████████▉             | 9.13M/13.9M [00:11&lt;00:05, 851kB/s]
+ 66%|█████████████████████████             | 9.21M/13.9M [00:11&lt;00:06, 773kB/s]
+ 67%|█████████████████████████▋            | 9.40M/13.9M [00:11&lt;00:04, 937kB/s]
+ 68%|█████████████████████████▉            | 9.50M/13.9M [00:12&lt;00:05, 859kB/s]
+ 69%|██████████████████████████▏           | 9.62M/13.9M [00:12&lt;00:05, 838kB/s]
+ 71%|██████████████████████████           | 9.83M/13.9M [00:12&lt;00:04, 1.03MB/s]
+ 71%|███████████████████████████           | 9.94M/13.9M [00:12&lt;00:04, 953kB/s]
+ 72%|███████████████████████████▌          | 10.1M/13.9M [00:12&lt;00:03, 972kB/s]
+ 73%|███████████████████████████▊          | 10.2M/13.9M [00:12&lt;00:04, 883kB/s]
+ 74%|████████████████████████████          | 10.3M/13.9M [00:12&lt;00:04, 821kB/s]
+ 75%|████████████████████████████▌         | 10.5M/13.9M [00:13&lt;00:03, 945kB/s]
+ 76%|████████████████████████████▊         | 10.6M/13.9M [00:13&lt;00:03, 865kB/s]
+ 77%|█████████████████████████████▏        | 10.7M/13.9M [00:13&lt;00:03, 876kB/s]
+ 77%|█████████████████████████████▍        | 10.8M/13.9M [00:13&lt;00:03, 817kB/s]
+ 78%|█████████████████████████████▊        | 10.9M/13.9M [00:13&lt;00:03, 877kB/s]
+ 80%|██████████████████████████████▏       | 11.1M/13.9M [00:13&lt;00:03, 916kB/s]
+ 80%|██████████████████████████████▌       | 11.2M/13.9M [00:13&lt;00:03, 877kB/s]
+ 81%|██████████████████████████████▊       | 11.3M/13.9M [00:14&lt;00:03, 796kB/s]
+ 82%|███████████████████████████████       | 11.4M/13.9M [00:14&lt;00:03, 748kB/s]
+ 83%|███████████████████████████████▌      | 11.6M/13.9M [00:14&lt;00:02, 894kB/s]
+ 84%|███████████████████████████████▊      | 11.7M/13.9M [00:14&lt;00:02, 829kB/s]
+ 84%|████████████████████████████████      | 11.8M/13.9M [00:14&lt;00:02, 817kB/s]
+ 85%|████████████████████████████████▎     | 11.9M/13.9M [00:14&lt;00:02, 741kB/s]
+ 86%|████████████████████████████████▋     | 12.0M/13.9M [00:15&lt;00:02, 789kB/s]
+ 87%|████████████████████████████████▉     | 12.1M/13.9M [00:15&lt;00:02, 787kB/s]
+ 88%|█████████████████████████████████▍    | 12.3M/13.9M [00:15&lt;00:01, 890kB/s]
+ 89%|█████████████████████████████████▋    | 12.4M/13.9M [00:15&lt;00:01, 807kB/s]
+ 90%|██████████████████████████████████    | 12.5M/13.9M [00:15&lt;00:01, 820kB/s]
+ 90%|██████████████████████████████████▎   | 12.6M/13.9M [00:15&lt;00:01, 842kB/s]
+ 91%|██████████████████████████████████▋   | 12.7M/13.9M [00:15&lt;00:01, 826kB/s]
+ 92%|██████████████████████████████████▉   | 12.8M/13.9M [00:16&lt;00:01, 750kB/s]
+ 93%|███████████████████████████████████▏  | 12.9M/13.9M [00:16&lt;00:01, 726kB/s]
+ 95%|██████████████████████████████████▉  | 13.2M/13.9M [00:16&lt;00:00, 1.08MB/s]
+ 95%|████████████████████████████████████▏ | 13.3M/13.9M [00:16&lt;00:00, 994kB/s]
+ 96%|████████████████████████████████████▌ | 13.4M/13.9M [00:16&lt;00:00, 932kB/s]
+ 97%|████████████████████████████████████▊ | 13.5M/13.9M [00:16&lt;00:00, 855kB/s]
+ 98%|█████████████████████████████████████ | 13.6M/13.9M [00:16&lt;00:00, 800kB/s]
+ 98%|█████████████████████████████████████▎| 13.7M/13.9M [00:17&lt;00:00, 763kB/s]
+100%|█████████████████████████████████████▉| 13.9M/13.9M [00:17&lt;00:00, 940kB/s]
+  0%|                                              | 0.00/13.9M [00:00&lt;?, ?B/s]
+100%|█████████████████████████████████████| 13.9M/13.9M [00:00&lt;00:00, 75.2GB/s]
+Mountains_with_little-to-no_snow Indeterminate_due_to_clouds Mountains_with_ephemeral_snow Mountains_with_seasonal_snow Fill
+/home/runner/work/easysnowdata/easysnowdata/.pixi/envs/docs/lib/python3.13/site-packages/rasterio/warp.py:385: NotGeoreferencedWarning: Dataset has no geotransform, gcps, or rpcs. The identity matrix will be returned.
+  dest = _reproject(
+class   0:    572 pixels
+class   1:   5971 pixels
+class   2:   5243 pixels
+class   3:  38444 pixels
+class 255:  25538 pixels
+</pre></div>
+</div>
+<p>The clouds layer is the indeterminacy level (0-6) behind the classes; the
+upstream record does not define the scale further, so it is kept as an
+integer without a class table. Rainier’s high terrain is where the MOD10A2
+composites were most often indeterminate.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">clouds_da</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.snow.mountain_snow_mask.load.html#easysnowdata.snow.mountain_snow_mask.load" title="easysnowdata.snow.mountain_snow_mask.load" class="sphx-glr-backref-module-easysnowdata-snow-mountain_snow_mask sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">snow</span><span class="o">.</span><span class="n">mountain_snow_mask</span><span class="o">.</span><span class="n">load</span></a><span class="p">(</span><a href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI.buffer" title="easysnowdata.AOI.buffer" class="sphx-glr-backref-module-easysnowdata sphx-glr-backref-type-py-method"><span class="n">box</span><span class="o">.</span><span class="n">buffer</span></a><span class="p">(</span><span class="mi">2000</span><span class="p">),</span> <span class="n">layer</span><span class="o">=</span><span class="s2">&quot;clouds&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.plotting.map.html#easysnowdata.plotting.map" title="easysnowdata.plotting.map" class="sphx-glr-backref-module-easysnowdata-plotting sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">map</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">clouds_da</span></a><span class="o">.</span><span class="n">odc</span><span class="o">.</span><span class="n">reproject</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">resampling</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">),</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;magma_r&quot;</span><span class="p">,</span>
+    <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;cloud indeterminacy, 2000-2016&quot;</span><span class="p">,</span>
+    <span class="n">cbar_label</span><span class="o">=</span><span class="s2">&quot;indeterminacy level [0-6]&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.figure.html#matplotlib.axes.Axes.figure" title="matplotlib.axes.Axes.figure" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-property"><span class="n">ax</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_mountain_snow_mask_002.png" srcset="../../_images/sphx_glr_plot_mountain_snow_mask_002.png" alt="cloud indeterminacy, 2000-2016" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  0%|                                              | 0.00/25.9M [00:00&lt;?, ?B/s]
+  0%|                                     | 2.05k/25.9M [00:00&lt;25:26, 16.9kB/s]
+  0%|                                      | 30.7k/25.9M [00:00&lt;03:17, 131kB/s]
+  0%|▏                                     | 95.2k/25.9M [00:00&lt;01:32, 278kB/s]
+  1%|▏                                      | 132k/25.9M [00:00&lt;01:35, 268kB/s]
+  1%|▎                                      | 204k/25.9M [00:00&lt;01:13, 349kB/s]
+  1%|▍                                      | 303k/25.9M [00:00&lt;00:55, 463kB/s]
+  2%|▌                                      | 391k/25.9M [00:00&lt;00:50, 507kB/s]
+  2%|▊                                      | 516k/25.9M [00:01&lt;00:41, 617kB/s]
+  3%|█                                      | 696k/25.9M [00:01&lt;00:31, 808kB/s]
+  3%|█▏                                     | 778k/25.9M [00:01&lt;00:34, 732kB/s]
+  3%|█▎                                     | 860k/25.9M [00:01&lt;00:36, 675kB/s]
+  4%|█▍                                    | 1.01M/25.9M [00:01&lt;00:32, 775kB/s]
+  4%|█▋                                    | 1.12M/25.9M [00:01&lt;00:31, 775kB/s]
+  5%|█▊                                    | 1.22M/25.9M [00:02&lt;00:33, 742kB/s]
+  6%|██                                    | 1.43M/25.9M [00:02&lt;00:25, 954kB/s]
+  6%|██▎                                   | 1.53M/25.9M [00:02&lt;00:27, 869kB/s]
+  6%|██▍                                   | 1.68M/25.9M [00:02&lt;00:26, 907kB/s]
+  7%|██▌                                   | 1.78M/25.9M [00:02&lt;00:28, 837kB/s]
+  7%|██▋                                   | 1.86M/25.9M [00:02&lt;00:31, 757kB/s]
+  8%|██▊                                   | 1.96M/25.9M [00:02&lt;00:32, 728kB/s]
+  8%|███                                   | 2.05M/25.9M [00:03&lt;00:33, 708kB/s]
+  8%|███▏                                  | 2.18M/25.9M [00:03&lt;00:31, 761kB/s]
+  9%|███▍                                  | 2.32M/25.9M [00:03&lt;00:29, 795kB/s]
+ 10%|███▌                                  | 2.46M/25.9M [00:03&lt;00:27, 857kB/s]
+ 10%|███▊                                  | 2.56M/25.9M [00:03&lt;00:29, 800kB/s]
+ 10%|███▉                                  | 2.71M/25.9M [00:03&lt;00:26, 860kB/s]
+ 11%|████▏                                 | 2.82M/25.9M [00:03&lt;00:27, 836kB/s]
+ 11%|████▎                                 | 2.94M/25.9M [00:04&lt;00:27, 820kB/s]
+ 12%|████▌                                 | 3.10M/25.9M [00:04&lt;00:25, 908kB/s]
+ 12%|████▋                                 | 3.20M/25.9M [00:04&lt;00:27, 835kB/s]
+ 13%|████▊                                 | 3.31M/25.9M [00:04&lt;00:27, 819kB/s]
+ 13%|█████                                 | 3.46M/25.9M [00:04&lt;00:25, 873kB/s]
+ 14%|█████▎                                | 3.59M/25.9M [00:04&lt;00:25, 879kB/s]
+ 14%|█████▍                                | 3.69M/25.9M [00:04&lt;00:27, 816kB/s]
+ 15%|█████▋                                | 3.84M/25.9M [00:05&lt;00:25, 871kB/s]
+ 15%|█████▊                                | 3.97M/25.9M [00:05&lt;00:24, 876kB/s]
+ 16%|█████▉                                | 4.06M/25.9M [00:05&lt;00:27, 793kB/s]
+ 16%|██████▏                               | 4.20M/25.9M [00:05&lt;00:25, 844kB/s]
+ 17%|██████▎                               | 4.28M/25.9M [00:05&lt;00:28, 765kB/s]
+ 17%|██████▍                               | 4.41M/25.9M [00:05&lt;00:26, 795kB/s]
+ 17%|██████▌                               | 4.51M/25.9M [00:05&lt;00:28, 758kB/s]
+ 18%|██████▊                               | 4.62M/25.9M [00:06&lt;00:27, 765kB/s]
+ 18%|██████▉                               | 4.70M/25.9M [00:06&lt;00:30, 703kB/s]
+ 19%|███████▏                              | 4.87M/25.9M [00:06&lt;00:25, 825kB/s]
+ 19%|███████▎                              | 4.95M/25.9M [00:06&lt;00:27, 747kB/s]
+ 20%|███████▍                              | 5.08M/25.9M [00:06&lt;00:26, 789kB/s]
+ 20%|███████▌                              | 5.16M/25.9M [00:06&lt;00:28, 720kB/s]
+ 20%|███████▋                              | 5.26M/25.9M [00:07&lt;00:29, 705kB/s]
+ 21%|███████▊                              | 5.36M/25.9M [00:07&lt;00:29, 692kB/s]
+ 21%|████████                              | 5.49M/25.9M [00:07&lt;00:27, 753kB/s]
+ 22%|████████▎                             | 5.64M/25.9M [00:07&lt;00:24, 829kB/s]
+ 22%|████████▍                             | 5.73M/25.9M [00:07&lt;00:25, 781kB/s]
+ 23%|████████▌                             | 5.86M/25.9M [00:07&lt;00:24, 813kB/s]
+ 23%|████████▊                             | 5.98M/25.9M [00:07&lt;00:24, 804kB/s]
+ 23%|████████▉                             | 6.06M/25.9M [00:08&lt;00:27, 730kB/s]
+ 24%|█████████▏                            | 6.29M/25.9M [00:08&lt;00:19, 980kB/s]
+ 25%|█████████▍                            | 6.39M/25.9M [00:08&lt;00:21, 886kB/s]
+ 25%|█████████▌                            | 6.50M/25.9M [00:08&lt;00:22, 854kB/s]
+ 26%|█████████▋                            | 6.60M/25.9M [00:08&lt;00:24, 799kB/s]
+ 26%|█████████▊                            | 6.70M/25.9M [00:08&lt;00:25, 761kB/s]
+ 26%|█████████▉                            | 6.80M/25.9M [00:08&lt;00:25, 734kB/s]
+ 27%|██████████▏                           | 6.91M/25.9M [00:09&lt;00:25, 746kB/s]
+ 27%|██████████▎                           | 7.02M/25.9M [00:09&lt;00:24, 757kB/s]
+ 28%|██████████▌                           | 7.16M/25.9M [00:09&lt;00:23, 798kB/s]
+ 28%|██████████▋                           | 7.24M/25.9M [00:09&lt;00:25, 725kB/s]
+ 29%|██████████▊                           | 7.39M/25.9M [00:09&lt;00:22, 809kB/s]
+ 29%|██████████▉                           | 7.48M/25.9M [00:09&lt;00:24, 765kB/s]
+ 29%|███████████▏                          | 7.61M/25.9M [00:09&lt;00:22, 804kB/s]
+ 30%|███████████▎                          | 7.71M/25.9M [00:10&lt;00:23, 764kB/s]
+ 30%|███████████▍                          | 7.81M/25.9M [00:10&lt;00:24, 736kB/s]
+ 31%|███████████▋                          | 7.92M/25.9M [00:10&lt;00:23, 749kB/s]
+ 31%|███████████▊                          | 8.05M/25.9M [00:10&lt;00:22, 790kB/s]
+ 32%|████████████                          | 8.24M/25.9M [00:10&lt;00:19, 922kB/s]
+ 32%|████████████▏                         | 8.33M/25.9M [00:10&lt;00:20, 846kB/s]
+ 33%|████████████▎                         | 8.42M/25.9M [00:10&lt;00:22, 767kB/s]
+ 33%|████████████▌                         | 8.51M/25.9M [00:11&lt;00:23, 732kB/s]
+ 33%|████████████▋                         | 8.63M/25.9M [00:11&lt;00:23, 742kB/s]
+ 34%|████████████▊                         | 8.73M/25.9M [00:11&lt;00:23, 721kB/s]
+ 34%|█████████████                         | 8.87M/25.9M [00:11&lt;00:21, 806kB/s]
+ 35%|█████████████▏                        | 8.95M/25.9M [00:11&lt;00:23, 732kB/s]
+ 35%|█████████████▎                        | 9.05M/25.9M [00:11&lt;00:23, 711kB/s]
+ 36%|█████████████▌                        | 9.20M/25.9M [00:12&lt;00:20, 799kB/s]
+ 36%|█████████████▊                        | 9.36M/25.9M [00:12&lt;00:18, 893kB/s]
+ 37%|█████████████▉                        | 9.48M/25.9M [00:12&lt;00:19, 860kB/s]
+ 37%|██████████████                        | 9.58M/25.9M [00:12&lt;00:20, 801kB/s]
+ 37%|██████████████▏                       | 9.69M/25.9M [00:12&lt;00:20, 795kB/s]
+ 38%|██████████████▍                       | 9.79M/25.9M [00:12&lt;00:21, 757kB/s]
+ 38%|██████████████▌                       | 9.87M/25.9M [00:12&lt;00:22, 699kB/s]
+ 39%|██████████████▋                       | 9.97M/25.9M [00:13&lt;00:23, 690kB/s]
+ 39%|██████████████▊                       | 10.1M/25.9M [00:13&lt;00:22, 716kB/s]
+ 40%|███████████████                       | 10.2M/25.9M [00:13&lt;00:20, 767kB/s]
+ 40%|███████████████▏                      | 10.3M/25.9M [00:13&lt;00:22, 706kB/s]
+ 40%|███████████████▎                      | 10.4M/25.9M [00:13&lt;00:21, 729kB/s]
+ 41%|███████████████▌                      | 10.6M/25.9M [00:13&lt;00:18, 846kB/s]
+ 41%|███████████████▋                      | 10.7M/25.9M [00:13&lt;00:19, 766kB/s]
+ 42%|███████████████▊                      | 10.8M/25.9M [00:14&lt;00:19, 763kB/s]
+ 42%|███████████████▉                      | 10.9M/25.9M [00:14&lt;00:21, 701kB/s]
+ 42%|████████████████                      | 10.9M/25.9M [00:14&lt;00:21, 692kB/s]
+ 43%|████████████████▎                     | 11.1M/25.9M [00:14&lt;00:18, 785kB/s]
+ 43%|████████████████▌                     | 11.2M/25.9M [00:14&lt;00:17, 815kB/s]
+ 44%|████████████████▋                     | 11.3M/25.9M [00:14&lt;00:18, 772kB/s]
+ 44%|████████████████▊                     | 11.4M/25.9M [00:14&lt;00:18, 775kB/s]
+ 45%|█████████████████                     | 11.6M/25.9M [00:15&lt;00:17, 811kB/s]
+ 45%|█████████████████▏                    | 11.7M/25.9M [00:15&lt;00:17, 800kB/s]
+ 46%|█████████████████▎                    | 11.8M/25.9M [00:15&lt;00:17, 795kB/s]
+ 46%|█████████████████▍                    | 11.9M/25.9M [00:15&lt;00:18, 758kB/s]
+ 47%|█████████████████▋                    | 12.0M/25.9M [00:15&lt;00:17, 799kB/s]
+ 47%|█████████████████▊                    | 12.1M/25.9M [00:15&lt;00:18, 760kB/s]
+ 47%|██████████████████                    | 12.3M/25.9M [00:15&lt;00:17, 794kB/s]
+ 48%|██████████████████▏                   | 12.4M/25.9M [00:16&lt;00:16, 824kB/s]
+ 48%|██████████████████▎                   | 12.5M/25.9M [00:16&lt;00:17, 778kB/s]
+ 49%|██████████████████▌                   | 12.6M/25.9M [00:16&lt;00:16, 780kB/s]
+ 49%|██████████████████▋                   | 12.7M/25.9M [00:16&lt;00:16, 811kB/s]
+ 50%|██████████████████▊                   | 12.8M/25.9M [00:16&lt;00:17, 735kB/s]
+ 50%|██████████████████▉                   | 12.9M/25.9M [00:16&lt;00:18, 682kB/s]
+ 50%|███████████████████                   | 13.0M/25.9M [00:17&lt;00:18, 712kB/s]
+ 51%|███████████████████▏                  | 13.1M/25.9M [00:17&lt;00:19, 665kB/s]
+ 51%|███████████████████▍                  | 13.2M/25.9M [00:17&lt;00:17, 733kB/s]
+ 52%|███████████████████▌                  | 13.3M/25.9M [00:17&lt;00:16, 743kB/s]
+ 52%|███████████████████▋                  | 13.4M/25.9M [00:17&lt;00:18, 689kB/s]
+ 52%|███████████████████▊                  | 13.5M/25.9M [00:17&lt;00:18, 681kB/s]
+ 53%|████████████████████                  | 13.7M/25.9M [00:17&lt;00:15, 778kB/s]
+ 53%|████████████████████▎                 | 13.8M/25.9M [00:18&lt;00:14, 844kB/s]
+ 54%|████████████████████▍                 | 13.9M/25.9M [00:18&lt;00:15, 792kB/s]
+ 54%|████████████████████▌                 | 14.0M/25.9M [00:18&lt;00:14, 789kB/s]
+ 55%|████████████████████▊                 | 14.1M/25.9M [00:18&lt;00:14, 787kB/s]
+ 55%|████████████████████▉                 | 14.2M/25.9M [00:18&lt;00:15, 752kB/s]
+ 55%|█████████████████████                 | 14.3M/25.9M [00:18&lt;00:15, 726kB/s]
+ 56%|█████████████████████▎                | 14.5M/25.9M [00:18&lt;00:14, 810kB/s]
+ 57%|█████████████████████▌                | 14.6M/25.9M [00:19&lt;00:12, 868kB/s]
+ 57%|█████████████████████▋                | 14.7M/25.9M [00:19&lt;00:14, 786kB/s]
+ 57%|█████████████████████▊                | 14.8M/25.9M [00:19&lt;00:14, 772kB/s]
+ 58%|█████████████████████▉                | 15.0M/25.9M [00:19&lt;00:13, 809kB/s]
+ 58%|██████████████████████                | 15.0M/25.9M [00:19&lt;00:14, 734kB/s]
+ 59%|██████████████████████▎               | 15.2M/25.9M [00:19&lt;00:13, 815kB/s]
+ 59%|██████████████████████▍               | 15.3M/25.9M [00:19&lt;00:13, 806kB/s]
+ 60%|██████████████████████▋               | 15.4M/25.9M [00:20&lt;00:13, 762kB/s]
+ 60%|██████████████████████▊               | 15.5M/25.9M [00:20&lt;00:14, 701kB/s]
+ 60%|██████████████████████▉               | 15.6M/25.9M [00:20&lt;00:14, 726kB/s]
+ 61%|███████████████████████               | 15.7M/25.9M [00:20&lt;00:14, 709kB/s]
+ 61%|███████████████████████▏              | 15.8M/25.9M [00:20&lt;00:14, 697kB/s]
+ 62%|███████████████████████▍              | 16.0M/25.9M [00:20&lt;00:12, 821kB/s]
+ 62%|███████████████████████▋              | 16.1M/25.9M [00:20&lt;00:11, 877kB/s]
+ 63%|███████████████████████▊              | 16.2M/25.9M [00:21&lt;00:11, 814kB/s]
+ 63%|███████████████████████▉              | 16.3M/25.9M [00:21&lt;00:12, 739kB/s]
+ 63%|████████████████████████              | 16.4M/25.9M [00:21&lt;00:13, 685kB/s]
+ 64%|████████████████████████▎             | 16.5M/25.9M [00:21&lt;00:11, 779kB/s]
+ 65%|████████████████████████▌             | 16.7M/25.9M [00:21&lt;00:09, 948kB/s]
+ 65%|████████████████████████▏            | 16.9M/25.9M [00:21&lt;00:08, 1.03MB/s]
+ 66%|████████████████████████▉             | 17.0M/25.9M [00:21&lt;00:09, 956kB/s]
+ 66%|█████████████████████████▏            | 17.1M/25.9M [00:22&lt;00:10, 870kB/s]
+ 67%|█████████████████████████▎            | 17.2M/25.9M [00:22&lt;00:10, 810kB/s]
+ 67%|█████████████████████████▌            | 17.4M/25.9M [00:22&lt;00:09, 936kB/s]
+ 68%|█████████████████████████▋            | 17.5M/25.9M [00:22&lt;00:09, 888kB/s]
+ 69%|█████████████████████████▎           | 17.7M/25.9M [00:22&lt;00:07, 1.09MB/s]
+ 69%|██████████████████████████▏           | 17.8M/25.9M [00:22&lt;00:08, 997kB/s]
+ 69%|██████████████████████████▍           | 18.0M/25.9M [00:23&lt;00:08, 966kB/s]
+ 70%|██████████████████████████▌           | 18.1M/25.9M [00:23&lt;00:08, 909kB/s]
+ 70%|██████████████████████████▋           | 18.2M/25.9M [00:23&lt;00:09, 823kB/s]
+ 71%|██████████████████████████▉           | 18.3M/25.9M [00:23&lt;00:08, 893kB/s]
+ 72%|███████████████████████████▏          | 18.5M/25.9M [00:23&lt;00:07, 994kB/s]
+ 72%|███████████████████████████▍          | 18.7M/25.9M [00:23&lt;00:07, 995kB/s]
+ 73%|███████████████████████████▌          | 18.8M/25.9M [00:23&lt;00:07, 898kB/s]
+ 73%|███████████████████████████▋          | 18.8M/25.9M [00:24&lt;00:08, 814kB/s]
+ 73%|███████████████████████████▊          | 18.9M/25.9M [00:24&lt;00:09, 750kB/s]
+ 74%|████████████████████████████          | 19.1M/25.9M [00:24&lt;00:07, 892kB/s]
+ 74%|████████████████████████████▏         | 19.2M/25.9M [00:24&lt;00:08, 808kB/s]
+ 75%|████████████████████████████▎         | 19.3M/25.9M [00:24&lt;00:08, 750kB/s]
+ 75%|████████████████████████████▌         | 19.5M/25.9M [00:24&lt;00:07, 860kB/s]
+ 76%|████████████████████████████▋         | 19.6M/25.9M [00:24&lt;00:07, 801kB/s]
+ 76%|█████████████████████████████         | 19.7M/25.9M [00:25&lt;00:06, 927kB/s]
+ 77%|█████████████████████████████▏        | 19.8M/25.9M [00:25&lt;00:07, 850kB/s]
+ 77%|█████████████████████████████▎        | 19.9M/25.9M [00:25&lt;00:07, 796kB/s]
+ 77%|█████████████████████████████▍        | 20.0M/25.9M [00:25&lt;00:08, 725kB/s]
+ 78%|█████████████████████████████▌        | 20.1M/25.9M [00:25&lt;00:08, 705kB/s]
+ 78%|█████████████████████████████▊        | 20.3M/25.9M [00:25&lt;00:07, 793kB/s]
+ 79%|█████████████████████████████▉        | 20.4M/25.9M [00:25&lt;00:07, 756kB/s]
+ 79%|██████████████████████████████▏       | 20.5M/25.9M [00:26&lt;00:06, 828kB/s]
+ 80%|██████████████████████████████▎       | 20.6M/25.9M [00:26&lt;00:06, 780kB/s]
+ 80%|██████████████████████████████▍       | 20.7M/25.9M [00:26&lt;00:07, 713kB/s]
+ 80%|██████████████████████████████▌       | 20.8M/25.9M [00:26&lt;00:07, 667kB/s]
+ 81%|██████████████████████████████▋       | 20.9M/25.9M [00:26&lt;00:07, 702kB/s]
+ 81%|██████████████████████████████▊       | 21.0M/25.9M [00:26&lt;00:07, 692kB/s]
+ 81%|██████████████████████████████▉       | 21.1M/25.9M [00:26&lt;00:07, 652kB/s]
+ 82%|███████████████████████████████       | 21.2M/25.9M [00:27&lt;00:06, 689kB/s]
+ 83%|███████████████████████████████▍      | 21.3M/25.9M [00:27&lt;00:05, 851kB/s]
+ 83%|███████████████████████████████▌      | 21.4M/25.9M [00:27&lt;00:05, 797kB/s]
+ 84%|███████████████████████████████▋      | 21.6M/25.9M [00:27&lt;00:04, 859kB/s]
+ 84%|███████████████████████████████▊      | 21.7M/25.9M [00:27&lt;00:05, 778kB/s]
+ 84%|████████████████████████████████      | 21.8M/25.9M [00:27&lt;00:05, 800kB/s]
+ 85%|████████████████████████████████▏     | 21.9M/25.9M [00:28&lt;00:05, 761kB/s]
+ 85%|████████████████████████████████▍     | 22.1M/25.9M [00:28&lt;00:04, 868kB/s]
+ 86%|████████████████████████████████▋     | 22.2M/25.9M [00:28&lt;00:03, 940kB/s]
+ 86%|████████████████████████████████▊     | 22.3M/25.9M [00:28&lt;00:03, 892kB/s]
+ 87%|████████████████████████████████▉     | 22.4M/25.9M [00:28&lt;00:04, 825kB/s]
+ 87%|█████████████████████████████████▏    | 22.6M/25.9M [00:28&lt;00:04, 812kB/s]
+ 88%|█████████████████████████████████▎    | 22.7M/25.9M [00:28&lt;00:04, 769kB/s]
+ 88%|█████████████████████████████████▌    | 22.8M/25.9M [00:29&lt;00:03, 838kB/s]
+ 89%|█████████████████████████████████▋    | 22.9M/25.9M [00:29&lt;00:03, 787kB/s]
+ 89%|█████████████████████████████████▉    | 23.1M/25.9M [00:29&lt;00:03, 852kB/s]
+ 90%|██████████████████████████████████    | 23.1M/25.9M [00:29&lt;00:03, 798kB/s]
+ 90%|██████████████████████████████████▏   | 23.2M/25.9M [00:29&lt;00:03, 760kB/s]
+ 90%|██████████████████████████████████▎   | 23.3M/25.9M [00:29&lt;00:03, 731kB/s]
+ 91%|██████████████████████████████████▍   | 23.4M/25.9M [00:29&lt;00:03, 679kB/s]
+ 91%|██████████████████████████████████▋   | 23.6M/25.9M [00:30&lt;00:02, 778kB/s]
+ 92%|██████████████████████████████████▊   | 23.7M/25.9M [00:30&lt;00:02, 779kB/s]
+ 92%|██████████████████████████████████▉   | 23.8M/25.9M [00:30&lt;00:02, 746kB/s]
+ 92%|███████████████████████████████████   | 23.9M/25.9M [00:30&lt;00:02, 689kB/s]
+ 93%|███████████████████████████████████▏  | 24.0M/25.9M [00:30&lt;00:02, 683kB/s]
+ 93%|███████████████████████████████████▍  | 24.1M/25.9M [00:30&lt;00:02, 814kB/s]
+ 94%|███████████████████████████████████▌  | 24.2M/25.9M [00:30&lt;00:02, 771kB/s]
+ 94%|███████████████████████████████████▊  | 24.3M/25.9M [00:31&lt;00:01, 772kB/s]
+ 95%|███████████████████████████████████▉  | 24.5M/25.9M [00:31&lt;00:01, 806kB/s]
+ 95%|████████████████████████████████████▏ | 24.6M/25.9M [00:31&lt;00:01, 832kB/s]
+ 96%|████████████████████████████████████▍ | 24.8M/25.9M [00:31&lt;00:01, 951kB/s]
+ 96%|████████████████████████████████████▌ | 24.9M/25.9M [00:31&lt;00:01, 899kB/s]
+ 97%|████████████████████████████████████▊ | 25.0M/25.9M [00:31&lt;00:00, 897kB/s]
+ 97%|████████████████████████████████████▉ | 25.1M/25.9M [00:31&lt;00:00, 830kB/s]
+ 98%|█████████████████████████████████████ | 25.2M/25.9M [00:32&lt;00:00, 782kB/s]
+ 98%|█████████████████████████████████████▏| 25.3M/25.9M [00:32&lt;00:00, 749kB/s]
+ 99%|█████████████████████████████████████▌| 25.5M/25.9M [00:32&lt;00:00, 924kB/s]
+ 99%|█████████████████████████████████████▋| 25.7M/25.9M [00:32&lt;00:00, 915kB/s]
+100%|█████████████████████████████████████▊| 25.7M/25.9M [00:32&lt;00:00, 829kB/s]
+100%|█████████████████████████████████████▉| 25.8M/25.9M [00:32&lt;00:00, 761kB/s]
+  0%|                                              | 0.00/25.9M [00:00&lt;?, ?B/s]
+100%|██████████████████████████████████████| 25.9M/25.9M [00:00&lt;00:00, 154GB/s]
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 47.025 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-snow-plot-mountain-snow-mask-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/a7042bd5763564a5ada63e1a0c650988/plot_mountain_snow_mask.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_mountain_snow_mask.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/b060980f6ccd9d1c2083fc3da5dc3dbf/plot_mountain_snow_mask.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_mountain_snow_mask.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/33e5717a19dbb2d910da1912fdc6f187/plot_mountain_snow_mask.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_mountain_snow_mask.zip</span></code></a></p>
+</div>
+</div>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plot_modis_snow.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">MODIS snow cover (MOD10A1, MOD10A1F, MOD10A2)</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="plot_snodas.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">SNODAS snow water equivalent and depth (NOHRSC)</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/egagli/easysnowdata/edit/main/docs/auto_examples/snow/plot_mountain_snow_mask.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

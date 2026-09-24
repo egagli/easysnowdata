@@ -1,0 +1,956 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Contributing &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="_static/documentation_options.js?v=16fc681a"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'contributing';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Releasing" href="releasing.html" />
+    <link rel="prev" title="easysnowdata.providers.vector_http.zip_path" href="generated/easysnowdata.providers.vector_http.zip_path.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.3.dev19" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="#">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Contributing</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Link to this heading">#</a></h1>
+<p>Bug reports, new data products and documentation fixes are all welcome. The
+issue tracker is at <a class="github reference external" href="https://github.com/egagli/easysnowdata/issues">egagli/easysnowdata#issues</a>.</p>
+<section id="setting-up">
+<h2>Setting up<a class="headerlink" href="#setting-up" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/egagli/easysnowdata.git
+<span class="nb">cd</span><span class="w"> </span>easysnowdata
+pixi<span class="w"> </span>install<span class="w">                         </span><span class="c1"># resolves from pixi.lock; conda-forge</span>
+pixi<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>test-py313<span class="w"> </span>test-unit<span class="w">     </span><span class="c1"># should be green before you change anything</span>
+</pre></div>
+</div>
+<p><strong>Test in <code class="docutils literal notranslate"><span class="pre">test-py313</span></code>, not <code class="docutils literal notranslate"><span class="pre">dev</span></code>.</strong> <code class="docutils literal notranslate"><span class="pre">pixi.lock</span></code> pins every environment, but the
+per-interpreter environments have no <code class="docutils literal notranslate"><span class="pre">solve-group</span></code>, so they resolve
+independently of <code class="docutils literal notranslate"><span class="pre">dev</span></code> and land on a different stack — at one point <code class="docutils literal notranslate"><span class="pre">dev</span></code> had
+rasterio 1.5.0 / GDAL 3.12.3 while <code class="docutils literal notranslate"><span class="pre">test-py313</span></code> had 1.5.1 / 3.13.3. That is
+deliberate (testing three interpreters against their own best resolutions is
+the point of the matrix) but it means <strong><code class="docutils literal notranslate"><span class="pre">dev</span></code> is for interactive work — a
+notebook, a REPL, a docs build — and <code class="docutils literal notranslate"><span class="pre">test-py3XX</span></code> is what CI runs</strong>. CI now has
+a <code class="docutils literal notranslate"><span class="pre">dev</span></code> leg too, so the gap cannot silently reopen (#20).</p>
+<p>Never hand-edit the lock; <code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">install</span></code> regenerates it when <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>
+changes, and CI runs with <code class="docutils literal notranslate"><span class="pre">locked:</span> <span class="pre">true</span></code> so a stale lock fails the build rather
+than silently resolving something else. One caveat worth knowing: <code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">lock</span></code>
+exits 0 even when it drops a dependency it cannot satisfy, so check that a new
+dependency is actually in <code class="docutils literal notranslate"><span class="pre">pixi.lock</span></code> rather than trusting the exit code.</p>
+</section>
+<section id="the-tasks">
+<h2>The tasks<a class="headerlink" href="#the-tasks" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>task</p></th>
+<th class="head"><p>what it does</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">-e</span> <span class="pre">test-py313</span> <span class="pre">test-unit</span></code></p></td>
+<td><p>the whole offline tier, sockets blocked</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">-e</span> <span class="pre">test-py313</span> <span class="pre">test-recorded</span></code></p></td>
+<td><p>just the cassette-replayed tests</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">-e</span> <span class="pre">test-py313</span> <span class="pre">test-cov</span></code></p></td>
+<td><p>offline tier with coverage (fails under 95%)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">-e</span> <span class="pre">test-py313</span> <span class="pre">test-live</span></code></p></td>
+<td><p>live tier: one smoke test per source</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">-e</span> <span class="pre">test-py313</span> <span class="pre">record-cassettes</span></code></p></td>
+<td><p>re-record the cassettes (needs network)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">-e</span> <span class="pre">lint</span> <span class="pre">lint</span></code> / <code class="docutils literal notranslate"><span class="pre">format</span></code></p></td>
+<td><p>ruff check / ruff format</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">-e</span> <span class="pre">docs</span> <span class="pre">docs-fast</span></code></p></td>
+<td><p>build the site without running the gallery (~17 s)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">-e</span> <span class="pre">docs</span> <span class="pre">docs-build-free</span></code></p></td>
+<td><p>build and run the credential-free gallery (~4 min)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">-e</span> <span class="pre">docs</span> <span class="pre">docs-build</span></code></p></td>
+<td><p>build and run the whole gallery (needs every credential)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">-e</span> <span class="pre">docs</span> <span class="pre">docs-serve</span></code></p></td>
+<td><p>serve <code class="docutils literal notranslate"><span class="pre">docs/_build/html</span></code> on port 8000</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">-e</span> <span class="pre">dev</span> <span class="pre">check-sources</span></code></p></td>
+<td><p>run the health probes and update the history</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">-e</span> <span class="pre">dev</span> <span class="pre">report-health</span></code></p></td>
+<td><p>print the issues the last health run would open</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">-e</span> <span class="pre">dev</span> <span class="pre">watch</span></code></p></td>
+<td><p>run the upstream watch and print the digest, writing nothing</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="credentials-on-your-machine">
+<h2>Credentials on your machine<a class="headerlink" href="#credentials-on-your-machine" title="Link to this heading">#</a></h2>
+<p>CI holds every provider secret, and the scheduled docs build and the weekly
+health check use them; GitHub never hands a secret back, so the same values
+have to reach your shell separately. Two ways that need no code:</p>
+<ul class="simple">
+<li><p><strong>A <code class="docutils literal notranslate"><span class="pre">.env</span></code> file at the repo root</strong> (already in <code class="docutils literal notranslate"><span class="pre">.gitignore</span></code>), one
+<code class="docutils literal notranslate"><span class="pre">NAME=value</span></code> per line, loaded for a shell with <code class="docutils literal notranslate"><span class="pre">set</span> <span class="pre">-a;</span> <span class="pre">.</span> <span class="pre">./.env;</span> <span class="pre">set</span> <span class="pre">+a</span></code>
+before <code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">…</span></code>. Good for <code class="docutils literal notranslate"><span class="pre">NVE_API_KEY</span></code>, <code class="docutils literal notranslate"><span class="pre">PL_API_KEY</span></code>,
+<code class="docutils literal notranslate"><span class="pre">EARTHDATA_USERNAME</span></code> / <code class="docutils literal notranslate"><span class="pre">EARTHDATA_PASSWORD</span></code> and <code class="docutils literal notranslate"><span class="pre">EARTHENGINE_TOKEN</span></code>.</p></li>
+<li><p><strong>The provider’s own store</strong>: <code class="docutils literal notranslate"><span class="pre">planet</span> <span class="pre">auth</span> <span class="pre">login</span></code> saves a Planet session
+under <code class="docutils literal notranslate"><span class="pre">~/.planet/</span></code>, <code class="docutils literal notranslate"><span class="pre">earthaccess.login(persist=True)</span></code> writes <code class="docutils literal notranslate"><span class="pre">~/.netrc</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">earthengine</span> <span class="pre">authenticate</span></code> writes <code class="docutils literal notranslate"><span class="pre">~/.config/earthengine/credentials</span></code>. The
+auth providers read all of these without any variable set.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">esd.auth.status()</span></code> shows what was found and how. The <code class="docutils literal notranslate"><span class="pre">requires_*</span></code> test
+markers and the gallery’s <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">esd-requires:</span></code> lines skip cleanly when a
+credential is absent, so a partial set is fine for local work.</p>
+</section>
+<section id="the-four-test-tiers">
+<h2>The four test tiers<a class="headerlink" href="#the-four-test-tiers" title="Link to this heading">#</a></h2>
+<p>Each tier answers a different question, and they are deliberately separate so
+that a provider outage cannot turn a pull request red.</p>
+<p><strong>unit</strong> — pure functions, no I/O. Sockets are blocked with <code class="docutils literal notranslate"><span class="pre">pytest-socket</span></code>
+(<code class="docutils literal notranslate"><span class="pre">--allow-unix-socket</span></code>, because zarr 3’s asyncio loop needs a socketpair), so a
+test that quietly reaches the network fails instead of passing by accident.</p>
+<p><strong>recorded</strong> — searches and reads replayed from <code class="docutils literal notranslate"><span class="pre">tests/cassettes/</span></code> with
+<code class="docutils literal notranslate"><span class="pre">pytest-recording</span></code>, plus the tiny generated rasters in <code class="docutils literal notranslate"><span class="pre">tests/fixtures/</span></code>. Also
+offline, also socket-blocked, <code class="docutils literal notranslate"><span class="pre">--record-mode=none</span></code> so a missing cassette is a
+failure rather than a live request. Re-record with <code class="docutils literal notranslate"><span class="pre">record-cassettes</span></code> when a
+search changes, and check the diff: cassettes are scrubbed of cookies and
+tokens but you are still committing someone’s API response.</p>
+<p><strong>live</strong> — one smoke test per source against the real provider, marked <code class="docutils literal notranslate"><span class="pre">live</span></code>
+and deselected everywhere else. Runs weekly in CI and on demand. Tests marked
+<code class="docutils literal notranslate"><span class="pre">requires_earthdata</span></code> / <code class="docutils literal notranslate"><span class="pre">requires_earthengine</span></code> / <code class="docutils literal notranslate"><span class="pre">requires_planet</span></code> /
+<code class="docutils literal notranslate"><span class="pre">requires_nve</span></code> <strong>skip</strong> when the credential is absent, so a contributor without
+an Earth Engine account still gets a meaningful run.</p>
+<p><strong>docs</strong> — the gallery is a test tier in disguise: every credential-free
+example is executed on every pull request, and every push to <code class="docutils literal notranslate"><span class="pre">main</span></code> (and the
+weekly scheduled build) executes the whole gallery against live data with the
+secrets, so the published pages show every example’s real output.</p>
+<p>Run the offline tiers before every commit and the live tier before claiming a
+data route works.</p>
+</section>
+<section id="adding-a-data-product">
+<h2>Adding a data product<a class="headerlink" href="#adding-a-data-product" title="Link to this heading">#</a></h2>
+<p>The catalog entry is the contract: it generates the docs page, the health row
+and the credential table, so the artefacts cannot drift apart. In order:</p>
+<div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+1. Write the loader</div>
+<p class="sd-card-text">Put it in <code class="docutils literal notranslate"><span class="pre">easysnowdata/&lt;theme&gt;/&lt;product&gt;.py</span></code> with module-level <code class="docutils literal notranslate"><span class="pre">search</span></code> and
+<code class="docutils literal notranslate"><span class="pre">load</span></code> functions. Take <code class="docutils literal notranslate"><span class="pre">aoi</span></code> first and <code class="docutils literal notranslate"><span class="pre">time</span></code> second; accept <code class="docutils literal notranslate"><span class="pre">source=</span></code>; return
+lazy xarray. Build the return value with <code class="docutils literal notranslate"><span class="pre">processing.contract.finalize()</span></code> so
+the dims, CRS, nodata policy and provenance attributes come out right without
+you re-deciding them. A vector product returns a GeoDataFrame through
+<code class="docutils literal notranslate"><span class="pre">processing.contract.finalize_frame()</span></code> instead (EPSG:4326, 2-D, provenance in
+<code class="docutils literal notranslate"><span class="pre">.attrs</span></code>); fetch its archive once with <code class="docutils literal notranslate"><span class="pre">providers.raster_http.fetch</span></code> and read
+it with <code class="docutils literal notranslate"><span class="pre">providers.vector_http.read</span></code>, which pushes the AOI down. Read <a class="reference internal" href="concepts.html"><span class="std std-doc">Concepts</span></a> once before you start.</p>
+</div>
+</div>
+<div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+2. Add the catalog entry</div>
+<p class="sd-card-text">A <code class="docutils literal notranslate"><span class="pre">Product</span></code> with one <code class="docutils literal notranslate"><span class="pre">Source</span></code> per access route — the first is the default.
+Every source needs a <code class="docutils literal notranslate"><span class="pre">location</span></code>, an <code class="docutils literal notranslate"><span class="pre">extent</span></code>, a <code class="docutils literal notranslate"><span class="pre">notes</span></code> line saying what
+differs from the other routes, and a <code class="docutils literal notranslate"><span class="pre">health=Probe(...)</span></code>. Register it at the
+bottom of the module with <code class="docutils literal notranslate"><span class="pre">catalog.register(PRODUCT,</span> <span class="pre">replace=True)</span></code>, and
+import the module from the theme’s <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> so registration happens.</p>
+<p class="sd-card-text">Give every variable its units, dtype and nodata. Categorical variables need
+<code class="docutils literal notranslate"><span class="pre">flag_values</span></code>, <code class="docutils literal notranslate"><span class="pre">flag_meanings</span></code> and <code class="docutils literal notranslate"><span class="pre">flag_colors</span></code> of equal length — the offline
+test checks that, and the plotting helpers read them.</p>
+</div>
+</div>
+<div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+3. Two tests</div>
+<p class="sd-card-text">One offline: a recorded search or a tiny fixture raster, asserting the shape
+of the contract (dims, CRS, dtype, attrs) rather than the values. One live:
+marked <code class="docutils literal notranslate"><span class="pre">&#64;pytest.mark.live</span></code>, plus <code class="docutils literal notranslate"><span class="pre">requires_*</span></code> if it needs credentials, doing
+the smallest real request that proves the route works.</p>
+</div>
+</div>
+<div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+4. A health probe</div>
+<p class="sd-card-text">The minimal request that shows the route is alive: a first-byte GET for a
+static file, a one-item STAC search, a <code class="docutils literal notranslate"><span class="pre">getInfo()</span></code> for Earth Engine, an
+<code class="docutils literal notranslate"><span class="pre">earthaccess</span></code> search for NSIDC. Reuse the helpers in
+<code class="docutils literal notranslate"><span class="pre">easysnowdata.catalog.health</span></code>. <strong>GET first, not HEAD</strong> — some servers (GRDC)
+answer HEAD with a 400 that looks exactly like a 404. For a file behind
+Earthdata Login that is not in CMR (NSIDC’s <code class="docutils literal notranslate"><span class="pre">daacdata</span></code> tree), use
+<code class="docutils literal notranslate"><span class="pre">earthdata_https_first_byte</span></code>: an anonymous GET there lands on the login page
+with a 200, which a plain first-byte probe would count as a pass.</p>
+<p class="sd-card-text">Give the probe a stable <code class="docutils literal notranslate"><span class="pre">label</span></code>. It is the key the weekly history is stored
+under, so renaming one starts its history over.</p>
+</div>
+</div>
+<div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+5. A gallery example</div>
+<p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">docs/gallery/&lt;theme&gt;/plot_&lt;product&gt;.py</span></code>: load it for one AOI, draw one or two
+figures, say one thing that is true about the product and not obvious. Use the
+sphinx-gallery format — a docstring title with an <code class="docutils literal notranslate"><span class="pre">===</span></code> underline of exactly
+the right length, then <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">%%</span></code> cells. List it in the catalog entry’s
+<code class="docutils literal notranslate"><span class="pre">examples=</span></code> tuple.</p>
+<p class="sd-card-text">House style: the title names the product and its provider (<code class="docutils literal notranslate"><span class="pre">SNODAS</span> <span class="pre">snow</span> <span class="pre">water</span> <span class="pre">equivalent</span> <span class="pre">and</span> <span class="pre">depth</span> <span class="pre">(NOHRSC)</span></code>), never a place. A cell near the top prints the
+product’s routes (<code class="docutils literal notranslate"><span class="pre">esd.catalog.get(pid).sources</span></code>). Maps go through
+<code class="docutils literal notranslate"><span class="pre">esd.plotting.map</span></code> / <code class="docutils literal notranslate"><span class="pre">categorical</span></code> / <code class="docutils literal notranslate"><span class="pre">points</span></code>, vectors over them through
+<code class="docutils literal notranslate"><span class="pre">esd.plotting.add_outline</span></code>, time series through
+<code class="docutils literal notranslate"><span class="pre">esd.plotting.timeseries</span></code>, so every figure has equal aspect, a scale bar, a
+graticule, units in <code class="docutils literal notranslate"><span class="pre">[</span> <span class="pre">]</span></code> and calendar dates without repeating the matplotlib.
+Band arithmetic and thresholds are written out, not wrapped. Where a product has
+two routes, show them side by side.</p>
+<p class="sd-card-text">If it needs credentials, put <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">esd-requires:</span> <span class="pre">earthdata</span></code> (comma-separated, one
+or more providers) on the <strong>first line, above the docstring</strong>. That keeps it
+out of the credential-free pull-request build; the marker itself never appears
+on the rendered page.</p>
+</div>
+</div>
+<div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+6. An upstream watch entry</div>
+<p class="sd-card-text">Add the product to <code class="docutils literal notranslate"><span class="pre">WATCHLIST.toml</span></code>, where <code class="docutils literal notranslate"><span class="pre">scripts/watch.py</span></code> looks every week
+for the change a health probe cannot see: a CMR revision, a republished file
+(<code class="docutils literal notranslate"><span class="pre">[[file]]</span></code>: ETag, length, status), a changelog or release feed, a
+provider news page. A health probe says the route still answers; the watch
+says what it answers with has changed. For a file that will be superseded
+(yearly releases), watch next year’s URL too: its 404 turning into a 206 is
+the signal to move on. Seed the snapshot once with
+<code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">-e</span> <span class="pre">dev</span> <span class="pre">python</span> <span class="pre">scripts/watch.py</span> <span class="pre">--watchlist</span> <span class="pre">&lt;just-the-new-entries.toml&gt;</span></code>
+so the first weekly digest compares rather than records.</p>
+</div>
+</div>
+<div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+7. Check the loop closed</div>
+<p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">-e</span> <span class="pre">test-py313</span> <span class="pre">test-unit</span></code> — <code class="docutils literal notranslate"><span class="pre">tests/test_docs_pages.py</span></code> fails if the product
+has no example, if the example file is missing, or if a gallery script no
+product claims has appeared. <code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">-e</span> <span class="pre">docs</span> <span class="pre">docs-fast</span></code> then shows you the
+generated page.</p>
+</div>
+</div>
+</section>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">#</a></h2>
+<p>Nothing under <code class="docutils literal notranslate"><span class="pre">docs/catalog/</span></code>, <code class="docutils literal notranslate"><span class="pre">docs/api/</span></code>, <code class="docutils literal notranslate"><span class="pre">docs/auto_examples/</span></code>,
+<code class="docutils literal notranslate"><span class="pre">docs/generated/</span></code>, <code class="docutils literal notranslate"><span class="pre">docs/gen_modules/</span></code>, <code class="docutils literal notranslate"><span class="pre">docs/credentials.md</span></code> or
+<code class="docutils literal notranslate"><span class="pre">docs/status.md</span></code> is written by hand — they are generated at build time from
+the registry and the gallery, and they are all in <code class="docutils literal notranslate"><span class="pre">.gitignore</span></code>. Editing a
+catalog page means editing the catalog entry.</p>
+<p>What <em>is</em> hand-written: <code class="docutils literal notranslate"><span class="pre">index.md</span></code>, <code class="docutils literal notranslate"><span class="pre">installation.md</span></code>, <code class="docutils literal notranslate"><span class="pre">concepts.md</span></code>,
+<code class="docutils literal notranslate"><span class="pre">faq.md</span></code>, this page, and the gallery scripts.</p>
+<p>The README’s header image is generated too: <code class="docutils literal notranslate"><span class="pre">scripts/make_montage.py</span></code> tiles
+the thumbnails of the executed gallery into <code class="docutils literal notranslate"><span class="pre">_static/gallery.webp</span></code>, which the
+docs build on <code class="docutils literal notranslate"><span class="pre">main</span></code> publishes and the README links to. It skips examples that
+did not run, so a build without credentials does not turn seven products into
+blank squares. Its status table and catalog summary come from
+<code class="docutils literal notranslate"><span class="pre">scripts/update_readme_status.py</span></code>, between the sentinel comments — edit the
+catalog entry, not the README.</p>
+</section>
+<section id="style">
+<h2>Style<a class="headerlink" href="#style" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ruff</span> <span class="pre">format</span></code> and <code class="docutils literal notranslate"><span class="pre">ruff</span> <span class="pre">check</span></code> must pass: <code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">-e</span> <span class="pre">lint</span> <span class="pre">lint</span></code>. Line
+length 88, double quotes, isort with <code class="docutils literal notranslate"><span class="pre">easysnowdata</span></code> as first-party.</p></li>
+<li><p>NumPy-style docstrings. The API pages are generated from <code class="docutils literal notranslate"><span class="pre">__all__</span></code>, so a
+function without a docstring shows up as a blank page.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">logging</span></code>, never <code class="docutils literal notranslate"><span class="pre">print</span></code> — the one sanctioned print is the import-time
+credential summary.</p></li>
+<li><p>No import-time side effects, and no global <code class="docutils literal notranslate"><span class="pre">xr.set_options</span></code> or GDAL
+configuration.</p></li>
+<li><p>Metric units everywhere.</p></li>
+</ul>
+<p>The network clients under <code class="docutils literal notranslate"><span class="pre">easysnowdata/stations/clients/</span></code> arrived here as a
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">subtree</span></code> of
+<a class="reference external" href="https://github.com/egagli/global_snow_networks"><code class="docutils literal notranslate"><span class="pre">global_snow_networks</span></code></a>. That
+repo deleted its copy in 2026-09 and imports these instead, so <strong>this is now
+the only copy: fix a client here.</strong> They are linted and formatted like the
+rest of the package. Their contract is still global_snow_networks’
+<code class="docutils literal notranslate"><span class="pre">DESIGN.md</span></code> §3, and their tests are in <code class="docutils literal notranslate"><span class="pre">tests/stations/</span></code>.</p>
+</section>
+<section id="pull-requests">
+<h2>Pull requests<a class="headerlink" href="#pull-requests" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Branch off <code class="docutils literal notranslate"><span class="pre">main</span></code>, one topic per pull request.</p></li>
+<li><p>The PR build runs ruff, the offline tiers on three interpreters and three
+operating systems, coverage, and a docs build with the credential-free
+gallery. None of it needs secrets.</p></li>
+<li><p>Include tests. Coverage of the new modules must stay above 95%.</p></li>
+<li><p>If you changed a public function’s behaviour, say so in the PR body; the
+changelog is generated from commit messages with <code class="docutils literal notranslate"><span class="pre">git-changelog</span></code>.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="generated/easysnowdata.providers.vector_http.zip_path.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">easysnowdata.providers.vector_http.zip_path</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="releasing.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Releasing</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up">Setting up</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-tasks">The tasks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#credentials-on-your-machine">Credentials on your machine</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-four-test-tiers">The four test tiers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-a-data-product">Adding a data product</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#style">Style</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pull-requests">Pull requests</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/egagli/easysnowdata/edit/main/docs/contributing.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,836 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>FAQ &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="_static/documentation_options.js?v=16fc681a"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'faq';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Example gallery" href="auto_examples/index.html" />
+    <link rel="prev" title="Migrating from 0.0.x" href="migration.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.3.dev19" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">FAQ</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="faq">
+<h1>FAQ<a class="headerlink" href="#faq" title="Link to this heading">#</a></h1>
+<section id="which-product-should-i-use-for-x">
+<h2>Which product should I use for X?<a class="headerlink" href="#which-product-should-i-use-for-x" title="Link to this heading">#</a></h2>
+<p>Search the catalog rather than guessing:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">esd</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;swe&quot;</span><span class="p">)</span>  <span class="c1"># free-text over ids, titles, variables, sources</span>
+<span class="n">esd</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">theme</span><span class="o">=</span><span class="s2">&quot;snow&quot;</span><span class="p">)</span>  <span class="c1"># everything in one theme</span>
+<span class="n">esd</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">credential_free</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># everything that needs no account</span>
+<span class="n">esd</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">describe</span><span class="p">(</span><span class="s2">&quot;ucla-snow-reanalysis&quot;</span><span class="p">)</span>  <span class="c1"># one product, in full</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="catalog/index.html"><span class="std std-doc">catalog</span></a> is the same information as a website, and the
+<a class="reference internal" href="auto_examples/index.html"><span class="std std-doc">gallery</span></a> shows each product being loaded and drawn.</p>
+</section>
+<section id="do-i-need-an-account">
+<h2>Do I need an account?<a class="headerlink" href="#do-i-need-an-account" title="Link to this heading">#</a></h2>
+<p>For 33 of 40 products, no: each has at least one route that needs no
+account. The other seven need NASA Earthdata, Earth Engine, Planet or an NVE
+key. Where a product’s default route needs an account there is usually an open
+alternative — <code class="docutils literal notranslate"><span class="pre">source=&quot;planetary-computer&quot;</span></code> for HLS and MODIS,
+<code class="docutils literal notranslate"><span class="pre">source=&quot;hosted-cog&quot;</span></code> for the snow classification, <code class="docutils literal notranslate"><span class="pre">source=&quot;dem&quot;</span></code> for the local
+incidence angle, and <code class="docutils literal notranslate"><span class="pre">source=&quot;oggm-mirror&quot;</span></code> for RGI 6.0 glacier outlines. <a class="reference internal" href="credentials.html"><span class="std std-doc">Credentials</span></a>
+lists which products need what, and <code class="docutils literal notranslate"><span class="pre">esd.auth.status()</span></code> says what you already
+have configured.</p>
+<p><code class="docutils literal notranslate"><span class="pre">CredentialError</span></code> is raised before any network request and its message
+contains the setup steps, so you never discover a missing account halfway
+through a download.</p>
+</section>
+<section id="which-state-county-mountain-range-or-glacier-is-this">
+<h2>Which state, county, mountain range or glacier is this?<a class="headerlink" href="#which-state-county-mountain-range-or-glacier-is-this" title="Link to this heading">#</a></h2>
+<p>Ask <code class="docutils literal notranslate"><span class="pre">esd.boundaries</span></code> with the same AOI; every answer is a GeoDataFrame of the
+whole features that touch it:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">esd</span><span class="o">.</span><span class="n">boundaries</span><span class="o">.</span><span class="n">admin</span><span class="o">.</span><span class="n">states</span><span class="p">(</span><span class="n">aoi</span><span class="p">)</span>  <span class="c1"># US AOI → US Census; elsewhere Natural Earth</span>
+<span class="n">esd</span><span class="o">.</span><span class="n">boundaries</span><span class="o">.</span><span class="n">admin</span><span class="o">.</span><span class="n">counties</span><span class="p">(</span><span class="n">aoi</span><span class="p">)</span>  <span class="c1"># US counties</span>
+<span class="n">esd</span><span class="o">.</span><span class="n">boundaries</span><span class="o">.</span><span class="n">admin</span><span class="o">.</span><span class="n">admin</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># any country, any level (geoBoundaries)</span>
+<span class="n">esd</span><span class="o">.</span><span class="n">boundaries</span><span class="o">.</span><span class="n">mountains</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>  <span class="c1"># every GMBA range above the AOI</span>
+<span class="n">esd</span><span class="o">.</span><span class="n">boundaries</span><span class="o">.</span><span class="n">glaciers</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">aoi</span><span class="p">)</span>  <span class="c1"># RGI 7.0 outlines (Earthdata Login)</span>
+</pre></div>
+</div>
+<p>Draw any of them over a map with <code class="docutils literal notranslate"><span class="pre">esd.plotting.add_outline(ax,</span> <span class="pre">gdf)</span></code>, which
+reprojects to the map’s CRS and keeps its extent. For glaciers, check
+<code class="docutils literal notranslate"><span class="pre">src_date</span></code> before treating the outlines as year-2000 extents: around Mount
+Rainier RGI 7.0 reuses RGI 6.0’s outlines from 1959-1970 mapping (the
+<a class="reference internal" href="auto_examples/boundaries/plot_glaciers.html"><span class="std std-doc">glacier example</span></a> shows it).</p>
+</section>
+<section id="why-is-load-instant-where-is-my-data">
+<h2>Why is <code class="docutils literal notranslate"><span class="pre">load</span></code> instant? Where is my data?<a class="headerlink" href="#why-is-load-instant-where-is-my-data" title="Link to this heading">#</a></h2>
+<p>It is lazy — see <a class="reference internal" href="concepts.html#concepts-lazy"><span class="std std-ref">Concepts</span></a>. <code class="docutils literal notranslate"><span class="pre">load</span></code> performs the
+metadata read (a STAC search, a Zarr <code class="docutils literal notranslate"><span class="pre">.zmetadata</span></code>, a granule query) and builds
+a Dask graph. The bytes move when you <code class="docutils literal notranslate"><span class="pre">.compute()</span></code>, <code class="docutils literal notranslate"><span class="pre">.plot()</span></code>, or write.</p>
+<p>To force it: <code class="docutils literal notranslate"><span class="pre">.compute()</span></code> for the whole thing, <code class="docutils literal notranslate"><span class="pre">.isel(time=0).compute()</span></code> for
+one slice, or pass <code class="docutils literal notranslate"><span class="pre">chunks=None</span></code> to load eagerly at call time.</p>
+</section>
+<section id="the-loader-is-using-too-much-memory">
+<h2>The loader is using too much memory<a class="headerlink" href="#the-loader-is-using-too-much-memory" title="Link to this heading">#</a></h2>
+<p>Almost always one of three things:</p>
+<p><strong>A wide store opened with <code class="docutils literal notranslate"><span class="pre">chunks=</span></code>.</strong> Select before you chunk. See the
+warning in <a class="reference internal" href="concepts.html#concepts-lazy"><span class="std std-ref">Concepts</span></a>.</p>
+<p><strong>Chunks that do not match the access pattern.</strong> A time-series reduction over
+a small AOI wants long time chunks; a single-date map wants spatial ones.
+<code class="docutils literal notranslate"><span class="pre">chunks={&quot;time&quot;:</span> <span class="pre">24}</span></code> and friends are passed straight through.</p>
+<p><strong>Asking for a continental AOI at native resolution.</strong> Pass <code class="docutils literal notranslate"><span class="pre">resolution=</span></code> to
+load a coarser overview — most COG-backed products read an overview level
+rather than decimating full-resolution pixels.</p>
+</section>
+<section id="why-does-esd-plotting-map-warn-that-my-data-are-in-a-geographic-crs">
+<h2>Why does <code class="docutils literal notranslate"><span class="pre">esd.plotting.map</span></code> warn that my data are in a geographic CRS?<a class="headerlink" href="#why-does-esd-plotting-map-warn-that-my-data-are-in-a-geographic-crs" title="Link to this heading">#</a></h2>
+<p>Because a degree of longitude is shorter than a degree of latitude away from
+the equator, so plotting EPSG:4326 data with <code class="docutils literal notranslate"><span class="pre">aspect=&quot;equal&quot;</span></code> stretches every
+shape by <code class="docutils literal notranslate"><span class="pre">1/cos(latitude)</span></code> — 46 % at Mount Rainier. The helper applies that
+correction to the axes and warns, so the figure is right and you know that
+distances still vary across it. To silence it, load the product on a projected
+grid (<code class="docutils literal notranslate"><span class="pre">crs=&quot;utm&quot;</span></code> on the loaders that reproject) or pass
+<code class="docutils literal notranslate"><span class="pre">warn_geographic=False</span></code> to <code class="docutils literal notranslate"><span class="pre">finish_map</span></code>.</p>
+</section>
+<section id="which-crs-and-dimension-names-do-i-get">
+<h2>Which CRS and dimension names do I get?<a class="headerlink" href="#which-crs-and-dimension-names-do-i-get" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">x</span></code> for projected grids; <code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">latitude</span></code>, <code class="docutils literal notranslate"><span class="pre">longitude</span></code> for
+geographic ones. The CRS is written with both the <code class="docutils literal notranslate"><span class="pre">.rio</span></code> and <code class="docutils literal notranslate"><span class="pre">.odc</span></code> accessors.
+To force a grid, build an <code class="docutils literal notranslate"><span class="pre">odc.geo.GeoBox</span></code> and pass it as the <code class="docutils literal notranslate"><span class="pre">aoi</span></code> — the
+loader will use it exactly.</p>
+</section>
+<section id="why-is-my-land-cover-map-full-of-nan-why-is-my-dem-s-nodata-still-32767">
+<h2>Why is my land-cover map full of NaN? / Why is my DEM’s nodata still -32767?<a class="headerlink" href="#why-is-my-land-cover-map-full-of-nan-why-is-my-dem-s-nodata-still-32767" title="Link to this heading">#</a></h2>
+<p>They are the two halves of one rule: <strong>categorical products keep their
+sentinel</strong> (so classes stay integers) and <strong>continuous products are
+NaN-masked</strong> (so statistics are right). <code class="docutils literal notranslate"><span class="pre">mask=False</span></code> turns masking off,
+<code class="docutils literal notranslate"><span class="pre">mask=True</span></code> forces it. The original fill value stays in
+<code class="docutils literal notranslate"><span class="pre">encoded_nodata</span></code>.</p>
+</section>
+<section id="can-i-use-dask-distributed-coiled-a-cluster">
+<h2>Can I use Dask distributed / Coiled / a cluster?<a class="headerlink" href="#can-i-use-dask-distributed-coiled-a-cluster" title="Link to this heading">#</a></h2>
+<p>Yes; nothing in the package holds a client. Two things to know:</p>
+<ul class="simple">
+<li><p>Earth Engine reads need <code class="docutils literal notranslate"><span class="pre">ee.Initialize</span></code> on each worker. <code class="docutils literal notranslate"><span class="pre">xee</span></code> provides
+<code class="docutils literal notranslate"><span class="pre">ee_init_if_necessary</span></code>, and the Earth Engine provider’s <code class="docutils literal notranslate"><span class="pre">env()</span></code> carries the
+init arguments.</p></li>
+<li><p>GDAL configuration travels through a context manager rather than global
+state, so a worker reading a signed URL needs the loader to be the one
+issuing the read (it is).</p></li>
+</ul>
+</section>
+<section id="a-source-is-down-what-do-i-do">
+<h2>A source is down. What do I do?<a class="headerlink" href="#a-source-is-down-what-do-i-do" title="Link to this heading">#</a></h2>
+<p>Check the <a class="reference internal" href="status.html"><span class="std std-doc">status page</span></a>: it lists every route’s most recent probe,
+how long it has been failing and when it last worked. A route that is failing
+also has an open issue labelled <code class="docutils literal notranslate"><span class="pre">data-source</span></code> against it, with the error, and
+the issue closes itself when the route recovers. Then switch routes — <code class="docutils literal notranslate"><span class="pre">source=</span></code> — if the product
+has another one. Provider outages are the reason multiple routes are a
+first-class feature rather than a nicety.</p>
+</section>
+<section id="why-does-snodas-swe-read-32-767-m-over-a-glacier">
+<h2>Why does SNODAS SWE read 32.767 m over a glacier?<a class="headerlink" href="#why-does-snodas-swe-read-32-767-m-over-a-glacier" title="Link to this heading">#</a></h2>
+<p>Because SNODAS never melts perennial ice out, its int16 millimetre field
+saturates at 32767 mm. On 2024-03-15 that is eight pixels over the Rainier ice
+cap and Mount Baker. It is a NOHRSC model artefact, not a reader bug, so the
+values are passed through untouched. Mask them before taking a basin maximum:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">seasonal_da</span> <span class="o">=</span> <span class="n">snodas_ds</span><span class="p">[</span><span class="s2">&quot;SWE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">snodas_ds</span><span class="p">[</span><span class="s2">&quot;SWE&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="is-the-sentinel-2-baseline-offset-applied-twice">
+<h2>Is the Sentinel-2 baseline offset applied twice?<a class="headerlink" href="#is-the-sentinel-2-baseline-offset-applied-twice" title="Link to this heading">#</a></h2>
+<p>No, and the reason is worth knowing if you read Sentinel-2 yourself. Earth
+Search’s <code class="docutils literal notranslate"><span class="pre">sentinel-2-l2a</span></code> has <strong>already</strong> subtracted the +1000 baseline offset
+from the pixels while still advertising <code class="docutils literal notranslate"><span class="pre">offset:</span> <span class="pre">-0.1</span></code> in <code class="docutils literal notranslate"><span class="pre">raster:bands</span></code>;
+applying it again costs you 1000 DN. The item property
+<code class="docutils literal notranslate"><span class="pre">earthsearch:boa_offset_applied</span></code> is the discriminator, and the loader honours
+it. Planetary Computer and Earth Search’s <code class="docutils literal notranslate"><span class="pre">sentinel-2-c1-l2a</span></code> still ship the
+offset in the pixels.</p>
+</section>
+<section id="my-0-0-x-code-calls-easysnowdata-remote-sensing-get-where-did-it-go">
+<h2>My 0.0.x code calls <code class="docutils literal notranslate"><span class="pre">easysnowdata.remote_sensing.get_*</span></code> — where did it go?<a class="headerlink" href="#my-0-0-x-code-calls-easysnowdata-remote-sensing-get-where-did-it-go" title="Link to this heading">#</a></h2>
+<p>Version 0.2 kept those names as deprecation shims for one release, and 0.3
+removed them. <a class="reference internal" href="migration.html"><span class="std std-doc">Migrating from 0.0.x</span></a> lists every old name next to
+its replacement; the changes that are more than a rename are explained there
+too. Pin <code class="docutils literal notranslate"><span class="pre">easysnowdata&lt;0.3</span></code> if you need the old names to keep running while
+you move.</p>
+</section>
+<section id="how-do-i-cite-this">
+<h2>How do I cite this?<a class="headerlink" href="#how-do-i-cite-this" title="Link to this heading">#</a></h2>
+<p>Cite the software through its Zenodo DOI <strong>and</strong> the data you used — every
+product carries its own citation in <code class="docutils literal notranslate"><span class="pre">ds.attrs[&quot;data_citation&quot;]</span></code> and on its
+catalog page. The data citation is the one the data provider asks for and is
+usually the one a reviewer wants.</p>
+</section>
+<section id="something-is-missing-from-the-catalog">
+<h2>Something is missing from the catalog<a class="headerlink" href="#something-is-missing-from-the-catalog" title="Link to this heading">#</a></h2>
+<p>Open an issue. If you want to add it yourself, <a class="reference internal" href="contributing.html"><span class="std std-doc">Contributing</span></a>
+has the checklist — a product is a catalog entry, a loader, two tests, a health
+probe and a gallery script, and the docs page writes itself.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="migration.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Migrating from 0.0.x</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="auto_examples/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Example gallery</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#which-product-should-i-use-for-x">Which product should I use for X?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#do-i-need-an-account">Do I need an account?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#which-state-county-mountain-range-or-glacier-is-this">Which state, county, mountain range or glacier is this?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-is-load-instant-where-is-my-data">Why is <code class="docutils literal notranslate"><span class="pre">load</span></code> instant? Where is my data?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-loader-is-using-too-much-memory">The loader is using too much memory</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-does-esd-plotting-map-warn-that-my-data-are-in-a-geographic-crs">Why does <code class="docutils literal notranslate"><span class="pre">esd.plotting.map</span></code> warn that my data are in a geographic CRS?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#which-crs-and-dimension-names-do-i-get">Which CRS and dimension names do I get?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-is-my-land-cover-map-full-of-nan-why-is-my-dem-s-nodata-still-32767">Why is my land-cover map full of NaN? / Why is my DEM’s nodata still -32767?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#can-i-use-dask-distributed-coiled-a-cluster">Can I use Dask distributed / Coiled / a cluster?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-source-is-down-what-do-i-do">A source is down. What do I do?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-does-snodas-swe-read-32-767-m-over-a-glacier">Why does SNODAS SWE read 32.767 m over a glacier?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#is-the-sentinel-2-baseline-offset-applied-twice">Is the Sentinel-2 baseline offset applied twice?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#my-0-0-x-code-calls-easysnowdata-remote-sensing-get-where-did-it-go">My 0.0.x code calls <code class="docutils literal notranslate"><span class="pre">easysnowdata.remote_sensing.get_*</span></code> — where did it go?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-do-i-cite-this">How do I cite this?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#something-is-missing-from-the-catalog">Something is missing from the catalog</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/egagli/easysnowdata/edit/main/docs/faq.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

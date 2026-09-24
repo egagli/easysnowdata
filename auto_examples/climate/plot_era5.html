@@ -1,0 +1,937 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ERA5 reanalysis (ARCO-ERA5 and Earth Engine) &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../_static/documentation_options.js?v=16fc681a"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/climate/plot_era5';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Köppen-Geiger climate classification (Beck et al.)" href="plot_koppen_geiger.html" />
+    <link rel="prev" title="Climate and reanalysis" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.3.dev19" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../stations/index.html">Stations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_all_networks.html">All five station networks in one call</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_awdb_stations.html">SNOTEL and snow courses (USDA NRCS AWDB)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_cdec_stations.html">California snow pillows and courses (CDEC)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_databc_stations.html">British Columbia snow stations (DataBC)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_nve_stations.html">Norwegian snow stations (NVE HydAPI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_station_archive.html">Daily snow-station archive (global_snow_networks)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_yukon_stations.html">Yukon snow stations (AquaCache)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../snow/index.html">Snow</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../snow/plot_modis_snow.html">MODIS snow cover (MOD10A1, MOD10A1F, MOD10A2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../snow/plot_mountain_snow_mask.html">Mountain snow mask (Wrzesien et al.)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../snow/plot_snodas.html">SNODAS snow water equivalent and depth (NOHRSC)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../snow/plot_snow_classification.html">Seasonal snow classification (Sturm and Liston)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../snow/plot_ucla_sr.html">UCLA snow reanalysis (Margulis et al.)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../snow/plot_viirs_snow.html">VIIRS snow cover (VNP10A1F)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../sar/index.html">SAR</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sar/plot_sentinel1.html">Sentinel-1 RTC backscatter and local incidence angle</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../optical/index.html">Optical imagery</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../optical/plot_hls.html">HLS surface reflectance (Landsat and Sentinel-2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../optical/plot_planetscope.html">PlanetScope surface reflectance and UDM2 (Planet)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../optical/plot_sentinel2.html">Sentinel-2 L2A surface reflectance</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../terrain/index.html">Terrain</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../terrain/plot_chili.html">CHILI heat-load index (CSP ERGo)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../terrain/plot_dem.html">Digital elevation models: Copernicus, NASADEM, SRTM, 3DEP, ALOS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../terrain/plot_hillshade.html">Hillshade: Natural Earth shaded relief as a basemap</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../land/index.html">Land cover</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../land/plot_forest_cover.html">Forest cover fraction (CGLS-LC100)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../land/plot_nlcd.html">NLCD land cover, annual (USGS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../land/plot_worldcover.html">ESA WorldCover land cover</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../hydro/index.html">Hydrography</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../hydro/plot_basins.html">Basins: HUC, HydroBASINS and GRDC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../boundaries/index.html">Boundaries</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../boundaries/plot_admin.html">Countries, states, counties and admin units</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../boundaries/plot_glaciers.html">Glacier outlines: Randolph Glacier Inventory 7.0 and 6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../boundaries/plot_mountains.html">Mountain ranges: GMBA Mountain Inventory v2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../boundaries/plot_natural_earth.html">Natural Earth map layers: lakes, rivers, glaciers, places</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Climate and reanalysis</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">ERA5 reanalysis (ARCO-ERA5 and Earth Engine)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_koppen_geiger.html">Köppen-Geiger climate classification (Beck et al.)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tools/index.html">Tools</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tools/plot_aoi_time_catalog.html">Areas of interest, time ranges and the catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools/plot_water_year.html">Water years and day of water year</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Example gallery</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Climate and reanalysis</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">ERA5 reanalysis (ARCO-ERA5 and Earth Engine)</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-climate-plot-era5-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="era5-reanalysis-arco-era5-and-earth-engine">
+<span id="sphx-glr-auto-examples-climate-plot-era5-py"></span><h1>ERA5 reanalysis (ARCO-ERA5 and Earth Engine)<a class="headerlink" href="#era5-reanalysis-arco-era5-and-earth-engine" title="Link to this heading">#</a></h1>
+<p>ERA5 is ECMWF’s global reanalysis: hourly fields on a 0.25° grid from 1940 to
+about a week ago, with the last three months served as the preliminary ERA5T.
+ERA5-Land re-runs the land surface at 0.1° with the same forcing. Both are the
+usual source of temperature and precipitation for a basin without a station.</p>
+<p>Two routes. The default, <code class="docutils literal notranslate"><span class="pre">arco-era5-gcs</span></code>, is Google’s analysis-ready Zarr
+copy of hourly ERA5 on Cloud Storage: anonymous, no account, lazy. Everything
+else, ERA5-Land and the daily and monthly aggregates, lives on Earth Engine
+(<code class="docutils literal notranslate"><span class="pre">source=&quot;gee&quot;</span></code>) and needs Earth Engine credentials.</p>
+<p>The figures put one week of 2 m temperature from both routes on one calendar
+axis, then map the ERA5-Land grid at its coldest hour to show what a
+reanalysis cell is: this 40 km box selects a single 0.25° ERA5 cell, and its
+temperature is that of the cell’s average elevation, not of a summit.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shapely</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">easysnowdata</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">esd</span>
+
+<a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">121.94</span><span class="p">,</span> <span class="mf">46.72</span><span class="p">,</span> <span class="o">-</span><span class="mf">121.54</span><span class="p">,</span> <span class="mf">46.99</span><span class="p">)</span>  <span class="c1"># Mount Rainier</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">week</span></a> <span class="o">=</span> <span class="s2">&quot;2023-03-01/2023-03-07&quot;</span>
+
+<a href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI" title="easysnowdata.AOI" class="sphx-glr-backref-module-easysnowdata sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">box</span></a> <span class="o">=</span> <span class="n">esd</span><span class="o">.</span><span class="n">parse_aoi</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI" title="easysnowdata.AOI" class="sphx-glr-backref-module-easysnowdata sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">box</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>AOI(bounds=(-121.9400, 46.7200, -121.5400, 46.9900), clip=True)
+</pre></div>
+</div>
+<p>Where the product comes from, and what each route asks for.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <a href="../../generated/easysnowdata.catalog.get.html#easysnowdata.catalog.get" title="easysnowdata.catalog.get" class="sphx-glr-backref-module-easysnowdata-catalog sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">get</span></a><span class="p">(</span><span class="s2">&quot;era5&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sources</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">src</span><span class="o">.</span><span class="n">id</span></a><span class="si">:</span><span class="s2">22</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">src</span><span class="o">.</span><span class="n">title</span></a><span class="si">:</span><span class="s2">45</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">src</span><span class="o">.</span><span class="n">requires</span></a><span class="p">)</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">&#39;no account&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>arco-era5-gcs          ARCO-ERA5 (GCS)                               no account
+gee                    Earth Engine                                  earthengine
+</pre></div>
+</div>
+<p>The credential-free route: one week of hourly 2 m temperature and snow depth
+from ARCO-ERA5. The result is Dask-backed with <code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">latitude</span></code>,
+<code class="docutils literal notranslate"><span class="pre">longitude</span></code> dims, and the subset holds the native cells whose centres fall
+in the box: at 0.25° that is a single cell here.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">era5_ds</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.climate.era5.load.html#easysnowdata.climate.era5.load" title="easysnowdata.climate.era5.load" class="sphx-glr-backref-module-easysnowdata-climate-era5 sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">climate</span><span class="o">.</span><span class="n">era5</span><span class="o">.</span><span class="n">load</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="p">,</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">week</span></a><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;2m_temperature&quot;</span><span class="p">,</span> <span class="s2">&quot;snow_depth&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">era5_ds</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.Dataset&gt; Size: 3kB
+Dimensions:         (time: 168, latitude: 1, longitude: 1)
+Coordinates:
+  * time            (time) datetime64[ns] 1kB 2023-03-01 ... 2023-03-07T23:00:00
+  * latitude        (latitude) float32 4B 46.75
+  * longitude       (longitude) float32 4B -121.8
+    spatial_ref     int64 8B 0
+Data variables:
+    2m_temperature  (time, latitude, longitude) float32 672B dask.array&lt;chunksize=(24, 1, 1), meta=np.ndarray&gt;
+    snow_depth      (time, latitude, longitude) float32 672B dask.array&lt;chunksize=(24, 1, 1), meta=np.ndarray&gt;
+Attributes: (12/16)
+    valid_time_start:       1940-01-01
+    valid_time_stop:        2026-06-30
+    valid_time_stop_era5t:  2026-09-17
+    last_updated:           2026-09-23 04:03:12.749500+00:00
+    source:                 arco-era5-gcs
+    source_id:              arco-era5-gcs
+    ...                     ...
+    data_citation:          Hersbach, H., et al. (2020). The ERA5 global rean...
+    license:                Copernicus licence
+    easysnowdata_version:   0.3.3.dev19+gde94f7b3f
+    doi:                    10.1002/qj.3803
+    version:                ERA5
+    cadence:                hourly
+</pre></div>
+</div>
+<p>The same week from ERA5-Land on Earth Engine. ERA5-Land names the variable
+<code class="docutils literal notranslate"><span class="pre">temperature_2m</span></code> and resolves the box into 4 x 5 cells at 0.1°.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">land_ds</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.climate.era5.load.html#easysnowdata.climate.era5.load" title="easysnowdata.climate.era5.load" class="sphx-glr-backref-module-easysnowdata-climate-era5 sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">climate</span><span class="o">.</span><span class="n">era5</span><span class="o">.</span><span class="n">load</span></a><span class="p">(</span>
+    <a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="p">,</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">week</span></a><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;temperature_2m&quot;</span><span class="p">],</span> <span class="n">source</span><span class="o">=</span><span class="s2">&quot;gee&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;ERA5_LAND&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">land_ds</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.Dataset&gt; Size: 15kB
+Dimensions:         (time: 168, latitude: 4, longitude: 5)
+Coordinates:
+  * time            (time) datetime64[ms] 1kB 2023-03-01 ... 2023-03-07T23:00:00
+  * latitude        (latitude) float64 32B 47.0 46.9 46.8 46.7
+  * longitude       (longitude) float64 40B -121.9 -121.8 -121.7 -121.6 -121.5
+    spatial_ref     int64 8B 0
+Data variables:
+    temperature_2m  (time, latitude, longitude) float32 13kB dask.array&lt;chunksize=(48, 4, 5), meta=np.ndarray&gt;
+Attributes: (12/13)
+    collection:            ECMWF/ERA5_LAND/HOURLY
+    source:                gee
+    source_id:             gee
+    source_title:          Earth Engine
+    source_url:            https://developers.google.com/earth-engine/dataset...
+    product_id:            era5
+    ...                    ...
+    data_citation:         Hersbach, H., et al. (2020). The ERA5 global reana...
+    license:               Copernicus licence
+    easysnowdata_version:  0.3.3.dev19+gde94f7b3f
+    doi:                   10.1002/qj.3803
+    version:               ERA5_LAND
+    cadence:               hourly
+</pre></div>
+</div>
+<p>Domain means in degrees Celsius, on one axis. <code class="docutils literal notranslate"><span class="pre">timeseries</span></code> labels the y
+axis from the array’s <code class="docutils literal notranslate"><span class="pre">long_name</span></code> and <code class="docutils literal notranslate"><span class="pre">units</span></code> attrs, so set them after
+the conversion.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">domain_mean_celsius</span><span class="p">(</span><span class="n">temperature_da</span><span class="p">):</span>
+    <span class="n">mean_da</span> <span class="o">=</span> <span class="p">(</span><span class="n">temperature_da</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">])</span> <span class="o">-</span> <span class="mf">273.15</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+    <span class="n">mean_da</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;2 m temperature&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;°C&quot;</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">mean_da</span>
+
+
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">t2m_da</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.concat.html#xarray.concat" title="xarray.concat" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-function"><span class="n">xr</span><span class="o">.</span><span class="n">concat</span></a><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">domain_mean_celsius</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">era5_ds</span></a><span class="p">[</span><span class="s2">&quot;2m_temperature&quot;</span><span class="p">]),</span>
+        <span class="n">domain_mean_celsius</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">land_ds</span></a><span class="p">[</span><span class="s2">&quot;temperature_2m&quot;</span><span class="p">]),</span>
+    <span class="p">],</span>
+    <span class="n">dim</span><span class="o">=</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="pandas.Index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">Index</span></a><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;ERA5, ARCO-ERA5 on GCS (0.25°)&quot;</span><span class="p">,</span> <span class="s2">&quot;ERA5-Land, Earth Engine (0.1°)&quot;</span><span class="p">],</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;source&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.plotting.timeseries.html#easysnowdata.plotting.timeseries" title="easysnowdata.plotting.timeseries" class="sphx-glr-backref-module-easysnowdata-plotting sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">timeseries</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">t2m_da</span></a><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Mount Rainier AOI, domain-mean 2 m temperature&quot;</span>
+<span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.axhline.html#matplotlib.axes.Axes.axhline" title="matplotlib.axes.Axes.axhline" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">axhline</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;0.5&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.figure.html#matplotlib.axes.Axes.figure" title="matplotlib.axes.Axes.figure" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-property"><span class="n">ax</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_era5_001.png" srcset="../../_images/sphx_glr_plot_era5_001.png" alt="Mount Rainier AOI, domain-mean 2 m temperature" class = "sphx-glr-single-img"/><p>ERA5-Land runs a degree or two colder here because its 0.1° cells sit higher
+on average than the one 0.25° ERA5 cell the box selects; neither is a summit
+temperature. The map of the coldest hour shows the twenty ERA5-Land cells,
+the single ERA5 cell outlined, and the summit marked. The cells are
+geographic; the map is drawn on the AOI’s UTM grid at 1 km with nearest
+resampling, which keeps every cell a sharp block, and the outline and the
+summit are reprojected the same way.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://pandas.pydata.org/docs/reference/api/pandas.Timestamp.html#pandas.Timestamp" title="pandas.Timestamp" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">coldest</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.Timestamp.html#pandas.Timestamp" title="pandas.Timestamp" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">t2m_da</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">source</span><span class="o">=</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">t2m_da</span></a><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">idxmin</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">coldest_da</span></a> <span class="o">=</span> <span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">land_ds</span></a><span class="p">[</span><span class="s2">&quot;temperature_2m&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.Timestamp.html#pandas.Timestamp" title="pandas.Timestamp" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">coldest</span></a><span class="p">)</span> <span class="o">-</span> <span class="mf">273.15</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.attrs.html#xarray.DataArray.attrs" title="xarray.DataArray.attrs" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">coldest_da</span><span class="o">.</span><span class="n">attrs</span></a> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ERA5-Land 2 m temperature&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;°C&quot;</span><span class="p">}</span>
+<span class="n">grid</span> <span class="o">=</span> <a href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI.to_geobox" title="easysnowdata.AOI.to_geobox" class="sphx-glr-backref-module-easysnowdata sphx-glr-backref-type-py-method"><span class="n">box</span><span class="o">.</span><span class="n">to_geobox</span></a><span class="p">(</span><span class="n">crs</span><span class="o">=</span><span class="s2">&quot;utm&quot;</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.plotting.map.html#easysnowdata.plotting.map" title="easysnowdata.plotting.map" class="sphx-glr-backref-module-easysnowdata-plotting sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">map</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">coldest_da</span></a><span class="o">.</span><span class="n">odc</span><span class="o">.</span><span class="n">reproject</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">resampling</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">),</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;coolwarm&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;ERA5-Land 2 m temperature, </span><span class="si">{</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.Timestamp.html#pandas.Timestamp" title="pandas.Timestamp" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">coldest</span></a><span class="si">:</span><span class="s2">%Y-%m-%d %H:%M</span><span class="si">}</span><span class="s2"> UTC&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://docs.python.org/3/builtins/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lon</span></a><span class="p">,</span> <a href="https://docs.python.org/3/builtins/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lat</span></a> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">era5_ds</span></a><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()),</span> <span class="nb">float</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">era5_ds</span></a><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+<a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoSeries.html#geopandas.GeoSeries" title="geopandas.GeoSeries" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cell</span></a> <span class="o">=</span> <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoSeries.html#geopandas.GeoSeries" title="geopandas.GeoSeries" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class"><span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span></a><span class="p">(</span>
+    <span class="p">[</span><a href="https://shapely.readthedocs.io/en/stable/reference/shapely.box.html#shapely.box" title="shapely.box" class="sphx-glr-backref-module-shapely sphx-glr-backref-type-py-function"><span class="n">shapely</span><span class="o">.</span><span class="n">box</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lon</span></a> <span class="o">-</span> <span class="mf">0.125</span><span class="p">,</span> <a href="https://docs.python.org/3/builtins/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lat</span></a> <span class="o">-</span> <span class="mf">0.125</span><span class="p">,</span> <a href="https://docs.python.org/3/builtins/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lon</span></a> <span class="o">+</span> <span class="mf">0.125</span><span class="p">,</span> <a href="https://docs.python.org/3/builtins/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lat</span></a> <span class="o">+</span> <span class="mf">0.125</span><span class="p">)],</span> <span class="n">crs</span><span class="o">=</span><span class="s2">&quot;EPSG:4326&quot;</span>
+<span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+<a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoSeries.boundary.html#geopandas.GeoSeries.boundary" title="geopandas.GeoSeries.boundary" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-property"><span class="n">cell</span><span class="o">.</span><span class="n">boundary</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;the ERA5 cell the box selects (0.25°)&quot;</span>
+<span class="p">)</span>
+<a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoSeries.html#geopandas.GeoSeries" title="geopandas.GeoSeries" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">summit</span></a> <span class="o">=</span> <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoSeries.html#geopandas.GeoSeries" title="geopandas.GeoSeries" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class"><span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span></a><span class="p">([</span><a href="https://shapely.readthedocs.io/en/stable/reference/shapely.Point.html#shapely.Point" title="shapely.Point" class="sphx-glr-backref-module-shapely sphx-glr-backref-type-py-class"><span class="n">shapely</span><span class="o">.</span><span class="n">Point</span></a><span class="p">(</span><span class="o">-</span><span class="mf">121.7603</span><span class="p">,</span> <span class="mf">46.8523</span><span class="p">)],</span> <span class="n">crs</span><span class="o">=</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span>
+    <span class="n">grid</span><span class="o">.</span><span class="n">crs</span>
+<span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html#matplotlib.axes.Axes.plot" title="matplotlib.axes.Axes.plot" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span>
+    <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoSeries.x.html#geopandas.GeoSeries.x" title="geopandas.GeoSeries.x" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-property"><span class="n">summit</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">iloc</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoSeries.y.html#geopandas.GeoSeries.y" title="geopandas.GeoSeries.y" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-property"><span class="n">summit</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">iloc</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;^&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="n">markersize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;summit, 4392 m&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html#matplotlib.axes.Axes.legend" title="matplotlib.axes.Axes.legend" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">legend</span></a><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper right&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.figure.html#matplotlib.axes.Axes.figure" title="matplotlib.axes.Axes.figure" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-property"><span class="n">ax</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_era5_002.png" srcset="../../_images/sphx_glr_plot_era5_002.png" alt="ERA5-Land 2 m temperature, 2023-03-01 14:00 UTC" class = "sphx-glr-single-img"/><p>Provenance travels with the data: which route served it, the citation and
+licence, and where final ERA5 ends and preliminary ERA5T begins in the ARCO
+store. A request that reaches past <code class="docutils literal notranslate"><span class="pre">valid_time_stop</span></code> gets <code class="docutils literal notranslate"><span class="pre">era5t_from</span></code>.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">key</span></a> <span class="ow">in</span> <span class="p">(</span>
+    <span class="s2">&quot;source&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;product_id&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;license&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;valid_time_stop&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;valid_time_stop_era5t&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">key</span></a><span class="si">}</span><span class="s2">: </span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.attrs.html#xarray.Dataset.attrs" title="xarray.Dataset.attrs" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">era5_ds</span><span class="o">.</span><span class="n">attrs</span></a><span class="p">[</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">key</span></a><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>source: arco-era5-gcs
+product_id: era5
+license: Copernicus licence
+valid_time_stop: 2026-06-30
+valid_time_stop_era5t: 2026-09-17
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 7.070 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-climate-plot-era5-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/3e0ea576088100836f614a1f5d319cd4/plot_era5.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_era5.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/55256d6f366a46f918726df291c3b500/plot_era5.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_era5.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/36b9d6e674daadceb68e5136f2782770/plot_era5.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_era5.zip</span></code></a></p>
+</div>
+</div>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Climate and reanalysis</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="plot_koppen_geiger.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Köppen-Geiger climate classification (Beck et al.)</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/egagli/easysnowdata/edit/main/docs/auto_examples/climate/plot_era5.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

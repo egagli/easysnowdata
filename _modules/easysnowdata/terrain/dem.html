@@ -1,0 +1,1538 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>easysnowdata.terrain.dem &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=16fc681a"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/easysnowdata/terrain/dem';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.3.dev19" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">easysnowdata.terrain.dem</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for easysnowdata.terrain.dem</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Digital elevation models: Copernicus DEM, NASADEM, SRTM, 3DEP and ALOS World 3D.</span>
+
+<span class="sd">Five DEMs, one ``load``. Copernicus GLO-30 is the default because it is the</span>
+<span class="sd">most recent global model with the fewest voids, but it is a choice, not the</span>
+<span class="sd">only option, and the others differ in ways that matter for snow work: 3DEP is</span>
+<span class="sd">10 m over the United States, NASADEM and SRTM are the year-2000 radar</span>
+<span class="sd">surface that most older studies used, and ALOS World 3D is the optical</span>
+<span class="sd">stereo model CHILI is derived from. ``PRODUCTS`` lists them and</span>
+<span class="sd">:func:`compare` says how they differ::</span>
+
+<span class="sd">    import easysnowdata as esd</span>
+
+<span class="sd">    aoi = (-121.94, 46.72, -121.54, 46.99)</span>
+<span class="sd">    dem_da = esd.terrain.dem.load(aoi)                                 # Copernicus GLO-30</span>
+<span class="sd">    dem_da = esd.terrain.dem.load(aoi, product=&quot;nasadem&quot;)              # SRTM heritage, no account</span>
+<span class="sd">    dem_da = esd.terrain.dem.load(aoi, product=&quot;3dep&quot;, resolution=10)  # US 10 m</span>
+<span class="sd">    dem_da = esd.terrain.dem.load(aoi, product=&quot;srtm&quot;)                 # SRTM GL1 v3 on Earth Engine</span>
+<span class="sd">    dem_da = esd.terrain.dem.load(aoi, source=&quot;earth-search&quot;)          # the same GLO-30, unsigned AWS</span>
+<span class="sd">    items_gdf = esd.terrain.dem.search(aoi, product=&quot;3dep&quot;)            # the covering tiles</span>
+
+<span class="sd">Every product returns ``elevation`` in metres with the same dims, CRS</span>
+<span class="sd">handling and provenance attributes; the vertical datum is in</span>
+<span class="sd">``attrs[&quot;vertical_datum&quot;]`` (EGM2008 for Copernicus, EGM96 for the SRTM</span>
+<span class="sd">family and ALOS, NAVD88 for 3DEP), which is the first thing to reconcile</span>
+<span class="sd">before differencing two of them.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata</span><span class="w"> </span><span class="kn">import</span> <span class="n">catalog</span><span class="p">,</span> <span class="n">providers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.catalog</span><span class="w"> </span><span class="kn">import</span> <span class="n">health</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.catalog._access</span><span class="w"> </span><span class="kn">import</span> <span class="n">ensure_source</span><span class="p">,</span> <span class="n">resolve_source</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.catalog._models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Probe</span><span class="p">,</span> <span class="n">Product</span><span class="p">,</span> <span class="n">Source</span><span class="p">,</span> <span class="n">Variable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">contract</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;PRODUCT_ID&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PRODUCTS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ALIASES&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;COLLECTIONS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NODATA&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;search&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;load&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;compare&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1">#: The default product.</span>
+<span class="n">PRODUCT_ID</span> <span class="o">=</span> <span class="s2">&quot;copernicus-dem&quot;</span>
+<span class="c1">#: Copernicus DEM resolution in metres → STAC collection id (same on both catalogs).</span>
+<span class="n">COLLECTIONS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">30</span><span class="p">:</span> <span class="s2">&quot;cop-dem-glo-30&quot;</span><span class="p">,</span> <span class="mi">90</span><span class="p">:</span> <span class="s2">&quot;cop-dem-glo-90&quot;</span><span class="p">}</span>
+<span class="c1">#: The sentinel the Copernicus DEM COGs use for sea and missing tiles.</span>
+<span class="n">NODATA</span> <span class="o">=</span> <span class="o">-</span><span class="mf">32767.0</span>
+
+<span class="c1">#: Short names accepted by ``product=``.</span>
+<span class="n">ALIASES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;copernicus&quot;</span><span class="p">:</span> <span class="s2">&quot;copernicus-dem&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cop-dem&quot;</span><span class="p">:</span> <span class="s2">&quot;copernicus-dem&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;glo30&quot;</span><span class="p">:</span> <span class="s2">&quot;copernicus-dem&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;glo-30&quot;</span><span class="p">:</span> <span class="s2">&quot;copernicus-dem&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nasadem&quot;</span><span class="p">:</span> <span class="s2">&quot;nasadem&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;srtm&quot;</span><span class="p">:</span> <span class="s2">&quot;srtm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;srtmgl1&quot;</span><span class="p">:</span> <span class="s2">&quot;srtm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;3dep&quot;</span><span class="p">:</span> <span class="s2">&quot;3dep&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;alos&quot;</span><span class="p">:</span> <span class="s2">&quot;alos-dem&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;aw3d30&quot;</span><span class="p">:</span> <span class="s2">&quot;alos-dem&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;alos-dem&quot;</span><span class="p">:</span> <span class="s2">&quot;alos-dem&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_PC_STAC</span> <span class="o">=</span> <span class="n">providers</span><span class="o">.</span><span class="n">stac</span><span class="o">.</span><span class="n">PLANETARY_COMPUTER_URL</span>
+<span class="n">_EARTH_SEARCH_STAC</span> <span class="o">=</span> <span class="n">providers</span><span class="o">.</span><span class="n">stac</span><span class="o">.</span><span class="n">EARTH_SEARCH_URL</span>
+<span class="n">_GEE_CATALOG</span> <span class="o">=</span> <span class="s2">&quot;https://developers.google.com/earth-engine/datasets/catalog/&quot;</span>
+
+
+<span class="c1"># ── routes ────────────────────────────────────────────────────────────────────</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_StacRoute</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A DEM served as COG tiles behind a STAC API.&quot;&quot;&quot;</span>
+
+    <span class="n">collections</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;resolution in metres → collection id.&quot;&quot;&quot;</span>
+    <span class="n">asset</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">nodata</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">query</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extra STAC ``query`` for a resolution (3DEP keeps 10 m and 30 m in one collection).&quot;&quot;&quot;</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_GeeRoute</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A DEM served as an Earth Engine image or tiled image collection.&quot;&quot;&quot;</span>
+
+    <span class="n">asset</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">band</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">resolution</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">mosaic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;True when *asset* is an ImageCollection of tiles to mosaic first.&quot;&quot;&quot;</span>
+
+
+<span class="n">_ROUTES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">_StacRoute</span> <span class="o">|</span> <span class="n">_GeeRoute</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span><span class="s2">&quot;copernicus-dem&quot;</span><span class="p">,</span> <span class="s2">&quot;planetary-computer&quot;</span><span class="p">):</span> <span class="n">_StacRoute</span><span class="p">(</span><span class="n">COLLECTIONS</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">NODATA</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;copernicus-dem&quot;</span><span class="p">,</span> <span class="s2">&quot;earth-search&quot;</span><span class="p">):</span> <span class="n">_StacRoute</span><span class="p">(</span><span class="n">COLLECTIONS</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">NODATA</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;copernicus-dem&quot;</span><span class="p">,</span> <span class="s2">&quot;gee&quot;</span><span class="p">):</span> <span class="n">_GeeRoute</span><span class="p">(</span>
+        <span class="s2">&quot;COPERNICUS/DEM/GLO30_2024_1&quot;</span><span class="p">,</span> <span class="s2">&quot;DEM&quot;</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="n">mosaic</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;nasadem&quot;</span><span class="p">,</span> <span class="s2">&quot;planetary-computer&quot;</span><span class="p">):</span> <span class="n">_StacRoute</span><span class="p">(</span>
+        <span class="p">{</span><span class="mi">30</span><span class="p">:</span> <span class="s2">&quot;nasadem&quot;</span><span class="p">},</span> <span class="s2">&quot;elevation&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mf">32768.0</span>
+    <span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;nasadem&quot;</span><span class="p">,</span> <span class="s2">&quot;gee&quot;</span><span class="p">):</span> <span class="n">_GeeRoute</span><span class="p">(</span><span class="s2">&quot;NASA/NASADEM_HGT/001&quot;</span><span class="p">,</span> <span class="s2">&quot;elevation&quot;</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;srtm&quot;</span><span class="p">,</span> <span class="s2">&quot;gee&quot;</span><span class="p">):</span> <span class="n">_GeeRoute</span><span class="p">(</span><span class="s2">&quot;USGS/SRTMGL1_003&quot;</span><span class="p">,</span> <span class="s2">&quot;elevation&quot;</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;3dep&quot;</span><span class="p">,</span> <span class="s2">&quot;planetary-computer&quot;</span><span class="p">):</span> <span class="n">_StacRoute</span><span class="p">(</span>
+        <span class="p">{</span><span class="mi">10</span><span class="p">:</span> <span class="s2">&quot;3dep-seamless&quot;</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="s2">&quot;3dep-seamless&quot;</span><span class="p">},</span>
+        <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">999999.0</span><span class="p">,</span>  <span class="c1"># the USGS fill value; the COGs carry no nodata tag</span>
+        <span class="n">query</span><span class="o">=</span><span class="k">lambda</span> <span class="n">res</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;gsd&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;eq&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">}},</span>
+    <span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;3dep&quot;</span><span class="p">,</span> <span class="s2">&quot;gee&quot;</span><span class="p">):</span> <span class="n">_GeeRoute</span><span class="p">(</span>
+        <span class="s2">&quot;USGS/3DEP/10m_collection&quot;</span><span class="p">,</span> <span class="s2">&quot;elevation&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">mosaic</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;alos-dem&quot;</span><span class="p">,</span> <span class="s2">&quot;planetary-computer&quot;</span><span class="p">):</span> <span class="n">_StacRoute</span><span class="p">({</span><span class="mi">30</span><span class="p">:</span> <span class="s2">&quot;alos-dem&quot;</span><span class="p">},</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mf">9999.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;alos-dem&quot;</span><span class="p">,</span> <span class="s2">&quot;gee&quot;</span><span class="p">):</span> <span class="n">_GeeRoute</span><span class="p">(</span><span class="s2">&quot;JAXA/ALOS/AW3D30/V4_1&quot;</span><span class="p">,</span> <span class="s2">&quot;DSM&quot;</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="n">mosaic</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="c1">#: Per-product facts that go into the attrs and the comparison table.</span>
+<span class="n">_FACTS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;copernicus-dem&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;vertical_datum&quot;</span><span class="p">:</span> <span class="s2">&quot;EGM2008&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;surface&quot;</span><span class="p">:</span> <span class="s2">&quot;digital surface model (X-band InSAR, TanDEM-X 2011-2015)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;default_resolution&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;nasadem&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;vertical_datum&quot;</span><span class="p">:</span> <span class="s2">&quot;EGM96&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;surface&quot;</span><span class="p">:</span> <span class="s2">&quot;digital surface model (C-band InSAR, SRTM February 2000, reprocessed and void-filled)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;default_resolution&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;srtm&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;vertical_datum&quot;</span><span class="p">:</span> <span class="s2">&quot;EGM96&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;surface&quot;</span><span class="p">:</span> <span class="s2">&quot;digital surface model (C-band InSAR, SRTM February 2000, v3 void-filled)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;default_resolution&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;3dep&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;vertical_datum&quot;</span><span class="p">:</span> <span class="s2">&quot;NAVD88&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;surface&quot;</span><span class="p">:</span> <span class="s2">&quot;bare-earth digital terrain model (lidar and legacy sources, mixed dates)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;default_resolution&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;alos-dem&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;vertical_datum&quot;</span><span class="p">:</span> <span class="s2">&quot;EGM96&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;surface&quot;</span><span class="p">:</span> <span class="s2">&quot;digital surface model (optical stereo, ALOS PRISM 2006-2011)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;default_resolution&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_product_id</span><span class="p">(</span><span class="n">product</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">product</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">PRODUCT_ID</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ALIASES</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ALIASES</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_FACTS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">key</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Unknown DEM product </span><span class="si">{</span><span class="n">product</span><span class="si">!r}</span><span class="s2">; choose from </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_FACTS</span><span class="p">))</span><span class="si">}</span><span class="s2"> &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;(aliases: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">ALIASES</span><span class="p">))</span><span class="si">}</span><span class="s2">).&quot;</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_route</span><span class="p">(</span><span class="n">product_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">source_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_StacRoute</span> <span class="o">|</span> <span class="n">_GeeRoute</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">_ROUTES</span><span class="p">[</span><span class="n">product_id</span><span class="p">,</span> <span class="n">source_id</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolution</span><span class="p">(</span><span class="n">route</span><span class="p">:</span> <span class="n">_StacRoute</span> <span class="o">|</span> <span class="n">_GeeRoute</span><span class="p">,</span> <span class="n">product_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resolution</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The DEM resolution to serve, validated against what the route offers.&quot;&quot;&quot;</span>
+    <span class="n">offered</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">sorted</span><span class="p">(</span><span class="n">route</span><span class="o">.</span><span class="n">collections</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">route</span><span class="p">,</span> <span class="n">_StacRoute</span><span class="p">)</span>
+        <span class="k">else</span> <span class="p">[</span><span class="n">route</span><span class="o">.</span><span class="n">resolution</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">resolution</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="n">_FACTS</span><span class="p">[</span><span class="n">product_id</span><span class="p">][</span><span class="s2">&quot;default_resolution&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">default</span> <span class="k">if</span> <span class="n">default</span> <span class="ow">in</span> <span class="n">offered</span> <span class="k">else</span> <span class="n">offered</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">wanted</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wanted</span> <span class="o">!=</span> <span class="nb">float</span><span class="p">(</span><span class="n">resolution</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">product_id</span><span class="si">}</span><span class="s2"> is available at </span><span class="si">{</span><span class="n">_join_m</span><span class="p">(</span><span class="n">offered</span><span class="p">)</span><span class="si">}</span><span class="s2"> only, got </span><span class="si">{</span><span class="n">resolution</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+    <span class="k">if</span> <span class="n">wanted</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">offered</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">product_id</span><span class="si">}</span><span class="s2"> is available at </span><span class="si">{</span><span class="n">_join_m</span><span class="p">(</span><span class="n">offered</span><span class="p">)</span><span class="si">}</span><span class="s2"> only, got </span><span class="si">{</span><span class="n">wanted</span><span class="si">}</span><span class="s2"> m.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">wanted</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_join_m</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s2">&quot; and &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2"> m&quot;</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">)</span>
+
+
+<span class="c1"># ── search ────────────────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="search">
+<a class="viewcode-back" href="../../../generated/easysnowdata.terrain.dem.search.html#easysnowdata.terrain.dem.search">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span>
+    <span class="n">aoi</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">product</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">resolution</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the DEM tiles covering *aoi* as a GeoDataFrame of STAC items.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    aoi</span>
+<span class="sd">        Any form :func:`easysnowdata.aoi.parse_aoi` accepts.</span>
+<span class="sd">    product</span>
+<span class="sd">        ``&quot;copernicus-dem&quot;`` (default), ``&quot;nasadem&quot;``, ``&quot;3dep&quot;`` or</span>
+<span class="sd">        ``&quot;alos-dem&quot;`` — the products with a STAC route. ``&quot;srtm&quot;`` is served</span>
+<span class="sd">        by Earth Engine only, which has no tile search.</span>
+<span class="sd">    source</span>
+<span class="sd">        A STAC source of that product (``&quot;planetary-computer&quot;`` is the</span>
+<span class="sd">        default of every product that has one; Copernicus also has</span>
+<span class="sd">        ``&quot;earth-search&quot;``).</span>
+<span class="sd">    resolution</span>
+<span class="sd">        The DEM resolution in metres where a product offers more than one</span>
+<span class="sd">        (Copernicus 30/90, 3DEP 10/30).</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Passed to :func:`easysnowdata.providers.stac.search`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    geopandas.GeoDataFrame</span>
+<span class="sd">        One row per tile, filterable and accepted back by :func:`load`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pid</span> <span class="o">=</span> <span class="n">_product_id</span><span class="p">(</span><span class="n">product</span><span class="p">)</span>
+    <span class="n">prod</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">resolve_source</span><span class="p">(</span><span class="n">prod</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
+    <span class="n">route</span> <span class="o">=</span> <span class="n">_route</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">src</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">route</span><span class="p">,</span> <span class="n">_StacRoute</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pid</span><span class="si">}</span><span class="s2"> on source=</span><span class="si">{</span><span class="n">src</span><span class="o">.</span><span class="n">id</span><span class="si">!r}</span><span class="s2"> is an Earth Engine asset, which has no &quot;</span>
+            <span class="s2">&quot;tile search; call load() directly.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">_resolution</span><span class="p">(</span><span class="n">route</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">route</span><span class="o">.</span><span class="n">query</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;query&quot;</span><span class="p">,</span> <span class="n">route</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">res</span><span class="p">))</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">providers</span><span class="o">.</span><span class="n">stac</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">route</span><span class="o">.</span><span class="n">collections</span><span class="p">[</span><span class="n">res</span><span class="p">],</span> <span class="n">aoi</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">providers</span><span class="o">.</span><span class="n">stac</span><span class="o">.</span><span class="n">items_to_geodataframe</span><span class="p">(</span><span class="n">items</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># ── load ──────────────────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="load">
+<a class="viewcode-back" href="../../../generated/easysnowdata.terrain.dem.load.html#easysnowdata.terrain.dem.load">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span>
+    <span class="n">aoi</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">product</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">resolution</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">items</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">grid_resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chunks</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">contract</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span>
+    <span class="n">mask</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">resampling</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bilinear&quot;</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load elevation for *aoi* from one of the DEM products.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    aoi</span>
+<span class="sd">        Any form :func:`easysnowdata.aoi.parse_aoi` accepts. ``clip=False`` on</span>
+<span class="sd">        an :class:`~easysnowdata.aoi.AOI` returns the covering tiles whole</span>
+<span class="sd">        (STAC routes).</span>
+<span class="sd">    product</span>
+<span class="sd">        Which DEM: ``&quot;copernicus-dem&quot;`` (default), ``&quot;nasadem&quot;``, ``&quot;srtm&quot;``,</span>
+<span class="sd">        ``&quot;3dep&quot;`` or ``&quot;alos-dem&quot;``. Short forms (``&quot;copernicus&quot;``,</span>
+<span class="sd">        ``&quot;alos&quot;``) work too; see :data:`ALIASES`.</span>
+<span class="sd">    source</span>
+<span class="sd">        Which route to that product: the product&#39;s default when ``None``.</span>
+<span class="sd">        Copernicus: ``&quot;planetary-computer&quot;``, ``&quot;earth-search&quot;`` (unsigned</span>
+<span class="sd">        AWS, no account) or ``&quot;gee&quot;`` (the newer 2024_1 release). NASADEM, 3DEP</span>
+<span class="sd">        and ALOS: ``&quot;planetary-computer&quot;`` or ``&quot;gee&quot;``. SRTM: ``&quot;gee&quot;``.</span>
+<span class="sd">    resolution</span>
+<span class="sd">        The DEM product&#39;s resolution in metres, not the output grid:</span>
+<span class="sd">        Copernicus 30 or 90, 3DEP 10 or 30, the rest 30. ``None`` picks the</span>
+<span class="sd">        product&#39;s finest.</span>
+<span class="sd">    items</span>
+<span class="sd">        Tiles from :func:`search` (a GeoDataFrame or ``ItemCollection``); when</span>
+<span class="sd">        given, no search is made. STAC routes only.</span>
+<span class="sd">    crs, grid_resolution</span>
+<span class="sd">        Output grid. ``crs=&quot;utm&quot;`` reprojects to the AOI&#39;s UTM zone; the</span>
+<span class="sd">        native grid is kept when both are ``None``.</span>
+<span class="sd">    chunks</span>
+<span class="sd">        Dask chunks; the default is the source&#39;s native chunking and ``None``</span>
+<span class="sd">        loads eagerly.</span>
+<span class="sd">    mask</span>
+<span class="sd">        ``True`` (default, §2.5 for continuous products) replaces the nodata</span>
+<span class="sd">        sentinel with NaN and keeps it as ``rio.encoded_nodata``; ``False``</span>
+<span class="sd">        keeps the sentinel with ``rio.nodata`` set. Earth Engine routes</span>
+<span class="sd">        already return NaN outside the asset.</span>
+<span class="sd">    resampling</span>
+<span class="sd">        How pixels are interpolated when *crs* or *grid_resolution* puts the</span>
+<span class="sd">        DEM on a new grid: ``&quot;bilinear&quot;`` (default) or ``&quot;cubic&quot;`` for a</span>
+<span class="sd">        continuous field like elevation; ``&quot;nearest&quot;`` only reproduces the</span>
+<span class="sd">        blocky staircase of the source pixels. Both the STAC and the Earth</span>
+<span class="sd">        Engine routes use the same method, so two copies of one DEM land on</span>
+<span class="sd">        a common grid identically. Ignored on the native grid.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Passed to ``odc.stac.load`` (STAC routes) or</span>
+<span class="sd">        ``xarray.open_dataset(engine=&quot;ee&quot;)`` (Earth Engine routes).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        ``elevation`` in metres, dims ``latitude``/``longitude`` (or ``y``/``x``</span>
+<span class="sd">        when the grid is projected), lazy unless ``chunks=None``, with</span>
+<span class="sd">        ``vertical_datum``, ``resolution_m`` and the usual provenance attrs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pid</span> <span class="o">=</span> <span class="n">_product_id</span><span class="p">(</span><span class="n">product</span><span class="p">)</span>
+    <span class="n">prod</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">resolve_source</span><span class="p">(</span><span class="n">prod</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
+    <span class="n">route</span> <span class="o">=</span> <span class="n">_route</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">src</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">_resolution</span><span class="p">(</span><span class="n">route</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)</span>
+    <span class="n">eager</span> <span class="o">=</span> <span class="n">chunks</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">route</span><span class="p">,</span> <span class="n">_StacRoute</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">crs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">grid_resolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;resampling&quot;</span><span class="p">,</span> <span class="n">resampling</span><span class="p">)</span>
+        <span class="n">da</span><span class="p">,</span> <span class="n">source_url</span> <span class="o">=</span> <span class="n">_load_stac</span><span class="p">(</span>
+            <span class="n">prod</span><span class="p">,</span>
+            <span class="n">src</span><span class="p">,</span>
+            <span class="n">route</span><span class="p">,</span>
+            <span class="n">res</span><span class="p">,</span>
+            <span class="n">aoi</span><span class="p">,</span>
+            <span class="n">items</span><span class="p">,</span>
+            <span class="n">crs</span><span class="p">,</span>
+            <span class="n">grid_resolution</span><span class="p">,</span>
+            <span class="n">chunks</span><span class="p">,</span>
+            <span class="n">mask</span><span class="p">,</span>
+            <span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">items</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;items= is for the STAC routes; </span><span class="si">{</span><span class="n">pid</span><span class="si">}</span><span class="s2"> on source=</span><span class="si">{</span><span class="n">src</span><span class="o">.</span><span class="n">id</span><span class="si">!r}</span><span class="s2"> is an &quot;</span>
+                <span class="s2">&quot;Earth Engine asset.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">da</span><span class="p">,</span> <span class="n">source_url</span> <span class="o">=</span> <span class="n">_load_gee</span><span class="p">(</span>
+            <span class="n">prod</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">route</span><span class="p">,</span> <span class="n">aoi</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="n">grid_resolution</span><span class="p">,</span> <span class="n">chunks</span><span class="p">,</span> <span class="n">resampling</span><span class="p">,</span> <span class="n">kwargs</span>
+        <span class="p">)</span>
+    <span class="n">facts</span> <span class="o">=</span> <span class="n">_FACTS</span><span class="p">[</span><span class="n">pid</span><span class="p">]</span>
+    <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;elevation&quot;</span><span class="p">)</span>
+    <span class="n">da</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">contract</span><span class="o">.</span><span class="n">provenance</span><span class="p">(</span>
+            <span class="n">prod</span><span class="p">,</span>
+            <span class="n">src</span><span class="p">,</span>
+            <span class="n">source_url</span><span class="o">=</span><span class="n">source_url</span><span class="p">,</span>
+            <span class="n">long_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;elevation above the </span><span class="si">{</span><span class="n">facts</span><span class="p">[</span><span class="s1">&#39;vertical_datum&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> geoid&quot;</span>
+            <span class="k">if</span> <span class="n">facts</span><span class="p">[</span><span class="s2">&quot;vertical_datum&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;NAVD88&quot;</span>
+            <span class="k">else</span> <span class="s2">&quot;elevation above NAVD88&quot;</span><span class="p">,</span>
+            <span class="n">units</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span>
+            <span class="n">vertical_datum</span><span class="o">=</span><span class="n">facts</span><span class="p">[</span><span class="s2">&quot;vertical_datum&quot;</span><span class="p">],</span>
+            <span class="n">surface</span><span class="o">=</span><span class="n">facts</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">],</span>
+            <span class="n">resolution_m</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">res</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">eager</span><span class="p">:</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">da</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_stac</span><span class="p">(</span>
+    <span class="n">prod</span><span class="p">:</span> <span class="n">Product</span><span class="p">,</span>
+    <span class="n">src</span><span class="p">:</span> <span class="n">Source</span><span class="p">,</span>
+    <span class="n">route</span><span class="p">:</span> <span class="n">_StacRoute</span><span class="p">,</span>
+    <span class="n">res</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">aoi</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">items</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">grid_resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chunks</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">mask</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="n">collection</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">collections</span><span class="p">[</span><span class="n">res</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">items</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="k">if</span> <span class="n">route</span><span class="o">.</span><span class="n">query</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="n">providers</span><span class="o">.</span><span class="n">stac</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+            <span class="n">src</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">collection</span><span class="p">,</span> <span class="n">aoi</span><span class="p">,</span> <span class="o">**</span><span class="p">({</span><span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">}</span> <span class="k">if</span> <span class="n">query</span> <span class="k">else</span> <span class="p">{})</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;No </span><span class="si">{</span><span class="n">collection</span><span class="si">}</span><span class="s2"> items cover this AOI on </span><span class="si">{</span><span class="n">src</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="o">+</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot; at </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2"> m&quot;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">route</span><span class="o">.</span><span class="n">collections</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;. </span><span class="si">{</span><span class="n">prod</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2"> covers </span><span class="si">{</span><span class="n">src</span><span class="o">.</span><span class="n">extent</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">providers</span><span class="o">.</span><span class="n">stac</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+        <span class="n">items</span><span class="p">,</span>
+        <span class="n">aoi</span><span class="p">,</span>
+        <span class="n">bands</span><span class="o">=</span><span class="n">route</span><span class="o">.</span><span class="n">asset</span><span class="p">,</span>
+        <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span>
+        <span class="n">resolution</span><span class="o">=</span><span class="n">grid_resolution</span><span class="p">,</span>
+        <span class="n">chunks</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">chunks</span> <span class="ow">is</span> <span class="n">contract</span><span class="o">.</span><span class="n">DEFAULT</span> <span class="k">else</span> <span class="n">chunks</span><span class="p">,</span>
+        <span class="n">groupby</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span>  <span class="c1"># every tile of a release shares one datetime</span>
+        <span class="n">catalog</span><span class="o">=</span><span class="n">src</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">da</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">route</span><span class="o">.</span><span class="n">asset</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">&quot;time&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">da</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>  <span class="c1"># static product: keep the date as a scalar coord</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># 3DEP tiles carry the date of their newest source, so a box that</span>
+            <span class="c1"># straddles tiles comes back as several &quot;times&quot;: one surface.</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">keep_attrs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">da</span> <span class="o">=</span> <span class="n">contract</span><span class="o">.</span><span class="n">write_crs</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">da</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+    <span class="n">nodata</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">nodata</span> <span class="k">if</span> <span class="n">route</span><span class="o">.</span><span class="n">nodata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">da</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">nodata</span>
+    <span class="k">if</span> <span class="n">nodata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">contract</span><span class="o">.</span><span class="n">mask_continuous</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">nodata</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mask</span>
+            <span class="k">else</span> <span class="n">contract</span><span class="o">.</span><span class="n">set_categorical_nodata</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">nodata</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">mask</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">da</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;f&quot;</span><span class="p">:</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+    <span class="n">da</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;collection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">collection</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">providers</span><span class="o">.</span><span class="n">stac</span><span class="o">.</span><span class="n">CATALOGS</span><span class="p">[</span><span class="n">src</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">/collections/</span><span class="si">{</span><span class="n">collection</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">da</span><span class="p">,</span> <span class="n">url</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_gee</span><span class="p">(</span>
+    <span class="n">prod</span><span class="p">:</span> <span class="n">Product</span><span class="p">,</span>
+    <span class="n">src</span><span class="p">:</span> <span class="n">Source</span><span class="p">,</span>
+    <span class="n">route</span><span class="p">:</span> <span class="n">_GeeRoute</span><span class="p">,</span>
+    <span class="n">aoi</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">grid_resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chunks</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">resampling</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="n">ensure_source</span><span class="p">(</span><span class="n">prod</span><span class="p">,</span> <span class="n">src</span><span class="p">)</span>
+    <span class="n">ee</span> <span class="o">=</span> <span class="n">providers</span><span class="o">.</span><span class="n">gee</span><span class="o">.</span><span class="n">ee</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">route</span><span class="o">.</span><span class="n">mosaic</span><span class="p">:</span>
+        <span class="n">tiles</span> <span class="o">=</span> <span class="n">ee</span><span class="o">.</span><span class="n">ImageCollection</span><span class="p">(</span><span class="n">route</span><span class="o">.</span><span class="n">asset</span><span class="p">)</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">tiles</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">route</span><span class="o">.</span><span class="n">band</span><span class="p">)</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">tiles</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">route</span><span class="o">.</span><span class="n">band</span><span class="p">)</span><span class="o">.</span><span class="n">mosaic</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">image</span> <span class="o">=</span> <span class="n">ee</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">route</span><span class="o">.</span><span class="n">asset</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">route</span><span class="o">.</span><span class="n">band</span><span class="p">)</span>
+    <span class="n">reproject</span> <span class="o">=</span> <span class="n">crs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">grid_resolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="c1"># Fetch a margin of native pixels when the result will be reprojected, or</span>
+    <span class="c1"># the rotated corners of a projected grid come back NaN.</span>
+    <span class="n">fetch_aoi</span> <span class="o">=</span> <span class="n">_with_margin</span><span class="p">(</span><span class="n">aoi</span><span class="p">)</span> <span class="k">if</span> <span class="n">reproject</span> <span class="k">else</span> <span class="n">aoi</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">providers</span><span class="o">.</span><span class="n">gee</span><span class="o">.</span><span class="n">grid_params</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">fetch_aoi</span><span class="p">)</span>
+    <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;grid&quot;</span><span class="p">:</span> <span class="n">grid</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">chunks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">contract</span><span class="o">.</span><span class="n">DEFAULT</span> <span class="ow">and</span> <span class="n">chunks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;chunks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">chunks</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">providers</span><span class="o">.</span><span class="n">gee</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span>
+        <span class="n">ee</span><span class="o">.</span><span class="n">ImageCollection</span><span class="p">(</span><span class="n">image</span><span class="p">),</span> <span class="n">fetch_aoi</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+    <span class="n">da</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">route</span><span class="o">.</span><span class="n">band</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">&quot;time&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># a single static image</span>
+    <span class="n">da</span> <span class="o">=</span> <span class="n">contract</span><span class="o">.</span><span class="n">write_crs</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">grid</span><span class="p">[</span><span class="s2">&quot;crs&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">da</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">!=</span> <span class="s2">&quot;f&quot;</span><span class="p">:</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">reproject</span><span class="p">:</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">_reproject</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">aoi</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="n">grid_resolution</span><span class="p">,</span> <span class="n">resampling</span><span class="p">)</span>
+    <span class="n">da</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;asset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">asset</span>
+    <span class="k">return</span> <span class="n">da</span><span class="p">,</span> <span class="n">_GEE_CATALOG</span> <span class="o">+</span> <span class="n">route</span><span class="o">.</span><span class="n">asset</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_reproject</span><span class="p">(</span>
+    <span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">aoi</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">grid_resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">resampling</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bilinear&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Put an Earth Engine result on the same kind of output grid the STAC routes offer.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">odc.geo.xr</span><span class="w"> </span><span class="kn">import</span> <span class="n">xr_reproject</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.aoi</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_aoi</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">parse_aoi</span><span class="p">(</span><span class="n">aoi</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">grid_resolution</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Keep the native pixel size, expressed in the target CRS.</span>
+        <span class="n">native</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">odc</span><span class="o">.</span><span class="n">geobox</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">utm_crs</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;utm&quot;</span> <span class="k">else</span> <span class="n">crs</span>
+        <span class="n">grid_resolution</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">abs</span><span class="p">(</span><span class="n">native</span><span class="o">.</span><span class="n">resolution</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">native</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">geographic</span> <span class="o">==</span> <span class="n">_is_geographic</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+            <span class="k">else</span> <span class="p">(</span>
+                <span class="nb">abs</span><span class="p">(</span><span class="n">native</span><span class="o">.</span><span class="n">resolution</span><span class="o">.</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="mi">111_320</span>
+                <span class="k">if</span> <span class="n">native</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">geographic</span>
+                <span class="k">else</span> <span class="nb">abs</span><span class="p">(</span><span class="n">native</span><span class="o">.</span><span class="n">resolution</span><span class="o">.</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="mi">111_320</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">geobox</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">to_geobox</span><span class="p">(</span><span class="n">resolution</span><span class="o">=</span><span class="n">grid_resolution</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">)</span>
+    <span class="c1"># The same method the STAC routes hand odc.stac.load, so the same DEM from</span>
+    <span class="c1"># two routes lands on a common grid identically.</span>
+    <span class="n">reprojected_da</span> <span class="o">=</span> <span class="n">xr_reproject</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">geobox</span><span class="p">,</span> <span class="n">resampling</span><span class="o">=</span><span class="n">resampling</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">contract</span><span class="o">.</span><span class="n">write_crs</span><span class="p">(</span><span class="n">reprojected_da</span><span class="p">,</span> <span class="n">geobox</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_geographic</span><span class="p">(</span><span class="n">crs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pyproj</span><span class="w"> </span><span class="kn">import</span> <span class="n">CRS</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="k">return</span> <span class="n">CRS</span><span class="o">.</span><span class="n">from_user_input</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span><span class="o">.</span><span class="n">is_geographic</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_with_margin</span><span class="p">(</span><span class="n">aoi</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;*aoi* grown by *fraction* of its longer side, so edge pixels survive a rotation.</span>
+
+<span class="sd">    ``AOI.buffer`` works in metres; the span is converted from degrees at</span>
+<span class="sd">    111 km per degree, which is generous enough at any latitude.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.aoi</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_aoi</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">parse_aoi</span><span class="p">(</span><span class="n">aoi</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">is_global</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">parsed</span>
+    <span class="n">west</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">north</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">bounds</span>
+    <span class="n">span_m</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">east</span> <span class="o">-</span> <span class="n">west</span><span class="p">,</span> <span class="n">north</span> <span class="o">-</span> <span class="n">south</span><span class="p">)</span> <span class="o">*</span> <span class="mf">111_000.0</span>
+    <span class="k">return</span> <span class="n">parsed</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">span_m</span> <span class="o">*</span> <span class="n">fraction</span><span class="p">)</span>
+
+
+<span class="c1"># ── comparison ────────────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="compare">
+<a class="viewcode-back" href="../../../generated/easysnowdata.terrain.dem.compare.html#easysnowdata.terrain.dem.compare">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compare</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;One row per DEM product: resolution, extent, dates, datum, routes and credentials.</span>
+
+<span class="sd">    The table :func:`load` chooses from, for deciding which DEM a study</span>
+<span class="sd">    should use. It is the same information the catalog pages carry, in one</span>
+<span class="sd">    place.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">pid</span> <span class="ow">in</span> <span class="n">_FACTS</span><span class="p">:</span>
+        <span class="n">prod</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="n">prod</span><span class="o">.</span><span class="n">default_source</span>
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="n">pid</span><span class="p">,</span>
+                <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">prod</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+                <span class="s2">&quot;resolution_m&quot;</span><span class="p">:</span> <span class="s2">&quot; / &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="n">r</span>
+                            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">prod</span><span class="o">.</span><span class="n">sources</span>
+                            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="p">(</span>
+                                <span class="n">_route</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">collections</span>
+                                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_route</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="n">_StacRoute</span><span class="p">)</span>
+                                <span class="k">else</span> <span class="p">[</span><span class="n">_route</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">resolution</span><span class="p">]</span>
+                            <span class="p">)</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;extent&quot;</span><span class="p">:</span> <span class="n">default</span><span class="o">.</span><span class="n">extent</span><span class="p">,</span>
+                <span class="s2">&quot;acquired&quot;</span><span class="p">:</span> <span class="n">default</span><span class="o">.</span><span class="n">temporal</span><span class="p">,</span>
+                <span class="s2">&quot;vertical_datum&quot;</span><span class="p">:</span> <span class="n">_FACTS</span><span class="p">[</span><span class="n">pid</span><span class="p">][</span><span class="s2">&quot;vertical_datum&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;surface&quot;</span><span class="p">:</span> <span class="n">_FACTS</span><span class="p">[</span><span class="n">pid</span><span class="p">][</span><span class="s2">&quot;surface&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">prod</span><span class="o">.</span><span class="n">sources</span><span class="p">),</span>
+                <span class="s2">&quot;credential_free&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">prod</span><span class="o">.</span><span class="n">credential_free_sources</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;product&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># ── catalog entries ───────────────────────────────────────────────────────────</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_elevation</span><span class="p">(</span><span class="n">nodata</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">datum</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Variable</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">Variable</span><span class="p">(</span>
+            <span class="s2">&quot;elevation&quot;</span><span class="p">,</span>
+            <span class="n">units</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span>
+            <span class="n">nodata</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">nodata</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">nodata</span><span class="p">),</span>
+            <span class="n">long_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;elevation above </span><span class="si">{</span><span class="n">datum</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_gee_source</span><span class="p">(</span>
+    <span class="n">asset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">resolution_m</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">extent</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">temporal</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">notes</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;image&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Source</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">Source</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;gee&quot;</span><span class="p">,</span>
+        <span class="n">provider</span><span class="o">=</span><span class="s2">&quot;gee&quot;</span><span class="p">,</span>
+        <span class="n">location</span><span class="o">=</span><span class="n">asset</span><span class="p">,</span>
+        <span class="n">requires</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;earthengine&quot;</span><span class="p">,),</span>
+        <span class="n">resolution_m</span><span class="o">=</span><span class="n">resolution_m</span><span class="p">,</span>
+        <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span>
+        <span class="n">temporal</span><span class="o">=</span><span class="n">temporal</span><span class="p">,</span>
+        <span class="n">notes</span><span class="o">=</span><span class="n">notes</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+        <span class="n">health</span><span class="o">=</span><span class="n">Probe</span><span class="p">(</span>
+            <span class="n">label</span><span class="p">,</span> <span class="n">partial</span><span class="p">(</span><span class="n">health</span><span class="o">.</span><span class="n">gee_asset</span><span class="p">,</span> <span class="n">asset</span><span class="p">,</span> <span class="n">kind</span><span class="p">),</span> <span class="n">requires</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;earthengine&quot;</span><span class="p">,)</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="n">COPERNICUS_PRODUCT</span> <span class="o">=</span> <span class="n">Product</span><span class="p">(</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;copernicus-dem&quot;</span><span class="p">,</span>
+    <span class="n">theme</span><span class="o">=</span><span class="s2">&quot;terrain&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Copernicus DEM GLO-30 / GLO-90&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;Global 30 m and 90 m digital surface model from the Copernicus DEM &quot;</span>
+        <span class="s2">&quot;(WorldDEM heritage: TanDEM-X X-band InSAR, 2011-2015), 2021 release &quot;</span>
+        <span class="s2">&quot;on the STAC routes and the 2024_1 release on Earth Engine. &quot;</span>
+        <span class="s2">&quot;Elevations are referenced to the EGM2008 geoid. The default DEM here &quot;</span>
+        <span class="s2">&quot;because it is the most recent global model with the fewest voids; &quot;</span>
+        <span class="s2">&quot;see esd.terrain.dem.compare() for the alternatives.&quot;</span>
+    <span class="p">),</span>
+    <span class="n">sources</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Source</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;planetary-computer&quot;</span><span class="p">,</span>
+            <span class="n">provider</span><span class="o">=</span><span class="s2">&quot;stac&quot;</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="s2">&quot;cop-dem-glo-30 / cop-dem-glo-90&quot;</span><span class="p">,</span>
+            <span class="n">resolution_m</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+            <span class="n">temporal</span><span class="o">=</span><span class="s2">&quot;static (2021 release; acquired 2011-2015)&quot;</span><span class="p">,</span>
+            <span class="n">notes</span><span class="o">=</span><span class="s2">&quot;signed hrefs, anonymous; the 2021 release&quot;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Planetary Computer&quot;</span><span class="p">,</span>
+            <span class="n">health</span><span class="o">=</span><span class="n">Probe</span><span class="p">(</span>
+                <span class="s2">&quot;Copernicus DEM (Planetary Computer)&quot;</span><span class="p">,</span>
+                <span class="n">partial</span><span class="p">(</span><span class="n">health</span><span class="o">.</span><span class="n">stac_search</span><span class="p">,</span> <span class="n">_PC_STAC</span><span class="p">,</span> <span class="s2">&quot;cop-dem-glo-30&quot;</span><span class="p">,</span> <span class="n">sign</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">Source</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;earth-search&quot;</span><span class="p">,</span>
+            <span class="n">provider</span><span class="o">=</span><span class="s2">&quot;stac&quot;</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="s2">&quot;cop-dem-glo-30 / cop-dem-glo-90&quot;</span><span class="p">,</span>
+            <span class="n">resolution_m</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+            <span class="n">temporal</span><span class="o">=</span><span class="s2">&quot;static (2021 release; acquired 2011-2015)&quot;</span><span class="p">,</span>
+            <span class="n">notes</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;Element 84&#39;s index of the unsigned AWS Open Data buckets &quot;</span>
+                <span class="s2">&quot;copernicus-dem-30m / -90m; no signing, no account&quot;</span>
+            <span class="p">),</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Earth Search (AWS Open Data)&quot;</span><span class="p">,</span>
+            <span class="n">health</span><span class="o">=</span><span class="n">Probe</span><span class="p">(</span>
+                <span class="s2">&quot;Copernicus DEM (Earth Search)&quot;</span><span class="p">,</span>
+                <span class="n">partial</span><span class="p">(</span><span class="n">health</span><span class="o">.</span><span class="n">stac_search</span><span class="p">,</span> <span class="n">_EARTH_SEARCH_STAC</span><span class="p">,</span> <span class="s2">&quot;cop-dem-glo-30&quot;</span><span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">_gee_source</span><span class="p">(</span>
+            <span class="s2">&quot;COPERNICUS/DEM/GLO30_2024_1&quot;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Earth Engine (2024_1 release)&quot;</span><span class="p">,</span>
+            <span class="n">resolution_m</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+            <span class="n">extent</span><span class="o">=</span><span class="s2">&quot;global&quot;</span><span class="p">,</span>
+            <span class="n">temporal</span><span class="o">=</span><span class="s2">&quot;static (2024_1 release; acquired 2011-2015)&quot;</span><span class="p">,</span>
+            <span class="n">notes</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;the newer 2024_1 edit of GLO-30, tiled as an ImageCollection and &quot;</span>
+                <span class="s2">&quot;mosaicked here; 30 m only&quot;</span>
+            <span class="p">),</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Copernicus DEM (Earth Engine)&quot;</span><span class="p">,</span>
+            <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;image_collection&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">variables</span><span class="o">=</span><span class="n">_elevation</span><span class="p">(</span><span class="n">NODATA</span><span class="p">,</span> <span class="s2">&quot;the EGM2008 geoid&quot;</span><span class="p">),</span>
+    <span class="n">citation</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;European Space Agency, Sinergise (2021). Copernicus Global Digital &quot;</span>
+        <span class="s2">&quot;Elevation Model. Distributed by OpenTopography.&quot;</span>
+    <span class="p">),</span>
+    <span class="n">license</span><span class="o">=</span><span class="s2">&quot;Copernicus DEM licence (free, attribution)&quot;</span><span class="p">,</span>
+    <span class="n">doi</span><span class="o">=</span><span class="s2">&quot;10.5069/G9028PQB&quot;</span><span class="p">,</span>
+    <span class="n">loader</span><span class="o">=</span><span class="s2">&quot;easysnowdata.terrain.dem.load&quot;</span><span class="p">,</span>
+    <span class="n">examples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;terrain/plot_dem.py&quot;</span><span class="p">,),</span>
+    <span class="n">references</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;https://planetarycomputer.microsoft.com/dataset/cop-dem-glo-30&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;https://registry.opendata.aws/copernicus-dem/&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_GEE_CATALOG</span><span class="si">}</span><span class="s2">COPERNICUS_DEM_GLO30_2024_1&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">tags</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;dem&quot;</span><span class="p">,</span> <span class="s2">&quot;elevation&quot;</span><span class="p">,</span> <span class="s2">&quot;terrain&quot;</span><span class="p">,</span> <span class="s2">&quot;copernicus&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">NASADEM_PRODUCT</span> <span class="o">=</span> <span class="n">Product</span><span class="p">(</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;nasadem&quot;</span><span class="p">,</span>
+    <span class="n">theme</span><span class="o">=</span><span class="s2">&quot;terrain&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;NASADEM (SRTM reprocessed)&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;NASA&#39;s 2020 reprocessing of the February 2000 SRTM C-band radar &quot;</span>
+        <span class="s2">&quot;mission: 30 m, 60°N to 56°S, voids filled with ASTER GDEM and other &quot;</span>
+        <span class="s2">&quot;sources, referenced to the EGM96 geoid. The same surface as SRTM GL1 &quot;</span>
+        <span class="s2">&quot;with better geolocation and fewer voids, and the credential-free way &quot;</span>
+        <span class="s2">&quot;to get an SRTM-heritage DEM.&quot;</span>
+    <span class="p">),</span>
+    <span class="n">sources</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Source</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;planetary-computer&quot;</span><span class="p">,</span>
+            <span class="n">provider</span><span class="o">=</span><span class="s2">&quot;stac&quot;</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="s2">&quot;nasadem&quot;</span><span class="p">,</span>
+            <span class="n">resolution_m</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+            <span class="n">extent</span><span class="o">=</span><span class="s2">&quot;60°N to 56°S&quot;</span><span class="p">,</span>
+            <span class="n">temporal</span><span class="o">=</span><span class="s2">&quot;static (acquired February 2000; released 2020)&quot;</span><span class="p">,</span>
+            <span class="n">notes</span><span class="o">=</span><span class="s2">&quot;signed hrefs, anonymous; one COG per 1° tile&quot;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Planetary Computer&quot;</span><span class="p">,</span>
+            <span class="n">health</span><span class="o">=</span><span class="n">Probe</span><span class="p">(</span>
+                <span class="s2">&quot;NASADEM (Planetary Computer)&quot;</span><span class="p">,</span>
+                <span class="n">partial</span><span class="p">(</span><span class="n">health</span><span class="o">.</span><span class="n">stac_search</span><span class="p">,</span> <span class="n">_PC_STAC</span><span class="p">,</span> <span class="s2">&quot;nasadem&quot;</span><span class="p">,</span> <span class="n">sign</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">_gee_source</span><span class="p">(</span>
+            <span class="s2">&quot;NASA/NASADEM_HGT/001&quot;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Earth Engine&quot;</span><span class="p">,</span>
+            <span class="n">resolution_m</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+            <span class="n">extent</span><span class="o">=</span><span class="s2">&quot;60°N to 56°S&quot;</span><span class="p">,</span>
+            <span class="n">temporal</span><span class="o">=</span><span class="s2">&quot;static (acquired February 2000; released 2020)&quot;</span><span class="p">,</span>
+            <span class="n">notes</span><span class="o">=</span><span class="s2">&quot;the same product as one global image&quot;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;NASADEM (Earth Engine)&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">variables</span><span class="o">=</span><span class="n">_elevation</span><span class="p">(</span><span class="o">-</span><span class="mf">32768.0</span><span class="p">,</span> <span class="s2">&quot;the EGM96 geoid&quot;</span><span class="p">),</span>
+    <span class="n">citation</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;NASA JPL (2020). NASADEM Merged DEM Global 1 arc second V001. NASA &quot;</span>
+        <span class="s2">&quot;EOSDIS Land Processes DAAC. https://doi.org/10.5067/MEaSUREs/NASADEM/NASADEM_HGT.001&quot;</span>
+    <span class="p">),</span>
+    <span class="n">license</span><span class="o">=</span><span class="s2">&quot;Public domain (NASA data)&quot;</span><span class="p">,</span>
+    <span class="n">doi</span><span class="o">=</span><span class="s2">&quot;10.5067/MEaSUREs/NASADEM/NASADEM_HGT.001&quot;</span><span class="p">,</span>
+    <span class="n">loader</span><span class="o">=</span><span class="s2">&quot;easysnowdata.terrain.dem.load&quot;</span><span class="p">,</span>
+    <span class="n">examples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;terrain/plot_dem.py&quot;</span><span class="p">,),</span>
+    <span class="n">references</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;https://planetarycomputer.microsoft.com/dataset/nasadem&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;https://lpdaac.usgs.gov/products/nasadem_hgtv001/&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">tags</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;dem&quot;</span><span class="p">,</span> <span class="s2">&quot;elevation&quot;</span><span class="p">,</span> <span class="s2">&quot;terrain&quot;</span><span class="p">,</span> <span class="s2">&quot;srtm&quot;</span><span class="p">,</span> <span class="s2">&quot;nasadem&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">SRTM_PRODUCT</span> <span class="o">=</span> <span class="n">Product</span><span class="p">(</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;srtm&quot;</span><span class="p">,</span>
+    <span class="n">theme</span><span class="o">=</span><span class="s2">&quot;terrain&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;SRTM GL1 v3 (30 m)&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;The Shuttle Radar Topography Mission 1 arc-second global DEM, version &quot;</span>
+        <span class="s2">&quot;3 (void-filled), as served by Earth Engine: the February 2000 C-band &quot;</span>
+        <span class="s2">&quot;radar surface, 60°N to 56°S, EGM96 geoid. Kept under its own name &quot;</span>
+        <span class="s2">&quot;because so much of the snow literature is built on it; NASADEM is the &quot;</span>
+        <span class="s2">&quot;same mission reprocessed, and the one to use when no Earth Engine &quot;</span>
+        <span class="s2">&quot;account is at hand.&quot;</span>
+    <span class="p">),</span>
+    <span class="n">sources</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">_gee_source</span><span class="p">(</span>
+            <span class="s2">&quot;USGS/SRTMGL1_003&quot;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Earth Engine&quot;</span><span class="p">,</span>
+            <span class="n">resolution_m</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+            <span class="n">extent</span><span class="o">=</span><span class="s2">&quot;60°N to 56°S&quot;</span><span class="p">,</span>
+            <span class="n">temporal</span><span class="o">=</span><span class="s2">&quot;static (acquired February 2000; v3 2013)&quot;</span><span class="p">,</span>
+            <span class="n">notes</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;one global image; the only cloud-native route to SRTM proper &quot;</span>
+                <span class="s2">&quot;without an Earthdata download of per-tile NetCDF&quot;</span>
+            <span class="p">),</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;SRTM GL1 (Earth Engine)&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">variables</span><span class="o">=</span><span class="n">_elevation</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;the EGM96 geoid&quot;</span><span class="p">),</span>
+    <span class="n">citation</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;NASA JPL (2013). NASA Shuttle Radar Topography Mission Global 1 arc &quot;</span>
+        <span class="s2">&quot;second V003. NASA EOSDIS Land Processes DAAC. &quot;</span>
+        <span class="s2">&quot;https://doi.org/10.5067/MEaSUREs/SRTM/SRTMGL1.003&quot;</span>
+    <span class="p">),</span>
+    <span class="n">license</span><span class="o">=</span><span class="s2">&quot;Public domain (NASA data)&quot;</span><span class="p">,</span>
+    <span class="n">doi</span><span class="o">=</span><span class="s2">&quot;10.5067/MEaSUREs/SRTM/SRTMGL1.003&quot;</span><span class="p">,</span>
+    <span class="n">loader</span><span class="o">=</span><span class="s2">&quot;easysnowdata.terrain.dem.load&quot;</span><span class="p">,</span>
+    <span class="n">examples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;terrain/plot_dem.py&quot;</span><span class="p">,),</span>
+    <span class="n">references</span><span class="o">=</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_GEE_CATALOG</span><span class="si">}</span><span class="s2">USGS_SRTMGL1_003&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;https://lpdaac.usgs.gov/products/srtmgl1v003/&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">tags</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;dem&quot;</span><span class="p">,</span> <span class="s2">&quot;elevation&quot;</span><span class="p">,</span> <span class="s2">&quot;terrain&quot;</span><span class="p">,</span> <span class="s2">&quot;srtm&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">THREEDEP_PRODUCT</span> <span class="o">=</span> <span class="n">Product</span><span class="p">(</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;3dep&quot;</span><span class="p">,</span>
+    <span class="n">theme</span><span class="o">=</span><span class="s2">&quot;terrain&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;USGS 3DEP seamless DEM (10 m / 30 m, United States)&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;The USGS 3D Elevation Program seamless bare-earth DEM at 1/3 &quot;</span>
+        <span class="s2">&quot;arc-second (~10 m) and 1 arc-second (~30 m): lidar where it has been &quot;</span>
+        <span class="s2">&quot;flown, legacy sources elsewhere, so the acquisition date varies by &quot;</span>
+        <span class="s2">&quot;tile. Conterminous US, Alaska (mostly coarser), Hawaii and &quot;</span>
+        <span class="s2">&quot;territories; NAD83 horizontal, NAVD88 vertical. A terrain model, not &quot;</span>
+        <span class="s2">&quot;a surface model: forest canopy is removed, which the global DEMs &quot;</span>
+        <span class="s2">&quot;above do not do.&quot;</span>
+    <span class="p">),</span>
+    <span class="n">sources</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Source</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;planetary-computer&quot;</span><span class="p">,</span>
+            <span class="n">provider</span><span class="o">=</span><span class="s2">&quot;stac&quot;</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="s2">&quot;3dep-seamless&quot;</span><span class="p">,</span>
+            <span class="n">resolution_m</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">extent</span><span class="o">=</span><span class="s2">&quot;United States&quot;</span><span class="p">,</span>
+            <span class="n">temporal</span><span class="o">=</span><span class="s2">&quot;static (tile dates 1925-2020; updated as lidar arrives)&quot;</span><span class="p">,</span>
+            <span class="n">notes</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;signed hrefs, anonymous; one collection holding both &quot;</span>
+                <span class="s2">&quot;resolutions, selected by gsd&quot;</span>
+            <span class="p">),</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Planetary Computer&quot;</span><span class="p">,</span>
+            <span class="n">health</span><span class="o">=</span><span class="n">Probe</span><span class="p">(</span>
+                <span class="s2">&quot;3DEP seamless (Planetary Computer)&quot;</span><span class="p">,</span>
+                <span class="n">partial</span><span class="p">(</span>
+                    <span class="n">health</span><span class="o">.</span><span class="n">stac_search</span><span class="p">,</span>
+                    <span class="n">_PC_STAC</span><span class="p">,</span>
+                    <span class="s2">&quot;3dep-seamless&quot;</span><span class="p">,</span>
+                    <span class="n">sign</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">query</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;gsd&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;eq&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}},</span>
+                <span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">_gee_source</span><span class="p">(</span>
+            <span class="s2">&quot;USGS/3DEP/10m_collection&quot;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Earth Engine&quot;</span><span class="p">,</span>
+            <span class="n">resolution_m</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">extent</span><span class="o">=</span><span class="s2">&quot;United States&quot;</span><span class="p">,</span>
+            <span class="n">temporal</span><span class="o">=</span><span class="s2">&quot;static (tile dates 1925-2020)&quot;</span><span class="p">,</span>
+            <span class="n">notes</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;the 1/3 arc-second layer as a tiled ImageCollection, mosaicked &quot;</span>
+                <span class="s2">&quot;here; 10 m only&quot;</span>
+            <span class="p">),</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;3DEP 10 m (Earth Engine)&quot;</span><span class="p">,</span>
+            <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;image_collection&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">variables</span><span class="o">=</span><span class="n">_elevation</span><span class="p">(</span><span class="o">-</span><span class="mf">999999.0</span><span class="p">,</span> <span class="s2">&quot;NAVD88&quot;</span><span class="p">),</span>
+    <span class="n">citation</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;U.S. Geological Survey (2019). 3D Elevation Program 1/3 arc-second &quot;</span>
+        <span class="s2">&quot;and 1 arc-second Digital Elevation Models. https://www.usgs.gov/3d-elevation-program&quot;</span>
+    <span class="p">),</span>
+    <span class="n">license</span><span class="o">=</span><span class="s2">&quot;Public domain (US government data)&quot;</span><span class="p">,</span>
+    <span class="n">loader</span><span class="o">=</span><span class="s2">&quot;easysnowdata.terrain.dem.load&quot;</span><span class="p">,</span>
+    <span class="n">examples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;terrain/plot_dem.py&quot;</span><span class="p">,),</span>
+    <span class="n">references</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;https://planetarycomputer.microsoft.com/dataset/3dep-seamless&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;https://www.usgs.gov/3d-elevation-program&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">tags</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;dem&quot;</span><span class="p">,</span> <span class="s2">&quot;elevation&quot;</span><span class="p">,</span> <span class="s2">&quot;terrain&quot;</span><span class="p">,</span> <span class="s2">&quot;3dep&quot;</span><span class="p">,</span> <span class="s2">&quot;lidar&quot;</span><span class="p">,</span> <span class="s2">&quot;united states&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">ALOS_PRODUCT</span> <span class="o">=</span> <span class="n">Product</span><span class="p">(</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;alos-dem&quot;</span><span class="p">,</span>
+    <span class="n">theme</span><span class="o">=</span><span class="s2">&quot;terrain&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;ALOS World 3D-30m (AW3D30)&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;JAXA&#39;s global 30 m digital surface model from ALOS PRISM optical &quot;</span>
+        <span class="s2">&quot;stereo imagery (2006-2011), EGM96 geoid: version 3.2 on the &quot;</span>
+        <span class="s2">&quot;Planetary Computer, version 4.1 on Earth Engine. The DEM the CHILI &quot;</span>
+        <span class="s2">&quot;heat-load index is derived from, and an independent surface to check &quot;</span>
+        <span class="s2">&quot;the radar DEMs against.&quot;</span>
+    <span class="p">),</span>
+    <span class="n">sources</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Source</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;planetary-computer&quot;</span><span class="p">,</span>
+            <span class="n">provider</span><span class="o">=</span><span class="s2">&quot;stac&quot;</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="s2">&quot;alos-dem&quot;</span><span class="p">,</span>
+            <span class="n">resolution_m</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+            <span class="n">temporal</span><span class="o">=</span><span class="s2">&quot;static (acquired 2006-2011; v3.2 2021)&quot;</span><span class="p">,</span>
+            <span class="n">notes</span><span class="o">=</span><span class="s2">&quot;signed hrefs, anonymous; one COG per 1° tile&quot;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Planetary Computer&quot;</span><span class="p">,</span>
+            <span class="n">health</span><span class="o">=</span><span class="n">Probe</span><span class="p">(</span>
+                <span class="s2">&quot;ALOS World 3D (Planetary Computer)&quot;</span><span class="p">,</span>
+                <span class="n">partial</span><span class="p">(</span><span class="n">health</span><span class="o">.</span><span class="n">stac_search</span><span class="p">,</span> <span class="n">_PC_STAC</span><span class="p">,</span> <span class="s2">&quot;alos-dem&quot;</span><span class="p">,</span> <span class="n">sign</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">_gee_source</span><span class="p">(</span>
+            <span class="s2">&quot;JAXA/ALOS/AW3D30/V4_1&quot;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Earth Engine (v4.1)&quot;</span><span class="p">,</span>
+            <span class="n">resolution_m</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+            <span class="n">extent</span><span class="o">=</span><span class="s2">&quot;global&quot;</span><span class="p">,</span>
+            <span class="n">temporal</span><span class="o">=</span><span class="s2">&quot;static (acquired 2006-2011; v4.1 2024)&quot;</span><span class="p">,</span>
+            <span class="n">notes</span><span class="o">=</span><span class="s2">&quot;the newer v4.1, tiled as an ImageCollection and mosaicked here&quot;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ALOS World 3D (Earth Engine)&quot;</span><span class="p">,</span>
+            <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;image_collection&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">variables</span><span class="o">=</span><span class="n">_elevation</span><span class="p">(</span><span class="o">-</span><span class="mf">9999.0</span><span class="p">,</span> <span class="s2">&quot;the EGM96 geoid&quot;</span><span class="p">),</span>
+    <span class="n">citation</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;Japan Aerospace Exploration Agency (2021). ALOS World 3D 30 meter DEM &quot;</span>
+        <span class="s2">&quot;V3.2. Distributed by OpenTopography. https://doi.org/10.5069/G94M92HB&quot;</span>
+    <span class="p">),</span>
+    <span class="n">license</span><span class="o">=</span><span class="s2">&quot;JAXA AW3D30 terms of use (free, attribution)&quot;</span><span class="p">,</span>
+    <span class="n">doi</span><span class="o">=</span><span class="s2">&quot;10.5069/G94M92HB&quot;</span><span class="p">,</span>
+    <span class="n">loader</span><span class="o">=</span><span class="s2">&quot;easysnowdata.terrain.dem.load&quot;</span><span class="p">,</span>
+    <span class="n">examples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;terrain/plot_dem.py&quot;</span><span class="p">,),</span>
+    <span class="n">references</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;https://planetarycomputer.microsoft.com/dataset/alos-dem&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;https://www.eorc.jaxa.jp/ALOS/en/dataset/aw3d30/aw3d30_e.htm&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">tags</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;dem&quot;</span><span class="p">,</span> <span class="s2">&quot;elevation&quot;</span><span class="p">,</span> <span class="s2">&quot;terrain&quot;</span><span class="p">,</span> <span class="s2">&quot;alos&quot;</span><span class="p">,</span> <span class="s2">&quot;aw3d30&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="c1">#: The default product&#39;s entry, under the name 0.2 exported.</span>
+<span class="n">PRODUCT</span> <span class="o">=</span> <span class="n">COPERNICUS_PRODUCT</span>
+
+<span class="c1">#: Every DEM product, by id.</span>
+<span class="n">PRODUCTS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Product</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">p</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="n">COPERNICUS_PRODUCT</span><span class="p">,</span>
+        <span class="n">NASADEM_PRODUCT</span><span class="p">,</span>
+        <span class="n">SRTM_PRODUCT</span><span class="p">,</span>
+        <span class="n">THREEDEP_PRODUCT</span><span class="p">,</span>
+        <span class="n">ALOS_PRODUCT</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">}</span>
+
+<span class="n">catalog</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="o">*</span><span class="n">PRODUCTS</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

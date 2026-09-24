@@ -1,0 +1,32 @@
+/* Tighter catalog and status tables: these pages are mostly tables, and the
+   theme's default cell padding pushes the source comparison off-screen. */
+table.docutils td,
+table.docutils th {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.85rem;
+    vertical-align: top;
+}
+
+/* Health badges on the catalog and status pages. */
+.esd-badge {
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+    border-radius: 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.esd-pass { background: #d5f5e3; color: #145a32; }
+.esd-fail { background: #fadbd8; color: #7b241c; }
+.esd-skip { background: #fdebd0; color: #7e5109; }
+.esd-none { background: #eaecee; color: #566573; }
+html[data-theme="dark"] .esd-pass { background: #14452a; color: #a9dfbf; }
+html[data-theme="dark"] .esd-fail { background: #521f1a; color: #f5b7b1; }
+html[data-theme="dark"] .esd-skip { background: #533a10; color: #f8c471; }
+html[data-theme="dark"] .esd-none { background: #2c3134; color: #aeb6bf; }
+
+/* The gallery grid reads better a little wider than the theme default. */
+.sphx-glr-thumbcontainer {
+    min-height: 250px;
+    margin: 6px;
+}

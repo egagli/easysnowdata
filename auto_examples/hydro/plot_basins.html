@@ -1,0 +1,1173 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Basins: HUC, HydroBASINS and GRDC &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../_static/documentation_options.js?v=16fc681a"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/hydro/plot_basins';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Boundaries" href="../boundaries/index.html" />
+    <link rel="prev" title="Hydrography" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.3.dev19" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../stations/index.html">Stations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_all_networks.html">All five station networks in one call</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_awdb_stations.html">SNOTEL and snow courses (USDA NRCS AWDB)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_cdec_stations.html">California snow pillows and courses (CDEC)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_databc_stations.html">British Columbia snow stations (DataBC)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_nve_stations.html">Norwegian snow stations (NVE HydAPI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_station_archive.html">Daily snow-station archive (global_snow_networks)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_yukon_stations.html">Yukon snow stations (AquaCache)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../snow/index.html">Snow</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../snow/plot_modis_snow.html">MODIS snow cover (MOD10A1, MOD10A1F, MOD10A2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../snow/plot_mountain_snow_mask.html">Mountain snow mask (Wrzesien et al.)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../snow/plot_snodas.html">SNODAS snow water equivalent and depth (NOHRSC)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../snow/plot_snow_classification.html">Seasonal snow classification (Sturm and Liston)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../snow/plot_ucla_sr.html">UCLA snow reanalysis (Margulis et al.)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../snow/plot_viirs_snow.html">VIIRS snow cover (VNP10A1F)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../sar/index.html">SAR</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sar/plot_sentinel1.html">Sentinel-1 RTC backscatter and local incidence angle</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../optical/index.html">Optical imagery</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../optical/plot_hls.html">HLS surface reflectance (Landsat and Sentinel-2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../optical/plot_planetscope.html">PlanetScope surface reflectance and UDM2 (Planet)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../optical/plot_sentinel2.html">Sentinel-2 L2A surface reflectance</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../terrain/index.html">Terrain</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../terrain/plot_chili.html">CHILI heat-load index (CSP ERGo)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../terrain/plot_dem.html">Digital elevation models: Copernicus, NASADEM, SRTM, 3DEP, ALOS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../terrain/plot_hillshade.html">Hillshade: Natural Earth shaded relief as a basemap</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../land/index.html">Land cover</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../land/plot_forest_cover.html">Forest cover fraction (CGLS-LC100)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../land/plot_nlcd.html">NLCD land cover, annual (USGS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../land/plot_worldcover.html">ESA WorldCover land cover</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Hydrography</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Basins: HUC, HydroBASINS and GRDC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../boundaries/index.html">Boundaries</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../boundaries/plot_admin.html">Countries, states, counties and admin units</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../boundaries/plot_glaciers.html">Glacier outlines: Randolph Glacier Inventory 7.0 and 6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../boundaries/plot_mountains.html">Mountain ranges: GMBA Mountain Inventory v2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../boundaries/plot_natural_earth.html">Natural Earth map layers: lakes, rivers, glaciers, places</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../climate/index.html">Climate and reanalysis</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../climate/plot_era5.html">ERA5 reanalysis (ARCO-ERA5 and Earth Engine)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../climate/plot_koppen_geiger.html">Köppen-Geiger climate classification (Beck et al.)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tools/index.html">Tools</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tools/plot_aoi_time_catalog.html">Areas of interest, time ranges and the catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools/plot_water_year.html">Water years and day of water year</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Example gallery</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Hydrography</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Basins: HUC, HydroBASINS and GRDC</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-hydro-plot-basins-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="basins-huc-hydrobasins-and-grdc">
+<span id="sphx-glr-auto-examples-hydro-plot-basins-py"></span><h1>Basins: HUC, HydroBASINS and GRDC<a class="headerlink" href="#basins-huc-hydrobasins-and-grdc" title="Link to this heading">#</a></h1>
+<p>Four basin products answer the same question, “which drainage is this in?”,
+at different scales and for different parts of the world. The USGS Watershed
+Boundary Dataset (HUC) nests the United States from 2-digit regions to
+16-digit sub-watersheds. HydroBASINS is the global equivalent, Pfafstetter
+levels 1 to 12. The GRDC layers are coarse and whole-world: 405 major river
+basins, and the WMO basins and sub-basins with their region numbers.</p>
+<p>Every loader returns a GeoDataFrame in EPSG:4326 holding the features that
+<em>intersect</em> the AOI, whole and uncut. HUC defaults to the public USGS ArcGIS
+REST service and needs no account; <code class="docutils literal notranslate"><span class="pre">source=&quot;gee&quot;</span></code> reads the 2017 snapshot on
+Earth Engine instead. HydroBASINS defaults to the 2.7 GB BasinATLAS
+geodatabase (with its several hundred attributes, read with mask pushdown),
+or, as here, <code class="docutils literal notranslate"><span class="pre">source=&quot;hydrosheds&quot;</span></code> fetches one ~300 MB regional zip with the
+geometry and Pfafstetter fields only. The GRDC layers are single zips. Nothing
+executed on this page needs credentials.</p>
+<p>The first figure fills the HUC12 sub-watersheds inside the HUC8 subbasins,
+then lays the HUC8 divides over HydroBASINS level 8: two independent
+delineations of the same drainage. The second nests level 6 inside the WMO
+basins and steps out to the GRDC major basin the whole AOI drains to.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.lines</span><span class="w"> </span><span class="kn">import</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.lines.Line2D.html#matplotlib.lines.Line2D" title="matplotlib.lines.Line2D" class="sphx-glr-backref-module-matplotlib-lines sphx-glr-backref-type-py-class"><span class="n">Line2D</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.patches</span><span class="w"> </span><span class="kn">import</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.Patch.html#matplotlib.patches.Patch" title="matplotlib.patches.Patch" class="sphx-glr-backref-module-matplotlib-patches sphx-glr-backref-type-py-class"><span class="n">Patch</span></a>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">easysnowdata</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">esd</span>
+
+<a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">121.94</span><span class="p">,</span> <span class="mf">46.72</span><span class="p">,</span> <span class="o">-</span><span class="mf">121.54</span><span class="p">,</span> <span class="mf">46.99</span><span class="p">)</span>  <span class="c1"># Mount Rainier, WA</span>
+
+<a href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI" title="easysnowdata.AOI" class="sphx-glr-backref-module-easysnowdata sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">box</span></a> <span class="o">=</span> <span class="n">esd</span><span class="o">.</span><span class="n">parse_aoi</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="p">)</span>
+<span class="n">utm</span> <span class="o">=</span> <a href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI.utm_crs" title="easysnowdata.AOI.utm_crs" class="sphx-glr-backref-module-easysnowdata sphx-glr-backref-type-py-property"><span class="n">box</span><span class="o">.</span><span class="n">utm_crs</span></a>  <span class="c1"># the local maps are drawn in the AOI&#39;s UTM zone</span>
+<span class="nb">print</span><span class="p">(</span><a href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI" title="easysnowdata.AOI" class="sphx-glr-backref-module-easysnowdata sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">box</span></a><span class="p">,</span> <span class="n">utm</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>AOI(bounds=(-121.9400, 46.7200, -121.5400, 46.9900), clip=True) EPSG:32610
+</pre></div>
+</div>
+<p>Where each product comes from, and what the route asks for.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">product_id</span></a> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;huc&quot;</span><span class="p">,</span> <span class="s2">&quot;hydrobasins&quot;</span><span class="p">,</span> <span class="s2">&quot;grdc-major-river-basins&quot;</span><span class="p">,</span> <span class="s2">&quot;grdc-wmo-basins&quot;</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <a href="../../generated/easysnowdata.catalog.get.html#easysnowdata.catalog.get" title="easysnowdata.catalog.get" class="sphx-glr-backref-module-easysnowdata-catalog sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">get</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">product_id</span></a><span class="p">)</span><span class="o">.</span><span class="n">sources</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">product_id</span></a><span class="si">:</span><span class="s2">24</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">src</span><span class="o">.</span><span class="n">id</span></a><span class="si">:</span><span class="s2">20</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">src</span><span class="o">.</span><span class="n">title</span></a><span class="si">:</span><span class="s2">28</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">src</span><span class="o">.</span><span class="n">requires</span></a><span class="p">)</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">&#39;no account&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>huc                      usgs-wbd             USGS WBD (ArcGIS REST)       no account
+huc                      gee                  Earth Engine                 earthengine
+hydrobasins              figshare-basinatlas  figshare BasinATLAS gdb      no account
+hydrobasins              hydrosheds           HydroSHEDS regional zips     no account
+hydrobasins              gee                  Earth Engine                 earthengine
+grdc-major-river-basins  world-bank           World Bank zip               no account
+grdc-wmo-basins          grdc                 GRDC zip                     no account
+</pre></div>
+</div>
+<p>HUC8 subbasins and HUC12 sub-watersheds from the REST service. The loader
+pages the service in small blocks, because one unpaged HUC12 query over a
+large box times out and comes back as HTML rather than GeoJSON.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">huc8_gdf</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.hydro.basins.huc.html#easysnowdata.hydro.basins.huc" title="easysnowdata.hydro.basins.huc" class="sphx-glr-backref-module-easysnowdata-hydro-basins sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">hydro</span><span class="o">.</span><span class="n">basins</span><span class="o">.</span><span class="n">huc</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">huc12_gdf</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.hydro.basins.huc.html#easysnowdata.hydro.basins.huc" title="easysnowdata.hydro.basins.huc" class="sphx-glr-backref-module-easysnowdata-hydro-basins sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">hydro</span><span class="o">.</span><span class="n">basins</span><span class="o">.</span><span class="n">huc</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">huc8_gdf</span></a><span class="p">[[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;huc8&quot;</span><span class="p">,</span> <span class="s2">&quot;areasqkm&quot;</span><span class="p">,</span> <span class="s2">&quot;states&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">huc12_gdf</span></a><span class="p">)</span><span class="si">}</span><span class="s2"> HUC12 sub-watersheds intersect the box&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>         name     huc8  areasqkm states
+    Nisqually 17110015   1994.47     WA
+     Puyallup 17110014   2533.97     WA
+Upper Cowlitz 17080004   2655.30     WA
+20 HUC12 sub-watersheds intersect the box
+</pre></div>
+</div>
+<p>The same call with <code class="docutils literal notranslate"><span class="pre">source=&quot;gee&quot;</span></code> returns the same columns from the 2017
+WBD snapshot on Earth Engine, for users who already hold an account:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">huc8_gee_gdf</span> <span class="o">=</span> <a href="../../generated/easysnowdata.hydro.basins.huc.html#easysnowdata.hydro.basins.huc" title="easysnowdata.hydro.basins.huc" class="sphx-glr-backref-module-easysnowdata-hydro-basins sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">hydro</span><span class="o">.</span><span class="n">basins</span><span class="o">.</span><span class="n">huc</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">&quot;gee&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The geometries differ slightly from the REST service’s, which is current
+and rounds coordinates to six decimals.</p>
+<p>HydroBASINS, here from the HydroATLAS copy on Earth Engine. The HydroSHEDS
+regional zip (<code class="docutils literal notranslate"><span class="pre">source=&quot;hydrosheds&quot;</span></code>, no account, cached after the first
+download) serves the same polygons, but that server refuses cloud-runner
+addresses such as the one this page is built on, so the Earth Engine route
+is used for the build; on your own machine either works. <code class="docutils literal notranslate"><span class="pre">PFAF_ID</span></code> is the
+Pfafstetter code: every digit is one level of nesting, so a level-8 basin’s
+level-6 parent is its first six digits. Level 8 here is 1 500 to 2 600 km²
+per basin, the size of a HUC8.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hybas_source</span></a> <span class="o">=</span> <span class="s2">&quot;hydrosheds&quot;</span>
+<span class="k">try</span><span class="p">:</span>
+    <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hybas8_gdf</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.hydro.basins.hydrobasins.html#easysnowdata.hydro.basins.hydrobasins" title="easysnowdata.hydro.basins.hydrobasins" class="sphx-glr-backref-module-easysnowdata-hydro-basins sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">hydro</span><span class="o">.</span><span class="n">basins</span><span class="o">.</span><span class="n">hydrobasins</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hybas_source</span></a><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># the HydroSHEDS server blocks some networks</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;HydroSHEDS route unavailable here (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">); using Earth Engine&quot;</span>
+    <span class="p">)</span>
+    <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hybas8_gdf</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.hydro.basins.hydrobasins.html#easysnowdata.hydro.basins.hydrobasins" title="easysnowdata.hydro.basins.hydrobasins" class="sphx-glr-backref-module-easysnowdata-hydro-basins sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">hydro</span><span class="o">.</span><span class="n">basins</span><span class="o">.</span><span class="n">hydrobasins</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">&quot;gee&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hybas8_gdf</span></a><span class="p">[[</span><span class="s2">&quot;HYBAS_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;PFAF_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;SUB_AREA&quot;</span><span class="p">,</span> <span class="s2">&quot;UP_AREA&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  0%|                                               | 0.00/317M [00:00&lt;?, ?B/s]
+  0%|                                       | 863k/317M [00:00&lt;00:39, 7.98MB/s]
+  1%|▏                                     | 1.66M/317M [00:00&lt;00:47, 6.58MB/s]
+  1%|▎                                     | 2.42M/317M [00:00&lt;00:45, 6.97MB/s]
+  1%|▍                                     | 3.41M/317M [00:00&lt;00:39, 7.92MB/s]
+  1%|▌                                     | 4.21M/317M [00:00&lt;00:50, 6.16MB/s]
+  2%|▌                                     | 4.89M/317M [00:00&lt;00:49, 6.29MB/s]
+  2%|▋                                     | 5.55M/317M [00:00&lt;00:51, 6.06MB/s]
+  2%|▊                                     | 6.29M/317M [00:00&lt;00:49, 6.26MB/s]
+  2%|▊                                     | 6.94M/317M [00:01&lt;00:56, 5.50MB/s]
+  2%|▉                                     | 7.51M/317M [00:01&lt;01:01, 4.99MB/s]
+  3%|▉                                     | 8.19M/317M [00:01&lt;00:58, 5.28MB/s]
+  3%|█                                     | 8.74M/317M [00:01&lt;01:01, 5.03MB/s]
+  3%|█                                     | 9.26M/317M [00:01&lt;01:00, 5.04MB/s]
+  3%|█▏                                    | 9.77M/317M [00:01&lt;01:02, 4.90MB/s]
+  3%|█▎                                    | 10.4M/317M [00:01&lt;00:58, 5.25MB/s]
+  3%|█▎                                    | 11.0M/317M [00:02&lt;01:13, 4.14MB/s]
+  4%|█▎                                    | 11.4M/317M [00:02&lt;01:24, 3.60MB/s]
+  4%|█▍                                    | 11.8M/317M [00:02&lt;01:26, 3.51MB/s]
+  4%|█▍                                    | 12.2M/317M [00:02&lt;01:31, 3.32MB/s]
+  4%|█▌                                    | 12.5M/317M [00:02&lt;01:32, 3.28MB/s]
+  4%|█▌                                    | 12.9M/317M [00:02&lt;01:39, 3.05MB/s]
+  4%|█▌                                    | 13.3M/317M [00:02&lt;01:33, 3.25MB/s]
+  5%|█▊                                    | 15.1M/317M [00:02&lt;00:44, 6.72MB/s]
+  5%|█▉                                    | 15.8M/317M [00:03&lt;00:43, 6.93MB/s]
+  5%|██                                    | 16.7M/317M [00:03&lt;00:40, 7.34MB/s]
+  6%|██                                    | 17.5M/317M [00:03&lt;00:40, 7.43MB/s]
+  6%|██▏                                   | 18.3M/317M [00:03&lt;00:42, 7.09MB/s]
+  6%|██▎                                   | 19.3M/317M [00:03&lt;00:37, 7.86MB/s]
+  6%|██▍                                   | 20.2M/317M [00:03&lt;00:36, 8.16MB/s]
+  7%|██▌                                   | 21.2M/317M [00:03&lt;00:33, 8.75MB/s]
+  7%|██▋                                   | 22.1M/317M [00:03&lt;00:37, 7.84MB/s]
+  7%|██▊                                   | 22.9M/317M [00:03&lt;00:39, 7.45MB/s]
+  7%|██▊                                   | 23.7M/317M [00:04&lt;00:39, 7.43MB/s]
+  8%|██▉                                   | 24.4M/317M [00:04&lt;00:47, 6.10MB/s]
+  8%|███                                   | 25.1M/317M [00:04&lt;00:47, 6.20MB/s]
+  8%|███▏                                  | 26.6M/317M [00:04&lt;00:34, 8.35MB/s]
+  9%|███▎                                  | 27.5M/317M [00:04&lt;00:42, 6.73MB/s]
+  9%|███▍                                  | 28.2M/317M [00:04&lt;00:42, 6.84MB/s]
+ 10%|███▉                                  | 32.7M/317M [00:04&lt;00:17, 16.1MB/s]
+ 12%|████▌                                 | 38.1M/317M [00:04&lt;00:11, 24.5MB/s]
+ 13%|████▉                                 | 40.7M/317M [00:05&lt;00:16, 16.3MB/s]
+ 14%|█████▏                                | 42.8M/317M [00:05&lt;00:18, 14.8MB/s]
+ 14%|█████▎                                | 44.6M/317M [00:05&lt;00:22, 12.4MB/s]
+ 15%|█████▌                                | 46.1M/317M [00:05&lt;00:21, 12.5MB/s]
+ 15%|█████▋                                | 47.6M/317M [00:05&lt;00:22, 11.7MB/s]
+ 15%|█████▊                                | 48.9M/317M [00:06&lt;00:22, 12.0MB/s]
+ 16%|██████                                | 50.2M/317M [00:06&lt;00:22, 11.7MB/s]
+ 17%|██████▍                               | 54.1M/317M [00:06&lt;00:14, 18.2MB/s]
+ 18%|██████▋                               | 56.2M/317M [00:06&lt;00:16, 15.9MB/s]
+ 21%|███████▊                              | 65.3M/317M [00:06&lt;00:07, 33.7MB/s]
+ 24%|█████████                             | 75.9M/317M [00:06&lt;00:04, 51.7MB/s]
+ 27%|██████████▍                           | 86.5M/317M [00:06&lt;00:03, 66.1MB/s]
+ 31%|███████████▋                          | 97.1M/317M [00:06&lt;00:02, 77.2MB/s]
+ 34%|█████████████▎                         | 108M/317M [00:06&lt;00:02, 85.6MB/s]
+ 37%|██████████████▌                        | 119M/317M [00:07&lt;00:02, 91.9MB/s]
+ 41%|███████████████▉                       | 129M/317M [00:07&lt;00:01, 96.4MB/s]
+ 44%|█████████████████▏                     | 140M/317M [00:07&lt;00:01, 98.6MB/s]
+ 47%|██████████████████▉                     | 150M/317M [00:07&lt;00:01, 101MB/s]
+ 51%|████████████████████▎                   | 161M/317M [00:07&lt;00:01, 103MB/s]
+ 54%|█████████████████████▋                  | 172M/317M [00:07&lt;00:01, 104MB/s]
+ 58%|███████████████████████                 | 182M/317M [00:07&lt;00:01, 105MB/s]
+ 61%|████████████████████████▍               | 193M/317M [00:07&lt;00:01, 106MB/s]
+ 64%|█████████████████████████▊              | 204M/317M [00:07&lt;00:01, 106MB/s]
+ 68%|███████████████████████████▏            | 215M/317M [00:07&lt;00:00, 107MB/s]
+ 71%|████████████████████████████▌           | 226M/317M [00:08&lt;00:00, 108MB/s]
+ 75%|█████████████████████████████▉          | 237M/317M [00:08&lt;00:00, 108MB/s]
+ 78%|███████████████████████████████▏        | 247M/317M [00:08&lt;00:00, 107MB/s]
+ 82%|████████████████████████████████▌       | 258M/317M [00:08&lt;00:00, 108MB/s]
+ 85%|█████████████████████████████████▉      | 269M/317M [00:08&lt;00:00, 108MB/s]
+ 88%|███████████████████████████████████▎    | 280M/317M [00:08&lt;00:00, 108MB/s]
+ 92%|████████████████████████████████████▋   | 291M/317M [00:08&lt;00:00, 108MB/s]
+ 95%|██████████████████████████████████████  | 302M/317M [00:08&lt;00:00, 108MB/s]
+ 99%|███████████████████████████████████████▍| 312M/317M [00:08&lt;00:00, 108MB/s]
+  0%|                                               | 0.00/317M [00:00&lt;?, ?B/s]
+100%|███████████████████████████████████████| 317M/317M [00:00&lt;00:00, 1.55TB/s]
+  HYBAS_ID  PFAF_ID  SUB_AREA  UP_AREA
+7080371080 78210029    1520.0   1520.3
+7080015820 78310380    1878.7   1878.7
+7080015900 78310400    2637.9   2637.9
+</pre></div>
+</div>
+<p>Left: HUC12s coloured by name inside the HUC8 outlines. Right: the HUC8
+divides over HydroBASINS level 8. The two products were drawn from
+different elevation models by different rules, and their main divides still
+agree closely; the units are not one-to-one, though: 78210029 covers
+1 520 km² of the 2 655 km² Upper Cowlitz HUC8, the rest falling in level-8
+units that do not touch the box and so were not returned. Vector layers
+draw with geopandas, here reprojected to the AOI’s UTM zone; <code class="docutils literal notranslate"><span class="pre">finish_map</span></code>
+adds the basemap, graticule and scale bar.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">huc8_utm_gdf</span></a><span class="p">,</span> <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">huc12_utm_gdf</span></a><span class="p">,</span> <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hybas8_utm_gdf</span></a> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">basin_gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">utm</span><span class="p">)</span> <span class="k">for</span> <span class="n">basin_gdf</span> <span class="ow">in</span> <span class="p">(</span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">huc8_gdf</span></a><span class="p">,</span> <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">huc12_gdf</span></a><span class="p">,</span> <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hybas8_gdf</span></a><span class="p">)</span>
+<span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">5.6</span><span class="p">))</span>
+<a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">huc12_utm_gdf</span></a><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">column</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;tab20&quot;</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.55</span><span class="p">,</span>
+    <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+    <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">huc8_utm_gdf</span></a><span class="o">.</span><span class="n">boundary</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.6</span><span class="p">)</span>
+<span class="k">for</span> <a href="https://docs.python.org/3/builtins/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a><span class="p">,</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="pandas.Series" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">row</span></a> <span class="ow">in</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.iterrows.html#pandas.DataFrame.iterrows" title="pandas.DataFrame.iterrows" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">huc8_utm_gdf</span><span class="o">.</span><span class="n">iterrows</span></a><span class="p">():</span>
+    <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+        <a href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="pandas.Series" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">row</span></a><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+        <a href="https://shapely.readthedocs.io/en/stable/reference/shapely.Polygon.html#shapely.Polygon.centroid" title="shapely.Polygon.centroid" class="sphx-glr-backref-module-shapely sphx-glr-backref-type-py-property"><span class="n">row</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">centroid</span><span class="o">.</span><span class="n">coords</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+        <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;HUC12 sub-watersheds inside the HUC8 subbasins (USGS WBD)&quot;</span><span class="p">)</span>
+
+<a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">palette8</span></a> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="nb">zip</span><span class="p">(</span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hybas8_gdf</span></a><span class="p">[</span><span class="s2">&quot;PFAF_ID&quot;</span><span class="p">],</span> <span class="p">(</span><span class="s2">&quot;#fdc086&quot;</span><span class="p">,</span> <span class="s2">&quot;#beaed4&quot;</span><span class="p">,</span> <span class="s2">&quot;#7fc97f&quot;</span><span class="p">),</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">)</span>
+<a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hybas8_utm_gdf</span></a><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+    <span class="n">color</span><span class="o">=</span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hybas8_utm_gdf</span></a><span class="p">[</span><span class="s2">&quot;PFAF_ID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">palette8</span></a><span class="p">),</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.55</span><span class="p">,</span>
+    <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+    <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">huc8_utm_gdf</span></a><span class="o">.</span><span class="n">boundary</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.4</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+    <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">handles</span></a><span class="o">=</span><span class="p">[</span>
+        <span class="o">*</span><span class="p">[</span>
+            <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.Patch.html#matplotlib.patches.Patch" title="matplotlib.patches.Patch" class="sphx-glr-backref-module-matplotlib-patches sphx-glr-backref-type-py-class"><span class="n">Patch</span></a><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.55</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;HydroBASINS </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">palette8</span></a><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">],</span>
+        <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.lines.Line2D.html#matplotlib.lines.Line2D" title="matplotlib.lines.Line2D" class="sphx-glr-backref-module-matplotlib-lines sphx-glr-backref-type-py-class"><span class="n">Line2D</span></a><span class="p">(</span>
+            <span class="p">[],</span>
+            <span class="p">[],</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.4</span><span class="p">,</span>
+            <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;HUC8 (USGS WBD)&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">],</span>
+    <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;HUC8 divides over HydroBASINS level 8&quot;</span><span class="p">)</span>
+<a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">x0</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">y0</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">x1</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">y1</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI.to_crs" title="easysnowdata.AOI.to_crs" class="sphx-glr-backref-module-easysnowdata sphx-glr-backref-type-py-method"><span class="n">box</span><span class="o">.</span><span class="n">to_crs</span></a><span class="p">(</span><span class="n">utm</span><span class="p">)</span><span class="o">.</span><span class="n">total_bounds</span>
+<span class="k">for</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="ow">in</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">:</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xlim.html#matplotlib.axes.Axes.set_xlim" title="matplotlib.axes.Axes.set_xlim" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">x0</span></a> <span class="o">-</span> <span class="mi">30_000</span><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">x1</span></a> <span class="o">+</span> <span class="mi">30_000</span><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylim.html#matplotlib.axes.Axes.set_ylim" title="matplotlib.axes.Axes.set_ylim" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">y0</span></a> <span class="o">-</span> <span class="mi">30_000</span><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">y1</span></a> <span class="o">+</span> <span class="mi">30_000</span><span class="p">)</span>
+    <a href="../../generated/easysnowdata.plotting.finish_map.html#easysnowdata.plotting.finish_map" title="easysnowdata.plotting.finish_map" class="sphx-glr-backref-module-easysnowdata-plotting sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">finish_map</span></a><span class="p">(</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span> <span class="n">utm</span><span class="p">,</span> <span class="n">basemap</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.tight_layout.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_basins_001.png" srcset="../../_images/sphx_glr_plot_basins_001.png" alt="HUC12 sub-watersheds inside the HUC8 subbasins (USGS WBD), HUC8 divides over HydroBASINS level 8" class = "sphx-glr-single-img"/><p>The GRDC layers. The WMO basins carry region numbers and names; the major
+river basins are one polygon each. The shipped area columns of the major
+basins layer (<code class="docutils literal notranslate"><span class="pre">ACRES</span></code>, <code class="docutils literal notranslate"><span class="pre">LAEA_HA</span></code>) are zero in this release, so the area
+below is taken from the geometry in an equal-area projection.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">wmo_gdf</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.hydro.basins.grdc_wmo.html#easysnowdata.hydro.basins.grdc_wmo" title="easysnowdata.hydro.basins.grdc_wmo" class="sphx-glr-backref-module-easysnowdata-hydro-basins sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">hydro</span><span class="o">.</span><span class="n">basins</span><span class="o">.</span><span class="n">grdc_wmo</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">wmo_gdf</span></a><span class="p">[[</span><span class="s2">&quot;WMOBB&quot;</span><span class="p">,</span> <span class="s2">&quot;WMOBB_NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;REGNAME&quot;</span><span class="p">,</span> <span class="s2">&quot;SUM_SUB_AREA&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="p">)</span>
+<a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">major_gdf</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.hydro.basins.grdc_major.html#easysnowdata.hydro.basins.grdc_major" title="easysnowdata.hydro.basins.grdc_major" class="sphx-glr-backref-module-easysnowdata-hydro-basins sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">hydro</span><span class="o">.</span><span class="n">basins</span><span class="o">.</span><span class="n">grdc_major</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="p">)</span>
+<a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">area_km2</span></a> <span class="o">=</span> <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.to_crs.html#geopandas.GeoDataFrame.to_crs" title="geopandas.GeoDataFrame.to_crs" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-method"><span class="n">major_gdf</span><span class="o">.</span><span class="n">to_crs</span></a><span class="p">(</span><span class="s2">&quot;ESRI:102008&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">area</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1e6</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.iloc.html#pandas.DataFrame.iloc" title="pandas.DataFrame.iloc" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-property"><span class="n">major_gdf</span><span class="o">.</span><span class="n">iloc</span></a><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;NAME&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> basin: shipped ACRES=</span><span class="si">{</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.iloc.html#pandas.DataFrame.iloc" title="pandas.DataFrame.iloc" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-property"><span class="n">major_gdf</span><span class="o">.</span><span class="n">iloc</span></a><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;ACRES&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, geometry </span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">area_km2</span></a><span class="si">:</span><span class="s2">,.0f</span><span class="si">}</span><span class="s2"> km2&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  0%|                                               | 0.00/379M [00:00&lt;?, ?B/s]
+  0%|                                    | 9.22k/379M [00:00&lt;1:29:06, 70.8kB/s]
+  0%|                                       | 72.7k/379M [00:00&lt;21:04, 299kB/s]
+  0%|                                        | 161k/379M [00:00&lt;13:49, 457kB/s]
+  0%|                                        | 272k/379M [00:00&lt;10:22, 608kB/s]
+  0%|                                        | 434k/379M [00:00&lt;07:42, 817kB/s]
+  0%|                                       | 633k/379M [00:00&lt;06:05, 1.03MB/s]
+  0%|                                       | 913k/379M [00:00&lt;04:35, 1.37MB/s]
+  0%|                                      | 1.21M/379M [00:01&lt;03:52, 1.62MB/s]
+  0%|▏                                     | 1.53M/379M [00:01&lt;03:24, 1.85MB/s]
+  1%|▏                                     | 1.99M/379M [00:01&lt;02:43, 2.31MB/s]
+  1%|▏                                     | 2.39M/379M [00:01&lt;02:29, 2.51MB/s]
+  1%|▎                                     | 3.04M/379M [00:01&lt;01:57, 3.19MB/s]
+  1%|▎                                     | 3.54M/379M [00:01&lt;01:52, 3.32MB/s]
+  1%|▍                                     | 4.54M/379M [00:01&lt;01:22, 4.53MB/s]
+  2%|▌                                     | 5.82M/379M [00:02&lt;01:02, 6.00MB/s]
+  2%|▋                                     | 6.88M/379M [00:02&lt;00:57, 6.52MB/s]
+  2%|▉                                     | 8.80M/379M [00:02&lt;00:42, 8.78MB/s]
+  3%|█▏                                    | 11.4M/379M [00:02&lt;00:31, 11.7MB/s]
+  4%|█▍                                    | 13.8M/379M [00:02&lt;00:26, 13.7MB/s]
+  5%|█▋                                    | 17.3M/379M [00:02&lt;00:23, 15.5MB/s]
+  5%|██                                    | 20.8M/379M [00:02&lt;00:19, 18.3MB/s]
+  6%|██▎                                   | 23.4M/379M [00:03&lt;00:19, 18.6MB/s]
+  7%|██▌                                   | 25.3M/379M [00:03&lt;00:20, 17.0MB/s]
+  8%|██▉                                   | 29.0M/379M [00:03&lt;00:17, 20.1MB/s]
+  9%|███▎                                  | 32.7M/379M [00:03&lt;00:15, 22.1MB/s]
+ 10%|███▋                                  | 36.5M/379M [00:03&lt;00:14, 23.5MB/s]
+ 11%|████                                  | 39.9M/379M [00:03&lt;00:14, 23.7MB/s]
+ 11%|████▏                                 | 42.3M/379M [00:03&lt;00:15, 21.7MB/s]
+ 12%|████▌                                 | 46.0M/379M [00:04&lt;00:14, 23.4MB/s]
+ 13%|█████                                 | 50.0M/379M [00:04&lt;00:13, 25.0MB/s]
+ 14%|█████▍                                | 54.0M/379M [00:04&lt;00:12, 26.2MB/s]
+ 15%|█████▊                                | 58.1M/379M [00:04&lt;00:11, 27.1MB/s]
+ 16%|██████▏                               | 62.1M/379M [00:04&lt;00:11, 27.6MB/s]
+ 17%|██████▋                               | 66.1M/379M [00:04&lt;00:11, 28.1MB/s]
+ 19%|███████                               | 70.2M/379M [00:04&lt;00:10, 28.3MB/s]
+ 20%|███████▍                              | 74.2M/379M [00:04&lt;00:10, 28.6MB/s]
+ 21%|███████▊                              | 78.2M/379M [00:05&lt;00:10, 28.6MB/s]
+ 22%|████████▎                             | 82.3M/379M [00:05&lt;00:10, 28.8MB/s]
+ 23%|████████▋                             | 86.2M/379M [00:05&lt;00:10, 28.7MB/s]
+ 24%|█████████                             | 90.3M/379M [00:05&lt;00:09, 28.9MB/s]
+ 25%|█████████▍                            | 94.4M/379M [00:05&lt;00:09, 29.0MB/s]
+ 26%|█████████▉                            | 98.4M/379M [00:05&lt;00:09, 29.0MB/s]
+ 27%|██████████▌                            | 102M/379M [00:05&lt;00:09, 29.1MB/s]
+ 28%|██████████▉                            | 107M/379M [00:06&lt;00:09, 28.8MB/s]
+ 29%|███████████▎                           | 109M/379M [00:06&lt;00:16, 16.6MB/s]
+ 29%|███████████▍                           | 112M/379M [00:06&lt;00:23, 11.6MB/s]
+ 30%|███████████▊                           | 115M/379M [00:07&lt;00:19, 13.6MB/s]
+ 31%|████████████                           | 117M/379M [00:07&lt;00:17, 14.9MB/s]
+ 32%|████████████▌                          | 122M/379M [00:07&lt;00:14, 18.2MB/s]
+ 33%|████████████▉                          | 126M/379M [00:07&lt;00:12, 20.9MB/s]
+ 34%|█████████████▎                         | 129M/379M [00:07&lt;00:11, 22.3MB/s]
+ 35%|█████████████▋                         | 133M/379M [00:07&lt;00:10, 24.2MB/s]
+ 36%|██████████████                         | 137M/379M [00:07&lt;00:09, 24.5MB/s]
+ 37%|██████████████▌                        | 141M/379M [00:08&lt;00:09, 25.8MB/s]
+ 38%|██████████████▉                        | 145M/379M [00:08&lt;00:08, 26.9MB/s]
+ 39%|███████████████▎                       | 149M/379M [00:08&lt;00:08, 27.5MB/s]
+ 40%|███████████████▊                       | 153M/379M [00:08&lt;00:08, 28.1MB/s]
+ 42%|████████████████▏                      | 157M/379M [00:08&lt;00:07, 28.6MB/s]
+ 43%|████████████████▌                      | 161M/379M [00:08&lt;00:07, 28.6MB/s]
+ 44%|█████████████████                      | 165M/379M [00:08&lt;00:07, 28.8MB/s]
+ 45%|█████████████████▍                     | 169M/379M [00:09&lt;00:07, 29.0MB/s]
+ 46%|█████████████████▉                     | 174M/379M [00:09&lt;00:07, 29.2MB/s]
+ 47%|██████████████████▎                    | 178M/379M [00:09&lt;00:06, 29.6MB/s]
+ 48%|██████████████████▋                    | 182M/379M [00:09&lt;00:06, 29.6MB/s]
+ 49%|███████████████████▏                   | 186M/379M [00:09&lt;00:06, 29.5MB/s]
+ 50%|███████████████████▌                   | 190M/379M [00:09&lt;00:06, 29.5MB/s]
+ 51%|███████████████████▉                   | 194M/379M [00:09&lt;00:06, 28.9MB/s]
+ 52%|████████████████████▍                  | 198M/379M [00:09&lt;00:06, 28.8MB/s]
+ 53%|████████████████████▊                  | 202M/379M [00:10&lt;00:06, 29.0MB/s]
+ 54%|█████████████████████▏                 | 206M/379M [00:10&lt;00:06, 28.3MB/s]
+ 55%|█████████████████████▌                 | 210M/379M [00:10&lt;00:05, 28.5MB/s]
+ 56%|██████████████████████                 | 214M/379M [00:10&lt;00:05, 28.7MB/s]
+ 57%|██████████████████████▍                | 218M/379M [00:10&lt;00:05, 28.4MB/s]
+ 59%|██████████████████████▊                | 222M/379M [00:10&lt;00:05, 28.7MB/s]
+ 60%|███████████████████████▏               | 226M/379M [00:10&lt;00:05, 28.8MB/s]
+ 61%|███████████████████████▋               | 230M/379M [00:11&lt;00:05, 28.8MB/s]
+ 62%|████████████████████████               | 234M/379M [00:11&lt;00:05, 29.0MB/s]
+ 63%|████████████████████████▍              | 238M/379M [00:11&lt;00:04, 28.7MB/s]
+ 64%|████████████████████████▉              | 242M/379M [00:11&lt;00:04, 28.9MB/s]
+ 65%|█████████████████████████▎             | 246M/379M [00:11&lt;00:04, 29.1MB/s]
+ 66%|█████████████████████████▋             | 250M/379M [00:11&lt;00:04, 29.1MB/s]
+ 67%|██████████████████████████▏            | 254M/379M [00:11&lt;00:04, 29.2MB/s]
+ 68%|██████████████████████████▌            | 258M/379M [00:12&lt;00:04, 29.2MB/s]
+ 69%|███████████████████████████            | 262M/379M [00:12&lt;00:03, 29.7MB/s]
+ 70%|███████████████████████████▍           | 266M/379M [00:12&lt;00:03, 29.7MB/s]
+ 71%|███████████████████████████▉           | 271M/379M [00:12&lt;00:03, 30.0MB/s]
+ 73%|████████████████████████████▎          | 275M/379M [00:12&lt;00:03, 29.8MB/s]
+ 74%|████████████████████████████▋          | 279M/379M [00:12&lt;00:03, 29.7MB/s]
+ 75%|█████████████████████████████▏         | 283M/379M [00:12&lt;00:03, 29.5MB/s]
+ 76%|█████████████████████████████▌         | 287M/379M [00:13&lt;00:03, 29.5MB/s]
+ 77%|█████████████████████████████▉         | 291M/379M [00:13&lt;00:02, 29.4MB/s]
+ 78%|██████████████████████████████▍        | 295M/379M [00:13&lt;00:02, 29.4MB/s]
+ 79%|██████████████████████████████▊        | 299M/379M [00:13&lt;00:02, 29.3MB/s]
+ 80%|███████████████████████████████▏       | 303M/379M [00:13&lt;00:02, 29.4MB/s]
+ 81%|███████████████████████████████▋       | 307M/379M [00:13&lt;00:02, 29.2MB/s]
+ 82%|████████████████████████████████       | 312M/379M [00:13&lt;00:02, 29.5MB/s]
+ 83%|████████████████████████████████▍      | 316M/379M [00:14&lt;00:02, 29.3MB/s]
+ 84%|████████████████████████████████▉      | 320M/379M [00:14&lt;00:02, 29.3MB/s]
+ 85%|█████████████████████████████████▎     | 324M/379M [00:14&lt;00:01, 29.1MB/s]
+ 87%|█████████████████████████████████▋     | 328M/379M [00:14&lt;00:01, 29.1MB/s]
+ 88%|██████████████████████████████████▏    | 332M/379M [00:14&lt;00:01, 29.1MB/s]
+ 89%|██████████████████████████████████▌    | 336M/379M [00:14&lt;00:01, 29.2MB/s]
+ 90%|██████████████████████████████████▉    | 340M/379M [00:14&lt;00:01, 29.2MB/s]
+ 91%|███████████████████████████████████▍   | 344M/379M [00:14&lt;00:01, 29.3MB/s]
+ 92%|███████████████████████████████████▊   | 348M/379M [00:15&lt;00:01, 29.3MB/s]
+ 93%|████████████████████████████████████▏  | 351M/379M [00:15&lt;00:00, 27.7MB/s]
+ 94%|████████████████████████████████████▌  | 355M/379M [00:15&lt;00:00, 28.2MB/s]
+ 95%|█████████████████████████████████████  | 359M/379M [00:15&lt;00:00, 28.4MB/s]
+ 96%|█████████████████████████████████████▍ | 364M/379M [00:15&lt;00:00, 28.8MB/s]
+ 97%|█████████████████████████████████████▊ | 368M/379M [00:15&lt;00:00, 28.9MB/s]
+ 98%|██████████████████████████████████████▎| 372M/379M [00:15&lt;00:00, 28.9MB/s]
+ 99%|██████████████████████████████████████▋| 376M/379M [00:16&lt;00:00, 29.0MB/s]
+  0%|                                               | 0.00/379M [00:00&lt;?, ?B/s]
+100%|███████████████████████████████████████| 379M/379M [00:00&lt;00:00, 2.12TB/s]
+ WMOBB                                                          WMOBB_NAME                                          REGNAME  SUM_SUB_AREA
+   415                                                   COLUMBIA (ex 416) North America, Central America and the Caribbean      390679.1
+   446 North Pacific (ex 341, 405, 406, 445, 455, 456, 457, 471, 474, 477) North America, Central America and the Caribbean      386726.3
+Columbia basin: shipped ACRES=0.002, geometry 670,165 km2
+</pre></div>
+</div>
+<p>Left: level-6 HydroBASINS (fill) inside the WMO basins (outline: the
+Columbia, and the North Pacific coastal basins), with the AOI in red. Right:
+the GRDC major basin, the Columbia, with the same AOI as a dot, to show the
+scale jump from a sub-watershed to a continental basin.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hybas6_gdf</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.hydro.basins.hydrobasins.html#easysnowdata.hydro.basins.hydrobasins" title="easysnowdata.hydro.basins.hydrobasins" class="sphx-glr-backref-module-easysnowdata-hydro-basins sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">hydro</span><span class="o">.</span><span class="n">basins</span><span class="o">.</span><span class="n">hydrobasins</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hybas_source</span></a><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">5.6</span><span class="p">))</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">palette6</span></a> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="nb">zip</span><span class="p">(</span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hybas6_gdf</span></a><span class="p">[</span><span class="s2">&quot;PFAF_ID&quot;</span><span class="p">],</span> <span class="p">(</span><span class="s2">&quot;#66c2a5&quot;</span><span class="p">,</span> <span class="s2">&quot;#e6f598&quot;</span><span class="p">,</span> <span class="s2">&quot;#8da0cb&quot;</span><span class="p">),</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">)</span>
+<a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hybas6_gdf</span></a><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">color</span><span class="o">=</span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hybas6_gdf</span></a><span class="p">[</span><span class="s2">&quot;PFAF_ID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">palette6</span></a><span class="p">),</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+    <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+    <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">wmo_gdf</span></a><span class="o">.</span><span class="n">boundary</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.4</span><span class="p">)</span>
+<span class="n">esd</span><span class="o">.</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="o">.</span><span class="n">parse_aoi</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="p">)</span><span class="o">.</span><span class="n">footprint</span><span class="o">.</span><span class="n">boundary</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">handles</span></a> <span class="o">=</span> <span class="p">[</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.patches.Patch.html#matplotlib.patches.Patch" title="matplotlib.patches.Patch" class="sphx-glr-backref-module-matplotlib-patches sphx-glr-backref-type-py-class"><span class="n">Patch</span></a><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;PFAF </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">palette6</span></a><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+<span class="p">]</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">handles</span></a> <span class="o">+=</span> <span class="p">[</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.lines.Line2D.html#matplotlib.lines.Line2D" title="matplotlib.lines.Line2D" class="sphx-glr-backref-module-matplotlib-lines sphx-glr-backref-type-py-class"><span class="n">Line2D</span></a><span class="p">([],</span> <span class="p">[],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.4</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;GRDC / WMO basins&quot;</span><span class="p">),</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.lines.Line2D.html#matplotlib.lines.Line2D" title="matplotlib.lines.Line2D" class="sphx-glr-backref-module-matplotlib-lines sphx-glr-backref-type-py-class"><span class="n">Line2D</span></a><span class="p">([],</span> <span class="p">[],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;AOI&quot;</span><span class="p">),</span>
+<span class="p">]</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">handles</span></a><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">handles</span></a><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper right&quot;</span><span class="p">)</span>
+<a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">x0</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">y0</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">x1</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">y1</span></a> <span class="o">=</span> <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hybas6_gdf</span></a><span class="o">.</span><span class="n">total_bounds</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">x0</span></a> <span class="o">-</span> <span class="mf">0.2</span><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">x1</span></a> <span class="o">+</span> <span class="mf">0.2</span><span class="p">)</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">y0</span></a> <span class="o">-</span> <span class="mf">0.2</span><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">y1</span></a> <span class="o">+</span> <span class="mf">0.2</span><span class="p">)</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;HydroBASINS level 6 inside the GRDC / WMO basins&quot;</span><span class="p">)</span>
+
+<a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">major_gdf</span></a><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;#cfe3f7&quot;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;#1f4e79&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span>
+<span class="p">)</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="o">*</span><span class="n">esd</span><span class="o">.</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="o">.</span><span class="n">parse_aoi</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="p">)</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">centroid</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span>
+    <span class="n">markersize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;GRDC major basin: </span><span class="si">{</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.iloc.html#pandas.DataFrame.iloc" title="pandas.DataFrame.iloc" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-property"><span class="n">major_gdf</span><span class="o">.</span><span class="n">iloc</span></a><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;NAME&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">area_km2</span></a><span class="si">:</span><span class="s2">,.0f</span><span class="si">}</span><span class="s2"> km²&quot;</span><span class="p">)</span>
+<span class="k">for</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="ow">in</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">:</span>
+    <a href="../../generated/easysnowdata.plotting.finish_map.html#easysnowdata.plotting.finish_map" title="easysnowdata.plotting.finish_map" class="sphx-glr-backref-module-easysnowdata-plotting sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">finish_map</span></a><span class="p">(</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span> <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.crs.html#geopandas.GeoDataFrame.crs" title="geopandas.GeoDataFrame.crs" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-property"><span class="n">hybas6_gdf</span><span class="o">.</span><span class="n">crs</span></a><span class="p">,</span> <span class="n">basemap</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.tight_layout.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_basins_002.png" srcset="../../_images/sphx_glr_plot_basins_002.png" alt="HydroBASINS level 6 inside the GRDC / WMO basins, GRDC major basin: Columbia, 670,165 km²" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 44.748 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-hydro-plot-basins-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/55982729da9512887c8fa2d5d221916d/plot_basins.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_basins.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/a2b2f2e071e0f6bd0f652c727e2367be/plot_basins.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_basins.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/75b0b5739efa9ff2a3fcd3c87eaa087a/plot_basins.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_basins.zip</span></code></a></p>
+</div>
+</div>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Hydrography</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../boundaries/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Boundaries</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/egagli/easysnowdata/edit/main/docs/auto_examples/hydro/plot_basins.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

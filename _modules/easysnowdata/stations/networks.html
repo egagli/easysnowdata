@@ -1,0 +1,983 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>easysnowdata.stations.networks &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=16fc681a"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/easysnowdata/stations/networks';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.3.dev19" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">easysnowdata.stations.networks</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for easysnowdata.stations.networks</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;The five snow-station networks, and how a station code maps to one of them.</span>
+
+<span class="sd">Each :class:`Network` ties a catalog source id to the vendored client that</span>
+<span class="sd">speaks to it (:mod:`easysnowdata.stations.clients`) and to the spelling of a</span>
+<span class="sd">station identifier in that network. Two spellings matter:</span>
+
+<span class="sd">``code``</span>
+<span class="sd">    The globally unique code the inventory and the archive use, e.g.</span>
+<span class="sd">    ``&quot;679_WA_SNTL&quot;``. Unique across all five networks.</span>
+<span class="sd">``station_id``</span>
+<span class="sd">    What the network&#39;s own API calls the station, e.g. the AWDB triplet</span>
+<span class="sd">    ``&quot;679:WA:SNTL&quot;``. Only AWDB&#39;s two spellings differ; for the other four</span>
+<span class="sd">    the code *is* the station id.</span>
+
+<span class="sd">:func:`split_by_network` turns a mix of codes, station ids and inventory rows</span>
+<span class="sd">into ``{network_id: [station_id, …]}``, which is what :func:`easysnowdata.stations.load`</span>
+<span class="sd">fans out over.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;NETWORKS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Network&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TYPES&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;canonical_units&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;split_by_network&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;to_code&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;to_station_id&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Network">
+<a class="viewcode-back" href="../../../generated/easysnowdata.stations.networks.Network.html#easysnowdata.stations.networks.Network">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Network</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;One snow-station network and the client that reads it.&quot;&quot;&quot;</span>
+
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">client</span><span class="p">:</span> <span class="nb">str</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class name in :mod:`easysnowdata.stations.clients`.&quot;&quot;&quot;</span>
+    <span class="n">requires</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Auth providers the API needs (§5).&quot;&quot;&quot;</span>
+    <span class="n">extent</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">data_provider</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">api_url</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="c1">#: Key in the client&#39;s station dicts that holds the native station id.</span>
+    <span class="n">id_key</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="c1">#: True when ``code`` is the station id with ``:`` swapped for ``_``.</span>
+    <span class="n">colon_code</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1">#: Regex a *code* of this network matches; ``None`` when it cannot be</span>
+    <span class="c1">#: told apart from another network&#39;s by shape alone.</span>
+    <span class="n">code_pattern</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Network.client_class">
+<a class="viewcode-back" href="../../../generated/easysnowdata.stations.networks.Network.html#easysnowdata.stations.networks.Network.client_class">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">client_class</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Import and return the client class.&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.stations</span><span class="w"> </span><span class="kn">import</span> <span class="n">clients</span>  <span class="c1"># noqa: PLC0415</span>
+
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">clients</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Network.station_id">
+<a class="viewcode-back" href="../../../generated/easysnowdata.stations.networks.Network.html#easysnowdata.stations.networks.Network.station_id">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">station_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">station</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The native station id for *station* (a code or an id already).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">station</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;:&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">colon_code</span> <span class="k">else</span> <span class="n">station</span></div>
+
+
+<div class="viewcode-block" id="Network.code">
+<a class="viewcode-back" href="../../../generated/easysnowdata.stations.networks.Network.html#easysnowdata.stations.networks.Network.code">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">station_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The globally unique code for a native *station_id*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">station_id</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">colon_code</span> <span class="k">else</span> <span class="n">station_id</span></div>
+</div>
+
+
+
+<span class="n">NETWORKS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Network</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;awdb&quot;</span><span class="p">:</span> <span class="n">Network</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;awdb&quot;</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;USDA NRCS AWDB (SNOTEL, SCAN, snow courses)&quot;</span><span class="p">,</span>
+        <span class="n">client</span><span class="o">=</span><span class="s2">&quot;AWDBClient&quot;</span><span class="p">,</span>
+        <span class="n">requires</span><span class="o">=</span><span class="p">(),</span>
+        <span class="n">extent</span><span class="o">=</span><span class="s2">&quot;western US, western Canada&quot;</span><span class="p">,</span>
+        <span class="n">data_provider</span><span class="o">=</span><span class="s2">&quot;USDA NRCS National Water and Climate Center&quot;</span><span class="p">,</span>
+        <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1&quot;</span><span class="p">,</span>
+        <span class="n">id_key</span><span class="o">=</span><span class="s2">&quot;stationTriplet&quot;</span><span class="p">,</span>
+        <span class="n">colon_code</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="c1"># &quot;679_WA_SNTL&quot; / &quot;679:WA:SNTL&quot; — three parts, the last a network code</span>
+        <span class="n">code_pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[A-Za-z0-9]+[:_][A-Z]</span><span class="si">{2}</span><span class="s2">[:_][A-Z]+$&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;cdec&quot;</span><span class="p">:</span> <span class="n">Network</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;cdec&quot;</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;California Data Exchange Center (CCSS)&quot;</span><span class="p">,</span>
+        <span class="n">client</span><span class="o">=</span><span class="s2">&quot;CDECClient&quot;</span><span class="p">,</span>
+        <span class="n">requires</span><span class="o">=</span><span class="p">(),</span>
+        <span class="n">extent</span><span class="o">=</span><span class="s2">&quot;California&quot;</span><span class="p">,</span>
+        <span class="n">data_provider</span><span class="o">=</span><span class="s2">&quot;California Department of Water Resources&quot;</span><span class="p">,</span>
+        <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;https://cdec.water.ca.gov&quot;</span><span class="p">,</span>
+        <span class="n">id_key</span><span class="o">=</span><span class="s2">&quot;station_id&quot;</span><span class="p">,</span>
+        <span class="c1"># CDEC ids (&quot;QUA&quot;) and DataBC ids (&quot;1A01P&quot;) overlap, so neither can be</span>
+        <span class="c1"># told from the other by shape; both are resolved by lookup instead.</span>
+        <span class="n">code_pattern</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;databc&quot;</span><span class="p">:</span> <span class="n">Network</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;databc&quot;</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;BC automated snow weather stations and manual snow surveys&quot;</span><span class="p">,</span>
+        <span class="n">client</span><span class="o">=</span><span class="s2">&quot;DataBCClient&quot;</span><span class="p">,</span>
+        <span class="n">requires</span><span class="o">=</span><span class="p">(),</span>
+        <span class="n">extent</span><span class="o">=</span><span class="s2">&quot;British Columbia&quot;</span><span class="p">,</span>
+        <span class="n">data_provider</span><span class="o">=</span><span class="s2">&quot;BC Ministry of Environment / BC Data Catalogue&quot;</span><span class="p">,</span>
+        <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;https://openmaps.gov.bc.ca/geo/pub&quot;</span><span class="p">,</span>
+        <span class="n">id_key</span><span class="o">=</span><span class="s2">&quot;location_id&quot;</span><span class="p">,</span>
+        <span class="n">code_pattern</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;nve&quot;</span><span class="p">:</span> <span class="n">Network</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;nve&quot;</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;NVE HydAPI (Norway)&quot;</span><span class="p">,</span>
+        <span class="n">client</span><span class="o">=</span><span class="s2">&quot;NVEClient&quot;</span><span class="p">,</span>
+        <span class="n">requires</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;nve&quot;</span><span class="p">,),</span>
+        <span class="n">extent</span><span class="o">=</span><span class="s2">&quot;Norway&quot;</span><span class="p">,</span>
+        <span class="n">data_provider</span><span class="o">=</span><span class="s2">&quot;Norwegian Water Resources and Energy Directorate&quot;</span><span class="p">,</span>
+        <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;https://hydapi.nve.no/api/v1&quot;</span><span class="p">,</span>
+        <span class="n">id_key</span><span class="o">=</span><span class="s2">&quot;station_id&quot;</span><span class="p">,</span>
+        <span class="c1"># &quot;12.142.0&quot; — dotted, digits only</span>
+        <span class="n">code_pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^\d+(\.\d+)+$&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;yukon&quot;</span><span class="p">:</span> <span class="n">Network</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;yukon&quot;</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Yukon Water Data (AquaCache)&quot;</span><span class="p">,</span>
+        <span class="n">client</span><span class="o">=</span><span class="s2">&quot;YukonClient&quot;</span><span class="p">,</span>
+        <span class="n">requires</span><span class="o">=</span><span class="p">(),</span>
+        <span class="n">extent</span><span class="o">=</span><span class="s2">&quot;Yukon and neighbouring BC/Alaska courses&quot;</span><span class="p">,</span>
+        <span class="n">data_provider</span><span class="o">=</span><span class="s2">&quot;Government of Yukon&quot;</span><span class="p">,</span>
+        <span class="n">api_url</span><span class="o">=</span><span class="s2">&quot;https://service.yukon.ca/water-data/api/v1&quot;</span><span class="p">,</span>
+        <span class="n">id_key</span><span class="o">=</span><span class="s2">&quot;station_id&quot;</span><span class="p">,</span>
+        <span class="c1"># &quot;09AA-M1&quot;, &quot;08AA-SC01&quot;, &quot;10MD-MET-00004&quot; — hyphenated</span>
+        <span class="n">code_pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[0-9]</span><span class="si">{2}</span><span class="s2">[A-Z]</span><span class="si">{2}</span><span class="s2">-[A-Z0-9-]+$&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+<span class="c1">#: Standardized variable type -&gt; (canonical units, long name). The vocabulary</span>
+<span class="c1">#: and the units are ``global_snow_networks``&#39; DESIGN.md §3.2 and §3.5.</span>
+<span class="n">TYPES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;swe&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;cm&quot;</span><span class="p">,</span> <span class="s2">&quot;snow water equivalent&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;snwd&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;cm&quot;</span><span class="p">,</span> <span class="s2">&quot;snow depth&quot;</span><span class="p">),</span>
+    <span class="c1"># New snow as a depth of snow, deliberately not `precip` (a depth of</span>
+    <span class="c1"># water) and not `snwd` (what is already on the ground). The three are</span>
+    <span class="c1"># not interconvertible.</span>
+    <span class="s2">&quot;snowfall&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;cm&quot;</span><span class="p">,</span> <span class="s2">&quot;snowfall&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;temp&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;°C&quot;</span><span class="p">,</span> <span class="s2">&quot;air temperature&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;temp_max&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;°C&quot;</span><span class="p">,</span> <span class="s2">&quot;maximum air temperature&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;temp_min&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;°C&quot;</span><span class="p">,</span> <span class="s2">&quot;minimum air temperature&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;precip&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;mm&quot;</span><span class="p">,</span> <span class="s2">&quot;precipitation&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;rh&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;%&quot;</span><span class="p">,</span> <span class="s2">&quot;relative humidity&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;wind_spd&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;km/h&quot;</span><span class="p">,</span> <span class="s2">&quot;wind speed&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;wind_gust&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;km/h&quot;</span><span class="p">,</span> <span class="s2">&quot;wind gust speed&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;wind_dir&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;degrees&quot;</span><span class="p">,</span> <span class="s2">&quot;wind direction&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;wind_run&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;km&quot;</span><span class="p">,</span> <span class="s2">&quot;wind run&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;solar&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;W/m²&quot;</span><span class="p">,</span> <span class="s2">&quot;solar radiation&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;baro&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;hPa&quot;</span><span class="p">,</span> <span class="s2">&quot;barometric pressure&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;density&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;%&quot;</span><span class="p">,</span> <span class="s2">&quot;snow density&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;snow_line&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;snow line elevation&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;soil_moisture&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;%&quot;</span><span class="p">,</span> <span class="s2">&quot;soil moisture&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;other&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;other measurement&quot;</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="c1">#: Conversions that are safe *for a given type*, keyed ``(type, from, to)``.</span>
+<span class="c1">#:</span>
+<span class="c1">#: Keyed by type on purpose. A length conversion that is right for one</span>
+<span class="c1">#: quantity is wrong for another: ``swe`` in cm and in m are the same depth of</span>
+<span class="c1">#: water, but ``precip`` in mm (depth of water) and in cm (depth of new</span>
+<span class="c1">#: snowfall, which is what Yukon&#39;s ``precip_snow_cm`` measures) are different</span>
+<span class="c1">#: quantities, and multiplying one by ten to look like the other would report</span>
+<span class="c1">#: 5 cm of snow as 50 mm of water. Anything not listed here raises rather than</span>
+<span class="c1">#: being fabricated.</span>
+<span class="n">_UNIT_FACTORS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Barometric pressure: the same quantity, and Yukon emits kPa where</span>
+    <span class="c1"># DataBC and DESIGN.md §3.5 use hPa.</span>
+    <span class="p">(</span><span class="s2">&quot;baro&quot;</span><span class="p">,</span> <span class="s2">&quot;kPa&quot;</span><span class="p">,</span> <span class="s2">&quot;hPa&quot;</span><span class="p">):</span> <span class="mf">10.0</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;baro&quot;</span><span class="p">,</span> <span class="s2">&quot;hPa&quot;</span><span class="p">,</span> <span class="s2">&quot;kPa&quot;</span><span class="p">):</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="c1"># Snow water equivalent and snow depth: plain depth, safely rescaled.</span>
+    <span class="p">(</span><span class="s2">&quot;swe&quot;</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;cm&quot;</span><span class="p">):</span> <span class="mf">100.0</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;swe&quot;</span><span class="p">,</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">):</span> <span class="mf">0.01</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;swe&quot;</span><span class="p">,</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span> <span class="s2">&quot;cm&quot;</span><span class="p">):</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;swe&quot;</span><span class="p">,</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span> <span class="s2">&quot;mm&quot;</span><span class="p">):</span> <span class="mf">10.0</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;snwd&quot;</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;cm&quot;</span><span class="p">):</span> <span class="mf">100.0</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;snwd&quot;</span><span class="p">,</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">):</span> <span class="mf">0.01</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;snwd&quot;</span><span class="p">,</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span> <span class="s2">&quot;cm&quot;</span><span class="p">):</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;snwd&quot;</span><span class="p">,</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span> <span class="s2">&quot;mm&quot;</span><span class="p">):</span> <span class="mf">10.0</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;snowfall&quot;</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;cm&quot;</span><span class="p">):</span> <span class="mf">100.0</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;snowfall&quot;</span><span class="p">,</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">):</span> <span class="mf">0.01</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;snowfall&quot;</span><span class="p">,</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span> <span class="s2">&quot;cm&quot;</span><span class="p">):</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;snowfall&quot;</span><span class="p">,</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span> <span class="s2">&quot;mm&quot;</span><span class="p">):</span> <span class="mf">10.0</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="canonical_units">
+<a class="viewcode-back" href="../../../generated/easysnowdata.stations.networks.canonical_units.html#easysnowdata.stations.networks.canonical_units">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">canonical_units</span><span class="p">(</span><span class="n">type_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The unit :func:`easysnowdata.stations.load` emits for *type_name*.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">TYPES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">type_name</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">unit_factor</span><span class="p">(</span>
+    <span class="n">type_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">from_units</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">to_units</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">variables</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factor converting *from_units* to *to_units* for *type_name*.</span>
+
+<span class="sd">    Raises when the conversion is not one this package considers safe for that</span>
+<span class="sd">    type — which includes conversions that are arithmetically obvious but</span>
+<span class="sd">    physically wrong, such as treating a depth of snowfall as a depth of water.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">from_units</span> <span class="o">==</span> <span class="n">to_units</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">from_units</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">to_units</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">1.0</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_UNIT_FACTORS</span><span class="p">[</span><span class="n">type_name</span><span class="p">,</span> <span class="n">from_units</span><span class="p">,</span> <span class="n">to_units</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="n">detail</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="n">variables</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">if</span> <span class="n">variables</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">type_name</span><span class="si">!r}</span><span class="s2"> came back in both </span><span class="si">{</span><span class="n">from_units</span><span class="si">!r}</span><span class="s2"> and &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">to_units</span><span class="si">!r}{</span><span class="n">detail</span><span class="si">}</span><span class="s2">, and converting between them is not safe &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;for </span><span class="si">{</span><span class="n">type_name</span><span class="si">!r}</span><span class="s2"> — they may not measure the same quantity. &quot;</span>
+            <span class="s2">&quot;Request one native variable by name instead of the standardized &quot;</span>
+            <span class="s2">&quot;type, or use the clients directly.&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+
+
+<div class="viewcode-block" id="get">
+<a class="viewcode-back" href="../../../generated/easysnowdata.stations.networks.get.html#easysnowdata.stations.networks.get">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="n">network</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Network</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the :class:`Network` called *network*.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">NETWORKS</span><span class="p">[</span><span class="n">network</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unknown station network </span><span class="si">{</span><span class="n">network</span><span class="si">!r}</span><span class="s2">; available: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">NETWORKS</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="to_station_id">
+<a class="viewcode-back" href="../../../generated/easysnowdata.stations.networks.to_station_id.html#easysnowdata.stations.networks.to_station_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_station_id</span><span class="p">(</span><span class="n">station</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">network</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The native station id of *station* in *network*.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get</span><span class="p">(</span><span class="n">network</span><span class="p">)</span><span class="o">.</span><span class="n">station_id</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">station</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="to_code">
+<a class="viewcode-back" href="../../../generated/easysnowdata.stations.networks.to_code.html#easysnowdata.stations.networks.to_code">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_code</span><span class="p">(</span><span class="n">station_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">network</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The globally unique code of *station_id* in *network*.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get</span><span class="p">(</span><span class="n">network</span><span class="p">)</span><span class="o">.</span><span class="n">code</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">station_id</span><span class="p">))</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">guess_network</span><span class="p">(</span><span class="n">station</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The network a code belongs to when its shape gives it away, else ``None``.</span>
+
+<span class="sd">    CDEC and DataBC codes overlap (``&quot;1A01P&quot;`` is a valid spelling of both),</span>
+<span class="sd">    so a short alphanumeric code returns ``None`` and has to be looked up.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">station</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">net</span> <span class="ow">in</span> <span class="n">NETWORKS</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">net</span><span class="o">.</span><span class="n">code_pattern</span> <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">net</span><span class="o">.</span><span class="n">code_pattern</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">net</span><span class="o">.</span><span class="n">id</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_from_frame</span><span class="p">(</span><span class="n">stations</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``{network: [station_id]}`` from an inventory frame, or ``None``.&quot;&quot;&quot;</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">stations</span><span class="p">,</span> <span class="s2">&quot;columns&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="c1"># Prefer whichever column actually holds network ids. `network` is this</span>
+    <span class="c1"># package&#39;s name for the access path and `client` is global_snow_networks&#39;,</span>
+    <span class="c1"># but a frame can carry a `network` column meaning something else — the</span>
+    <span class="c1"># published inventory&#39;s Yukon display name, or the &quot;SNOTEL&quot;/&quot;CCSS&quot; labels</span>
+    <span class="c1"># the automatic_weather_stations shim restores.</span>
+    <span class="n">candidates</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;network&quot;</span><span class="p">,</span> <span class="s2">&quot;client&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">]</span>
+    <span class="n">column</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">candidates</span> <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">stations</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">())</span> <span class="o">&lt;=</span> <span class="nb">set</span><span class="p">(</span><span class="n">NETWORKS</span><span class="p">)),</span>
+        <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">column</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">column</span> <span class="o">=</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">candidates</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">column</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">stations</span><span class="o">.</span><span class="n">index</span>
+    <span class="n">codes</span> <span class="o">=</span> <span class="n">index</span> <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;code&quot;</span><span class="p">,</span> <span class="s2">&quot;station&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">stations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;code&quot;</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+    <span class="n">grouped</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">code</span><span class="p">,</span> <span class="n">network</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">codes</span><span class="p">,</span> <span class="n">stations</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">network</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">NETWORKS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Station </span><span class="si">{</span><span class="n">code</span><span class="si">!r}</span><span class="s2"> names network </span><span class="si">{</span><span class="n">network</span><span class="si">!r}</span><span class="s2">, which is not one &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;of </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">NETWORKS</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">grouped</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">to_station_id</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">code</span><span class="p">),</span> <span class="n">network</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">grouped</span>
+
+
+<div class="viewcode-block" id="split_by_network">
+<a class="viewcode-back" href="../../../generated/easysnowdata.stations.networks.split_by_network.html#easysnowdata.stations.networks.split_by_network">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">split_by_network</span><span class="p">(</span>
+    <span class="n">stations</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">network</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lookup</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Group *stations* by network, as ``{network_id: [station_id, …]}``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    stations</span>
+<span class="sd">        A code or station id, a sequence of them, or a station frame carrying</span>
+<span class="sd">        a ``network``/``client`` column (what :func:`easysnowdata.stations.inventory`</span>
+<span class="sd">        returns) — in which case that column decides and nothing is guessed.</span>
+<span class="sd">    network</span>
+<span class="sd">        Pin every station to this network instead of working it out.</span>
+<span class="sd">    lookup</span>
+<span class="sd">        Callable taking the codes that could not be told apart by shape and</span>
+<span class="sd">        returning ``{code: network}``. :func:`easysnowdata.stations.load`</span>
+<span class="sd">        passes the archive inventory&#39;s lookup; without one, an ambiguous code</span>
+<span class="sd">        raises.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">network</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">net</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">network</span><span class="p">)</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">net</span><span class="p">:</span> <span class="p">[</span><span class="n">to_station_id</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">net</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">_as_list</span><span class="p">(</span><span class="n">stations</span><span class="p">)]}</span>
+    <span class="n">from_frame</span> <span class="o">=</span> <span class="n">_from_frame</span><span class="p">(</span><span class="n">stations</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">from_frame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">from_frame</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">_as_list</span><span class="p">(</span><span class="n">stations</span><span class="p">)</span>
+    <span class="n">grouped</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">unknown</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+        <span class="n">guess</span> <span class="o">=</span> <span class="n">guess_network</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">guess</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">unknown</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">grouped</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">guess</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">to_station_id</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">),</span> <span class="n">guess</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">unknown</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">lookup</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Cannot tell which network these station codes belong to: &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">unknown</span><span class="p">))</span><span class="si">}</span><span class="s2">. CDEC and DataBC codes have the &quot;</span>
+                <span class="s2">&quot;same shape, so pass networks=… , or hand load() the frame &quot;</span>
+                <span class="s2">&quot;inventory() returned instead of bare codes.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="n">lookup</span><span class="p">(</span><span class="n">unknown</span><span class="p">)</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">code</span> <span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">unknown</span> <span class="k">if</span> <span class="n">code</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">found</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown station code(s): </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">missing</span><span class="p">))</span><span class="si">}</span><span class="s2">. They &quot;</span>
+                <span class="s2">&quot;are in none of the five networks&#39; inventories.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">unknown</span><span class="p">:</span>
+            <span class="n">net</span> <span class="o">=</span> <span class="n">found</span><span class="p">[</span><span class="n">code</span><span class="p">]</span>
+            <span class="n">grouped</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">to_station_id</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">net</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">grouped</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_list</span><span class="p">(</span><span class="n">stations</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stations</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">stations</span><span class="p">]</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">stations</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">stations</span><span class="p">,</span> <span class="s2">&quot;__iter__&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">index</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">stations</span><span class="p">,</span> <span class="s2">&quot;columns&quot;</span><span class="p">):</span>  <span class="c1"># a frame without a network column</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">stations</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">stations</span><span class="p">]</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

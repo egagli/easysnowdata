@@ -1,0 +1,1660 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>easysnowdata.plotting &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../_static/documentation_options.js?v=16fc681a"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/easysnowdata/plotting';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.3.dev19" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">easysnowdata.plotting</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for easysnowdata.plotting</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Plotting helpers: maps that are true to scale, time series on calendar dates.</span>
+
+<span class="sd">Nothing here is required to use the data: every product plots with plain</span>
+<span class="sd">xarray and geopandas. What these helpers add is the map furniture and the</span>
+<span class="sd">labelling conventions the gallery follows, so an example is one call rather</span>
+<span class="sd">than fifteen lines of matplotlib:</span>
+
+<span class="sd">* :func:`map` — one raster on equal-aspect axes with a matched colorbar, a</span>
+<span class="sd">  scale bar, a light latitude/longitude graticule and an optional web</span>
+<span class="sd">  basemap. Geographic (EPSG:4326) data get a latitude-corrected aspect and a</span>
+<span class="sd">  warning, because a degree of longitude is not a degree of latitude.</span>
+<span class="sd">* :func:`categorical` — the same for a classified raster, drawing its colours</span>
+<span class="sd">  and legend from the CF ``flag_values`` / ``flag_meanings`` / ``flag_colors``</span>
+<span class="sd">  attributes :mod:`easysnowdata.processing.categorical` writes.</span>
+<span class="sd">* :func:`points` — a GeoDataFrame of stations (or any vector layer) over a</span>
+<span class="sd">  basemap, coloured by a column with a legend or colorbar placed outside.</span>
+<span class="sd">* :func:`timeseries` — one line per station (or other dimension) against</span>
+<span class="sd">  calendar dates, with ``long name [units]`` axis labels. ``by_water_year``</span>
+<span class="sd">  overlays water years on one October-to-September axis.</span>
+<span class="sd">* :func:`label` — ``&quot;long name [units]&quot;`` from an object&#39;s attrs, the one</span>
+<span class="sd">  convention every axis label here follows (units in square brackets).</span>
+
+<span class="sd">Every piece of furniture is a keyword argument (``scalebar=False``,</span>
+<span class="sd">``graticule=False``, ``basemap=&quot;CartoDB.Positron&quot;`` …), and every function</span>
+<span class="sd">returns the matplotlib ``Axes`` so anything can be added afterwards.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.processing.categorical</span><span class="w"> </span><span class="kn">import</span> <span class="n">flags</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;map&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;categorical&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;points&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;timeseries&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;label&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;finish_map&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;add_scalebar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;add_graticule&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;add_basemap&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;add_outline&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;colormap_from_flags&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;legend_handles&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;register_colormap&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_BASEMAP&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1">#: Web basemap drawn when ``basemap=True``: Esri&#39;s shaded relief, which needs</span>
+<span class="c1">#: no API key and shows the terrain a snow map sits in without competing</span>
+<span class="c1">#: labels. Any ``xyzservices`` provider or its dotted name works instead.</span>
+<span class="n">DEFAULT_BASEMAP</span> <span class="o">=</span> <span class="s2">&quot;Esri.WorldShadedRelief&quot;</span>
+
+<span class="n">_GRATICULE_STEPS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.002</span><span class="p">,</span> <span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span>
+<span class="p">)</span>  <span class="c1"># fmt: skip</span>
+<span class="n">_GRID_STYLE</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;0.45&quot;</span><span class="p">,</span> <span class="s2">&quot;linewidth&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.55</span><span class="p">,</span> <span class="s2">&quot;linestyle&quot;</span><span class="p">:</span> <span class="s2">&quot;:&quot;</span><span class="p">}</span>
+<span class="n">_LEGEND_OUTSIDE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;loc&quot;</span><span class="p">:</span> <span class="s2">&quot;center left&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bbox_to_anchor&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">1.01</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+    <span class="s2">&quot;frameon&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">_M_PER_DEG</span> <span class="o">=</span> <span class="mf">111_320.0</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">GeographicAxesWarning</span><span class="p">(</span><span class="ne">UserWarning</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a map is drawn in a geographic CRS (degrees, not metres).&quot;&quot;&quot;</span>
+
+
+<span class="c1"># ── labels ────────────────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="label">
+<a class="viewcode-back" href="../../generated/easysnowdata.plotting.label.html#easysnowdata.plotting.label">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">label</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">units</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``&quot;long name [units]&quot;`` from *obj* (a DataArray, Dataset or attrs mapping).</span>
+
+<span class="sd">    Units go in square brackets, never parentheses. Falls back to the</span>
+<span class="sd">    variable&#39;s name, then to an empty string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">attrs</span> <span class="o">=</span> <span class="n">obj</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;attrs&quot;</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;long_name&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">unit</span> <span class="o">=</span> <span class="n">units</span> <span class="k">if</span> <span class="n">units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;units&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">unit</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2">]&quot;</span>
+    <span class="k">return</span> <span class="n">text</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_time_suffix</span><span class="p">(</span><span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``&quot;, 2024-03-10&quot;`` when *da* carries one date, else ``&quot;&quot;``.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;time&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">coords</span> <span class="ow">or</span> <span class="n">da</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">da</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">stamp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime_as_string</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;D&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;, </span><span class="si">{</span><span class="n">stamp</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_default_title</span><span class="p">(</span><span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">attrs</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">attrs</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">head</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;long_name&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">da</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">head</span> <span class="o">+</span> <span class="n">_time_suffix</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
+
+
+<span class="c1"># ── CRS helpers ───────────────────────────────────────────────────────────────</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_crs_of</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The pyproj CRS of a DataArray/Dataset/GeoDataFrame, or ``None``.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pyproj</span><span class="w"> </span><span class="kn">import</span> <span class="n">CRS</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="n">crs</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;crs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;rio&quot;</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">crs</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">crs</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 — no spatial dims</span>
+            <span class="n">crs</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;odc&quot;</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">crs</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">odc</span><span class="o">.</span><span class="n">crs</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
+            <span class="n">crs</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CRS</span><span class="o">.</span><span class="n">from_user_input</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">crs</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_axis_names</span><span class="p">(</span><span class="n">crs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``(&quot;longitude [°]&quot;, &quot;latitude [°]&quot;)`` or ``(&quot;easting [m]&quot;, &quot;northing [m]&quot;)``.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span>
+    <span class="k">if</span> <span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;longitude [°]&quot;</span><span class="p">,</span> <span class="s2">&quot;latitude [°]&quot;</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">crs</span><span class="o">.</span><span class="n">axis_info</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]:</span>
+        <span class="n">unit</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">unit_name</span>
+        <span class="n">unit</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;metre&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;meter&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;degree&quot;</span><span class="p">:</span> <span class="s2">&quot;°&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span> <span class="n">unit</span><span class="p">)</span>
+        <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">axis</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="c1"># pyproj lists northing first for some CRSs; keep x, y order.</span>
+        <span class="k">if</span> <span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;northing&quot;</span><span class="p">):</span>
+            <span class="n">names</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_mid_latitude</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">crs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Latitude at the centre of the axes, in degrees.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pyproj</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformer</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+    <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">y0</span> <span class="o">+</span> <span class="n">y1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">to_lonlat</span> <span class="o">=</span> <span class="n">Transformer</span><span class="o">.</span><span class="n">from_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">,</span> <span class="s2">&quot;EPSG:4326&quot;</span><span class="p">,</span> <span class="n">always_xy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="n">to_lonlat</span><span class="o">.</span><span class="n">transform</span><span class="p">((</span><span class="n">x0</span> <span class="o">+</span> <span class="n">x1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="n">y0</span> <span class="o">+</span> <span class="n">y1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_lon</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">hemi</span> <span class="o">=</span> <span class="s2">&quot;W&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;E&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">abs</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">°</span><span class="si">{</span><span class="n">hemi</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="s2">&quot;0°&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_lat</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">hemi</span> <span class="o">=</span> <span class="s2">&quot;S&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;N&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">abs</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">°</span><span class="si">{</span><span class="n">hemi</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="s2">&quot;0°&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_nice_step</span><span class="p">(</span><span class="n">span</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">max_lines</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The finest round step that draws at most *max_lines* lines across *span*.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">_GRATICULE_STEPS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">span</span> <span class="o">/</span> <span class="n">step</span> <span class="o">&lt;=</span> <span class="n">max_lines</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">step</span>
+    <span class="k">return</span> <span class="n">_GRATICULE_STEPS</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+
+<span class="c1"># ── furniture ─────────────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="add_scalebar">
+<a class="viewcode-back" href="../../generated/easysnowdata.plotting.add_scalebar.html#easysnowdata.plotting.add_scalebar">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_scalebar</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">crs</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add a small scale bar (``matplotlib_scalebar``) to *ax*.</span>
+
+<span class="sd">    For a projected CRS one data unit is one metre. For a geographic CRS one</span>
+<span class="sd">    data unit is a degree of longitude, converted at the axes&#39; central</span>
+<span class="sd">    latitude, so the bar is right along the x axis where it is drawn.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib_scalebar.scalebar</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScaleBar</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="n">dx</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">if</span> <span class="n">crs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">_M_PER_DEG</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">_mid_latitude</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">crs</span><span class="p">)))</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="c1"># The bar measures along x; a latitude-corrected aspect is deliberate.</span>
+        <span class="s2">&quot;rotation&quot;</span><span class="p">:</span> <span class="s2">&quot;horizontal-only&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="s2">&quot;lower left&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;box_alpha&quot;</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span>
+        <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;0.15&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;font_properties&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">},</span>
+        <span class="s2">&quot;length_fraction&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+        <span class="s2">&quot;scale_loc&quot;</span><span class="p">:</span> <span class="s2">&quot;top&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pad&quot;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+        <span class="s2">&quot;border_pad&quot;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">bar</span> <span class="o">=</span> <span class="n">ScaleBar</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span><span class="n">bar</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">bar</span></div>
+
+
+
+<div class="viewcode-block" id="add_graticule">
+<a class="viewcode-back" href="../../generated/easysnowdata.plotting.add_graticule.html#easysnowdata.plotting.add_graticule">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_graticule</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">labels</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">line_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Draw light latitude/longitude lines on *ax* and label them on the frame.</span>
+
+<span class="sd">    On geographic axes the graticule is the tick grid itself, with ticks at</span>
+<span class="sd">    round degrees and labels such as ``121.8°W``. On projected axes the</span>
+<span class="sd">    meridians and parallels are drawn as (curved) lines in the map CRS, and</span>
+<span class="sd">    the x and y tick labels are replaced by the longitude and latitude where</span>
+<span class="sd">    each line meets the bottom and left edges, the way cartopy labels a map.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pyproj</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformer</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="n">style</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_GRID_STYLE</span><span class="p">)</span>
+    <span class="n">style</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">line_kwargs</span><span class="p">)</span>
+    <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+    <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+    <span class="n">geographic</span> <span class="o">=</span> <span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span>
+    <span class="k">if</span> <span class="n">geographic</span><span class="p">:</span>
+        <span class="n">lon0</span><span class="p">,</span> <span class="n">lon1</span><span class="p">,</span> <span class="n">lat0</span><span class="p">,</span> <span class="n">lat1</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">y1</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">y1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">to_lonlat</span> <span class="o">=</span> <span class="n">Transformer</span><span class="o">.</span><span class="n">from_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">,</span> <span class="s2">&quot;EPSG:4326&quot;</span><span class="p">,</span> <span class="n">always_xy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Sample the whole view, not only its edges: on a global map (Robinson,</span>
+        <span class="c1"># Mollweide) the corners lie outside the projection&#39;s outline and</span>
+        <span class="c1"># transform to inf, and the edges alone then miss most of the globe.</span>
+        <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="mi">60</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="mi">60</span><span class="p">))</span>
+        <span class="n">lons</span><span class="p">,</span> <span class="n">lats</span> <span class="o">=</span> <span class="n">to_lonlat</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">xs</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">ys</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">lons</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">lats</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">return</span>
+        <span class="n">lons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lons</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="o">-</span><span class="mf">180.0</span><span class="p">,</span> <span class="mf">180.0</span><span class="p">)</span>
+        <span class="n">lats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lats</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="o">-</span><span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">)</span>
+        <span class="n">lon0</span><span class="p">,</span> <span class="n">lon1</span><span class="p">,</span> <span class="n">lat0</span><span class="p">,</span> <span class="n">lat1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">lons</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">lons</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">lats</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">lats</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">step_lon</span> <span class="o">=</span> <span class="n">_nice_step</span><span class="p">(</span><span class="n">lon1</span> <span class="o">-</span> <span class="n">lon0</span><span class="p">)</span>
+        <span class="n">step_lat</span> <span class="o">=</span> <span class="n">_nice_step</span><span class="p">(</span><span class="n">lat1</span> <span class="o">-</span> <span class="n">lat0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">step_lon</span><span class="p">,</span> <span class="n">step_lat</span> <span class="o">=</span> <span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="k">else</span> <span class="n">step</span>
+    <span class="n">meridians</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">lon0</span> <span class="o">/</span> <span class="n">step_lon</span><span class="p">)</span> <span class="o">*</span> <span class="n">step_lon</span><span class="p">,</span> <span class="n">lon1</span> <span class="o">+</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="n">step_lon</span><span class="p">)</span>
+    <span class="n">parallels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">lat0</span> <span class="o">/</span> <span class="n">step_lat</span><span class="p">)</span> <span class="o">*</span> <span class="n">step_lat</span><span class="p">,</span> <span class="n">lat1</span> <span class="o">+</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="n">step_lat</span><span class="p">)</span>
+    <span class="n">meridians</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">meridians</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+    <span class="n">parallels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">parallels</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">geographic</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">meridians</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">parallels</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">labels</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="n">_format_lon</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">meridians</span><span class="p">])</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([</span><span class="n">_format_lat</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">parallels</span><span class="p">])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">style</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">y1</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">from_lonlat</span> <span class="o">=</span> <span class="n">Transformer</span><span class="o">.</span><span class="n">from_crs</span><span class="p">(</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="n">always_xy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">dense_lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">lat0</span> <span class="o">-</span> <span class="n">step_lat</span><span class="p">,</span> <span class="n">lat1</span> <span class="o">+</span> <span class="n">step_lat</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+    <span class="n">dense_lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">lon0</span> <span class="o">-</span> <span class="n">step_lon</span><span class="p">,</span> <span class="n">lon1</span> <span class="o">+</span> <span class="n">step_lon</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+    <span class="n">x_ticks</span><span class="p">,</span> <span class="n">x_labels</span><span class="p">,</span> <span class="n">y_ticks</span><span class="p">,</span> <span class="n">y_labels</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">lon</span> <span class="ow">in</span> <span class="n">meridians</span><span class="p">:</span>
+        <span class="n">px</span><span class="p">,</span> <span class="n">py</span> <span class="o">=</span> <span class="n">from_lonlat</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">dense_lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">),</span> <span class="n">dense_lat</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="o">**</span><span class="n">style</span><span class="p">)</span>
+        <span class="n">crossing</span> <span class="o">=</span> <span class="n">_crossing</span><span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">crossing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">x0</span> <span class="o">&lt;=</span> <span class="n">crossing</span> <span class="o">&lt;=</span> <span class="n">x1</span><span class="p">:</span>
+            <span class="n">x_ticks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">crossing</span><span class="p">)</span>
+            <span class="n">x_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_format_lon</span><span class="p">(</span><span class="n">lon</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">lat</span> <span class="ow">in</span> <span class="n">parallels</span><span class="p">:</span>
+        <span class="n">px</span><span class="p">,</span> <span class="n">py</span> <span class="o">=</span> <span class="n">from_lonlat</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dense_lon</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">dense_lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="o">**</span><span class="n">style</span><span class="p">)</span>
+        <span class="n">crossing</span> <span class="o">=</span> <span class="n">_crossing</span><span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">crossing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">y0</span> <span class="o">&lt;=</span> <span class="n">crossing</span> <span class="o">&lt;=</span> <span class="n">y1</span><span class="p">:</span>
+            <span class="n">y_ticks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">crossing</span><span class="p">)</span>
+            <span class="n">y_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_format_lat</span><span class="p">(</span><span class="n">lat</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">labels</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x_ticks</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">x_labels</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">y_ticks</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">y_labels</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;longitude [°]&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;latitude [°]&quot;</span><span class="p">)</span>
+        <span class="n">_corner_note</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;grid </span><span class="si">{</span><span class="n">_crs_name</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">y1</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_crossing</span><span class="p">(</span>
+    <span class="n">px</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">py</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Where the polyline ``(px, py)`` crosses ``y == level`` (axis=&quot;y&quot;) or ``x == level``.&quot;&quot;&quot;</span>
+    <span class="n">along</span><span class="p">,</span> <span class="n">across</span> <span class="o">=</span> <span class="p">(</span><span class="n">py</span><span class="p">,</span> <span class="n">px</span><span class="p">)</span> <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span> <span class="k">else</span> <span class="p">(</span><span class="n">px</span><span class="p">,</span> <span class="n">py</span><span class="p">)</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">along</span> <span class="o">-</span> <span class="n">level</span>
+    <span class="n">sign</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sign</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">sign</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">diff</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">diff</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">across</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="o">-</span><span class="n">diff</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">diff</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">diff</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">across</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">t</span> <span class="o">*</span> <span class="p">(</span><span class="n">across</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">across</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_corner_note</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Small grey text in the lower-right corner; several calls stack into one line.&quot;&quot;&quot;</span>
+    <span class="n">existing</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">&quot;_esd_corner_note&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">existing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">existing</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span><span class="si">}</span><span class="s2"> · </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">existing</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">_esd_corner_note</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+        <span class="mf">0.995</span><span class="p">,</span>
+        <span class="mf">0.006</span><span class="p">,</span>
+        <span class="n">text</span><span class="p">,</span>
+        <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+        <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span>
+        <span class="n">va</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;0.3&quot;</span><span class="p">,</span>
+        <span class="n">zorder</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;facecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span> <span class="s2">&quot;edgecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;pad&quot;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">},</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_crs_name</span><span class="p">(</span><span class="n">crs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``EPSG:4326``, the CRS name, or its projection (``Sinusoidal``) when unnamed.&quot;&quot;&quot;</span>
+    <span class="n">epsg</span> <span class="o">=</span> <span class="n">crs</span><span class="o">.</span><span class="n">to_epsg</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">epsg</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;EPSG:</span><span class="si">{</span><span class="n">epsg</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">crs</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;unnamed&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">crs</span><span class="o">.</span><span class="n">coordinate_operation</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">crs</span><span class="o">.</span><span class="n">coordinate_operation</span><span class="o">.</span><span class="n">method_name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">name</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_provider</span><span class="p">(</span><span class="n">basemap</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">xyzservices.providers</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xyz</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="k">if</span> <span class="n">basemap</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">or</span> <span class="n">basemap</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">basemap</span> <span class="o">=</span> <span class="n">DEFAULT_BASEMAP</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">basemap</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">provider</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">xyz</span>
+        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">basemap</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
+            <span class="n">provider</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">provider</span><span class="p">,</span> <span class="n">part</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">provider</span>
+    <span class="k">return</span> <span class="n">basemap</span>
+
+
+<div class="viewcode-block" id="add_basemap">
+<a class="viewcode-back" href="../../generated/easysnowdata.plotting.add_basemap.html#easysnowdata.plotting.add_basemap">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_basemap</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">crs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">basemap</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Draw web tiles under the data on *ax* (``contextily``), warped to *crs*.</span>
+
+<span class="sd">    *basemap* is ``True`` for :data:`DEFAULT_BASEMAP`, a dotted</span>
+<span class="sd">    ``xyzservices`` name such as ``&quot;CartoDB.Positron&quot;`` or</span>
+<span class="sd">    ``&quot;Esri.WorldImagery&quot;``, or a provider object. The tiles are fetched at</span>
+<span class="sd">    call time, so this needs the network, and it is off by default for</span>
+<span class="sd">    rasters (which cover the axes anyway) and on for :func:`points`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">contextily</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cx</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="n">provider</span> <span class="o">=</span> <span class="n">_provider</span><span class="p">(</span><span class="n">basemap</span><span class="p">)</span>
+    <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">provider</span><span class="p">,</span>
+        <span class="s2">&quot;crs&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span> <span class="k">if</span> <span class="n">crs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;EPSG:4326&quot;</span><span class="p">,</span>
+        <span class="c1"># Drawn by _corner_note below, out of the scale bar&#39;s way.</span>
+        <span class="s2">&quot;attribution&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;zorder&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+    <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">cx</span><span class="o">.</span><span class="n">add_basemap</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 — a tile server is not worth a failed figure</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Could not draw the basemap (</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">); continuing without it.&quot;</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">credit</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">provider</span><span class="p">,</span> <span class="s2">&quot;attribution&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">credit</span><span class="p">:</span>
+            <span class="n">_corner_note</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;basemap: </span><span class="si">{</span><span class="n">credit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">y1</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="finish_map">
+<a class="viewcode-back" href="../../generated/easysnowdata.plotting.finish_map.html#easysnowdata.plotting.finish_map">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">finish_map</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">scalebar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">graticule</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">basemap</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">axis_labels</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">warn_geographic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply the map conventions to *ax*: aspect, labels, scale bar, graticule, basemap.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax</span>
+<span class="sd">        Axes something has already been drawn on, so the extent is known.</span>
+<span class="sd">    crs</span>
+<span class="sd">        The CRS of the data on the axes (a pyproj ``CRS`` or anything it</span>
+<span class="sd">        accepts). ``None`` is treated as geographic.</span>
+<span class="sd">    scalebar, graticule</span>
+<span class="sd">        ``True``/``False``, or a dict of keyword arguments for</span>
+<span class="sd">        :func:`add_scalebar` / :func:`add_graticule`.</span>
+<span class="sd">    basemap</span>
+<span class="sd">        ``False`` (default), ``True`` for :data:`DEFAULT_BASEMAP`, or a</span>
+<span class="sd">        provider name / object; see :func:`add_basemap`.</span>
+<span class="sd">    axis_labels</span>
+<span class="sd">        Label the axes ``longitude [°]`` / ``latitude [°]`` or</span>
+<span class="sd">        ``easting [m]`` / ``northing [m]`` from the CRS.</span>
+<span class="sd">    warn_geographic</span>
+<span class="sd">        Warn when the data are in degrees: the axes then get a</span>
+<span class="sd">        latitude-corrected aspect (``1 / cos(latitude)``) so shapes are not</span>
+<span class="sd">        stretched, but distances still vary across the map.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matplotlib.axes.Axes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pyproj</span><span class="w"> </span><span class="kn">import</span> <span class="n">CRS</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="n">crs_obj</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CRS</span><span class="o">.</span><span class="n">from_user_input</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">crs</span><span class="p">))</span>
+    <span class="c1"># Remembered so add_outline can draw vectors in the map&#39;s CRS.</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">_esd_crs</span> <span class="o">=</span> <span class="n">crs_obj</span>
+    <span class="n">geographic</span> <span class="o">=</span> <span class="n">crs_obj</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">crs_obj</span><span class="o">.</span><span class="n">is_geographic</span>
+    <span class="k">if</span> <span class="n">geographic</span><span class="p">:</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="n">_mid_latitude</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">crs_obj</span><span class="p">)</span>
+        <span class="n">correction</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">lat</span><span class="p">)),</span> <span class="mf">1e-6</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="n">correction</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">warn_geographic</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The data are in a geographic CRS (</span><span class="si">{</span><span class="n">_crs_name</span><span class="p">(</span><span class="n">crs_obj</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">crs_obj</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;degrees&#39;</span><span class="si">}</span><span class="s2">), &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;so one axis unit is a degree, not a metre. The axes use a latitude-corrected &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;aspect (1/cos(</span><span class="si">{</span><span class="n">lat</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">°) = </span><span class="si">{</span><span class="n">correction</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">) so shapes are not stretched; for a &quot;</span>
+                <span class="s2">&quot;true equal-area grid load the product with crs=&#39;utm&#39;.&quot;</span><span class="p">,</span>
+                <span class="n">GeographicAxesWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">axis_labels</span><span class="p">:</span>
+        <span class="n">xlab</span><span class="p">,</span> <span class="n">ylab</span> <span class="o">=</span> <span class="n">_axis_names</span><span class="p">(</span><span class="n">crs_obj</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">xlab</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">ylab</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">basemap</span><span class="p">:</span>
+        <span class="n">add_basemap</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">crs_obj</span><span class="p">,</span> <span class="n">basemap</span> <span class="k">if</span> <span class="n">basemap</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span> <span class="k">else</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">graticule</span><span class="p">:</span>
+        <span class="n">add_graticule</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">crs_obj</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">graticule</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">graticule</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="p">{}))</span>
+    <span class="k">if</span> <span class="n">scalebar</span><span class="p">:</span>
+        <span class="n">add_scalebar</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">crs_obj</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">scalebar</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scalebar</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="p">{}))</span>
+    <span class="k">return</span> <span class="n">ax</span></div>
+
+
+
+<div class="viewcode-block" id="add_outline">
+<a class="viewcode-back" href="../../generated/easysnowdata.plotting.add_outline.html#easysnowdata.plotting.add_outline">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_outline</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">gdf</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">keep_extent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">plot_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Draw *gdf* (boundaries, basins, glaciers) over a map, in the map&#39;s CRS.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax</span>
+<span class="sd">        Axes a map was drawn on (by :func:`map`, :func:`categorical` or</span>
+<span class="sd">        :func:`points`).</span>
+<span class="sd">    gdf</span>
+<span class="sd">        Polygons or lines; reprojected to the map&#39;s CRS.</span>
+<span class="sd">    crs</span>
+<span class="sd">        The map&#39;s CRS. Defaults to the one :func:`finish_map` recorded on</span>
+<span class="sd">        *ax*, else EPSG:4326.</span>
+<span class="sd">    label</span>
+<span class="sd">        Legend entry for the outlines.</span>
+<span class="sd">    keep_extent</span>
+<span class="sd">        Keep the map&#39;s extent rather than zooming out to the whole outlines</span>
+<span class="sd">        (a state or country usually reaches far beyond the map).</span>
+<span class="sd">    **plot_kwargs</span>
+<span class="sd">        Passed to :meth:`geopandas.GeoDataFrame.plot`; the defaults are</span>
+<span class="sd">        ``edgecolor=&quot;black&quot;``, ``linewidth=0.8`` and no fill. Pass</span>
+<span class="sd">        ``column=`` (with ``cmap=``, ``legend=`` …) or ``facecolor=`` to fill</span>
+<span class="sd">        the polygons as well.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matplotlib.axes.Axes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">crs</span> <span class="k">if</span> <span class="n">crs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">&quot;_esd_crs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">outline_gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">target</span> <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span>
+    <span class="n">had_data</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">has_data</span><span class="p">()</span>
+    <span class="n">x_limits</span><span class="p">,</span> <span class="n">y_limits</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">(),</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+    <span class="n">style</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;edgecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="s2">&quot;linewidth&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s2">&quot;zorder&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">{</span><span class="s2">&quot;column&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">,</span> <span class="s2">&quot;facecolor&quot;</span><span class="p">}</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">plot_kwargs</span><span class="p">):</span>
+        <span class="n">style</span><span class="p">[</span><span class="s2">&quot;facecolor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
+    <span class="n">style</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">plot_kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">style</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
+    <span class="n">outline_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">style</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">keep_extent</span> <span class="ow">and</span> <span class="n">had_data</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x_limits</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">y_limits</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span></div>
+
+
+
+<span class="c1"># ── figure sizing ─────────────────────────────────────────────────────────────</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_figsize_for</span><span class="p">(</span>
+    <span class="n">extent</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">correction</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">7.0</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A figure size whose axes match the data&#39;s aspect, so equal aspect fills it.&quot;&quot;&quot;</span>
+    <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">extent</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">)</span> <span class="o">*</span> <span class="n">correction</span>
+    <span class="k">if</span> <span class="n">w</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">h</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">h</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">width</span> <span class="o">*</span> <span class="mf">0.75</span><span class="p">)</span>
+    <span class="n">ratio</span> <span class="o">=</span> <span class="n">h</span> <span class="o">/</span> <span class="n">w</span>
+    <span class="n">ratio</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ratio</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">),</span> <span class="mf">1.6</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">width</span> <span class="o">*</span> <span class="n">ratio</span> <span class="o">+</span> <span class="mf">0.6</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extent</span><span class="p">(</span><span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="n">x_dim</span><span class="p">,</span> <span class="n">y_dim</span> <span class="o">=</span> <span class="n">_spatial_dims</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">da</span><span class="p">[</span><span class="n">x_dim</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">da</span><span class="p">[</span><span class="n">y_dim</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_spatial_dims</span><span class="p">(</span><span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="p">((</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">,</span> <span class="s2">&quot;lat&quot;</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">dims</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dims</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;A map needs two spatial dimensions.&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_new_axes</span><span class="p">(</span><span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">crs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">figsize</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="k">if</span> <span class="n">figsize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">correction</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">if</span> <span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>
+            <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">_extent</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
+            <span class="n">correction</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">((</span><span class="n">y0</span> <span class="o">+</span> <span class="n">y1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)),</span> <span class="mf">1e-6</span><span class="p">)</span>
+        <span class="n">figsize</span> <span class="o">=</span> <span class="n">_figsize_for</span><span class="p">(</span><span class="n">_extent</span><span class="p">(</span><span class="n">da</span><span class="p">),</span> <span class="n">correction</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_squeeze</span><span class="p">(</span><span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Drop length-one dims (a single time step) so a 2-D image remains.&quot;&quot;&quot;</span>
+    <span class="n">extra</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span> <span class="k">if</span> <span class="n">da</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">d</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_spatial_dims</span><span class="p">(</span><span class="n">da</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">da</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">extra</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">if</span> <span class="n">extra</span> <span class="k">else</span> <span class="n">da</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_colorbar_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An axes for a colorbar that hugs the *drawn* map, whatever its aspect.</span>
+
+<span class="sd">    ``make_axes_locatable`` positions against the axes&#39; allotted box, so once</span>
+<span class="sd">    a fixed aspect shrinks the map inside that box the bar drifts away from</span>
+<span class="sd">    it. An inset in axes coordinates is re-laid out at draw time and stays</span>
+<span class="sd">    put.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ax</span><span class="o">.</span><span class="n">inset_axes</span><span class="p">([</span><span class="mf">1.025</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.035</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_matched_colorbar</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">mappable</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A colorbar the height of the map, however the aspect came out.&quot;&quot;&quot;</span>
+    <span class="n">cbar</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mappable</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">_colorbar_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cbar</span>
+
+
+<span class="c1"># ── maps ──────────────────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="map">
+<a class="viewcode-back" href="../../generated/easysnowdata.plotting.map.html#easysnowdata.plotting.map">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">map</span><span class="p">(</span>  <span class="c1"># noqa: A001 — the natural name for the natural thing</span>
+    <span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">cbar_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">colorbar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">scalebar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">graticule</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">basemap</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">imshow_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Draw one raster as a map with the package&#39;s conventions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    da</span>
+<span class="sd">        A 2-D DataArray (a length-one ``time`` is squeezed) with a CRS on</span>
+<span class="sd">        ``.rio`` / ``.odc``.</span>
+<span class="sd">    ax</span>
+<span class="sd">        Axes to draw on; a new figure sized to the data&#39;s aspect otherwise.</span>
+<span class="sd">    title</span>
+<span class="sd">        Defaults to the array&#39;s ``long_name`` plus its date when it has one.</span>
+<span class="sd">    cbar_label</span>
+<span class="sd">        Defaults to :func:`label`, i.e. ``long name [units]``.</span>
+<span class="sd">    colorbar</span>
+<span class="sd">        Draw a colorbar matched to the map&#39;s height.</span>
+<span class="sd">    scalebar, graticule, basemap</span>
+<span class="sd">        See :func:`finish_map`.</span>
+<span class="sd">    figsize</span>
+<span class="sd">        Figure size when *ax* is ``None``; derived from the extent otherwise.</span>
+<span class="sd">    **imshow_kwargs</span>
+<span class="sd">        Passed to :meth:`xarray.DataArray.plot.imshow` (``cmap``, ``vmin``,</span>
+<span class="sd">        ``vmax``, ``norm`` …).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matplotlib.axes.Axes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">squeezed_da</span> <span class="o">=</span> <span class="n">_squeeze</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
+    <span class="n">crs</span> <span class="o">=</span> <span class="n">_crs_of</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">_new_axes</span><span class="p">(</span><span class="n">squeezed_da</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="n">figsize</span><span class="p">)</span>
+    <span class="n">imshow_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;add_colorbar&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">imshow_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;add_labels&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">squeezed_da</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">imshow_kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">colorbar</span><span class="p">:</span>
+        <span class="n">_matched_colorbar</span><span class="p">(</span>
+            <span class="n">ax</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">cbar_label</span> <span class="k">if</span> <span class="n">cbar_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">label</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span> <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_default_title</span><span class="p">(</span><span class="n">da</span><span class="p">))</span>
+    <span class="n">finish_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="n">scalebar</span><span class="o">=</span><span class="n">scalebar</span><span class="p">,</span> <span class="n">graticule</span><span class="o">=</span><span class="n">graticule</span><span class="p">,</span> <span class="n">basemap</span><span class="o">=</span><span class="n">basemap</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span></div>
+
+
+
+<div class="viewcode-block" id="categorical">
+<a class="viewcode-back" href="../../generated/easysnowdata.plotting.categorical.html#easysnowdata.plotting.categorical">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">categorical</span><span class="p">(</span>
+    <span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">legend_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">scalebar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">graticule</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">basemap</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">imshow_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot a categorical DataArray with one colour per class and a legend.</span>
+
+<span class="sd">    *da* must carry CF ``flag_values`` / ``flag_meanings`` (and ideally</span>
+<span class="sd">    ``flag_colors``); a ``time`` dimension of length one is squeezed. The</span>
+<span class="sd">    legend sits outside the axes on the right, listing only the classes</span>
+<span class="sd">    present unless ``legend_kwargs={&quot;all_classes&quot;: True}``.</span>
+
+<span class="sd">    Returns the matplotlib ``Axes``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">squeezed_da</span> <span class="o">=</span> <span class="n">_squeeze</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
+    <span class="n">crs</span> <span class="o">=</span> <span class="n">_crs_of</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">_new_axes</span><span class="p">(</span><span class="n">squeezed_da</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="n">figsize</span><span class="p">)</span>
+    <span class="n">cmap</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">flags_df</span> <span class="o">=</span> <span class="n">colormap_from_flags</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
+    <span class="n">imshow_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;add_colorbar&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">imshow_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;add_labels&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">imshow_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;interpolation&quot;</span><span class="p">,</span> <span class="s2">&quot;nearest&quot;</span><span class="p">)</span>
+    <span class="n">squeezed_da</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="o">**</span><span class="n">imshow_kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">legend</span><span class="p">:</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_LEGEND_OUTSIDE</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;fontsize&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;handlelength&quot;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span> <span class="s2">&quot;borderaxespad&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">})</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">legend_kwargs</span> <span class="ow">or</span> <span class="p">{})</span>
+        <span class="n">all_classes</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;all_classes&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">present</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">all_classes</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">present</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">squeezed_da</span><span class="o">.</span><span class="n">values</span><span class="p">)[</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">squeezed_da</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">))</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+                <span class="n">present</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">legend_handles</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">present</span><span class="o">=</span><span class="n">present</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span> <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_default_title</span><span class="p">(</span><span class="n">da</span><span class="p">))</span>
+    <span class="n">finish_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="n">scalebar</span><span class="o">=</span><span class="n">scalebar</span><span class="p">,</span> <span class="n">graticule</span><span class="o">=</span><span class="n">graticule</span><span class="p">,</span> <span class="n">basemap</span><span class="o">=</span><span class="n">basemap</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span></div>
+
+
+
+<div class="viewcode-block" id="points">
+<a class="viewcode-back" href="../../generated/easysnowdata.plotting.points.html#easysnowdata.plotting.points">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">points</span><span class="p">(</span>
+    <span class="n">gdf</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">legend_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">basemap</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">scalebar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">graticule</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pad</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">plot_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Draw a GeoDataFrame (stations, basins) over a basemap with the map conventions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    gdf</span>
+<span class="sd">        Any GeoDataFrame; plotted in its own CRS.</span>
+<span class="sd">    column</span>
+<span class="sd">        Colour by this column: a colorbar for numbers, a legend for categories.</span>
+<span class="sd">    legend_label</span>
+<span class="sd">        Colorbar label; defaults to the column name.</span>
+<span class="sd">    basemap</span>
+<span class="sd">        On by default (:data:`DEFAULT_BASEMAP`); see :func:`add_basemap`.</span>
+<span class="sd">    pad</span>
+<span class="sd">        Fraction of the extent to add around the points.</span>
+<span class="sd">    **plot_kwargs</span>
+<span class="sd">        Passed to :meth:`geopandas.GeoDataFrame.plot` (``markersize``,</span>
+<span class="sd">        ``cmap``, ``edgecolor`` …).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matplotlib.axes.Axes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>  <span class="c1"># noqa: PLC0415</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="n">crs</span> <span class="o">=</span> <span class="n">_crs_of</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
+    <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">total_bounds</span>
+    <span class="k">if</span> <span class="n">x1</span> <span class="o">==</span> <span class="n">x0</span><span class="p">:</span>
+        <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">=</span> <span class="n">x0</span> <span class="o">-</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">x1</span> <span class="o">+</span> <span class="mf">0.05</span>
+    <span class="k">if</span> <span class="n">y1</span> <span class="o">==</span> <span class="n">y0</span><span class="p">:</span>
+        <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">y0</span> <span class="o">-</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">y1</span> <span class="o">+</span> <span class="mf">0.05</span>
+    <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">*</span> <span class="n">pad</span><span class="p">,</span> <span class="p">(</span><span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">)</span> <span class="o">*</span> <span class="n">pad</span>
+    <span class="n">extent</span> <span class="o">=</span> <span class="p">(</span><span class="n">x0</span> <span class="o">-</span> <span class="n">dx</span><span class="p">,</span> <span class="n">x1</span> <span class="o">+</span> <span class="n">dx</span><span class="p">,</span> <span class="n">y0</span> <span class="o">-</span> <span class="n">dy</span><span class="p">,</span> <span class="n">y1</span> <span class="o">+</span> <span class="n">dy</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">correction</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">if</span> <span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>
+            <span class="n">correction</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">((</span><span class="n">y0</span> <span class="o">+</span> <span class="n">y1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)),</span> <span class="mf">1e-6</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span> <span class="ow">or</span> <span class="n">_figsize_for</span><span class="p">(</span><span class="n">extent</span><span class="p">,</span> <span class="n">correction</span><span class="p">))</span>
+    <span class="n">plot_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;markersize&quot;</span><span class="p">,</span> <span class="mi">28</span><span class="p">)</span>
+    <span class="n">plot_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;edgecolor&quot;</span><span class="p">,</span> <span class="s2">&quot;black&quot;</span><span class="p">)</span>
+    <span class="n">plot_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;linewidth&quot;</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">)</span>
+    <span class="n">plot_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;zorder&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">column</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">legend</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_numeric_dtype</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="n">column</span><span class="p">]):</span>
+            <span class="n">gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+                <span class="n">column</span><span class="o">=</span><span class="n">column</span><span class="p">,</span>
+                <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">cax</span><span class="o">=</span><span class="n">_colorbar_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">),</span>
+                <span class="n">legend_kwds</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">legend_label</span> <span class="ow">or</span> <span class="n">column</span><span class="p">},</span>
+                <span class="o">**</span><span class="n">plot_kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">kwds</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_LEGEND_OUTSIDE</span><span class="p">)</span>
+            <span class="n">kwds</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;fontsize&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">legend_label</span> <span class="ow">or</span> <span class="n">column</span><span class="p">,</span> <span class="s2">&quot;title_fontsize&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">}</span>
+            <span class="p">)</span>
+            <span class="c1"># geopandas spreads n classes across the whole colormap, which for</span>
+            <span class="c1"># two classes gives tab10&#39;s blue and cyan; take the first n instead.</span>
+            <span class="k">if</span> <span class="s2">&quot;cmap&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">plot_kwargs</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">ListedColormap</span>  <span class="c1"># noqa: PLC0415</span>
+
+                <span class="n">n_classes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">(</span><span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+                <span class="n">base</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s2">&quot;tab10&quot;</span> <span class="k">if</span> <span class="n">n_classes</span> <span class="o">&lt;=</span> <span class="mi">10</span> <span class="k">else</span> <span class="s2">&quot;tab20&quot;</span><span class="p">)</span>
+                <span class="n">plot_kwargs</span><span class="p">[</span><span class="s2">&quot;cmap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ListedColormap</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">base</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">n_classes</span><span class="p">,</span> <span class="mi">1</span><span class="p">))]</span>
+                <span class="p">)</span>
+            <span class="n">gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+                <span class="n">column</span><span class="o">=</span><span class="n">column</span><span class="p">,</span>
+                <span class="n">categorical</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">legend_kwds</span><span class="o">=</span><span class="n">kwds</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">plot_kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">column</span><span class="p">,</span> <span class="o">**</span><span class="n">plot_kwargs</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">extent</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">extent</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">extent</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">extent</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">finish_map</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="n">scalebar</span><span class="o">=</span><span class="n">scalebar</span><span class="p">,</span> <span class="n">graticule</span><span class="o">=</span><span class="n">graticule</span><span class="p">,</span> <span class="n">basemap</span><span class="o">=</span><span class="n">basemap</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span></div>
+
+
+
+<span class="c1"># ── time series ───────────────────────────────────────────────────────────────</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_series_label</span><span class="p">(</span><span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">hue</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``&quot;Paradise (1650 m)&quot;`` from the station coordinates when they exist.&quot;&quot;&quot;</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">coords</span> <span class="ow">and</span> <span class="n">hue</span> <span class="ow">in</span> <span class="n">da</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">da</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="n">hue</span><span class="p">:</span> <span class="n">key</span><span class="p">})</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">parts</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+    <span class="k">if</span> <span class="s2">&quot;elevation_m&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">coords</span> <span class="ow">and</span> <span class="n">hue</span> <span class="ow">in</span> <span class="n">da</span><span class="p">[</span><span class="s2">&quot;elevation_m&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">elev</span> <span class="o">=</span> <span class="n">da</span><span class="p">[</span><span class="s2">&quot;elevation_m&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="n">hue</span><span class="p">:</span> <span class="n">key</span><span class="p">})</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">elev</span><span class="p">)):</span>
+                <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">elev</span><span class="p">)</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> m)&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_date_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.dates</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mdates</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="n">locator</span> <span class="o">=</span> <span class="n">mdates</span><span class="o">.</span><span class="n">AutoDateLocator</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">locator</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">mdates</span><span class="o">.</span><span class="n">ConciseDateFormatter</span><span class="p">(</span><span class="n">locator</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_water_year_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Month names, October to September, on an axis that holds a synthetic year.&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.dates</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mdates</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">mdates</span><span class="o">.</span><span class="n">MonthLocator</span><span class="p">())</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">mdates</span><span class="o">.</span><span class="n">DateFormatter</span><span class="p">(</span><span class="s2">&quot;%b&quot;</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="timeseries">
+<a class="viewcode-back" href="../../generated/easysnowdata.plotting.timeseries.html#easysnowdata.plotting.timeseries">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">timeseries</span><span class="p">(</span>
+    <span class="n">obj</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">variable</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">hue</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">labels</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">by_water_year</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">hemisphere</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;northern&quot;</span><span class="p">,</span>
+    <span class="n">legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="o">**</span><span class="n">plot_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot a time series, one line per *hue* value, against calendar dates.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    obj</span>
+<span class="sd">        A DataArray with a ``time`` dim, or a Dataset with *variable* named.</span>
+<span class="sd">    hue</span>
+<span class="sd">        Dimension to draw one line per value of (default: the non-time dim</span>
+<span class="sd">        when there is exactly one, e.g. ``station``).</span>
+<span class="sd">    labels</span>
+<span class="sd">        ``{hue value: legend text}``; defaults to the ``name`` and</span>
+<span class="sd">        ``elevation_m`` coordinates when present, else the value itself.</span>
+<span class="sd">    by_water_year</span>
+<span class="sd">        Overlay each water year on one October-to-September axis (month</span>
+<span class="sd">        names) instead of a continuous calendar. The lines are labelled by</span>
+<span class="sd">        water year, and *hue* must then be absent or of length one.</span>
+<span class="sd">    hemisphere</span>
+<span class="sd">        For *by_water_year*: ``&quot;northern&quot;`` (1 October) or ``&quot;southern&quot;``.</span>
+<span class="sd">    **plot_kwargs</span>
+<span class="sd">        Passed to ``Axes.plot`` (``linewidth``, ``alpha``, ``color`` …).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matplotlib.axes.Axes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>  <span class="c1"># noqa: PLC0415</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">wateryear</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">variable</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Pass variable= to choose a Dataset variable.&quot;</span><span class="p">)</span>
+            <span class="n">variable</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)))</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">obj</span>
+    <span class="k">if</span> <span class="s2">&quot;time&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;timeseries() needs a `time` dimension.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+    <span class="n">others</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span> <span class="k">if</span> <span class="n">d</span> <span class="o">!=</span> <span class="s2">&quot;time&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">hue</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">others</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">hue</span> <span class="o">=</span> <span class="n">others</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">others</span> <span class="ow">and</span> <span class="n">hue</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">others</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hue must be one of </span><span class="si">{</span><span class="n">others</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">hue</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="n">times</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">da</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">plot_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;linewidth&quot;</span><span class="p">,</span> <span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">by_water_year</span><span class="p">:</span>
+        <span class="n">series_da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span> <span class="k">if</span> <span class="n">hue</span> <span class="ow">and</span> <span class="n">da</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">hue</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">da</span>
+        <span class="k">if</span> <span class="n">series_da</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;by_water_year overlays one series; select one station first.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">years</span> <span class="o">=</span> <span class="n">wateryear</span><span class="o">.</span><span class="n">water_year</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">hemisphere</span><span class="p">)</span>
+        <span class="n">dowy</span> <span class="o">=</span> <span class="n">wateryear</span><span class="o">.</span><span class="n">day_of_water_year</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">hemisphere</span><span class="p">)</span>
+        <span class="c1"># A synthetic, non-leap water year to hang the month axis on.</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">&quot;2001-10-01&quot;</span> <span class="k">if</span> <span class="n">hemisphere</span> <span class="o">==</span> <span class="s2">&quot;northern&quot;</span> <span class="k">else</span> <span class="s2">&quot;2001-04-01&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">years</span><span class="p">):</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="n">years</span> <span class="o">==</span> <span class="n">year</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">dowy</span><span class="p">)[</span><span class="n">rows</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;D&quot;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">series_da</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">rows</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;WY</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">year</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">plot_kwargs</span><span class="p">)</span>
+        <span class="n">_water_year_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">start</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">365</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span>
+            <span class="s2">&quot;water year (1 October to 30 September)&quot;</span>
+            <span class="k">if</span> <span class="n">hemisphere</span> <span class="o">==</span> <span class="s2">&quot;northern&quot;</span>
+            <span class="k">else</span> <span class="s2">&quot;water year (1 April to 31 March)&quot;</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">hue</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">da</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="o">**</span><span class="n">plot_kwargs</span><span class="p">)</span>
+        <span class="n">_date_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">da</span><span class="p">[</span><span class="n">hue</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="p">(</span><span class="n">labels</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">_series_label</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">hue</span><span class="p">))</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">da</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="n">hue</span><span class="p">:</span> <span class="n">key</span><span class="p">})</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">text</span><span class="p">,</span> <span class="o">**</span><span class="n">plot_kwargs</span><span class="p">)</span>
+        <span class="n">_date_axis</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">label</span><span class="p">(</span><span class="n">da</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;0.85&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_axisbelow</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">side</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="n">side</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">da</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;long_name&quot;</span><span class="p">):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="n">legend</span> <span class="ow">and</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">n_lines</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">n_lines</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="o">**</span><span class="n">_LEGEND_OUTSIDE</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span></div>
+
+
+
+<span class="c1"># ── flags → colours ───────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="colormap_from_flags">
+<a class="viewcode-back" href="../../generated/easysnowdata.plotting.colormap_from_flags.html#easysnowdata.plotting.colormap_from_flags">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">colormap_from_flags</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return ``(cmap, norm, flags_df)`` for a categorical array&#39;s CF flags.</span>
+
+<span class="sd">    The norm maps each ``flag_value`` to its own colour regardless of gaps</span>
+<span class="sd">    between values (5, 37, 200 …).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mcolors</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="n">flags_df</span> <span class="o">=</span> <span class="n">flags</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;#808080&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">flags_df</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]]</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">ListedColormap</span><span class="p">(</span><span class="n">colors</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;easysnowdata_flags&quot;</span><span class="p">)</span>
+    <span class="c1"># BoundaryNorm sends values outside the flag range to the colormap&#39;s</span>
+    <span class="c1"># under/over colours, which default to the first and last class. A nodata</span>
+    <span class="c1"># sentinel such as 0 (ocean) would then be painted as class one.</span>
+    <span class="n">cmap</span><span class="o">.</span><span class="n">set_under</span><span class="p">(</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
+    <span class="n">cmap</span><span class="o">.</span><span class="n">set_over</span><span class="p">(</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">flags_df</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span>
+    <span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+        <span class="p">[[</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">],</span> <span class="p">(</span><span class="n">values</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">]]</span>
+    <span class="p">)</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">BoundaryNorm</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">cmap</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cmap</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">flags_df</span></div>
+
+
+
+<div class="viewcode-block" id="legend_handles">
+<a class="viewcode-back" href="../../generated/easysnowdata.plotting.legend_handles.html#easysnowdata.plotting.legend_handles">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">legend_handles</span><span class="p">(</span>
+    <span class="n">obj</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">present</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``(handles, labels)`` for ``ax.legend`` from the CF flags (underscores → spaces).</span>
+
+<span class="sd">    *present* restricts the legend to those flag values (the classes that</span>
+<span class="sd">    actually occur in the plotted array).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.patches</span><span class="w"> </span><span class="kn">import</span> <span class="n">Patch</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="n">flags_df</span> <span class="o">=</span> <span class="n">flags</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">present</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">keep</span> <span class="o">=</span> <span class="n">flags_df</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">present</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">keep</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">flags_df</span> <span class="o">=</span> <span class="n">flags_df</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span>
+    <span class="n">handles</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">Patch</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="n">c</span> <span class="ow">or</span> <span class="s2">&quot;#808080&quot;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">flags_df</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span>
+    <span class="p">]</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">flags_df</span><span class="p">[</span><span class="s2">&quot;meaning&quot;</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span></div>
+
+
+
+<div class="viewcode-block" id="register_colormap">
+<a class="viewcode-back" href="../../generated/easysnowdata.plotting.register_colormap.html#easysnowdata.plotting.register_colormap">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">register_colormap</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">colors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Register a ``ListedColormap`` under *name* with matplotlib and return it.&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>  <span class="c1"># noqa: PLC0415</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mcolors</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">ListedColormap</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">colors</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colormaps</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colormaps</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">matplotlib</span><span class="o">.</span><span class="n">colormaps</span><span class="o">.</span><span class="n">unregister</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">matplotlib</span><span class="o">.</span><span class="n">colormaps</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">cmap</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cmap</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

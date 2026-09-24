@@ -1,0 +1,1051 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Mountain ranges: GMBA Mountain Inventory v2 &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../_static/documentation_options.js?v=16fc681a"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/boundaries/plot_mountains';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Natural Earth map layers: lakes, rivers, glaciers, places" href="plot_natural_earth.html" />
+    <link rel="prev" title="Glacier outlines: Randolph Glacier Inventory 7.0 and 6.0" href="plot_glaciers.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.3.dev19" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../stations/index.html">Stations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_all_networks.html">All five station networks in one call</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_awdb_stations.html">SNOTEL and snow courses (USDA NRCS AWDB)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_cdec_stations.html">California snow pillows and courses (CDEC)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_databc_stations.html">British Columbia snow stations (DataBC)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_nve_stations.html">Norwegian snow stations (NVE HydAPI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_station_archive.html">Daily snow-station archive (global_snow_networks)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stations/plot_yukon_stations.html">Yukon snow stations (AquaCache)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../snow/index.html">Snow</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../snow/plot_modis_snow.html">MODIS snow cover (MOD10A1, MOD10A1F, MOD10A2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../snow/plot_mountain_snow_mask.html">Mountain snow mask (Wrzesien et al.)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../snow/plot_snodas.html">SNODAS snow water equivalent and depth (NOHRSC)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../snow/plot_snow_classification.html">Seasonal snow classification (Sturm and Liston)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../snow/plot_ucla_sr.html">UCLA snow reanalysis (Margulis et al.)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../snow/plot_viirs_snow.html">VIIRS snow cover (VNP10A1F)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../sar/index.html">SAR</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sar/plot_sentinel1.html">Sentinel-1 RTC backscatter and local incidence angle</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../optical/index.html">Optical imagery</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../optical/plot_hls.html">HLS surface reflectance (Landsat and Sentinel-2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../optical/plot_planetscope.html">PlanetScope surface reflectance and UDM2 (Planet)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../optical/plot_sentinel2.html">Sentinel-2 L2A surface reflectance</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../terrain/index.html">Terrain</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../terrain/plot_chili.html">CHILI heat-load index (CSP ERGo)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../terrain/plot_dem.html">Digital elevation models: Copernicus, NASADEM, SRTM, 3DEP, ALOS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../terrain/plot_hillshade.html">Hillshade: Natural Earth shaded relief as a basemap</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../land/index.html">Land cover</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../land/plot_forest_cover.html">Forest cover fraction (CGLS-LC100)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../land/plot_nlcd.html">NLCD land cover, annual (USGS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../land/plot_worldcover.html">ESA WorldCover land cover</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../hydro/index.html">Hydrography</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../hydro/plot_basins.html">Basins: HUC, HydroBASINS and GRDC</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Boundaries</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="plot_admin.html">Countries, states, counties and admin units</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_glaciers.html">Glacier outlines: Randolph Glacier Inventory 7.0 and 6.0</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Mountain ranges: GMBA Mountain Inventory v2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_natural_earth.html">Natural Earth map layers: lakes, rivers, glaciers, places</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../climate/index.html">Climate and reanalysis</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../climate/plot_era5.html">ERA5 reanalysis (ARCO-ERA5 and Earth Engine)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../climate/plot_koppen_geiger.html">Köppen-Geiger climate classification (Beck et al.)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tools/index.html">Tools</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tools/plot_aoi_time_catalog.html">Areas of interest, time ranges and the catalog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools/plot_water_year.html">Water years and day of water year</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Example gallery</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Boundaries</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Mountain ranges: GMBA Mountain Inventory v2</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-boundaries-plot-mountains-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="mountain-ranges-gmba-mountain-inventory-v2">
+<span id="sphx-glr-auto-examples-boundaries-plot-mountains-py"></span><h1>Mountain ranges: GMBA Mountain Inventory v2<a class="headerlink" href="#mountain-ranges-gmba-mountain-inventory-v2" title="Link to this heading">#</a></h1>
+<p>The Global Mountain Biodiversity Assessment inventory (Snethlage et al. 2022)
+names 8,327 mountain ranges and nests them in a hierarchy up to ten levels
+deep. <code class="docutils literal notranslate"><span class="pre">esd.boundaries.mountains.load</span></code> reads it in three subsets:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">subset=&quot;basic&quot;</span></code> (default) — the smallest non-overlapping units;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subset=&quot;300&quot;</span></code> — 291 non-overlapping major systems;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subset=&quot;all&quot;</span></code> — every range at every level, overlapping; <code class="docutils literal notranslate"><span class="pre">level=</span></code> picks one;</p></li>
+</ul>
+<p>and two extents: <code class="docutils literal notranslate"><span class="pre">&quot;standard&quot;</span></code> follows the GMBA mountain definition,
+<code class="docutils literal notranslate"><span class="pre">&quot;broad&quot;</span></code> reaches into the surrounding terrain. Each is one zipped shapefile
+on EarthEnv, fetched once into the cache; no account is needed.</p>
+<p>The figures show the basic units and the Cascade Range over the Natural Earth
+hillshade, the hierarchy above Mount Rainier, and, per range, how much of it
+the Wrzesien mask classifies as seasonal mountain snow.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">easysnowdata</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">esd</span>
+
+<a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">123.0</span><span class="p">,</span> <span class="mf">46.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">120.5</span><span class="p">,</span> <span class="mf">48.0</span><span class="p">)</span>  <span class="c1"># the central Cascades, Puget Sound to Yakima</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rainier</span></a> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">121.94</span><span class="p">,</span> <span class="mf">46.72</span><span class="p">,</span> <span class="o">-</span><span class="mf">121.54</span><span class="p">,</span> <span class="mf">46.99</span><span class="p">)</span>
+
+<a href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI" title="easysnowdata.AOI" class="sphx-glr-backref-module-easysnowdata sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">box</span></a> <span class="o">=</span> <span class="n">esd</span><span class="o">.</span><span class="n">parse_aoi</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="p">)</span>
+<span class="n">grid</span> <span class="o">=</span> <a href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI.to_geobox" title="easysnowdata.AOI.to_geobox" class="sphx-glr-backref-module-easysnowdata sphx-glr-backref-type-py-method"><span class="n">box</span><span class="o">.</span><span class="n">to_geobox</span></a><span class="p">(</span><span class="n">crs</span><span class="o">=</span><span class="s2">&quot;utm&quot;</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI" title="easysnowdata.AOI" class="sphx-glr-backref-module-easysnowdata sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">box</span></a><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <a href="../../generated/easysnowdata.catalog.get.html#easysnowdata.catalog.get" title="easysnowdata.catalog.get" class="sphx-glr-backref-module-easysnowdata-catalog sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">get</span></a><span class="p">(</span><span class="s2">&quot;gmba-mountains&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sources</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">src</span><span class="o">.</span><span class="n">id</span></a><span class="si">:</span><span class="s2">10</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">src</span><span class="o">.</span><span class="n">title</span></a><span class="si">:</span><span class="s2">10</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">src</span><span class="o">.</span><span class="n">requires</span></a><span class="p">)</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">&#39;no account&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>AOI(bounds=(-123.0000, 46.0000, -120.5000, 48.0000), clip=True)
+earthenv   EarthEnv   no account
+</pre></div>
+</div>
+<p>The basic units intersecting the AOI, the one major system they belong to,
+and the standard against the broad extent of that system. Every frame starts
+with <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">gmba_id</span></code>, <code class="docutils literal notranslate"><span class="pre">level</span></code> and <code class="docutils literal notranslate"><span class="pre">path</span></code>.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">basic_gdf</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.boundaries.mountains.load.html#easysnowdata.boundaries.mountains.load" title="easysnowdata.boundaries.mountains.load" class="sphx-glr-backref-module-easysnowdata-boundaries-mountains sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">boundaries</span><span class="o">.</span><span class="n">mountains</span><span class="o">.</span><span class="n">load</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="p">)</span>
+<a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">major_gdf</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.boundaries.mountains.load.html#easysnowdata.boundaries.mountains.load" title="easysnowdata.boundaries.mountains.load" class="sphx-glr-backref-module-easysnowdata-boundaries-mountains sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">boundaries</span><span class="o">.</span><span class="n">mountains</span><span class="o">.</span><span class="n">load</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="s2">&quot;300&quot;</span><span class="p">)</span>
+<a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">broad_gdf</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.boundaries.mountains.load.html#easysnowdata.boundaries.mountains.load" title="easysnowdata.boundaries.mountains.load" class="sphx-glr-backref-module-easysnowdata-boundaries-mountains sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">boundaries</span><span class="o">.</span><span class="n">mountains</span><span class="o">.</span><span class="n">load</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">aoi</span></a><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="s2">&quot;300&quot;</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="s2">&quot;broad&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">basic_gdf</span></a><span class="p">)</span><span class="si">}</span><span class="s2"> basic units; major systems: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">major_gdf</span></a><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">basic_gdf</span></a><span class="p">[[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;level&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hillshade_da</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.terrain.hillshade.load.html#easysnowdata.terrain.hillshade.load" title="easysnowdata.terrain.hillshade.load" class="sphx-glr-backref-module-easysnowdata-terrain-hillshade sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">terrain</span><span class="o">.</span><span class="n">hillshade</span><span class="o">.</span><span class="n">load</span></a><span class="p">(</span><a href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI.buffer" title="easysnowdata.AOI.buffer" class="sphx-glr-backref-module-easysnowdata sphx-glr-backref-type-py-method"><span class="n">box</span><span class="o">.</span><span class="n">buffer</span></a><span class="p">(</span><span class="mi">40_000</span><span class="p">),</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;shaded-relief&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.plotting.map.html#easysnowdata.plotting.map" title="easysnowdata.plotting.map" class="sphx-glr-backref-module-easysnowdata-plotting sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">map</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hillshade_da</span></a><span class="o">.</span><span class="n">odc</span><span class="o">.</span><span class="n">reproject</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">resampling</span><span class="o">=</span><span class="s2">&quot;bilinear&quot;</span><span class="p">),</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
+    <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span>
+    <span class="n">colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;GMBA basic units (colour), the Cascade Range standard and broad&quot;</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+<span class="p">)</span>
+<a href="../../generated/easysnowdata.plotting.add_outline.html#easysnowdata.plotting.add_outline" title="easysnowdata.plotting.add_outline" class="sphx-glr-backref-module-easysnowdata-plotting sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">add_outline</span></a><span class="p">(</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span>
+    <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">basic_gdf</span></a><span class="p">,</span>
+    <span class="n">column</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;tab20&quot;</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.45</span><span class="p">,</span>
+    <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;0.3&quot;</span><span class="p">,</span>
+    <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="../../generated/easysnowdata.plotting.add_outline.html#easysnowdata.plotting.add_outline" title="easysnowdata.plotting.add_outline" class="sphx-glr-backref-module-easysnowdata-plotting sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">add_outline</span></a><span class="p">(</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span> <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">major_gdf</span></a><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+<a href="../../generated/easysnowdata.plotting.add_outline.html#easysnowdata.plotting.add_outline" title="easysnowdata.plotting.add_outline" class="sphx-glr-backref-module-easysnowdata-plotting sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">add_outline</span></a><span class="p">(</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span> <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">broad_gdf</span></a><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span>
+<span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.figure.html#matplotlib.axes.Axes.figure" title="matplotlib.axes.Axes.figure" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-property"><span class="n">ax</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_mountains_001.png" srcset="../../_images/sphx_glr_plot_mountains_001.png" alt="GMBA basic units (colour), the Cascade Range standard and broad" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  0%|                                              | 0.00/39.3M [00:00&lt;?, ?B/s]
+  2%|▋                                     | 656k/39.3M [00:00&lt;00:06, 6.30MB/s]
+  3%|█▎                                   | 1.34M/39.3M [00:00&lt;00:05, 6.63MB/s]
+ 15%|█████▍                               | 5.81M/39.3M [00:00&lt;00:01, 23.8MB/s]
+ 38%|██████████████                       | 14.9M/39.3M [00:00&lt;00:00, 50.3MB/s]
+ 62%|██████████████████████▉              | 24.4M/39.3M [00:00&lt;00:00, 66.4MB/s]
+ 87%|████████████████████████████████     | 34.1M/39.3M [00:00&lt;00:00, 76.5MB/s]
+  0%|                                              | 0.00/39.3M [00:00&lt;?, ?B/s]
+100%|██████████████████████████████████████| 39.3M/39.3M [00:00&lt;00:00, 167GB/s]
+
+  0%|                                              | 0.00/32.1M [00:00&lt;?, ?B/s]
+  6%|██▏                                  | 1.88M/32.1M [00:00&lt;00:01, 18.8MB/s]
+ 12%|████▎                                | 3.77M/32.1M [00:00&lt;00:01, 17.3MB/s]
+ 33%|████████████▏                        | 10.6M/32.1M [00:00&lt;00:00, 36.5MB/s]
+ 52%|███████████████████▎                 | 16.8M/32.1M [00:00&lt;00:00, 38.6MB/s]
+ 64%|███████████████████████▋             | 20.6M/32.1M [00:00&lt;00:00, 25.8MB/s]
+ 78%|████████████████████████████▋        | 24.9M/32.1M [00:00&lt;00:00, 29.8MB/s]
+ 95%|███████████████████████████████████▎ | 30.7M/32.1M [00:01&lt;00:00, 25.5MB/s]
+  0%|                                              | 0.00/32.1M [00:00&lt;?, ?B/s]
+100%|██████████████████████████████████████| 32.1M/32.1M [00:00&lt;00:00, 182GB/s]
+
+  0%|                                              | 0.00/22.4M [00:00&lt;?, ?B/s]
+  5%|█▋                                   | 1.01M/22.4M [00:00&lt;00:02, 9.88MB/s]
+ 31%|███████████▍                         | 6.94M/22.4M [00:00&lt;00:00, 38.6MB/s]
+ 74%|███████████████████████████▎         | 16.5M/22.4M [00:00&lt;00:00, 64.6MB/s]
+  0%|                                              | 0.00/22.4M [00:00&lt;?, ?B/s]
+100%|██████████████████████████████████████| 22.4M/22.4M [00:00&lt;00:00, 103GB/s]
+52 basic units; major systems: Cascade Range, Olympic Mountains, Columbia Plateau, Oregon Coast Range
+                             name  level
+                    Capitol Hills      6
+Cedar River-South Snoqualmie Pass      7
+      Central South Cascade Crest      7
+               Chikamin-Keechelus      7
+              Chiwaukum Mountains      7
+                    Chiwawa Ridge      7
+             Columbia Gorge North      6
+         Constance-Buckhorn Group      6
+                    Dakobed Range      7
+      Duckabush-Hamma Hamma Group      6
+               East Yakima Ridges      7
+                       Goat Rocks      6
+               Horse Heaven Hills      7
+                Huckleberry-Grass      7
+                  Index-Tolt Area      7
+                    Issaquah Alps      7
+                    Kachess Ridge      7
+                 Kitsap Peninsula      6
+            Mission-Naneum Ridges      7
+                Monte Cristo Area      7
+                 Mount Adams Area      6
+                   Mount Aix Area      7
+                Mount Daniel Area      7
+               Mount Jupiter Area      6
+     Mount Rainier East Foothills      7
+             Mount Rainier Massif      7
+    Mount Rainier North Foothills      7
+     Mount Rainier West Foothills      7
+          Mount Saint Helens Area      6
+                      Nason Ridge      7
+           North Chelan Mountains      7
+           North Entiat Mountains      7
+        North Wenatchee Mountains      7
+    North-Middle Forks Snoqualmie      7
+      Northeast Olympic Foothills      6
+                    Pilchuck Area      7
+                     Ragged Ridge      7
+             Seattle-Everett Area      7
+                 Simcoe Mountains      7
+            Snoqualmie Pass North      7
+              Sourdough Mountains      7
+           South Chelan Mountains      7
+           South Entiat Mountains      7
+     Southwest Mount Rainier Area      7
+                     Stuart Range      7
+                    Tatoosh Range      7
+                    Teanaway Area      7
+                  Wenatchee Ridge      7
+    West Manastash-Umtanum Ridges      7
+                  White Mountains      7
+                         Wild Sky      7
+                    Willapa Hills      6
+</pre></div>
+</div>
+<p>The hierarchy above Rainier: <code class="docutils literal notranslate"><span class="pre">subset=&quot;all&quot;</span></code> holds every level, so the
+ranges containing the mountain run from the continent down to the massif.
+<code class="docutils literal notranslate"><span class="pre">level=</span></code> keeps one of them; level 4 is the Cascade Range.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">nested_gdf</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.boundaries.mountains.load.html#easysnowdata.boundaries.mountains.load" title="easysnowdata.boundaries.mountains.load" class="sphx-glr-backref-module-easysnowdata-boundaries-mountains sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">boundaries</span><span class="o">.</span><span class="n">mountains</span><span class="o">.</span><span class="n">load</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rainier</span></a><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ladder_gdf</span></a> <span class="o">=</span> <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">nested_gdf</span></a><span class="p">[</span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">nested_gdf</span></a><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">esd</span><span class="o">.</span><span class="n">parse_aoi</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rainier</span></a><span class="p">)</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">centroid</span><span class="p">)]</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html#pandas.DataFrame.sort_values" title="pandas.DataFrame.sort_values" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">ladder_gdf</span><span class="o">.</span><span class="n">sort_values</span></a><span class="p">(</span><span class="s2">&quot;level&quot;</span><span class="p">)[[</span><span class="s2">&quot;level&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><a href="../../generated/easysnowdata.boundaries.mountains.load.html#easysnowdata.boundaries.mountains.load" title="easysnowdata.boundaries.mountains.load" class="sphx-glr-backref-module-easysnowdata-boundaries-mountains sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">boundaries</span><span class="o">.</span><span class="n">mountains</span><span class="o">.</span><span class="n">load</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rainier</span></a><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">4</span><span class="p">)[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  0%|                                               | 0.00/186M [00:00&lt;?, ?B/s]
+  1%|▏                                     | 1.02M/186M [00:00&lt;00:18, 10.1MB/s]
+  3%|█▎                                    | 6.23M/186M [00:00&lt;00:05, 33.8MB/s]
+  5%|█▉                                    | 9.58M/186M [00:00&lt;00:06, 25.3MB/s]
+ 11%|████                                  | 20.1M/186M [00:00&lt;00:03, 51.1MB/s]
+ 17%|██████▎                               | 30.8M/186M [00:00&lt;00:02, 69.1MB/s]
+ 22%|████████▍                             | 41.5M/186M [00:00&lt;00:01, 80.8MB/s]
+ 28%|██████████▋                           | 52.4M/186M [00:00&lt;00:01, 89.3MB/s]
+ 34%|████████████▉                         | 63.1M/186M [00:00&lt;00:01, 94.7MB/s]
+ 40%|███████████████                       | 73.8M/186M [00:00&lt;00:01, 98.5MB/s]
+ 46%|█████████████████▋                     | 84.5M/186M [00:01&lt;00:00, 101MB/s]
+ 51%|███████████████████▉                   | 95.3M/186M [00:01&lt;00:00, 103MB/s]
+ 57%|██████████████████████▊                 | 106M/186M [00:01&lt;00:00, 105MB/s]
+ 63%|█████████████████████████▏              | 117M/186M [00:01&lt;00:00, 106MB/s]
+ 69%|███████████████████████████▍            | 128M/186M [00:01&lt;00:00, 106MB/s]
+ 74%|█████████████████████████████▋          | 138M/186M [00:01&lt;00:00, 106MB/s]
+ 80%|████████████████████████████████        | 149M/186M [00:01&lt;00:00, 106MB/s]
+ 86%|██████████████████████████████████▎     | 159M/186M [00:01&lt;00:00, 106MB/s]
+ 92%|████████████████████████████████████▋   | 170M/186M [00:01&lt;00:00, 107MB/s]
+ 97%|██████████████████████████████████████▉ | 181M/186M [00:01&lt;00:00, 107MB/s]
+  0%|                                               | 0.00/186M [00:00&lt;?, ?B/s]
+100%|████████████████████████████████████████| 186M/186M [00:00&lt;00:00, 930GB/s]
+ level                                name
+     1                       North America
+     2 American Cordillera (North America)
+     3                Pacific Coast Ranges
+     4                       Cascade Range
+     5           South Washington Cascades
+     6                  Mount Rainier Area
+     7                Mount Rainier Massif
+[&#39;Cascade Range&#39;]
+</pre></div>
+</div>
+<p>Where the snow is: the fraction of each basic unit that the Wrzesien mask
+classifies as seasonal mountain snow (MODIS 2000-2016). The ranges along the
+crest are mostly seasonal; the foothills to the west and east are not.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mask_da</span></a> <span class="o">=</span> <a href="../../generated/easysnowdata.snow.mountain_snow_mask.load.html#easysnowdata.snow.mountain_snow_mask.load" title="easysnowdata.snow.mountain_snow_mask.load" class="sphx-glr-backref-module-easysnowdata-snow-mountain_snow_mask sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">snow</span><span class="o">.</span><span class="n">mountain_snow_mask</span><span class="o">.</span><span class="n">load</span></a><span class="p">(</span><a href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI.buffer" title="easysnowdata.AOI.buffer" class="sphx-glr-backref-module-easysnowdata sphx-glr-backref-type-py-method"><span class="n">box</span><span class="o">.</span><span class="n">buffer</span></a><span class="p">(</span><span class="mi">5000</span><span class="p">),</span> <span class="n">chunks</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lon</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lat</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.meshgrid.html#numpy.meshgrid" title="numpy.meshgrid" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mask_da</span></a><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mask_da</span></a><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pixels_df</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class"><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span></a><span class="p">(</span>
+    <span class="p">{</span><span class="s2">&quot;lon&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lon</span></a><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lat</span></a><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="s2">&quot;class&quot;</span><span class="p">:</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">mask_da</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span></a><span class="p">()}</span>
+<span class="p">)</span>
+<a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pixels_gdf</span></a> <span class="o">=</span> <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class"><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span></a><span class="p">(</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pixels_df</span></a><span class="p">,</span>
+    <span class="n">geometry</span><span class="o">=</span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.points_from_xy.html#geopandas.points_from_xy" title="geopandas.points_from_xy" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-function"><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span></a><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pixels_df</span></a><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">],</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pixels_df</span></a><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]),</span>
+    <span class="n">crs</span><span class="o">=</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">joined_gdf</span></a> <span class="o">=</span> <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.sjoin.html#geopandas.GeoDataFrame.sjoin" title="geopandas.GeoDataFrame.sjoin" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-method"><span class="n">pixels_gdf</span><span class="o">.</span><span class="n">sjoin</span></a><span class="p">(</span><a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">basic_gdf</span></a><span class="p">[[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">]],</span> <span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;within&quot;</span><span class="p">)</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">seasonal_df</span></a> <span class="o">=</span> <span class="p">(</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html#pandas.DataFrame.groupby" title="pandas.DataFrame.groupby" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">joined_gdf</span><span class="o">.</span><span class="n">groupby</span></a><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)[</span><span class="s2">&quot;class&quot;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">classes</span><span class="p">:</span> <span class="nb">float</span><span class="p">((</span><span class="n">classes</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span>
+    <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;seasonal_fraction&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+<span class="p">)</span>
+<a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ranges_gdf</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.merge.html#pandas.DataFrame.merge" title="pandas.DataFrame.merge" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">basic_gdf</span><span class="o">.</span><span class="n">merge</span></a><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">seasonal_df</span></a><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html#pandas.DataFrame.sort_values" title="pandas.DataFrame.sort_values" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">ranges_gdf</span><span class="o">.</span><span class="n">sort_values</span></a><span class="p">(</span><span class="s2">&quot;seasonal_fraction&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span>
+        <span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;seasonal_fraction&quot;</span><span class="p">]</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="p">)</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<a href="../../generated/easysnowdata.plotting.map.html#easysnowdata.plotting.map" title="easysnowdata.plotting.map" class="sphx-glr-backref-module-easysnowdata-plotting sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">map</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hillshade_da</span></a><span class="o">.</span><span class="n">odc</span><span class="o">.</span><span class="n">reproject</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">resampling</span><span class="o">=</span><span class="s2">&quot;bilinear&quot;</span><span class="p">),</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
+    <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span>
+    <span class="n">colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Seasonal mountain snow per GMBA unit (Wrzesien et al. 2019)&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="../../generated/easysnowdata.plotting.add_outline.html#easysnowdata.plotting.add_outline" title="easysnowdata.plotting.add_outline" class="sphx-glr-backref-module-easysnowdata-plotting sphx-glr-backref-type-py-function"><span class="n">esd</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">add_outline</span></a><span class="p">(</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span>
+    <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="geopandas.GeoDataFrame" class="sphx-glr-backref-module-geopandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ranges_gdf</span></a><span class="p">,</span>
+    <span class="n">column</span><span class="o">=</span><span class="s2">&quot;seasonal_fraction&quot;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Blues&quot;</span><span class="p">,</span>
+    <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+    <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;0.3&quot;</span><span class="p">,</span>
+    <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+    <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">legend_kwds</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;fraction of pixels with seasonal snow&quot;</span><span class="p">,</span> <span class="s2">&quot;shrink&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">},</span>
+<span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.tight_layout.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_mountains_002.png" srcset="../../_images/sphx_glr_plot_mountains_002.png" alt="Seasonal mountain snow per GMBA unit (Wrzesien et al. 2019)" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>                             name  seasonal_fraction
+                     Stuart Range           0.994382
+           North Chelan Mountains           0.990610
+                    Dakobed Range           0.989899
+              Chiwaukum Mountains           0.984866
+             Mount Rainier Massif           0.983193
+                  Wenatchee Ridge           0.982456
+                    Teanaway Area           0.982165
+           South Chelan Mountains           0.981481
+           North Entiat Mountains           0.979920
+                  White Mountains           0.978261
+                      Nason Ridge           0.978227
+           South Entiat Mountains           0.977227
+                Monte Cristo Area           0.972973
+        North Wenatchee Mountains           0.972789
+                Mount Daniel Area           0.972222
+      Central South Cascade Crest           0.970403
+              Sourdough Mountains           0.967890
+                   Mount Aix Area           0.962569
+                    Chiwawa Ridge           0.962175
+               Chikamin-Keechelus           0.956140
+                 Mount Adams Area           0.939299
+     Mount Rainier East Foothills           0.938776
+                    Kachess Ridge           0.938596
+            Mission-Naneum Ridges           0.935109
+                         Wild Sky           0.893540
+    West Manastash-Umtanum Ridges           0.861527
+                    Tatoosh Range           0.843077
+    North-Middle Forks Snoqualmie           0.817844
+                       Goat Rocks           0.802289
+            Snoqualmie Pass North           0.792757
+             Columbia Gorge North           0.754087
+    Mount Rainier North Foothills           0.739738
+Cedar River-South Snoqualmie Pass           0.730972
+                 Simcoe Mountains           0.640266
+                Huckleberry-Grass           0.589147
+                     Ragged Ridge           0.588339
+               Horse Heaven Hills           0.482185
+                    Pilchuck Area           0.469914
+                  Index-Tolt Area           0.462439
+          Mount Saint Helens Area           0.405912
+     Southwest Mount Rainier Area           0.387423
+         Constance-Buckhorn Group           0.375581
+     Mount Rainier West Foothills           0.368514
+               Mount Jupiter Area           0.321168
+               East Yakima Ridges           0.280423
+      Duckabush-Hamma Hamma Group           0.236264
+                    Issaquah Alps           0.071429
+                 Kitsap Peninsula           0.059701
+      Northeast Olympic Foothills           0.055556
+                    Capitol Hills           0.010204
+                    Willapa Hills           0.007843
+             Seattle-Everett Area           0.000000
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 30.791 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-boundaries-plot-mountains-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/d969698bfb6b7f667a1bcdbfdfc486e8/plot_mountains.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_mountains.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/a5d895d990b26cf754868f8627491bc2/plot_mountains.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_mountains.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/56cffb4e4fc470e44a716dbfb39fd8f7/plot_mountains.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_mountains.zip</span></code></a></p>
+</div>
+</div>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plot_glaciers.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Glacier outlines: Randolph Glacier Inventory 7.0 and 6.0</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="plot_natural_earth.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Natural Earth map layers: lakes, rivers, glaciers, places</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/egagli/easysnowdata/edit/main/docs/auto_examples/boundaries/plot_mountains.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

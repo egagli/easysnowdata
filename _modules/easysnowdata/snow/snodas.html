@@ -1,0 +1,1004 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>easysnowdata.snow.snodas &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=16fc681a"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/easysnowdata/snow/snodas';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.3.dev19" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">easysnowdata.snow.snodas</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for easysnowdata.snow.snodas</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;SNODAS: NOHRSC daily 1 km snow water equivalent and snow depth.</span>
+
+<span class="sd">Sources (companion file §B.5):</span>
+
+<span class="sd">``nsidc`` (default, new)</span>
+<span class="sd">    The authoritative NSIDC G02158 archive: one ``.tar`` per day holding</span>
+<span class="sd">    gzipped flat-binary grids with their own text headers. No account, no</span>
+<span class="sd">    Earth Engine — the cost is a small download per day and a reader</span>
+<span class="sd">    (:mod:`easysnowdata.processing.snow`) instead of an analysis-ready cube.</span>
+<span class="sd">``gee-climate-engine``</span>
+<span class="sd">    Climate Engine&#39;s community re-hosting on Earth Engine: fast, lazy and</span>
+<span class="sd">    server-side subset, about a day behind, but a non-authoritative mirror</span>
+<span class="sd">    behind Earth Engine credentials.</span>
+
+<span class="sd">Both should agree; the gallery example checks that they do.</span>
+
+<span class="sd">**Glaciers saturate the grid.** SNODAS never melts perennial ice out, so SWE</span>
+<span class="sd">grows without bound over glaciers and eventually saturates the 16-bit field at</span>
+<span class="sd">32767 mm (32.767 m). Verified 2026-09-16 on 2024-03-15: eight CONUS pixels are</span>
+<span class="sd">saturated and they sit on Mount Rainier&#39;s and Mount Baker&#39;s summit ice caps,</span>
+<span class="sd">while the Rainier box&#39;s median is 0.86 m. Those values are the model&#39;s, not a</span>
+<span class="sd">reader artefact, so they are passed through untouched; mask them yourself</span>
+<span class="sd">(``snodas_ds[&quot;SWE&quot;].where(snodas_ds[&quot;SWE&quot;] &lt; 30)``) when a basin contains glaciers.</span>
+
+<span class="sd">::</span>
+
+<span class="sd">    import easysnowdata as esd</span>
+<span class="sd">    snodas_ds = esd.snow.snodas.load(aoi, &quot;2024-03-01/2024-03-07&quot;)       # NSIDC</span>
+<span class="sd">    snodas_ds = esd.snow.snodas.load(aoi, &quot;2024-03&quot;, source=&quot;gee-climate-engine&quot;)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata</span><span class="w"> </span><span class="kn">import</span> <span class="n">catalog</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">providers</span><span class="p">,</span> <span class="n">temporal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.aoi</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_aoi</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.catalog</span><span class="w"> </span><span class="kn">import</span> <span class="n">Probe</span><span class="p">,</span> <span class="n">Product</span><span class="p">,</span> <span class="n">Source</span><span class="p">,</span> <span class="n">Variable</span><span class="p">,</span> <span class="n">health</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.catalog._access</span><span class="w"> </span><span class="kn">import</span> <span class="n">ensure_source</span><span class="p">,</span> <span class="n">resolve_source</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">contract</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">snow</span> <span class="k">as</span> <span class="n">snow_processing</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;PRODUCT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;VARIABLES&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;REGIONS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tar_url&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;search&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;load&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">NSIDC_ROOT</span> <span class="o">=</span> <span class="s2">&quot;https://noaadata.apps.nsidc.org/NOAA/G02158&quot;</span>
+<span class="n">GEE_COLLECTION</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;projects/earthengine-legacy/assets/projects/climate-engine/snodas/daily&quot;</span>
+<span class="p">)</span>
+<span class="n">_NSIDC_DOCS</span> <span class="o">=</span> <span class="s2">&quot;https://nsidc.org/data/g02158/versions/1&quot;</span>
+<span class="n">_GEE_DOCS</span> <span class="o">=</span> <span class="s2">&quot;https://gee-community-catalog.org/projects/snodas/&quot;</span>
+
+<span class="c1">#: Which grid to read: the CONUS-only ``masked`` product or the larger</span>
+<span class="c1">#: ``unmasked`` domain (which also covers southern Canada and northern Mexico).</span>
+<span class="n">REGIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;masked&quot;</span><span class="p">,</span> <span class="s2">&quot;unmasked&quot;</span><span class="p">)</span>
+
+<span class="c1">#: Variable name → (SNODAS product code, units, long name).</span>
+<span class="n">VARIABLES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;SWE&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;1034&quot;</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;snow water equivalent, total of snow layers&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;snow_depth&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;1036&quot;</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;snow layer thickness, total of snow layers&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;snowpack_average_temperature&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;1038&quot;</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="s2">&quot;snowpack average temperature&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;blowing_snow_sublimation&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;1039&quot;</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;sublimation of blowing snow&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;snow_melt&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;1044&quot;</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;snow melt runoff at the base of the snowpack&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;snowpack_sublimation&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;1050&quot;</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;sublimation from the snowpack&quot;</span><span class="p">),</span>
+<span class="p">}</span>
+<span class="c1">#: The Earth Engine mirror&#39;s band names for the two variables it carries.</span>
+<span class="n">GEE_BANDS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;SWE&quot;</span><span class="p">:</span> <span class="s2">&quot;SWE&quot;</span><span class="p">,</span> <span class="s2">&quot;snow_depth&quot;</span><span class="p">:</span> <span class="s2">&quot;Snow_Depth&quot;</span><span class="p">}</span>
+<span class="n">DEFAULT_VARIABLES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;SWE&quot;</span><span class="p">,</span> <span class="s2">&quot;snow_depth&quot;</span><span class="p">)</span>
+
+<span class="n">PRODUCT</span> <span class="o">=</span> <span class="n">Product</span><span class="p">(</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;snodas&quot;</span><span class="p">,</span>
+    <span class="n">theme</span><span class="o">=</span><span class="s2">&quot;snow&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;SNODAS snow water equivalent and snow depth&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;NOHRSC Snow Data Assimilation System daily 1 km snow water equivalent, snow &quot;</span>
+        <span class="s2">&quot;depth, melt, sublimation and snowpack temperature over the CONUS (masked) or &quot;</span>
+        <span class="s2">&quot;the wider modelling domain (unmasked), 2003-10 onward.&quot;</span>
+    <span class="p">),</span>
+    <span class="n">sources</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Source</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;nsidc&quot;</span><span class="p">,</span>
+            <span class="n">provider</span><span class="o">=</span><span class="s2">&quot;raster_http&quot;</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">NSIDC_ROOT</span><span class="si">}</span><span class="s2">/</span><span class="se">{{</span><span class="s2">region</span><span class="se">}}</span><span class="s2">/YYYY/MM_Mon/SNODAS_YYYYMMDD.tar&quot;</span><span class="p">,</span>
+            <span class="n">resolution_m</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+            <span class="n">extent</span><span class="o">=</span><span class="s2">&quot;CONUS (masked) / North America (unmasked)&quot;</span><span class="p">,</span>
+            <span class="n">temporal</span><span class="o">=</span><span class="s2">&quot;2003-10/present&quot;</span><span class="p">,</span>
+            <span class="n">latency</span><span class="o">=</span><span class="s2">&quot;~1 day&quot;</span><span class="p">,</span>
+            <span class="n">notes</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;authoritative NOHRSC archive: one tar per day of gzipped flat-binary &quot;</span>
+                <span class="s2">&quot;grids plus text headers; no credentials, no cloud-native mirror exists&quot;</span>
+            <span class="p">),</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;NSIDC G02158 (direct)&quot;</span><span class="p">,</span>
+            <span class="n">health</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">Probe</span><span class="p">(</span>
+                    <span class="s2">&quot;SNODAS (NSIDC G02158)&quot;</span><span class="p">,</span>
+                    <span class="n">partial</span><span class="p">(</span>
+                        <span class="n">health</span><span class="o">.</span><span class="n">http_first_byte</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">NSIDC_ROOT</span><span class="si">}</span><span class="s2">/masked/2024/03_Mar/SNODAS_20240315.tar&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                <span class="p">),</span>
+                <span class="c1"># No index to query: walk back a day at a time until one</span>
+                <span class="c1"># answers. That is also the measurement Eric&#39;s next-overpass</span>
+                <span class="c1"># latency tool generalizes (§8).</span>
+                <span class="n">Probe</span><span class="p">(</span>
+                    <span class="s2">&quot;SNODAS latency (NSIDC G02158)&quot;</span><span class="p">,</span>
+                    <span class="c1"># tar_url is defined below; resolve it when the probe runs.</span>
+                    <span class="n">partial</span><span class="p">(</span><span class="n">health</span><span class="o">.</span><span class="n">latest_available_day</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">day</span><span class="p">:</span> <span class="n">tar_url</span><span class="p">(</span><span class="n">day</span><span class="p">)),</span>
+                    <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;latency&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">Source</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;gee-climate-engine&quot;</span><span class="p">,</span>
+            <span class="n">provider</span><span class="o">=</span><span class="s2">&quot;gee&quot;</span><span class="p">,</span>
+            <span class="n">location</span><span class="o">=</span><span class="n">GEE_COLLECTION</span><span class="p">,</span>
+            <span class="n">requires</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;earthengine&quot;</span><span class="p">,),</span>
+            <span class="n">resolution_m</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+            <span class="n">extent</span><span class="o">=</span><span class="s2">&quot;CONUS&quot;</span><span class="p">,</span>
+            <span class="n">temporal</span><span class="o">=</span><span class="s2">&quot;2003-10/present&quot;</span><span class="p">,</span>
+            <span class="n">latency</span><span class="o">=</span><span class="s2">&quot;~1 day&quot;</span><span class="p">,</span>
+            <span class="n">notes</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;Climate Engine&#39;s community re-hosting: analysis-ready and lazy, but &quot;</span>
+                <span class="s2">&quot;a non-authoritative mirror with only SWE and snow depth&quot;</span>
+            <span class="p">),</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Earth Engine (Climate Engine)&quot;</span><span class="p">,</span>
+            <span class="n">health</span><span class="o">=</span><span class="n">Probe</span><span class="p">(</span>
+                <span class="s2">&quot;SNODAS (GEE/Climate Engine)&quot;</span><span class="p">,</span>
+                <span class="n">partial</span><span class="p">(</span>
+                    <span class="n">health</span><span class="o">.</span><span class="n">gee_asset</span><span class="p">,</span>
+                    <span class="n">GEE_COLLECTION</span><span class="p">,</span>
+                    <span class="n">start</span><span class="o">=</span><span class="s2">&quot;2020-01-01&quot;</span><span class="p">,</span>
+                    <span class="n">end</span><span class="o">=</span><span class="s2">&quot;2020-01-02&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">variables</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Variable</span><span class="p">(</span><span class="s2">&quot;SWE&quot;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">long_name</span><span class="o">=</span><span class="s2">&quot;snow water equivalent&quot;</span><span class="p">),</span>
+        <span class="n">Variable</span><span class="p">(</span><span class="s2">&quot;snow_depth&quot;</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">long_name</span><span class="o">=</span><span class="s2">&quot;snow depth&quot;</span><span class="p">),</span>
+        <span class="n">Variable</span><span class="p">(</span>
+            <span class="s2">&quot;snow_melt&quot;</span><span class="p">,</span>
+            <span class="n">units</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span>
+            <span class="n">long_name</span><span class="o">=</span><span class="s2">&quot;snow melt runoff at the base of the snowpack&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">citation</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;National Operational Hydrologic Remote Sensing Center (2004). Snow Data &quot;</span>
+        <span class="s2">&quot;Assimilation System (SNODAS) Data Products at NSIDC, Version 1. Boulder, &quot;</span>
+        <span class="s2">&quot;Colorado USA. NSIDC.&quot;</span>
+    <span class="p">),</span>
+    <span class="n">license</span><span class="o">=</span><span class="s2">&quot;Public domain (US government data)&quot;</span><span class="p">,</span>
+    <span class="n">doi</span><span class="o">=</span><span class="s2">&quot;10.7265/N5TB14TC&quot;</span><span class="p">,</span>
+    <span class="n">references</span><span class="o">=</span><span class="p">(</span><span class="n">_NSIDC_DOCS</span><span class="p">,</span> <span class="n">_GEE_DOCS</span><span class="p">),</span>
+    <span class="n">loader</span><span class="o">=</span><span class="s2">&quot;easysnowdata.snow.snodas.load&quot;</span><span class="p">,</span>
+    <span class="n">examples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;snow/plot_snodas.py&quot;</span><span class="p">,),</span>
+    <span class="n">tags</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;swe&quot;</span><span class="p">,</span> <span class="s2">&quot;snow depth&quot;</span><span class="p">,</span> <span class="s2">&quot;snodas&quot;</span><span class="p">,</span> <span class="s2">&quot;nohrsc&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">catalog</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">PRODUCT</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="c1"># ── helpers ───────────────────────────────────────────────────────────────────</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">list</span><span class="p">(</span><span class="n">DEFAULT_VARIABLES</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="p">([</span><span class="n">variables</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">variables</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="n">unknown</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">unknown</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid variables: </span><span class="si">{</span><span class="nb">set</span><span class="p">(</span><span class="n">unknown</span><span class="p">)</span><span class="si">}</span><span class="s2">. Available variables: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">VARIABLES</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">names</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_region</span><span class="p">(</span><span class="n">region</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">region</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">REGIONS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;region must be one of </span><span class="si">{</span><span class="n">REGIONS</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">region</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">region</span>
+
+
+<div class="viewcode-block" id="tar_url">
+<a class="viewcode-back" href="../../../generated/easysnowdata.snow.snodas.tar_url.html#easysnowdata.snow.snodas.tar_url">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">tar_url</span><span class="p">(</span><span class="n">day</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">region</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;masked&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The NSIDC URL of one SNODAS day (``…/2024/03_Mar/SNODAS_20240315.tar``).&quot;&quot;&quot;</span>
+    <span class="n">when</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">day</span><span class="p">)</span>
+    <span class="n">region</span> <span class="o">=</span> <span class="n">_region</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
+    <span class="n">stem</span> <span class="o">=</span> <span class="s2">&quot;SNODAS&quot;</span> <span class="k">if</span> <span class="n">region</span> <span class="o">==</span> <span class="s2">&quot;masked&quot;</span> <span class="k">else</span> <span class="s2">&quot;SNODAS_unmasked&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">NSIDC_ROOT</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">when</span><span class="si">:</span><span class="s2">%Y</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">when</span><span class="si">:</span><span class="s2">%m</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">when</span><span class="si">:</span><span class="s2">%b</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">stem</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">when</span><span class="si">:</span><span class="s2">%Y%m%d</span><span class="si">}</span><span class="s2">.tar&quot;</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_days</span><span class="p">(</span><span class="n">time</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">:</span>
+    <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">temporal</span><span class="o">.</span><span class="n">parse_time</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;SNODAS needs a start date: it is one file per day, so an open-ended &quot;</span>
+            <span class="s2">&quot;request would download the whole archive.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="o">.</span><span class="n">normalize</span><span class="p">(),</span> <span class="n">end</span><span class="o">.</span><span class="n">normalize</span><span class="p">(),</span> <span class="n">freq</span><span class="o">=</span><span class="s2">&quot;D&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_variable_of</span><span class="p">(</span><span class="n">stem</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Map a member name (``us_ssmv11034tS__T0001…``) to a variable name.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;ssmv1</span><span class="si">{</span><span class="n">code</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">stem</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">&quot;ssmv0</span><span class="si">{</span><span class="n">code</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">stem</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">name</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="c1"># ── public API ────────────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="search">
+<a class="viewcode-back" href="../../../generated/easysnowdata.snow.snodas.search.html#easysnowdata.snow.snodas.search">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span>
+    <span class="n">aoi</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">region</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;masked&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;List the SNODAS days a request covers, with their archive URLs.</span>
+
+<span class="sd">    Nothing is downloaded: the archive is one file per day at a predictable</span>
+<span class="sd">    URL, so the &quot;search&quot; is the day list plus where each day lives.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">resolve_source</span><span class="p">(</span><span class="n">PRODUCT</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">aoi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">parse_aoi</span><span class="p">(</span><span class="n">aoi</span><span class="p">)</span>
+    <span class="n">days</span> <span class="o">=</span> <span class="n">_days</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+    <span class="n">days_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">days</span><span class="p">,</span>
+            <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">tar_url</span><span class="p">(</span><span class="n">day</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="n">region</span><span class="p">)</span> <span class="k">for</span> <span class="n">day</span> <span class="ow">in</span> <span class="n">days</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="s2">&quot;nsidc&quot;</span>
+            <span class="k">else</span> <span class="p">[</span><span class="n">GEE_COLLECTION</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">days</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">days_df</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">src</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">region</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">days_df</span></div>
+
+
+
+<div class="viewcode-block" id="load">
+<a class="viewcode-back" href="../../../generated/easysnowdata.snow.snodas.load.html#easysnowdata.snow.snodas.load">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span>
+    <span class="n">aoi</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">variables</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">region</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;masked&quot;</span><span class="p">,</span>
+    <span class="n">chunks</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load SNODAS as an ``xarray.Dataset`` (``time``, ``latitude``, ``longitude``).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    aoi, time</span>
+<span class="sd">        The usual spatial and temporal inputs. *time* must have a start: the</span>
+<span class="sd">        NSIDC archive is one file per day.</span>
+<span class="sd">    variables</span>
+<span class="sd">        Any of :data:`VARIABLES` (``&quot;SWE&quot;`` and ``&quot;snow_depth&quot;`` by default).</span>
+<span class="sd">        The Earth Engine mirror carries only those two.</span>
+<span class="sd">    source</span>
+<span class="sd">        ``&quot;nsidc&quot;`` (default, no credentials) or ``&quot;gee-climate-engine&quot;``.</span>
+<span class="sd">    region</span>
+<span class="sd">        ``&quot;masked&quot;`` (CONUS, the usual product) or ``&quot;unmasked&quot;`` (the wider</span>
+<span class="sd">        modelling domain). NSIDC route only.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">resolve_source</span><span class="p">(</span><span class="n">PRODUCT</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="n">_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+    <span class="n">region</span> <span class="o">=</span> <span class="n">_region</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">parse_aoi</span><span class="p">(</span><span class="n">aoi</span><span class="p">)</span> <span class="k">if</span> <span class="n">aoi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">ensure_source</span><span class="p">(</span><span class="n">PRODUCT</span><span class="p">,</span> <span class="n">src</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="s2">&quot;nsidc&quot;</span><span class="p">:</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">_load_nsidc</span><span class="p">(</span><span class="n">parsed</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">region</span><span class="p">,</span> <span class="n">chunks</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">_load_gee</span><span class="p">(</span><span class="n">parsed</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">chunks</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">contract</span><span class="o">.</span><span class="n">finalize</span><span class="p">(</span>
+        <span class="n">ds</span><span class="p">,</span>
+        <span class="n">PRODUCT</span><span class="p">,</span>
+        <span class="n">src</span><span class="p">,</span>
+        <span class="n">crs</span><span class="o">=</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">,</span>
+        <span class="n">variables</span><span class="o">=</span><span class="p">(),</span>
+        <span class="n">mask</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">source_url</span><span class="o">=</span><span class="n">_NSIDC_DOCS</span> <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="s2">&quot;nsidc&quot;</span> <span class="k">else</span> <span class="n">_GEE_DOCS</span><span class="p">,</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">region</span> <span class="k">if</span> <span class="n">src</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="s2">&quot;nsidc&quot;</span> <span class="k">else</span> <span class="kc">None</span><span class="p">},</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_nsidc</span><span class="p">(</span>
+    <span class="n">parsed</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">names</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">region</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">chunks</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch one tar per day, read the flat-binary grids, stack them on time.&quot;&quot;&quot;</span>
+    <span class="n">days</span> <span class="o">=</span> <span class="n">_days</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+    <span class="n">wanted</span> <span class="o">=</span> <span class="p">{</span><span class="n">VARIABLES</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span> <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">}</span>
+    <span class="n">per_day</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">day</span> <span class="ow">in</span> <span class="n">days</span><span class="p">:</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">tar_url</span><span class="p">(</span><span class="n">day</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="n">region</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">providers</span><span class="o">.</span><span class="n">raster_http</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span>
+                <span class="n">url</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="s2">&quot;snodas&quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 — a missing day must not kill the series</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;SNODAS </span><span class="si">%s</span><span class="s2"> is not available (</span><span class="si">%s</span><span class="s2">); skipping.&quot;</span><span class="p">,</span> <span class="n">day</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span> <span class="n">exc</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">members</span> <span class="o">=</span> <span class="n">snow_processing</span><span class="o">.</span><span class="n">snodas_members</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">())</span>
+        <span class="n">arrays</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">stem</span><span class="p">,</span> <span class="n">parts</span> <span class="ow">in</span> <span class="n">members</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">variable</span> <span class="o">=</span> <span class="n">_variable_of</span><span class="p">(</span><span class="n">stem</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">variable</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">wanted</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="s2">&quot;dat&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parts</span> <span class="ow">or</span> <span class="s2">&quot;txt&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>  <span class="c1"># pragma: no cover — defensive</span>
+                <span class="k">continue</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="n">snow_processing</span><span class="o">.</span><span class="n">parse_snodas_header</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="s2">&quot;txt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+            <span class="n">header</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">variable</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="n">snow_processing</span><span class="o">.</span><span class="n">snodas_array</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="s2">&quot;dat&quot;</span><span class="p">],</span> <span class="n">header</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">variable</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">parsed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">parsed</span><span class="o">.</span><span class="n">clip</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">parsed</span><span class="o">.</span><span class="n">is_global</span><span class="p">:</span>
+                <span class="n">west</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">north</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">()</span>
+                <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">clip_box</span><span class="p">(</span>
+                    <span class="n">west</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">north</span><span class="p">,</span> <span class="n">allow_one_dimensional_raster</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+            <span class="n">arrays</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">da</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">arrays</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;SNODAS </span><span class="si">%s</span><span class="s2"> has none of </span><span class="si">%s</span><span class="s2">; skipping.&quot;</span><span class="p">,</span> <span class="n">day</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span> <span class="n">names</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">per_day</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">arrays</span><span class="p">)</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="p">[</span><span class="n">day</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">per_day</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;No SNODAS days available between </span><span class="si">{</span><span class="n">days</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">days</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">per_day</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">per_day</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">per_day</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sortby</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="n">long_name</span> <span class="o">=</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="n">units</span><span class="p">,</span> <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="n">long_name</span><span class="p">})</span>
+    <span class="k">if</span> <span class="n">chunks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">chunk</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">ds</span><span class="o">.</span><span class="n">chunks</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">ds</span><span class="o">.</span><span class="n">chunks</span><span class="p">:</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">chunk</span><span class="p">({</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">(</span><span class="s2">&quot;snodas&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">ds</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_gee</span><span class="p">(</span>
+    <span class="n">parsed</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">chunks</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+    <span class="n">ee</span> <span class="o">=</span> <span class="n">providers</span><span class="o">.</span><span class="n">gee</span><span class="o">.</span><span class="n">ee</span><span class="p">()</span>
+    <span class="n">collection</span> <span class="o">=</span> <span class="n">ee</span><span class="o">.</span><span class="n">ImageCollection</span><span class="p">(</span><span class="n">GEE_COLLECTION</span><span class="p">)</span>
+    <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">temporal</span><span class="o">.</span><span class="n">parse_time</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">collection</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="n">filterDate</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">start</span> <span class="ow">or</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">&quot;2003-10-01&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">end</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="n">bands</span> <span class="o">=</span> <span class="p">[</span><span class="n">GEE_BANDS</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">GEE_BANDS</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">bands</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;The Earth Engine mirror carries only </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">GEE_BANDS</span><span class="p">)</span><span class="si">}</span><span class="s2">; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;use source=&#39;nsidc&#39; for </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">names</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">collection</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">bands</span><span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">providers</span><span class="o">.</span><span class="n">gee</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span>
+        <span class="n">collection</span><span class="p">,</span> <span class="n">parsed</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="p">{}</span> <span class="k">if</span> <span class="n">chunks</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">chunks</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+    <span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="n">value</span><span class="p">:</span> <span class="n">key</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">GEE_BANDS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rename</span><span class="p">)</span> <span class="k">if</span> <span class="n">rename</span> <span class="k">else</span> <span class="n">ds</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="n">long_name</span> <span class="o">=</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="n">units</span><span class="p">,</span> <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="n">long_name</span><span class="p">})</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;collection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">GEE_COLLECTION</span>
+    <span class="k">return</span> <span class="n">ds</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

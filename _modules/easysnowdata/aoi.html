@@ -1,0 +1,1081 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>easysnowdata.aoi &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../_static/documentation_options.js?v=16fc681a"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/easysnowdata/aoi';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.3.dev19" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../concepts.html">
+    Concepts
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../credentials.html">
+    Credentials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../migration.html">
+    Migrating from 0.0.x
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../catalog/index.html">
+    Data catalog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../status.html">
+    Source status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../releasing.html">
+    Releasing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">easysnowdata.aoi</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for easysnowdata.aoi</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Area of interest (AOI) parsing — the one spatial input of every loader.</span>
+
+<span class="sd">Design contract §2.1: a loader accepts ``aoi`` as a ``(west, south, east,</span>
+<span class="sd">north)`` tuple in EPSG:4326, a shapely geometry (EPSG:4326), a GeoJSON-like</span>
+<span class="sd">mapping, a :class:`geopandas.GeoDataFrame` / :class:`geopandas.GeoSeries` in</span>
+<span class="sd">any CRS, an :class:`odc.geo.geobox.GeoBox`, or ``None`` for the whole globe.</span>
+<span class="sd">:func:`parse_aoi` turns each of these into an :class:`AOI`: a footprint</span>
+<span class="sd">(single-row GeoDataFrame in EPSG:4326) plus, on request, a target grid</span>
+<span class="sd">(:class:`~odc.geo.geobox.GeoBox`) in a UTM zone or any other CRS.</span>
+
+<span class="sd">Antimeridian</span>
+<span class="sd">------------</span>
+<span class="sd">A bounding box whose ``west`` is greater than ``east`` (``(170, -20, -170,</span>
+<span class="sd">-10)``) crosses the antimeridian. The footprint is stored as a MultiPolygon</span>
+<span class="sd">split at ±180° (what STAC ``intersects`` and GDAL expect); :attr:`AOI.bounds`</span>
+<span class="sd">keeps the STAC convention (``west &gt; east``); grids are built on the</span>
+<span class="sd">*unwrapped* geometry (longitudes 170 → 190) so a UTM or geographic GeoBox is</span>
+<span class="sd">one contiguous raster.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">replace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shapely</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shapely.ops</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odc.geo</span><span class="w"> </span><span class="kn">import</span> <span class="n">Resolution</span><span class="p">,</span> <span class="n">res_</span><span class="p">,</span> <span class="n">resxy_</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odc.geo.geobox</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoBox</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">odc.geo.geom</span><span class="w"> </span><span class="kn">import</span> <span class="n">Geometry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyproj</span><span class="w"> </span><span class="kn">import</span> <span class="n">CRS</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;AOI&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;parse_aoi&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;estimate_utm_crs&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;split_antimeridian&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;WGS84&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;WORLD_BOUNDS&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">WGS84</span> <span class="o">=</span> <span class="s2">&quot;EPSG:4326&quot;</span>
+<span class="n">WORLD_BOUNDS</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">180.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">90.0</span><span class="p">,</span> <span class="mf">180.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">)</span>
+<span class="n">_ANTIMERIDIAN</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">LineString</span><span class="p">([(</span><span class="mf">180.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">90.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">180.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">)])</span>
+<span class="c1"># Polar stereographic fallbacks for AOIs outside UTM coverage (84°N / 80°S)</span>
+<span class="n">_NORTH_POLAR</span> <span class="o">=</span> <span class="s2">&quot;EPSG:3413&quot;</span>
+<span class="n">_SOUTH_POLAR</span> <span class="o">=</span> <span class="s2">&quot;EPSG:3031&quot;</span>
+
+
+<span class="c1"># ── helpers ───────────────────────────────────────────────────────────────────</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CRS</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">crs</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crs</span><span class="p">,</span> <span class="n">CRS</span><span class="p">)</span> <span class="k">else</span> <span class="n">CRS</span><span class="o">.</span><span class="n">from_user_input</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_unwrap</span><span class="p">(</span><span class="n">geom</span><span class="p">:</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Geometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Geometry</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Shift the western hemisphere by +360° so a split AOI is contiguous.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">shapely</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+        <span class="n">geom</span><span class="p">,</span>
+        <span class="k">lambda</span> <span class="n">xy</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">xy</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">xy</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">360</span><span class="p">,</span> <span class="n">xy</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">xy</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="split_antimeridian">
+<a class="viewcode-back" href="../../generated/easysnowdata.aoi.split_antimeridian.html#easysnowdata.aoi.split_antimeridian">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">split_antimeridian</span><span class="p">(</span><span class="n">geom</span><span class="p">:</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Geometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Geometry</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split a geometry given in *unwrapped* longitudes (0…360) at 180°.</span>
+
+<span class="sd">    Parts east of the antimeridian are shifted back into −180…0. The result</span>
+<span class="sd">    is a MultiPolygon when the geometry straddles 180°, otherwise the input</span>
+<span class="sd">    with longitudes normalised to −180…180.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pieces</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">get_parts</span><span class="p">(</span><span class="n">shapely</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">_ANTIMERIDIAN</span><span class="p">))</span>
+    <span class="n">polygons</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">shapely</span><span class="o">.</span><span class="n">Polygon</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">piece</span> <span class="ow">in</span> <span class="n">pieces</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">piece</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">piece</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mf">180.0</span> <span class="o">-</span> <span class="mf">1e-9</span><span class="p">:</span>  <span class="c1"># east of the antimeridian → back to −180…0</span>
+            <span class="n">piece</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">affinity</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">piece</span><span class="p">,</span> <span class="n">xoff</span><span class="o">=-</span><span class="mf">360.0</span><span class="p">)</span>
+        <span class="n">polygons</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">shapely</span><span class="o">.</span><span class="n">get_parts</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">geom_type</span> <span class="o">==</span> <span class="s2">&quot;Polygon&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">polygons</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">polygons</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">shapely</span><span class="o">.</span><span class="n">MultiPolygon</span><span class="p">(</span><span class="n">polygons</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_wrapped_footprint_from_projected</span><span class="p">(</span><span class="n">geom_4326</span><span class="p">:</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Geometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Geometry</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Repair a footprint that came out of a projected CRS across ±180°.</span>
+
+<span class="sd">    After ``to_crs(&quot;EPSG:4326&quot;)`` such a polygon appears to span the whole</span>
+<span class="sd">    globe (longitudes jump from 179 to −179). Unwrapping and re-splitting gives</span>
+<span class="sd">    the intended two-part footprint.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">minx</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">maxx</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">geom_4326</span><span class="o">.</span><span class="n">bounds</span>
+    <span class="k">if</span> <span class="n">maxx</span> <span class="o">-</span> <span class="n">minx</span> <span class="o">&lt;=</span> <span class="mf">180.0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">geom_4326</span>
+    <span class="k">return</span> <span class="n">split_antimeridian</span><span class="p">(</span><span class="n">_unwrap</span><span class="p">(</span><span class="n">geom_4326</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="estimate_utm_crs">
+<a class="viewcode-back" href="../../generated/easysnowdata.aoi.estimate_utm_crs.html#easysnowdata.aoi.estimate_utm_crs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">estimate_utm_crs</span><span class="p">(</span><span class="n">geometry</span><span class="p">:</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Geometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CRS</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the UTM CRS for the centroid of a geometry in EPSG:4326.</span>
+
+<span class="sd">    Works across the antimeridian (the geometry may be a MultiPolygon split at</span>
+<span class="sd">    180°) and falls back to polar stereographic projections (EPSG:3413 north</span>
+<span class="sd">    of 84°N, EPSG:3031 south of 80°S) where UTM is not defined.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">centroid</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_unwrap</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span><span class="o">.</span><span class="n">centroid</span>
+        <span class="k">if</span> <span class="n">geometry</span><span class="o">.</span><span class="n">geom_type</span> <span class="o">==</span> <span class="s2">&quot;MultiPolygon&quot;</span>
+        <span class="k">else</span> <span class="n">geometry</span><span class="o">.</span><span class="n">centroid</span>
+    <span class="p">)</span>
+    <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="n">centroid</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">centroid</span><span class="o">.</span><span class="n">y</span>
+    <span class="k">if</span> <span class="n">lon</span> <span class="o">&gt;</span> <span class="mf">180.0</span><span class="p">:</span>
+        <span class="n">lon</span> <span class="o">-=</span> <span class="mf">360.0</span>
+    <span class="k">if</span> <span class="n">lat</span> <span class="o">&gt;</span> <span class="mf">84.0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">CRS</span><span class="o">.</span><span class="n">from_user_input</span><span class="p">(</span><span class="n">_NORTH_POLAR</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">lat</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mf">80.0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">CRS</span><span class="o">.</span><span class="n">from_user_input</span><span class="p">(</span><span class="n">_SOUTH_POLAR</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">([</span><span class="n">shapely</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)],</span> <span class="n">crs</span><span class="o">=</span><span class="n">WGS84</span><span class="p">)</span><span class="o">.</span><span class="n">estimate_utm_crs</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>  <span class="c1"># pragma: no cover — pyproj database quirks</span>
+        <span class="k">return</span> <span class="n">CRS</span><span class="o">.</span><span class="n">from_user_input</span><span class="p">(</span><span class="n">_NORTH_POLAR</span> <span class="k">if</span> <span class="n">lat</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">_SOUTH_POLAR</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_wants_utm</span><span class="p">(</span><span class="n">crs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">crs</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">crs</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;utm&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolution</span><span class="p">(</span><span class="n">res</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Resolution</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">Resolution</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">res</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">resxy_</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">res_</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">res</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_bbox_geometry</span><span class="p">(</span>
+    <span class="n">bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">shapely</span><span class="o">.</span><span class="n">Geometry</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="n">west</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">north</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">bounds</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="o">-</span><span class="mf">90.0</span> <span class="o">&lt;=</span> <span class="n">south</span> <span class="o">&lt;=</span> <span class="mf">90.0</span> <span class="ow">and</span> <span class="o">-</span><span class="mf">90.0</span> <span class="o">&lt;=</span> <span class="n">north</span> <span class="o">&lt;=</span> <span class="mf">90.0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Latitudes must lie in [-90, 90]; got south=</span><span class="si">{</span><span class="n">south</span><span class="si">}</span><span class="s2">, north=</span><span class="si">{</span><span class="n">north</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="o">-</span><span class="mf">180.0</span> <span class="o">&lt;=</span> <span class="n">west</span> <span class="o">&lt;=</span> <span class="mf">180.0</span> <span class="ow">and</span> <span class="o">-</span><span class="mf">180.0</span> <span class="o">&lt;=</span> <span class="n">east</span> <span class="o">&lt;=</span> <span class="mf">180.0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Longitudes must lie in [-180, 180]; got west=</span><span class="si">{</span><span class="n">west</span><span class="si">}</span><span class="s2">, east=</span><span class="si">{</span><span class="n">east</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">south</span> <span class="o">&gt;=</span> <span class="n">north</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;south (</span><span class="si">{</span><span class="n">south</span><span class="si">}</span><span class="s2">) must be less than north (</span><span class="si">{</span><span class="n">north</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">west</span> <span class="o">&gt;</span> <span class="n">east</span><span class="p">:</span>  <span class="c1"># STAC convention for boxes crossing the antimeridian</span>
+        <span class="k">return</span> <span class="n">shapely</span><span class="o">.</span><span class="n">MultiPolygon</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">shapely</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="n">west</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="mf">180.0</span><span class="p">,</span> <span class="n">north</span><span class="p">),</span>
+                <span class="n">shapely</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="o">-</span><span class="mf">180.0</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">north</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">),</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">shapely</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="n">west</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">north</span><span class="p">),</span> <span class="kc">False</span>
+
+
+<span class="c1"># ── the AOI ───────────────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="AOI">
+<a class="viewcode-back" href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AOI</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A parsed area of interest: footprint in EPSG:4326 plus an optional grid.</span>
+
+<span class="sd">    Build one with :func:`parse_aoi`; loaders accept either form.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    footprint</span>
+<span class="sd">        Single-row GeoDataFrame in EPSG:4326. A MultiPolygon when the AOI</span>
+<span class="sd">        crosses the antimeridian.</span>
+<span class="sd">    clip</span>
+<span class="sd">        Whether loaders should clip rasters/vectors to the footprint (``True``)</span>
+<span class="sd">        or return the covering tiles/granules (``False``).</span>
+<span class="sd">    geobox</span>
+<span class="sd">        The native grid when the AOI was built from a GeoBox, else ``None``.</span>
+<span class="sd">        :meth:`to_geobox` returns it when no other grid is requested.</span>
+<span class="sd">    source_crs</span>
+<span class="sd">        CRS of the input (EPSG:4326 for tuples and shapely geometries).</span>
+<span class="sd">    crosses_antimeridian</span>
+<span class="sd">        ``True`` when the footprint straddles ±180°.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">footprint</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
+    <span class="n">clip</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">geobox</span><span class="p">:</span> <span class="n">GeoBox</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">source_crs</span><span class="p">:</span> <span class="n">CRS</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">CRS</span><span class="o">.</span><span class="n">from_user_input</span><span class="p">(</span><span class="n">WGS84</span><span class="p">))</span>
+    <span class="n">crosses_antimeridian</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># -- geometry views --------------------------------------------------------</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Geometry</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The footprint as one shapely geometry in EPSG:4326.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">footprint</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unwrapped_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Geometry</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The footprint with longitudes in 0…360 when it crosses ±180°.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">crosses_antimeridian</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span>
+        <span class="k">return</span> <span class="n">shapely</span><span class="o">.</span><span class="n">union_all</span><span class="p">(</span><span class="n">shapely</span><span class="o">.</span><span class="n">get_parts</span><span class="p">(</span><span class="n">_unwrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">)))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;``(west, south, east, north)`` in EPSG:4326 (STAC convention: ``west &gt; east`` across ±180°).&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crosses_antimeridian</span><span class="p">:</span>
+            <span class="n">west</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">north</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unwrapped_geometry</span><span class="o">.</span><span class="n">bounds</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">west</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">east</span> <span class="o">-</span> <span class="mf">360.0</span><span class="p">,</span> <span class="n">north</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">bounds</span><span class="p">)</span>  <span class="c1"># type: ignore[return-value]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_global</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;``True`` when the footprint covers the whole globe.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span> <span class="n">WORLD_BOUNDS</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stac_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The bounds as a STAC ``bbox`` list.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stac_intersects</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The footprint as a GeoJSON geometry mapping for STAC ``intersects``.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">mapping</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__geo_interface__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stac_intersects</span>
+
+    <span class="c1"># -- CRS and grids ---------------------------------------------------------</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">utm_crs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CRS</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The UTM zone (or polar stereographic fallback) at the AOI centroid.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">estimate_utm_crs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AOI.to_crs">
+<a class="viewcode-back" href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI.to_crs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_crs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reproject the footprint, unwrapping it across ±180° for projected CRSs.&quot;&quot;&quot;</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">_as_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crosses_antimeridian</span> <span class="ow">and</span> <span class="n">target</span><span class="o">.</span><span class="n">is_projected</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+                <span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">unwrapped_geometry</span><span class="p">],</span> <span class="n">crs</span><span class="o">=</span><span class="n">WGS84</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">footprint</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">target</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AOI.total_bounds">
+<a class="viewcode-back" href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI.total_bounds">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">total_bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crs</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">WGS84</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rectangular bounds of the footprint in *crs* (unwrapped across ±180°).&quot;&quot;&quot;</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">_as_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>
+            <span class="n">west</span><span class="p">,</span> <span class="n">south</span><span class="p">,</span> <span class="n">east</span><span class="p">,</span> <span class="n">north</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unwrapped_geometry</span><span class="o">.</span><span class="n">bounds</span>
+            <span class="k">return</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">west</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">south</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">east</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">north</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">)</span>  <span class="c1"># type: ignore[return-value]</span></div>
+
+
+<div class="viewcode-block" id="AOI.to_geobox">
+<a class="viewcode-back" href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI.to_geobox">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_geobox</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">Resolution</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">crs</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">shape</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">anchor</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GeoBox</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a grid covering the footprint.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        resolution</span>
+<span class="sd">            Pixel size in CRS units (metres for UTM, degrees for EPSG:4326).</span>
+<span class="sd">            A scalar gives square pixels with a negative y step.</span>
+<span class="sd">        crs</span>
+<span class="sd">            Target CRS. ``None`` or ``&quot;utm&quot;`` selects :attr:`utm_crs`.</span>
+<span class="sd">        shape</span>
+<span class="sd">            Alternative to *resolution*: number of pixels (``(ny, nx)`` or one</span>
+<span class="sd">            value for the longer side).</span>
+<span class="sd">        anchor</span>
+<span class="sd">            Passed to :meth:`odc.geo.geobox.GeoBox.from_geopolygon`.</span>
+
+<span class="sd">        With no arguments the native GeoBox is returned when the AOI was built</span>
+<span class="sd">        from one; otherwise *resolution* or *shape* is required.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">resolution</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geobox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geobox_matches</span><span class="p">(</span><span class="n">crs</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geobox</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;to_geobox() needs resolution= or shape= (no matching native grid on this AOI).&quot;</span>
+            <span class="p">)</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">utm_crs</span> <span class="k">if</span> <span class="n">_wants_utm</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span> <span class="k">else</span> <span class="n">_as_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
+        <span class="n">polygon</span> <span class="o">=</span> <span class="n">Geometry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unwrapped_geometry</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">WGS84</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;crs&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">resolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;resolution&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_resolution</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;shape&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shape</span>
+        <span class="k">return</span> <span class="n">GeoBox</span><span class="o">.</span><span class="n">from_geopolygon</span><span class="p">(</span><span class="n">polygon</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_geobox_matches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether the native GeoBox satisfies a requested *crs* (None = any).&quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">geobox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">native</span> <span class="o">=</span> <span class="n">CRS</span><span class="o">.</span><span class="n">from_user_input</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geobox</span><span class="o">.</span><span class="n">crs</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">_wants_utm</span><span class="p">(</span><span class="n">crs</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">native</span><span class="o">.</span><span class="n">is_projected</span>
+        <span class="k">return</span> <span class="n">_as_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span> <span class="o">==</span> <span class="n">native</span>
+
+    <span class="c1"># -- derived AOIs ----------------------------------------------------------</span>
+
+<div class="viewcode-block" id="AOI.buffer">
+<a class="viewcode-back" href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI.buffer">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distance</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AOI</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new AOI buffered by *distance* metres (computed in UTM).&quot;&quot;&quot;</span>
+        <span class="n">utm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">utm_crs</span>
+        <span class="n">buffered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">utm</span><span class="p">)</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">distance</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">WGS84</span><span class="p">)</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crosses_antimeridian</span> <span class="ow">or</span> <span class="n">buffered</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">buffered</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">180.0</span><span class="p">:</span>
+            <span class="n">buffered</span> <span class="o">=</span> <span class="n">_wrapped_footprint_from_projected</span><span class="p">(</span><span class="n">buffered</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">replace</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">footprint</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">buffered</span><span class="p">],</span> <span class="n">crs</span><span class="o">=</span><span class="n">WGS84</span><span class="p">),</span>
+            <span class="n">geobox</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">crosses_antimeridian</span><span class="o">=</span><span class="n">buffered</span><span class="o">.</span><span class="n">geom_type</span> <span class="o">==</span> <span class="s2">&quot;MultiPolygon&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AOI.with_clip">
+<a class="viewcode-back" href="../../generated/easysnowdata.aoi.AOI.html#easysnowdata.aoi.AOI.with_clip">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_clip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clip</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AOI</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a copy with the clip flag set to *clip*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clip</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">clip</span><span class="p">))</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>  <span class="c1"># pragma: no cover — cosmetic</span>
+        <span class="n">w</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;, geobox=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">geobox</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geobox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;AOI(bounds=(</span><span class="si">{</span><span class="n">w</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">s</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">e</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">n</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">), clip=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">clip</span><span class="si">}{</span><span class="n">grid</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<span class="c1"># ── parsing ───────────────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="parse_aoi">
+<a class="viewcode-back" href="../../generated/easysnowdata.aoi.parse_aoi.html#easysnowdata.aoi.parse_aoi">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_aoi</span><span class="p">(</span>
+    <span class="n">aoi</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">clip</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">resolution</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">Resolution</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AOI</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse any supported spatial input into an :class:`AOI`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    aoi</span>
+<span class="sd">        One of: ``(west, south, east, north)`` in EPSG:4326 (``west &gt; east``</span>
+<span class="sd">        crosses the antimeridian); a shapely geometry or GeoJSON-like mapping</span>
+<span class="sd">        in EPSG:4326; a GeoDataFrame or GeoSeries in any CRS (rows are</span>
+<span class="sd">        unioned; a missing CRS is assumed to be EPSG:4326 with a warning); an</span>
+<span class="sd">        ``odc.geo.geobox.GeoBox``; an existing :class:`AOI`; or ``None`` for</span>
+<span class="sd">        the whole globe.</span>
+<span class="sd">    clip</span>
+<span class="sd">        Stored on the AOI for loaders (§2.1: ``clip=False`` returns covering</span>
+<span class="sd">        tiles or granules instead of a clipped result). ``None`` (default)</span>
+<span class="sd">        keeps the flag of an existing :class:`AOI` and means ``True`` for</span>
+<span class="sd">        every other input.</span>
+<span class="sd">    crs, resolution</span>
+<span class="sd">        When both are given, a target GeoBox is attached (see</span>
+<span class="sd">        :meth:`AOI.to_geobox`). ``crs=&quot;utm&quot;`` picks the UTM zone.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        For unsupported input types.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        For malformed bounds or empty geometries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="n">clip</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="n">clip</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">clip</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">bool</span><span class="p">(</span><span class="n">clip</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="n">AOI</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">aoi</span> <span class="k">if</span> <span class="n">keep</span> <span class="k">else</span> <span class="n">aoi</span><span class="o">.</span><span class="n">with_clip</span><span class="p">(</span><span class="n">clip</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">aoi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">AOI</span><span class="p">(</span>
+            <span class="n">footprint</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+                <span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">shapely</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="o">*</span><span class="n">WORLD_BOUNDS</span><span class="p">)],</span> <span class="n">crs</span><span class="o">=</span><span class="n">WGS84</span>
+            <span class="p">),</span>
+            <span class="n">clip</span><span class="o">=</span><span class="n">clip</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="n">GeoBox</span><span class="p">):</span>
+        <span class="n">footprint</span> <span class="o">=</span> <span class="n">aoi</span><span class="o">.</span><span class="n">footprint</span><span class="p">(</span><span class="n">WGS84</span><span class="p">,</span> <span class="n">wrapdateline</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">geom</span>
+        <span class="n">crosses</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">footprint</span><span class="o">.</span><span class="n">geom_type</span> <span class="o">==</span> <span class="s2">&quot;MultiPolygon&quot;</span>
+            <span class="ow">and</span> <span class="n">footprint</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">footprint</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">180.0</span>
+        <span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">AOI</span><span class="p">(</span>
+            <span class="n">footprint</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">footprint</span><span class="p">],</span> <span class="n">crs</span><span class="o">=</span><span class="n">WGS84</span><span class="p">),</span>
+            <span class="n">clip</span><span class="o">=</span><span class="n">clip</span><span class="p">,</span>
+            <span class="n">geobox</span><span class="o">=</span><span class="n">aoi</span><span class="p">,</span>
+            <span class="n">source_crs</span><span class="o">=</span><span class="n">CRS</span><span class="o">.</span><span class="n">from_user_input</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">aoi</span><span class="o">.</span><span class="n">crs</span><span class="p">)),</span>
+            <span class="n">crosses_antimeridian</span><span class="o">=</span><span class="n">crosses</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="p">(</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">)):</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="n">aoi</span><span class="o">.</span><span class="n">geometry</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">)</span> <span class="k">else</span> <span class="n">aoi</span>
+        <span class="k">if</span> <span class="n">series</span><span class="o">.</span><span class="n">empty</span> <span class="ow">or</span> <span class="n">series</span><span class="o">.</span><span class="n">is_empty</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The AOI GeoDataFrame/GeoSeries has no geometries.&quot;</span><span class="p">)</span>
+        <span class="n">source_crs</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">crs</span>
+        <span class="k">if</span> <span class="n">source_crs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;AOI has no CRS; assuming EPSG:4326.&quot;</span><span class="p">)</span>
+            <span class="n">series</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">WGS84</span><span class="p">)</span>
+            <span class="n">source_crs</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">crs</span>
+        <span class="n">geom</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">WGS84</span><span class="p">)</span><span class="o">.</span><span class="n">union_all</span><span class="p">()</span>
+        <span class="n">crosses</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">_as_crs</span><span class="p">(</span><span class="n">source_crs</span><span class="p">)</span><span class="o">.</span><span class="n">is_projected</span><span class="p">:</span>
+            <span class="n">fixed</span> <span class="o">=</span> <span class="n">_wrapped_footprint_from_projected</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+            <span class="n">crosses</span> <span class="o">=</span> <span class="n">fixed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">geom</span> <span class="ow">and</span> <span class="n">fixed</span><span class="o">.</span><span class="n">geom_type</span> <span class="o">==</span> <span class="s2">&quot;MultiPolygon&quot;</span>
+            <span class="n">geom</span> <span class="o">=</span> <span class="n">fixed</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">AOI</span><span class="p">(</span>
+            <span class="n">footprint</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">geom</span><span class="p">],</span> <span class="n">crs</span><span class="o">=</span><span class="n">WGS84</span><span class="p">),</span>
+            <span class="n">clip</span><span class="o">=</span><span class="n">clip</span><span class="p">,</span>
+            <span class="n">source_crs</span><span class="o">=</span><span class="n">_as_crs</span><span class="p">(</span><span class="n">source_crs</span><span class="p">),</span>
+            <span class="n">crosses_antimeridian</span><span class="o">=</span><span class="n">crosses</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">))</span>
+        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">aoi</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span>
+        <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">))</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">aoi</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="n">geom</span><span class="p">,</span> <span class="n">crosses</span> <span class="o">=</span> <span class="n">_bbox_geometry</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">aoi</span><span class="p">))</span>  <span class="c1"># type: ignore[arg-type]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">AOI</span><span class="p">(</span>
+            <span class="n">footprint</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">geom</span><span class="p">],</span> <span class="n">crs</span><span class="o">=</span><span class="n">WGS84</span><span class="p">),</span>
+            <span class="n">clip</span><span class="o">=</span><span class="n">clip</span><span class="p">,</span>
+            <span class="n">crosses_antimeridian</span><span class="o">=</span><span class="n">crosses</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Geometry</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="s2">&quot;__geo_interface__&quot;</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="n">geom</span> <span class="o">=</span> <span class="n">aoi</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aoi</span><span class="p">,</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Geometry</span><span class="p">)</span> <span class="k">else</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">aoi</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">geom</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The AOI geometry is empty.&quot;</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">AOI</span><span class="p">(</span><span class="n">footprint</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">geom</span><span class="p">],</span> <span class="n">crs</span><span class="o">=</span><span class="n">WGS84</span><span class="p">),</span> <span class="n">clip</span><span class="o">=</span><span class="n">clip</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unsupported AOI type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">aoi</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. Expected a (west, south, east, north) &quot;</span>
+            <span class="s2">&quot;tuple, a shapely geometry, a GeoJSON mapping, a GeoDataFrame/GeoSeries, an &quot;</span>
+            <span class="s2">&quot;odc.geo GeoBox, an AOI, or None.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">crs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">resolution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">resolution</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;resolution= is required when crs= is given.&quot;</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">geobox</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">to_geobox</span><span class="p">(</span><span class="n">resolution</span><span class="p">,</span> <span class="n">crs</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
