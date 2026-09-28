@@ -37,7 +37,8 @@ and a recovery closes it; latency and DMR++ readiness are on the
 What a probe cannot see — a reprocessed collection, a republished file, a new
 release (the next Census year, a new RGI version) — is caught by a weekly
 [upstream watch](WATCHLIST.toml) that opens one digest issue labelled
-[`upstream-watch`](https://github.com/egagli/easysnowdata/issues?q=label%3Aupstream-watch).
+[`upstream-watch`](https://github.com/egagli/easysnowdata/issues?q=label%3Aupstream-watch)
+and closes the previous one, carrying its unticked to-dos forward.
 
 <!-- DATA_STATUS_START -->
 _Last updated: 2026-09-28 08:22 UTC_  

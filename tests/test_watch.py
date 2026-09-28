@@ -50,7 +50,10 @@ class TestWatchlist:
         known = set(catalog.products())
         for entries in watchlist.values():
             for entry in entries:
-                unknown = set(entry.get("products", [])) - known
+                named = set(entry.get("products", []))
+                for products in (entry.get("match_products") or {}).values():
+                    named |= set(products)
+                unknown = named - known
                 assert not unknown, f"{entry['id']} names {unknown}"
 
     def test_every_entry_says_what_to_fetch(self, watchlist):
@@ -84,7 +87,14 @@ class TestWatchlist:
             product
             for entries in watchlist.values()
             for entry in entries
-            for product in entry.get("products", [])
+            for product in [
+                *entry.get("products", []),
+                *(
+                    p
+                    for products in (entry.get("match_products") or {}).values()
+                    for p in products
+                ),
+            ]
         }
         assert {"modis-snow", "viirs-snow", "hls", "sentinel-1-rtc", "era5"} <= watched
         # Every boundaries product and the hillshade: static files that are
@@ -117,6 +127,28 @@ class TestClassify:
         assert "action" in watch.classify("the blob expiry", ["expiry"])
         assert "action" not in watch.classify("the blob expiry", ["cheese"])
 
+    @pytest.mark.parametrize(
+        "text",
+        [
+            "Free courses for your team",  # "urs" inside a word
+            "An academic partnership",  # "dem"
+            "The answer is here",  # "swe"
+        ],
+    )
+    def test_short_keywords_match_whole_words_only(self, watch, text):
+        assert watch.classify(text) == []
+
+    def test_a_sensor_name_alone_is_not_worth_adding(self, watch):
+        # #51: every line naming VIIRS, MODIS, HLS or ERA5 used to land here.
+        assert "new-dataset" not in watch.classify(
+            "NASA/VIIRS/002/AERDB_D3_VIIRS_NOAA20"
+        )
+        assert "new-dataset" not in watch.classify("ERA5 end moved")
+        assert "new-dataset" in watch.classify("New VIIRS snow cover product released")
+        assert "new-dataset" in watch.classify(
+            "Snowmelt timing maps now in the catalog"
+        )
+
 
 class TestDiffMapping:
     ENTRY = {"id": "e", "products": ["snodas"]}
@@ -147,14 +179,76 @@ class TestDiffMapping:
         assert [c.subject for c in changes] == ["b"]
         assert changes[0].section == "Worth adding"
 
-    def test_a_temporal_end_moving_is_an_extent_change(self, watch):
+    def test_a_temporal_end_moving_forward_is_routine(self, watch):
         changes = watch.diff_mapping(
             self.ENTRY,
             {"a": {"temporal_end": "2025-01-01"}},
             {"a": {"temporal_end": "2026-01-01"}},
         )
-        assert "extent" in changes[0].categories
-        assert changes[0].section == "Changed"
+        assert changes[0].categories == ["routine"]
+        assert changes[0].section == "Routine"
+
+    @pytest.mark.parametrize(
+        ("old", "new", "section"),
+        [
+            ("ongoing", "2026-01-01", "Action needed"),  # it gained an end
+            ("2026-01-01", "2025-06-01", "Action needed"),  # data withdrawn
+            ("2026-01-01", "ongoing", "Changed"),  # live again
+        ],
+    )
+    def test_an_end_that_stops_or_moves_back_is_not_routine(
+        self, watch, old, new, section
+    ):
+        changes = watch.diff_mapping(
+            self.ENTRY, {"a": {"temporal_end": old}}, {"a": {"temporal_end": new}}
+        )
+        assert changes[0].section == section
+
+    def test_the_51_era5_case(self, watch):
+        """#51: ERA5's end date moving a week was "Worth adding" and blamed on six products."""
+        entry = {
+            "id": "gee-assets",
+            "products": [],
+            "match_products": {
+                "ECMWF/ERA5_LAND": ["era5"],
+                "OPERA/RTC": ["sentinel-1-rtc"],
+            },
+        }
+        before = {
+            "ECMWF/ERA5_LAND/HOURLY": {"end": "2026-09-15", "updated": "2026-09-21"},
+            "OPERA/RTC/L2_V1/S1": {"end": "2026-09-20", "window_days": 30},
+        }
+        after = {
+            "ECMWF/ERA5_LAND/HOURLY": {"end": "2026-09-22", "updated": "2026-09-28"},
+            "OPERA/RTC/L2_V1/S1": {"end": "2026-09-20", "window_days": 365},
+        }
+        changes = watch.diff_mapping(entry, before, after)
+        by_subject = {(c.subject, c.detail.split(":")[0]): c for c in changes}
+        era5 = by_subject[("ECMWF/ERA5_LAND/HOURLY", "end")]
+        assert era5.section == "Routine" and era5.products == ["era5"]
+        stalled = by_subject[("OPERA/RTC/L2_V1/S1", "window_days")]
+        assert stalled.section == "Action needed"
+        assert stalled.categories == ["stalled"]
+        assert stalled.products == ["sentinel-1-rtc"]
+
+    def test_a_file_republished_and_a_license_changing(self, watch):
+        changes = watch.diff_mapping(
+            self.ENTRY,
+            {"f": {"etag": "a", "status": 200}, "c": {"license": "CC-BY-4.0"}},
+            {"f": {"etag": "b", "status": 404}, "c": {"license": "proprietary"}},
+        )
+        sections = {(c.subject, c.detail.split(":")[0]): c.section for c in changes}
+        assert sections == {
+            ("c", "license"): "Action needed",
+            ("f", "etag"): "Changed",
+            ("f", "status"): "Action needed",
+        }
+
+    def test_next_years_file_appearing_is_worth_adding(self, watch):
+        (change,) = watch.diff_mapping(
+            self.ENTRY, {"f": {"status": 404}}, {"f": {"status": 206}}
+        )
+        assert change.section == "Worth adding"
 
     def test_a_station_count_moving_is_reported(self, watch):
         changes = watch.diff_mapping(
@@ -189,6 +283,48 @@ class TestDiffLines:
         assert [c.detail for c in changes] == ["c is deprecated"]
         assert "deprecation" in changes[0].categories
 
+    SCOPED = {
+        "id": "alerts",
+        "url": "https://example.test",
+        "products": [],
+        "keywords": ["nsidc"],
+        "match_products": {"modis": ["modis-snow"]},
+    }
+
+    @pytest.mark.parametrize(
+        ("line", "section", "products"),
+        [
+            # News about a dataset we do not use is never an action for us.
+            ("GEDI Level 4A Version 3 released", "Other", []),
+            ("ASDC planned monthly maintenance", "Other", []),
+            # Naming one of ours, or a keyword (a DAAC we read from), it stands.
+            ("MODIS maintenance on Tuesday", "Action needed", ["modis-snow"]),
+            ("NSIDC maintenance on Tuesday", "Action needed", []),
+            # A snow term is worth a look wherever it comes from.
+            ("A new glacier inventory is released", "Worth adding", []),
+        ],
+    )
+    def test_a_scoped_page_reports_only_what_touches_us(
+        self, watch, line, section, products
+    ):
+        (change,) = watch.diff_lines(self.SCOPED, {"lines": ["x"]}, {"lines": [line]})
+        assert change.section == section and change.products == products
+
+    def test_lines_that_change_on_every_visit_are_ignored(self, watch):
+        entry = {**self.ENTRY, "ignore": [r"^Feral Swine"]}
+        changes = watch.diff_lines(
+            entry,
+            {"lines": ["x"]},
+            {
+                "lines": [
+                    "]. Date Accessed 09-28-2026.",
+                    "Feral Swine Eradication and Control Pilot Program",
+                    "MOD10A2 is deprecated",
+                ]
+            },
+        )
+        assert [c.detail for c in changes] == ["MOD10A2 is deprecated"]
+
     def test_a_flood_of_new_lines_is_truncated(self, watch):
         changes = watch.diff_lines(
             self.ENTRY,
@@ -218,7 +354,7 @@ class TestDigest:
                 "## Worth adding",
                 "## Changed",
                 "## Dependency releases",
-                "## Other",
+                "<summary><b>Other",
             )
         ]
         assert positions == sorted(positions)
@@ -226,12 +362,31 @@ class TestDigest:
 
     def test_a_long_section_is_capped_but_counted(self, watch):
         changes = [
-            watch.Change("noisy-page", f"S{i}", "x", categories=["removal"])
+            watch.Change("noisy-page", f"S{i}", "x", categories=["extent"])
             for i in range(40)
         ]
         body = watch.digest(changes, [], when="2026-09-17")
-        assert "## Action needed (40)" in body
+        assert "## Changed (40)" in body
         assert "...and 15 more, from noisy-page" in body
+
+    def test_to_dos_are_checkboxes_and_never_capped(self, watch):
+        changes = [
+            watch.Change("e", f"S{i}", "x", categories=["removal"]) for i in range(40)
+        ]
+        body = watch.digest(changes, [], when="2026-09-17")
+        assert body.count("- [ ] **S") == 40 and "more, from" not in body
+
+    def test_routine_and_other_are_folded(self, watch):
+        body = watch.digest(
+            [
+                watch.Change("e", "A", "end moved", categories=["routine"]),
+                watch.Change("e", "B", "who knows", categories=[]),
+            ],
+            [],
+        )
+        assert "<details><summary><b>Routine (1)</b></summary>" in body
+        assert "<details><summary><b>Other (1)</b></summary>" in body
+        assert "## Routine" not in body
 
     def test_unreachable_entries_are_their_own_section(self, watch):
         body = watch.digest([], ["page-x: HTTPError: 404"], when="2026-09-17")
@@ -248,6 +403,124 @@ class TestDigest:
             [],
         )
         assert "affects `snodas`" in body
+
+
+LEGACY_51 = """<!-- esd-watch: 2026-09-28 -->
+
+## Worth adding (1)
+
+- **[ERA5](u)** end: `a` → `b` — affects `era5` `new-dataset`
+
+## Changed (1)
+
+- **awdb** count: `1` → `2`
+
+## Other (1)
+
+- **x** y
+"""
+
+
+class TestSupersede:
+    def test_unticked_to_dos_are_carried_and_ticked_ones_are_not(self, watch):
+        body = watch.digest(
+            [
+                watch.Change("e", "A", "gone", categories=["removal"]),
+                watch.Change("e", "B", "new", categories=["new-dataset"]),
+                watch.Change("e", "C", "moved", categories=["extent"]),
+            ],
+            [],
+            when="2026-10-05",
+        )
+        body = body.replace("- [ ] **A**", "- [x] **A**")
+        assert watch.unaddressed(body, 60) == ["**B** new `new-dataset` _(from #60)_"]
+
+    def test_a_digest_from_before_the_checkboxes_loses_nothing(self, watch):
+        assert watch.unaddressed(LEGACY_51, 51) == [
+            "**[ERA5](u)** end: `a` → `b` — affects `era5` `new-dataset` _(from #51)_"
+        ]
+
+    def test_carried_items_keep_their_origin_and_are_not_repeated(self, watch):
+        carried = watch.unaddressed(LEGACY_51, 51)
+        body = watch.digest(
+            [watch.Change("e", "A", "gone", categories=["removal"])],
+            [],
+            carried=[*carried, "**A** gone `removal` _(from #51)_"],
+            discussions=[51],
+        )
+        assert "## Carried over (1)" in body
+        assert "- [ ] **[ERA5](u)**" in body and "_(from #51)_" in body
+        assert body.count("**A** gone") == 1  # already in this week's list
+        assert "Earlier discussion is in #51." in body
+        # carried again next week, still from #51
+        assert watch.unaddressed(body, 70)[-1].endswith("_(from #51)_")
+
+    def test_the_old_digest_closes_only_after_the_new_one_opens(
+        self, watch, tmp_path, monkeypatch
+    ):
+        calls: list[tuple[str, str]] = []
+
+        def github(method, path, token, **kwargs):
+            calls.append((method, path))
+            if method == "GET":
+                return [
+                    {"number": 51, "body": LEGACY_51, "comments": 0},
+                    {"number": 52, "pull_request": {}, "body": ""},
+                ]
+            if path.endswith("/issues"):
+                assert "_(from #51)_" in kwargs["json"]["body"]
+                return {"number": 60, "html_url": "https://x/60"}
+            return {}
+
+        monkeypatch.setattr(watch, "_github", github)
+        monkeypatch.setattr(
+            watch,
+            "run",
+            lambda *a, **k: (
+                [watch.Change("e", "A", "gone", categories=["removal"])],
+                [],
+            ),
+        )
+        monkeypatch.setenv("GITHUB_TOKEN", "t")
+        (tmp_path / "w.toml").write_text("")
+        assert (
+            watch.main(
+                ["--watchlist", str(tmp_path / "w.toml"), "--issue", "--repo", "o/r"]
+            )
+            == 0
+        )
+        assert calls == [
+            ("GET", "/repos/o/r/issues"),
+            ("POST", "/repos/o/r/issues"),
+            ("POST", "/repos/o/r/issues/51/comments"),
+            ("PATCH", "/repos/o/r/issues/51"),
+        ]
+
+    def test_a_failed_open_closes_nothing(self, watch, tmp_path, monkeypatch):
+        calls: list[str] = []
+
+        def github(method, path, token, **kwargs):
+            calls.append(method)
+            if method == "GET":
+                return [{"number": 51, "body": LEGACY_51, "comments": 0}]
+            raise RuntimeError("HTTP 502")
+
+        monkeypatch.setattr(watch, "_github", github)
+        monkeypatch.setattr(
+            watch,
+            "run",
+            lambda *a, **k: (
+                [watch.Change("e", "A", "gone", categories=["removal"])],
+                [],
+            ),
+        )
+        monkeypatch.setenv("GITHUB_TOKEN", "t")
+        (tmp_path / "w.toml").write_text("")
+        with pytest.raises(RuntimeError):
+            watch.main(
+                ["--watchlist", str(tmp_path / "w.toml"), "--issue", "--repo", "o/r"]
+            )
+        assert calls == ["GET", "POST"]
 
 
 class TestRun:
