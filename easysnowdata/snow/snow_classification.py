@@ -31,7 +31,7 @@ from typing import Any
 import pandas as pd
 import xarray as xr
 
-from easysnowdata import auth, catalog, config, providers
+from easysnowdata import auth, catalog, providers
 from easysnowdata.catalog import health
 from easysnowdata.catalog._access import resolve_source
 from easysnowdata.catalog._models import Probe, Product, Source, Variable
@@ -101,35 +101,34 @@ def filename(resolution: str = "10arcsec", region: str = "GL") -> str:
     return f"SnowClass_{region}_{grid}_{arc}_{EPOCH}_v01.0.tif"
 
 
+def _is_tiff(path: Path) -> bool:
+    """A TIFF or BigTIFF header, not the Earthdata login page saved in its place."""
+    with path.open("rb") as handle:
+        return handle.read(4) in (b"II*\x00", b"MM\x00*", b"II+\x00", b"MM\x00+")
+
+
 def _fetch_nsidc(name: str) -> Path:
-    """Download one NSIDC-0768 file into the cache (once) through Earthdata Login."""
+    """Download one NSIDC-0768 file into the cache (once) through Earthdata Login.
+
+    NSIDC's on-premises archive ignores a bearer token, so this logs in with
+    the username and password even when ``EARTHDATA_TOKEN`` is also set.
+    """
     if not auth.detect("earthdata"):
         raise auth.get("earthdata").error(
             "NSIDC-0768 is served behind Earthdata Login.",
             alternatives=('source="hosted-cog" (the 10 arcsec global map, no login)',),
         )
-    target = config.cache_dir("snow_classification") / name
-    if target.exists():
-        return target
-    auth.get("earthdata").ensure()
-    import earthaccess  # noqa: PLC0415
-
     url = f"{NSIDC_DIRECTORY}/{name}"
-    _logger.info("Downloading %s into %s (once).", name, target.parent)
-    session = earthaccess.get_requests_https_session()
-    with session.get(url, stream=True, allow_redirects=True, timeout=60) as response:
-        if response.status_code == 404:
-            raise FileNotFoundError(
-                f"{url} does not exist. Check the resolution/region, browse "
-                f"{NSIDC_DIRECTORY}, or use source='hosted-cog'."
-            )
-        response.raise_for_status()
-        partial_path = target.with_suffix(target.suffix + ".part")
-        with partial_path.open("wb") as handle:
-            for chunk in response.iter_content(chunk_size=8 * 1024 * 1024):
-                handle.write(chunk)
-    partial_path.replace(target)
-    return target
+    _logger.info("Downloading %s into the cache (once).", name)
+    try:
+        return providers.earthdata.download_with_password(
+            url, "snow_classification", valid=_is_tiff, timeout=60
+        )
+    except FileNotFoundError:
+        raise FileNotFoundError(
+            f"{url} does not exist. Check the resolution/region, browse "
+            f"{NSIDC_DIRECTORY}, or use source='hosted-cog'."
+        ) from None
 
 
 def load(

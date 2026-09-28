@@ -558,10 +558,16 @@ versions). Gallery: `boundaries/plot_admin.py`, `plot_natural_earth.py`,
 - NSIDC's `daacdata` tree does **not** accept a bearer `EARTHDATA_TOKEN` on its own: a
   token-only `earthaccess` session lands on the URS login page (200), and
   `earthaccess.download` saves that page as the "zip". It works with the username and
-  password (env or netrc), which is what CI holds. The loader now detects the login page
-  and says so; the Earthdata setup text on the credentials page names the limit.
-  (Separately, `auth.earthdata.token_is_valid` gets a 401 from `/api/users/tokens` even for
-  a freshly issued token, so a token-only setup is treated as expired — not yet fixed.)
+  password (env or netrc), which is what CI holds. (Separately, `auth.earthdata.token_is_valid`
+  got a 401 from `/api/users/tokens` even for a freshly issued token; fixed in #49, which
+  reads `exp` from the token.)
+- **Fixed 2026-09-28:** a token set *alongside* the password still broke it. earthaccess
+  logs in with the token first, and a laptop only worked because `requests` quietly re-read
+  `~/.netrc` on the redirect to URS. CI has the password in env vars and no netrc, so the
+  weekly RGI probe failed (#50). The loaders (RGI, NSIDC-0768) and the probe now go through
+  `auth.earthdata.PasswordSession`, which sends the username and password to URS only, and
+  `providers.earthdata.download_with_password`, which also replaces a login page cached by
+  an older version.
 - The Census 2025 cartographic files appeared in March 2026 with the same columns;
   `CENSUS_YEAR` moved to 2025 (2026-09-23), and the watch has a `[[file]]` entry on the
   2026 URL whose 404 → 206 is the signal for the next move.

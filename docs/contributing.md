@@ -137,7 +137,10 @@ static file, a one-item STAC search, a `getInfo()` for Earth Engine, an
 answer HEAD with a 400 that looks exactly like a 404. For a file behind
 Earthdata Login that is not in CMR (NSIDC's `daacdata` tree), use
 `earthdata_https_first_byte`: an anonymous GET there lands on the login page
-with a 200, which a plain first-byte probe would count as a pass.
+with a 200, which a plain first-byte probe would count as a pass. That tree
+also ignores a bearer token, so the probe (and the loader, through
+`providers.earthdata.download_with_password`) logs in with the username and
+password.
 
 Give the probe a stable `label`. It is the key the weekly history is stored
 under, so renaming one starts its history over.

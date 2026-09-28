@@ -21,9 +21,7 @@ def local_cog(static_fixtures, monkeypatch):
 
 @pytest.fixture
 def fake_earthdata(static_fixtures, monkeypatch, tmp_path):
-    """An Earthdata session that serves the local fixture, plus a private cache."""
-    import earthaccess
-
+    """An Earthdata password session that serves the local fixture, plus a private cache."""
     provider = auth.get("earthdata")
     monkeypatch.setattr(provider, "detect", lambda: auth.Detection(True, "env:TEST"))
     monkeypatch.setattr(provider, "ensure", lambda **kw: True)
@@ -32,6 +30,7 @@ def fake_earthdata(static_fixtures, monkeypatch, tmp_path):
 
     class Response:
         def __init__(self, url):
+            self.url = url
             self.status_code = 404 if "nope" in url else 200
             self._body = (
                 static_fixtures["snow_class_cog"].read_bytes()
@@ -58,7 +57,7 @@ def fake_earthdata(static_fixtures, monkeypatch, tmp_path):
             calls.setdefault("urls", []).append(url)
             return Response(url)
 
-    monkeypatch.setattr(earthaccess, "get_requests_https_session", lambda: Session())
+    monkeypatch.setattr(provider, "password_session", lambda: Session())
     return calls
 
 
@@ -149,6 +148,15 @@ class TestNsidcRoute:
         assert fake_earthdata["urls"][0].endswith(
             "SnowClass_GL_05km_2.50arcmin_2021_v01.0.tif"
         )
+
+    def test_a_cached_login_page_is_fetched_again(self, fake_earthdata, tmp_path):
+        # 0.3.2 and earlier saved NSIDC's login page under the file's name.
+        name = "SnowClass_GL_300m_10.0arcsec_2021_v01.0.tif"
+        stale = tmp_path / "snow_classification" / name
+        stale.parent.mkdir(parents=True, exist_ok=True)
+        stale.write_text("<html>Earthdata Login</html>")
+        sc.load(RAINIER)
+        assert len(fake_earthdata["urls"]) == 1 and sc._is_tiff(stale)
 
     def test_missing_file_says_where_to_look(self, fake_earthdata, monkeypatch):
         monkeypatch.setattr(sc, "filename", lambda *a, **kw: "nope.tif")
