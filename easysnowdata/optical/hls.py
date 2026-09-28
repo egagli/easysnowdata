@@ -113,6 +113,9 @@ ANGLE_NODATA = 40000
 ANGLE_SCALE = 1e-2
 FMASK_NODATA = 255
 
+#: A month every HLS route has both products for, over the probe bbox.
+_PROBE_MONTH = "2024-07-01T00:00:00Z/2024-07-31T23:59:59Z"
+
 _LPDAAC_DOCS = "https://lpdaac.usgs.gov/documents/1698/HLS_User_Guide_V2.pdf"
 _PC_DOCS = "https://planetarycomputer.microsoft.com/dataset/hls2-s30"
 
@@ -146,15 +149,35 @@ PRODUCT = Product(
                 "Login (netrc plus a cookie jar, or a bearer token)"
             ),
             title="CMR-STAC LPCLOUD",
-            health=Probe(
-                "HLS L30 (CMR-STAC LPCLOUD)",
-                partial(
-                    health.stac_search,
-                    CMR_LPCLOUD_STAC,
-                    "HLSL30_2.0",
-                    datetime_range="2024-07-01T00:00:00Z/2024-07-31T23:59:59Z",
+            health=(
+                *(
+                    Probe(
+                        f"HLS {product} (CMR-STAC LPCLOUD)",
+                        partial(
+                            health.stac_search,
+                            CMR_LPCLOUD_STAC,
+                            COLLECTIONS["lpcloud-cmr-stac"][product],
+                            datetime_range=_PROBE_MONTH,
+                        ),
+                        requires=(),
+                    )
+                    for product in PRODUCTS
                 ),
-                requires=(),
+                # The search is open; the reads are what break. One band per
+                # product through Earthdata Login.
+                *(
+                    Probe(
+                        f"HLS {product} COG read (CMR-STAC LPCLOUD, Earthdata Login)",
+                        partial(
+                            health.stac_asset_first_byte,
+                            CMR_LPCLOUD_STAC,
+                            COLLECTIONS["lpcloud-cmr-stac"][product],
+                            "B04",
+                            datetime_range=_PROBE_MONTH,
+                        ),
+                    )
+                    for product in PRODUCTS
+                ),
             ),
         ),
         Source(
@@ -166,15 +189,18 @@ PRODUCT = Product(
             latency="mirror; lag unknown",
             notes="credential-free mirror; collection ids verified live 2026-09-16",
             title="Planetary Computer",
-            health=Probe(
-                "HLS S30 (Planetary Computer)",
-                partial(
-                    health.stac_search,
-                    PC_STAC,
-                    "hls2-s30",
-                    datetime_range="2024-07-01/2024-07-31",
-                    sign=True,
-                ),
+            health=tuple(
+                Probe(
+                    f"HLS {product} (Planetary Computer)",
+                    partial(
+                        health.stac_search,
+                        PC_STAC,
+                        COLLECTIONS["planetary-computer"][product],
+                        datetime_range=_PROBE_MONTH,
+                        sign=True,
+                    ),
+                )
+                for product in PRODUCTS
             ),
         ),
     ),
