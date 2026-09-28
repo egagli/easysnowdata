@@ -219,6 +219,8 @@ class TestEarthdata:
         opts = self.provider.gdal_options()
         assert opts["GDAL_HTTP_AUTH"] == "BEARER" and opts["GDAL_HTTP_BEARER"] == "abc"
         assert "GDAL_HTTP_NETRC" not in opts
+        # LP DAAC answers a HEAD with a bearer token with a 404 (#5 retest).
+        assert opts["CPL_VSIL_CURL_USE_HEAD"] == "NO"
         assert Path(opts["GDAL_HTTP_COOKIEFILE"]).is_relative_to(clean_env / "cache")
 
     def test_gdal_options_netrc(self, clean_env, monkeypatch):

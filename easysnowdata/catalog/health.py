@@ -152,7 +152,7 @@ def stac_search(
         raise RuntimeError(f"No {collection} items found in {api_url}.")
 
 
-def stac_asset_first_byte(
+def stac_asset_read(
     api_url: str,
     collection: str,
     asset: str,
@@ -160,14 +160,17 @@ def stac_asset_first_byte(
     bbox: tuple[float, float, float, float] = TEST_BBOX,
     datetime_range: str | None = None,
 ) -> None:
-    """Find one *collection* item and read the first byte of its *asset*.
+    """Find one *collection* item and read a 4×4 window of its *asset* with GDAL.
 
     For catalogs whose search is open but whose files sit behind Earthdata
     Login (CMR-STAC ``LPCLOUD``): :func:`stac_search` passing says nothing
-    about the reads, which are what break when a token or the cloud
-    distribution changes.
+    about the reads. The read goes through GDAL inside the ``earthdata``
+    provider's environment, the path ``load`` takes, rather than through
+    ``requests``: a bearer token read fine with ``requests`` while GDAL's
+    HEAD request got a 404, and only this catches that.
     """
     import pystac_client  # noqa: PLC0415
+    import rasterio  # noqa: PLC0415
 
     catalog = pystac_client.Client.open(api_url)
     kwargs: dict[str, Any] = {"collections": [collection], "max_items": 1}
@@ -181,23 +184,10 @@ def stac_asset_first_byte(
     if asset not in items[0].assets:
         raise RuntimeError(f"{items[0].id} has no {asset!r} asset.")
     href = items[0].assets[asset].href
-    auth.get("earthdata").ensure()
-    import earthaccess  # noqa: PLC0415
-
-    session = earthaccess.get_requests_https_session()
-    response = session.get(
-        href,
-        timeout=TIMEOUT,
-        stream=True,
-        allow_redirects=True,
-        headers={"Range": "bytes=0-0", "User-Agent": USER_AGENT},
-    )
-    status = response.status_code
-    final = response.url
-    response.close()
-    if status in (200, 206) and "urs.earthdata.nasa.gov" not in final:
-        return
-    raise RuntimeError(f"Unreadable through Earthdata Login: HTTP {status} ({final})")
+    provider = auth.get("earthdata")
+    provider.ensure()
+    with provider.env(), rasterio.open(href) as src:
+        src.read(1, window=((0, 4), (0, 4)))
 
 
 def zarr_metadata(url: str, storage_options: dict[str, Any] | None = None) -> None:

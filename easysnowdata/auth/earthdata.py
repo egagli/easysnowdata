@@ -371,6 +371,11 @@ Register for a free account at https://urs.earthdata.nasa.gov"""
         if token:
             options["GDAL_HTTP_AUTH"] = "BEARER"
             options["GDAL_HTTP_BEARER"] = token
+            # GDAL opens a /vsicurl/ file with a HEAD request, and LP DAAC's
+            # cloud distribution answers a HEAD carrying a bearer token with a
+            # 404; the same file reads fine with GET. Found retesting #5: a
+            # token-only HLS load failed on every band, cluster or not.
+            options["CPL_VSIL_CURL_USE_HEAD"] = "NO"
         else:
             options["GDAL_HTTP_NETRC"] = "YES"
         return {k: v for k, v in options.items() if v is not None}

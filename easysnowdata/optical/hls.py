@@ -169,7 +169,7 @@ PRODUCT = Product(
                     Probe(
                         f"HLS {product} COG read (CMR-STAC LPCLOUD, Earthdata Login)",
                         partial(
-                            health.stac_asset_first_byte,
+                            health.stac_asset_read,
                             CMR_LPCLOUD_STAC,
                             COLLECTIONS["lpcloud-cmr-stac"][product],
                             "B04",
