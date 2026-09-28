@@ -1,5 +1,8 @@
 {
   "WUS_UCLA_SR (C3273595478-NSIDC_CPRD)": {
+    "cloud_hosted": true,
+    "has_granules": true,
+    "provider": "NSIDC_CPRD",
     "revision_date": "2026-06-24",
     "temporal_end": "2021-09-30",
     "temporal_start": "1984-10-01",

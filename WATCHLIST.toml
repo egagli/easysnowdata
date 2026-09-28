@@ -73,6 +73,14 @@ products = ["sentinel-1-rtc"]
 id = "cmr-nsidc-0768"
 short_name = "NSIDC-0768"
 products = ["snow-classification"]
+# On-premises at NSIDC (provider NSIDCV0, not cloud hosted, no granules), so
+# the loader needs the Earthdata password. A move shows up as `migration`.
+
+[[cmr]]
+id = "cmr-nsidc-0770"
+short_name = "NSIDC-0770"
+products = ["rgi-glaciers"]
+# RGI 6.0 and 7.0 (and the older versions), on-premises like NSIDC-0768.
 
 # STAC collections: presence in /collections, the temporal extent, and the
 # newest item. Catches a collection quietly disappearing (the MOD10A2 case)
@@ -262,6 +270,12 @@ packages = [
 # Fetched, reduced to their visible text, diffed against last week, and each
 # new line keyword-tagged. Noisy by nature, which is why the digest groups
 # them under "changed" and "other" unless a keyword promotes them.
+#
+# Not watched (dropped 2026-09-28): the earthdata.nasa.gov alerts, ASF DAAC
+# and LP DAAC news pages. CloudFront answers GitHub's runners with a 403
+# whatever the User-Agent (a home IP gets a 200), so they were a permanent
+# "could not be checked" line. CMR (hosting, versions, extents) and the health
+# probes cover what those pages would have told us.
 
 [[page]]
 id = "page-gee-release-notes"
@@ -291,23 +305,6 @@ products = []
 "harmonized landsat" = ["hls"]
 
 [[page]]
-id = "page-earthdata-alerts"
-url = "https://www.earthdata.nasa.gov/data/alerts-outages"
-products = []
-# Outages at the DAACs and at Earthdata Login matter whatever dataset the line
-# names; everything else only when it names one of ours.
-keywords = ["nsidc", "lp daac", "lpdaac", "asf", "urs", "earthdata login", "cmr"]
-[page.match_products]
-"hls" = ["hls"]
-"harmonized landsat" = ["hls"]
-"modis" = ["modis-snow"]
-"mod10" = ["modis-snow"]
-"viirs" = ["viirs-snow"]
-"vnp10" = ["viirs-snow"]
-"snow reanalysis" = ["ucla-snow-reanalysis"]
-"opera" = ["sentinel-1-rtc", "sentinel-1-local-incidence-angle"]
-
-[[page]]
 id = "page-nsidc-updates"
 url = "https://nsidc.org/data/data-programs/nsidc-daac/data-updates"
 products = []
@@ -330,15 +327,6 @@ products = []
 "0770" = ["rgi-glaciers"]
 
 [[page]]
-id = "page-asf-daac"
-url = "https://www.earthdata.nasa.gov/centers/asf-daac"
-products = []
-[page.match_products]
-"sentinel-1" = ["sentinel-1-rtc", "sentinel-1-local-incidence-angle"]
-"opera" = ["sentinel-1-rtc", "sentinel-1-local-incidence-angle"]
-"rtc" = ["sentinel-1-rtc"]
-
-[[page]]
 id = "page-nrcs-sswsf"
 url = "https://www.nrcs.usda.gov/programs-initiatives/sswsf-snow-survey-and-water-supply-forecasting-program"
 products = []
@@ -350,14 +338,6 @@ products = []
 "water supply" = ["awdb-stations"]
 "awdb" = ["awdb-stations"]
 "air and water database" = ["awdb-stations"]
-
-[[page]]
-id = "page-lpdaac-news"
-url = "https://www.earthdata.nasa.gov/data/catalog?facets=lp-daac"
-products = []
-[page.match_products]
-"hls" = ["hls"]
-"harmonized landsat" = ["hls"]
 
 [[page]]
 id = "page-nohrsc-snodas"

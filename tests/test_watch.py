@@ -244,6 +244,40 @@ class TestDiffMapping:
             ("f", "status"): "Action needed",
         }
 
+    @pytest.mark.parametrize(
+        ("key", "old", "new"),
+        [
+            ("cloud_hosted", False, True),
+            ("provider", "NSIDCV0", "NSIDC_CPRD"),
+            ("has_granules", False, True),
+        ],
+    )
+    def test_an_on_premises_collection_moving_is_a_migration(
+        self, watch, key, old, new
+    ):
+        """RGI and NSIDC-0768 need a password only because they are on-premises."""
+        (change,) = watch.diff_mapping(
+            {"id": "cmr-nsidc-0770", "products": ["rgi-glaciers"]},
+            {"NSIDC-0770 (C1-NSIDCV0)": {key: old}},
+            {"NSIDC-0770 (C1-NSIDCV0)": {key: new}},
+        )
+        assert change.categories == ["migration"]
+        assert change.section == "Action needed"
+
+    def test_a_cloud_copy_appearing_is_a_migration(self, watch):
+        before = {"NSIDC-0770 (C1-NSIDCV0)": {"cloud_hosted": False}}
+        after = {**before, "NSIDC-0770 (C2-NSIDC_CPRD)": {"cloud_hosted": True}}
+        (change,) = watch.diff_mapping(self.ENTRY, before, after)
+        assert change.detail == "appeared" and change.section == "Action needed"
+
+    def test_a_field_recorded_for_the_first_time_is_not_a_change(self, watch):
+        changes = watch.diff_mapping(
+            self.ENTRY,
+            {"a": {"version": "1"}},
+            {"a": {"version": "1", "cloud_hosted": False}},
+        )
+        assert changes == []
+
     def test_next_years_file_appearing_is_worth_adding(self, watch):
         (change,) = watch.diff_mapping(
             self.ENTRY, {"f": {"status": 404}}, {"f": {"status": 206}}
@@ -615,6 +649,56 @@ class TestRun:
             log=lambda _l: None,
         )
         assert all("pypi.org" in url for url in called)
+
+
+class TestCheckCmr:
+    def test_records_how_each_version_is_served(self, watch):
+        class Response:
+            def __init__(self, payload=None, headers=None):
+                self._payload, self.headers = payload, headers or {}
+
+            def raise_for_status(self):
+                pass
+
+            def json(self):
+                return self._payload
+
+        class Session:
+            def get(self, url, params=None, **kwargs):
+                if url.endswith("collections.umm_json"):
+                    assert params["page_size"] >= 7  # RGI has seven versions
+                    return Response(
+                        {
+                            "items": [
+                                {
+                                    "meta": {
+                                        "concept-id": "C1-NSIDCV0",
+                                        "provider-id": "NSIDCV0",
+                                    },
+                                    "umm": {"Version": "7"},
+                                }
+                            ]
+                        }
+                    )
+                if url.endswith("collections.json"):
+                    return Response(
+                        {
+                            "feed": {
+                                "entry": [{"id": "C1-NSIDCV0", "cloud_hosted": False}]
+                            }
+                        }
+                    )
+                assert params["collection_concept_id"] == "C1-NSIDCV0"
+                return Response(headers={"CMR-Hits": "0"})
+
+        record = watch.check_cmr({"short_name": "NSIDC-0770"}, Session())[
+            "NSIDC-0770 (C1-NSIDCV0)"
+        ]
+        assert (record["provider"], record["cloud_hosted"], record["has_granules"]) == (
+            "NSIDCV0",
+            False,
+            False,
+        )
 
 
 class TestVisibleText:

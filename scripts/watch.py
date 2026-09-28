@@ -108,6 +108,9 @@ CATEGORIES: dict[str, tuple[str, ...]] = {
         "unavailable",
         "unreachable",
     ),
+    # A route moving: an on-premises archive (NSIDC's daacdata) going to
+    # Earthdata Cloud changes the loader, the credentials and the probe.
+    "migration": ("earthdata cloud", "cloud migration", "migrating to the cloud"),
     # Set from what moved, never from words (see FIELD_CATEGORY).
     "stalled": (),
     "license": (),
@@ -122,6 +125,7 @@ SECTIONS: dict[str, tuple[str, ...]] = {
         "deprecation",
         "reprocessing",
         "outage",
+        "migration",
         "stalled",
         "license",
     ),
@@ -164,6 +168,13 @@ FIELD_CATEGORY = {
     "last_modified": "republished",
     "length": "republished",
     "license": "license",
+    # How a CMR collection is served (check_cmr). An on-premises collection
+    # (provider NSIDCV0, cloud_hosted false, no granules: RGI, NSIDC-0768)
+    # flipping any of these is the sign it moved to Earthdata Cloud, and the
+    # password-only download route may be on its way out.
+    "provider": "migration",
+    "cloud_hosted": "migration",
+    "has_granules": "migration",
 }
 
 #: Lines no page diff should report: text that changes on every visit.
@@ -345,7 +356,11 @@ def diff_mapping(
                 "appeared",
                 url=str(after[subject].get("url", "")),
                 products=products_for(entry, subject),
-                categories=["new-dataset"],
+                # A cloud-hosted copy of a collection we read on-premises
+                # arrives as a new concept id under another provider.
+                categories=[
+                    "migration" if after[subject].get("cloud_hosted") else "new-dataset"
+                ],
             )
         )
     for subject in sorted(set(before) - set(after)):
@@ -363,6 +378,8 @@ def diff_mapping(
         for key in sorted(set(old) | set(new)):
             if key == "url" or old.get(key) == new.get(key):
                 continue
+            if key not in old:
+                continue  # a field this script just started recording
             detail = f"{key}: `{old.get(key)}` → `{new.get(key)}`"
             categories = _field_categories(key, old.get(key), new.get(key))
             changes.append(
@@ -438,13 +455,26 @@ def _session() -> Any:
 
 
 def check_cmr(entry: dict[str, Any], session: Any) -> dict[str, Any]:
-    """Version, revision date, granule count and temporal extent of a collection."""
+    """Version, revision date, temporal extent and hosting of each collection version.
+
+    ``provider``, ``cloud_hosted`` and ``has_granules`` say how it is served.
+    NSIDC-0770 (RGI) and NSIDC-0768 are on-premises (``NSIDCV0``, not cloud
+    hosted, no granules), which is why their loaders need a password; any of
+    the three moving means that route changed.
+    """
+    search = "https://cmr.earthdata.nasa.gov/search"
+    params = {"short_name": entry["short_name"], "page_size": 50}
     response = session.get(
-        "https://cmr.earthdata.nasa.gov/search/collections.umm_json",
-        params={"short_name": entry["short_name"], "page_size": 5},
-        timeout=TIMEOUT,
+        f"{search}/collections.umm_json", params=params, timeout=TIMEOUT
     )
     response.raise_for_status()
+    # cloud_hosted is only in the JSON (not UMM) response.
+    listing = session.get(f"{search}/collections.json", params=params, timeout=TIMEOUT)
+    listing.raise_for_status()
+    hosted = {
+        e.get("id"): bool(e.get("cloud_hosted"))
+        for e in listing.json().get("feed", {}).get("entry", [])
+    }
     out: dict[str, Any] = {}
     for item in response.json().get("items", []):
         meta, umm = item.get("meta", {}), item.get("umm", {})
@@ -456,11 +486,24 @@ def check_cmr(entry: dict[str, Any], session: Any) -> dict[str, Any]:
             "revision_date": str(meta.get("revision-date", ""))[:10],
             "temporal_start": str(ranges.get("BeginningDateTime", ""))[:10],
             "temporal_end": str(ranges.get("EndingDateTime", "") or "ongoing")[:10],
+            "provider": meta.get("provider-id", ""),
+            "cloud_hosted": hosted.get(concept, False),
+            "has_granules": _has_granules(session, search, concept),
             "url": f"https://cmr.earthdata.nasa.gov/search/concepts/{concept}.html",
         }
     if not out:
         raise RuntimeError(f"CMR knows no collection {entry['short_name']!r}.")
     return out
+
+
+def _has_granules(session: Any, search: str, concept: str) -> bool:
+    response = session.get(
+        f"{search}/granules.json",
+        params={"collection_concept_id": concept, "page_size": 0},
+        timeout=TIMEOUT,
+    )
+    response.raise_for_status()
+    return int(response.headers.get("CMR-Hits", "0")) > 0
 
 
 def check_stac(entry: dict[str, Any], session: Any) -> dict[str, Any]:

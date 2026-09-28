@@ -598,6 +598,12 @@ versions). Gallery: `boundaries/plot_admin.py`, `plot_natural_earth.py`,
   `auth.earthdata.PasswordSession`, which sends the username and password to URS only, and
   `providers.earthdata.download_with_password`, which also replaces a login page cached by
   an older version.
+- **How we would know it moved:** CMR lists NSIDC-0770 (all seven versions) and NSIDC-0768
+  under the on-premises provider `NSIDCV0`, `cloud_hosted: false`, with no granules. The watch
+  records those three fields for every `[[cmr]]` entry. A cloud copy appearing (a new concept
+  id under `NSIDC_CPRD`) or any of them flipping is filed under **Action needed** as
+  `migration`: move the loader to `earthaccess.search_data` and drop the password-only route.
+  If `daacdata` is simply retired, the health probes fail and open a data-source issue.
 - The Census 2025 cartographic files appeared in March 2026 with the same columns;
   `CENSUS_YEAR` moved to 2025 (2026-09-23), and the watch has a `[[file]]` entry on the
   2026 URL whose 404 → 206 is the signal for the next move.
