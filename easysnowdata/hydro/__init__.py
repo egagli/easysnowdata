@@ -5,7 +5,7 @@ Products
 :mod:`~easysnowdata.hydro.basins`
     USGS HUC units (WBD REST, Earth Engine), HydroBASINS / BasinATLAS
     (figshare, HydroSHEDS regional zips, Earth Engine), GRDC major river
-    basins and GRDC / WMO basins.
+    basins, and GRDC / WMO basins.
 
 ::
 

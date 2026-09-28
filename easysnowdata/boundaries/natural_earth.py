@@ -143,9 +143,9 @@ PRODUCT = Product(
     theme="boundaries",
     title="Natural Earth vector layers",
     description=(
-        "Public-domain cartographic vectors at 1:10m, 1:50m and 1:110m: lakes, "
+        "Public-domain cartographic vectors at 1:10m, 1:50m, and 1:110m: lakes, "
         "rivers, coastline, land and ocean, glaciated areas, populated places, "
-        "boundary lines and more, read by layer name."
+        "boundary lines, and more, read by layer name."
     ),
     sources=(
         Source(

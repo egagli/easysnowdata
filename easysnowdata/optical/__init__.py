@@ -1,10 +1,12 @@
-"""Optical (passive, visible through SWIR and thermal) imagery.
+"""Optical (passive) imagery: Sentinel-2 L2A, HLS L30 and S30, and PlanetScope.
 
-The name pairs with :mod:`easysnowdata.sar` (active microwave) and covers
-every sensor in the theme, including thermal-only and hyperspectral products
-that are not multispectral (plan §3.1). Band math, masks and composites live
-in :mod:`easysnowdata.processing.optical`; the loaders here only add product
-knowledge: collection ids, band aliases, nodata, scaling and citations.
+Visible through shortwave infrared, plus HLS L30's two thermal bands. The name
+pairs with :mod:`easysnowdata.sar` (active microwave). The Sentinel-2 scene
+classification and HLS Fmask masks live in :mod:`easysnowdata.processing.masks`;
+the Sentinel-2 baseline harmonization, scale/offset, and the PlanetScope UDM2
+decoder in :mod:`easysnowdata.processing.optical`. Band arithmetic is written
+out, not wrapped. The loaders here only add product knowledge: collection ids,
+band aliases, nodata, scaling, and citations.
 """
 
 from __future__ import annotations

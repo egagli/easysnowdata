@@ -129,7 +129,7 @@ PRODUCT = Product(
     theme="snow",
     title="MODIS snow cover (MOD10A1, MOD10A2, MOD10A1F)",
     description=(
-        "Terra and Aqua MODIS daily NDSI snow cover, the 8-day maximum snow extent "
+        "Terra and Aqua MODIS daily NDSI snow cover, the 8-day maximum snow extent, "
         "and the cloud-gap-filled daily product at 500 m, from NSIDC (all six "
         "products) or Planetary Computer (the two COG mirrors)."
     ),

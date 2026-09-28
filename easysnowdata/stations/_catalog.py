@@ -82,10 +82,10 @@ def _nve_probe() -> None:
 AWDB_PRODUCT = Product(
     id="awdb-stations",
     theme="stations",
-    title="SNOTEL, SCAN and snow-course observations (USDA NRCS AWDB)",
+    title="SNOTEL, SCAN, and snow-course observations (USDA NRCS AWDB)",
     description=(
         "Daily and hourly SWE, snow depth, precipitation, air temperature, "
-        "soil moisture and more from the USDA NRCS Air and Water Database: "
+        "soil moisture, and more from the USDA NRCS Air and Water Database: "
         "SNOTEL and SNOLITE telemetry sites, SCAN, and the manual snow-course "
         "network, across the western United States and parts of western "
         "Canada. Station ids are AWDB triplets (679:WA:SNTL), spelled "
@@ -131,7 +131,7 @@ CDEC_PRODUCT = Product(
     theme="stations",
     title="California snow pillows and snow courses (CDEC)",
     description=(
-        "SWE, snow depth, precipitation, temperature and more from the "
+        "SWE, snow depth, precipitation, temperature, and more from the "
         "California Data Exchange Center: the California Cooperative Snow "
         "Surveys (CCSS) snow pillows and the manual snow-course network. "
         "Station ids are CDEC's three-letter codes (QUA)."
@@ -178,7 +178,7 @@ DATABC_PRODUCT = Product(
     theme="stations",
     title="British Columbia automated snow weather stations and snow surveys",
     description=(
-        "Hourly and daily SWE, snow depth, precipitation, temperature, wind "
+        "Hourly and daily SWE, snow depth, precipitation, temperature, wind, "
         "and barometric pressure from the BC automated snow weather station "
         "(ASWS) network, plus the manual snow survey (MSS) courses. Station "
         "ids are BC location codes (1A01P)."

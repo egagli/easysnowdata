@@ -55,7 +55,7 @@ NATURAL_EARTH_RASTERS = "https://naturalearth.s3.amazonaws.com"
 #: the GeoTIFF inside it; the ocean-bottom-and-drainages style exists at 1:10m only.
 STYLES: dict[str, tuple[str, dict[str, str]]] = {
     "gray-earth-ocean-drainages": (
-        "Gray Earth with shaded relief, hypsography, ocean bottom and drainages",
+        "Gray Earth with shaded relief, hypsography, ocean bottom, and drainages",
         {"10m": "GRAY_HR_SR_OB_DR"},
     ),
     "gray-earth-ocean": (
@@ -190,7 +190,7 @@ PRODUCT = Product(
     description=(
         "Global 8-bit grayscale shaded relief from Natural Earth at 1 or 2 "
         "arcmin, from a plain hillshade to Gray Earth with hypsography, ocean "
-        "bottom and drainages; a basemap layer for maps, not an analysis input."
+        "bottom, and drainages; a basemap layer for maps, not an analysis input."
     ),
     sources=(
         Source(
@@ -220,7 +220,7 @@ PRODUCT = Product(
     ),
     citation=(
         "Patterson, T., & Kelso, N. V. Natural Earth raster data: Gray Earth "
-        "with shaded relief, hypsography, ocean bottom and drainages. "
+        "with shaded relief, hypsography, ocean bottom, and drainages. "
         "https://www.naturalearthdata.com/"
     ),
     license="Public domain",

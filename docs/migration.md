@@ -5,7 +5,7 @@ Version 0.2 reorganised easysnowdata around **theme modules** — `snow`,
 one `load()` per product, and kept every old name as a deprecation shim that
 forwarded to its replacement. **Version 0.3 removed the shims**, as their
 warnings said it would: `easysnowdata.remote_sensing`, `hydroclimatology`,
-`topography`, `automatic_weather_stations` and `utils` no longer exist.
+`topography`, `automatic_weather_stations`, and `utils` no longer exist.
 
 If you still run 0.0.x code, install `easysnowdata==0.2.*`, turn deprecation
 warnings on, and let the library tell you what to change:
@@ -26,7 +26,7 @@ list on one pass. Then upgrade to 0.3 with the table below.
 ## Also gone in 0.3: the band-arithmetic helpers
 
 `processing.ndsi`, `ndvi`, `ndwi`, `ndbi`, `evi`, `normalized_difference`,
-`binary_snow`, `rgb`, `stretch_percentile`, `stretch_clahe` and `plotting.rgb`
+`binary_snow`, `rgb`, `stretch_percentile`, `stretch_clahe`, and `plotting.rgb`
 were removed because they hid one-line operations behind names. Write them out:
 
 ```python
@@ -37,7 +37,7 @@ rgb_da.isel(time=0).plot.imshow(rgb="band")
 ```
 
 The masks (`apply_scl_mask`, `apply_fmask`), `harmonize_s2_baseline`,
-`scale_offset`, `decode_udm2`, the SAR helpers and the water-year helpers stay.
+`scale_offset`, `decode_udm2`, the SAR helpers, and the water-year helpers stay.
 
 ## Changed values in 0.3: the DEM-computed local incidence angle
 
@@ -45,7 +45,7 @@ The masks (`apply_scl_mask`, `apply_fmask`), `harmonize_s2_baseline`,
 had the range-facing slope term with the wrong sign in 0.2, so slopes tilted
 toward the radar came out with a *larger* angle than slopes tilted away. The
 same route also assumed one nominal heading and a constant 39° incidence angle;
-it now takes the heading, look direction and across-swath incidence field from
+it now takes the heading, look direction, and across-swath incidence field from
 a representative scene of each track, and raises rather than guess when no
 scene of a requested track or pass exists over the AOI. Recompute anything
 derived from it. The OPERA static-layer route (`source="opera-static"`, the
@@ -118,7 +118,7 @@ globe. See [Concepts](concepts.md).
 
 ### The classes are functions
 
-`Sentinel2`, `Sentinel1`, `HLS` and `MODIS_snow` were classes you constructed
+`Sentinel2`, `Sentinel1`, `HLS`, and `MODIS_snow` were classes you constructed
 and then read a `.data` attribute from. They are `load()` functions returning
 the `xarray.Dataset` directly:
 
@@ -131,7 +131,7 @@ Searching without loading is `optical.sentinel2.search()`.
 
 ### Class tables are CF flag attributes
 
-`class_info`, `cmap` and `example_plot` are gone. Categorical products now
+`class_info`, `cmap`, and `example_plot` are gone. Categorical products now
 carry the standard `flag_values` / `flag_meanings` / `flag_colors` attributes,
 which any CF-aware tool understands, and this package draws them:
 
@@ -143,8 +143,9 @@ esd.plotting.categorical(lc_da)       # also: colormap_from_flags, legend_handle
 ### Some defaults moved to a better source
 
 Where a product has more than one route, 0.2 defaults to the archive of record
-rather than whichever mirror was wired up first. The shim keeps the old route,
-so this is the change most likely to surprise you:
+rather than whichever mirror was wired up first. The 0.2 shims kept the old
+route; in 0.3 pass `source=` as in the last column. This is the change most
+likely to surprise you:
 
 | product | 0.0.x route | 0.2 default | keep the old one with |
 | --- | --- | --- | --- |
@@ -183,8 +184,7 @@ problem. SWE and snow depth are unaffected.
 ## Still stuck?
 
 Every product's page under [Catalog](catalog/index.md) lists its sources,
-variables and credentials, and the [gallery](auto_examples/index.rst) has a
-runnable example for each. If a shim does something the replacement cannot,
-that is a bug worth
-[reporting](https://github.com/egagli/easysnowdata/issues) before 0.3 removes
-it.
+variables, and credentials, and the [gallery](auto_examples/index.rst) has a
+runnable example for each. If the replacement cannot do something the old
+function did, that is a bug worth
+[reporting](https://github.com/egagli/easysnowdata/issues).

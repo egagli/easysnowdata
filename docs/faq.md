@@ -17,7 +17,7 @@ The [catalog](catalog/index.md) is the same information as a website, and the
 ## Do I need an account?
 
 For 33 of 40 products, no: each has at least one route that needs no
-account. The other seven need NASA Earthdata, Earth Engine, Planet or an NVE
+account. The other seven need NASA Earthdata, Earth Engine, Planet, or an NVE
 key. Where a product's default route needs an account there is usually an open
 alternative — `source="planetary-computer"` for HLS and MODIS,
 `source="hosted-cog"` for the snow classification, `source="dem"` for the local
@@ -29,7 +29,7 @@ have configured.
 contains the setup steps, so you never discover a missing account halfway
 through a download.
 
-## Which state, county, mountain range or glacier is this?
+## Which state, county, mountain range, or glacier is this?
 
 Ask `esd.boundaries` with the same AOI; every answer is a GeoDataFrame of the
 whole features that touch it:
@@ -39,7 +39,7 @@ esd.boundaries.admin.states(aoi)  # US AOI → US Census; elsewhere Natural Eart
 esd.boundaries.admin.counties(aoi)  # US counties
 esd.boundaries.admin.admin(aoi, level=2)  # any country, any level (geoBoundaries)
 esd.boundaries.mountains.load(aoi, subset="all")  # every GMBA range above the AOI
-esd.boundaries.glaciers.load(aoi)  # RGI 7.0 outlines (Earthdata Login)
+esd.boundaries.glaciers.load(aoi)  # RGI 7.0 (Earthdata username + password; a token alone is refused)
 ```
 
 Draw any of them over a map with `esd.plotting.add_outline(ax, gdf)`, which
@@ -55,7 +55,9 @@ metadata read (a STAC search, a Zarr `.zmetadata`, a granule query) and builds
 a Dask graph. The bytes move when you `.compute()`, `.plot()`, or write.
 
 To force it: `.compute()` for the whole thing, `.isel(time=0).compute()` for
-one slice, or pass `chunks=None` to load eagerly at call time.
+one slice. On the raster-file loaders (DEMs, land cover, the snow
+classification) `chunks=None` also reads at call time; on the STAC, Zarr, and
+NetCDF loaders it is the lazy default, so use `.compute()` there.
 
 ## The loader is using too much memory
 
@@ -101,9 +103,9 @@ NaN-masked** (so statistics are right). `mask=False` turns masking off,
 
 Yes; nothing in the package holds a client. Two things to know:
 
-- Earth Engine reads need `ee.Initialize` on each worker. `xee` provides
-  `ee_init_if_necessary`, and the Earth Engine provider's `env()` carries the
-  init arguments.
+- Earth Engine reads need `ee.Initialize` on each worker. The loaders already
+  pass xee's `ee_init_if_necessary=True` with the arguments from
+  `esd.auth.get("earthengine").xee_init_kwargs()`, so nothing extra is needed.
 - GDAL configuration travels through a context manager rather than global
   state, so a worker reading a signed URL needs the loader to be the one
   issuing the read (it is).
@@ -111,7 +113,7 @@ Yes; nothing in the package holds a client. Two things to know:
 ## A source is down. What do I do?
 
 Check the [status page](status.md): it lists every route's most recent probe,
-how long it has been failing and when it last worked. A route that is failing
+how long it has been failing, and when it last worked. A route that is failing
 also has an open issue labelled `data-source` against it, with the error, and
 the issue closes itself when the route recovers. Then switch routes — `source=` — if the product
 has another one. Provider outages are the reason multiple routes are a
@@ -155,6 +157,9 @@ usually the one a reviewer wants.
 
 ## Something is missing from the catalog
 
-Open an issue. If you want to add it yourself, [Contributing](contributing.md)
+Open an issue, or add a row to the
+[list of products to add](https://github.com/egagli/easysnowdata/blob/main/POTENTIAL_DATA_PRODUCTS_SOURCES_AND_EXAMPLES.md)
+in a pull request. If you want to add it yourself, [Contributing](contributing.md)
 has the checklist — a product is a catalog entry, a loader, two tests, a health
-probe and a gallery script, and the docs page writes itself.
+probe, a gallery script, and an upstream-watch entry, and the docs page writes
+itself.

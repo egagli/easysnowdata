@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/easysnowdata.svg)](https://pypi.python.org/pypi/easysnowdata)
 [![conda-forge](https://img.shields.io/conda/vn/conda-forge/easysnowdata.svg)](https://anaconda.org/conda-forge/easysnowdata)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14741502.svg)](https://doi.org/10.5281/zenodo.14741502)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14741501.svg)](https://doi.org/10.5281/zenodo.14741501)
 [![CI](https://github.com/egagli/easysnowdata/actions/workflows/ci.yml/badge.svg)](https://github.com/egagli/easysnowdata/actions/workflows/ci.yml)
 
 **A Python package to easily retrieve data relevant to snow science.**
@@ -24,7 +24,7 @@ data formats wherever possible.
 [![easysnowdata example gallery](https://egagli.github.io/easysnowdata/_static/gallery.webp)](https://egagli.github.io/easysnowdata/auto_examples/index.html)
 
 One executed script per product — [browse them](https://egagli.github.io/easysnowdata/auto_examples/index.html),
-each with the code, the figure and a downloadable notebook.
+each with the code, the figure, and a downloadable notebook.
 <!-- GALLERY_END -->
 
 ## Data Source Status
@@ -177,10 +177,11 @@ mamba install -c conda-forge easysnowdata
 ```bash
 git clone https://github.com/egagli/easysnowdata.git
 cd easysnowdata
-pixi install                          # sets up the environments
+pixi install --all                    # every environment (plain `pixi install` sets up only the default one)
 pixi run -e test-py313 test-unit      # offline tests (no network, no credentials)
 pixi run -e test-py313 test-live      # live tests against the data providers (credentialed ones skip without secrets)
-pixi run -e docs docs-serve           # preview the docs locally
+pixi run -e docs docs-fast            # build the site without running the gallery
+pixi run -e docs docs-serve           # serve the built site at http://localhost:8000
 ```
 
 ### Services that require account setup
@@ -190,9 +191,11 @@ Some data sources need free accounts and credentials passed as environment varia
 | Service | Env vars | Sign-up |
 |---------|----------|---------|
 | Google Earth Engine | `EARTHENGINE_TOKEN` (or `~/.config/earthengine/credentials` from `ee.Authenticate()`) | [earthengine.google.com](https://earthengine.google.com) |
-| NASA Earthdata | `EARTHDATA_TOKEN` (recommended), or `EARTHDATA_USERNAME` + `EARTHDATA_PASSWORD`, or a `~/.netrc` entry from `earthaccess.login(persist=True)` | [urs.earthdata.nasa.gov](https://urs.earthdata.nasa.gov) |
+| NASA Earthdata | `EARTHDATA_USERNAME` + `EARTHDATA_PASSWORD` (recommended), a `~/.netrc` entry from `earthaccess.login(persist=True)`, or `EARTHDATA_TOKEN`. A token alone does not reach NSIDC's on-premises files (RGI glacier outlines, the NSIDC-0768 snow classification) or ASF's OPERA datapool, and user tokens expire after about 60 days | [urs.earthdata.nasa.gov](https://urs.earthdata.nasa.gov) |
+| NVE HydAPI (Norwegian stations) | `NVE_API_KEY` | [hydapi.nve.no](https://hydapi.nve.no) |
+| Planet (PlanetScope, commercial) | `PL_API_KEY`, or `planet auth login` | [planet.com](https://www.planet.com) |
 
-Planetary Computer and anonymous GCS access require no credentials.
+33 of the 40 products have at least one route that needs no account; each product's catalog page says which.
 
 ## What is in it
 
@@ -212,7 +215,7 @@ Planetary Computer and anonymous GCS access require no credentials.
 | **climate** | [`era5`](https://egagli.github.io/easysnowdata/catalog/era5.html), [`koppen-geiger`](https://egagli.github.io/easysnowdata/catalog/koppen-geiger.html) | 2 of 2 |
 <!-- CATALOG_END -->
 
-Every product's routes, resolution, credentials, licence and health are on its
+Every product's routes, resolution, credentials, licence, and health are on its
 own page: <https://egagli.github.io/easysnowdata/catalog/>.
 
 ## Quick Start
@@ -226,7 +229,7 @@ aoi = (-121.94, 46.72, -121.54, 46.99)          # Mount Rainier; any AOI form wo
 inv_gdf = esd.stations.inventory(aoi, daily_only=True)
 obs_ds = esd.stations.load(inv_gdf, variables=["swe", "snwd"], time="2023-10/2024-09")
 
-# Terrain, SAR and snow water equivalent — lazy, Dask-backed, CRS attached
+# Terrain, SAR, and snow water equivalent — lazy, Dask-backed, CRS attached
 dem_da = esd.terrain.dem.load(aoi)                          # Copernicus GLO-30 (default)
 dem_da = esd.terrain.dem.load(aoi, product="3dep")          # or NASADEM, SRTM, 3DEP, ALOS
 s1_ds = esd.sar.sentinel1.load(aoi, "2024-03", units="dB")  # Sentinel-1 RTC
@@ -235,13 +238,13 @@ snodas_ds = esd.snow.snodas.load(aoi, "2024-03")            # SNODAS, no account
 # Boundaries as GeoDataFrames: states, counties, mountain ranges, glaciers
 wa_gdf = esd.boundaries.admin.states(aoi)                   # Washington (US Census)
 ranges_gdf = esd.boundaries.mountains.load(aoi)             # GMBA Mountain Inventory v2
-glaciers_gdf = esd.boundaries.glaciers.load(aoi)            # RGI 7.0; version="6.0" too
+glaciers_gdf = esd.boundaries.glaciers.load(aoi)            # RGI 7.0 (Earthdata username + password); RGI 6.0 from source="oggm-mirror" needs none
 
 # Optical, masked, and a snow index written out rather than hidden in a helper
 s2_ds = esd.optical.sentinel2.load(aoi, "2024-03", mask="scl-default")
 ndsi_da = (s2_ds["green"] - s2_ds["swir16"]) / (s2_ds["green"] + s2_ds["swir16"])
 
-# Maps with equal aspect, a scale bar and a graticule; legends from CF flags
+# Maps with equal aspect, a scale bar, and a graticule; legends from CF flags
 ax = esd.plotting.map(dem_da, cmap="terrain")
 esd.plotting.add_outline(ax, glaciers_gdf)                  # vectors in the map's CRS
 esd.plotting.categorical(esd.land.landcover.load(aoi))
@@ -260,7 +263,7 @@ maps every old name to its replacement.
 
 ## Documentation
 
-Executed example gallery, data catalog and API reference: <https://egagli.github.io/easysnowdata>
+Executed example gallery, data catalog, and API reference: <https://egagli.github.io/easysnowdata>
 
 ## Contributing
 
@@ -270,4 +273,4 @@ Contributions welcome! See [CONTRIBUTING](docs/contributing.md) for guidelines.
 
 If you use easysnowdata in your research, please cite the Zenodo archive:
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14741502.svg)](https://doi.org/10.5281/zenodo.14741502)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14741501.svg)](https://doi.org/10.5281/zenodo.14741501)

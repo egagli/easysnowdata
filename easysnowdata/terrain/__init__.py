@@ -4,7 +4,7 @@ Products
 --------
 :mod:`~easysnowdata.terrain.dem`
     Five DEMs behind one ``load``: Copernicus DEM GLO-30/90 (the default),
-    NASADEM, SRTM GL1, USGS 3DEP (10 m, US) and ALOS World 3D. Planetary
+    NASADEM, SRTM GL1, USGS 3DEP (10 m, US), and ALOS World 3D. Planetary
     Computer and Earth Search need no account; Earth Engine is an
     alternative route to each and the only one to SRTM proper.
 :mod:`~easysnowdata.terrain.chili`

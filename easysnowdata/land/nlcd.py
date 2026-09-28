@@ -249,7 +249,7 @@ PRODUCT = Product(
     theme="land",
     title="National Land Cover Database (NLCD)",
     description=(
-        "Land cover, impervious surface and change products for the conterminous "
+        "Land cover, impervious surface, and change products for the conterminous "
         "United States at 30 m. Annual NLCD covers 1985-2024; the official 2021 "
         "release covers the 2001-2021 epochs and the science products."
     ),

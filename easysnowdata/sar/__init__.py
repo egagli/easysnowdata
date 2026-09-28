@@ -1,7 +1,7 @@
 """Synthetic aperture radar (active microwave) products.
 
 Pairs with :mod:`easysnowdata.optical` (passive optical). Backscatter
-processing — dB conversion, border noise, terrain geometry and the local
+processing — dB conversion, border noise, terrain geometry, and the local
 incidence angle — lives in :mod:`easysnowdata.processing.sar`.
 """
 

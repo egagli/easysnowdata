@@ -88,7 +88,7 @@ PRODUCT = Product(
     title="SNODAS snow water equivalent and snow depth",
     description=(
         "NOHRSC Snow Data Assimilation System daily 1 km snow water equivalent, snow "
-        "depth, melt, sublimation and snowpack temperature over the CONUS (masked) or "
+        "depth, melt, sublimation, and snowpack temperature over the CONUS (masked) or "
         "the wider modelling domain (unmasked), 2003-10 onward."
     ),
     sources=(

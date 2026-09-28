@@ -6,7 +6,7 @@ labelling conventions the gallery follows, so an example is one call rather
 than fifteen lines of matplotlib:
 
 * :func:`map` — one raster on equal-aspect axes with a matched colorbar, a
-  scale bar, a light latitude/longitude graticule and an optional web
+  scale bar, a light latitude/longitude graticule, and an optional web
   basemap. Geographic (EPSG:4326) data get a latitude-corrected aspect and a
   warning, because a degree of longitude is not a degree of latitude.
 * :func:`categorical` — the same for a classified raster, drawing its colours

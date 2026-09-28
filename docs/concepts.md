@@ -1,6 +1,6 @@
 # Concepts
 
-Twelve rules that every loader in the package follows. They are short on
+Ten rules that every loader in the package follows. They are short on
 purpose: once you know them, a product you have never used behaves the way you
 expect, and adding one is a matter of filling in a catalog entry rather than
 re-deciding an interface.
@@ -36,7 +36,8 @@ aoi.bounds, aoi.utm_crs, aoi.to_geobox(resolution=30)
 Two knobs worth knowing:
 
 `clip`
-: `True` by default — the result is cut to the AOI. `clip=False` returns the
+: a flag on the AOI, not a loader keyword: `esd.parse_aoi(aoi, clip=False)`.
+  `True` by default — the result is cut to the AOI. `clip=False` returns the
   covering tiles or granules whole, which is what you want when the AOI is a
   point, when you are mosaicking yourself, or when you need the untouched
   source pixels.
@@ -79,7 +80,7 @@ can be swapped in as a plotting axis or grouped on directly.
 
 Loaders return Dask-backed xarray objects and never call `.compute()`. A
 `load` that returns instantly has done a metadata read, not a data read; the
-bytes move when you compute, plot or write.
+bytes move when you compute, plot, or write.
 
 ```python
 s1_ds = esd.sar.sentinel1.load(aoi, "2024-03")  # seconds: STAC search only
@@ -87,10 +88,18 @@ s1_ds.mean("time").compute()  # now the COGs are read
 ```
 
 `chunks=` is passed through, and the default is the source's native chunking
-where it is known. One subtlety worth naming, because the ecosystem is
-inconsistent about it: **`chunks=None` means "load eagerly"**, as in odc-stac
-and rioxarray. The package default is a separate sentinel, so
-`load(aoi, chunks=None)` computes now and `load(aoi)` stays lazy.
+where it is known. What `chunks=None` means depends on the loader, because it
+follows the library underneath:
+
+- **Raster-file loaders** (the DEMs, CHILI, the hillshade, WorldCover, NLCD,
+  forest cover, the snow classification, and the mountain snow mask) default to
+  a separate sentinel, so `load(aoi)` stays lazy and `load(aoi, chunks=None)`
+  reads now, as in rioxarray.
+- **STAC, Zarr, and NetCDF loaders** (Sentinel-1, Sentinel-2, HLS, ERA5,
+  SNODAS, and the UCLA reanalysis) take `chunks=None` as their lazy default.
+  MODIS, VIIRS, and Köppen-Geiger default to `chunks=True`, also lazy.
+
+To load eagerly from any loader, call `.compute()` on the result.
 
 Vector products — basins, stations inventories, boundaries, mountain ranges,
 glacier outlines — are the exception: they are small, so they come back as an
@@ -143,14 +152,15 @@ Nodata
 Attributes
 : only strings and numbers, never Python objects — that is what lets a result
   round-trip through Zarr and netCDF. Every product carries `source`,
-  `source_url`, `product_id`, `data_citation`, `license` and
+  `source_url`, `product_id`, `data_citation`, `license`, and
   `easysnowdata_version`. `ds.attrs["source"]` is the **source id**, so it
   hands straight back to `load(source=...)`; the human-readable name is in
   `source_title`.
 
 Units
-: metric, always. Station values are centimetres because that is what the
-  networks report; gridded SWE is metres.
+: metric, always. Station SWE, snow depth, and snowfall are centimetres and
+  precipitation millimetres, converted in the client whatever the network
+  reports (AWDB reports inches); gridded SWE and snow depth are metres.
 
 Vector products
 : a GeoDataFrame in EPSG:4326 (reprojected from the source's CRS, 2-D even
@@ -190,14 +200,14 @@ esd.terrain.dem.load(aoi, source="earth-search")  # AWS Open Data, same output
 This is the escape hatch when a provider has an outage, when you want to avoid
 an account, or when you are in a cloud region where one route is direct S3 and
 the other is not. Each product's catalog page compares its routes side by
-side, with resolution, extent, temporal coverage, latency and what differs.
+side, with resolution, extent, temporal coverage, latency, and what differs.
 
 ```python
 esd.catalog.describe("copernicus-dem")
 ```
 
 (concepts-credentials)=
-## Credentials are lazy, uniform and checked early
+## Credentials are lazy, uniform, and checked early
 
 A product declares what it needs (`requires=("earthdata",)`); the provider is
 initialised on first use; a missing credential raises `CredentialError`
@@ -212,13 +222,13 @@ esd.auth.status()  # a table: provider, configured?, how, needed by
 ## Processing is pure, plotting is separate
 
 Masking, metadata-driven scaling, baseline harmonization, dB conversion,
-water-year coordinates and the local-incidence-angle computation are standalone
+water-year coordinates, and the local-incidence-angle computation are standalone
 functions in {py:obj}`easysnowdata.processing` that take and return xarray
 objects and do no I/O. Loaders call them for you through keyword options, but
 the raw product is always one call away.
 
 What is *not* wrapped is band arithmetic. A normalized difference, a threshold
-on a snow-cover byte or an RGB stretch is one line of xarray, and putting it
+on a snow-cover byte, or an RGB stretch is one line of xarray, and putting it
 behind a function name hid which bands were used and what happened to the
 sentinel values. The gallery writes these out every time:
 
@@ -230,10 +240,10 @@ ndsi_da = (raw_ds["green"] - raw_ds["swir16"]) / (raw_ds["green"] + raw_ds["swir
 
 {py:obj}`easysnowdata.plotting` is optional — every product plots fine with
 plain xarray and geopandas — but it is where the package's map and time-series
-conventions live: `map`, `categorical` and `points` give equal-aspect axes (a
+conventions live: `map`, `categorical`, and `points` give equal-aspect axes (a
 latitude-corrected aspect plus a `GeographicAxesWarning` for data in degrees),
 a colorbar matched to the map, a scale bar, a light latitude/longitude
-graticule and an optional web basemap; `timeseries` puts calendar dates on the
+graticule, and an optional web basemap; `timeseries` puts calendar dates on the
 x axis; and `label` writes `long name [units]`, square brackets always. Every
 piece of furniture is a keyword argument.
 
@@ -252,14 +262,15 @@ import logging
 logging.getLogger("easysnowdata").setLevel(logging.DEBUG)
 ```
 
-The single exception is the one-line credential summary printed in interactive
-sessions, which makes no network request and is silenced with
-`EASYSNOWDATA_QUIET=1`.
+Two exceptions print: the one-line credential summary in interactive sessions,
+which makes no network request and is silenced with `EASYSNOWDATA_QUIET=1`, and
+the progress bar pooch shows while it downloads a file into the cache.
 
 (concepts-artefacts)=
-## Every product has four artefacts
+## Every product has six artefacts
 
 A product is not finished until it has a catalog entry, an offline test, a
-live smoke test, a health probe and a gallery example. The catalog entry is
+live smoke test, a health probe, a gallery example, and an upstream-watch
+entry. The catalog entry is
 what generates its docs page and its health row, so the set stays in step.
 [Contributing](contributing.md) turns that into a checklist.

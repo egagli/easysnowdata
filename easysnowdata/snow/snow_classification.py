@@ -15,7 +15,8 @@ precipitation and wind-speed climatologies.
 
 **Sources.** NSIDC-0768 is authoritative and is the default (§12 Q8); its
 HTTPS directory redirects to Earthdata Login, so the file is fetched once into
-the easysnowdata cache with an authenticated session. ``source="hosted-cog"``
+the easysnowdata cache, logging in with the Earthdata username and password
+(NSIDC's on-premises archive refuses a bearer token). ``source="hosted-cog"``
 needs no credentials and reads the 10 arcsec global map as a COG with range
 requests — **that location is likely to change** (the account hosting it is
 funded to 2026-10-26), which is why it is one entry here.
@@ -235,7 +236,7 @@ PRODUCT = Product(
     description=(
         "Global seasonal snow classes (tundra, boreal forest, maritime, "
         "ephemeral, prairie, montane forest, ice) from climatologies of air "
-        "temperature, precipitation and wind speed, at 10 arcsec (~300 m) and "
+        "temperature, precipitation, and wind speed, at 10 arcsec (~300 m) and "
         "three coarser grids."
     ),
     sources=(
@@ -247,10 +248,11 @@ PRODUCT = Product(
             resolution_m=300,
             temporal="static (2021)",
             notes=(
-                "authoritative; not cloud-hosted, the HTTPS directory redirects "
-                "to Earthdata Login, so files are cached locally on first use. "
-                "Also serves the 30 arcsec, 2.5 arcmin and 0.5 degree grids and "
-                "the North America and Eurasia subsets"
+                "authoritative; not cloud-hosted, so files are cached locally on "
+                "first use. Needs the Earthdata username and password, used even "
+                "when a token is also set (NSIDC's on-premises archive does not "
+                "accept a bearer token). Also serves the 30 arcsec, 2.5 arcmin, "
+                "and 0.5 degree grids, and the North America and Eurasia subsets"
             ),
             title="NSIDC-0768",
             health=Probe(

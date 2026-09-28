@@ -174,7 +174,7 @@ PRODUCT = Product(
     theme="snow",
     title="Wrzesien global seasonal mountain snow mask",
     description=(
-        "MODIS MOD10A2-derived masks of mountains with seasonal, ephemeral or "
+        "MODIS MOD10A2-derived masks of mountains with seasonal, ephemeral, or "
         "little snow (Wrzesien et al. 2019) at 30 arcsec, the same classes over "
         "all terrain, and the cloud-indeterminacy layer."
     ),

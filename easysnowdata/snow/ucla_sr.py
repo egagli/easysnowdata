@@ -1,6 +1,6 @@
 """UCLA snow reanalysis: Western US (WUS_UCLA_SR) and High Mountain Asia (HMA_SR_D).
 
-Daily posterior SWE, snow depth and snow-covered area at 480 m from a
+Daily posterior SWE, snow depth, and snow-covered area at 480 m from a
 particle-batch-smoother reanalysis, one NetCDF-4 granule per water year and
 1°×1° tile. Two regions, the same layout:
 
@@ -92,7 +92,7 @@ PRODUCT = Product(
     theme="snow",
     title="UCLA snow reanalysis (Western US and High Mountain Asia)",
     description=(
-        "Daily 480 m posterior SWE, snow depth and snow-covered area from the UCLA "
+        "Daily 480 m posterior SWE, snow depth, and snow-covered area from the UCLA "
         "particle-batch-smoother reanalysis: water years 1985–2021 over the western "
         "United States (WUS_UCLA_SR v1) and 2000–2017 over High Mountain Asia "
         "(HMA_SR_D v1), each with five ensemble statistics."

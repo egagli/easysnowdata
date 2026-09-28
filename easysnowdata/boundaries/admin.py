@@ -577,7 +577,7 @@ COUNTRIES_PRODUCT = Product(
     ),
     sources=(
         _natural_earth_source(
-            "admin_0_countries", "countries", "1:10m, 1:50m and 1:110m"
+            "admin_0_countries", "countries", "1:10m, 1:50m, and 1:110m"
         ),
         _geoboundaries_source("ADM0", "countries", 0),
     ),
@@ -596,7 +596,7 @@ COUNTRIES_PRODUCT = Product(
 STATES_PRODUCT = Product(
     id="states-provinces",
     theme="boundaries",
-    title="States, provinces and first-level subdivisions",
+    title="States, provinces, and first-level subdivisions",
     description=(
         "First-level administrative units: US states from the Census Bureau, "
         "states and provinces worldwide from Natural Earth, or geoBoundaries ADM1."
