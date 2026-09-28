@@ -2,19 +2,20 @@
   "lines": [
     "Welcome to Pangeo Discourse",
     "Decode GeoTIFF to GPU memory",
+    "Copernicus Marine Level-4 products",
+    "CNG Forum 2026 - Saturday is the final day for the room block",
+    "How are reseachers using AI in Earth Observation workflows today?",
     "Pangeo Showcase: \"insitubatch: Streaming ML Batches from Cloud Zarr Without Resharding\" (September 16, 12 PM EDT / 16:00 UTC)",
     "Experiment: querying large Zarr datasets directly from PostgreSQL/PostGIS without ETL",
     "Xue: A binary format for animating weather forecasts in the browser",
     "WakeAtlas: an ocean-data exploration globe — feedback welcome",
     "WxData 2.3 Released",
     "FROST: Front Range Open Science Teamup",
-    "CNG Forum 2026 - Saturday is the final day for the room block",
     "Public Virtual Zarr of the NASA (NEX-GDDP-CMIP6) Dataset",
     "AMS 2027 EIPT Sessions",
     "WxData 2.2 Released",
     "Problems downloading CMIP6 historical simulations from PANGEO gallery",
     "Where Do You Spend the Most Time in an ICESat-2 Workflow?",
-    "How are reseachers using AI in Earth Observation workflows today?",
     "EGU27 Pangeo session",
     "New Working Group for Distributed Array Computing",
     "Dask in Rust -- Frisky",
@@ -28,7 +29,6 @@
     "OpenMeteoApi.NET 1.0.1",
     "AGU 2026 Session SY029. Open Source Tools for the Earth & Space Sciences: Breaking Discipline Silos to Accelerate Discovery",
     "[Data Announcement] Revamped chunking for ERA5 Zarr datasets on Earth Data Hub",
-    "Computing the El Niño index from ERA5 with SQL",
-    "Best Practice for Machine Learning with Huge Datasets"
+    "Computing the El Niño index from ERA5 with SQL"
   ]
 }
