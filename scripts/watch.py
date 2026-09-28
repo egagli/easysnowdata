@@ -4,8 +4,9 @@ The ask this answers is "check forums, changelogs and release notes
 periodically". Once a week a GitHub Action runs this script; it fetches every
 entry in ``WATCHLIST.toml``, compares it with the snapshot the previous run
 left in ``data_status/watch/``, tags what changed, and opens **one** digest
-issue. Reading the digest and acting on it is a human (or ad-hoc agent) job —
-this script never edits code and never closes anything.
+issue. Reading the digest and acting on it is a human (or ad-hoc agent) job:
+this script never edits code. The one thing it closes is the previous digest,
+once the new one is open, carrying its unticked to-dos forward.
 
 Two halves, deliberately:
 
@@ -78,22 +79,22 @@ CATEGORIES: dict[str, tuple[str, ...]] = {
         "coverage",
     ),
     "stations": ("station", "snotel", "gauge", "site added", "site removed"),
+    # "Worth adding" means worth adding *here*: a line about snow, ice or
+    # glaciers. Sensor and product names (MODIS, HLS, ERA5, Sentinel) used to
+    # be on this list, so every ERA5 end date that moved and every new MODIS
+    # aerosol product landed under "Worth adding" (#51).
     "new-dataset": (
-        "new dataset",
-        "new collection",
-        "now available",
-        "released",
         "snow",
         "swe",
-        "sentinel-1",
-        "sentinel-2",
-        "hls",
-        "modis",
-        "viirs",
-        "era5",
-        "dem",
-        "land cover",
-        "reanalysis",
+        "glacier",
+        "cryosphere",
+        "albedo",
+        "permafrost",
+        "frozen ground",
+        "freeze",
+        "sea ice",
+        "ice sheet",
+        "avalanche",
     ),
     "outage": (
         "outage",
@@ -105,16 +106,84 @@ CATEGORIES: dict[str, tuple[str, ...]] = {
         "cloudfront",
         "downtime",
         "unavailable",
+        "unreachable",
     ),
+    # A route moving: an on-premises archive (NSIDC's daacdata) going to
+    # Earthdata Cloud changes the loader, the credentials and the probe.
+    "migration": ("earthdata cloud", "cloud migration", "migrating to the cloud"),
+    # Set from what moved, never from words (see FIELD_CATEGORY).
+    "stalled": (),
+    "license": (),
+    "republished": (),
+    "routine": (),
 }
 
 #: Which digest section each category lands in.
 SECTIONS: dict[str, tuple[str, ...]] = {
-    "Action needed": ("removal", "deprecation", "reprocessing", "outage"),
+    "Action needed": (
+        "removal",
+        "deprecation",
+        "reprocessing",
+        "outage",
+        "migration",
+        "stalled",
+        "license",
+    ),
     "Worth adding": ("new-dataset",),
-    "Changed": ("extent", "stations"),
+    "Changed": ("extent", "stations", "republished"),
     "Dependency releases": ("dependency",),
+    "Routine": ("routine",),
 }
+
+#: Sections whose items are to-dos: rendered as checkboxes, never capped, and
+#: carried into the next digest until someone ticks them off.
+TODO_SECTIONS = ("Action needed", "Worth adding")
+
+#: Sections folded into a <details> block: listed, never dropped, but out of
+#: the way of the ones above.
+FOLDED_SECTIONS = ("Routine", "Other")
+
+#: Fields that advance by themselves on a live, rolling dataset. Moving
+#: forward is the dataset working; the signal is when one moves backward or
+#: gains an end, and a *stall* shows up as ``window_days`` growing (the GEE
+#: check had to look further back to find the newest image).
+ROLLING_FIELDS = ("temporal_end", "end", "updated")
+
+#: What a field moving means, whatever its value says.
+FIELD_CATEGORY = {
+    "version": "reprocessing",
+    "version_id": "reprocessing",
+    "revision_date": "reprocessing",
+    "latest_version": "reprocessing",
+    "temporal_start": "extent",
+    "count": "extent",
+    "granules": "extent",
+    "images": "extent",
+    "features": "extent",
+    "bands": "extent",
+    "active": "stations",
+    "daily": "stations",
+    "daily_or_better": "stations",
+    "etag": "republished",
+    "last_modified": "republished",
+    "length": "republished",
+    "license": "license",
+    # How a CMR collection is served (check_cmr). An on-premises collection
+    # (provider NSIDCV0, cloud_hosted false, no granules: RGI, NSIDC-0768)
+    # flipping any of these is the sign it moved to Earthdata Cloud, and the
+    # password-only download route may be on its way out.
+    "provider": "migration",
+    "cloud_hosted": "migration",
+    "has_granules": "migration",
+}
+
+#: Lines no page diff should report: text that changes on every visit.
+DEFAULT_IGNORE = (
+    r"date accessed",  # NSIDC's citation block stamps today's date
+    r"\baccessed (on )?\d",
+    r"^(©|copyright)",
+    r"last (updated|modified|reviewed)",
+)
 
 #: Kinds whose changes always belong to one section, whatever the words say.
 #: A new xarray release is not a "new dataset" and a yanked package is not a
@@ -157,17 +226,93 @@ class Change:
         return "Other"
 
 
+def _keyword_re(word: str) -> re.Pattern[str]:
+    """Match *word* at a word start, and also at a word end when it is 1-3 letters.
+
+    Plain substring matching tagged "courses" as an outage (``urs``) and
+    "academic" as a DEM. Longer keywords stay open-ended on purpose, so
+    ``deprecat`` still matches "deprecated" and "deprecation".
+    """
+    tail = r"\b" if len(word) <= 3 else ""
+    return re.compile(r"(?<![a-z0-9])" + re.escape(word) + tail, re.I)
+
+
+_CATEGORY_RES = {
+    name: [_keyword_re(word) for word in words] for name, words in CATEGORIES.items()
+}
+
+
 def classify(text: str, extra_keywords: list[str] | None = None) -> list[str]:
-    """Tag a line of text against the §8 categories."""
-    lowered = text.lower()
+    """Tag a line of text against the §8 categories.
+
+    ``"action"`` marks a line that hit one of the entry's own keywords: it is
+    about something this package uses, so its other tags stand (see
+    :func:`diff_lines`).
+    """
     tags = [
         name
-        for name, words in CATEGORIES.items()
-        if any(word in lowered for word in words)
+        for name, patterns in _CATEGORY_RES.items()
+        if any(pattern.search(text) for pattern in patterns)
     ]
-    if extra_keywords and any(word.lower() in lowered for word in extra_keywords):
+    if extra_keywords and any(_keyword_re(w).search(text) for w in extra_keywords):
         tags.append("action")
     return tags
+
+
+def products_for(entry: dict[str, Any], text: str) -> list[str]:
+    """The catalog products a change touches.
+
+    ``match_products`` maps a key (an asset id, a collection id, a product
+    name as upstream spells it) to products; a subject or a line that
+    contains one of the keys, matched as :func:`classify` matches keywords,
+    touches those. Without a match, the entry's own
+    ``products`` apply. An entry that covers several unrelated datasets (the
+    Earth Engine assets, a DAAC's news page) lists them in ``match_products``
+    only, so a change names the product it is about, not all of them.
+    """
+    found: list[str] = []
+    for key, products in (entry.get("match_products") or {}).items():
+        if _keyword_re(key).search(text):
+            found += [p for p in products if p not in found]
+    return found or list(entry.get("products", []))
+
+
+def _ignored(entry: dict[str, Any], line: str) -> bool:
+    patterns = (*DEFAULT_IGNORE, *entry.get("ignore", []))
+    return any(re.search(pattern, line, re.I) for pattern in patterns)
+
+
+def _field_categories(key: str, old: Any, new: Any) -> list[str]:
+    """What one field moving from *old* to *new* means."""
+    if key in ROLLING_FIELDS:
+        was, now = str(old or ""), str(new or "")
+        if was == "ongoing" and now not in ("", "ongoing"):
+            return ["removal"]  # an open-ended collection gained an end date
+        if now == "ongoing":
+            return ["extent"]  # it was closed and is live again
+        if was and now and now < was:
+            return ["removal"]  # the newest data moved back: withdrawn
+        return ["routine"]
+    if key == "window_days":
+        # The GEE check widens its window until it finds an image; needing a
+        # wider one than last week means nothing new arrived.
+        try:
+            return ["stalled"] if int(new) > int(old) else ["routine"]
+        except (TypeError, ValueError):
+            return ["stalled"]
+    if key == "status":
+        ok = ("200", "206")
+        if str(new) not in ok:
+            return ["removal"]
+        # A watched next-release URL (next year's Census file) going from 404
+        # to 206 is the signal that the new release is out.
+        return ["routine"] if str(old) in ok else ["new-dataset"]
+    if key in FIELD_CATEGORY:
+        return [FIELD_CATEGORY[key]]
+    # Anything else (an Earth Engine asset's `state`, `type`): only its new
+    # value can say what happened. The subject name is not classified: it is
+    # always a product name, which used to make every change look new.
+    return classify(str(new))
 
 
 # ── snapshots ─────────────────────────────────────────────────────────────────
@@ -200,8 +345,6 @@ def diff_mapping(
     """
     changes: list[Change] = []
     entry_id = entry["id"]
-    products = list(entry.get("products", []))
-    keywords = list(entry.get("keywords", []))
 
     for subject in sorted(set(after) - set(before)):
         if not before:
@@ -212,8 +355,12 @@ def diff_mapping(
                 subject,
                 "appeared",
                 url=str(after[subject].get("url", "")),
-                products=products,
-                categories=["new-dataset"],
+                products=products_for(entry, subject),
+                # A cloud-hosted copy of a collection we read on-premises
+                # arrives as a new concept id under another provider.
+                categories=[
+                    "migration" if after[subject].get("cloud_hosted") else "new-dataset"
+                ],
             )
         )
     for subject in sorted(set(before) - set(after)):
@@ -222,7 +369,7 @@ def diff_mapping(
                 entry_id,
                 subject,
                 "disappeared",
-                products=products,
+                products=products_for(entry, subject),
                 categories=["removal"],
             )
         )
@@ -231,19 +378,17 @@ def diff_mapping(
         for key in sorted(set(old) | set(new)):
             if key == "url" or old.get(key) == new.get(key):
                 continue
+            if key not in old:
+                continue  # a field this script just started recording
             detail = f"{key}: `{old.get(key)}` → `{new.get(key)}`"
-            categories = classify(f"{subject} {key} {new.get(key)}", keywords)
-            if key in ("version", "version_id", "revision_date", "latest_version"):
-                categories.append("reprocessing")
-            if key in ("temporal_end", "temporal_start", "count", "granules"):
-                categories.append("extent")
+            categories = _field_categories(key, old.get(key), new.get(key))
             changes.append(
                 Change(
                     entry_id,
                     subject,
                     detail,
                     url=str(new.get("url", "")),
-                    products=products,
+                    products=products_for(entry, subject),
                     categories=sorted(set(categories)),
                 )
             )
@@ -261,18 +406,28 @@ def diff_lines(
     if not before.get("lines"):
         return []  # first run: record only
     old = set(before["lines"])
-    new_lines = [line for line in after["lines"] if line not in old]
+    new_lines = [
+        line for line in after["lines"] if line not in old and not _ignored(entry, line)
+    ]
     keywords = list(entry.get("keywords", []))
+    scoped = bool(entry.get("match_products"))
     changes = []
     for line in new_lines[:limit]:
+        categories = classify(line, keywords)
+        products = products_for(entry, line)
+        if scoped and not products and "action" not in categories:
+            # A news line about a dataset this package does not use: whatever
+            # it says ("Version 3 released", "maintenance"), it is not an
+            # action for us. A snow term still makes it worth a look.
+            categories = [c for c in categories if c == "new-dataset"]
         changes.append(
             Change(
                 entry["id"],
                 entry.get("url", entry["id"]),
                 line,
                 url=str(entry.get("url", "")),
-                products=list(entry.get("products", [])),
-                categories=classify(line, keywords),
+                products=products,
+                categories=categories,
             )
         )
     if len(new_lines) > limit:
@@ -300,13 +455,26 @@ def _session() -> Any:
 
 
 def check_cmr(entry: dict[str, Any], session: Any) -> dict[str, Any]:
-    """Version, revision date, granule count and temporal extent of a collection."""
+    """Version, revision date, temporal extent and hosting of each collection version.
+
+    ``provider``, ``cloud_hosted`` and ``has_granules`` say how it is served.
+    NSIDC-0770 (RGI) and NSIDC-0768 are on-premises (``NSIDCV0``, not cloud
+    hosted, no granules), which is why their loaders need a password; any of
+    the three moving means that route changed.
+    """
+    search = "https://cmr.earthdata.nasa.gov/search"
+    params = {"short_name": entry["short_name"], "page_size": 50}
     response = session.get(
-        "https://cmr.earthdata.nasa.gov/search/collections.umm_json",
-        params={"short_name": entry["short_name"], "page_size": 5},
-        timeout=TIMEOUT,
+        f"{search}/collections.umm_json", params=params, timeout=TIMEOUT
     )
     response.raise_for_status()
+    # cloud_hosted is only in the JSON (not UMM) response.
+    listing = session.get(f"{search}/collections.json", params=params, timeout=TIMEOUT)
+    listing.raise_for_status()
+    hosted = {
+        e.get("id"): bool(e.get("cloud_hosted"))
+        for e in listing.json().get("feed", {}).get("entry", [])
+    }
     out: dict[str, Any] = {}
     for item in response.json().get("items", []):
         meta, umm = item.get("meta", {}), item.get("umm", {})
@@ -318,11 +486,24 @@ def check_cmr(entry: dict[str, Any], session: Any) -> dict[str, Any]:
             "revision_date": str(meta.get("revision-date", ""))[:10],
             "temporal_start": str(ranges.get("BeginningDateTime", ""))[:10],
             "temporal_end": str(ranges.get("EndingDateTime", "") or "ongoing")[:10],
+            "provider": meta.get("provider-id", ""),
+            "cloud_hosted": hosted.get(concept, False),
+            "has_granules": _has_granules(session, search, concept),
             "url": f"https://cmr.earthdata.nasa.gov/search/concepts/{concept}.html",
         }
     if not out:
         raise RuntimeError(f"CMR knows no collection {entry['short_name']!r}.")
     return out
+
+
+def _has_granules(session: Any, search: str, concept: str) -> bool:
+    response = session.get(
+        f"{search}/granules.json",
+        params={"collection_concept_id": concept, "page_size": 0},
+        timeout=TIMEOUT,
+    )
+    response.raise_for_status()
+    return int(response.headers.get("CMR-Hits", "0")) > 0
 
 
 def check_stac(entry: dict[str, Any], session: Any) -> dict[str, Any]:
@@ -625,14 +806,41 @@ def run(
     return changes, errors
 
 
-def digest(changes: list[Change], errors: list[str], *, when: str | None = None) -> str:
-    """The Markdown body of one weekly digest issue."""
+def _item(change: Change) -> str:
+    """One digest line, without the list marker."""
+    products = (
+        " — affects " + ", ".join(f"`{p}`" for p in change.products)
+        if change.products
+        else ""
+    )
+    subject = f"[{change.subject}]({change.url})" if change.url else change.subject
+    tags = " ".join(f"`{t}`" for t in change.categories)
+    return f"**{subject}** {change.detail}{products} {tags}".rstrip()
+
+
+def digest(
+    changes: list[Change],
+    errors: list[str],
+    *,
+    when: str | None = None,
+    carried: list[str] | None = None,
+    discussions: list[int] | None = None,
+) -> str:
+    """The Markdown body of one weekly digest issue.
+
+    *carried* are the unticked to-dos of the digests this one supersedes
+    (:func:`unaddressed`), already tagged with the issue they came from;
+    *discussions* the numbers of those digests that have comments, so a
+    thread is not lost when its issue closes.
+    """
     when = when or datetime.now(UTC).strftime("%Y-%m-%d")
     lines = [
         f"<!-- esd-watch: {when} -->",
         "",
         f"What moved upstream in the week to {when}, from `WATCHLIST.toml`. "
-        "Nothing here is acted on automatically; this is the hand-off point.",
+        "Nothing here is acted on automatically; this is the hand-off point. "
+        "Tick an item off once it is handled or judged not to matter; an "
+        "unticked one is carried into next week's digest when this one closes.",
         "",
     ]
     order = [*SECTIONS, "Other"]
@@ -640,27 +848,35 @@ def digest(changes: list[Change], errors: list[str], *, when: str | None = None)
     for change in changes:
         by_section[change.section].append(change)
 
+    fresh = {_item(c) for name in TODO_SECTIONS for c in by_section[name]}
+    carried = [c for c in (carried or []) if _strip_origin(c) not in fresh]
+
     for section in order:
         found = by_section[section]
+        if section == "Changed" and carried:
+            # Right after this week's to-dos, so all of them are in one place.
+            _carried_section(lines, carried, discussions or [])
         if not found:
             continue
-        shown, hidden = found[:SECTION_LIMIT], found[SECTION_LIMIT:]
-        lines += [f"## {section} ({len(found)})", ""]
-        for change in shown:
-            products = (
-                " — affects " + ", ".join(f"`{p}`" for p in change.products)
-                if change.products
-                else ""
-            )
-            subject = (
-                f"[{change.subject}]({change.url})" if change.url else change.subject
-            )
-            tags = " ".join(f"`{t}`" for t in change.categories)
-            lines.append(f"- **{subject}** {change.detail}{products} {tags}".rstrip())
+        todo = section in TODO_SECTIONS
+        shown, hidden = (
+            (found, []) if todo else (found[:SECTION_LIMIT], found[SECTION_LIMIT:])
+        )
+        if section in FOLDED_SECTIONS:
+            lines += [
+                f"<details><summary><b>{section} ({len(found)})</b></summary>",
+                "",
+            ]
+        else:
+            lines += [f"## {section} ({len(found)})", ""]
+        marker = "- [ ] " if todo else "- "
+        lines += [marker + _item(change) for change in shown]
         if hidden:
             entries = ", ".join(sorted({c.entry for c in hidden}))
             lines.append(f"- _...and {len(hidden)} more, from {entries}_")
         lines.append("")
+        if section in FOLDED_SECTIONS:
+            lines += ["</details>", ""]
 
     if errors:
         lines += [
@@ -681,22 +897,127 @@ def digest(changes: list[Change], errors: list[str], *, when: str | None = None)
     return "\n".join(lines)
 
 
-def open_issue(body: str, title: str, repo: str, token: str) -> str:
-    """Open the digest issue, returning its URL."""
+# ── superseding the previous digest ──────────────────────────────────────────
+
+CARRIED_HEADING = "## Carried over"
+_ORIGIN_RE = re.compile(r"\s*_\(from #\d+\)_$")
+
+
+def _strip_origin(item: str) -> str:
+    return _ORIGIN_RE.sub("", item)
+
+
+def _carried_section(
+    lines: list[str], carried: list[str], discussions: list[int]
+) -> None:
+    lines += [
+        f"{CARRIED_HEADING} ({len(carried)})",
+        "",
+        "Unticked to-dos from the digests this one replaces.",
+        "",
+        *(f"- [ ] {item}" for item in carried),
+        "",
+    ]
+    if discussions:
+        refs = ", ".join(f"#{n}" for n in discussions)
+        lines += [f"Earlier discussion is in {refs}.", ""]
+
+
+def unaddressed(body: str, number: int) -> list[str]:
+    """The to-dos of an old digest that nobody ticked off.
+
+    Items under "Action needed", "Worth adding" and "Carried over", as
+    unticked checkboxes (``- [ ]``); in a digest from before the checkboxes,
+    every bullet in those sections, including a "...and N more" line, since
+    there is no way to tell what was handled. Each is tagged with the issue
+    it first appeared in, which it keeps as it is carried on.
+    """
+    items: list[str] = []
+    section = ""
+    for line in body.splitlines():
+        if line.startswith("## "):
+            section = line[3:]
+            continue
+        if not any(
+            section.startswith(name) for name in (*TODO_SECTIONS, "Carried over")
+        ):
+            continue
+        if re.match(r"- \[[xX]\] ", line):
+            continue
+        if line.startswith("- [ ] "):
+            text = line[6:]
+        elif line.startswith("- "):
+            text = line[2:]
+        else:
+            continue
+        if not _ORIGIN_RE.search(text):
+            text = f"{text} _(from #{number})_"
+        items.append(text)
+    return items
+
+
+def _github(method: str, path: str, token: str, **kwargs: Any) -> Any:
     import requests  # noqa: PLC0415
 
-    response = requests.post(
-        f"https://api.github.com/repos/{repo}/issues",
+    response = requests.request(
+        method,
+        f"https://api.github.com{path}",
         headers={
             "Authorization": f"Bearer {token}",
             "Accept": "application/vnd.github+json",
             "X-GitHub-Api-Version": "2022-11-28",
         },
-        json={"title": title, "body": body, "labels": [LABEL]},
         timeout=30,
+        **kwargs,
     )
     response.raise_for_status()
-    return response.json()["html_url"]
+    return response.json()
+
+
+def open_digests(repo: str, token: str) -> list[dict[str, Any]]:
+    """The open digest issues, oldest first (pull requests excluded)."""
+    issues = _github(
+        "GET",
+        f"/repos/{repo}/issues",
+        token,
+        params={"labels": LABEL, "state": "open", "per_page": 100},
+    )
+    return sorted(
+        (i for i in issues if "pull_request" not in i), key=lambda i: i["number"]
+    )
+
+
+def open_issue(body: str, title: str, repo: str, token: str) -> dict[str, Any]:
+    """Open the digest issue, returning GitHub's record of it."""
+    return _github(
+        "POST",
+        f"/repos/{repo}/issues",
+        token,
+        json={"title": title, "body": body, "labels": [LABEL]},
+    )
+
+
+def supersede(
+    old: dict[str, Any], new_number: int, carried: int, repo: str, token: str
+) -> None:
+    """Point an old digest at its replacement, then close it."""
+    note = f"Superseded by #{new_number}. " + (
+        f"Its {carried} unticked to-do(s) are carried over there."
+        if carried
+        else "It had no unticked to-dos left."
+    )
+    _github(
+        "POST",
+        f"/repos/{repo}/issues/{old['number']}/comments",
+        token,
+        json={"body": note},
+    )
+    _github(
+        "PATCH",
+        f"/repos/{repo}/issues/{old['number']}",
+        token,
+        json={"state": "closed", "state_reason": "completed"},
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -736,18 +1057,35 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     when = datetime.now(UTC).strftime("%Y-%m-%d")
-    body = digest(changes, errors, when=when)
+    issuing = bool(args.issue and os.environ.get("GITHUB_TOKEN") and args.repo)
+    previous: list[dict[str, Any]] = []
+    carried: dict[int, list[str]] = {}
+    if issuing:
+        previous = open_digests(args.repo, os.environ["GITHUB_TOKEN"])
+        carried = {
+            old["number"]: unaddressed(old.get("body") or "", old["number"])
+            for old in previous
+        }
+    body = digest(
+        changes,
+        errors,
+        when=when,
+        carried=[item for items in carried.values() for item in items],
+        discussions=[old["number"] for old in previous if old.get("comments")],
+    )
     if args.output:
         Path(args.output).write_text(body)
         print(f"Digest written to {args.output}")
-    if args.issue and os.environ.get("GITHUB_TOKEN") and args.repo:
-        url = open_issue(
-            body,
-            f"Upstream watch digest — {when}",
-            args.repo,
-            os.environ["GITHUB_TOKEN"],
-        )
-        print(f"Digest issue: {url}")
+    if issuing:
+        token = os.environ["GITHUB_TOKEN"]
+        issue = open_issue(body, f"Upstream watch digest — {when}", args.repo, token)
+        print(f"Digest issue: {issue['html_url']}")
+        # Only after the new one exists, so a failed open closes nothing.
+        for old in previous:
+            supersede(
+                old, issue["number"], len(carried[old["number"]]), args.repo, token
+            )
+            print(f"Closed #{old['number']} (superseded).")
     else:
         print("\n" + body)
     return 0

@@ -213,20 +213,13 @@ def _fetch(archive_url: str, src: Source, version: str) -> Any:
     subdir = f"boundaries/rgi/{version}"
     if not src.requires:
         return providers.raster_http.fetch(archive_url, subdir=subdir)
-    path = providers.earthdata.download([archive_url], subdir)[0]
-    if not zipfile.is_zipfile(path):
-        # NSIDC's on-premises tree ignores a bearer token and answers with the
-        # Earthdata login page (HTTP 200), which earthaccess saves as the file.
-        path.unlink(missing_ok=True)
-        raise RuntimeError(
-            f"NSIDC returned the Earthdata login page instead of "
-            f"{archive_url.rsplit('/', 1)[-1]}. Its on-premises archive (daacdata) "
-            "accepts a username and password (EARTHDATA_USERNAME and "
-            "EARTHDATA_PASSWORD, or a ~/.netrc entry) but not a bearer "
-            'EARTHDATA_TOKEN on its own. For RGI 6.0, source="oggm-mirror" needs '
-            "no account."
-        )
-    return path
+    # NSIDC's on-premises tree ignores a bearer token and answers with the
+    # Earthdata login page (HTTP 200), so this goes with the username and
+    # password even when EARTHDATA_TOKEN is also set. The zip check also
+    # replaces a login page an older version cached under the archive's name.
+    return providers.earthdata.download_with_password(
+        archive_url, subdir, valid=zipfile.is_zipfile
+    )
 
 
 def regions(
@@ -370,8 +363,8 @@ PRODUCT = Product(
             notes=(
                 "NSIDC-0770, the archive of record for both versions; one zipped "
                 "shapefile per region (3-190 MB), cached on first use; needs the "
-                "Earthdata username and password (a bearer token alone is not "
-                "accepted by NSIDC's on-premises archive)"
+                "Earthdata username and password, used even when a token is also "
+                "set (NSIDC's on-premises archive does not accept a bearer token)"
             ),
             title="NSIDC (Earthdata Login)",
             health=(

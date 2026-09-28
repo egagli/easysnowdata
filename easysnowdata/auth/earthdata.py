@@ -20,12 +20,22 @@ from collections.abc import Iterator
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
+
+import requests
 
 from easysnowdata import config
 from easysnowdata._gdal import gdal_env
 from easysnowdata.auth._base import Detection, Provider
 
-__all__ = ["EarthdataProvider", "NETRC_HOST", "token_expiry", "token_is_valid"]
+__all__ = [
+    "EarthdataProvider",
+    "NETRC_HOST",
+    "PasswordSession",
+    "password_credentials",
+    "token_expiry",
+    "token_is_valid",
+]
 
 _logger = logging.getLogger(__name__)
 
@@ -97,6 +107,55 @@ def netrc_has_edl() -> bool:
         return False
 
 
+def password_credentials() -> tuple[str, str] | None:
+    """The Earthdata username and password: the environment first, then the netrc.
+
+    ``None`` when neither is configured. A token is not a password: this is
+    for the servers that refuse one (see :class:`PasswordSession`).
+    """
+    user = os.environ.get("EARTHDATA_USERNAME", "").strip()
+    password = os.environ.get("EARTHDATA_PASSWORD", "")
+    if user and password:
+        return user, password
+    path = netrc_path()
+    if path is None:
+        return None
+    try:
+        entry = netrc.netrc(str(path)).authenticators(NETRC_HOST)
+    except (netrc.NetrcParseError, OSError):
+        return None
+    if entry is None or not entry[0] or not entry[2]:
+        return None
+    return entry[0], entry[2]
+
+
+class PasswordSession(requests.Session):
+    """A ``requests`` session that logs in to URS with a username and password.
+
+    DAAC servers outside the cloud, NSIDC's ``daacdata`` tree among them,
+    ignore a bearer token. They redirect to the URS OAuth page, which wants
+    basic auth, and then back to the file with a session cookie. ``requests``
+    drops the ``Authorization`` header on every cross-host redirect, so this
+    session puts the credentials back when, and only when, the redirect lands
+    on URS. The DAAC host never sees the password.
+
+    It does not rely on the netrc being picked up implicitly, which is why a
+    run with the credentials in ``EARTHDATA_USERNAME``/``EARTHDATA_PASSWORD``
+    and no netrc (CI) works like a laptop with one.
+    """
+
+    def __init__(self, username: str, password: str) -> None:
+        super().__init__()
+        self._urs_credentials = (username, password)
+
+    def rebuild_auth(
+        self, prepared_request: requests.PreparedRequest, response: requests.Response
+    ) -> None:
+        prepared_request.headers.pop("Authorization", None)
+        if urlparse(prepared_request.url).hostname == NETRC_HOST:
+            prepared_request.prepare_auth(self._urs_credentials)
+
+
 def _module_auth(earthaccess: Any) -> Any:
     """earthaccess's process-wide ``Auth`` (``_auth`` since 0.18, ``__auth__`` before)."""
     return getattr(earthaccess, "_auth", None) or getattr(earthaccess, "__auth__", None)
@@ -130,8 +189,8 @@ or, in scripts and CI, set one of:
                                               when they are also set)
 
 A token alone does not reach NSIDC's on-premises archive (the RGI glacier
-outlines): it answers with the login page. Use the username and password
-(or the netrc) for those.
+outlines): it answers with the login page. Those files are fetched with the
+username and password (or the netrc), which may be set alongside a token.
 
 Register for a free account at https://urs.earthdata.nasa.gov"""
 
@@ -263,6 +322,24 @@ Register for a free account at https://urs.earthdata.nasa.gov"""
         os.environ.pop("EARTHDATA_TOKEN", None)
         self._rejected_token = token
 
+    def password_session(self) -> PasswordSession:
+        """A :class:`PasswordSession`, or a :class:`CredentialError` without a password.
+
+        For NSIDC's on-premises archive and any other server that refuses a
+        bearer token. A token in ``EARTHDATA_TOKEN`` is not consulted, so
+        having one as well as a password no longer sends the token-only
+        session there.
+        """
+        credentials = password_credentials()
+        if credentials is None:
+            raise self.error(
+                "This file is on NSIDC's on-premises archive (daacdata), which "
+                "accepts an Earthdata username and password but not a bearer "
+                "token. Set EARTHDATA_USERNAME and EARTHDATA_PASSWORD, or add a "
+                "urs.earthdata.nasa.gov entry to ~/.netrc."
+            )
+        return PasswordSession(*credentials)
+
     # -- GDAL environment ------------------------------------------------------
 
     def gdal_options(self) -> dict[str, Any]:
@@ -294,6 +371,11 @@ Register for a free account at https://urs.earthdata.nasa.gov"""
         if token:
             options["GDAL_HTTP_AUTH"] = "BEARER"
             options["GDAL_HTTP_BEARER"] = token
+            # GDAL opens a /vsicurl/ file with a HEAD request, and LP DAAC's
+            # cloud distribution answers a HEAD carrying a bearer token with a
+            # 404; the same file reads fine with GET. Found retesting #5: a
+            # token-only HLS load failed on every band, cluster or not.
+            options["CPL_VSIL_CURL_USE_HEAD"] = "NO"
         else:
             options["GDAL_HTTP_NETRC"] = "YES"
         return {k: v for k, v in options.items() if v is not None}

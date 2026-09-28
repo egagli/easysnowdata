@@ -219,6 +219,8 @@ class TestEarthdata:
         opts = self.provider.gdal_options()
         assert opts["GDAL_HTTP_AUTH"] == "BEARER" and opts["GDAL_HTTP_BEARER"] == "abc"
         assert "GDAL_HTTP_NETRC" not in opts
+        # LP DAAC answers a HEAD with a bearer token with a 404 (#5 retest).
+        assert opts["CPL_VSIL_CURL_USE_HEAD"] == "NO"
         assert Path(opts["GDAL_HTTP_COOKIEFILE"]).is_relative_to(clean_env / "cache")
 
     def test_gdal_options_netrc(self, clean_env, monkeypatch):
@@ -342,6 +344,46 @@ class TestEarthdata:
         monkeypatch.setenv("EARTHDATA_TOKEN", "abc")
         self.provider.login()
         assert fake_earthaccess["calls"] == ["environment"]
+
+    # -- the password session (NSIDC's on-premises archive) ------------------
+
+    def test_password_credentials_env_before_netrc(self, clean_env, monkeypatch):
+        assert ed.password_credentials() is None
+        (clean_env / ".netrc").write_text(
+            "machine urs.earthdata.nasa.gov login me password secret\n"
+        )
+        assert ed.password_credentials() == ("me", "secret")
+        monkeypatch.setenv("EARTHDATA_USERNAME", "u")
+        monkeypatch.setenv("EARTHDATA_PASSWORD", "p")
+        assert ed.password_credentials() == ("u", "p")
+
+    def test_a_token_is_not_a_password(self, clean_env, monkeypatch):
+        """The CI secrets set a token too; it must not stand in for the password."""
+        monkeypatch.setenv("EARTHDATA_TOKEN", "abc")
+        with pytest.raises(auth.CredentialError, match="not a bearer token"):
+            self.provider.password_session()
+        monkeypatch.setenv("EARTHDATA_USERNAME", "u")
+        monkeypatch.setenv("EARTHDATA_PASSWORD", "p")
+        assert isinstance(self.provider.password_session(), ed.PasswordSession)
+
+    @pytest.mark.parametrize(
+        ("url", "sent"),
+        [
+            ("https://urs.earthdata.nasa.gov/oauth/authorize?x=1", True),
+            ("https://daacdata.apps.nsidc.org/pub/DATASETS/x.zip", False),
+            ("https://example.com/", False),
+        ],
+    )
+    def test_the_password_goes_to_urs_only(self, url, sent):
+        import requests
+
+        session = ed.PasswordSession("u", "p")
+        request = requests.Request("GET", url).prepare()
+        request.headers["Authorization"] = "Bearer leaked"
+        session.rebuild_auth(request, requests.Response())
+        header = request.headers.get("Authorization", "")
+        assert header.startswith("Basic ") is sent
+        assert "leaked" not in header
 
 
 # ── earth engine ──────────────────────────────────────────────────────────────

@@ -12,6 +12,11 @@ _2026-09-23: added §F (plans for boundaries, cloud products and cameras), the N
 hillshade that now ships as `esd.terrain.hillshade`, and their rows in §A, §C, §D and §E.
 The same day `esd.boundaries` shipped (§F.1)._
 
+_2026-09-28: this file is now the authoritative list of products to add. Issues #8 (GOES),
+#9 (S2/HLS snow cover) and #11 (the product list) are closed, and what was only in them (the
+API sketches in #8 and #9, the old PALSAR-2 notebook snippet, the "use xee?" notes) is in
+§E.1–E.3 below. Propose a new product with a PR that adds a row here, not with a new issue._
+
 Contents:
 
 - **A. Products in the rewrite** — what the new package ships, in three tiers
@@ -392,8 +397,8 @@ in the best-practices wiki rather than this package (**wiki**). Nothing is dropp
 
 | Link | What it is | Why it matters | Incorporate? |
 | --- | --- | --- | --- |
-| https://developers.google.com/earth-engine/datasets/catalog/JAXA_ALOS_PALSAR-2_Level2_2_ScanSAR | PALSAR-2 ScanSAR L-band on GEE (LIN + mask bands) | L-band melt detection; NISAR proxy (P6); snippet already in the old notebook | **product**, Tier 3 (trivial via `providers.gee` when needed) |
-| https://developers.google.com/earth-engine/datasets/catalog/NASA_VIIRS_002_VNP09GA | VIIRS daily surface reflectance on GEE | VIIRS-era reflectance/NDSI | **product**, Tier 2 |
+| https://developers.google.com/earth-engine/datasets/catalog/JAXA_ALOS_PALSAR-2_Level2_2_ScanSAR | PALSAR-2 ScanSAR L-band on GEE (LIN + mask bands) | L-band melt detection; NISAR proxy (P6); snippet already in the old notebook, at the end of [`remote_sensing_examples.ipynb` at v0.2.0](https://nbviewer.org/github/egagli/easysnowdata/blob/v0.2.0/docs/examples/remote_sensing_examples.ipynb) (removed from `main` in cfcfcd4 with the legacy notebooks); #11 asked whether to read it with `xee` | **product**, Tier 3 (trivial via `providers.gee` when needed) |
+| https://developers.google.com/earth-engine/datasets/catalog/NASA_VIIRS_002_VNP09GA | VIIRS daily surface reflectance on GEE | VIIRS-era reflectance/NDSI; #11 asked whether to read it with `xee` | **product**, Tier 2 |
 | https://planetarycomputer.microsoft.com/dataset/group/modis | MODIS product group on PC | browse page for what PC still archives; the MOD10 rows were partly dropped in 2025 | **docs** (catalog page link) + health probe of PC MODIS collections |
 | https://developers.google.com/earth-engine/datasets/catalog/modis | MODIS on GEE | alternative MODIS route with GEE creds | **product** source for MOD10A1 (B.4) |
 | https://podaac.github.io/tutorials/quarto_text/SWOT.html ; https://podaac.github.io/tutorials/notebooks/datasets/SWOTHR_s3Access.html | SWOT overview and in-region S3 access tutorial | downstream water; the S3 tutorial is a model for our `access="direct"` path | **product** Tier 3; **access pattern** yes (direct-S3 credential flow) |
@@ -438,6 +443,26 @@ in the best-practices wiki rather than this package (**wiki**). Nothing is dropp
 | https://github.com/pydata/xarray/issues/7574 | `open_mfdataset` + fsspec + dask issue | a known sharp edge for many-file NetCDF; virtualization sidesteps it | **reference** (why `virtualize()` exists) |
 | https://goes2go.readthedocs.io/en/latest/index.html ; https://goes2go.readthedocs.io/en/latest/_modules/goes2go/data.html#goes_timerange | `goes2go` file discovery | time-range → file list logic | **wrap**/reference |
 
+What #8 asked for (Eric, 2024-10-01): GOES **land surface temperature** first. It should load
+lazily into xarray, because the download workflows were clunky. It should orthorectify with
+`goes-ortho` rather than re-implement it. The sketch, in the pre-0.3 class style:
+
+```python
+goes = easysnowdata.remote_sensing.GOES(
+    coverage="CONUS",  # or PACUS, Full Disk, Mesoscale (the ABI scan sectors)
+    product="LST",  # "band/product" in the issue
+    bbox_input=bbox_gdf,
+    start_date="2024-05-31",
+    end_date="2024-07-07",
+)
+goes.orthorectify()  # calls goes-ortho
+goes.get_rgb()
+goes.get_lst()
+```
+
+In 0.3 terms that would be a `sar`-style module with `load(aoi, time, sector=, product=)`,
+`orthorectify=` as an option rather than a method, and an RGB helper in `plotting`.
+
 ### E.3 Sentinel-2 / HLS snow cover algorithms (issue #9)
 
 | Link | What it is | Why it matters | Incorporate? |
@@ -447,6 +472,11 @@ in the best-practices wiki rather than this package (**wiki**). Nothing is dropp
 | https://www.mdpi.com/2072-4292/13/10/1957 | revised snow/cloud discrimination (Gran Paradiso) | improves snow-vs-cloud separation, our main masking problem | **reference**; candidate rule for `processing.snow` |
 | https://ieeexplore.ieee.org/document/9554366 | evaluation of an operational snow cover classifier | accuracy expectations | **reference** |
 | https://github.com/chiararik/rLIS_VLab | R implementation of LIS | second reference implementation | **reference** |
+
+What #9 asked for (Eric, 2024-10-15): built-in snow cover methods beyond NDSI for Sentinel-2
+and HLS. The sketch was `s2 = Sentinel2(bbox_input=bbox, start_date="2022-07-21",
+end_date="2022-07-31", resolution=80)`, then `s2.get_snow_cover()` and `s2.snow_cover`. In 0.3
+terms: a `snow.snow_cover(ds, method="ndsi" | "lis")` over a loaded S2 or HLS Dataset.
 
 ### E.4 Sentinel-1 local incidence angle (issue #10)
 
@@ -483,7 +513,7 @@ in the best-practices wiki rather than this package (**wiki**). Nothing is dropp
 | --- | --- | --- |
 | #1 | tests for all modules; datetime integrity for stations | **yes** — §6 of the plan (three test tiers); station datetime checks become offline tests on fixtures |
 | #3 | `clip_to_bbox` option on every loader | **yes** — `clip=` in the AOI contract (§2.1) |
-| #5 | HLS reads fail under an explicit Dask client (GDAL netrc not on workers) | **yes** — `auth.earthdata.env()` propagated via `odc.stac.configure_rio(client=...)` (§5) |
+| #5 | HLS reads fail under an explicit Dask client (GDAL netrc not on workers) | **done** — `auth.earthdata.env()` propagated via `odc.stac.configure_rio(client=...)` (§5). Retested 2026-09-28 with the issue's AOI and dates on a 4-worker `LocalCluster`: every band reads with a netrc. With `EARTHDATA_TOKEN` alone every read failed, cluster or not: GDAL's HEAD request gets a 404 from LP DAAC when it carries a bearer token. Fixed with `CPL_VSIL_CURL_USE_HEAD=NO` on the token route; issue closed |
 
 ### E.7 Boundaries, clouds, cameras and hillshade (added 2026-09-23)
 
@@ -558,10 +588,22 @@ versions). Gallery: `boundaries/plot_admin.py`, `plot_natural_earth.py`,
 - NSIDC's `daacdata` tree does **not** accept a bearer `EARTHDATA_TOKEN` on its own: a
   token-only `earthaccess` session lands on the URS login page (200), and
   `earthaccess.download` saves that page as the "zip". It works with the username and
-  password (env or netrc), which is what CI holds. The loader now detects the login page
-  and says so; the Earthdata setup text on the credentials page names the limit.
-  (Separately, `auth.earthdata.token_is_valid` gets a 401 from `/api/users/tokens` even for
-  a freshly issued token, so a token-only setup is treated as expired — not yet fixed.)
+  password (env or netrc), which is what CI holds. (Separately, `auth.earthdata.token_is_valid`
+  got a 401 from `/api/users/tokens` even for a freshly issued token; fixed in #49, which
+  reads `exp` from the token.)
+- **Fixed 2026-09-28:** a token set *alongside* the password still broke it. earthaccess
+  logs in with the token first, and a laptop only worked because `requests` quietly re-read
+  `~/.netrc` on the redirect to URS. CI has the password in env vars and no netrc, so the
+  weekly RGI probe failed (#50). The loaders (RGI, NSIDC-0768) and the probe now go through
+  `auth.earthdata.PasswordSession`, which sends the username and password to URS only, and
+  `providers.earthdata.download_with_password`, which also replaces a login page cached by
+  an older version.
+- **How we would know it moved:** CMR lists NSIDC-0770 (all seven versions) and NSIDC-0768
+  under the on-premises provider `NSIDCV0`, `cloud_hosted: false`, with no granules. The watch
+  records those three fields for every `[[cmr]]` entry. A cloud copy appearing (a new concept
+  id under `NSIDC_CPRD`) or any of them flipping is filed under **Action needed** as
+  `migration`: move the loader to `earthaccess.search_data` and drop the password-only route.
+  If `daacdata` is simply retired, the health probes fail and open a data-source issue.
 - The Census 2025 cartographic files appeared in March 2026 with the same columns;
   `CENSUS_YEAR` moved to 2025 (2026-09-23), and the watch has a `[[file]]` entry on the
   2026 URL whose 404 → 206 is the signal for the next move.

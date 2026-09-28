@@ -1,5 +1,8 @@
 {
   "HLSS30 (C2021957295-LPCLOUD)": {
+    "cloud_hosted": true,
+    "has_granules": true,
+    "provider": "LPCLOUD",
     "revision_date": "2026-09-02",
     "temporal_end": "ongoing",
     "temporal_start": "2015-11-28",

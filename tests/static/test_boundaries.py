@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import zipfile
+
 import geopandas as gpd
 import pytest
 import shapely
 
 import easysnowdata as esd
-from easysnowdata import catalog, providers
+from easysnowdata import auth, catalog, providers
 from easysnowdata.auth import CredentialError
 from easysnowdata.boundaries import admin, glaciers, mountains, natural_earth
 from easysnowdata.processing import contract
@@ -58,12 +60,12 @@ def archives(static_fixtures, monkeypatch):
         calls.append({"url": url, "fname": fname, "subdir": kwargs.get("subdir")})
         return pick(url)
 
-    def download(urls, subdir, **kwargs):
-        calls.append({"url": urls[0], "subdir": subdir, "earthdata": True})
-        return [pick(urls[0])]
+    def download(url, subdir, **kwargs):
+        calls.append({"url": url, "subdir": subdir, "earthdata": True})
+        return pick(url)
 
     monkeypatch.setattr(providers.raster_http, "fetch", fetch)
-    monkeypatch.setattr(providers.earthdata, "download", download)
+    monkeypatch.setattr(providers.earthdata, "download_with_password", download)
     monkeypatch.setattr(glaciers, "ensure_source", lambda product, source: {})
     return calls
 
@@ -445,28 +447,76 @@ class TestLive:
         assert len(glaciers_gdf) > 150 and glaciers_gdf.attrs["source"] == "nsidc"
 
 
+class _Response:
+    def __init__(self, url, status=200, body=b""):
+        self.url, self.status_code, self._body = url, status, body
+
+    def iter_content(self, chunk_size=1):
+        yield self._body
+
+    def close(self):
+        pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+
 @pytest.mark.recorded
-def test_a_login_page_instead_of_the_zip_is_explained(tmp_path, monkeypatch):
-    login_page = tmp_path / "RGI2000-v7.0-regions.zip"
+class TestPasswordDownload:
+    """RGI's NSIDC route logs in with the password, whatever token is also set."""
 
-    def download(urls, subdir, **kwargs):
-        login_page.write_text("<html>Earthdata Login</html>")
-        return [login_page]
+    @pytest.fixture
+    def serve(self, tmp_path, monkeypatch, static_fixtures):
+        state: dict = {"asked": [], "end": None}
+        body = static_fixtures["rgi7_regions_zip"].read_bytes()
 
-    monkeypatch.setattr(providers.earthdata, "download", download)
-    monkeypatch.setattr(glaciers, "ensure_source", lambda product, source: {})
-    with pytest.raises(RuntimeError, match="EARTHDATA_USERNAME"):
+        class Session:
+            def get(self, url, **kwargs):
+                state["asked"].append(url)
+                return _Response(state["end"] or url, body=body)
+
+        monkeypatch.setenv("EASYSNOWDATA_CACHE_DIR", str(tmp_path))
+        monkeypatch.setattr(glaciers, "ensure_source", lambda product, source: {})
+        monkeypatch.setattr(
+            auth.get("earthdata"), "password_session", lambda: Session()
+        )
+        return state
+
+    def test_downloads_once_then_reads_the_cache(self, serve):
+        assert glaciers.regions()["o1region"].tolist() == [2, 8]
         glaciers.regions()
-    assert not login_page.exists()  # not left in the cache to fail again
+        assert serve["asked"] == [f"{glaciers.NSIDC_RGI7}/RGI2000-v7.0-regions.zip"]
+
+    def test_a_cached_login_page_is_replaced(self, serve, tmp_path):
+        stale = tmp_path / "boundaries/rgi/7.0/RGI2000-v7.0-regions.zip"
+        stale.parent.mkdir(parents=True)
+        stale.write_text("<html>Earthdata Login</html>")
+        glaciers.regions()
+        assert len(serve["asked"]) == 1 and zipfile.is_zipfile(stale)
+
+    def test_ending_on_the_login_page_raises_and_caches_nothing(self, serve, tmp_path):
+        serve["end"] = "https://urs.earthdata.nasa.gov/oauth/authorize?client_id=x"
+        with pytest.raises(RuntimeError, match="Earthdata Login refused"):
+            glaciers.regions()
+        assert not list((tmp_path / "boundaries/rgi/7.0").glob("*.zip"))
+
+    def test_a_token_alone_names_the_password(self, monkeypatch, tmp_path):
+        monkeypatch.setenv("EASYSNOWDATA_CACHE_DIR", str(tmp_path))
+        monkeypatch.setenv("EARTHDATA_TOKEN", "abc")
+        for var in ("EARTHDATA_USERNAME", "EARTHDATA_PASSWORD", "NETRC"):
+            monkeypatch.delenv(var, raising=False)
+        monkeypatch.setenv("HOME", "/nonexistent")
+        monkeypatch.setattr(glaciers, "ensure_source", lambda product, source: {})
+        with pytest.raises(CredentialError, match="EARTHDATA_PASSWORD"):
+            glaciers.regions()
 
 
 class TestEarthdataProbe:
     @pytest.fixture
     def session(self, monkeypatch):
-        import earthaccess
-
-        from easysnowdata import auth
-
         state: dict = {"status": 206, "url": glaciers.NSIDC_RGI7 + "/x.zip"}
 
         class Response:
@@ -482,9 +532,8 @@ class TestEarthdataProbe:
                 state["asked"] = (url, kwargs["headers"]["Range"])
                 return Response()
 
-        monkeypatch.setattr(auth.get("earthdata"), "ensure", lambda **kwargs: None)
         monkeypatch.setattr(
-            earthaccess, "get_requests_https_session", lambda: Session()
+            auth.get("earthdata"), "password_session", lambda: Session()
         )
         return state
 

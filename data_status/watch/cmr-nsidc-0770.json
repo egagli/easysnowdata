@@ -1,0 +1,72 @@
+{
+  "NSIDC-0770 (C2189529390-NSIDCV0)": {
+    "cloud_hosted": false,
+    "has_granules": false,
+    "provider": "NSIDCV0",
+    "revision_date": "2026-07-30",
+    "temporal_end": "2010-12-31",
+    "temporal_start": "1950-01-01",
+    "url": "https://cmr.earthdata.nasa.gov/search/concepts/C2189529390-NSIDCV0.html",
+    "version": "1"
+  },
+  "NSIDC-0770 (C2239384295-NSIDCV0)": {
+    "cloud_hosted": false,
+    "has_granules": false,
+    "provider": "NSIDCV0",
+    "revision_date": "2026-07-30",
+    "temporal_end": "2010-12-31",
+    "temporal_start": "1950-01-01",
+    "url": "https://cmr.earthdata.nasa.gov/search/concepts/C2239384295-NSIDCV0.html",
+    "version": "2"
+  },
+  "NSIDC-0770 (C2239387260-NSIDCV0)": {
+    "cloud_hosted": false,
+    "has_granules": false,
+    "provider": "NSIDCV0",
+    "revision_date": "2026-07-30",
+    "temporal_end": "2010-12-31",
+    "temporal_start": "1950-01-01",
+    "url": "https://cmr.earthdata.nasa.gov/search/concepts/C2239387260-NSIDCV0.html",
+    "version": "4"
+  },
+  "NSIDC-0770 (C2239388068-NSIDCV0)": {
+    "cloud_hosted": false,
+    "has_granules": false,
+    "provider": "NSIDCV0",
+    "revision_date": "2026-07-30",
+    "temporal_end": "2010-12-31",
+    "temporal_start": "1950-01-01",
+    "url": "https://cmr.earthdata.nasa.gov/search/concepts/C2239388068-NSIDCV0.html",
+    "version": "3"
+  },
+  "NSIDC-0770 (C2239388132-NSIDCV0)": {
+    "cloud_hosted": false,
+    "has_granules": false,
+    "provider": "NSIDCV0",
+    "revision_date": "2026-07-30",
+    "temporal_end": "2010-12-31",
+    "temporal_start": "1950-01-01",
+    "url": "https://cmr.earthdata.nasa.gov/search/concepts/C2239388132-NSIDCV0.html",
+    "version": "5"
+  },
+  "NSIDC-0770 (C2239388197-NSIDCV0)": {
+    "cloud_hosted": false,
+    "has_granules": false,
+    "provider": "NSIDCV0",
+    "revision_date": "2026-07-30",
+    "temporal_end": "2010-12-31",
+    "temporal_start": "1950-01-01",
+    "url": "https://cmr.earthdata.nasa.gov/search/concepts/C2239388197-NSIDCV0.html",
+    "version": "6"
+  },
+  "NSIDC-0770 (C2768953486-NSIDCV0)": {
+    "cloud_hosted": false,
+    "has_granules": false,
+    "provider": "NSIDCV0",
+    "revision_date": "2026-08-03",
+    "temporal_end": "2021-12-31",
+    "temporal_start": "1950-01-01",
+    "url": "https://cmr.earthdata.nasa.gov/search/concepts/C2768953486-NSIDCV0.html",
+    "version": "7"
+  }
+}

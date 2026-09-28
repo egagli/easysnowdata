@@ -29,10 +29,23 @@ def test_catalog_entry_is_registered_from_this_module():
         "planetary-computer",
     ]
     assert product.default_source.requires == ("earthdata",)
-    # the probe label the weekly health check records stays the same, and the
-    # CMR-STAC search itself needs no credentials
-    probe = product.default_source.health[0]
-    assert probe.label == "HLS L30 (CMR-STAC LPCLOUD)" and probe.requires == ()
+    # Both products on both routes. The two labels the weekly history already
+    # records stay the same; the CMR-STAC searches need no credentials, the
+    # COG reads do.
+    labels = {
+        source.id: [(p.label, p.requires) for p in source.health]
+        for source in product.sources
+    }
+    assert labels["lpcloud-cmr-stac"] == [
+        ("HLS L30 (CMR-STAC LPCLOUD)", ()),
+        ("HLS S30 (CMR-STAC LPCLOUD)", ()),
+        ("HLS L30 COG read (CMR-STAC LPCLOUD, Earthdata Login)", None),
+        ("HLS S30 COG read (CMR-STAC LPCLOUD, Earthdata Login)", None),
+    ]
+    assert labels["planetary-computer"] == [
+        ("HLS L30 (Planetary Computer)", None),
+        ("HLS S30 (Planetary Computer)", None),
+    ]
     assert product.source("planetary-computer").requires == ()
     assert catalog.validate_all(known_auth=tuple(esd.auth.PROVIDERS)) == []
 

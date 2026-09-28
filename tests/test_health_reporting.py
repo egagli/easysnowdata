@@ -115,6 +115,17 @@ class TestProbeKinds:
         result = health._check(product, product.sources[0], Probe("ok", lambda: None))
         assert "value" not in result
 
+    def test_the_wrong_kind_of_credential_is_a_skip(self):
+        """A token where NSIDC wants a password is a gap in the secrets, not an outage."""
+        from easysnowdata import auth
+
+        def refuse():
+            raise auth.get("earthdata").error("Needs a password.\nmore text")
+
+        product = catalog.get("snodas")
+        result = health._check(product, product.sources[0], Probe("p", refuse))
+        assert result["status"] == "skip" and result["error"] == "Needs a password."
+
 
 class TestPlanner:
     def test_a_failure_opens_an_issue(self, reporter):

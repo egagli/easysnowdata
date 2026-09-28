@@ -103,13 +103,14 @@ def earthdata_https_first_byte(url: str) -> None:
     """:func:`http_first_byte` through Earthdata Login, for DAAC files outside CMR.
 
     NSIDC's ``daacdata`` tree answers an anonymous GET with a redirect to the
-    URS login page, which :func:`http_first_byte` would count as a pass;
-    ``earthaccess``'s session follows the OAuth redirect with the credentials.
+    URS login page, which :func:`http_first_byte` would count as a pass, and
+    it ignores a bearer token. The probe logs in with the username and
+    password as the loader does
+    (:meth:`~easysnowdata.auth.earthdata.EarthdataProvider.password_session`),
+    so a run that also has ``EARTHDATA_TOKEN`` set tests the same route a user
+    gets.
     """
-    auth.get("earthdata").ensure()
-    import earthaccess  # noqa: PLC0415
-
-    session = earthaccess.get_requests_https_session()
+    session = auth.get("earthdata").password_session()
     response = session.get(
         url,
         timeout=TIMEOUT,
@@ -149,6 +150,44 @@ def stac_search(
     items = list(catalog.search(**kwargs).items())
     if not items:
         raise RuntimeError(f"No {collection} items found in {api_url}.")
+
+
+def stac_asset_read(
+    api_url: str,
+    collection: str,
+    asset: str,
+    *,
+    bbox: tuple[float, float, float, float] = TEST_BBOX,
+    datetime_range: str | None = None,
+) -> None:
+    """Find one *collection* item and read a 4×4 window of its *asset* with GDAL.
+
+    For catalogs whose search is open but whose files sit behind Earthdata
+    Login (CMR-STAC ``LPCLOUD``): :func:`stac_search` passing says nothing
+    about the reads. The read goes through GDAL inside the ``earthdata``
+    provider's environment, the path ``load`` takes, rather than through
+    ``requests``: a bearer token read fine with ``requests`` while GDAL's
+    HEAD request got a 404, and only this catches that.
+    """
+    import pystac_client  # noqa: PLC0415
+    import rasterio  # noqa: PLC0415
+
+    catalog = pystac_client.Client.open(api_url)
+    kwargs: dict[str, Any] = {"collections": [collection], "max_items": 1}
+    if bbox is not None:
+        kwargs["bbox"] = bbox
+    if datetime_range:
+        kwargs["datetime"] = datetime_range
+    items = list(catalog.search(**kwargs).items())
+    if not items:
+        raise RuntimeError(f"No {collection} items found in {api_url}.")
+    if asset not in items[0].assets:
+        raise RuntimeError(f"{items[0].id} has no {asset!r} asset.")
+    href = items[0].assets[asset].href
+    provider = auth.get("earthdata")
+    provider.ensure()
+    with provider.env(), rasterio.open(href) as src:
+        src.read(1, window=((0, 4), (0, 4)))
 
 
 def zarr_metadata(url: str, storage_options: dict[str, Any] | None = None) -> None:
@@ -438,6 +477,11 @@ def _check(product: Product, source: Source, probe: Probe) -> dict[str, Any]:
         return result
     try:
         value = probe.fn()
+    except auth.CredentialError as exc:
+        # Configured, but not the kind this route takes (a token where NSIDC
+        # wants a password): a gap in the run's secrets, not a dead route.
+        result.update(status="skip", error=str(exc).split("\n", 1)[0])
+        return result
     except Exception as exc:  # noqa: BLE001 — any failure is a health failure
         result.update(status="fail", error=f"{type(exc).__name__}: {exc}")
     else:

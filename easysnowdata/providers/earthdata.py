@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import contextlib
 import logging
-from collections.abc import Iterable, Iterator
+import urllib.parse
+from collections.abc import Callable, Iterable, Iterator
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,7 @@ import shapely
 
 from easysnowdata import auth, config, temporal
 from easysnowdata.aoi import parse_aoi
+from easysnowdata.auth.earthdata import NETRC_HOST
 
 __all__ = [
     "ensure",
@@ -22,6 +24,8 @@ __all__ = [
     "granules_to_geodataframe",
     "open",
     "download",
+    "download_with_password",
+    "auth_host_in",
     "hdf4_available",
     "require_hdf4",
 ]
@@ -166,6 +170,57 @@ def download(granules: list[Any], subdir: str, **kwargs: Any) -> list[Path]:
 
     target = config.cache_dir(subdir)
     return [Path(p) for p in earthaccess.download(granules, target, **kwargs)]
+
+
+def download_with_password(
+    url: str,
+    subdir: str,
+    *,
+    valid: Callable[[Path], bool] | None = None,
+    timeout: float = 120,
+) -> Path:
+    """Download one file from a server that refuses a bearer token.
+
+    NSIDC's on-premises ``daacdata`` tree answers a token-only request with the
+    URS login page and HTTP 200, which ``earthaccess.download`` saves as if it
+    were the file. This goes through
+    :meth:`~easysnowdata.auth.earthdata.EarthdataProvider.password_session`
+    instead, so the username and password are used even when
+    ``EARTHDATA_TOKEN`` is also set.
+
+    The file lands in ``<cache>/<subdir>`` and is reused on the next call. A
+    cached file that fails *valid*, such as a login page an older version saved,
+    is fetched again. A 404 raises :class:`FileNotFoundError`; a download that
+    ends on URS, or that fails *valid*, raises instead of being cached.
+    """
+    target = config.cache_dir(subdir) / url.rsplit("/", 1)[-1]
+    if target.is_file() and target.stat().st_size and (valid is None or valid(target)):
+        return target
+    session = auth.get("earthdata").password_session()
+    partial_path = target.with_name(target.name + ".part")
+    with session.get(
+        url, stream=True, timeout=timeout, allow_redirects=True
+    ) as response:
+        if response.status_code == 404:
+            raise FileNotFoundError(f"{url} does not exist (HTTP 404).")
+        if auth_host_in(response.url) or response.status_code != 200:
+            raise RuntimeError(
+                f"Earthdata Login refused {url} (HTTP {response.status_code}, ended at "
+                f"{response.url.split('?', 1)[0]}); check the username and password."
+            )
+        with partial_path.open("wb") as fh:
+            for chunk in response.iter_content(chunk_size=1 << 20):
+                fh.write(chunk)
+    if valid is not None and not valid(partial_path):
+        partial_path.unlink(missing_ok=True)
+        raise RuntimeError(f"{url} did not return the expected file.")
+    partial_path.replace(target)
+    return target
+
+
+def auth_host_in(url: str) -> bool:
+    """Whether *url* is on the Earthdata Login host (a request that ended at the login page)."""
+    return urllib.parse.urlparse(url).hostname == NETRC_HOST
 
 
 def hdf4_available() -> bool:

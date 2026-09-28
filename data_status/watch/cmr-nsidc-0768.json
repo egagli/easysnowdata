@@ -1,5 +1,8 @@
 {
   "NSIDC-0768 (C2218487926-NSIDCV0)": {
+    "cloud_hosted": false,
+    "has_granules": false,
+    "provider": "NSIDCV0",
     "revision_date": "2026-08-13",
     "temporal_end": "2019-12-31",
     "temporal_start": "1981-01-01",

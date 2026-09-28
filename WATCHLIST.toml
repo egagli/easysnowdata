@@ -10,8 +10,18 @@
 #   kind      how to fetch and compare it — see the sections below
 #   id        the snapshot file name; stable, so renaming an entry starts over
 #   products  catalog products affected, so the digest can say what is at stake
+#   match_products
+#             for an entry that covers several unrelated datasets: key →
+#             products, matched at a word start (and end, for 1-3 letters). A subject or a page line containing the key affects
+#             those products only; `products` is the fallback when nothing
+#             matches. On a page or feed with this table, a line that matches
+#             nothing (news about a dataset this package does not use) cannot
+#             be "action needed"; a snow term still makes it "worth adding".
 #   url /     what to fetch (kind-specific)
-#   keywords  extra words that promote an item to "action needed" for this entry
+#   keywords  extra words that mark a page line as about something we use, so
+#             its tags stand even when no `match_products` key matched
+#   ignore    regexes (case-insensitive) for page lines that change on every
+#             visit; scripts/watch.py has a default list (DEFAULT_IGNORE)
 #
 # The categories every item is tagged against live in scripts/watch.py
 # (CATEGORIES); they are the §8 list: removal, deprecation, reprocessing,
@@ -63,6 +73,14 @@ products = ["sentinel-1-rtc"]
 id = "cmr-nsidc-0768"
 short_name = "NSIDC-0768"
 products = ["snow-classification"]
+# On-premises at NSIDC (provider NSIDCV0, not cloud hosted, no granules), so
+# the loader needs the Earthdata password. A move shows up as `migration`.
+
+[[cmr]]
+id = "cmr-nsidc-0770"
+short_name = "NSIDC-0770"
+products = ["rgi-glaciers"]
+# RGI 6.0 and 7.0 (and the older versions), on-premises like NSIDC-0768.
 
 # STAC collections: presence in /collections, the temporal extent, and the
 # newest item. Catches a collection quietly disappearing (the MOD10A2 case)
@@ -81,14 +99,14 @@ collections = [
     "hls2-s30",
     "hls2-l30",
 ]
-products = [
-    "sentinel-1-rtc",
-    "sentinel-2-l2a",
-    "copernicus-dem",
-    "esa-worldcover",
-    "modis-snow",
-    "hls",
-]
+products = []
+[stac.match_products]
+"sentinel-1-rtc" = ["sentinel-1-rtc"]
+"sentinel-2-l2a" = ["sentinel-2-l2a"]
+"cop-dem" = ["copernicus-dem"]
+"esa-worldcover" = ["esa-worldcover"]
+"modis-10A" = ["modis-snow"]
+"hls2-" = ["hls"]
 
 [[stac]]
 id = "stac-earth-search"
@@ -98,7 +116,8 @@ collections = [
     "sentinel-2-c1-l2a",
     "cop-dem-glo-30",
 ]
-products = ["sentinel-2-l2a", "copernicus-dem"]
+products = []
+match_products = { "sentinel-2" = ["sentinel-2-l2a"], "cop-dem" = ["copernicus-dem"] }
 # sentinel-2-c1-l2a is the route that still carries the baseline offset in the
 # pixels (§13.1 C1); PC issue #394 asks for it on PC too.
 
@@ -112,7 +131,8 @@ products = ["hls"]
 id = "stac-cmr-asf"
 url = "https://cmr.earthdata.nasa.gov/cloudstac/ASF"
 collections = ["OPERA_L2_RTC-S1_V1_1", "OPERA_L2_RTC-S1-STATIC_V1_1"]
-products = ["sentinel-1-rtc", "sentinel-1-local-incidence-angle"]
+products = []
+match_products = { "RTC-S1_V1" = ["sentinel-1-rtc"], "RTC-S1-STATIC" = ["sentinel-1-local-incidence-angle"] }
 
 # Earth Engine assets: existence and date range, including the community
 # catalog entries we depend on.
@@ -127,7 +147,15 @@ assets = [
     "COPERNICUS/Landcover/100m/Proba-V-C3/Global",
     "OPERA/RTC/L2_V1/S1",
 ]
-products = ["era5", "chili", "huc", "snodas", "nlcd", "forest-cover-fraction"]
+products = []
+[gee.match_products]
+"ECMWF/ERA5_LAND" = ["era5"]
+"ALOS_CHILI" = ["chili"]
+"USGS/WBD" = ["huc"]
+"climate-engine/snodas" = ["snodas"]
+"ANNUAL_NLCD" = ["nlcd"]
+"COPERNICUS/Landcover" = ["forest-cover-fraction"]
+"OPERA/RTC" = ["sentinel-1-rtc"]
 
 # Static files: ETag / Last-Modified / Content-Length, fetched GET-first
 # because some of these servers answer HEAD with a 400 (§8, GRDC).
@@ -205,14 +233,13 @@ products = ["rgi-glaciers"]
 [[stations]]
 id = "stations-counts"
 networks = ["awdb", "cdec", "databc", "yukon"]
-products = [
-    "awdb-stations",
-    "cdec-stations",
-    "databc-stations",
-    "yukon-stations",
-    "snow-station-archive",
-]
+products = ["snow-station-archive"]
 # nve is left out: it needs an API key, and the digest must run without one.
+[stations.match_products]
+"awdb" = ["awdb-stations", "snow-station-archive"]
+"cdec" = ["cdec-stations", "snow-station-archive"]
+"databc" = ["databc-stations", "snow-station-archive"]
+"yukon" = ["yukon-stations", "snow-station-archive"]
 
 # Dependencies: the PyPI JSON for each, with a link to its changelog.
 [[pypi]]
@@ -243,42 +270,74 @@ packages = [
 # Fetched, reduced to their visible text, diffed against last week, and each
 # new line keyword-tagged. Noisy by nature, which is why the digest groups
 # them under "changed" and "other" unless a keyword promotes them.
+#
+# Not watched (dropped 2026-09-28): the earthdata.nasa.gov alerts, ASF DAAC
+# and LP DAAC news pages. CloudFront answers GitHub's runners with a 403
+# whatever the User-Agent (a home IP gets a 200), so they were a permanent
+# "could not be checked" line. CMR (hosting, versions, extents) and the health
+# probes cover what those pages would have told us.
 
 [[page]]
 id = "page-gee-release-notes"
 url = "https://developers.google.com/earth-engine/docs/data-catalog/release-notes"
-products = ["era5", "chili", "huc", "snodas", "nlcd", "forest-cover-fraction"]
+products = []
+[page.match_products]
+"ERA5" = ["era5"]
+"CHILI" = ["chili"]
+"USGS/WBD" = ["huc"]
+"SNODAS" = ["snodas"]
+"NLCD" = ["nlcd"]
+"COPERNICUS/Landcover" = ["forest-cover-fraction"]
+"OPERA" = ["sentinel-1-rtc"]
 
 [[page]]
 id = "page-pc-changelog"
 url = "https://planetarycomputer.microsoft.com/docs/changelogs/history"
-products = ["sentinel-1-rtc", "sentinel-2-l2a", "copernicus-dem", "esa-worldcover", "modis-snow", "hls"]
-
-[[page]]
-id = "page-earthdata-alerts"
-url = "https://www.earthdata.nasa.gov/data/alerts-outages"
-products = ["hls", "modis-snow", "viirs-snow", "ucla-snow-reanalysis", "snow-classification"]
-keywords = ["nsidc", "lp daac", "asf", "urs", "earthdata login"]
+products = []
+[page.match_products]
+"sentinel-1" = ["sentinel-1-rtc"]
+"sentinel-2" = ["sentinel-2-l2a"]
+"cop-dem" = ["copernicus-dem"]
+"copernicus dem" = ["copernicus-dem"]
+"worldcover" = ["esa-worldcover"]
+"modis" = ["modis-snow"]
+"hls" = ["hls"]
+"harmonized landsat" = ["hls"]
 
 [[page]]
 id = "page-nsidc-updates"
 url = "https://nsidc.org/data/data-programs/nsidc-daac/data-updates"
-products = ["modis-snow", "viirs-snow", "ucla-snow-reanalysis", "snow-classification", "snodas", "rgi-glaciers"]
-
-[[page]]
-id = "page-asf-daac"
-url = "https://www.earthdata.nasa.gov/centers/asf-daac"
-products = ["sentinel-1-rtc", "sentinel-1-local-incidence-angle"]
+products = []
+[page.match_products]
+"modis" = ["modis-snow"]
+"mod10" = ["modis-snow"]
+"viirs" = ["viirs-snow"]
+"vnp10" = ["viirs-snow"]
+"snow reanalysis" = ["ucla-snow-reanalysis"]
+"wus_ucla" = ["ucla-snow-reanalysis"]
+"0768" = ["snow-classification"]
+"snow classification" = ["snow-classification"]
+"snodas" = ["snodas"]
+"g02158" = ["snodas"]
+"rgi" = ["rgi-glaciers"]
+"rgi6" = ["rgi-glaciers"]
+"rgi7" = ["rgi-glaciers"]
+"rgi2000" = ["rgi-glaciers"]
+"randolph" = ["rgi-glaciers"]
+"0770" = ["rgi-glaciers"]
 
 [[page]]
 id = "page-nrcs-sswsf"
 url = "https://www.nrcs.usda.gov/programs-initiatives/sswsf-snow-survey-and-water-supply-forecasting-program"
-products = ["awdb-stations"]
-
-[[page]]
-id = "page-lpdaac-news"
-url = "https://www.earthdata.nasa.gov/data/catalog?facets=lp-daac"
-products = ["hls"]
+products = []
+# The page carries NRCS-wide news (farm programs, deadlines) next to the snow
+# survey's; only lines about the network count.
+[page.match_products]
+"snotel" = ["awdb-stations"]
+"snow survey" = ["awdb-stations"]
+"water supply" = ["awdb-stations"]
+"awdb" = ["awdb-stations"]
+"air and water database" = ["awdb-stations"]
 
 [[page]]
 id = "page-nohrsc-snodas"
@@ -305,7 +364,10 @@ products = ["esa-worldcover"]
 [[page]]
 id = "page-gee-community-catalog"
 url = "https://gee-community-catalog.org/changelog/"
-products = ["snodas", "nlcd"]
+products = []
+[page.match_products]
+"snodas" = ["snodas"]
+"nlcd" = ["nlcd"]
 
 [[page]]
 id = "page-nsidc-rgi7"

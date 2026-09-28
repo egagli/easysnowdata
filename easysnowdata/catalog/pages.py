@@ -803,7 +803,10 @@ def status_page(
         "releases, and a dozen provider changelogs — diffs each against the "
         "snapshot in `data_status/watch/`, and opens one digest issue labelled "
         "[`upstream-watch`](https://github.com/egagli/easysnowdata/issues?q=label%3Aupstream-watch) "
-        "with a section per category. If nothing changed, no issue is opened.",
+        "with a section per category. Its to-dos (action needed, worth adding) "
+        "are checkboxes: when the next digest opens it closes the previous one "
+        "and carries every unticked to-do forward, so nothing is dropped by "
+        "closing. If nothing changed, no issue is opened.",
         "",
         "```bash",
         "pixi run -e dev watch   # fetch and diff, writing nothing",
