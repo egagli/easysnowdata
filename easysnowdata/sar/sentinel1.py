@@ -529,6 +529,7 @@ def search(
     return gdf
 
 
+@contract.chunks_policy(lazy_default=None)
 def load(
     aoi: Any = None,
     time: Any = None,
@@ -543,7 +544,7 @@ def load(
     border_noise: bool = True,
     mask: bool = True,
     orbit_state: str | None = None,
-    chunks: dict[str, Any] | None = None,
+    chunks: Any = contract.DEFAULT,
     **kwargs: Any,
 ) -> xr.Dataset:
     """Load Sentinel-1 RTC backscatter as a lazy ``xarray.Dataset``.
@@ -667,6 +668,7 @@ def _load_gee(
     return ds.rename({b: b.lower() for b in ds.data_vars if b in bands})
 
 
+@contract.chunks_policy(lazy_default=None)
 def local_incidence_angle(
     aoi: Any = None,
     time: Any = None,
@@ -679,7 +681,7 @@ def local_incidence_angle(
     crs: Any = "utm",
     dem: xr.DataArray | None = None,
     mask: bool = True,
-    chunks: dict[str, Any] | None = None,
+    chunks: Any = contract.DEFAULT,
     **kwargs: Any,
 ) -> xr.Dataset:
     """Local incidence angle (and, where available, the layover/shadow mask).

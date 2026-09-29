@@ -259,6 +259,7 @@ def search(
     return gdf
 
 
+@contract.chunks_policy(lazy_default=None)
 def load(
     aoi: Any = None,
     time: Any = None,
@@ -270,7 +271,7 @@ def load(
     granules: Any = None,
     virtualize: bool | str = "auto",
     access: str = "auto",
-    chunks: Any = None,
+    chunks: Any = contract.DEFAULT,
     **kwargs: Any,
 ) -> xr.DataArray:
     """Load the reanalysis as a lazy ``xarray.DataArray`` (``time``, ``y``, ``x``).

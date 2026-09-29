@@ -87,19 +87,16 @@ s1_ds = esd.sar.sentinel1.load(aoi, "2024-03")  # seconds: STAC search only
 s1_ds.mean("time").compute()  # now the COGs are read
 ```
 
-`chunks=` is passed through, and the default is the source's native chunking
-where it is known. What `chunks=None` means depends on the loader, because it
-follows the library underneath:
+`chunks=` means the same thing on every loader:
 
-- **Raster-file loaders** (the DEMs, CHILI, the hillshade, WorldCover, NLCD,
-  forest cover, the snow classification, and the mountain snow mask) default to
-  a separate sentinel, so `load(aoi)` stays lazy and `load(aoi, chunks=None)`
-  reads now, as in rioxarray.
-- **STAC, Zarr, and NetCDF loaders** (Sentinel-1, Sentinel-2, HLS, ERA5,
-  SNODAS, and the UCLA reanalysis) take `chunks=None` as their lazy default.
-  MODIS, VIIRS, and Köppen-Geiger default to `chunks=True`, also lazy.
+- left out: lazy and Dask-backed, with the source's native chunking where it
+  is known;
+- `chunks=None`: no Dask. The data are read into memory before `load`
+  returns, as `chunks=None` means in rioxarray, xarray, and odc-stac;
+- anything else (`{}`, `True`, `"auto"`, or a dict of sizes): passed to the
+  library underneath as it is.
 
-To load eagerly from any loader, call `.compute()` on the result.
+`load(aoi, chunks=None)` and `load(aoi).compute()` give the same result.
 
 Vector products — basins, stations inventories, boundaries, mountain ranges,
 glacier outlines — are the exception: they are small, so they come back as an
