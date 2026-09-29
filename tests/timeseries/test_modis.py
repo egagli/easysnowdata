@@ -201,6 +201,23 @@ def test_load_planetary_computer_mirror(fake_stac):
         "fill",
     ]
     assert ds.attrs["source_id"] == "planetary-computer"
+    # PC's items carry no proj:* metadata, so the native grid is named.
+    assert fake_stac["load"]["crs"] == modis.SINUSOIDAL
+    assert fake_stac["load"]["resolution"] == pytest.approx(463.3127, abs=1e-4)
+
+
+@pytest.mark.recorded
+def test_planetary_computer_reprojection_is_passed_through(fake_stac):
+    modis.load(
+        RAINIER,
+        "2023-01",
+        product="MOD10A2",
+        source="planetary-computer",
+        crs="EPSG:32610",
+        resolution=500,
+    )
+    assert fake_stac["load"]["crs"] == "EPSG:32610"
+    assert fake_stac["load"]["resolution"] == 500
 
 
 @pytest.mark.recorded

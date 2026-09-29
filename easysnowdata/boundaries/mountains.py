@@ -149,7 +149,7 @@ PRODUCT = Product(
     title="GMBA Mountain Inventory v2",
     description=(
         "8,327 named mountain-range polygons in a hierarchy up to ten levels "
-        "deep (Snethlage et al. 2022), in basic, major-system (300) and "
+        "deep (Snethlage et al. 2022), in basic, major-system (300), and "
         "all-level subsets and standard or broad extents."
     ),
     sources=(

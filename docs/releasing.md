@@ -94,8 +94,9 @@ Two things the generator cannot do for you:
 
 ## Deprecations
 
-Shims carry `since` and `remove_in`, and the warning quotes both. Set
-`remove_in` to a version that **has not been released yet**: 0.2.0 shipped with
-every shim saying "will be removed in 0.2.0", which told users running 0.2.0
-that the function they had just called was already gone. The current promise is
-0.3.0, and [the migration guide](migration.md) is what it points people at.
+0.3 removed every 0.2 shim, so nothing is deprecated today. When a future
+release deprecates a name, the shim should carry `since` and `remove_in`, and
+the warning should quote both. Set `remove_in` to a version that **has not been
+released yet**: 0.2.0 shipped with every shim saying "will be removed in
+0.2.0", which told users running 0.2.0 that the function they had just called
+was already gone. Point the warning at [the migration guide](migration.md).

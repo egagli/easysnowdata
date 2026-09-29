@@ -735,7 +735,7 @@ PRODUCT = Product(
         "'everything daily' without hitting five APIs, refreshed daily. Most "
         "stations start around 1980; "
         "a few long snow courses reach back to 1896. SWE and snow depth only; for "
-        "other variables, other intervals or quality flags, use "
+        "other variables, other intervals, or quality flags, use "
         "easysnowdata.stations.load()."
     ),
     sources=(

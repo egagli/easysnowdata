@@ -151,9 +151,10 @@ PRODUCT = Product(
             extent="70°N-70°S",
             temporal="static",
             notes=(
-                "native values by default (the AOI-relative rescaling of "
-                "topography.get_chili is opt-in); a DEM-computed heat-load "
-                "index is the planned credential-free route"
+                'native values by default; normalize="minmax" gives the '
+                "AOI-relative rescaling the removed topography.get_chili applied. "
+                "A DEM-computed heat-load index is the planned credential-free "
+                "route"
             ),
             title="Earth Engine",
             health=Probe(

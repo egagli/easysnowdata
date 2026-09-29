@@ -1,6 +1,6 @@
 # Contributing
 
-Bug reports, new data products and documentation fixes are all welcome. The
+Bug reports, new data products, and documentation fixes are all welcome. The
 issue tracker is at <https://github.com/egagli/easysnowdata/issues>.
 
 ## Setting up
@@ -36,7 +36,7 @@ dependency is actually in `pixi.lock` rather than trusting the exit code.
 | `pixi run -e test-py313 test-cov` | offline tier with coverage (fails under 95%) |
 | `pixi run -e test-py313 test-live` | live tier: one smoke test per source |
 | `pixi run -e test-py313 record-cassettes` | re-record the cassettes (needs network) |
-| `pixi run -e lint lint` / `format` | ruff check / ruff format |
+| `pixi run -e dev lint` / `format` | ruff check / ruff format |
 | `pixi run -e docs docs-fast` | build the site without running the gallery (~17 s) |
 | `pixi run -e docs docs-build-free` | build and run the credential-free gallery (~4 min) |
 | `pixi run -e docs docs-build` | build and run the whole gallery (needs every credential) |
@@ -54,7 +54,7 @@ have to reach your shell separately. Two ways that need no code:
 - **A `.env` file at the repo root** (already in `.gitignore`), one
   `NAME=value` per line, loaded for a shell with `set -a; . ./.env; set +a`
   before `pixi run …`. Good for `NVE_API_KEY`, `PL_API_KEY`,
-  `EARTHDATA_USERNAME` / `EARTHDATA_PASSWORD` and `EARTHENGINE_TOKEN`.
+  `EARTHDATA_USERNAME` / `EARTHDATA_PASSWORD`, and `EARTHENGINE_TOKEN`.
 - **The provider's own store**: `planet auth login` saves a Planet session
   under `~/.planet/`, `earthaccess.login(persist=True)` writes `~/.netrc`, and
   `earthengine authenticate` writes `~/.config/earthengine/credentials`. The
@@ -82,7 +82,7 @@ tokens but you are still committing someone's API response.
 
 **live** — one smoke test per source against the real provider, marked `live`
 and deselected everywhere else. Runs weekly in CI and on demand. Tests marked
-`requires_earthdata` / `requires_earthengine` / `requires_planet` /
+`requires_earthaccess` / `requires_earthengine` / `requires_planet` /
 `requires_nve` **skip** when the credential is absent, so a contributor without
 an Earth Engine account still gets a meaningful run.
 
@@ -96,14 +96,14 @@ data route works.
 
 ## Adding a data product
 
-The catalog entry is the contract: it generates the docs page, the health row
+The catalog entry is the contract: it generates the docs page, the health row,
 and the credential table, so the artefacts cannot drift apart. In order:
 
 ```{card} 1. Write the loader
 Put it in `easysnowdata/<theme>/<product>.py` with module-level `search` and
 `load` functions. Take `aoi` first and `time` second; accept `source=`; return
 lazy xarray. Build the return value with `processing.contract.finalize()` so
-the dims, CRS, nodata policy and provenance attributes come out right without
+the dims, CRS, nodata policy, and provenance attributes come out right without
 you re-deciding them. A vector product returns a GeoDataFrame through
 `processing.contract.finalize_frame()` instead (EPSG:4326, 2-D, provenance in
 `.attrs`); fetch its archive once with `providers.raster_http.fetch` and read
@@ -117,8 +117,8 @@ differs from the other routes, and a `health=Probe(...)`. Register it at the
 bottom of the module with `catalog.register(PRODUCT, replace=True)`, and
 import the module from the theme's `__init__.py` so registration happens.
 
-Give every variable its units, dtype and nodata. Categorical variables need
-`flag_values`, `flag_meanings` and `flag_colors` of equal length — the offline
+Give every variable its units, dtype, and nodata. Categorical variables need
+`flag_values`, `flag_meanings`, and `flag_colors` of equal length — the offline
 test checks that, and the plotting helpers read them.
 ```
 
@@ -148,7 +148,7 @@ under, so renaming one starts its history over.
 
 ```{card} 5. A gallery example
 `docs/gallery/<theme>/plot_<product>.py`: load it for one AOI, draw one or two
-figures, say one thing that is true about the product and not obvious. Use the
+figures, and say one thing that is true about the product and not obvious. Use the
 sphinx-gallery format — a docstring title with an `===` underline of exactly
 the right length, then `# %%` cells. List it in the catalog entry's
 `examples=` tuple.
@@ -159,7 +159,7 @@ product's routes (`esd.catalog.get(pid).sources`). Maps go through
 `esd.plotting.map` / `categorical` / `points`, vectors over them through
 `esd.plotting.add_outline`, time series through
 `esd.plotting.timeseries`, so every figure has equal aspect, a scale bar, a
-graticule, units in `[ ]` and calendar dates without repeating the matplotlib.
+graticule, units in `[ ]`, and calendar dates without repeating the matplotlib.
 Band arithmetic and thresholds are written out, not wrapped. Where a product has
 two routes, show them side by side.
 
@@ -191,25 +191,25 @@ generated page.
 ## Documentation
 
 Nothing under `docs/catalog/`, `docs/api/`, `docs/auto_examples/`,
-`docs/generated/`, `docs/gen_modules/`, `docs/credentials.md` or
+`docs/generated/`, `docs/gen_modules/`, `docs/credentials.md`, or
 `docs/status.md` is written by hand — they are generated at build time from
 the registry and the gallery, and they are all in `.gitignore`. Editing a
 catalog page means editing the catalog entry.
 
 What *is* hand-written: `index.md`, `installation.md`, `concepts.md`,
-`faq.md`, this page, and the gallery scripts.
+`faq.md`, `migration.md`, `releasing.md`, this page, and the gallery scripts.
 
 The README's header image is generated too: `scripts/make_montage.py` tiles
 the thumbnails of the executed gallery into `_static/gallery.webp`, which the
 docs build on `main` publishes and the README links to. It skips examples that
-did not run, so a build without credentials does not turn seven products into
-blank squares. Its status table and catalog summary come from
+did not run, so a build without credentials does not turn the sixteen
+credentialed examples into blank squares. Its status table and catalog summary come from
 `scripts/update_readme_status.py`, between the sentinel comments — edit the
 catalog entry, not the README.
 
 ## Style
 
-- `ruff format` and `ruff check` must pass: `pixi run -e lint lint`. Line
+- `ruff format` and `ruff check` must pass: `pixi run -e dev lint`. Line
   length 88, double quotes, isort with `easysnowdata` as first-party.
 - NumPy-style docstrings. The API pages are generated from `__all__`, so a
   function without a docstring shows up as a blank page.

@@ -15,7 +15,8 @@ The same day `esd.boundaries` shipped (§F.1)._
 _2026-09-28: this file is now the authoritative list of products to add. Issues #8 (GOES),
 #9 (S2/HLS snow cover) and #11 (the product list) are closed, and what was only in them (the
 API sketches in #8 and #9, the old PALSAR-2 notebook snippet, the "use xee?" notes) is in
-§E.1–E.3 below. Propose a new product with a PR that adds a row here, not with a new issue._
+§E.1–E.3 below. Propose a new product with an issue or with a PR that adds a row here; the
+row here is what gets tracked._
 
 Contents:
 

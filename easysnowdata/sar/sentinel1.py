@@ -213,7 +213,7 @@ LIA_PRODUCT = Product(
             temporal="static, one granule per burst",
             notes=(
                 "ships local_incidence_angle, incidence_angle, mask (layover/shadow), "
-                "number_of_looks and the gamma0→beta0/sigma0 factors as COGs. ASF's "
+                "number_of_looks, and the gamma0→beta0/sigma0 factors as COGs. ASF's "
                 "datapool refuses a bearer token alone (EARTHDATA_TOKEN); the reads "
                 "need a netrc entry or EARTHDATA_USERNAME/EARTHDATA_PASSWORD"
             ),

@@ -23,12 +23,13 @@ this module
     package's own return types and take ``aoi`` and ``time`` like every other
     loader.
 :mod:`~easysnowdata.stations.archive`
-    The daily archive that repo publishes — a normalized station inventory
-    and one pre-downloaded CSV per daily-verified station — for "everything
-    daily since 1980" without hitting five APIs. SWE and snow depth only.
+    The daily archive that repo publishes — a normalized station inventory,
+    a chunked Zarr store on its GitHub Pages site (the default), and
+    per-station CSVs bundled in each snapshot release — for every station's
+    daily record without hitting five APIs. SWE and snow depth only.
 
 The ``station`` × ``time`` grid comes back dense with NaN where a station has
-no observation. That is what xarray, Dask and ``groupby`` want, and a station
+no observation. That is what xarray, Dask, and ``groupby`` want, and a station
 record is only sparse in the everyday sense — nothing here needs a sparse
 array backend. Station positions are ``latitude`` and ``longitude``
 coordinates rather than an ``xvec`` geometry coordinate: the plan lists

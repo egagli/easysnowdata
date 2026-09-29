@@ -86,6 +86,11 @@ PC_COLLECTIONS = {
 PC_PLATFORMS = {"MOD": "terra", "MYD": "aqua"}
 
 MODIS_VERSION = "61"
+
+#: The MODIS land grid: sinusoidal on a sphere of radius 6371007.181 m, with
+#: 36 × 18 tiles of 1111950.5197 m and 2400 cells per tile at 500 m.
+SINUSOIDAL = "+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +R=6371007.181 +units=m +no_defs"
+PIXEL_500M = 20015109.354 * 2 / 36 / 2400  # 463.3127 m
 _NSIDC_DOCS = "https://nsidc.org/data/mod10a1f/versions/61"
 _PC_DOCS = "https://planetarycomputer.microsoft.com/dataset/modis-10A1-061"
 _GRANULE_DATE = re.compile(r"\.A(\d{4})(\d{3})\.")
@@ -129,7 +134,7 @@ PRODUCT = Product(
     theme="snow",
     title="MODIS snow cover (MOD10A1, MOD10A2, MOD10A1F)",
     description=(
-        "Terra and Aqua MODIS daily NDSI snow cover, the 8-day maximum snow extent "
+        "Terra and Aqua MODIS daily NDSI snow cover, the 8-day maximum snow extent, "
         "and the cloud-gap-filled daily product at 500 m, from NSIDC (all six "
         "products) or Planetary Computer (the two COG mirrors)."
     ),
@@ -423,12 +428,17 @@ def _load_planetary_computer(
         items = search(aoi, time, product=product, source="planetary-computer")
     if not len(items):
         raise ValueError(f"No {product} items on Planetary Computer for this AOI/time.")
+    # Planetary Computer's MODIS items carry no proj:* metadata (checked
+    # 2026-09-28), so odc-stac cannot work out the native grid and raises
+    # "Failed to auto-guess CRS/resolution". Name it: the tile grid's origin
+    # is a whole number of 500 m cells from 0, so odc's default anchoring
+    # lands on the source pixels.
     return providers.stac.load(
         items,
         parsed,
         bands=list(fields),
-        resolution=resolution,
-        crs=crs,
+        resolution=PIXEL_500M if resolution is None and crs is None else resolution,
+        crs=SINUSOIDAL if crs is None else crs,
         chunks={} if chunks is True else chunks,
         groupby="solar_day",
         catalog="planetary-computer",

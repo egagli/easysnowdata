@@ -15,10 +15,13 @@ sd_hide_title: true
 
 **Snow-relevant geospatial data, one call each, as xarray.**
 
-Forty products — station observations from five networks, SAR and optical
-imagery, snow cover and SWE, five DEMs and a hillshade, land cover, basins,
-reanalysis, and the boundaries that frame them: countries, states, counties,
-mountain ranges and glacier outlines — behind one API that takes an area of
+Forty products — station observations from SNOTEL and the other AWDB networks,
+CDEC, BC, NVE, and Yukon; Sentinel-1 RTC, Sentinel-2, HLS, and PlanetScope
+imagery; MODIS and VIIRS snow cover; SNODAS and UCLA snow water equivalent and
+depth; the Sturm & Liston snow classes and a mountain snow mask; five DEMs,
+CHILI, and a hillshade; WorldCover, NLCD, and forest cover; basins; ERA5 and
+Köppen-Geiger climate; and the boundaries that frame them: countries, states,
+counties, mountain ranges, and glacier outlines — behind one API that takes an area of
 interest and a time range, returns lazy Dask-backed xarray objects (and
 GeoDataFrames for vector products), and never downloads more than it has to.
 
@@ -45,7 +48,7 @@ snodas_ds = esd.snow.snodas.load(aoi, "2024-03")            # SNODAS, no account
 
 counties_gdf = esd.boundaries.admin.counties(aoi)           # Pierce and Lewis (US Census)
 ranges_gdf = esd.boundaries.mountains.load(aoi)             # GMBA mountain ranges
-glaciers_gdf = esd.boundaries.glaciers.load(aoi)            # RGI 7.0; version="6.0" too
+glaciers_gdf = esd.boundaries.glaciers.load(aoi)            # RGI 7.0 (Earthdata username + password)
 
 ax = esd.plotting.map(dem_da, cmap="terrain")               # equal aspect, scale bar, graticule
 esd.plotting.add_outline(ax, glaciers_gdf)                  # vectors in the map's CRS
@@ -68,14 +71,14 @@ One executed script per product, with the figure it produces.
 :link: catalog/index
 :link-type: doc
 
-Every product: its routes, resolution, credentials, licence and health.
+Every product: its routes, resolution, credentials, licence, and health.
 :::
 
 :::{grid-item-card} {octicon}`book` Concepts
 :link: concepts
 :link-type: doc
 
-AOI, laziness, nodata, CRS and dims — the rules every loader follows.
+AOI, laziness, nodata, CRS, and dims — the rules every loader follows.
 :::
 
 :::{grid-item-card} {octicon}`key` Credentials
@@ -106,7 +109,7 @@ Every loader takes the same `aoi` (a bounding-box tuple, a shapely geometry, a
 GeoDataFrame in any CRS, or an `odc.geo.GeoBox`) and the same `time` (anything
 pandas or STAC understands). Search and load are separate calls. Results are
 lazy, carry their CRS on both the `.rio` and `.odc` accessors, and carry
-`source`, `license` and `data_citation` in `.attrs` — GeoDataFrames too, which
+`source`, `license`, and `data_citation` in `.attrs` — GeoDataFrames too, which
 come back in EPSG:4326 holding the whole features that touch the AOI. Products with more than
 one route expose them through `source=`, so a Planetary Computer outage is one
 keyword away from an alternative. Credentials are checked before any network
@@ -119,7 +122,7 @@ for the whole contract.
 
 ```{code-block} text
 Gagliano, E. (2024). easysnowdata [Software]. Zenodo.
-https://doi.org/10.5281/zenodo.14741502
+https://doi.org/10.5281/zenodo.14741501
 ```
 
 Each product also carries the citation of the data it serves in

@@ -802,7 +802,7 @@ THREEDEP_PRODUCT = Product(
         "The USGS 3D Elevation Program seamless bare-earth DEM at 1/3 "
         "arc-second (~10 m) and 1 arc-second (~30 m): lidar where it has been "
         "flown, legacy sources elsewhere, so the acquisition date varies by "
-        "tile. Conterminous US, Alaska (mostly coarser), Hawaii and "
+        "tile. Conterminous US, Alaska (mostly coarser), Hawaii, and "
         "territories; NAD83 horizontal, NAVD88 vertical. A terrain model, not "
         "a surface model: forest canopy is removed, which the global DEMs "
         "above do not do."

@@ -74,7 +74,7 @@ PRODUCT = Product(
     title="ERA5 / ERA5-Land reanalysis",
     description=(
         "ECMWF ERA5 hourly reanalysis (ARCO-ERA5 on Google Cloud Storage, 0.25°, "
-        "1940 to ERA5T) and the ERA5 / ERA5-Land hourly, daily and monthly "
+        "1940 to ERA5T) and the ERA5 / ERA5-Land hourly, daily, and monthly "
         "aggregates on Earth Engine (the only ERA5-Land route today)."
     ),
     sources=(
