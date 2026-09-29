@@ -10,7 +10,8 @@ provenance attributes (``source``, ``source_url``, ``product_id``,
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
+import functools
+from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 
 import numpy as np
@@ -22,6 +23,7 @@ from pyproj import CRS
 __all__ = [
     "DEFAULT",
     "PROVENANCE_KEYS",
+    "chunks_policy",
     "geographic_dims",
     "write_crs",
     "mask_continuous",
@@ -35,6 +37,41 @@ __all__ = [
 #: Sentinel for "the package default" on a keyword whose ``None`` means something
 #: else — ``chunks=None`` loads eagerly, as in odc-stac and rioxarray (§12.2 D).
 DEFAULT: Any = "easysnowdata-default"
+
+
+def chunks_policy(
+    lazy_default: Any,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    """Give a loader's ``chunks=`` the one meaning every loader shares.
+
+    - left at :data:`DEFAULT`: lazy and Dask-backed, with the source's native
+      chunking. The loader receives *lazy_default*, the value its own lazy
+      path already expects (``None`` for odc-stac, ``True`` for rioxarray,
+      :data:`DEFAULT` for loaders that decide per source).
+    - ``None``: no Dask. The same lazy result is built, then read into memory
+      before it is returned, so ``chunks=None`` means the same thing it means
+      in rioxarray, xarray, and odc-stac, whichever library is underneath.
+    - anything else (``{}``, ``True``, ``"auto"``, a dict of sizes): passed
+      through unchanged.
+
+    Before this, ``chunks=None`` was the lazy default of the STAC, Zarr, and
+    NetCDF loaders and an eager read on the raster-file ones.
+    """
+
+    def decorate(fn: Callable[..., Any]) -> Callable[..., Any]:
+        @functools.wraps(fn)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            chunks = kwargs.get("chunks", DEFAULT)
+            eager = chunks is None
+            if chunks is None or chunks is DEFAULT:
+                kwargs["chunks"] = lazy_default
+            out = fn(*args, **kwargs)
+            return out.load() if eager and hasattr(out, "load") else out
+
+        return wrapper
+
+    return decorate
+
 
 PROVENANCE_KEYS = (
     "source",

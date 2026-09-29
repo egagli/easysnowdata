@@ -256,6 +256,7 @@ def search(
     return days_df
 
 
+@contract.chunks_policy(lazy_default=None)
 def load(
     aoi: Any = None,
     time: Any = None,
@@ -263,7 +264,7 @@ def load(
     variables: str | Sequence[str] | None = None,
     source: str | None = None,
     region: str = "masked",
-    chunks: Any = None,
+    chunks: Any = contract.DEFAULT,
     **kwargs: Any,
 ) -> xr.Dataset:
     """Load SNODAS as an ``xarray.Dataset`` (``time``, ``latitude``, ``longitude``).

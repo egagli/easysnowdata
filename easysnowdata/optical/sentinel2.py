@@ -437,6 +437,7 @@ def search(
     return gdf
 
 
+@contract.chunks_policy(lazy_default=None)
 def load(
     aoi: Any = None,
     time: Any = None,
@@ -453,7 +454,7 @@ def load(
     scale: bool = True,
     mask_nodata: bool = True,
     cloud_cover: float | None = None,
-    chunks: dict[str, Any] | None = None,
+    chunks: Any = contract.DEFAULT,
     **kwargs: Any,
 ) -> xr.Dataset:
     """Load Sentinel-2 L2A as a lazy ``xarray.Dataset`` (``time``, ``y``, ``x``).

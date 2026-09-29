@@ -55,9 +55,7 @@ metadata read (a STAC search, a Zarr `.zmetadata`, a granule query) and builds
 a Dask graph. The bytes move when you `.compute()`, `.plot()`, or write.
 
 To force it: `.compute()` for the whole thing, `.isel(time=0).compute()` for
-one slice. On the raster-file loaders (DEMs, land cover, the snow
-classification) `chunks=None` also reads at call time; on the STAC, Zarr, and
-NetCDF loaders it is the lazy default, so use `.compute()` there.
+one slice, or pass `chunks=None` to any loader to read at call time.
 
 ## The loader is using too much memory
 

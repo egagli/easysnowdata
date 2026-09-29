@@ -269,6 +269,7 @@ def search(
     return inventory_df
 
 
+@contract.chunks_policy(lazy_default=None)
 def load(
     aoi: Any = None,
     time: Any = None,
@@ -277,7 +278,7 @@ def load(
     source: str | None = None,
     version: str = "ERA5",
     cadence: str = "hourly",
-    chunks: Any = None,
+    chunks: Any = contract.DEFAULT,
     **kwargs: Any,
 ) -> xr.Dataset:
     """Load ERA5 / ERA5-Land as a lazy ``xarray.Dataset`` (``time``, ``latitude``, ``longitude``).

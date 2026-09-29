@@ -141,6 +141,7 @@ def _collection(ee: Any, asset: str, time: Any):
     return collection.filterDate(start_text, end_text), True
 
 
+@contract.chunks_policy(lazy_default=contract.DEFAULT)
 def load(
     aoi: Any = None,
     *,

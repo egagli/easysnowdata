@@ -233,6 +233,7 @@ def search(
     return archive_df
 
 
+@contract.chunks_policy(lazy_default=True)
 def load(
     aoi: Any = None,
     time: Any = None,
@@ -241,7 +242,7 @@ def load(
     scenario: str | None = None,
     resolution: str = "0.1 degree",
     source: str | None = None,
-    chunks: Any = True,
+    chunks: Any = contract.DEFAULT,
     **kwargs: Any,
 ) -> xr.DataArray:
     """Load the Köppen-Geiger classes as a categorical ``xarray.DataArray``.

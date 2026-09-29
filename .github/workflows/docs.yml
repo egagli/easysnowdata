@@ -147,6 +147,18 @@ jobs:
           print("No Sphinx warnings.")
           EOF
 
+      # A provider that is down during the build must not replace the last
+      # good figures with a traceback: on 2026-09-28 Earthdata Login was
+      # unreachable for half an hour and seven examples failed. Each failed
+      # example gets its last good output back from the deployed site, with a
+      # note saying when it last ran and why it failed now. Before the
+      # montage, which reads the restored thumbnails.
+      - name: Keep the last good output of failed examples
+        if: steps.mode.outputs.gallery == 'full'
+        run: |
+          git fetch --depth 1 origin gh-pages:refs/remotes/origin/gh-pages || true
+          pixi run -e docs python scripts/gallery_fallback.py --site docs/_build/html --summary "$GITHUB_STEP_SUMMARY"
+
       # The README's header image, tiled from the thumbnails this build just
       # produced and published with the site (§7.2). It replaces the 2024
       # user-attachment upload that nobody could regenerate.

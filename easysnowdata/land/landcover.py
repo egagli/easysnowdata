@@ -199,6 +199,7 @@ def _load_tiles(tiles, aoi, version, chunks, kwargs):
     return merged_da.rio.write_crs(parts[0].rio.crs)
 
 
+@contract.chunks_policy(lazy_default=contract.DEFAULT)
 def load(
     aoi: Any = None,
     *,

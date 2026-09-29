@@ -341,6 +341,7 @@ def search(
     return gdf
 
 
+@contract.chunks_policy(lazy_default=True)
 def load(
     aoi: Any = None,
     time: Any = None,
@@ -351,7 +352,7 @@ def load(
     granules: Any = None,
     resolution: float | None = None,
     crs: Any = None,
-    chunks: Any = True,
+    chunks: Any = contract.DEFAULT,
     mask: bool = False,
     **kwargs: Any,
 ) -> xr.Dataset:

@@ -69,6 +69,7 @@ def _load_gee(aoi, time, chunks, kwargs):
     return contract.write_crs(da, grid["crs"])
 
 
+@contract.chunks_policy(lazy_default=contract.DEFAULT)
 def load(
     aoi: Any = None,
     *,
