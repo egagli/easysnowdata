@@ -102,6 +102,7 @@ def url(style: str = "gray-earth-ocean-drainages", scale: str = "10m") -> str:
     return f"{NATURAL_EARTH_RASTERS}/{scale}_raster/{_stem(style, scale)}.zip"
 
 
+@contract.chunks_policy(lazy_default=contract.DEFAULT)
 def load(
     aoi: Any = None,
     *,

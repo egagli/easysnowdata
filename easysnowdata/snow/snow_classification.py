@@ -132,6 +132,7 @@ def _fetch_nsidc(name: str) -> Path:
         ) from None
 
 
+@contract.chunks_policy(lazy_default=contract.DEFAULT)
 def load(
     aoi: Any = None,
     *,

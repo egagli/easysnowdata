@@ -83,6 +83,7 @@ def _layer(name: str) -> tuple[str, str]:
         ) from None
 
 
+@contract.chunks_policy(lazy_default=contract.DEFAULT)
 def load(
     aoi: Any = None,
     *,

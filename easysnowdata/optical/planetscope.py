@@ -402,6 +402,7 @@ def order(
     return result
 
 
+@contract.chunks_policy(lazy_default=True)
 def open_delivery(
     delivery: Any,
     aoi: Any = None,
@@ -409,7 +410,7 @@ def open_delivery(
     bands: Sequence[str] | None = None,
     scale: bool = True,
     mask_nodata: bool = True,
-    chunks: Any = True,
+    chunks: Any = contract.DEFAULT,
     source: Any = None,
     **kwargs: Any,
 ) -> xr.Dataset:
@@ -491,6 +492,7 @@ def open_delivery(
     return ds
 
 
+@contract.chunks_policy(lazy_default=True)
 def load(
     aoi: Any = None,
     time: Any = None,
@@ -504,7 +506,7 @@ def load(
     bands: Sequence[str] | None = None,
     scale: bool = True,
     mask_nodata: bool = True,
-    chunks: Any = True,
+    chunks: Any = contract.DEFAULT,
     **kwargs: Any,
 ) -> xr.Dataset:
     """Load PlanetScope imagery as an ``xarray.Dataset`` (``time``, ``y``, ``x``).

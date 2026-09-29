@@ -289,6 +289,7 @@ def search(
     return gdf
 
 
+@contract.chunks_policy(lazy_default=True)
 def load(
     aoi: Any = None,
     time: Any = None,
@@ -298,7 +299,7 @@ def load(
     source: str | None = None,
     granules: Any = None,
     mask: bool = False,
-    chunks: Any = True,
+    chunks: Any = contract.DEFAULT,
     **kwargs: Any,
 ) -> xr.Dataset:
     """Load VIIRS snow cover as a lazy ``xarray.Dataset`` (``time``, ``y``, ``x``).

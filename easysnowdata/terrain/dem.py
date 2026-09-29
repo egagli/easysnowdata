@@ -264,6 +264,7 @@ def search(
 # ── load ──────────────────────────────────────────────────────────────────────
 
 
+@contract.chunks_policy(lazy_default=contract.DEFAULT)
 def load(
     aoi: Any = None,
     *,

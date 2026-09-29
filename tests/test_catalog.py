@@ -539,3 +539,44 @@ class TestHealthRunner:
             health.earthdata_search(
                 "EMPTY", cloud_hosted=False, bbox=None, temporal=None
             )
+
+
+class TestChunksPolicy:
+    """``chunks=None`` means one thing on every loader: read now, no Dask."""
+
+    def test_every_loader_shares_the_policy(self):
+        import inspect
+
+        from easysnowdata.processing import contract
+
+        loaders = {catalog.get(pid).resolve_loader() for pid in catalog.products()}
+        with_chunks = [
+            fn for fn in loaders if "chunks" in inspect.signature(fn).parameters
+        ]
+        assert len(with_chunks) >= 18
+        for fn in with_chunks:
+            assert hasattr(fn, "__wrapped__"), f"{fn.__module__}.{fn.__name__}"
+            default = inspect.signature(fn).parameters["chunks"].default
+            assert default is contract.DEFAULT, f"{fn.__module__}.{fn.__name__}"
+
+    def test_default_none_and_explicit(self):
+        import dask.array as dsa
+        import numpy as np
+        import xarray as xr
+
+        from easysnowdata.processing import contract
+
+        seen = []
+
+        @contract.chunks_policy(lazy_default=True)
+        def load(*, chunks=contract.DEFAULT):
+            seen.append(chunks)
+            data = (
+                dsa.zeros((4, 4), chunks=2) if chunks is not False else np.zeros((4, 4))
+            )
+            return xr.DataArray(data, dims=("y", "x"))
+
+        assert load().chunks is not None and seen[-1] is True  # lazy default
+        assert load(chunks=None).chunks is None and seen[-1] is True  # read now
+        load(chunks={"x": 2})
+        assert seen[-1] == {"x": 2}  # passed through

@@ -58,6 +58,7 @@ def _normalized(da: xr.DataArray, normalize: bool | str) -> tuple[xr.DataArray, 
     )
 
 
+@contract.chunks_policy(lazy_default=contract.DEFAULT)
 def load(
     aoi: Any = None,
     *,
