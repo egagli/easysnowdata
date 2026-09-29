@@ -191,7 +191,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     pages = sorted(
-        str(path.relative_to(args.site))
+        path.relative_to(args.site).as_posix()
         for path in (args.site / "auto_examples").glob("*/plot_*.html")
     )
     failed = [
