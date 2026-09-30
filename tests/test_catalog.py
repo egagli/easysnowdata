@@ -144,10 +144,14 @@ class TestQueries:
             "srtm",
             "3dep",
             "alos-dem",
+            "gedtm30",
             "chili",
             "hillshade",
         }
         assert "hls" in catalog.list(provider="stac").index
+        # SRTM's default route is OpenTopography's static catalog, not Earth Engine
+        assert "srtm" in catalog.list(provider="opentopography").index
+        assert "srtm" in catalog.list(credential_free=True).index
         # "huc" left this set in Phase 2: its default source is now the
         # credential-free USGS WBD REST service (§12 Q7).
         assert set(catalog.list(requires="earthengine").index) >= {

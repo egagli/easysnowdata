@@ -42,7 +42,7 @@ inv_gdf = esd.stations.inventory(aoi, daily_only=True)      # which snow station
 obs_ds = esd.stations.load(inv_gdf, variables=["swe", "snwd"], time="2023-10/2024-09")
 
 dem_da = esd.terrain.dem.load(aoi)                          # Copernicus GLO-30 …
-dem_da = esd.terrain.dem.load(aoi, product="3dep")          # … or NASADEM, SRTM, 3DEP, ALOS
+dem_da = esd.terrain.dem.load(aoi, product="3dep")          # … or NASADEM, SRTM, 3DEP, ALOS, GEDTM30
 s1_ds = esd.sar.sentinel1.load(aoi, "2024-03", units="dB")  # Sentinel-1 RTC
 snodas_ds = esd.snow.snodas.load(aoi, "2024-03")            # SNODAS, no account needed
 

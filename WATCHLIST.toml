@@ -190,6 +190,58 @@ id = "file-hydroatlas"
 url = "https://ndownloader.figshare.com/files/20082137/BasinATLAS_Data_v10.gdb.zip"
 products = ["hydrobasins"]
 
+# OpenTopography's static STAC catalog (terrain.dem, source="opentopography").
+# There is no API to diff, so the files are the signal: the root catalog
+# changes when a dataset is added or withdrawn, and an item changes when its
+# tiles are replaced (a new release, as COP30 went from 2021 to 2023_1 in
+# July 2024). The loader caches items for 30 days, so a change here is also
+# the cue to clear ~/.cache/easysnowdata/opentopography.
+[[file]]
+id = "file-opentopography-catalog"
+url = "https://portal.opentopography.org/stac/raster_catalog.json"
+products = ["copernicus-dem", "nasadem", "srtm", "alos-dem", "gedtm30"]
+keywords = ["opentopography"]
+
+[[file]]
+id = "file-opentopography-cop30"
+product = "copernicus-dem"
+source = "opentopography"
+products = ["copernicus-dem"]
+
+[[file]]
+id = "file-opentopography-nasadem"
+product = "nasadem"
+source = "opentopography"
+products = ["nasadem"]
+
+[[file]]
+id = "file-opentopography-srtm"
+product = "srtm"
+source = "opentopography"
+products = ["srtm"]
+
+[[file]]
+id = "file-opentopography-srtm-ellipsoidal"
+url = "https://portal.opentopography.org/stac/items/SRTM_GL1_Ellip_srtm.json"
+products = ["srtm"]
+
+[[file]]
+id = "file-opentopography-aw3d30"
+product = "alos-dem"
+source = "opentopography"
+products = ["alos-dem"]
+
+[[file]]
+id = "file-opentopography-aw3d30-ellipsoidal"
+url = "https://portal.opentopography.org/stac/items/AW3D30_E_global.json"
+products = ["alos-dem"]
+
+[[file]]
+id = "file-opentopography-gedtm30"
+product = "gedtm30"
+source = "opentopography"
+products = ["gedtm30"]
+
 # Station inventories: a count per network, so stations added or retired show
 # up as a delta. NRCS adds SNOTEL sites every year.
 # Boundaries and the hillshade: one representative archive per source. An

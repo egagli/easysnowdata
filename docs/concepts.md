@@ -192,7 +192,16 @@ normal rather than exceptional. The first source listed is the default;
 ```python
 esd.terrain.dem.load(aoi)  # Planetary Computer
 esd.terrain.dem.load(aoi, source="earth-search")  # AWS Open Data, same output
+esd.terrain.dem.load(aoi, source="opentopography")  # OpenTopography, the 2023_1 release
 ```
+
+Routes are not always byte-identical copies: here the three serve the 2021,
+2021 and 2023_1 releases of GLO-30, and `attrs["source"]` and the catalog page
+say which one you got. OpenTopography's catalog is a *static* STAC catalog
+rather than a STAC API — there is nothing to search — so
+{py:obj}`easysnowdata.providers.opentopography` downloads its item once, picks
+the tiles by their bounding boxes, and hands them to the same odc-stac load
+as every other STAC route.
 
 This is the escape hatch when a provider has an outage, when you want to avoid
 an account, or when you are in a cloud region where one route is direct S3 and

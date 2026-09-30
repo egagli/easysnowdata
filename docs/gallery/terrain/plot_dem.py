@@ -1,21 +1,26 @@
 # esd-requires: earthengine
 """
-Digital elevation models: Copernicus, NASADEM, SRTM, 3DEP, ALOS
-===============================================================
+Digital elevation models: Copernicus, NASADEM, SRTM, 3DEP, ALOS, GEDTM30
+========================================================================
 
-Five DEMs behind one ``esd.terrain.dem.load``: Copernicus GLO-30 (the
+Six DEMs behind one ``esd.terrain.dem.load``: Copernicus GLO-30 (the
 default: TanDEM-X radar, 2011-2015), NASADEM and SRTM (the February 2000
 shuttle radar surface, reprocessed and original), USGS 3DEP (lidar-based,
-10 m, United States only) and ALOS World 3D (optical stereo, 2006-2011).
-``esd.terrain.dem.compare()`` tabulates how they differ and
-``esd.terrain.dem.search()`` lists the tiles a STAC route would read.
+10 m, United States only), ALOS World 3D (optical stereo, 2006-2011) and
+GEDTM30 (a global bare-earth terrain model, machine-learned from the others
+and ICESat-2/GEDI ground returns). ``esd.terrain.dem.compare()`` tabulates
+how they differ and ``esd.terrain.dem.search()`` lists the tiles a STAC
+route would read.
 
-Every product except SRTM has a credential-free route on the Planetary
-Computer (``source="planetary-computer"``, the default); Copernicus is also
-on Earth Search (``source="earth-search"``, unsigned AWS). Each has an Earth
-Engine route as well (``source="gee"``, needs ``esd.auth.login("earthengine")``),
-which is the only route to SRTM proper and to the newer 2024_1 edit of
-Copernicus GLO-30.
+Every product has a credential-free route. The Planetary Computer
+(``source="planetary-computer"``) is the default for Copernicus, NASADEM,
+3DEP and ALOS; Copernicus is also on Earth Search (``source="earth-search"``,
+unsigned AWS). OpenTopography's static STAC catalog
+(``source="opentopography"``) is the default for SRTM and GEDTM30, serves
+Copernicus (the 2023_1 release), NASADEM and ALOS too, and has the
+WGS84-ellipsoid copies of SRTM and ALOS (``ellipsoidal=True``). Earth Engine
+(``source="gee"``, needs ``esd.auth.login("earthengine")``) is the route to
+the newer 2024_1 edit of Copernicus GLO-30 and ALOS v4.1.
 
 The figures put four of them on one 30 m UTM grid over Mount Rainier:
 elevation with a shared colour scale, a hillshade that shows what 10 m lidar
@@ -166,9 +171,61 @@ for value, meaning in zip(classes_df["value"], classes_df["meaning"]):
 print(pd.DataFrame(rows).set_index("land cover").to_string())
 
 # %%
-# The Earth Engine routes. ``product="srtm"`` is SRTM GL1 v3 proper (Earth
-# Engine only), ``source="gee"`` on Copernicus is the newer 2024_1 edit of
-# GLO-30. They are compared with the STAC copies on the products' own
+# A global terrain model. GEDTM30 removes canopy and buildings the way 3DEP's
+# lidar does, but everywhere from 62°S to 84°N: over forest Copernicus sits
+# above it by roughly a canopy height, and over snow, rock and grass the two
+# agree to within a few metres. Its difference from 3DEP is what a
+# machine-learned terrain model costs against a lidar one here.
+gedtm30_da = esd.terrain.dem.load(aoi, product="gedtm30", **grid)
+surface_minus_terrain_da = reference_da - gedtm30_da
+gedtm30_minus_3dep_da = gedtm30_da - dems["3DEP 10 m"]
+rows = []
+for value, meaning in zip(classes_df["value"], classes_df["meaning"]):
+    pixels = landcover_da.values == value
+    if pixels.sum() < 1000:
+        continue
+    rows.append(
+        {
+            "land cover": meaning.replace("_", " "),
+            "median Copernicus - GEDTM30 [m]": round(
+                float(np.nanmedian(surface_minus_terrain_da.values[pixels])), 2
+            ),
+            "median GEDTM30 - 3DEP [m]": round(
+                float(np.nanmedian(gedtm30_minus_3dep_da.values[pixels])), 2
+            ),
+        }
+    )
+print(pd.DataFrame(rows).set_index("land cover").to_string())
+esd.plotting.map(
+    surface_minus_terrain_da.assign_attrs(long_name="elevation difference", units="m"),
+    cmap="RdBu",
+    vmin=-30,
+    vmax=30,
+    title="Copernicus GLO-30 minus GEDTM30 (surface minus terrain)",
+)
+
+# %%
+# Geoid or ellipsoid. Every DEM above gives heights above a geoid; ICESat-2,
+# GNSS and most airborne lidar give heights above the WGS84 ellipsoid.
+# ``ellipsoidal=True`` reads OpenTopography's ellipsoidal copy of SRTM (or
+# ALOS), made with the EGM96 geoid, so the difference between the two copies
+# is the geoid height itself: about -19 m at Rainier, and smooth, because the
+# geoid varies over hundreds of kilometres, not across a mountain.
+srtm_geoid_da = esd.terrain.dem.load(aoi, product="srtm", chunks=None)
+srtm_ellipsoid_da = esd.terrain.dem.load(
+    aoi, product="srtm", ellipsoidal=True, chunks=None
+)
+geoid_offset_da = srtm_ellipsoid_da - srtm_geoid_da
+print(
+    f"{srtm_ellipsoid_da.attrs['long_name']} minus "
+    f"{srtm_geoid_da.attrs['long_name']}: "
+    f"{float(geoid_offset_da.min()):.2f} to {float(geoid_offset_da.max()):.2f} m"
+)
+
+# %%
+# The Earth Engine routes. ``source="gee"`` on SRTM is the same SRTM GL1 v3
+# as OpenTopography's default route, and on Copernicus it is the newer 2024_1
+# edit of GLO-30. They are compared with the STAC copies on the products' own
 # 1 arc-second grid rather than the UTM grid above: the STAC and Earth Engine
 # routes resample with different kernels, and on slopes this steep that alone
 # is several metres, which would hide what is being compared.
@@ -177,7 +234,7 @@ margin = box.buffer(1000)
 copernicus_2021_da = esd.terrain.dem.load(margin, chunks=None)
 copernicus_2024_da = esd.terrain.dem.load(margin, source="gee", chunks=None)
 nasadem_da = esd.terrain.dem.load(margin, product="nasadem", chunks=None)
-srtm_da = esd.terrain.dem.load(margin, product="srtm", chunks=None)
+srtm_da = esd.terrain.dem.load(margin, product="srtm", source="gee", chunks=None)
 pairs = {
     "Copernicus 2024_1 minus 2021": copernicus_2024_da.interp_like(
         copernicus_2021_da, method="nearest"

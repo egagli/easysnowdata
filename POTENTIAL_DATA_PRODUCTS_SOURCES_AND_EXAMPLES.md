@@ -12,6 +12,11 @@ _2026-09-23: added §F (plans for boundaries, cloud products and cameras), the N
 hillshade that now ships as `esd.terrain.hillshade`, and their rows in §A, §C, §D and §E.
 The same day `esd.boundaries` shipped (§F.1)._
 
+_2026-09-30: OpenTopography's new static STAC catalog of public COGs is a source (`source="opentopography"`)
+for Copernicus (2023_1), NASADEM, SRTM GL1 (now its credential-free default) and ALOS World 3D, with
+WGS84-ellipsoid copies of SRTM and ALOS (`ellipsoidal=True`); GEDTM30, a global bare-earth DTM
+served only there, shipped as `product="gedtm30"`. Rows updated in §A, §B.8, §C and §E.1._
+
 _2026-09-28: this file is now the authoritative list of products to add. Issues #8 (GOES),
 #9 (S2/HLS snow cover) and #11 (the product list) are closed, and what was only in them (the
 API sketches in #8 and #9, the old PALSAR-2 notebook snippet, the "use xee?" notes) is in
@@ -52,7 +57,7 @@ Login) / GEE (Earth Engine) / key.
 | land | 🟢 ESA WorldCover v100/v200 | Planetary Computer `esa-worldcover` (none) | AWS `esa-worldcover` bucket (none) | see B.7 |
 | land | 🟢 NLCD | GEE `USGS/NLCD_RELEASES/2021_REL/NLCD` (GEE) | 🆕 Annual NLCD community asset (GEE) | see B.7 |
 | land | 🟢 Forest cover fraction (CGLS-LC100 2019) | Zenodo 3939050 GeoTIFF (none) | GEE `COPERNICUS/Landcover/100m/Proba-V-C3/Global` (GEE) | no newer epoch exists |
-| terrain | 🟢 Copernicus DEM GLO-30/90 | Planetary Computer `cop-dem-glo-*` (none) | AWS `copernicus-dem-30m/90m` (none); Earth Search `cop-dem-glo-*` (none); GEE `COPERNICUS/DEM/GLO30_2024_1` (GEE) | see B.8 |
+| terrain | 🟢 Copernicus DEM GLO-30/90 | Planetary Computer `cop-dem-glo-*` (none) | AWS `copernicus-dem-30m/90m` (none); Earth Search `cop-dem-glo-*` (none); OpenTopography `COP30`/`COP90` 2023_1 (none); GEE `COPERNICUS/DEM/GLO30_2024_1` (GEE) | see B.8 |
 | terrain | 🟢 CHILI | GEE `CSP/ERGo/1_0/Global/ALOS_CHILI` (GEE) | computed heat-load index from a DEM (none, later) | stop AOI-relative rescaling by default |
 | terrain | 🆕 Hillshade basemap (Natural Earth shaded relief) | Natural Earth S3 bucket, one zip per style and scale (none) | — | **shipped 2026-09-23** as `esd.terrain.hillshade.load`: five styles (plain shaded relief to Gray Earth with ocean bottom and drainages), 1:10m (1′) or 1:50m (2′), EPSG:4326 uint8, cached once, no reprojection; the layer from the runoff-onset `download_and_preprocess_hillshade.ipynb` |
 | climate | 🟢 ERA5 hourly | ARCO-ERA5 on GCS (none) | Earthmover Icechunk ERA5 (none); WeatherBench2 (none); NCAR `nsf-ncar-era5` (none); GEE (GEE) | see B.9 |
@@ -75,7 +80,8 @@ Login) / GEE (Earth Engine) / key.
 | snow | ICESat-2 ATL06 / ATL08 | NSIDC v007 (EDL, cloud) | snow depth by differencing; `icepyx`/`sliderule` exist — wrap, don't rewrite |
 | snow | Sentinel-2 / HLS snow cover (issue #9) | computed in `processing` | NDSI + SCL/Fmask first; let-it-snow / Theia style later (links in E.3) |
 | terrain | 3DEP 1/3″ seamless; 3DEP lidar | `s3://prd-tnm` (none); PC `3dep-seamless` / `3dep-lidar` group; GEE `3dep` tag | US 10 m DEM; `py3dep` already a (currently unused) dependency |
-| terrain | NASADEM | LPCLOUD `NASADEM_HGT_001` (EDL); PC `nasadem`; GEE `NASA/NASADEM_HGT/001` | 30 m, void-filled SRTM heritage |
+| terrain | NASADEM | LPCLOUD `NASADEM_HGT_001` (EDL); PC `nasadem`; GEE `NASA/NASADEM_HGT/001`; OpenTopography `NASADEM` (none) | 30 m, void-filled SRTM heritage |
+| terrain | GEDTM30 global bare-earth DTM; ellipsoidal SRTM / ALOS | OpenTopography static STAC (none) | **shipped 2026-09-30** as `product="gedtm30"` and `ellipsoidal=True` (B.8) |
 | terrain | slope / aspect / hillshade / heat-load index | computed from any DEM | needed by the DEM-based incidence-angle fallback; McCune & Keon heat load (E.1) replaces GEE CHILI; `processing.sar.slope_aspect` already exists, and a DEM-resolution `hillshade(dem_da)` beside it would complement the 1–2 km Natural Earth basemap now in `terrain.hillshade` |
 | land | Dynamic World; Hansen GFC 2025 v1.13 | GEE (GEE) | annual/near-real-time land cover; forest loss year |
 | climate | Daymet V4R1 | ORNL `Daymet_Daily_V4R1` (EDL, cloud, **has DMR++ sidecars**); PC `daymet-daily-na` Zarr (none) | 1 km daily North America met, the standard forcing for snow models |
@@ -207,15 +213,32 @@ products; Dynamic World listed as a source for "what is the land cover *now*".
 
 ### B.8 DEMs
 
-| | Copernicus GLO-30 (PC) | Copernicus GLO-30 (AWS Open Data / Earth Search) | Copernicus GLO-30 2024_1 (GEE) | 3DEP 1/3″ (S3 / PC) | NASADEM (LPCLOUD / PC / GEE) |
-| --- | --- | --- | --- | --- | --- |
-| Release | 2021 | 2021 (objects dated 2022) | **2024_1** (newest) | current | 2020 |
-| Res / extent | 30 m global | same | same | 10 m US | 30 m ±60° |
-| Credentials | none | none (unsigned) | GEE | none | EDL / none / GEE |
+| | Copernicus GLO-30 (PC) | Copernicus GLO-30 (AWS Open Data / Earth Search) | Copernicus GLO-30 (OpenTopography) | Copernicus GLO-30 2024_1 (GEE) | 3DEP 1/3″ (S3 / PC) | NASADEM (LPCLOUD / PC / GEE / OpenTopography) |
+| --- | --- | --- | --- | --- | --- | --- |
+| Release | 2021 | 2021 (objects dated 2022) | 2023_1 (from ESA, July 2024) | **2024_1** (newest) | current | 2020 |
+| Res / extent | 30 m global | same | same, also GLO-90 | same | 10 m US | 30 m ±60° |
+| Credentials | none | none (unsigned) | none | GEE | none | EDL / none / GEE / none |
 
 **Default:** Copernicus GLO-30 from PC; AWS/Earth Search as the no-signing fallback; note the
 2024_1 release is only on GEE/CDSE. 3DEP is the US 10 m upgrade path (PC `3dep-lidar` group and
 GEE `3dep` tag from #11 are in E.1). No public Zarr or Icechunk DEM mirror exists (checked).
+
+**OpenTopography (verified 2026-09-30).** The raster STAC catalog
+(`https://portal.opentopography.org/stac/raster_catalog.json`, STAC 1.1, 283 collections) serves
+COP30/COP90 2023_1, NASADEM, SRTM GL1 (and `SRTM_GL1_Ellip`), AW3D30 v3.2 (and `AW3D30_E`),
+GEDTM30, and regional and community lidar DEMs as anonymous COGs on
+`https://opentopography.s3.sdsc.edu/raster/`. It is the credential-free default for SRTM (the
+same v3 as GEE's `USGS/SRTMGL1_003`) and the only source of GEDTM30 and the ellipsoidal copies.
+Access quirks, handled in `providers.opentopography`: it is a static catalog with no `/search`
+(404), so pystac-client cannot query it; each dataset is one item with every tile as an asset
+(COP30 is 12 MB of JSON, ~26 000 assets, each with its own `bbox`), cached for 30 days; assets
+carry no `proj:` fields, so each selected tile's header is read; an item's `datetime` is the
+processing date, so acquisition dates come from the collection extent; each item also lists a
+`<item>.vrt` mosaic (11 MB for COP30), unused. Collections carry `sci:doi` and `sci:citation`;
+several global ones say `"license": "Not Provided"`. odc-stac's warp of GEDTM30's single global
+COG to another CRS returns only fill, so that route reads the native grid and reprojects with
+odc-geo. Other candidates in the same catalog: `CA_MRDEM` (Canada), `EU_DTM` (Europe),
+`GEBCO*` (bathymetry, not relevant).
 
 ### B.9 ERA5 family
 
@@ -294,7 +317,10 @@ re-implement · **reference** = not a product; kept in §E as an access pattern 
 | ICESat-2 ATL06/ATL08 | laser altimetry heights | snow depth by differencing | NSIDC · HDF5 · EDL | medium; `icepyx`/`sliderule` exist | **wrap** |
 | S2/HLS snow cover (#9) | NDSI-threshold and let-it-snow style snow maps | turns imagery into a snow product; the most-asked feature | computed | medium | **follow-on** (NDSI first; algorithm links in E.3) |
 | 3DEP 1/3″ and lidar | US 10 m DEM, point clouds | finer terrain for small basins; `py3dep` already a dependency | S3/PC · COG/EPT · none | low | **follow-on** |
-| NASADEM | 30 m void-filled SRTM | alternative DEM where GLO-30 has artefacts | PC/GEE | low | **shipped 0.3** as `product="nasadem"`, with SRTM GL1 (`"srtm"`, GEE) and ALOS World 3D (`"alos-dem"`) beside it |
+| NASADEM | 30 m void-filled SRTM | alternative DEM where GLO-30 has artefacts | PC/GEE/OpenTopography | low | **shipped 0.3** as `product="nasadem"`, with SRTM GL1 (`"srtm"`, GEE; OpenTopography since 2026-09-30) and ALOS World 3D (`"alos-dem"`) beside it |
+| GEDTM30 | 30 m global bare-earth DTM (Ho & Hengl 2025; ML fusion of Copernicus, ALOS and object heights, fitted to ICESat-2 and GEDI ground returns) | the global counterpart of 3DEP: slope, aspect and snow depth under forest outside the US; every other global DEM here is a surface model | OpenTopography · one global COG (432 GB, float32, fill = float32 max) · none · CC BY 4.0 | low | **shipped** 2026-09-30 as `product="gedtm30"` |
+| Ellipsoidal SRTM GL1 / ALOS World 3D | the same DEMs with WGS84-ellipsoid heights, converted by OpenTopography with EGM96 | differencing against ICESat-2, GNSS and airborne lidar, which are ellipsoidal | OpenTopography (`SRTM_GL1_Ellip`, `AW3D30_E`) · COG · none | low | **shipped** 2026-09-30 as `ellipsoidal=True` on `srtm` / `alos-dem` |
+| OpenTopography community lidar DEMs | ~230 survey DEMs (1 m DTM/DSM), including snow-on/snow-off pairs (Boulder Creek CZO 2010) and many mountain surveys in WA, ID, MT, CO, UT and WY | validation-scale terrain, and snow depth by differencing where a snow-on survey exists | OpenTopography static STAC · COG · none | medium (a search across 283 collections by AOI; per-survey licences and CRSs) | **follow-on** |
 | Insolation proxies (CHILI, heat load) | topographic radiation indices | aspect control on melt timing (P4's CHILI classes) | GEE; or computed from a DEM with McCune & Keon 2002 | low | **rewrite** (CHILI exists) + **follow-on** (local computation) |
 | Dynamic World | 10 m near-real-time land cover | current-year land cover for masking | GEE | low | **follow-on** |
 | Hansen GFC 2025 | tree cover and loss year | forest change affects snow interception | GEE | low | **follow-on** |
@@ -409,6 +435,7 @@ in the best-practices wiki rather than this package (**wiki**). Nothing is dropp
 | https://onlinelibrary.wiley.com/doi/10.1111/j.1654-1103.2002.tb02087.x | McCune & Keon 2002, heat-load equations | lets us compute a heat-load index from any DEM without GEE | **reference** → `processing.terrain.heat_load_index` (Tier 2) |
 | https://developers.google.com/earth-engine/datasets/catalog/NASA_NASADEM_HGT_001 | NASADEM on GEE | alternative DEM | **product**, Tier 2 (GEE source) |
 | https://planetarycomputer.microsoft.com/dataset/group/3dep-lidar | 3DEP lidar products on PC | US 1 m–10 m terrain from lidar | **product**, Tier 2 |
+| https://opentopography.org/blog/opentopographys-new-raster-stac ; https://portal.opentopography.org/stac/raster_catalog.json ; https://portal.opentopography.org/stac_browser/ | OpenTopography's raster STAC announcement, the catalog root, and its browser | a credential-free source for five DEMs, GEDTM30, ellipsoidal SRTM/ALOS, and community lidar DEMs | **source** shipped 2026-09-30 (`source="opentopography"`, `product="gedtm30"`, `ellipsoidal=True`; see B.8); community lidar DEMs **follow-on** (C) |
 | https://developers.google.com/earth-engine/datasets/tags/3dep | 3DEP on GEE | same, GEE route | **product**, Tier 2 (GEE source) |
 | https://github.com/planetlabs/notebooks/tree/master ; https://github.com/planetlabs/notebooks/blob/master/jupyter-notebooks/Data-API/planet_python_client_introduction.ipynb ; https://github.com/planetlabs/notebooks/tree/master/jupyter-notebooks | Planet API notebooks | commercial imagery access; licensing limits use | **product**, Tier 2 (B.11); **access pattern** reference (per-mosaic probe gotcha already in the wiki) |
 | https://github.com/planetlabs/planet-client-python ; https://planet-sdk-for-python.readthedocs.io/en/latest/ ; https://planet-sdk-for-python.readthedocs.io/en/latest/auth/auth-overview/ | `planet` SDK 3.x repository, docs, client-authentication guide | the search/order/download client and the auth stack `providers.planet` and `auth.planet` delegate to | **access pattern** yes (B.11, plan §5) |

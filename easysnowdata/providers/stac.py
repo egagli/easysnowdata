@@ -63,6 +63,14 @@ CATALOGS: dict[str, dict[str, Any]] = {
         # /vsicurl/ file is a HEAD; a ranged GET follows the EDL redirects fine.
         "gdal": {"CPL_VSIL_CURL_USE_HEAD": "NO"},
     },
+    # A static catalog, not an API: open_catalog() can browse it but search()
+    # cannot query it; providers.opentopography.search() selects its tiles.
+    "opentopography": {
+        "url": "https://portal.opentopography.org/stac/raster_catalog.json",
+        "sign": False,
+        "requires": (),
+        "gdal": {},
+    },
     "cmr-nsidc": {
         "url": f"{CMR_CLOUDSTAC_URL}/NSIDC_CPRD",
         "sign": False,
