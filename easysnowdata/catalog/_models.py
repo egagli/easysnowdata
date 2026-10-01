@@ -11,6 +11,8 @@ __all__ = ["Variable", "Probe", "PROBE_KINDS", "Source", "Product", "validate"]
 
 KNOWN_PROVIDERS = (
     "stac",
+    # OpenTopography's static STAC catalog (easysnowdata.providers.opentopography).
+    "opentopography",
     "earthdata",
     "gee",
     "raster_http",

@@ -44,6 +44,7 @@ __all__ = [
     "TIMEOUT",
     "http_first_byte",
     "stac_search",
+    "opentopography_tile",
     "zarr_metadata",
     "gee_asset",
     "earthdata_search",
@@ -187,6 +188,44 @@ def stac_asset_read(
     provider = auth.get("earthdata")
     provider.ensure()
     with provider.env(), rasterio.open(href) as src:
+        src.read(1, window=((0, 4), (0, 4)))
+
+
+def opentopography_tile(
+    item_id: str, *, bbox: tuple[float, float, float, float] = TEST_BBOX
+) -> None:
+    """Fetch an OpenTopography item fresh and read a 4×4 window of a tile in *bbox*.
+
+    The catalog is static (no search API), so a probe of it is the loader's
+    own two steps: the item JSON must list a tile meeting *bbox*, and that
+    COG must answer a ranged read. The item is fetched directly rather than
+    from the loader's cache, so a republished or withdrawn item shows up on
+    the next run instead of after the cache expires.
+    """
+    import rasterio  # noqa: PLC0415
+    import requests  # noqa: PLC0415
+    import shapely  # noqa: PLC0415
+
+    from easysnowdata.providers import opentopography  # noqa: PLC0415
+
+    url = opentopography.item_url(item_id)
+    response = requests.get(
+        url, timeout=TIMEOUT * 3, headers={"User-Agent": USER_AGENT}
+    )
+    response.raise_for_status()
+    box = shapely.box(*bbox)
+    for asset in response.json().get("assets", {}).values():
+        extent = asset.get("bbox")
+        if (
+            extent
+            and "data" in asset.get("roles", ())
+            and shapely.box(*extent).intersects(box)
+        ):
+            href = asset["href"]
+            break
+    else:
+        raise RuntimeError(f"No {item_id} tile covers {bbox} in {url}.")
+    with rasterio.open(href) as src:
         src.read(1, window=((0, 4), (0, 4)))
 
 

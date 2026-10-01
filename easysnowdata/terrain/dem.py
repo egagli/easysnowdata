@@ -1,12 +1,14 @@
-"""Digital elevation models: Copernicus DEM, NASADEM, SRTM, 3DEP and ALOS World 3D.
+"""Digital elevation models: Copernicus DEM, NASADEM, SRTM, 3DEP, ALOS World 3D and GEDTM30.
 
-Five DEMs, one ``load``. Copernicus GLO-30 is the default because it is the
+Six DEMs, one ``load``. Copernicus GLO-30 is the default because it is the
 most recent global model with the fewest voids, but it is a choice, not the
 only option, and the others differ in ways that matter for snow work: 3DEP is
 10 m over the United States, NASADEM and SRTM are the year-2000 radar
-surface that most older studies used, and ALOS World 3D is the optical
-stereo model CHILI is derived from. ``PRODUCTS`` lists them and
-:func:`compare` says how they differ::
+surface that most older studies used, ALOS World 3D is the optical stereo
+model CHILI is derived from, and GEDTM30 is a global *bare-earth* terrain
+model (canopy and buildings removed), where every other global DEM here is a
+surface model. ``PRODUCTS`` lists them and :func:`compare` says how they
+differ::
 
     import easysnowdata as esd
 
@@ -16,13 +18,26 @@ stereo model CHILI is derived from. ``PRODUCTS`` lists them and
     dem_da = esd.terrain.dem.load(aoi, product="3dep", resolution=10)  # US 10 m
     dem_da = esd.terrain.dem.load(aoi, product="srtm")                 # SRTM GL1 v3 on Earth Engine
     dem_da = esd.terrain.dem.load(aoi, source="earth-search")          # the same GLO-30, unsigned AWS
+    dem_da = esd.terrain.dem.load(aoi, source="opentopography")        # GLO-30 2023_1, no account
+    dem_da = esd.terrain.dem.load(aoi, product="gedtm30")              # global bare-earth DTM
+    dem_da = esd.terrain.dem.load(aoi, product="srtm", ellipsoidal=True)  # WGS84 ellipsoid heights
     items_gdf = esd.terrain.dem.search(aoi, product="3dep")            # the covering tiles
 
 Every product returns ``elevation`` in metres with the same dims, CRS
 handling and provenance attributes; the vertical datum is in
-``attrs["vertical_datum"]`` (EGM2008 for Copernicus, EGM96 for the SRTM
-family and ALOS, NAVD88 for 3DEP), which is the first thing to reconcile
-before differencing two of them.
+``attrs["vertical_datum"]`` (EGM2008 for Copernicus and GEDTM30, EGM96 for
+the SRTM family and ALOS, NAVD88 for 3DEP), which is the first thing to
+reconcile before differencing two of them.
+
+``source="opentopography"`` reads OpenTopography's static STAC catalog
+(:mod:`easysnowdata.providers.opentopography`): public COGs, no account, for
+Copernicus (the 2023_1 release), NASADEM, SRTM GL1, ALOS World 3D and
+GEDTM30. It is the default for SRTM and GEDTM30 and an alternative for the
+rest. It also carries OpenTopography's WGS84-ellipsoid copies of SRTM GL1
+and ALOS World 3D, which ``ellipsoidal=True`` selects: the heights to use
+when differencing against ICESat-2, GNSS or airborne lidar, which are
+referenced to the ellipsoid. OpenTopography made them from the orthometric
+versions with the EGM96 geoid.
 """
 
 from __future__ import annotations
@@ -62,6 +77,9 @@ COLLECTIONS: dict[int, str] = {30: "cop-dem-glo-30", 90: "cop-dem-glo-90"}
 #: The sentinel the Copernicus DEM COGs use for sea and missing tiles.
 NODATA = -32767.0
 
+#: The fill value of GEDTM30 (float32 max).
+GEDTM30_NODATA = 3.4028234663852886e38
+
 #: Short names accepted by ``product=``.
 ALIASES: dict[str, str] = {
     "copernicus": "copernicus-dem",
@@ -75,9 +93,12 @@ ALIASES: dict[str, str] = {
     "alos": "alos-dem",
     "aw3d30": "alos-dem",
     "alos-dem": "alos-dem",
+    "gedtm": "gedtm30",
+    "gedtm30": "gedtm30",
 }
 
 _PC_STAC = providers.stac.PLANETARY_COMPUTER_URL
+_OT_DATASET = "https://portal.opentopography.org/raster?opentopoID="
 _EARTH_SEARCH_STAC = providers.stac.EARTH_SEARCH_URL
 _GEE_CATALOG = "https://developers.google.com/earth-engine/datasets/catalog/"
 
@@ -98,6 +119,22 @@ class _StacRoute:
 
 
 @dataclass(frozen=True)
+class _OpenTopoRoute(_StacRoute):
+    """A DEM in OpenTopography's static STAC catalog.
+
+    ``collections`` maps a resolution to an OpenTopography *item* id (the
+    catalog has one item per dataset, every tile an asset of it).
+    """
+
+    ellipsoidal: dict[int, str] | None = None
+    """resolution in metres → item id of the WGS84-ellipsoid copy, where one exists."""
+    warp_after_load: bool = False
+    """Read the native grid, then reproject with odc-geo. odc-stac's own warp
+    returns only nodata from GEDTM30's single global COG (1.3 M × 540 k
+    pixels) in any other CRS, while a native-grid read is correct."""
+
+
+@dataclass(frozen=True)
 class _GeeRoute:
     """A DEM served as an Earth Engine image or tiled image collection."""
 
@@ -111,13 +148,23 @@ class _GeeRoute:
 _ROUTES: dict[tuple[str, str], _StacRoute | _GeeRoute] = {
     ("copernicus-dem", "planetary-computer"): _StacRoute(COLLECTIONS, "data", NODATA),
     ("copernicus-dem", "earth-search"): _StacRoute(COLLECTIONS, "data", NODATA),
+    ("copernicus-dem", "opentopography"): _OpenTopoRoute(
+        {30: "COP30_hh", 90: "COP90_hh"}, "data", NODATA
+    ),
     ("copernicus-dem", "gee"): _GeeRoute(
         "COPERNICUS/DEM/GLO30_2024_1", "DEM", 30, mosaic=True
     ),
     ("nasadem", "planetary-computer"): _StacRoute(
         {30: "nasadem"}, "elevation", -32768.0
     ),
+    ("nasadem", "opentopography"): _OpenTopoRoute({30: "NASADEM_be"}, "data", -32768.0),
     ("nasadem", "gee"): _GeeRoute("NASA/NASADEM_HGT/001", "elevation", 30),
+    ("srtm", "opentopography"): _OpenTopoRoute(
+        {30: "SRTM_GL1_srtm"},
+        "data",
+        -32768.0,
+        ellipsoidal={30: "SRTM_GL1_Ellip_srtm"},
+    ),
     ("srtm", "gee"): _GeeRoute("USGS/SRTMGL1_003", "elevation", 30),
     ("3dep", "planetary-computer"): _StacRoute(
         {10: "3dep-seamless", 30: "3dep-seamless"},
@@ -129,8 +176,20 @@ _ROUTES: dict[tuple[str, str], _StacRoute | _GeeRoute] = {
         "USGS/3DEP/10m_collection", "elevation", 10, mosaic=True
     ),
     ("alos-dem", "planetary-computer"): _StacRoute({30: "alos-dem"}, "data", -9999.0),
+    ("alos-dem", "opentopography"): _OpenTopoRoute(
+        {30: "AW3D30_global"},
+        "data",
+        -9999.0,
+        ellipsoidal={30: "AW3D30_E_global"},
+    ),
     ("alos-dem", "gee"): _GeeRoute("JAXA/ALOS/AW3D30/V4_1", "DSM", 30, mosaic=True),
+    ("gedtm30", "opentopography"): _OpenTopoRoute(
+        {30: "GEDTM30_be"}, "data", GEDTM30_NODATA, warp_after_load=True
+    ),
 }
+
+#: ``vertical_datum`` of the ellipsoidal copies.
+ELLIPSOID = "WGS84 ellipsoid"
 
 #: Per-product facts that go into the attrs and the comparison table.
 _FACTS: dict[str, dict[str, Any]] = {
@@ -159,6 +218,15 @@ _FACTS: dict[str, dict[str, Any]] = {
         "surface": "digital surface model (optical stereo, ALOS PRISM 2006-2011)",
         "default_resolution": 30,
     },
+    "gedtm30": {
+        "vertical_datum": "EGM2008",
+        "surface": (
+            "bare-earth digital terrain model (machine-learning fusion of "
+            "Copernicus, ALOS and other DEMs, fitted to ICESat-2 and GEDI "
+            "ground returns; inputs 2006-2015)"
+        ),
+        "default_resolution": 30,
+    },
 }
 
 
@@ -178,6 +246,34 @@ def _product_id(product: str | None) -> str:
 
 def _route(product_id: str, source_id: str) -> _StacRoute | _GeeRoute:
     return _ROUTES[product_id, source_id]
+
+
+def _collections(
+    route: _StacRoute | _GeeRoute, product_id: str, source_id: str, ellipsoidal: bool
+) -> dict[int, str] | None:
+    """The resolution → collection (or item) map to read, honouring *ellipsoidal*."""
+    if not ellipsoidal:
+        return route.collections if isinstance(route, _StacRoute) else None
+    if isinstance(route, _OpenTopoRoute) and route.ellipsoidal:
+        return route.ellipsoidal
+    offered = sorted(
+        f"product={pid!r}"
+        for (pid, _), r in _ROUTES.items()
+        if isinstance(r, _OpenTopoRoute) and r.ellipsoidal
+    )
+    raise ValueError(
+        f"{product_id} on source={source_id!r} has no ellipsoidal copy; "
+        f"ellipsoidal=True is offered for {' and '.join(offered)} on "
+        'source="opentopography".'
+    )
+
+
+def _long_name(datum: str) -> str:
+    if datum == "NAVD88":
+        return "elevation above NAVD88"
+    if datum == ELLIPSOID:
+        return f"elevation above the {ELLIPSOID}"
+    return f"elevation above the {datum} geoid"
 
 
 def _resolution(route: _StacRoute | _GeeRoute, product_id: str, resolution: Any) -> int:
@@ -218,6 +314,7 @@ def search(
     product: str | None = None,
     source: str | None = None,
     resolution: int | None = None,
+    ellipsoidal: bool = False,
     **kwargs: Any,
 ) -> gpd.GeoDataFrame:
     """Return the DEM tiles covering *aoi* as a GeoDataFrame of STAC items.
@@ -227,18 +324,21 @@ def search(
     aoi
         Any form :func:`easysnowdata.aoi.parse_aoi` accepts.
     product
-        ``"copernicus-dem"`` (default), ``"nasadem"``, ``"3dep"`` or
-        ``"alos-dem"`` — the products with a STAC route. ``"srtm"`` is served
-        by Earth Engine only, which has no tile search.
+        Any product with a STAC route: ``"copernicus-dem"`` (default),
+        ``"nasadem"``, ``"srtm"``, ``"3dep"``, ``"alos-dem"`` or ``"gedtm30"``.
     source
-        A STAC source of that product (``"planetary-computer"`` is the
-        default of every product that has one; Copernicus also has
-        ``"earth-search"``).
+        A STAC source of that product, the product's default when ``None``:
+        ``"planetary-computer"``, ``"earth-search"`` (Copernicus) or
+        ``"opentopography"``. Earth Engine routes have no tile search.
     resolution
         The DEM resolution in metres where a product offers more than one
         (Copernicus 30/90, 3DEP 10/30).
+    ellipsoidal
+        The WGS84-ellipsoid copy of SRTM or ALOS World 3D
+        (``source="opentopography"`` only).
     **kwargs
-        Passed to :func:`easysnowdata.providers.stac.search`.
+        Passed to :func:`easysnowdata.providers.stac.search`. OpenTopography's
+        catalog is static, with no search API, so it takes none.
 
     Returns
     -------
@@ -254,10 +354,19 @@ def search(
             f"{pid} on source={src.id!r} is an Earth Engine asset, which has no "
             "tile search; call load() directly."
         )
+    collections = _collections(route, pid, src.id, ellipsoidal)
     res = _resolution(route, pid, resolution)
+    if isinstance(route, _OpenTopoRoute):
+        if kwargs:
+            raise ValueError(
+                "OpenTopography's catalog is static, with no search API; "
+                f"search() takes no STAC arguments on this source, got {sorted(kwargs)}."
+            )
+        items = providers.opentopography.search(collections[res], aoi)
+        return providers.stac.items_to_geodataframe(items)
     if route.query is not None:
         kwargs.setdefault("query", route.query(res))
-    items = providers.stac.search(src.id, route.collections[res], aoi, **kwargs)
+    items = providers.stac.search(src.id, collections[res], aoi, **kwargs)
     return providers.stac.items_to_geodataframe(items)
 
 
@@ -271,6 +380,7 @@ def load(
     product: str | None = None,
     source: str | None = None,
     resolution: int | None = None,
+    ellipsoidal: bool = False,
     items: Any = None,
     crs: Any = None,
     grid_resolution: float | None = None,
@@ -289,17 +399,27 @@ def load(
         (STAC routes).
     product
         Which DEM: ``"copernicus-dem"`` (default), ``"nasadem"``, ``"srtm"``,
-        ``"3dep"`` or ``"alos-dem"``. Short forms (``"copernicus"``,
-        ``"alos"``) work too; see :data:`ALIASES`.
+        ``"3dep"``, ``"alos-dem"`` or ``"gedtm30"``. Short forms
+        (``"copernicus"``, ``"alos"``, ``"gedtm"``) work too; see
+        :data:`ALIASES`.
     source
         Which route to that product: the product's default when ``None``.
         Copernicus: ``"planetary-computer"``, ``"earth-search"`` (unsigned
-        AWS, no account) or ``"gee"`` (the newer 2024_1 release). NASADEM, 3DEP
-        and ALOS: ``"planetary-computer"`` or ``"gee"``. SRTM: ``"gee"``.
+        AWS, no account), ``"opentopography"`` (the 2023_1 release, no
+        account) or ``"gee"`` (the 2024_1 release). NASADEM and ALOS:
+        ``"planetary-computer"``, ``"opentopography"`` or ``"gee"``. 3DEP:
+        ``"planetary-computer"`` or ``"gee"``. SRTM: ``"opentopography"``
+        (no account) or ``"gee"``. GEDTM30: ``"opentopography"``.
     resolution
         The DEM product's resolution in metres, not the output grid:
         Copernicus 30 or 90, 3DEP 10 or 30, the rest 30. ``None`` picks the
         product's finest.
+    ellipsoidal
+        ``True`` reads OpenTopography's WGS84-ellipsoid copy of SRTM GL1 or
+        ALOS World 3D instead of the EGM96 orthometric heights, for
+        differencing against ICESat-2, GNSS or lidar heights. Only
+        ``product="srtm"`` and ``"alos-dem"`` on ``source="opentopography"``
+        have one (SRTM's default source already is); anything else raises.
     items
         Tiles from :func:`search` (a GeoDataFrame or ``ItemCollection``); when
         given, no search is made. STAC routes only.
@@ -336,24 +456,30 @@ def load(
     prod = catalog.get(pid)
     src = resolve_source(prod, source)
     route = _route(pid, src.id)
+    collections = _collections(route, pid, src.id, ellipsoidal)
     res = _resolution(route, pid, resolution)
     eager = chunks is None
     if isinstance(route, _StacRoute):
-        if crs is not None or grid_resolution is not None:
+        reproject = crs is not None or grid_resolution is not None
+        warp_after = reproject and getattr(route, "warp_after_load", False)
+        if reproject and not warp_after:
             kwargs.setdefault("resampling", resampling)
         da, source_url = _load_stac(
             prod,
             src,
             route,
+            collections,
             res,
-            aoi,
+            _with_margin(aoi) if warp_after else aoi,
             items,
-            crs,
-            grid_resolution,
+            None if warp_after else crs,
+            None if warp_after else grid_resolution,
             chunks,
             mask,
             kwargs,
         )
+        if warp_after:
+            da = _reproject(da, aoi, crs, grid_resolution, resampling)
     else:
         if items is not None:
             raise ValueError(
@@ -364,17 +490,16 @@ def load(
             prod, src, route, aoi, crs, grid_resolution, chunks, resampling, kwargs
         )
     facts = _FACTS[pid]
+    datum = ELLIPSOID if ellipsoidal else facts["vertical_datum"]
     da = da.rename("elevation")
     da.attrs.update(
         contract.provenance(
             prod,
             src,
             source_url=source_url,
-            long_name=f"elevation above the {facts['vertical_datum']} geoid"
-            if facts["vertical_datum"] != "NAVD88"
-            else "elevation above NAVD88",
+            long_name=_long_name(datum),
             units="m",
-            vertical_datum=facts["vertical_datum"],
+            vertical_datum=datum,
             surface=facts["surface"],
             resolution_m=int(res),
         )
@@ -388,6 +513,7 @@ def _load_stac(
     prod: Product,
     src: Source,
     route: _StacRoute,
+    collections: dict[int, str],
     res: int,
     aoi: Any,
     items: Any,
@@ -397,12 +523,31 @@ def _load_stac(
     mask: bool,
     kwargs: dict[str, Any],
 ) -> tuple[xr.DataArray, str]:
-    collection = route.collections[res]
-    if items is None:
-        query = route.query(res) if route.query is not None else None
-        items = providers.stac.search(
-            src.id, collection, aoi, **({"query": query} if query else {})
+    collection = collections[res]
+    opentopography = isinstance(route, _OpenTopoRoute)
+    if opentopography:
+        item_id, collection = (
+            collection,
+            providers.opentopography.collection_id(collection),
         )
+    if opentopography and items is not None:
+        # The datum attrs follow ellipsoidal=, so tiles of the other copy must
+        # not be labelled with it.
+        found = {i.collection_id for i in providers.stac._iter_items(items)}
+        if found - {collection}:
+            raise ValueError(
+                f"items= are from {', '.join(sorted(map(str, found)))}, but this "
+                f"call reads {collection}; pass the same product, resolution and "
+                "ellipsoidal= that search() was given."
+            )
+    if items is None:
+        if opentopography:
+            items = providers.opentopography.search(item_id, aoi)
+        else:
+            query = route.query(res) if route.query is not None else None
+            items = providers.stac.search(
+                src.id, collection, aoi, **({"query": query} if query else {})
+            )
     if len(items) == 0:
         raise ValueError(
             f"No {collection} items cover this AOI on {src.title}"
@@ -439,6 +584,8 @@ def _load_stac(
     elif mask and not da.dtype.kind == "f":
         da = da.astype("float32")
     da.attrs["collection"] = collection
+    if opentopography:
+        return da, providers.opentopography.collection_url(collection)
     url = f"{providers.stac.CATALOGS[src.id]['url']}/collections/{collection}"
     return da, url
 
@@ -546,6 +693,9 @@ def _with_margin(aoi: Any, fraction: float = 0.05) -> Any:
 def compare() -> Any:
     """One row per DEM product: resolution, extent, dates, datum, routes and credentials.
 
+    ``ellipsoidal_copy`` says whether ``load(..., ellipsoidal=True)`` works
+    for the product.
+
     The table :func:`load` chooses from, for deciding which DEM a study
     should use. It is the same information the catalog pages carry, in one
     place.
@@ -577,6 +727,11 @@ def compare() -> Any:
                 "extent": default.extent,
                 "acquired": default.temporal,
                 "vertical_datum": _FACTS[pid]["vertical_datum"],
+                "ellipsoidal_copy": any(
+                    isinstance(r := _route(pid, s.id), _OpenTopoRoute)
+                    and bool(r.ellipsoidal)
+                    for s in prod.sources
+                ),
                 "surface": _FACTS[pid]["surface"],
                 "sources": ", ".join(s.id for s in prod.sources),
                 "credential_free": bool(prod.credential_free_sources),
@@ -594,7 +749,9 @@ def _elevation(nodata: float | None, datum: str) -> tuple[Variable, ...]:
             "elevation",
             units="m",
             dtype="float32",
-            nodata=None if nodata is None else int(nodata),
+            nodata=None
+            if nodata is None
+            else (int(nodata) if abs(nodata) < 2**31 else float(nodata)),
             long_name=f"elevation above {datum}",
         ),
     )
@@ -627,14 +784,42 @@ def _gee_source(
     )
 
 
+def _ot_source(
+    item_id: str,
+    *,
+    resolution_m: int,
+    extent: str,
+    temporal: str,
+    notes: str,
+    label: str,
+) -> Source:
+    return Source(
+        id="opentopography",
+        provider="opentopography",
+        location=providers.opentopography.item_url(item_id),
+        resolution_m=resolution_m,
+        extent=extent,
+        temporal=temporal,
+        notes=notes,
+        title="OpenTopography",
+        health=Probe(label, partial(health.opentopography_tile, item_id)),
+    )
+
+
+_OT_NOTES = (
+    "OpenTopography's static STAC catalog: anonymous COGs on SDSC storage, "
+    "no search API, tiles picked by their bbox"
+)
+
 COPERNICUS_PRODUCT = Product(
     id="copernicus-dem",
     theme="terrain",
     title="Copernicus DEM GLO-30 / GLO-90",
     description=(
         "Global 30 m and 90 m digital surface model from the Copernicus DEM "
-        "(WorldDEM heritage: TanDEM-X X-band InSAR, 2011-2015), 2021 release "
-        "on the STAC routes and the 2024_1 release on Earth Engine. "
+        "(WorldDEM heritage: TanDEM-X X-band InSAR, 2011-2015): the 2021 "
+        "release on the Planetary Computer and Earth Search, the 2023_1 "
+        "release on OpenTopography and the 2024_1 release on Earth Engine. "
         "Elevations are referenced to the EGM2008 geoid. The default DEM here "
         "because it is the most recent global model with the fewest voids; "
         "see esd.terrain.dem.compare() for the alternatives."
@@ -682,6 +867,18 @@ COPERNICUS_PRODUCT = Product(
             label="Copernicus DEM (Earth Engine)",
             kind="image_collection",
         ),
+        _ot_source(
+            "COP30_hh",
+            resolution_m=30,
+            extent="global",
+            temporal="static (2023_1 release; acquired 2011-2015)",
+            notes=(
+                f"{_OT_NOTES}; the 2023_1 release taken from ESA in July 2024, "
+                "30 m (COP30) and 90 m (COP90), the original tiles with their "
+                "latitude-dependent longitude spacing"
+            ),
+            label="Copernicus DEM (OpenTopography)",
+        ),
     ),
     variables=_elevation(NODATA, "the EGM2008 geoid"),
     citation=(
@@ -696,6 +893,7 @@ COPERNICUS_PRODUCT = Product(
         "https://planetarycomputer.microsoft.com/dataset/cop-dem-glo-30",
         "https://registry.opendata.aws/copernicus-dem/",
         f"{_GEE_CATALOG}COPERNICUS_DEM_GLO30_2024_1",
+        f"{_OT_DATASET}OTSDEM.032021.4326.3",
     ),
     tags=("dem", "elevation", "terrain", "copernicus"),
 )
@@ -735,6 +933,14 @@ NASADEM_PRODUCT = Product(
             notes="the same product as one global image",
             label="NASADEM (Earth Engine)",
         ),
+        _ot_source(
+            "NASADEM_be",
+            resolution_m=30,
+            extent="60°N to 56°S",
+            temporal="static (acquired February 2000; released 2020)",
+            notes=f"{_OT_NOTES}; one COG per 1° tile",
+            label="NASADEM (OpenTopography)",
+        ),
     ),
     variables=_elevation(-32768.0, "the EGM96 geoid"),
     citation=(
@@ -748,6 +954,7 @@ NASADEM_PRODUCT = Product(
     references=(
         "https://planetarycomputer.microsoft.com/dataset/nasadem",
         "https://lpdaac.usgs.gov/products/nasadem_hgtv001/",
+        f"{_OT_DATASET}OTSDEM.032021.4326.2",
     ),
     tags=("dem", "elevation", "terrain", "srtm", "nasadem"),
 )
@@ -758,23 +965,32 @@ SRTM_PRODUCT = Product(
     title="SRTM GL1 v3 (30 m)",
     description=(
         "The Shuttle Radar Topography Mission 1 arc-second global DEM, version "
-        "3 (void-filled), as served by Earth Engine: the February 2000 C-band "
-        "radar surface, 60°N to 56°S, EGM96 geoid. Kept under its own name "
-        "because so much of the snow literature is built on it; NASADEM is the "
-        "same mission reprocessed, and the one to use when no Earth Engine "
-        "account is at hand."
+        "3 (void-filled): the February 2000 C-band radar surface, 60°N to "
+        "56°S, EGM96 geoid. Kept under its own name because so much of the "
+        "snow literature is built on it; NASADEM is the same mission "
+        "reprocessed. OpenTopography serves it without an account, and also "
+        "as a WGS84-ellipsoid copy (ellipsoidal=True) converted with the EGM96 "
+        "geoid, for differencing against ICESat-2, GNSS or lidar heights."
     ),
     sources=(
+        _ot_source(
+            "SRTM_GL1_srtm",
+            resolution_m=30,
+            extent="60°N to 56°S",
+            temporal="static (acquired February 2000; v3 2013)",
+            notes=(
+                f"{_OT_NOTES}; one COG per 1° tile; ellipsoidal=True reads "
+                "the WGS84-ellipsoid copy SRTM_GL1_Ellip"
+            ),
+            label="SRTM GL1 (OpenTopography)",
+        ),
         _gee_source(
             "USGS/SRTMGL1_003",
             title="Earth Engine",
             resolution_m=30,
             extent="60°N to 56°S",
             temporal="static (acquired February 2000; v3 2013)",
-            notes=(
-                "one global image; the only cloud-native route to SRTM proper "
-                "without an Earthdata download of per-tile NetCDF"
-            ),
+            notes="the same product as one global image",
             label="SRTM GL1 (Earth Engine)",
         ),
     ),
@@ -791,6 +1007,8 @@ SRTM_PRODUCT = Product(
     references=(
         f"{_GEE_CATALOG}USGS_SRTMGL1_003",
         "https://lpdaac.usgs.gov/products/srtmgl1v003/",
+        f"{_OT_DATASET}OTSRTM.082015.4326.1",
+        f"{_OT_DATASET}OTSRTM.082016.4326.1",
     ),
     tags=("dem", "elevation", "terrain", "srtm"),
 )
@@ -868,9 +1086,11 @@ ALOS_PRODUCT = Product(
     description=(
         "JAXA's global 30 m digital surface model from ALOS PRISM optical "
         "stereo imagery (2006-2011), EGM96 geoid: version 3.2 on the "
-        "Planetary Computer, version 4.1 on Earth Engine. The DEM the CHILI "
-        "heat-load index is derived from, and an independent surface to check "
-        "the radar DEMs against."
+        "Planetary Computer and OpenTopography, version 4.1 on Earth Engine. "
+        "The DEM the CHILI heat-load index is derived from, and an independent "
+        "surface to check the radar DEMs against. OpenTopography also serves "
+        "a WGS84-ellipsoid copy (ellipsoidal=True), converted with the EGM96 "
+        "geoid."
     ),
     sources=(
         Source(
@@ -896,6 +1116,17 @@ ALOS_PRODUCT = Product(
             label="ALOS World 3D (Earth Engine)",
             kind="image_collection",
         ),
+        _ot_source(
+            "AW3D30_global",
+            resolution_m=30,
+            temporal="static (acquired 2006-2011; v3.2 2021)",
+            extent="global",
+            notes=(
+                f"{_OT_NOTES}; v3.2, one COG per 1° tile; ellipsoidal=True "
+                "reads the WGS84-ellipsoid copy AW3D30_E"
+            ),
+            label="ALOS World 3D (OpenTopography)",
+        ),
     ),
     variables=_elevation(-9999.0, "the EGM96 geoid"),
     citation=(
@@ -909,8 +1140,48 @@ ALOS_PRODUCT = Product(
     references=(
         "https://planetarycomputer.microsoft.com/dataset/alos-dem",
         "https://www.eorc.jaxa.jp/ALOS/en/dataset/aw3d30/aw3d30_e.htm",
+        f"{_OT_DATASET}OTALOS.112016.4326.2",
+        f"{_OT_DATASET}OTALOS.082017.4326.1",
     ),
     tags=("dem", "elevation", "terrain", "alos", "aw3d30"),
+)
+
+GEDTM30_PRODUCT = Product(
+    id="gedtm30",
+    theme="terrain",
+    title="GEDTM30 global ensemble digital terrain model (30 m)",
+    description=(
+        "OpenGeoHub's global 30 m bare-earth terrain model (Ho & Hengl 2025): "
+        "Copernicus, ALOS World 3D and other DEMs fused with object-height "
+        "models by a two-stage random forest fitted to about 30 billion "
+        "ICESat-2 and GEDI ground returns, so forest canopy and buildings are "
+        "removed. 62°S to 84°N, EGM2008 geoid. The global counterpart of "
+        "3DEP: the DEM to use for slope, aspect or snow depth under forest "
+        "outside the United States. Machine-learned, so verify it before "
+        "relying on it where it matters."
+    ),
+    sources=(
+        _ot_source(
+            "GEDTM30_be",
+            resolution_m=30,
+            extent="62°S to 84°N",
+            temporal="static (inputs acquired 2006-2015; released 2025)",
+            notes=f"{_OT_NOTES}; one global COG (v1.2), float32",
+            label="GEDTM30 (OpenTopography)",
+        ),
+    ),
+    variables=_elevation(GEDTM30_NODATA, "the EGM2008 geoid"),
+    citation=(
+        "Ho, Y.-F., & Hengl, T. (2025). Global ensemble digital terrain model "
+        "30m (GEDTM30) (Version v20250619) [Data set]. Distributed by "
+        "OpenTopography. https://doi.org/10.5069/G9BV7DT1"
+    ),
+    license="CC BY 4.0",
+    doi="10.5069/G9BV7DT1",
+    loader="easysnowdata.terrain.dem.load",
+    examples=("terrain/plot_dem.py",),
+    references=(f"{_OT_DATASET}OTSDEM.082025.4326.1",),
+    tags=("dem", "elevation", "terrain", "dtm", "bare-earth", "gedtm30"),
 )
 
 #: The default product's entry, under the name 0.2 exported.
@@ -925,6 +1196,7 @@ PRODUCTS: dict[str, Product] = {
         SRTM_PRODUCT,
         THREEDEP_PRODUCT,
         ALOS_PRODUCT,
+        GEDTM30_PRODUCT,
     )
 }
 

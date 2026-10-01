@@ -2,6 +2,8 @@
 
 * :mod:`~easysnowdata.providers.stac` — pystac-client + odc-stac (Planetary
   Computer, Earth Search, CMR-STAC)
+* :mod:`~easysnowdata.providers.opentopography` — OpenTopography's static
+  STAC catalog of public COGs (no search API; tiles picked by asset bbox)
 * :mod:`~easysnowdata.providers.earthdata` — earthaccess search / open / download
 * :mod:`~easysnowdata.providers.gee` — Earth Engine via xee at the native grid
 * :mod:`~easysnowdata.providers.planet` — Planet Data and Orders APIs via the
@@ -23,6 +25,7 @@ from easysnowdata._gdal import CLOUD_DEFAULTS, gdal_env
 from easysnowdata.providers import (
     earthdata,
     gee,
+    opentopography,
     planet,
     raster_http,
     stac,
@@ -36,6 +39,7 @@ __all__ = [
     "stac",
     "earthdata",
     "gee",
+    "opentopography",
     "planet",
     "raster_http",
     "zarr_cloud",

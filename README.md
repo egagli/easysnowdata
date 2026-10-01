@@ -199,12 +199,12 @@ Some data sources need free accounts and credentials passed as environment varia
 | NVE HydAPI (Norwegian stations) | `NVE_API_KEY` | [hydapi.nve.no](https://hydapi.nve.no) |
 | Planet (PlanetScope, commercial) | `PL_API_KEY`, or `planet auth login` | [planet.com](https://www.planet.com) |
 
-33 of the 40 products have at least one route that needs no account; each product's catalog page says which.
+35 of the 41 products have at least one route that needs no account; each product's catalog page says which.
 
 ## What is in it
 
 <!-- CATALOG_START -->
-40 products across 9 themes, each with one or more access routes:
+41 products across 9 themes, each with one or more access routes:
 
 | theme | products | open without an account |
 | --- | --- | --- |
@@ -212,7 +212,7 @@ Some data sources need free accounts and credentials passed as environment varia
 | **snow** | [`modis-snow`](https://egagli.github.io/easysnowdata/catalog/modis-snow.html), [`mountain-snow-mask`](https://egagli.github.io/easysnowdata/catalog/mountain-snow-mask.html), [`snodas`](https://egagli.github.io/easysnowdata/catalog/snodas.html), [`snow-classification`](https://egagli.github.io/easysnowdata/catalog/snow-classification.html), [`ucla-snow-reanalysis`](https://egagli.github.io/easysnowdata/catalog/ucla-snow-reanalysis.html), [`viirs-snow`](https://egagli.github.io/easysnowdata/catalog/viirs-snow.html) | 4 of 6 |
 | **sar** | [`sentinel-1-local-incidence-angle`](https://egagli.github.io/easysnowdata/catalog/sentinel-1-local-incidence-angle.html), [`sentinel-1-rtc`](https://egagli.github.io/easysnowdata/catalog/sentinel-1-rtc.html) | 2 of 2 |
 | **optical** | [`hls`](https://egagli.github.io/easysnowdata/catalog/hls.html), [`planetscope`](https://egagli.github.io/easysnowdata/catalog/planetscope.html), [`sentinel-2-l2a`](https://egagli.github.io/easysnowdata/catalog/sentinel-2-l2a.html) | 2 of 3 |
-| **terrain** | [`3dep`](https://egagli.github.io/easysnowdata/catalog/3dep.html), [`alos-dem`](https://egagli.github.io/easysnowdata/catalog/alos-dem.html), [`chili`](https://egagli.github.io/easysnowdata/catalog/chili.html), [`copernicus-dem`](https://egagli.github.io/easysnowdata/catalog/copernicus-dem.html), [`hillshade`](https://egagli.github.io/easysnowdata/catalog/hillshade.html), [`nasadem`](https://egagli.github.io/easysnowdata/catalog/nasadem.html), [`srtm`](https://egagli.github.io/easysnowdata/catalog/srtm.html) | 5 of 7 |
+| **terrain** | [`3dep`](https://egagli.github.io/easysnowdata/catalog/3dep.html), [`alos-dem`](https://egagli.github.io/easysnowdata/catalog/alos-dem.html), [`chili`](https://egagli.github.io/easysnowdata/catalog/chili.html), [`copernicus-dem`](https://egagli.github.io/easysnowdata/catalog/copernicus-dem.html), [`gedtm30`](https://egagli.github.io/easysnowdata/catalog/gedtm30.html), [`hillshade`](https://egagli.github.io/easysnowdata/catalog/hillshade.html), [`nasadem`](https://egagli.github.io/easysnowdata/catalog/nasadem.html), [`srtm`](https://egagli.github.io/easysnowdata/catalog/srtm.html) | 7 of 8 |
 | **land** | [`esa-worldcover`](https://egagli.github.io/easysnowdata/catalog/esa-worldcover.html), [`forest-cover-fraction`](https://egagli.github.io/easysnowdata/catalog/forest-cover-fraction.html), [`nlcd`](https://egagli.github.io/easysnowdata/catalog/nlcd.html) | 2 of 3 |
 | **hydro** | [`grdc-major-river-basins`](https://egagli.github.io/easysnowdata/catalog/grdc-major-river-basins.html), [`grdc-wmo-basins`](https://egagli.github.io/easysnowdata/catalog/grdc-wmo-basins.html), [`huc`](https://egagli.github.io/easysnowdata/catalog/huc.html), [`hydrobasins`](https://egagli.github.io/easysnowdata/catalog/hydrobasins.html) | 4 of 4 |
 | **boundaries** | [`admin-boundaries`](https://egagli.github.io/easysnowdata/catalog/admin-boundaries.html), [`countries`](https://egagli.github.io/easysnowdata/catalog/countries.html), [`gmba-mountains`](https://egagli.github.io/easysnowdata/catalog/gmba-mountains.html), [`natural-earth-vectors`](https://egagli.github.io/easysnowdata/catalog/natural-earth-vectors.html), [`rgi-glaciers`](https://egagli.github.io/easysnowdata/catalog/rgi-glaciers.html), [`states-provinces`](https://egagli.github.io/easysnowdata/catalog/states-provinces.html), [`us-counties`](https://egagli.github.io/easysnowdata/catalog/us-counties.html) | 7 of 7 |
@@ -236,6 +236,7 @@ obs_ds = esd.stations.load(inv_gdf, variables=["swe", "snwd"], time="2023-10/202
 # Terrain, SAR, and snow water equivalent — lazy, Dask-backed, CRS attached
 dem_da = esd.terrain.dem.load(aoi)                          # Copernicus GLO-30 (default)
 dem_da = esd.terrain.dem.load(aoi, product="3dep")          # or NASADEM, SRTM, 3DEP, ALOS
+dem_da = esd.terrain.dem.load(aoi, product="gedtm30")       # global bare-earth DTM (OpenTopography)
 s1_ds = esd.sar.sentinel1.load(aoi, "2024-03", units="dB")  # Sentinel-1 RTC
 snodas_ds = esd.snow.snodas.load(aoi, "2024-03")            # SNODAS, no account
 
