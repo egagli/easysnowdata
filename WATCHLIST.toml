@@ -439,6 +439,41 @@ url = "https://www.earthenv.org/mountains"
 products = ["gmba-mountains"]
 keywords = ["version", "v2.1", "v3"]
 
+# OpenTopography's announcements: the monthly "Data Releases" posts, new
+# global datasets (GEDTM30 and ANADEM were announced here 2026-07-02, the
+# Copernicus 2023_1 switch in 2024) and access changes such as the raster
+# STAC catalog (blog, 2026). Its RSS feed stopped in 2021, so the pages are
+# watched. A line naming a DEM we serve is "action needed"; snow-on lidar or
+# a new global or regional DEM is "worth adding".
+[[page]]
+id = "page-opentopography-news"
+url = "https://opentopography.org/news"
+products = []
+keywords = ["stac", "cog", "cloud optimized", "snow", "global", "api"]
+[page.match_products]
+"copernicus" = ["copernicus-dem"]
+"cop30" = ["copernicus-dem"]
+"glo-30" = ["copernicus-dem"]
+"nasadem" = ["nasadem"]
+"srtm" = ["srtm"]
+"alos" = ["alos-dem"]
+"aw3d30" = ["alos-dem"]
+"gedtm" = ["gedtm30"]
+"3dep" = ["3dep"]
+
+[[page]]
+id = "page-opentopography-blog"
+url = "https://opentopography.org/blog"
+products = []
+keywords = ["stac", "cog", "cloud optimized", "snow", "global", "api", "notebook"]
+[page.match_products]
+"copernicus" = ["copernicus-dem"]
+"nasadem" = ["nasadem"]
+"srtm" = ["srtm"]
+"alos" = ["alos-dem"]
+"gedtm" = ["gedtm30"]
+"3dep" = ["3dep"]
+
 [[feed]]
 id = "feed-asf-search-changelog"
 url = "https://raw.githubusercontent.com/asfadmin/Discovery-asf_search/master/CHANGELOG.md"
