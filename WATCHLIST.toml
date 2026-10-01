@@ -442,8 +442,9 @@ keywords = ["version", "v2.1", "v3"]
 # OpenTopography's announcements: the monthly "Data Releases" posts, new
 # global datasets (GEDTM30 and ANADEM were announced here 2026-07-02, the
 # Copernicus 2023_1 switch in 2024) and access changes such as the raster
-# STAC catalog (blog, 2026). Its RSS feed stopped in 2021, so the pages are
-# watched. A line naming a DEM we serve is "action needed"; snow-on lidar or
+# STAC catalog (blog, 2026). The site-wide /rss.xml feed stopped in 2021, but
+# the news and blog feeds (/index.php/news/rss_2.0, /index.php/blog/rss_2.0)
+# still carry 2026 posts (checked 2026-10-01); the pages are watched here. A line naming a DEM we serve is "action needed"; snow-on lidar or
 # a new global or regional DEM is "worth adding".
 [[page]]
 id = "page-opentopography-news"
