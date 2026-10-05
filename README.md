@@ -41,26 +41,26 @@ release (the next Census year, a new RGI version) — is caught by a weekly
 and closes the previous one, carrying its unticked to-dos forward.
 
 <!-- DATA_STATUS_START -->
-_Last updated: 2026-09-29 22:45 UTC_  
+_Last updated: 2026-10-05 08:26 UTC_  
 _⚠️ = skipped (credentials not available in this run). Latency and virtualization probes are on the [status page](https://egagli.github.io/easysnowdata/status.html)._
 
 ### Stations (`esd.stations`)
 
-| Data Source | Latest (Sep 29) | Sep 28 | Sep 23 | Sep 21 |
+| Data Source | Latest (Oct 5) | Sep 29 | Sep 28 | Sep 23 |
 | :---------- | :------: | :------: | :------: | :------: |
 | AWDB stations (NRCS REST API) | ✅ | ✅ | ✅ | ✅ |
 | CDEC stations (JSON data servlet) | ✅ | ✅ | ✅ | ✅ |
 | BC snow stations (DataBC WFS) | ✅ | ✅ | ✅ | ✅ |
-| NVE stations (HydAPI) | ✅ | ✅ | ✅ | <abbr title="RuntimeError: Unreachable: HTTP 401">❌</abbr> |
+| NVE stations (HydAPI) | ✅ | ✅ | ✅ | ✅ |
 | Yukon stations (AquaCache API) | ✅ | ✅ | ✅ | ✅ |
-| Snow station Zarr archive (global_snow_networks) | ✅ | ✅ | ✅ | — |
+| Snow station Zarr archive (global_snow_networks) | ✅ | ✅ | ✅ | ✅ |
 | Snow station inventory (global_snow_networks) | ✅ | ✅ | ✅ | ✅ |
 | Snow station archive tarball (global_snow_networks) | ✅ | ✅ | ✅ | ✅ |
 | Snow station CSV (global_snow_networks) | ✅ | ✅ | ✅ | ✅ |
 
 ### Snow (`esd.snow`)
 
-| Data Source | Latest (Sep 29) | Sep 28 | Sep 23 | Sep 21 |
+| Data Source | Latest (Oct 5) | Sep 29 | Sep 28 | Sep 23 |
 | :---------- | :------: | :------: | :------: | :------: |
 | MODIS snow cover MOD10A1F (NASA NSIDC) | ✅ | ✅ | ✅ | ✅ |
 | MODIS snow cover MOD10A1 (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
@@ -69,55 +69,60 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 | SNODAS (GEE/Climate Engine) | ✅ | ✅ | ✅ | ✅ |
 | Sturm & Liston snow classification (NSIDC-0768) | ✅ | ✅ | ✅ | ✅ |
 | Sturm & Liston snow classification (Azure) | ✅ | ✅ | ✅ | ✅ |
-| UCLA Snow Reanalysis (NASA NSIDC) | ✅ | ✅ | <abbr title="RuntimeError: WUS_UCLA_SR: no granules found.">❌</abbr> | ✅ |
-| HMA Snow Reanalysis (NASA NSIDC) | ✅ | ✅ | <abbr title="RuntimeError: HMA_SR_D: no granules found.">❌</abbr> | ✅ |
+| UCLA Snow Reanalysis (NASA NSIDC) | ✅ | ✅ | ✅ | <abbr title="RuntimeError: WUS_UCLA_SR: no granules found.">❌</abbr> |
+| HMA Snow Reanalysis (NASA NSIDC) | ✅ | ✅ | ✅ | <abbr title="RuntimeError: HMA_SR_D: no granules found.">❌</abbr> |
 | VIIRS snow cover VNP10A1F (NASA NSIDC) | ✅ | ✅ | ✅ | ✅ |
 
 ### SAR (`esd.sar`)
 
-| Data Source | Latest (Sep 29) | Sep 28 | Sep 23 | Sep 21 |
+| Data Source | Latest (Oct 5) | Sep 29 | Sep 28 | Sep 23 |
 | :---------- | :------: | :------: | :------: | :------: |
 | Sentinel-1 RTC (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
-| Sentinel-1 RTC OPERA (CMR-STAC ASF) | ✅ | ✅ | <abbr title="APIError: {&quot;errors&quot;:[&quot;Oops! Something has gone wrong. We have been alerted and a">❌</abbr> | ✅ |
+| Sentinel-1 RTC OPERA (CMR-STAC ASF) | ✅ | ✅ | ✅ | <abbr title="APIError: {&quot;errors&quot;:[&quot;Oops! Something has gone wrong. We have been alerted and a">❌</abbr> |
 | Sentinel-1 RTC OPERA (Earth Engine) | ✅ | ✅ | ✅ | ✅ |
-| Sentinel-1 static layers (CMR-STAC ASF) | ✅ | ✅ | <abbr title="APIError: {&quot;errors&quot;:[&quot;Oops! Something has gone wrong. We have been alerted and a">❌</abbr> | ✅ |
+| Sentinel-1 static layers (CMR-STAC ASF) | ✅ | ✅ | ✅ | <abbr title="APIError: {&quot;errors&quot;:[&quot;Oops! Something has gone wrong. We have been alerted and a">❌</abbr> |
 | Copernicus DEM for the incidence angle (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | Sentinel-1 GRD angle band (Earth Engine) | ✅ | ✅ | ✅ | ✅ |
 
 ### Optical imagery (`esd.optical`)
 
-| Data Source | Latest (Sep 29) | Sep 28 | Sep 23 | Sep 21 |
+| Data Source | Latest (Oct 5) | Sep 29 | Sep 28 | Sep 23 |
 | :---------- | :------: | :------: | :------: | :------: |
-| HLS L30 (CMR-STAC LPCLOUD) | ✅ | ✅ | <abbr title="APIError: {&quot;errors&quot;:[&quot;Oops! Something has gone wrong. We have been alerted and a">❌</abbr> | ✅ |
-| HLS S30 (CMR-STAC LPCLOUD) | ✅ | — | — | — |
-| HLS L30 COG read (CMR-STAC LPCLOUD, Earthdata Login) | ✅ | — | — | — |
-| HLS S30 COG read (CMR-STAC LPCLOUD, Earthdata Login) | ✅ | — | — | — |
-| HLS L30 (Planetary Computer) | ✅ | — | — | — |
+| HLS L30 (CMR-STAC LPCLOUD) | ✅ | ✅ | ✅ | <abbr title="APIError: {&quot;errors&quot;:[&quot;Oops! Something has gone wrong. We have been alerted and a">❌</abbr> |
+| HLS S30 (CMR-STAC LPCLOUD) | ✅ | ✅ | — | — |
+| HLS L30 COG read (CMR-STAC LPCLOUD, Earthdata Login) | ✅ | ✅ | — | — |
+| HLS S30 COG read (CMR-STAC LPCLOUD, Earthdata Login) | ✅ | ✅ | — | — |
+| HLS L30 (Planetary Computer) | ✅ | ✅ | — | — |
 | HLS S30 (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
-| PlanetScope (Planet Data API) | ✅ | ✅ | ✅ | <abbr title="DeprecationWarning: Auth.value has been deprecated.">❌</abbr> |
+| PlanetScope (Planet Data API) | ✅ | ✅ | ✅ | ✅ |
 | Sentinel-2 L2A (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | Sentinel-2 L2A (Earth Search) | ✅ | ✅ | ✅ | ✅ |
 
 ### Terrain (`esd.terrain`)
 
-| Data Source | Latest (Sep 29) | Sep 28 | Sep 23 | Sep 21 |
+| Data Source | Latest (Oct 5) | Sep 29 | Sep 28 | Sep 23 |
 | :---------- | :------: | :------: | :------: | :------: |
 | CHILI (GEE/CSP ERGo) | ✅ | ✅ | ✅ | ✅ |
 | Copernicus DEM (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | Copernicus DEM (Earth Search) | ✅ | ✅ | ✅ | ✅ |
-| Copernicus DEM (Earth Engine) | ✅ | ✅ | ✅ | — |
-| NASADEM (Planetary Computer) | ✅ | ✅ | ✅ | — |
-| NASADEM (Earth Engine) | ✅ | ✅ | ✅ | — |
-| SRTM GL1 (Earth Engine) | ✅ | ✅ | ✅ | — |
-| 3DEP seamless (Planetary Computer) | ✅ | ✅ | ✅ | — |
-| 3DEP 10 m (Earth Engine) | ✅ | ✅ | ✅ | — |
-| ALOS World 3D (Planetary Computer) | ✅ | ✅ | ✅ | — |
-| ALOS World 3D (Earth Engine) | ✅ | ✅ | ✅ | — |
-| Natural Earth hillshade (S3) | ✅ | ✅ | ✅ | — |
+| Copernicus DEM (Earth Engine) | ✅ | ✅ | ✅ | ✅ |
+| Copernicus DEM (OpenTopography) | ✅ | — | — | — |
+| NASADEM (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
+| NASADEM (Earth Engine) | ✅ | ✅ | ✅ | ✅ |
+| NASADEM (OpenTopography) | ✅ | — | — | — |
+| SRTM GL1 (OpenTopography) | ✅ | — | — | — |
+| SRTM GL1 (Earth Engine) | ✅ | ✅ | ✅ | ✅ |
+| 3DEP seamless (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
+| 3DEP 10 m (Earth Engine) | ✅ | ✅ | ✅ | ✅ |
+| ALOS World 3D (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
+| ALOS World 3D (Earth Engine) | ✅ | ✅ | ✅ | ✅ |
+| ALOS World 3D (OpenTopography) | ✅ | — | — | — |
+| GEDTM30 (OpenTopography) | ✅ | — | — | — |
+| Natural Earth hillshade (S3) | ✅ | ✅ | ✅ | ✅ |
 
 ### Land cover (`esd.land`)
 
-| Data Source | Latest (Sep 29) | Sep 28 | Sep 23 | Sep 21 |
+| Data Source | Latest (Oct 5) | Sep 29 | Sep 28 | Sep 23 |
 | :---------- | :------: | :------: | :------: | :------: |
 | Forest cover fraction (Zenodo) | ✅ | ✅ | ✅ | ✅ |
 | Forest cover fraction (GEE/CGLS-LC100) | ✅ | ✅ | ✅ | ✅ |
@@ -128,36 +133,36 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Hydrography (`esd.hydro`)
 
-| Data Source | Latest (Sep 29) | Sep 28 | Sep 23 | Sep 21 |
+| Data Source | Latest (Oct 5) | Sep 29 | Sep 28 | Sep 23 |
 | :---------- | :------: | :------: | :------: | :------: |
 | HUC geometries (USGS WBD REST) | ✅ | ✅ | ✅ | ✅ |
 | HUC geometries (GEE/USGS WBD) | ✅ | ✅ | ✅ | ✅ |
 | HydroATLAS basins (figshare) | ✅ | ✅ | ✅ | ✅ |
-| HydroBASINS (HydroSHEDS regional zip) | ✅ | ✅ | ✅ | <abbr title="RuntimeError: Unreachable: HTTP 403">❌</abbr> |
+| HydroBASINS (HydroSHEDS regional zip) | ✅ | ✅ | ✅ | ✅ |
 | HydroBASINS (GEE/HydroATLAS) | ✅ | ✅ | ✅ | ✅ |
 | GRDC major river basins (World Bank) | ✅ | ✅ | ✅ | ✅ |
 | GRDC WMO basins | ✅ | ✅ | ✅ | ✅ |
 
 ### Boundaries (`esd.boundaries`)
 
-| Data Source | Latest (Sep 29) | Sep 28 | Sep 23 | Sep 21 |
+| Data Source | Latest (Oct 5) | Sep 29 | Sep 28 | Sep 23 |
 | :---------- | :------: | :------: | :------: | :------: |
-| Natural Earth countries (naciscdn) | ✅ | ✅ | ✅ | — |
-| geoBoundaries countries (ADM0, gbOpen) | ✅ | ✅ | ✅ | — |
-| Natural Earth states and provinces (naciscdn) | ✅ | ✅ | ✅ | — |
-| US Census states (cartographic boundaries) | ✅ | ✅ | ✅ | — |
-| geoBoundaries states and provinces (ADM1, gbOpen) | ✅ | ✅ | ✅ | — |
-| US Census counties (cartographic boundaries) | ✅ | ✅ | ✅ | — |
-| geoBoundaries admin units (ADM2, gbOpen) | ✅ | ✅ | ✅ | — |
-| RGI 7.0 glacier outlines (NSIDC) | ✅ | <abbr title="RuntimeError: Unreachable through Earthdata Login: HTTP 200 (https://urs.earthda">❌</abbr> | ✅ | — |
-| RGI 6.0 glacier outlines (NSIDC) | ✅ | <abbr title="RuntimeError: Unreachable through Earthdata Login: HTTP 200 (https://urs.earthda">❌</abbr> | ✅ | — |
-| RGI 6.0 glacier outlines (OGGM mirror) | ✅ | ✅ | ✅ | — |
-| GMBA mountains (EarthEnv) | ✅ | ✅ | ✅ | — |
-| Natural Earth vector layers (naciscdn) | ✅ | ✅ | ✅ | — |
+| Natural Earth countries (naciscdn) | ✅ | ✅ | ✅ | ✅ |
+| geoBoundaries countries (ADM0, gbOpen) | ✅ | ✅ | ✅ | ✅ |
+| Natural Earth states and provinces (naciscdn) | ✅ | ✅ | ✅ | ✅ |
+| US Census states (cartographic boundaries) | ✅ | ✅ | ✅ | ✅ |
+| geoBoundaries states and provinces (ADM1, gbOpen) | ✅ | ✅ | ✅ | ✅ |
+| US Census counties (cartographic boundaries) | ✅ | ✅ | ✅ | ✅ |
+| geoBoundaries admin units (ADM2, gbOpen) | ✅ | ✅ | ✅ | ✅ |
+| RGI 7.0 glacier outlines (NSIDC) | ✅ | ✅ | <abbr title="RuntimeError: Unreachable through Earthdata Login: HTTP 200 (https://urs.earthda">❌</abbr> | ✅ |
+| RGI 6.0 glacier outlines (NSIDC) | ✅ | ✅ | <abbr title="RuntimeError: Unreachable through Earthdata Login: HTTP 200 (https://urs.earthda">❌</abbr> | ✅ |
+| RGI 6.0 glacier outlines (OGGM mirror) | ✅ | ✅ | ✅ | ✅ |
+| GMBA mountains (EarthEnv) | ✅ | ✅ | ✅ | ✅ |
+| Natural Earth vector layers (naciscdn) | ✅ | ✅ | ✅ | ✅ |
 
 ### Climate (`esd.climate`)
 
-| Data Source | Latest (Sep 29) | Sep 28 | Sep 23 | Sep 21 |
+| Data Source | Latest (Oct 5) | Sep 29 | Sep 28 | Sep 23 |
 | :---------- | :------: | :------: | :------: | :------: |
 | ARCO-ERA5 (GCS anonymous) | ✅ | ✅ | ✅ | ✅ |
 | ERA5 (Google Earth Engine) | ✅ | ✅ | ✅ | ✅ |
