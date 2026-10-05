@@ -1,16 +1,20 @@
 {
   "lines": [
     "Welcome to Pangeo Discourse",
+    "[JOB] Simons Center Postdoctoral Fellows in Computational Climate at NYU",
+    "GeoD Global development preview: preserving context from STAC to local rasters",
+    "FROST: Front Range Open Science Teamup",
+    "HTTP API for Statistics from Zarr stores?",
+    "WakeAtlas: an ocean-data exploration globe — feedback welcome",
+    "Pangeo Showcase: “Earth2Studio: A Python Toolkit for AI Weather and Climate Workflows” (September 30, 12 PM EDT / 16:00 UTC)",
+    "Pangeo Showcase: \"insitubatch: Streaming ML Batches from Cloud Zarr Without Resharding\" (September 16, 12 PM EDT / 16:00 UTC)",
     "Decode GeoTIFF to GPU memory",
     "Copernicus Marine Level-4 products",
     "CNG Forum 2026 - Saturday is the final day for the room block",
     "How are reseachers using AI in Earth Observation workflows today?",
-    "Pangeo Showcase: \"insitubatch: Streaming ML Batches from Cloud Zarr Without Resharding\" (September 16, 12 PM EDT / 16:00 UTC)",
     "Experiment: querying large Zarr datasets directly from PostgreSQL/PostGIS without ETL",
     "Xue: A binary format for animating weather forecasts in the browser",
-    "WakeAtlas: an ocean-data exploration globe — feedback welcome",
     "WxData 2.3 Released",
-    "FROST: Front Range Open Science Teamup",
     "Public Virtual Zarr of the NASA (NEX-GDDP-CMIP6) Dataset",
     "AMS 2027 EIPT Sessions",
     "WxData 2.2 Released",
@@ -25,10 +29,6 @@
     "Open Call Postdoc - Global Delta Dynamics from Satellite Observations",
     "Virtual GRIB ingestion via Gribberish",
     "Help shape HDF5 safety, security, and privacy: FOSSY Aug 6 + HDF5 SHINES workshop Aug 12",
-    "Pangeo Showcase: \"Ensemble Weather Forecast Data Streaming with Kerchunk / VirtualiZarr\" (November 12, 2025 at 12 PM ET)",
-    "OpenMeteoApi.NET 1.0.1",
-    "AGU 2026 Session SY029. Open Source Tools for the Earth & Space Sciences: Breaking Discipline Silos to Accelerate Discovery",
-    "[Data Announcement] Revamped chunking for ERA5 Zarr datasets on Earth Data Hub",
-    "Computing the El Niño index from ERA5 with SQL"
+    "Pangeo Showcase: \"Ensemble Weather Forecast Data Streaming with Kerchunk / VirtualiZarr\" (November 12, 2025 at 12 PM ET)"
   ]
 }

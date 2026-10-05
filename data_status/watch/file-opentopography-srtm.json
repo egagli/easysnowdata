@@ -1,0 +1,9 @@
+{
+  "https://portal.opentopography.org/stac/items/SRTM_GL1_srtm.json": {
+    "etag": "\"5929ca-65508cf036891\"",
+    "last_modified": "Thu, 25 Jun 2026 00:09:41 GMT",
+    "length": "5843402",
+    "status": 206,
+    "url": "https://portal.opentopography.org/stac/items/SRTM_GL1_srtm.json"
+  }
+}

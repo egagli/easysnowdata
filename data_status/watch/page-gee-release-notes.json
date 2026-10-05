@@ -73,6 +73,7 @@
     "it lists releases by date and includes any new features, bug fixes, and significant",
     "performance improvements. You can also browse and filter release notes for all",
     "Google Cloud products in the",
+    "projects/gtac-data-publish/assets/TreeMap/Product_Version/2023-1",
     ": CSIRO Biodiversity Habitat Index v4 (BHI v4)",
     ": FAO GAUL: Global Administrative Unit Layers 2025, First-Level Administrative Units",
     ": FAO GAUL: Global Administrative Unit Layers 2025, Second-Level Administrative Units",
@@ -598,7 +599,6 @@
     "NASA/GRACE/MASS_GRIDS_V04/OCEAN",
     ": GRACE Monthly Mass Grids Release 06 Version 04 - Ocean",
     "Added projects/forestdatapartnership/assets/community_palm/20240312 (no longer available)",
-    ": Google Global Landsat-based CCDC Segments (1999-2019)",
-    "Added NASA/GRACE/MASS_GRIDS_V03/MASCON (no longer available)"
+    ": Google Global Landsat-based CCDC Segments (1999-2019)"
   ]
 }

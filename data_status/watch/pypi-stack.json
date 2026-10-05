@@ -12,11 +12,11 @@
     "url": "https://github.com/nsidc/earthaccess/releases"
   },
   "earthengine-api": {
-    "latest_version": "1.7.45",
+    "latest_version": "1.7.46",
     "url": "https://pypi.org/project/earthengine-api/"
   },
   "geopandas": {
-    "latest_version": "1.1.4",
+    "latest_version": "1.2.0",
     "url": "https://pypi.org/project/geopandas/"
   },
   "icechunk": {
@@ -32,7 +32,7 @@
     "url": "https://pypi.org/project/odc-stac/"
   },
   "planet": {
-    "latest_version": "3.6.0",
+    "latest_version": "3.7.0",
     "url": "https://pypi.org/project/planet/"
   },
   "planetary-computer": {
@@ -48,7 +48,7 @@
     "url": "https://pypi.org/project/pystac-client/"
   },
   "rasterio": {
-    "latest_version": "1.5.1",
+    "latest_version": "1.5.2",
     "url": "https://rasterio.readthedocs.io/en/stable/"
   },
   "rioxarray": {
@@ -64,7 +64,7 @@
     "url": "https://virtualizarr.readthedocs.io/en/latest/releases.html"
   },
   "xarray": {
-    "latest_version": "2026.7.0",
+    "latest_version": "2026.9.0",
     "url": "https://docs.xarray.dev/en/stable/whats-new.html"
   },
   "xee": {

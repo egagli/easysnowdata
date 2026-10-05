@@ -1,0 +1,9 @@
+{
+  "https://portal.opentopography.org/stac/items/SRTM_GL1_Ellip_srtm.json": {
+    "etag": "\"64da60-65508cf03b6b2\"",
+    "last_modified": "Thu, 25 Jun 2026 00:09:41 GMT",
+    "length": "6609504",
+    "status": 206,
+    "url": "https://portal.opentopography.org/stac/items/SRTM_GL1_Ellip_srtm.json"
+  }
+}

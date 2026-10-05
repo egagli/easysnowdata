@@ -1,0 +1,9 @@
+{
+  "https://portal.opentopography.org/stac/raster_catalog.json": {
+    "etag": "\"aa23-65508cebe4f95\"",
+    "last_modified": "Thu, 25 Jun 2026 00:09:36 GMT",
+    "length": "43555",
+    "status": 206,
+    "url": "https://portal.opentopography.org/stac/raster_catalog.json"
+  }
+}

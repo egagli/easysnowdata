@@ -1,0 +1,9 @@
+{
+  "https://portal.opentopography.org/stac/items/NASADEM_be.json": {
+    "etag": "\"5fad0c-65508cf20094e\"",
+    "last_modified": "Thu, 25 Jun 2026 00:09:43 GMT",
+    "length": "6270220",
+    "status": 206,
+    "url": "https://portal.opentopography.org/stac/items/NASADEM_be.json"
+  }
+}

@@ -3,7 +3,7 @@
     "cloud_hosted": true,
     "has_granules": true,
     "provider": "NSIDC_CPRD",
-    "revision_date": "2026-09-09",
+    "revision_date": "2026-10-02",
     "temporal_end": "ongoing",
     "temporal_start": "2012-01-19",
     "url": "https://cmr.earthdata.nasa.gov/search/concepts/C3173405448-NSIDC_CPRD.html",
