@@ -23,6 +23,12 @@ API sketches in #8 and #9, the old PALSAR-2 notebook snippet, the "use xee?" not
 §E.1–E.3 below. Propose a new product with an issue or with a PR that adds a row here; the
 row here is what gets tracked._
 
+_2026-10-07: the weekly upstream watch now also searches for candidates (`[[discover]]` in
+[`WATCHLIST.toml`](WATCHLIST.toml)): new cryosphere collections in CMR, and new collections on
+Planetary Computer, Earth Search and the Earth Engine public and community catalogs. A new id
+already named in this file is skipped, so an item under "Worth adding" in the digest is either
+worth a row here or worth ticking off as not._
+
 Contents:
 
 - **A. Products in the rewrite** — what the new package ships, in three tiers

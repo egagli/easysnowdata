@@ -65,6 +65,7 @@ class TestWatchlist:
             "pypi": "packages",
             "page": "url",
             "feed": "url",
+            "discover": "source",
         }
         for kind, entries in watchlist.items():
             for entry in entries:
@@ -720,3 +721,140 @@ class TestVisibleText:
             f"<p>Sentence number {i} is long enough to keep.</p>" for i in range(999)
         )
         assert len(watch.visible_text(html, limit=50)) == 50
+
+
+class TestDiscover:
+    """The discovery kind: datasets the package does not use yet."""
+
+    @staticmethod
+    def items(*specs):
+        return {
+            ident: {"name": ident, "title": title, "url": "", "text": text}
+            for ident, title, text in specs
+        }
+
+    @pytest.fixture(autouse=True)
+    def nothing_known(self, watch, monkeypatch):
+        monkeypatch.setattr(watch, "known_text", lambda: "mod10a1f\n")
+
+    def test_every_entry_names_a_known_source(self, watch, watchlist):
+        for entry in watchlist.get("discover", []):
+            assert entry["source"] in watch.DISCOVERERS, entry["id"]
+
+    def test_first_run_records_and_reports_nothing(self, watch):
+        after = {"items": self.items(("a", "A", ""))}
+        assert watch.diff_discovered({"id": "d"}, {}, after) == []
+        assert after == {"seen": ["a"]}
+
+    def test_a_new_id_is_reported_once_and_remembered(self, watch):
+        entry = {"id": "d", "keywords": ["snow"]}
+        after = {"items": self.items(("a", "A", ""), ("b", "Snow depth", ""))}
+        changes = watch.diff_discovered(entry, {"seen": ["a"]}, after)
+        assert [c.subject for c in changes] == ["b"]
+        assert changes[0].section == "Worth adding"
+        # A CMR window moves on: "a" and "b" leaving it must not be forgotten.
+        later = {"items": self.items(("c", "Land cover", ""))}
+        changes = watch.diff_discovered(entry, after, later)
+        assert [c.subject for c in changes] == ["c"]
+        assert changes[0].section == "Other"  # no keyword: listed, not a to-do
+        assert later["seen"] == ["a", "b", "c"]
+
+    def test_relevance_is_title_and_keywords_not_description(self, watch):
+        entry = {"id": "d", "keywords": ["snow"]}
+        after = {
+            "items": {
+                "x": {"name": "x", "title": "Daymet", "url": "", "text": "Climate"},
+                "y": {"name": "y", "title": "Forecast", "url": "", "text": "Snow Wind"},
+            }
+        }
+        changes = {
+            c.subject: c for c in watch.diff_discovered(entry, {"seen": ["z"]}, after)
+        }
+        assert changes["x"].categories == []
+        assert changes["y"].categories == ["new-dataset"]
+
+    def test_what_the_package_already_knows_is_skipped(self, watch):
+        after = {"items": self.items(("C1-NSIDC", "MOD10A1F v61", ""))}
+        after["items"]["C1-NSIDC"]["name"] = "MOD10A1F"
+        assert watch.diff_discovered({"id": "d"}, {"seen": ["z"]}, after) == []
+
+    def test_known_text_matches_earth_engine_stac_ids(
+        self, watch, monkeypatch, tmp_path
+    ):
+        monkeypatch.undo()  # the real known_text, over a fake repository
+        (tmp_path / "WATCHLIST.toml").write_text('assets = ["ECMWF/ERA5_LAND/HOURLY"]')
+        assert "ecmwf_era5_land_hourly" in watch.known_text(tmp_path)
+
+    def test_exclude_applies_after_the_details_are_fetched(self, watch, monkeypatch):
+        fetched = []
+
+        def details(item, _session):
+            fetched.append(item.pop("details"))
+            item["title"] = "MODIS/006/X [deprecated]"
+
+        monkeypatch.setattr(watch, "_gee_details", details)
+        monkeypatch.setattr(watch, "_session", lambda: None)
+        after = {
+            "items": {
+                "X": {"name": "X", "title": "X", "url": "", "text": "", "details": "u"}
+            }
+        }
+        entry = {"id": "d", "exclude": [r"\[deprecated\]"]}
+        assert watch.diff_discovered(entry, {"seen": ["z"]}, after) == []
+        assert fetched == ["u"]
+        assert after["seen"] == ["X", "z"]  # the snapshot keeps ids only
+
+    def test_cmr_asks_for_recent_records_per_query(self, watch):
+        calls = []
+
+        class Session:
+            def get(self, url, params=None, **_kwargs):
+                calls.append(params)
+                return TestRun.FakeResponse(
+                    {
+                        "feed": {
+                            "entry": [
+                                {
+                                    "id": "C9-NSIDC_CPRD",
+                                    "short_name": "SNEX99",
+                                    "title": "SnowEx 99",
+                                    "data_center": "NSIDC_CPRD",
+                                    "cloud_hosted": True,
+                                }
+                            ]
+                        }
+                    }
+                )
+
+        entry = {"source": "cmr", "window_days": 30, "queries": [{"q": 1}, {"q": 2}]}
+        out = watch.check_discover(entry, Session())
+        assert len(calls) == 2
+        assert all(c["created_at"].endswith(",") for c in calls)
+        item = out["items"]["C9-NSIDC_CPRD"]
+        assert item["name"] == "SNEX99"
+        assert "cloud" in item["title"]
+
+    def test_stac_follows_next_links(self, watch):
+        pages = {
+            "https://s/collections": {
+                "collections": [{"id": "a", "title": "A", "keywords": ["snow"]}],
+                "links": [{"rel": "next", "href": "https://s/collections?page=2"}],
+            },
+            "https://s/collections?page=2": {"collections": [{"id": "b"}], "links": []},
+        }
+
+        class Session:
+            def get(self, url, **_kwargs):
+                return TestRun.FakeResponse(pages[url])
+
+        out = watch.check_discover({"source": "stac", "url": "https://s/"}, Session())
+        assert set(out["items"]) == {"a", "b"}
+        assert out["items"]["a"]["text"] == "snow"
+
+    def test_an_empty_listing_is_an_error(self, watch):
+        class Session:
+            def get(self, *_args, **_kwargs):
+                return TestRun.FakeResponse([])
+
+        with pytest.raises(RuntimeError):
+            watch.check_discover({"source": "gee-community", "url": "u"}, Session())

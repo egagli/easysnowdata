@@ -18,7 +18,7 @@ on:
         type: boolean
         default: false
       only:
-        description: "Space-separated kinds to check (cmr stac gee file stations pypi page feed)"
+        description: "Space-separated kinds to check (cmr stac gee file stations pypi page feed discover)"
         type: string
         default: ""
 

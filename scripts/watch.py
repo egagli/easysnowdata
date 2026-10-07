@@ -17,6 +17,12 @@ package's version on PyPI. These catch a change *before* any changelog
 mentions it, and they never produce noise: either the value moved or it did
 not.
 
+*Discovery* entries search rather than watch: a catalog's whole listing (or
+every CMR collection added in a recent window) is reduced to ids, and an id
+never seen before, and not already named in the package, this watchlist or
+``POTENTIAL_DATA_PRODUCTS_SOURCES_AND_EXAMPLES.md``, is a candidate for
+"Worth adding".
+
 *Pages and feeds* are fetched, reduced to visible text, and diffed line by
 line. Every new line is tagged against the §8 categories, and anything that
 matches none is listed under "other" rather than dropped.
@@ -753,6 +759,234 @@ def check_feed(entry: dict[str, Any], session: Any) -> dict[str, Any]:
     return {"lines": [line.strip() for line in body.splitlines() if line.strip()][:600]}
 
 
+# ── discovery: datasets nobody has told us about yet ──────────────────────────
+#
+# Every other kind watches something the package already uses. These search:
+# a catalog's whole listing (or, for CMR, every collection added in a recent
+# window) is reduced to ids, and an id not seen on any earlier run is a
+# candidate. What the package already knows about (the catalog's sources, this
+# watchlist, POTENTIAL_DATA_PRODUCTS_SOURCES_AND_EXAMPLES.md) is skipped, a
+# candidate matching the entry's keywords lands under "Worth adding", and the
+# rest are listed under "Other". The snapshot is the set of ids seen so far.
+
+#: Where "already known" is looked up: an id or short name in any of these is
+#: not news. Paths are relative to the repository root.
+KNOWN_SOURCES = (
+    "POTENTIAL_DATA_PRODUCTS_SOURCES_AND_EXAMPLES.md",
+    "WATCHLIST.toml",
+    "easysnowdata",
+)
+
+#: Most ids kept per discovery snapshot; the community catalog alone has ~4,400.
+SEEN_LIMIT = 20000
+
+
+def known_text(root: Path = Path()) -> str:
+    """Everything the package already mentions, lower-cased."""
+    parts = []
+    for name in KNOWN_SOURCES:
+        path = root / name
+        files = sorted(path.rglob("*.py")) if path.is_dir() else [path]
+        parts += [f.read_text(errors="replace") for f in files if f.exists()]
+    text = "\n".join(parts).lower()
+    # Earth Engine's STAC names an asset ECMWF_ERA5_LAND_HOURLY where the
+    # code says ECMWF/ERA5_LAND/HOURLY.
+    return text + "\n" + text.replace("/", "_")
+
+
+def _discover_cmr(entry: dict[str, Any], session: Any) -> dict[str, dict[str, str]]:
+    """Collections CMR added in the last ``window_days``, for each query.
+
+    ``created_at`` is when the record entered CMR, so a new version or a newly
+    archived campaign (SnowEx, a High Mountain Asia product) shows up even when
+    its data are old. Matching is by GCMD science keyword, so every hit is
+    already about snow or ice.
+    """
+    since = datetime.now(UTC) - timedelta(days=int(entry.get("window_days", 60)))
+    out: dict[str, dict[str, str]] = {}
+    for query in entry["queries"]:
+        params = {
+            **query,
+            "created_at": since.strftime("%Y-%m-%dT00:00:00Z") + ",",
+            "page_size": 200,
+        }
+        response = session.get(
+            "https://cmr.earthdata.nasa.gov/search/collections.json",
+            params=params,
+            timeout=TIMEOUT,
+        )
+        response.raise_for_status()
+        for item in response.json().get("feed", {}).get("entry", []):
+            concept = item.get("id", "")
+            hosted = "cloud" if item.get("cloud_hosted") else "on-premises"
+            out[concept] = {
+                "name": item.get("short_name", ""),
+                "title": f"{item.get('title', '')} ({item.get('data_center', '')}, {hosted})",
+                "url": f"https://cmr.earthdata.nasa.gov/search/concepts/{concept}.html",
+                "text": "",
+            }
+    return out
+
+
+def _discover_stac(entry: dict[str, Any], session: Any) -> dict[str, dict[str, str]]:
+    """Every collection a STAC API serves."""
+    root = entry["url"].rstrip("/")
+    out: dict[str, dict[str, str]] = {}
+    url: str | None = f"{root}/collections"
+    while url:
+        response = session.get(url, timeout=TIMEOUT)
+        response.raise_for_status()
+        payload = response.json()
+        for collection in payload.get("collections", []):
+            out[collection["id"]] = {
+                "name": collection["id"],
+                "title": collection.get("title", collection["id"]),
+                "url": f"{root}/collections/{collection['id']}",
+                "text": " ".join(collection.get("keywords", [])),
+            }
+        url = next(
+            (
+                link["href"]
+                for link in payload.get("links", [])
+                if link.get("rel") == "next"
+            ),
+            None,
+        )
+    return out
+
+
+def _discover_gee(entry: dict[str, Any], session: Any) -> dict[str, dict[str, str]]:
+    """Every dataset in the Earth Engine catalog's static STAC.
+
+    The root links one sub-catalog per provider (133 on 2026-10-07), and each
+    of those links its datasets, so this is one request per provider. Titles
+    and descriptions need one more request per dataset, so only new ids get
+    them (:func:`diff_discovered` asks for them through ``details``).
+    """
+    response = session.get(entry["url"], timeout=TIMEOUT)
+    response.raise_for_status()
+    out: dict[str, dict[str, str]] = {}
+    for provider in response.json().get("links", []):
+        if provider.get("rel") != "child":
+            continue
+        sub = session.get(provider["href"], timeout=TIMEOUT)
+        sub.raise_for_status()
+        for link in sub.json().get("links", []):
+            if link.get("rel") != "child":
+                continue
+            ident = link.get("title") or link["href"]
+            out[ident] = {
+                "name": ident,
+                "title": ident,
+                "url": "",
+                "text": "",
+                "details": link["href"],
+            }
+    return out
+
+
+def _gee_details(item: dict[str, str], session: Any) -> None:
+    """Fill in a new Earth Engine dataset's title, description and page."""
+    response = session.get(item.pop("details"), timeout=TIMEOUT)
+    response.raise_for_status()
+    collection = response.json()
+    item["title"] = (
+        f"{collection.get('id', item['name'])}: {collection.get('title', '')}"
+    )
+    item["text"] = " ".join(collection.get("keywords", []))
+    item["url"] = "https://developers.google.com/earth-engine/datasets/catalog/" + item[
+        "name"
+    ].replace("/", "_")
+
+
+def _discover_gee_community(
+    entry: dict[str, Any], session: Any
+) -> dict[str, dict[str, str]]:
+    """Every dataset in the awesome-gee-community-catalog's JSON index."""
+    response = session.get(entry["url"], timeout=TIMEOUT)
+    response.raise_for_status()
+    out: dict[str, dict[str, str]] = {}
+    for dataset in response.json():
+        ident = dataset.get("id") or dataset.get("title", "")
+        out[ident] = {
+            "name": ident,
+            "title": dataset.get("title", ident),
+            "url": dataset.get("docs", ""),
+            "text": " ".join(
+                str(dataset.get(k, "")) for k in ("tags", "thematic_group", "provider")
+            ),
+        }
+    return out
+
+
+DISCOVERERS = {
+    "cmr": _discover_cmr,
+    "stac": _discover_stac,
+    "gee": _discover_gee,
+    "gee-community": _discover_gee_community,
+}
+
+
+def check_discover(entry: dict[str, Any], session: Any) -> dict[str, Any]:
+    """The candidates a catalog lists today, by id (see the section comment)."""
+    items = DISCOVERERS[entry["source"]](entry, session)
+    if not items:
+        raise RuntimeError("the catalog listed nothing")
+    return {"items": items}
+
+
+def diff_discovered(
+    entry: dict[str, Any], before: dict[str, Any], after: dict[str, Any]
+) -> list[Change]:
+    """Report ids never seen before, then fold ``after`` into the seen set.
+
+    Relevance is judged on the title and the catalog's own keywords or tags,
+    never the description: nearly every optical product's description
+    mentions a snow mask or albedo, which made Daymet, a Met Office forecast
+    and Landsat change detection "worth adding" in the first trial.
+
+    ``after`` is rewritten in place to ``{"seen": [...]}``, the snapshot
+    :func:`run` writes: the union of every id seen so far, because a CMR window
+    moves on and an id that leaves it must not come back as new.
+    """
+    items: dict[str, dict[str, str]] = after.pop("items", {})
+    seen = set(before.get("seen", []))
+    after["seen"] = sorted(seen | set(items))[-SEEN_LIMIT:]
+    if not seen:
+        return []  # the first run records, it does not report
+
+    known = known_text()
+    excludes = [re.compile(p, re.I) for p in entry.get("exclude", [])]
+    keywords = [_keyword_re(w) for w in entry.get("keywords", [])]
+    session = None
+    changes: list[Change] = []
+    for ident in sorted(set(items) - seen):
+        item = items[ident]
+        name = item.get("name") or ident
+        if name.lower() in known or ident.lower() in known:
+            continue  # already in the catalog, the watchlist or the list to add
+        if item.get("details"):
+            session = session or _session()
+            try:
+                _gee_details(item, session)
+            except Exception:  # noqa: BLE001 — the id alone is still news
+                item.pop("details", None)
+        if any(p.search(f"{name} {item.get('title', '')}") for p in excludes):
+            continue
+        text = f"{item.get('title', '')} {item.get('text', '')}"
+        relevant = not keywords or any(k.search(text) for k in keywords)
+        changes.append(
+            Change(
+                entry["id"],
+                name,
+                f"new: {item.get('title', name)}",
+                url=item.get("url", ""),
+                categories=["new-dataset"] if relevant else [],
+            )
+        )
+    return changes
+
+
 CHECKS = {
     "cmr": (check_cmr, diff_mapping),
     "stac": (check_stac, diff_mapping),
@@ -762,6 +996,7 @@ CHECKS = {
     "pypi": (check_pypi, diff_mapping),
     "page": (check_page, diff_lines),
     "feed": (check_feed, diff_lines),
+    "discover": (check_discover, diff_discovered),
 }
 
 

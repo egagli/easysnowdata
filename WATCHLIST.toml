@@ -495,3 +495,65 @@ products = ["countries", "states-provinces", "natural-earth-vectors"]
 id = "feed-geoboundaries-releases"
 url = "https://github.com/wmgeolab/geoBoundaries/releases.atom"
 products = ["countries", "states-provinces", "admin-boundaries"]
+
+# ── Discovery ─────────────────────────────────────────────────────────────────
+# Everything above watches something the package already uses. These search for
+# what it does not use yet (scripts/watch.py, check_discover): each run lists a
+# catalog's datasets by id, and an id never seen before, and not already named
+# in the catalog code, this file or POTENTIAL_DATA_PRODUCTS_SOURCES_AND_EXAMPLES.md,
+# is reported. A match on `keywords` lands under "Worth adding" (a to-do: add a
+# row to POTENTIAL_DATA_PRODUCTS... or decide it is not worth one); anything
+# else under "Other". The first run of each entry records and reports nothing.
+#   source    cmr | stac | gee | gee-community
+#   exclude   regexes (case-insensitive) on the id and title; a match is skipped
+#   keywords  what makes a new dataset worth adding; none means every new one is
+
+[[discover]]
+id = "discover-cmr-cryosphere"
+source = "cmr"
+# CMR's created_at is when the record arrived, so new versions and newly
+# archived campaigns (SnowEx, High Mountain Asia) count even when their data
+# are old. On 2026-10-07 the SNOW/ICE query returned four collections created
+# since July. GCMD science keywords already scope these to the cryosphere.
+window_days = 60
+queries = [
+    { "science_keywords_h[0][term]" = "SNOW/ICE" },
+    { "science_keywords_h[0][term]" = "GLACIERS/ICE SHEETS" },
+    { "science_keywords_h[0][term]" = "FROZEN GROUND" },
+]
+# Near-real-time twins of a product duplicate the standard one.
+exclude = ['(?<![a-z])nrt(?![a-z])']
+products = []
+
+[[discover]]
+id = "discover-stac-pc"
+source = "stac"
+url = "https://planetarycomputer.microsoft.com/api/stac/v1"
+keywords = ["snow", "swe", "glacier", "cryosphere", "albedo", "permafrost", "frozen ground", "sea ice", "ice sheet", "avalanche"]
+products = []
+
+[[discover]]
+id = "discover-stac-earth-search"
+source = "stac"
+url = "https://earth-search.aws.element84.com/v1"
+keywords = ["snow", "swe", "glacier", "cryosphere", "albedo", "permafrost", "frozen ground", "sea ice", "ice sheet", "avalanche"]
+products = []
+
+[[discover]]
+id = "discover-gee-catalog"
+source = "gee"
+# The public catalog's static STAC: one sub-catalog per provider, so ~130
+# requests a week, and one more per new dataset for its title and keywords.
+url = "https://earthengine-stac.storage.googleapis.com/catalog/catalog.json"
+# Retired collections stay listed with "[deprecated]" in the title.
+exclude = ['\[deprecated\]']
+keywords = ["snow", "swe", "glacier", "cryosphere", "albedo", "permafrost", "frozen ground", "sea ice", "ice sheet", "avalanche"]
+products = []
+
+[[discover]]
+id = "discover-gee-community"
+source = "gee-community"
+# The index behind gee-community-catalog.org (~4,400 entries on 2026-10-07).
+url = "https://raw.githubusercontent.com/samapriya/awesome-gee-community-datasets/master/community_datasets.json"
+keywords = ["snow", "swe", "glacier", "cryosphere", "albedo", "permafrost", "frozen ground", "sea ice", "ice sheet", "avalanche"]
+products = []
