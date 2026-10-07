@@ -38,7 +38,11 @@ What a probe cannot see — a reprocessed collection, a republished file, a new
 release (the next Census year, a new RGI version) — is caught by a weekly
 [upstream watch](WATCHLIST.toml) that opens one digest issue labelled
 [`upstream-watch`](https://github.com/egagli/easysnowdata/issues?q=label%3Aupstream-watch)
-and closes the previous one, carrying its unticked to-dos forward.
+and closes the previous one, carrying its unticked to-dos forward. The same
+digest lists datasets nobody has told us about yet: new snow, ice and frozen-ground
+collections in NASA's CMR, and new collections on Planetary Computer, Earth Search
+and both Earth Engine catalogs, under "Worth adding" when they are about the
+cryosphere.
 
 <!-- DATA_STATUS_START -->
 _Last updated: 2026-10-05 08:26 UTC_  
