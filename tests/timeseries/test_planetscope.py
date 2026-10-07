@@ -229,6 +229,13 @@ def test_delivery_files_keep_only_the_rasters(tmp_path):
         assert [p.name for p in files["udm2"]] == [
             "20230815_185002_40_247c_3B_udm2_clip.tif"
         ]
+        assert [p.name for p in files["xml"]] == [
+            "20230815_185002_40_247c_3B_AnalyticMS_metadata_clip.xml"
+        ]
+        scene = files["scene"][0]
+        assert planetscope._is_surface_reflectance(scene)
+        assert planetscope._item_prefix(scene) == "20230815_185002_40_247c"
+        assert planetscope._item_prefix(files["xml"][0]) == "20230815_185002_40_247c"
 
 
 @pytest.mark.recorded
@@ -372,6 +379,127 @@ def test_load_data_api_reads_one_scene(fake_planet, ts_fixtures):
     assert ds.attrs["asset_type"] == "ortho_analytic_4b_sr"
 
 
+# A trimmed stand-in for the AnalyticMS metadata XML of an ``analytic``
+# (radiance) delivery: only the per-band blocks the reader uses. The
+# coefficients are made up, of the 1e-5 order Planet's are.
+_RADIANCE_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<ps:EarthObservation xmlns:ps="urn:example:planet-product-metadata">
+  <ps:resultOf><ps:EarthObservationResult>
+{blocks}
+  </ps:EarthObservationResult></ps:resultOf>
+</ps:EarthObservation>
+"""
+_COEFFS = {1: 2.0e-5, 2: 2.1e-5, 3: 2.4e-5, 4: 3.5e-5}
+
+
+def _radiance_delivery(directory, scene_path, *, with_xml=True):
+    """Copy the SR fixture under a radiance (``analytic`` bundle) file name."""
+    directory.mkdir(parents=True, exist_ok=True)
+    tif = directory / "20230701_183012_12_2465_3B_AnalyticMS_clip.tif"
+    tif.write_bytes(scene_path.read_bytes())
+    if with_xml:
+        blocks = "\n".join(
+            "<ps:bandSpecificMetadata>"
+            f"<ps:bandNumber>{i}</ps:bandNumber>"
+            "<ps:radiometricScaleFactor>0.01</ps:radiometricScaleFactor>"
+            f"<ps:reflectanceCoefficient>{c}</ps:reflectanceCoefficient>"
+            "</ps:bandSpecificMetadata>"
+            for i, c in _COEFFS.items()
+        )
+        (
+            directory / "20230701_183012_12_2465_3B_AnalyticMS_metadata_clip.xml"
+        ).write_text(_RADIANCE_XML.format(blocks=blocks))
+    return directory
+
+
+@pytest.mark.recorded
+def test_open_delivery_radiance_uses_the_xml_reflectance_coefficients(
+    fake_planet, ts_fixtures, tmp_path
+):
+    raw = planetscope.open_delivery([ts_fixtures["planet_scene"]], RAINIER, scale=False)
+    delivery = _radiance_delivery(tmp_path / "toa", ts_fixtures["planet_scene"])
+    ds = planetscope.open_delivery(delivery, RAINIER)
+    assert ds.attrs["reflectance"] == "top_of_atmosphere"
+    assert ds.attrs["scaled_to_reflectance"] == "True"
+    for i, band in enumerate(("blue", "green", "red", "nir"), start=1):
+        np.testing.assert_allclose(
+            ds[band].values, raw[band].values * _COEFFS[i], rtol=1e-6
+        )
+        assert ds[band].attrs["reflectance_coefficient"] == _COEFFS[i]
+    # The SR fixture itself is scaled by 1e-4, not by the coefficients.
+    sr = planetscope.open_delivery([ts_fixtures["planet_scene"]], RAINIER)
+    assert sr.attrs["reflectance"] == "surface"
+    np.testing.assert_allclose(sr["red"].values, raw["red"].values * 1e-4)
+
+
+@pytest.mark.recorded
+def test_open_delivery_radiance_without_xml_stays_radiance(
+    fake_planet, ts_fixtures, tmp_path, caplog
+):
+    delivery = _radiance_delivery(
+        tmp_path / "rad", ts_fixtures["planet_scene"], with_xml=False
+    )
+    raw = planetscope.open_delivery([ts_fixtures["planet_scene"]], RAINIER, scale=False)
+    with caplog.at_level("WARNING", logger=planetscope.__name__):
+        ds = planetscope.open_delivery(delivery, RAINIER)
+    assert "leaving it as radiance" in caplog.text
+    assert ds.attrs["reflectance"] == "radiance"
+    assert ds.attrs["scaled_to_reflectance"] == "False"
+    np.testing.assert_allclose(ds["red"].values, raw["red"].values)
+
+
+@pytest.mark.recorded
+def test_open_delivery_matches_udm2_to_its_scene_by_time(
+    fake_planet, ts_fixtures, tmp_path
+):
+    # Two scenes; only the later one was delivered with a UDM2. Paired by list
+    # position, its mask would land on the earlier scene.
+    scene_bytes = ts_fixtures["planet_scene"].read_bytes()
+    (tmp_path / "20230701_170000_00_0000_3B_AnalyticMS_SR_clip.tif").write_bytes(
+        scene_bytes
+    )
+    (tmp_path / ts_fixtures["planet_scene"].name).write_bytes(scene_bytes)
+    (tmp_path / ts_fixtures["planet_udm2"].name).write_bytes(
+        ts_fixtures["planet_udm2"].read_bytes()
+    )
+    ds = planetscope.open_delivery(tmp_path, RAINIER)
+    assert ds.sizes["time"] == 2
+    early, late = ds["snow"].isel(time=0), ds["snow"].isel(time=1)
+    assert bool(early.isnull().all())
+    assert int(late.sum()) == 16
+
+
+@pytest.mark.recorded
+def test_load_data_api_gives_each_scene_its_own_time(fake_planet, ts_fixtures):
+    fake_planet["asset_location"] = str(ts_fixtures["planet_scene"])
+    second = {
+        **SYNTHETIC_ITEM,
+        "id": "20230702_000000_00_0000",
+        "properties": {
+            **SYNTHETIC_ITEM["properties"],
+            "acquired": "2023-07-02T18:30:12.000Z",
+        },
+    }
+    ds = planetscope.load(
+        RAINIER, source="data-api", items=[SYNTHETIC_ITEM, second], bands=["red"]
+    )
+    assert [str(t)[:10] for t in ds["time"].values] == ["2023-07-01", "2023-07-02"]
+
+
+@pytest.mark.recorded
+def test_load_data_api_leaves_a_radiance_asset_unscaled(fake_planet, ts_fixtures):
+    fake_planet["asset_location"] = str(ts_fixtures["planet_scene"])
+    ds = planetscope.load(
+        RAINIER,
+        source="data-api",
+        items=[SYNTHETIC_ITEM],
+        asset_type="ortho_analytic_4b",
+        bands=["red"],
+    )
+    assert ds.attrs["scaled_to_reflectance"] == "False"
+    assert float(np.nanmax(ds["red"].values)) > 1.0
+
+
 # ── UDM2 decoding (pure processing) ──────────────────────────────────────────
 
 
@@ -391,6 +519,8 @@ def test_decode_udm2_bands_and_flags():
     assert int(ds["snow"].isel(y=0, x=0)) == 1 and int(ds["snow"].sum()) == 1
     assert ds["snow"].attrs["flag_values"] == [0, 1]
     assert ds["confidence"].attrs["units"] == "%"
+    assert "UDM2.1" in ds["heavy_haze"].attrs["comment"]
+    assert "comment" not in ds["light_haze"].attrs
     assert int(optical_processing.udm1_bit(ds["unusable"], "blackfill").sum()) == 1
     assert ds.attrs["udm2_band_order"].startswith("clear snow")
     with pytest.raises(ValueError, match="Unknown UDM1 flag"):

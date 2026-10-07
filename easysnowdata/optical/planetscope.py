@@ -30,6 +30,7 @@ responses.
 from __future__ import annotations
 
 import logging
+import xml.etree.ElementTree as ET
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
@@ -84,8 +85,8 @@ BAND_NAMES = {
 SCENE_SCALE = 1e-4  # surface-reflectance scaling of the analytic_sr bundles
 SCENE_NODATA = 0
 
-_PLANET_DOCS = "https://developers.planet.com/docs/data/psscene/"
-_UDM2_DOCS = "https://developers.planet.com/docs/data/udm-2/"
+_PLANET_DOCS = "https://docs.planet.com/data/imagery/planetscope/psscene/"
+_UDM2_DOCS = "https://docs.planet.com/data/imagery/udm/"
 
 
 def _health_probe() -> None:
@@ -207,6 +208,28 @@ def _acquired(item: Any) -> pd.Timestamp | None:
     return None
 
 
+def _acquired_by_id(items: Any) -> dict[str, pd.Timestamp]:
+    """Each item's ``acquired`` time, keyed by id (a search frame or item dicts)."""
+    if isinstance(items, gpd.GeoDataFrame):
+        if "acquired" not in items.columns:
+            return {}
+        return {
+            item_id: pd.Timestamp(when).tz_localize(None)
+            for item_id, when in zip(items["id"], items["acquired"], strict=True)
+            if pd.notna(when)
+        }
+    if isinstance(items, dict):
+        items = [items]
+    if not isinstance(items, (list, tuple)):
+        return {}
+    out = {}
+    for item in items:
+        when = _acquired(item)
+        if when is not None:
+            out[item["id"]] = when
+    return out
+
+
 def _time_from_filename(path: Path) -> pd.Timestamp | None:
     """Planet delivery names start ``YYYYMMDD_HHMMSS_``."""
     stem = path.name
@@ -219,20 +242,54 @@ def _time_from_filename(path: Path) -> pd.Timestamp | None:
 
 
 def _delivery_files(order: Any) -> dict[str, list[Path]]:
-    """Group a delivered order's GeoTIFFs into ``scene`` and ``udm2`` lists.
+    """Group a delivered order's files into ``scene``, ``udm2`` and ``xml`` lists.
 
-    A delivery also carries ``manifest.json``, the item metadata JSON and the
-    ``AnalyticMS_metadata`` XML; only the rasters are kept, whether *order* is
-    a directory or the file list an :func:`order` result holds.
+    A delivery also carries ``manifest.json`` and the item metadata JSON,
+    which are dropped. The ``AnalyticMS_metadata`` XML is kept: for a TOA
+    radiance (``analytic``) bundle it holds the per-band reflectance
+    coefficients. *order* is a directory or the file list an :func:`order`
+    result holds.
     """
     if isinstance(order, (str, Path)):
         paths = sorted(Path(order).rglob("*"))
     else:
         paths = [Path(p) for p in order]
+    xml = [
+        p
+        for p in paths
+        if p.suffix.lower() == ".xml" and "analyticms_metadata" in p.name.lower()
+    ]
     paths = [p for p in paths if p.suffix.lower() in (".tif", ".tiff")]
     scenes = [p for p in paths if "udm2" not in p.name.lower()]
     udm2 = [p for p in paths if "udm2" in p.name.lower()]
-    return {"scene": scenes, "udm2": udm2}
+    return {"scene": scenes, "udm2": udm2, "xml": xml}
+
+
+def _item_prefix(path: Path) -> str:
+    """The item id a delivered file name starts with (``<id>_3B_...``)."""
+    return path.name.split("_3B_")[0]
+
+
+def _is_surface_reflectance(path: Path) -> bool:
+    """Surface-reflectance assets are named ``..._AnalyticMS_SR...``."""
+    return "analyticms_sr" in path.name.lower()
+
+
+def _reflectance_coefficients(xml_path: Path) -> dict[int, float]:
+    """Per-band TOA reflectance coefficients from a delivery's metadata XML.
+
+    Planet's analytic (radiance) products carry one
+    ``ps:reflectanceCoefficient`` per ``ps:bandSpecificMetadata`` block;
+    radiance times the coefficient is top-of-atmosphere reflectance.
+    """
+    root = ET.parse(xml_path).getroot()
+    coeffs: dict[int, float] = {}
+    for block in root.findall(".//{*}bandSpecificMetadata"):
+        number = block.findtext("{*}bandNumber")
+        value = block.findtext("{*}reflectanceCoefficient")
+        if number and value:
+            coeffs[int(number)] = float(value)
+    return coeffs
 
 
 # ── public API ────────────────────────────────────────────────────────────────
@@ -417,8 +474,17 @@ def open_delivery(
     """Open delivered Planet COGs (a directory, file list, or order result).
 
     Scenes are stacked on ``time`` from their file names, the analytic bands
-    are named (:data:`BAND_NAMES`), and a delivered ``udm2`` mask is decoded
-    into its named layers (:func:`easysnowdata.processing.decode_udm2`).
+    are named (:data:`BAND_NAMES`), and each delivered ``udm2`` mask is decoded
+    into its named layers (:func:`easysnowdata.processing.decode_udm2`) and
+    matched to its scene by file name. A scene delivered without a UDM2 (Planet
+    does not produce one for every scene) gets NaN mask layers.
+
+    With *scale*, surface-reflectance scenes (``analytic_sr`` bundles, files
+    named ``..._AnalyticMS_SR...``) are multiplied by :data:`SCENE_SCALE`.
+    TOA radiance scenes (the ``analytic`` bundle) are converted to
+    top-of-atmosphere reflectance with the per-band ``reflectanceCoefficient``
+    in the delivered metadata XML; without that XML they stay radiance and a
+    warning is logged. The ``reflectance`` attribute records which applied.
     """
     src = source if source is not None else resolve_source(PRODUCT, "orders-api")
     files = _delivery_files(
@@ -429,8 +495,9 @@ def open_delivery(
     if not files["scene"]:
         raise ValueError(f"No GeoTIFFs found in the delivery {delivery!r}.")
     parsed = parse_aoi(aoi) if aoi is not None else None
+    xml_by_item = {_item_prefix(p): p for p in files["xml"]}
 
-    scenes, times = [], []
+    scenes, times, kinds = [], [], set()
     for path in files["scene"]:
         da = providers.raster_http.open(
             path, parsed, chunks=chunks, squeeze=False, **kwargs
@@ -441,8 +508,18 @@ def open_delivery(
                 f"{path.name} has {da.sizes.get('band')} bands; expected 4 or 8 "
                 f"({list(BAND_NAMES)})."
             )
-        ds = da.assign_coords(band=list(names)).to_dataset(dim="band")
-        scenes.append(ds)
+        scene_ds = da.assign_coords(band=list(names)).to_dataset(dim="band")
+        if mask_nodata:
+            for band in names:
+                scene_ds[band] = contract.mask_continuous(scene_ds[band], SCENE_NODATA)
+        if scale:
+            scene_ds, kind = _to_reflectance(
+                scene_ds, names, path, xml_by_item.get(_item_prefix(path))
+            )
+        else:
+            kind = "none"
+        kinds.add(kind)
+        scenes.append(scene_ds)
         times.append(_time_from_filename(path) or pd.Timestamp("1970-01-01"))
     ds = xr.concat(
         [
@@ -454,28 +531,26 @@ def open_delivery(
 
     if files["udm2"]:
         masks_by_time = []
-        for path, when in zip(files["udm2"], times, strict=False):
+        for path in files["udm2"]:
+            # Match on the mask's own time, not its position: a scene without
+            # a UDM2 would otherwise shift every later mask onto the wrong scene.
+            when = _time_from_filename(path)
+            if when not in times:
+                _logger.warning("No delivered scene matches the UDM2 %s.", path.name)
+                continue
             udm2_da = providers.raster_http.open(
                 path, parsed, chunks=chunks, squeeze=False, **kwargs
             )
             decoded_ds = optical_processing.decode_udm2(udm2_da)
             masks_by_time.append(decoded_ds.expand_dims(time=[when]))
-        udm2_ds = xr.concat(masks_by_time, dim="time").sortby("time")
-        ds = ds.merge(udm2_ds, compat="override", join="left")
+        if masks_by_time:
+            udm2_ds = xr.concat(masks_by_time, dim="time").sortby("time")
+            ds = ds.merge(udm2_ds, compat="override", join="left")
 
     if bands is not None:
         keep = [b for b in bands if b in ds.data_vars]
         ds = ds[keep]
-    if mask_nodata:
-        for band in list(ds.data_vars):
-            if band in BAND_NAMES[4] or band in BAND_NAMES[8]:
-                ds[band] = contract.mask_continuous(ds[band], SCENE_NODATA)
-    if scale:
-        for band in list(ds.data_vars):
-            if band in BAND_NAMES[4] or band in BAND_NAMES[8]:
-                ds[band] = (ds[band] * SCENE_SCALE).assign_attrs(
-                    {**ds[band].attrs, "units": "1", "scale": SCENE_SCALE}
-                )
+    reflectance = " ".join(sorted(kinds))
     ds = contract.finalize(
         ds,
         PRODUCT,
@@ -483,13 +558,48 @@ def open_delivery(
         variables=(),
         source_url=_PLANET_DOCS,
         attrs={
-            "scaled_to_reflectance": str(bool(scale)),
+            "scaled_to_reflectance": str(
+                bool(scale) and kinds <= {"surface", "top_of_atmosphere"}
+            ),
+            "reflectance": reflectance,
             "udm2_bands": " ".join(optical_processing.UDM2_BANDS)
             if files["udm2"]
             else None,
         },
     )
     return ds
+
+
+def _to_reflectance(
+    scene_ds: xr.Dataset,
+    names: Sequence[str],
+    path: Path,
+    xml_path: Path | None,
+) -> tuple[xr.Dataset, str]:
+    """Scale one scene to reflectance; return it and which reflectance it is."""
+    if _is_surface_reflectance(path):
+        for band in names:
+            scene_ds[band] = (scene_ds[band] * SCENE_SCALE).assign_attrs(
+                {**scene_ds[band].attrs, "units": "1", "scale": SCENE_SCALE}
+            )
+        return scene_ds, "surface"
+    coeffs = _reflectance_coefficients(xml_path) if xml_path is not None else {}
+    if not all(i in coeffs for i in range(1, len(names) + 1)):
+        _logger.warning(
+            "%s is TOA radiance and no metadata XML with reflectance coefficients "
+            "was delivered beside it; leaving it as radiance.",
+            path.name,
+        )
+        return scene_ds, "radiance"
+    for i, band in enumerate(names, start=1):
+        scene_ds[band] = (scene_ds[band] * coeffs[i]).assign_attrs(
+            {
+                **scene_ds[band].attrs,
+                "units": "1",
+                "reflectance_coefficient": coeffs[i],
+            }
+        )
+    return scene_ds, "top_of_atmosphere"
 
 
 @contract.chunks_policy(lazy_default=True)
@@ -561,6 +671,7 @@ def load(
             len(ids),
             len(ids),
         )
+    acquired = _acquired_by_id(items)
     arrays, times = [], []
     for item_id in ids:
         url = providers.planet.asset_url(
@@ -576,7 +687,8 @@ def load(
         names = BAND_NAMES.get(da.sizes.get("band", 0), BAND_NAMES[4])
         arrays.append(da.assign_coords(band=list(names)).to_dataset(dim="band"))
         times.append(
-            _acquired(items[0] if isinstance(items, list) else None)
+            acquired.get(item_id)
+            or _time_from_filename(Path(item_id))
             or pd.Timestamp("1970-01-01")
         )
     ds = xr.concat(
@@ -589,7 +701,14 @@ def load(
     if mask_nodata:
         for band in list(ds.data_vars):
             ds[band] = contract.mask_continuous(ds[band], SCENE_NODATA)
-    if scale:
+    # Only the *_sr assets are surface reflectance scaled by 10,000; a radiance
+    # asset's reflectance coefficients live in a separate XML asset.
+    is_sr = asset_type.lower().endswith("_sr")
+    if scale and not is_sr:
+        _logger.warning(
+            "%s is not a surface-reflectance asset; leaving it unscaled.", asset_type
+        )
+    if scale and is_sr:
         for band in list(ds.data_vars):
             ds[band] = (ds[band] * SCENE_SCALE).assign_attrs(
                 {**ds[band].attrs, "units": "1", "scale": SCENE_SCALE}
@@ -602,7 +721,10 @@ def load(
         src,
         variables=(),
         source_url=_PLANET_DOCS,
-        attrs={"asset_type": asset_type, "scaled_to_reflectance": str(bool(scale))},
+        attrs={
+            "asset_type": asset_type,
+            "scaled_to_reflectance": str(bool(scale) and is_sr),
+        },
     )
 
 

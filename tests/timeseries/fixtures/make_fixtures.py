@@ -344,7 +344,7 @@ def make_planet_scene(directory: Path) -> list[Path]:
     udm2[7, :3, :3] = 1  # unusable bit 0 (blackfill)
     return [
         _write_tif(
-            directory / "20230701_183012_12_2465_3B_AnalyticMS_clip.tif",
+            directory / "20230701_183012_12_2465_3B_AnalyticMS_SR_clip.tif",
             scene,
             transform,
             "EPSG:32610",

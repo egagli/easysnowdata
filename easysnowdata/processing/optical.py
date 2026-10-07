@@ -167,7 +167,10 @@ def scale_offset(
 
 #: PlanetScope UDM2 band order (Planet's "Usable Data Mask" specification).
 #: Bands 1-6 are 0/1 masks, band 7 is a percentage confidence and band 8 is
-#: the legacy UDM1 bit field (bit 0 = blackfill / no data).
+#: the legacy UDM1 bit field (bit 0 = blackfill / no data). Since UDM2.1
+#: (all PlanetScope and SkySat imagery from 2023-11-29) haze is one class in
+#: band 4 (``light_haze``) and band 5 (``heavy_haze``) is always 0.
+#: https://docs.planet.com/data/imagery/udm/
 UDM2_BANDS: tuple[str, ...] = (
     "clear",
     "snow",
@@ -217,6 +220,11 @@ def decode_udm2(
     -----
     Band order follows Planet's UDM2 specification; the file itself carries no
     band names, so a raster with fewer than eight bands raises.
+
+    UDM2.1, which processes all imagery from 2023-11-29, deprecated the heavy
+    haze class: ``light_haze`` then holds every haze pixel and ``heavy_haze``
+    is always 0. Mask haze with ``light_haze | heavy_haze`` so the same code
+    works on both versions.
     """
     if isinstance(udm2, xr.Dataset):
         layers = [udm2[name] for name in list(udm2.data_vars)[: len(UDM2_BANDS)]]
@@ -244,6 +252,11 @@ def decode_udm2(
                 "flag_meanings": f"not_{name} {name}",
                 "flag_colors": "#00000000 #1f78b4",
             }
+            if name == "heavy_haze":
+                layer_da.attrs["comment"] = (
+                    "Deprecated in UDM2.1 (imagery from 2023-11-29): always 0; "
+                    "light_haze holds all haze."
+                )
         elif name == "confidence":
             layer_da.attrs = {
                 "long_name": "UDM2 classification confidence",
