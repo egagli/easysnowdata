@@ -502,8 +502,9 @@ access unless noted): Earthmover Icechunk ERA5 (`s3://earthmover-icechunk-era5/i
 on OSN (`usgs.osn.mghpcc.org/hytest/conus404/…`, no egress fees); NLDAS-3 beta forcing with
 kerchunk Parquet and Icechunk stores on `s3://nasa-waterinsight`; NASA EODC virtual Icechunk
 for MUR SST and IMERG (`s3://nasa-eodc-public/icechunk/`, but the referenced bytes still need
-NASA S3 credentials in us-west-2); DestinE Earth Data Hub ERA5-Land Zarr v3 (token). Do **not**
-build on `s3://hrrrzarr` — the registry says the Zarr service ends October 2026. No public Zarr
+NASA S3 credentials in us-west-2); DestinE Earth Data Hub ERA5-Land Zarr v3 (token). For HRRR, use
+dynamical.org's Icechunk archive rather than `s3://hrrrzarr` (2026-10-09: no source supports the
+earlier "service ends October 2026" note; the bucket is still updating). No public Zarr
 or kerchunk exists for SNODAS, MODIS/VIIRS snow, PRISM, or any DEM; Pangeo Forge is no longer
 developed and kerchunk is in maintenance mode pointing at VirtualiZarr + Icechunk.
 
@@ -1300,7 +1301,7 @@ live on 2026-09-15 unless noted):
   ERA5-Land), WeatherBench2 ERA5 with `snow_depth` (GCS + Icechunk copy), CONUS404 on OSN,
   NLDAS-3 kerchunk/Icechunk on `nasa-waterinsight`, NASA EODC MUR/IMERG virtual Icechunk
   (bytes still need NASA creds in-region), DestinE EDH ERA5-Land Zarr v3 (token);
-  **`s3://hrrrzarr` ends October 2026**; kerchunk is in maintenance mode and Pangeo Forge is
+  `s3://hrrrzarr` (an "ends October 2026" claim here was unsourced — still updating 2026-10-09; prefer dynamical.org's HRRR Icechunk); kerchunk is in maintenance mode and Pangeo Forge is
   no longer developed. Belongs on `zarr-cloud-visualization-ecosystem.md` / `other-data-portals.md`.
 - **Planet SDK 3.x auth model** (checked 2026-09-15 from the SDK source, 3.6.0): OAuth2 is the
   default (`planet auth login`, sessions under `~/.planet/`), API keys are legacy but still read
