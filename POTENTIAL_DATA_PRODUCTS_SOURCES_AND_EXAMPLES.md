@@ -29,6 +29,15 @@ Planetary Computer, Earth Search and the Earth Engine public and community catal
 already named in this file is skipped, so an item under "Worth adding" in the digest is either
 worth a row here or worth ticking off as not._
 
+_2026-10-09: rows for HRRR, stream gauges, climate-mode indices and GOES revised against four new
+best-practices pages (`weather-model-data-and-herbie.md`, `river-discharge-and-streamflow.md`,
+`climate-indices.md`, `goes-geostationary-satellites.md`). Main changes: the "`hrrrzarr` ends
+October 2026" note had no source and is gone, HRRR is now a follow-on via dynamical.org's Icechunk
+archive; USGS legacy WaterServices shuts down 2027-02-22, so gauges go through
+`dataretrieval.waterdata`; climate indices come from the NCEI/CPC originals (RONI is CPC's official
+ENSO index since 2026-02-01), not PSL's stale copies; GOES is GOES-18/19 now, and `goes-ortho`'s
+algorithm should be vendored rather than depended on._
+
 Contents:
 
 - **A. Products in the rewrite** — what the new package ships, in three tiers
@@ -337,7 +346,7 @@ re-implement · **reference** = not a product; kept in §E as an access pattern 
 | GPM IMERG | global daily precipitation | precipitation where gauges are absent | GES DISC · NetCDF · EDL (DMR++) | low | **follow-on** |
 | Climate-mode indices (NCEI / CPC / PSL; JPL NASA-SSH) | PDO, RONI/ONI, Niño 3.4, MEI.v2, AO/NAO/PNA, AMO monthly series | interannual context; used in the P4 anomaly figures | provider text files · none (JPL SSH indicators: EDL) | trivial | **follow-on** (Tier 2 native loader; default sources NCEI/CPC, not the PSL mirrors) |
 | Canada MSC GeoMet, SLF IMIS, Synoptic | national/regional station networks with open APIs | extends the station inventory beyond the five current clients | OGC API / REST · none or free token | medium each (new client) | **follow-on** (in `global_snow_networks` scope) |
-| GOES LST / ABI (#8) | geostationary land surface temperature and imagery, 5–15 min | melt-refreeze diurnal cycle; the only sub-hourly view | AWS `noaa-goes` · NetCDF · none; PC GOES group; GOES LST on Azure blob | high (orthorectification, volume) | **shelf / wrap** `goes-ortho` + `goes2go` (E.2) |
+| GOES LST / ABI (#8) | geostationary LST (hourly), clear-sky mask (5 min), fractional snow cover (hourly), L1b brightness temperature (5 min) | melt–refreeze diurnal cycle; the only sub-hourly view | AWS `noaa-goes18` (West) / `noaa-goes19` (East since 2025-04-07; `noaa-goes16` is the archive before that) · NetCDF4 · none; same files on GCS `gcp-public-data-goes-*` and Azure `goeseuwest` (PC SAS); PC STAC only for CMI/GLM | high (orthorectification: >1 px terrain shift in the Sierra; volume) | **shelf / wrap the algorithm, not the packages**: when built, a native obstore + h5netcdf loader; vendor `goes-ortho`'s `LonLat2ABIangle` and ortho-map sampling with credit (its pip install fails on `gdal<=3.8`, and `get_dem` imports `distutils`); `goes2go` as a reference only (its `"EAST"`/`"WEST"` aliases still resolve to the retired GOES-16/17 buckets). Start with LST. See best-practices [`goes-geostationary-satellites.md`](https://github.com/egagli/geospatial_data_and_visualization_best_practices/blob/main/data-access/goes-geostationary-satellites.md) (checked 2026-10-09) |
 | PALSAR-2 ScanSAR | L-band backscatter (LIN + mask bands) | L-band melt detection, NISAR proxy (P6); code snippet already in the old notebook | GEE · `xee` | low via GEE | **shelf** (until the NISAR work needs it; then trivial) |
 | NISAR GCOV | L-band RTC | Eric's postdoc focus | ASF · HDF5 · EDL | medium; wait for operational data | **shelf** |
 | SWOT | surface water elevation, river/lake | lakes/reservoirs downstream of snowmelt; PO.DAAC S3 tutorials are a good access-pattern reference | PO.DAAC · NetCDF · EDL | medium | **shelf** (P5/P22 relevance later) |
@@ -467,16 +476,16 @@ in the best-practices wiki rather than this package (**wiki**). Nothing is dropp
 
 | Link | What it is | Why it matters | Incorporate? |
 | --- | --- | --- | --- |
-| https://www.goes-r.gov/downloads/resources/documents/Beginners_Guide_to_GOES-R_Series_Data.pdf | GOES-R beginner's guide | product naming, scan sectors, projection | **reference** |
+| https://www.ospo.noaa.gov/resources/documents/PDFs/Beginners_Guide_to_GOES-R_Series_Data.pdf (the old goes-r.gov link now redirects to a landing page, 2026-10-09) | GOES-R Beginner's Guide v1.3 | product naming, scan sectors, modes, fixed-grid projection, access routes | **reference** |
 | https://registry.opendata.aws/noaa-goes/ | GOES 16/17/18 on AWS (NetCDF, public) | the raw source | **product**, Tier 3 |
 | https://planetarycomputer.microsoft.com/dataset/group/goes | GOES products on PC | STAC-cataloged alternative | **product** source, Tier 3 |
-| https://planetarycomputer.microsoft.com/dataset/storage/goes-lst | GOES LST on Azure blob | the LST product Eric cares about | **product**, Tier 3 |
+| https://planetarycomputer.microsoft.com/dataset/storage/goes-lst | "goes-lst" is just the `ABI-L2-LST*` prefixes in Azure `goeseuwest` (SAS token), with no STAC collection | Azure-side mirror of the NOAA buckets | **secondary source** only |
 | https://nbviewer.org/github/oceanhackweek/ohw-tutorials/blob/OHW20/10-satellite-data-access/goes-cmp-netcdf-zarr.ipynb | NetCDF vs Zarr read comparison for GOES | shows why a Zarr/virtual layer matters for many small NetCDFs | **access pattern**, informs any future GOES loader |
 | https://nbviewer.org/github/awslabs/amazon-asdi/blob/main/examples/dask/notebooks/goes16_dask.ipynb | GOES with Dask on Fargate | scaling pattern | **reference** |
 | https://github.com/HamedAlemo/visualize-goes16/blob/main/visualize_GOES16_from_AWS.ipynb | GOES visualization from S3 | quicklook pattern | **docs** reference |
-| https://spestana.github.io/goes-ortho/index.html ; https://github.com/spestana/goes-ortho/blob/main/src/goes_ortho/Downloader.py#L5 ; https://spestana.github.io/goes-ortho/_modules/orthorectify.html#ortho_zarr | Steven Pestana's `goes-ortho` (download + orthorectify to Zarr) | the orthorectification we should not re-implement | **wrap** (`goes-ortho` as the GOES loader, if GOES is ever added) |
+| https://spestana.github.io/goes-ortho/index.html ; https://github.com/spestana/goes-ortho/blob/main/src/goes_ortho/Downloader.py#L5 ; https://spestana.github.io/goes-ortho/_modules/orthorectify.html#ortho_zarr | Steven Pestana's `goes-ortho`: DEM line-of-sight orthorectification of ABI pixels | the method behind Pestana & Lundquist 2022 and Pestana et al. 2024; terrain shift ≈1–1.6 px in the Sierra | **vendor the algorithm** (pip install fails on `gdal<=3.8`; `distutils` in `get_dem`; needs an OpenTopography key) |
 | https://github.com/pydata/xarray/issues/7574 | `open_mfdataset` + fsspec + dask issue | a known sharp edge for many-file NetCDF; virtualization sidesteps it | **reference** (why `virtualize()` exists) |
-| https://goes2go.readthedocs.io/en/latest/index.html ; https://goes2go.readthedocs.io/en/latest/_modules/goes2go/data.html#goes_timerange | `goes2go` file discovery | time-range → file list logic | **wrap**/reference |
+| https://goes2go.readthedocs.io/en/latest/index.html ; https://goes2go.readthedocs.io/en/latest/_modules/goes2go/data.html#goes_timerange | `goes2go` 2025.10.0: file discovery/download plus RGB recipes | time-range → file-list logic; RGB recipes for quicklooks | **reference** (reimplement the listing; don't depend; pass satellite 18/19, not EAST/WEST) |
 
 What #8 asked for (Eric, 2024-10-01): GOES **land surface temperature** first. It should load
 lazily into xarray, because the download workflows were clunky. It should orthorectify with
