@@ -18,6 +18,8 @@ KNOWN_PROVIDERS = (
     "raster_http",
     "zarr_cloud",
     "vector_http",
+    # Small text tables over HTTPS: the climate-index files.
+    "table_http",
     "planet",
     # The snow-station network clients in easysnowdata.stations.clients.
     "stations",
