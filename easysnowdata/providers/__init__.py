@@ -13,6 +13,8 @@
 * :mod:`~easysnowdata.providers.zarr_cloud` — anonymous cloud Zarr stores
 * :mod:`~easysnowdata.providers.vector_http` — remote GDB / GeoJSON / GeoParquet
   with bbox or mask pushdown
+* :mod:`~easysnowdata.providers.table_http` — small text tables (climate-index
+  files) over HTTPS, re-fetched when the cached copy is a day old
 
 Every read happens inside :func:`easysnowdata._gdal.gdal_env` (and the auth
 providers' ``env()``); nothing here configures GDAL, xarray or "today" at
@@ -29,6 +31,7 @@ from easysnowdata.providers import (
     planet,
     raster_http,
     stac,
+    table_http,
     vector_http,
     zarr_cloud,
 )
@@ -44,4 +47,5 @@ __all__ = [
     "raster_http",
     "zarr_cloud",
     "vector_http",
+    "table_http",
 ]
