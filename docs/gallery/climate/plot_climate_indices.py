@@ -1,6 +1,6 @@
 """
-Climate-mode indices: PDO, ENSO, AO (NOAA NCEI / CPC)
-=====================================================
+Climate-mode indices: PDO, ENSO, AO (NOAA NCEI / CPC / PSL)
+===========================================================
 
 Climate-mode indices are monthly series, one number per month, that summarize a
 large-scale pattern: the Pacific Decadal Oscillation (PDO), the El Niño-Southern
@@ -9,24 +9,38 @@ Pacific/North American pattern (PNA) and the Atlantic Multidecadal Oscillation
 (AMO). They are the usual first explanation for why one winter's snowpack is
 not like the next.
 
+Three NOAA offices publish them:
+
+* **CPC**, the `Climate Prediction Center <https://www.cpc.ncep.noaa.gov/>`__,
+  part of the National Weather Service, which issues ENSO advisories and keeps
+  the operational ENSO, AO, NAO and PNA series;
+* **NCEI**, the `National Centers for Environmental Information
+  <https://www.ncei.noaa.gov/>`__, NOAA's data archive, which keeps the
+  ERSSTv5 sea-surface-temperature record and the PDO and AMO computed from it;
+* **PSL**, the `Physical Sciences Laboratory <https://psl.noaa.gov/>`__
+  in Boulder, a research lab that maintains MEI.v2 and a widely used page of
+  copies of many indices in one format (its "correlation page").
+
 The same name covers several different series, so ``source="noaa"`` (the
 default) reads each index from the office that maintains it: the PDO and AMO
-from NCEI's ERSSTv5 files, ENSO, AO, NAO and PNA from CPC, and MEI.v2 from
-PSL. For ENSO that means **RONI**, the relative Oceanic Niño Index, which CPC
-made its official index in February 2026; the legacy ONI is still published.
-``source="psl"`` reads PSL's correlation-page copies, for reproducing older
-work. No account is needed for either.
+from NCEI, ENSO, AO, NAO and PNA from CPC, and MEI.v2 from PSL. For ENSO that
+means **RONI**, the relative Oceanic Niño Index, which CPC made its official
+index in February 2026; the legacy ONI is still published. ``source="psl"``
+reads PSL's correlation-page copies, for reproducing older work. No account is
+needed for either.
 
 The first figure is the PDO, RONI and AO since 1950. The second shows why the
 source matters: two "PDO" series and the two ENSO indices, side by side. The
 third ties the indices to snow, with April 1 snow water equivalent at the
 Paradise SNOTEL station on Mount Rainier against each winter's mean RONI and
-PDO.
+PDO. The last two widen that to every long-record SNOTEL and CDEC station in
+the western US, where ENSO's influence flips sign between north and south.
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.colors import LinearSegmentedColormap
 
 import easysnowdata as esd
 
@@ -139,23 +153,43 @@ print(disagree_df.set_axis(disagree_df.index.year).to_string())
 
 # %%
 # Now the snow. ``seasonal_mean`` averages each index over November-March and
-# labels the result by water year, so a winter is one row. April 1 SWE comes
-# from the Paradise SNOTEL station (679_WA_SNTL) through
-# ``esd.stations``; ``enso_phase`` labels each winter by RONI with CPC's rule
-# (five overlapping seasons beyond ±0.5 °C), read at DJF.
+# labels the result by water year, so a winter is one row. ``enso_phase``
+# labels each winter by RONI with CPC's rule (five overlapping seasons beyond
+# ±0.5 °C), read at DJF.
+#
+# The SWE comes from the daily station archive
+# (:mod:`easysnowdata.stations.archive`) rather than from the networks' own
+# APIs: one request covers every station in the western US, and the build does
+# not depend on the NRCS server answering. The stations kept are the AWDB
+# (SNOTEL) and CDEC sites whose daily record starts by water year 1996, so each
+# can have 30 winters; the Paradise SNOTEL station on Mount Rainier
+# (679_WA_SNTL) is one of them.
 winter_df = esd.climate.indices.seasonal_mean(idx_ds[["roni", "pdo", "pna", "ao"]])
-paradise_ds = esd.stations.load(
-    ["679_WA_SNTL"], variables=["swe"], time="1980-10-01/2026-06-30"
-)
-swe = paradise_ds["swe"].isel(station=0).to_series()
-april1 = swe[(swe.index.month == 4) & (swe.index.day == 1)].dropna()
-april1.index = april1.index.year
 djf_phase = roni_phase[roni_phase.index.month == 1]
 djf_phase.index = djf_phase.index.year
+
+WUS = (-125.0, 31.0, -102.0, 49.0)  # the western US, (W, S, E, N)
+wus_gdf = esd.stations.archive.inventory(
+    WUS, networks=["awdb", "cdec"], daily_only=True
+)
+wus_gdf = wus_gdf[wus_gdf["earliest_record_date"] <= "1995-10-01"]
+wus_ds = esd.stations.archive.load(
+    wus_gdf, variables="swe", time="1980-10-01/2026-06-30"
+)
+is_april1 = (wus_ds["time"].dt.month == 4) & (wus_ds["time"].dt.day == 1)
+april1_df = wus_ds["swe"].sel(time=is_april1).to_pandas().T  # water year x station
+april1_df.index = april1_df.index.year
+print(
+    f"{april1_df.shape[1]} stations, water years {april1_df.index.min()}-{april1_df.index.max()}"
+)
+
+april1 = april1_df["679_WA_SNTL"].dropna()
 snow_df = winter_df.join(april1.rename("swe_cm"), how="inner").join(
     djf_phase.rename("phase")
 )
-print(f"{len(snow_df)} water years, {snow_df.index.min()}-{snow_df.index.max()}")
+print(
+    f"Paradise: {len(snow_df)} water years, {snow_df.index.min()}-{snow_df.index.max()}"
+)
 
 # %%
 # April 1 SWE against the winter's mean RONI and PDO. Both lean the same way:
@@ -206,3 +240,96 @@ print(
     snow_df.drop(columns="phase").corr()["swe_cm"].drop("swe_cm").round(2).to_string()
 )
 print(snow_df.groupby("phase")["swe_cm"].agg(["mean", "count"]).round(1).to_string())
+
+# %%
+# One station is one point on a much larger pattern. The same correlation for
+# every long-record station in the western US, keeping stations with at least
+# 30 April 1 values and a median April 1 SWE of 5 cm or more (below that, a
+# zero most years says more about melt timing than about the winter).
+enough = (april1_df.notna().sum() >= 30) & (april1_df.median() >= 5)
+april1_df = april1_df.loc[:, enough]
+winters_wus_df = winter_df.reindex(april1_df.index)
+r_gdf = wus_gdf.loc[april1_df.columns, ["name", "network", "latitude", "geometry"]]
+for name in ("roni", "pdo", "pna", "ao"):
+    r_gdf[f"r_{name}"] = april1_df.corrwith(winters_wus_df[name])
+# With about 45 winters, |r| above 0.29 is significant at the 5% level.
+n_winters = int(april1_df.notna().sum().median())
+r_crit = 1.96 / np.sqrt(n_winters - 3)
+print(
+    f"{len(r_gdf)} stations, median {n_winters} winters, |r| > {r_crit:.2f} at p < 0.05"
+)
+
+# %%
+# The map is the classic ENSO dipole. In the Pacific Northwest and the northern
+# Rockies April 1 SWE falls as RONI rises (blue: La Niña winters are snowier);
+# in Arizona, New Mexico and the southern Sierra Nevada it rises with it (red:
+# El Niño winters are snowier). Between them, from northern California across
+# Nevada and Utah to Colorado, the correlation is near zero, and a forecast
+# from ENSO says little. The PDO map has the same shape with its pivot further
+# north, so most of the Sierra Nevada and the central Rockies sit near zero.
+# The colours are the poles of the index, red for a positive correlation and
+# blue for a negative one, around a gray zero.
+r_cmap = LinearSegmentedColormap.from_list("r", [COOL, "#f0efec", WARM])
+states_gdf = esd.boundaries.admin.states(WUS)
+fig, axes = plt.subplots(1, 2, figsize=(12, 6.4))
+for ax, name in zip(axes, ["roni", "pdo"], strict=True):
+    esd.plotting.points(
+        r_gdf.sort_values(f"r_{name}", key=abs),  # strongest on top
+        ax=ax,
+        column=f"r_{name}",
+        legend_label=f"r, April 1 SWE vs Nov-Mar {name.upper()}",
+        cmap=r_cmap,
+        vmin=-0.6,
+        vmax=0.6,
+        markersize=16,
+        edgecolor="0.25",
+        linewidth=0.3,
+        title=f"{name.upper()} and April 1 SWE, {len(r_gdf)} stations",
+    )
+    esd.plotting.add_outline(ax, states_gdf, edgecolor="0.35", linewidth=0.5)
+fig.tight_layout()
+
+# %%
+# The same correlations against latitude, which is most of the story: the
+# median crosses zero near 40-41°N for RONI and near 43°N for the PDO. Points outside the gray band are
+# significant one station at a time; the stations are not independent, so the
+# band says which ones are worth a look rather than how many "found" an effect.
+bins = np.arange(31, 50, 1.5)
+fig, axes = plt.subplots(1, 2, figsize=(10.5, 4.4), sharey=True)
+for ax, name in zip(axes, ["roni", "pdo"], strict=True):
+    column = r_gdf[f"r_{name}"]
+    ax.axhspan(
+        -r_crit, r_crit, color="#f0efec", zorder=0, label="not significant (p ≥ 0.05)"
+    )
+    ax.scatter(
+        r_gdf["latitude"],
+        column,
+        c=column,
+        cmap=r_cmap,
+        vmin=-0.6,
+        vmax=0.6,
+        s=14,
+        edgecolor="0.25",
+        linewidth=0.3,
+    )
+    by_band = column.groupby(pd.cut(r_gdf["latitude"], bins)).median()
+    centres = [interval.mid for interval in by_band.index]
+    ax.plot(centres, by_band.values, color="0.15", lw=1.6, label="median by 1.5° band")
+    ax.axhline(0, color="0.2", linewidth=0.6)
+    ax.set_xlabel("latitude [°N]")
+    ax.set_title(f"Nov-Mar {name.upper()}", loc="left", fontsize=10)
+axes[0].set_ylabel("r with April 1 SWE")
+axes[0].legend(loc="lower left", fontsize=8, frameon=False)
+fig.suptitle("Where the climate modes matter for April 1 snowpack")
+fig.tight_layout()
+
+# %%
+# The numbers, by latitude band: the median correlation with each index and the
+# number of stations. The PNA tracks ENSO in the north (it is the
+# atmospheric bridge between the two), and the AO says little anywhere.
+bands = pd.cut(r_gdf["latitude"], [31, 36, 39, 42, 45, 49])
+summary_df = r_gdf.groupby(bands, observed=True)[
+    ["r_roni", "r_pdo", "r_pna", "r_ao"]
+].median()
+summary_df["stations"] = r_gdf.groupby(bands, observed=True).size()
+print(summary_df.round(2).to_string())

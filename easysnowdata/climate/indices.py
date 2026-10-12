@@ -12,6 +12,18 @@ maintains it rather than from a mirror::
     winter_df = esd.climate.indices.seasonal_mean(idx_ds)        # Nov-Mar, by water year
     phase_da = esd.climate.indices.enso_phase(idx_ds["roni"])    # CPC's event rule
 
+The providers are three NOAA offices:
+
+* **CPC** — the Climate Prediction Center (https://www.cpc.ncep.noaa.gov),
+  part of the National Weather Service's NCEP. It issues the ENSO advisories
+  and keeps the operational ENSO, AO, NAO and PNA series.
+* **NCEI** — the National Centers for Environmental Information
+  (https://www.ncei.noaa.gov), NOAA's data archive. It keeps the ERSSTv5
+  sea-surface-temperature record and the PDO and AMO computed from it.
+* **PSL** — the Physical Sciences Laboratory (https://psl.noaa.gov), a NOAA
+  research lab in Boulder. It maintains MEI.v2 and the "climate indices
+  correlation page", which republishes many indices in one file format.
+
 Which file each index comes from, and why (checked 2026-10-09):
 
 * **RONI** is CPC's official ENSO index since 2026-02-01 (NWS PNS 26-05); the
@@ -323,10 +335,12 @@ PRODUCT = Product(
     title="Climate-mode indices: PDO, ENSO, AO, NAO, PNA, AMO (NOAA)",
     description=(
         "Monthly climate-mode indices from the NOAA offices that maintain them: the "
-        "PDO and AMO from NCEI (ERSSTv5), RONI (CPC's official ENSO index since "
-        "February 2026), the legacy ONI, Niño 3.4 and relative Niño 3.4, AO, NAO and "
-        "PNA from CPC, and MEI.v2 from PSL. Interannual context for snowpack and "
-        "melt timing."
+        "PDO and AMO from NCEI (the National Centers for Environmental Information, "
+        "NOAA's archive; ERSSTv5), RONI (CPC's official ENSO index since February "
+        "2026), the legacy ONI, Niño 3.4 and relative Niño 3.4, AO, NAO and PNA from "
+        "CPC (the National Weather Service's Climate Prediction Center), and MEI.v2 "
+        "from PSL (the Physical Sciences Laboratory, a NOAA research lab). "
+        "Interannual context for snowpack and melt timing."
     ),
     sources=(
         Source(
