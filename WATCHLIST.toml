@@ -392,6 +392,25 @@ products = []
 "air and water database" = ["awdb-stations"]
 
 [[page]]
+id = "page-cpc-roni"
+# CPC's official ENSO index since 2026-02-01; a method or ERSST-version change
+# is announced here (and on oni/v6/ for the legacy ONI).
+url = "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/"
+products = ["climate-indices"]
+
+[[page]]
+id = "page-psl-mei"
+url = "https://psl.noaa.gov/enso/mei/"
+products = ["climate-indices"]
+keywords = ["version", "jra", "discontinu"]
+
+[[page]]
+id = "page-ncei-ersst-index-readme"
+# The PDO and AMO files are ERSSTv5; an ERSSTv6 index set would appear here.
+url = "https://www.ncei.noaa.gov/pub/data/cmb/ersst/v5/index/Readme"
+products = ["climate-indices"]
+
+[[page]]
 id = "page-nohrsc-snodas"
 url = "https://nsidc.org/data/g02158/versions/1"
 products = ["snodas"]

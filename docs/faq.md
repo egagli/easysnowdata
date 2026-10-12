@@ -16,8 +16,8 @@ The [catalog](catalog/index.md) is the same information as a website, and the
 
 ## Do I need an account?
 
-For 33 of 40 products, no: each has at least one route that needs no
-account. The other seven need NASA Earthdata, Earth Engine, Planet, or an NVE
+For 36 of 42 products, no: each has at least one route that needs no
+account. The other six need NASA Earthdata, Earth Engine, Planet, or an NVE
 key. Where a product's default route needs an account there is usually an open
 alternative — `source="planetary-computer"` for HLS and MODIS,
 `source="hosted-cog"` for the snow classification, `source="dem"` for the local
@@ -152,6 +152,31 @@ Cite the software through its Zenodo DOI **and** the data you used — every
 product carries its own citation in `ds.attrs["data_citation"]` and on its
 catalog page. The data citation is the one the data provider asks for and is
 usually the one a reviewer wants.
+
+## Where are weather-model forecasts (HRRR, GFS) and streamflow?
+
+Not in the catalog, on purpose: two maintained packages already do each job
+well, and wrapping them would only add a layer to keep in step.
+
+- **Weather-model output** (HRRR, GFS, RAP, NBM, RRFS, ECMWF open data): use
+  [Herbie](https://herbie.readthedocs.io/en/stable/). It finds a run's GRIB2
+  file on AWS, Google, Azure or NOMADS and downloads only the fields you ask
+  for (`H.xarray("TMP:2 m")`). For a long hourly series at a point, such as
+  snow-model forcing, read [dynamical.org](https://dynamical.org/catalog/)'s
+  analysis-ready HRRR and GFS archives instead; one GRIB2 request per hour
+  is slow there.
+- **Stream gauges in the US**: use
+  [`dataretrieval.waterdata`](https://doi-usgs.github.io/dataretrieval-python/)
+  (`waterdata.get_daily(monitoring_location_id="USGS-12178000",
+  parameter_code="00060")`). It reads the USGS Water Data APIs. Avoid
+  `dataretrieval.nwis` and HyRiver's `pygeohydro.NWIS`: both call the legacy
+  WaterServices, which USGS shuts down on 22 February 2027.
+
+The reasoning, and the routes for other countries, are on the
+[weather-model](https://github.com/egagli/geospatial_data_and_visualization_best_practices/blob/main/data-access/weather-model-data-and-herbie.md)
+and [river-discharge](https://github.com/egagli/geospatial_data_and_visualization_best_practices/blob/main/data-access/river-discharge-and-streamflow.md)
+pages of the companion best-practices wiki. Climate-mode indices (PDO, ENSO,
+AO) *are* in the catalog: `esd.climate.indices.load()`.
 
 ## Something is missing from the catalog
 
