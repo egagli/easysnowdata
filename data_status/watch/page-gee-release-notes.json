@@ -48,6 +48,7 @@
     "Exporting video and animations",
     "Extracting image data programmatically",
     "Control access to resources",
+    "Script recovery and migration",
     "App Engine and Earth Engine overview",
     "Introduction to JavaScript for Earth Engine",
     "Earth Engine objects and methods",
@@ -598,7 +599,6 @@
     ": GPM: Monthly Global Precipitation Measurement (GPM) vRelease 07",
     "NASA/GRACE/MASS_GRIDS_V04/OCEAN",
     ": GRACE Monthly Mass Grids Release 06 Version 04 - Ocean",
-    "Added projects/forestdatapartnership/assets/community_palm/20240312 (no longer available)",
-    ": Google Global Landsat-based CCDC Segments (1999-2019)"
+    "Added projects/forestdatapartnership/assets/community_palm/20240312 (no longer available)"
   ]
 }

@@ -12,7 +12,7 @@
     "url": "https://github.com/nsidc/earthaccess/releases"
   },
   "earthengine-api": {
-    "latest_version": "1.7.46",
+    "latest_version": "1.7.47",
     "url": "https://pypi.org/project/earthengine-api/"
   },
   "geopandas": {
@@ -20,7 +20,7 @@
     "url": "https://pypi.org/project/geopandas/"
   },
   "icechunk": {
-    "latest_version": "2.2.2",
+    "latest_version": "2.3.0",
     "url": "https://github.com/earth-mover/icechunk/releases"
   },
   "odc-geo": {
@@ -72,7 +72,7 @@
     "url": "https://pypi.org/project/xee/"
   },
   "zarr": {
-    "latest_version": "3.4.0",
+    "latest_version": "3.4.1",
     "url": "https://zarr.readthedocs.io/en/stable/release-notes.html"
   }
 }

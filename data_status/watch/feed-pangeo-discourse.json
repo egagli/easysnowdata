@@ -1,6 +1,9 @@
 {
   "lines": [
     "Welcome to Pangeo Discourse",
+    "Pangeo Showcase: \"Firecube: A plugin-based batch ingestion engine for creating operational analysis-ready data cubes\" (October 14, 12 PM EDT / 16:00 UTC)",
+    "Data Scientist position in global cryosphere and water modelling – MountAInWater project (ISTA, Austria)",
+    "Feedback wanted: recipe-based tool for building aligned radar/satellite/model/obs datasets (CONUS)",
     "[JOB] Simons Center Postdoctoral Fellows in Computational Climate at NYU",
     "GeoD Global development preview: preserving context from STAC to local rasters",
     "FROST: Front Range Open Science Teamup",
@@ -26,9 +29,6 @@
     "Fall Pangeo Showcase: seeking conveners and presenters",
     "Best way of copying and rechunking a remote zarr store",
     "Ai-science-toolkit: reviewer \"agents\" and research skills for Claude Code, for climate and atmospheric science",
-    "Open Call Postdoc - Global Delta Dynamics from Satellite Observations",
-    "Virtual GRIB ingestion via Gribberish",
-    "Help shape HDF5 safety, security, and privacy: FOSSY Aug 6 + HDF5 SHINES workshop Aug 12",
-    "Pangeo Showcase: \"Ensemble Weather Forecast Data Streaming with Kerchunk / VirtualiZarr\" (November 12, 2025 at 12 PM ET)"
+    "Open Call Postdoc - Global Delta Dynamics from Satellite Observations"
   ]
 }

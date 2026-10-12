@@ -17,6 +17,10 @@
     "### Removed:",
     "-",
     "-->",
+    "## [v14.0.4](https://github.com/asfadmin/Discovery-asf_search/compare/v14.0.3...v14.0.4)",
+    "### Added",
+    "- Add new `ALOS` collections to processing levels",
+    "---",
     "## [v14.0.3](https://github.com/asfadmin/Discovery-asf_search/compare/v14.0.2...v14.0.3)",
     "### Added",
     "- Add `NISAR_SCIENCE_PRODUCTS` dataset, contains ONLY for NISAR Levl 0B, 1, 2, and 3 science products.",
@@ -595,10 +599,6 @@
     "### Fixed",
     "- Fixes OPERA-S1 dataset `RTC-STATIC` and `CSLC-STATIC` breaking returned results, sorts by `validityStartDate` in place of `stopTime`",
     "------",
-    "## [v6.7.1](https://github.com/asfadmin/Discovery-asf_search/compare/v6.7.0...v6.7.1)",
-    "### Fixed",
-    "- Fixes issue with certain S1 products not stacking properly in certain environments, which caused null `perpendicularBaseline` values",
-    "------",
-    "## [v6.7.0](https://github.com/asfadmin/Discovery-asf_search/compare/v6.6.3...v6.7.0)"
+    "## [v6.7.1](https://github.com/asfadmin/Discovery-asf_search/compare/v6.7.0...v6.7.1)"
   ]
 }

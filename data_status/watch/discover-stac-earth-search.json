@@ -1,0 +1,13 @@
+{
+  "seen": [
+    "cop-dem-glo-30",
+    "cop-dem-glo-90",
+    "landsat-c2-l2",
+    "naip",
+    "sentinel-1-grd",
+    "sentinel-2-c1-l2a",
+    "sentinel-2-l1c",
+    "sentinel-2-l2a",
+    "sentinel-2-pre-c1-l2a"
+  ]
+}

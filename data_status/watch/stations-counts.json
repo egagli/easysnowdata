@@ -1,6 +1,6 @@
 {
   "awdb": {
-    "active": 4397,
+    "active": 4398,
     "count": 7148,
     "daily": 1219
   },
@@ -10,9 +10,9 @@
     "daily": 560
   },
   "databc": {
-    "active": 252,
-    "count": 546,
-    "daily": 156
+    "active": 279,
+    "count": 573,
+    "daily": 183
   },
   "yukon": {
     "active": 77,

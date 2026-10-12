@@ -3,7 +3,7 @@
     "cloud_hosted": false,
     "has_granules": false,
     "provider": "NSIDCV0",
-    "revision_date": "2026-08-13",
+    "revision_date": "2026-10-08",
     "temporal_end": "2019-12-31",
     "temporal_start": "1981-01-01",
     "url": "https://cmr.earthdata.nasa.gov/search/concepts/C2218487926-NSIDCV0.html",
