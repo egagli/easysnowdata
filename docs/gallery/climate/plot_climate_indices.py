@@ -260,15 +260,27 @@ print(
 )
 
 # %%
-# The map is the classic ENSO dipole. In the Pacific Northwest and the northern
-# Rockies April 1 SWE falls as RONI rises (blue: La Niña winters are snowier);
-# in Arizona, New Mexico and the southern Sierra Nevada it rises with it (red:
-# El Niño winters are snowier). Between them, from northern California across
-# Nevada and Utah to Colorado, the correlation is near zero, and a forecast
-# from ENSO says little. The PDO map has the same shape with its pivot further
-# north, so most of the Sierra Nevada and the central Rockies sit near zero.
-# The colours are the poles of the index, red for a positive correlation and
-# blue for a negative one, around a gray zero.
+# **How to read the colours.** Each dot is one station, coloured by the
+# correlation (r) between its April 1 SWE and the winter's mean index.
+#
+# * **Red** (r > 0): April 1 SWE rises with the index. For RONI that means
+#   *El Niño* winters leave more snow and La Niña winters less; for the PDO,
+#   the *positive* (warm) phase leaves more.
+# * **Blue** (r < 0): April 1 SWE falls as the index rises, so *La Niña*
+#   winters (or the negative, cool PDO) leave more snow and El Niño winters less.
+# * **Gray** (r near 0): the index says little about that station's snowpack.
+#
+# The deeper the colour, the stronger the relationship; at ±0.6, about a third
+# of the year-to-year variance in April 1 SWE goes with the index (r² ≈ 0.36).
+# Red and blue match the warm and cool poles of the indices in the first figure.
+#
+# The RONI map is the classic ENSO dipole. The Pacific Northwest and the
+# northern Rockies are blue: La Niña winters are snowier there. Arizona, New
+# Mexico and the southern Sierra Nevada are red: El Niño winters are snowier.
+# Between them, from northern California across Nevada and Utah to Colorado,
+# the stations are gray, and a seasonal outlook based on ENSO says little. The
+# PDO map has the same shape with its pivot further north, so most of the
+# Sierra Nevada and the central Rockies sit near zero.
 r_cmap = LinearSegmentedColormap.from_list("r", [COOL, "#f0efec", WARM])
 states_gdf = esd.boundaries.admin.states(WUS)
 fig, axes = plt.subplots(1, 2, figsize=(12, 6.4))
@@ -288,11 +300,23 @@ for ax, name in zip(axes, ["roni", "pdo"], strict=True):
     )
     esd.plotting.add_outline(ax, states_gdf, edgecolor="0.35", linewidth=0.5)
 fig.tight_layout()
+fig.text(
+    0.5,
+    0.04,
+    "Red: more April 1 snow when the index is positive (El Niño, warm PDO).   "
+    "Blue: more snow when it is negative (La Niña, cool PDO).   "
+    "Gray: little relationship.",
+    ha="center",
+    fontsize=9,
+    color="0.25",
+)
 
 # %%
 # The same correlations against latitude, which is most of the story: the
-# median crosses zero near 40-41°N for RONI and near 43°N for the PDO. Points outside the gray band are
-# significant one station at a time; the stations are not independent, so the
+# median crosses zero near 40-41°N for RONI and near 43°N for the PDO, so the
+# stations above the zero line (red, El Niño-snowy) are almost all in the
+# south and those below it (blue, La Niña-snowy) in the north. Points outside
+# the gray band are significant one station at a time; the stations are not independent, so the
 # band says which ones are worth a look rather than how many "found" an effect.
 bins = np.arange(31, 50, 1.5)
 fig, axes = plt.subplots(1, 2, figsize=(10.5, 4.4), sharey=True)
