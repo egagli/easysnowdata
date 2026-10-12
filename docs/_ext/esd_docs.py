@@ -264,7 +264,8 @@ def _write_api_index(groups: list[tuple[str, list[str]]]) -> str:
         "Every public function, grouped by subpackage. The `esd.<theme>.<product>`",
         "modules are the ones to reach for; `processing` and `plotting` are the",
         "pure helpers they share, and `providers` is the generic access layer",
-        "underneath them.",
+        "underneath them. Acronyms (CPC, PSL, NRCS, RTC …) are spelled out in",
+        "the [glossary](../glossary.md).",
         "",
     ]
     for group, names in groups:

@@ -397,18 +397,32 @@ def index_page(
     products = dict(products if products is not None else _registry.products())
     latest = latest or {}
     themes = sorted({p.theme for p in products.values()}, key=_models.theme_order)
+    statuses = [_product_status(p, latest) for p in products.values()]
+    counts = {status: statuses.count(status) for status in ("pass", "fail", "skip")}
     lines = [
-        "# Data catalog",
+        "# Dataset catalog and status",
         "",
         f"{len(products)} products across {len(themes)} themes. Every page below is "
         "generated from the product's catalog entry, which is the same entry that "
         "drives `esd.catalog.describe()`, the weekly health probes and the README "
         "status table — so a page cannot drift from the code that serves the data.",
         "",
-        "The badge is the most recent weekly probe of that product's best route: "
+        "## Status",
+        "",
+        "Every route of every product is probed once a week. "
+        + (
+            f"In the latest run {counts['pass']} products answered, "
+            f"{counts['fail']} failed on every route, and {counts['skip']} could "
+            "not be checked without credentials. "
+            if latest
+            else "No probe run is on record yet. "
+        )
+        + "The badge in each table below is that product's result: "
         f"{BADGES['pass']} at least one route answered, {BADGES['fail']} every route "
         f"failed, {BADGES['skip']} only credentialed routes exist and the probe run "
-        "had no credentials.",
+        "had no credentials. The [source status page](../status.md) has every "
+        "route's result, its history, how far behind real time each product runs, "
+        "and which sources can be virtualized.",
         "",
         "```python",
         "import easysnowdata as esd",
@@ -419,7 +433,17 @@ def index_page(
         "```",
         "",
     ]
-    toctrees: list[str] = []
+    # The status page lives beside the catalog (its URL predates this page) but
+    # belongs under it in the navigation.
+    toctrees: list[str] = [
+        "```{toctree}",
+        ":hidden:",
+        ":caption: Status",
+        "",
+        "Source status </status>",
+        "```",
+        "",
+    ]
     for theme in themes:
         in_theme = sorted(
             (p for p in products.values() if p.theme == theme), key=lambda p: p.id
