@@ -196,8 +196,13 @@ Nothing under `docs/catalog/`, `docs/api/`, `docs/auto_examples/`,
 the registry and the gallery, and they are all in `.gitignore`. Editing a
 catalog page means editing the catalog entry.
 
-What *is* hand-written: `index.md`, `installation.md`, `concepts.md`,
-`faq.md`, `migration.md`, `releasing.md`, this page, and the gallery scripts.
+What *is* hand-written: `index.md`, the section landing pages
+(`getting_started.md`, `development.md`), `installation.md`, `concepts.md`,
+`modules.md`, `glossary.md`, `faq.md`, `migration.md`, `releasing.md`, this
+page, and the gallery scripts. The navigation bar is the hidden toctree at the
+end of `index.md`; a new prose page goes into the toctree of the section it
+belongs to. Spell out a new acronym in `glossary.md` and link it with
+``{term}`CPC` ``.
 
 The README's header image is generated too: `scripts/make_montage.py` tiles
 the thumbnails of the executed gallery into `_static/gallery.webp`, which the

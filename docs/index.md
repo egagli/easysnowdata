@@ -25,10 +25,10 @@ counties, mountain ranges, and glacier outlines — behind one API that takes an
 interest and a time range, returns lazy Dask-backed xarray objects (and
 GeoDataFrames for vector products), and never downloads more than it has to.
 
-```{button-ref} installation
+```{button-ref} getting_started
 :color: primary
 :expand:
-Install and get going
+Get started
 ```
 :::
 ::::
@@ -60,32 +60,18 @@ esd.plotting.timeseries(obs_ds["swe"])                      # calendar dates, un
 ::::{grid} 1 2 2 3
 :gutter: 3
 
+:::{grid-item-card} {octicon}`rocket` Getting started
+:link: getting_started
+:link-type: doc
+
+Installation, credentials, the concepts every loader shares, and a tour of the modules.
+:::
+
 :::{grid-item-card} {octicon}`telescope` Example gallery
 :link: auto_examples/index
 :link-type: doc
 
 One executed script per product, with the figure it produces.
-:::
-
-:::{grid-item-card} {octicon}`database` Data catalog
-:link: catalog/index
-:link-type: doc
-
-Every product: its routes, resolution, credentials, licence, and health.
-:::
-
-:::{grid-item-card} {octicon}`book` Concepts
-:link: concepts
-:link-type: doc
-
-AOI, laziness, nodata, CRS, and dims — the rules every loader follows.
-:::
-
-:::{grid-item-card} {octicon}`key` Credentials
-:link: credentials
-:link-type: doc
-
-Which products need an account, and how to set each one up.
 :::
 
 :::{grid-item-card} {octicon}`code` API reference
@@ -95,11 +81,25 @@ Which products need an account, and how to set each one up.
 Every public function, grouped by subpackage.
 :::
 
-:::{grid-item-card} {octicon}`tools` Contributing
-:link: contributing
+:::{grid-item-card} {octicon}`database` Dataset catalog and status
+:link: catalog/index
 :link-type: doc
 
-The pixi tasks, the four test tiers, and how to add a product.
+Every product: its routes, resolution, credentials, licence, and weekly health.
+:::
+
+:::{grid-item-card} {octicon}`question` FAQ
+:link: faq
+:link-type: doc
+
+Which product to use, accounts, memory, CRS, and what to do when a source is down.
+:::
+
+:::{grid-item-card} {octicon}`tools` Development
+:link: development
+:link-type: doc
+
+The pixi tasks, the four test tiers, how to add a product, and the changelog.
 :::
 ::::
 
@@ -130,30 +130,11 @@ Each product also carries the citation of the data it serves in
 
 ```{toctree}
 :hidden:
-:caption: Getting started
 
-installation
-concepts
-credentials
-migration
-faq
-```
-
-```{toctree}
-:hidden:
-:caption: Data
-
-auto_examples/index
-catalog/index
-status
-```
-
-```{toctree}
-:hidden:
-:caption: Reference
-
-api/index
-contributing
-releasing
-changelog
+Getting started <getting_started>
+Example gallery <auto_examples/index>
+API reference <api/index>
+Dataset catalog and status <catalog/index>
+FAQ <faq>
+Development <development>
 ```
