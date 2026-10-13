@@ -20,8 +20,9 @@ time-series data.
 4. [DataBCClient — BC Data Catalogue](#4-databcclient)
 5. [NVEClient — NVE HydAPI (Norway)](#5-nveclient)
 6. [YukonClient — Yukon Water Data / AquaCache](#6-yukonclient)
-7. [Error Handling](#7-error-handling)
-8. [Adding a New Client](#8-adding-a-new-client)
+7. [GHCNDClient — NOAA NCEI GHCN-Daily](#7-ghcndclient)
+8. [Error Handling](#8-error-handling)
+9. [Adding a New Client](#9-adding-a-new-client)
 
 ---
 
@@ -998,7 +999,93 @@ Base URL: `https://service.yukon.ca/water-data/api/v1`
 
 ---
 
-## 7. Error Handling
+## 7. GHCNDClient
+
+**Module:** `easysnowdata.stations.clients.ghcnd`
+**Source:** NOAA NCEI Global Historical Climatology Network – Daily,
+<https://www.ncei.noaa.gov/pub/data/ghcn/daily/> (format:
+[readme.txt](https://www.ncei.noaa.gov/pub/data/ghcn/daily/readme.txt))
+**Auth:** none
+**Status:** prototype. Not yet registered in `stations.networks.NETWORKS`,
+the catalog, or the `global_snow_networks` pipeline.
+
+GHCN-D is global daily station data aggregated from national meteorological
+services, U.S. COOP, CoCoRaHS, ECA&D, SNOTEL and others. For snow it adds
+daily snow depth (`SNWD`) worldwide and SWE (`WESD`) at a smaller set of
+stations. A live sweep in October 2026 found ~69 500 stations with `SNWD`
+or `WESD`, ~27 600 with `WESD` and ~20 900 active. Active stations were
+mostly in the US, Canada, Russia, Germany, Sweden, the Netherlands, Norway,
+Switzerland, Kazakhstan and Japan.
+
+### Files and access pattern
+
+| File | Use |
+|---|---|
+| `ghcnd-stations.txt` (~11 MB, fixed width) | station id, lat, lon, elevation, state, name, GSN/HCN flags, WMO id |
+| `ghcnd-inventory.txt` (~36 MB, fixed width) | (station, element, first year, last year): selects snow stations |
+| `by_station/{ID}.csv.gz` | the full record of one station, all elements |
+
+Each client instance downloads the two inventory files once and keeps them
+in memory. `get_data()` downloads the **whole** station file and filters
+rows by date, because GHCN-D has no windowed per-station endpoint. A `bbox`
+query in a dense region (CoCoRaHS!) means many downloads.
+
+### Variables
+
+| Element | Type | Stored | Emitted |
+|---|---|---|---|
+| `WESD` | `swe` | tenths of mm | cm |
+| `SNWD` | `snwd` | mm | cm |
+| `SNOW` | `snowfall` | mm | cm |
+| `WESF` | `other` | tenths of mm | mm |
+| `PRCP` | `precip` | tenths of mm | mm |
+| `TAVG` / `TMAX` / `TMIN` | `temp` / `temp_max` / `temp_min` | tenths of °C | °C |
+
+`variables=None` returns `WESD` and `SNWD`. Only `interval="daily"` exists.
+
+### Flags and QC
+
+`include_flags=True` adds `flag = "MFLAG,QFLAG,SFLAG"`, the same layout as
+the NCEI Access Data Service `*_ATTRIBUTES` fields. A value with a non-blank
+`QFLAG` failed a GHCN-D QC check (`DATA_FLAGS`). Such values come back as
+`None` unless the client is built with `keep_qc_failed=True`. Snow values
+outside 0–15 m (snowfall: 0–5 m) are nulled.
+
+### Station ids and networks
+
+Ids are 11 characters: FIPS country (2) + network code (1) + number (8).
+The network code is exposed as `ghcn_network` / `ghcn_network_name`
+(`GHCN_NETWORKS`). `S` is the SNOTEL mirror, which duplicates AWDB. Drop it
+with `get_stations(exclude_networks="S")`. COOP (`C`) stations duplicate the
+AWDB `COOP` subset in a few places too.
+
+### Key methods
+
+```python
+from easysnowdata.stations.clients import GHCNDClient
+
+c = GHCNDClient()
+stations = c.get_all_stations(bbox=(30, 50, 60, 70), active_only=True)
+non_snotel = c.get_stations(exclude_networks="S")
+meta = c.get_metadata("RSM00027612")   # Moscow: element first/last years
+recs = c.get_data("USS0021D08S", begin_date="2024-01-01", end_date="2024-01-31")
+```
+
+### Notes and gotchas
+
+- `status` is year-resolution: "Active" means a snow element reported this
+  year or last (the inventory has years only).
+- The GHCN-D record of some stations ends early even though the station
+  still operates (Moscow `RSM00027612` ends in 2022). Coverage depends on
+  what each national service sends NCEI.
+- Many CoCoRaHS `WESD` series are core samples taken on some days only.
+  They are not daily-or-better. The pipeline's regular-cadence probe
+  (DESIGN.md §4) has to decide, not `has_swe`.
+- `station_url` points at the NCEI Climate Data Online station page.
+
+---
+
+## 8. Error Handling
 
 | Client | Exception | Scenarios |
 |---|---|---|
@@ -1007,6 +1094,7 @@ Base URL: `https://service.yukon.ca/water-data/api/v1`
 | DataBCClient | `DataBCError` | HTTP 4xx/5xx, network timeout, malformed CSV |
 | NVEClient | `NVEError` | HTTP 4xx/5xx, network timeout, station not found |
 | YukonClient | `YukonError` | HTTP 4xx/5xx, network timeout, malformed CSV |
+| GHCNDClient | `GHCNDError` | HTTP 4xx/5xx, network timeout, corrupt station file, unknown station |
 
 All exceptions are subclasses of `Exception` with descriptive messages.
 
@@ -1016,6 +1104,7 @@ from easysnowdata.stations.clients.cdec import CDECClient, CDECError
 from easysnowdata.stations.clients.databc import DataBCClient, DataBCError
 from easysnowdata.stations.clients.nve import NVEClient, NVEError
 from easysnowdata.stations.clients.yukon import YukonClient, YukonError
+from easysnowdata.stations.clients.ghcnd import GHCNDClient, GHCNDError
 
 try:
     data = AWDBClient().get_data(station_ids=["303:CO:SNTL"], variables=["swe"])
@@ -1028,7 +1117,7 @@ with linear backoff up to `max_retries` attempts.
 
 ---
 
-## 8. Adding a New Client
+## 9. Adding a New Client
 
 The full normative contract and checklist live in
 [DESIGN.md](https://github.com/egagli/global_snow_networks/blob/main/DESIGN.md) §3 and the
