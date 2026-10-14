@@ -21,8 +21,9 @@ time-series data.
 5. [NVEClient — NVE HydAPI (Norway)](#5-nveclient)
 6. [YukonClient — Yukon Water Data / AquaCache](#6-yukonclient)
 7. [GHCNDClient — NOAA NCEI GHCN-Daily](#7-ghcndclient)
-8. [Error Handling](#8-error-handling)
-9. [Adding a New Client](#9-adding-a-new-client)
+8. [Other SWE and snow-depth clients](#8-other-swe-and-snow-depth-clients)
+9. [Error Handling](#9-error-handling)
+10. [Adding a New Client](#10-adding-a-new-client)
 
 ---
 
@@ -1069,6 +1070,10 @@ stations = c.get_all_stations(bbox=(30, 50, 60, 70), active_only=True)
 non_snotel = c.get_stations(exclude_networks="S")
 meta = c.get_metadata("RSM00027612")   # Moscow: element first/last years
 recs = c.get_data("USS0021D08S", begin_date="2024-01-01", end_date="2024-01-31")
+
+# Bulk path: stream one by_year file (~115–170 MB) instead of N station files
+for rec in c.get_year_data(2026, station_ids=["RSM00027612", "USC00457780"]):
+    ...
 ```
 
 ### Notes and gotchas
@@ -1085,7 +1090,56 @@ recs = c.get_data("USS0021D08S", begin_date="2024-01-01", end_date="2024-01-31")
 
 ---
 
-## 8. Error Handling
+## 8. Other SWE and snow-depth clients
+
+These clients follow the same contract (DESIGN.md §3) but are **not wired
+into** `stations.networks`, the catalog, `inventory()`/`load()` or the
+`global_snow_networks` archive. Use them directly. Each module docstring
+documents its endpoints, units, conventions and caveats in full; the table
+is the summary. Counts were checked live on 2026-10-14.
+
+"Daily SWE" means at least 30 days with SWE > 0 in the densest 90-day
+window of a season.
+
+| Client | Source | Stations | SWE method and cadence | Daily SWE | Period / updates | Licence |
+|---|---|---|---|---|---|---|
+| `CanSWEClient` | CanSWE (Zenodo, Vionnet et al. 2021) | 2,963 (1,213 active) | manual surveys (2,678), pillows (162), GMON (121) | 253 in 2025 | 1928–2025; yearly | OGL-Canada; Hydro-Québec part CC BY-NC-SA |
+| `NorSWEClient` | NorSWE v3 (Zenodo) | 10,153 | surveys, pillows, GMON, 2,357 airborne-gamma lines | 1,049 in 2021 (830 SNOTEL) | 1979–2021; frozen; ~22 GB on disk once unzipped | per source (`Distribution` attribute) |
+| `HydroQuebecClient` | Hydro-Québec open data (Opendatasoft) | 95 SWE, 137 depth | GMON gamma, SWE updated every 6 h | live, rolling 10 days | **only the last ~10 days**; twice daily | CC BY-NC 4.0 |
+| `AlbertaClient` | rivers.alberta.ca (site's own endpoints) | 291 snow; 55 automated SWE | pillows (19 AEPA + BC/SNOTEL mirrors), monthly surveys | 52 in WY2026 | pillows from 1984; near real time | none stated (disclaimer only) |
+| `DWDClient` | DWD Climate Data Center | 1,177 SWE (527 active); 6,628 depth | manual cores when depth is about 5 cm or more | 77 in 2025–26 (7 with ≥ 60) | to ~1927 / 1854; recent files daily | CC BY 4.0 |
+| `SYKEClient` | SYKE Hydrologiarajapinta OData | 392 snow courses (150 active) | manual, monthly Nov–May | none | 1947–present | CC BY 4.0 |
+| `SLFClient` | SLF on EnviDat / measurement-data.slf.ch | 11 GCOS SWE sites; 135 study plots; 179 IMIS | manual, every ~15 days | none | GCOS from 1936; yearly | CC BY 4.0 / ODbL |
+| `RIHMIClient` | NSIDC G01170 mirror + AISORI-M exports | 1,552 (517 route surveys) | manual route surveys every 10 days | none | public 1966–1996; current data needs an AISORI-M login | NSIDC: open with citation; RIHMI: none stated |
+
+### Gotchas worth knowing before using them
+
+- **Hydro-Québec**: the feed is rolling. Anything older than ~10 days is
+  gone, so history has to be accumulated by the caller; CanSWE carries GMON
+  history to July 2025. SWE rows are hourly but change only every 6 h.
+  Some October SWE readings are spurious (non-zero with no snow depth).
+- **Alberta**: no documented API and no licence. The catalog is read through
+  the site's own proxy, which requires the page's `Referer` header. Ask
+  Alberta Environment for sanctioned access before running it on a schedule.
+  It also mirrors 27 BC and 7 SNOTEL pillows (filter on `operator_code`).
+- **CanSWE / NorSWE**: `interval=None` returns each station at its own
+  cadence; `"daily"` keeps only automated stations and `"periodic"` only
+  manual ones. NorSWE duplicates SNOTEL, NRCS courses, CDEC, NVE and CanSWE
+  itself.
+- **DWD**: SWE is manual and needs a minimum snow depth, so it is not daily
+  at most stations. Mountain SWE ended at the big summits when they went
+  automatic (Feldberg 2014, Arber 2016, Fichtelberg 2019, Brocken 2020).
+  Snow depth (`SH_TAG`, from `more_precip`) is the stronger product.
+- **SYKE**: SWE only (no depth). Coordinates are converted from ETRS-TM35FIN;
+  the KKJ degree fields are ~175 m off.
+- **SLF**: four datasets behind `SLFClient(dataset=...)`, each with its own
+  station ids. No open daily SWE exists for Switzerland.
+- **RIHMI**: the AISORI-M export parser follows the published field list but
+  has not been tested on a real export.
+
+---
+
+## 9. Error Handling
 
 | Client | Exception | Scenarios |
 |---|---|---|
@@ -1095,6 +1149,14 @@ recs = c.get_data("USS0021D08S", begin_date="2024-01-01", end_date="2024-01-31")
 | NVEClient | `NVEError` | HTTP 4xx/5xx, network timeout, station not found |
 | YukonClient | `YukonError` | HTTP 4xx/5xx, network timeout, malformed CSV |
 | GHCNDClient | `GHCNDError` | HTTP 4xx/5xx, network timeout, corrupt station file, unknown station |
+| CanSWEClient | `CanSWEError` | Zenodo lookup/download failure, unknown variable or interval |
+| NorSWEClient | `NorSWEError` | Zenodo lookup/download failure, unknown variable or interval |
+| HydroQuebecClient | `HydroQuebecError` | HTTP 4xx/5xx, network timeout, unknown variable or interval |
+| AlbertaClient | `AlbertaError` | HTTP 4xx/5xx (incl. proxy 403), unknown time series |
+| DWDClient | `DWDError` | HTTP 4xx/5xx, corrupt zip, unknown station |
+| SYKEClient | `SYKEError` | HTTP 4xx/5xx (incl. OData filter-size 400), unknown variable |
+| SLFClient | `SLFError` | HTTP 4xx/5xx, unknown dataset, interval not in dataset |
+| RIHMIClient | `RIHMIError` | NSIDC download failure, malformed export, daily data without an export |
 
 All exceptions are subclasses of `Exception` with descriptive messages.
 
@@ -1117,7 +1179,7 @@ with linear backoff up to `max_retries` attempts.
 
 ---
 
-## 9. Adding a New Client
+## 10. Adding a New Client
 
 The full normative contract and checklist live in
 [DESIGN.md](https://github.com/egagli/global_snow_networks/blob/main/DESIGN.md) §3 and the
