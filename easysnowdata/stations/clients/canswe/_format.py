@@ -638,7 +638,7 @@ class CanSWEFormat:
         cache = self._summary_path()
         key = self._store_key()
         try:
-            payload = json.loads(cache.read_text())
+            payload = json.loads(cache.read_text(encoding="utf-8"))
             if (
                 payload.get("version") == _SUMMARY_VERSION
                 and payload.get("file") == key
@@ -656,7 +656,8 @@ class CanSWEFormat:
                         "file": key,
                         "stations": self._summary,
                     }
-                )
+                ),
+                encoding="utf-8",
             )
         except OSError as exc:
             logger.warning("Could not write summary cache %s: %s", cache, exc)
@@ -940,7 +941,7 @@ class CanSWEStyleClient:
         if not meta.exists():
             return False
         try:
-            attrs = json.loads(meta.read_text()).get("attributes", {})
+            attrs = json.loads(meta.read_text(encoding="utf-8")).get("attributes", {})
         except (OSError, ValueError):
             return False
         src = attrs.get("source_file") or {}

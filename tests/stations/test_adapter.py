@@ -513,7 +513,9 @@ def test_only_the_nve_client_reads_a_credential():
     root = Path(esd.stations.clients.__file__).parent
     offenders = {}
     for path in sorted(root.glob("*/*_client.py")):
-        hits = re.findall(r"os\.environ|os\.getenv|getpass|netrc", path.read_text())
+        hits = re.findall(
+            r"os\.environ|os\.getenv|getpass|netrc", path.read_text(encoding="utf-8")
+        )
         if hits:
             offenders[path.parent.name] = hits
     assert offenders == {}, offenders
