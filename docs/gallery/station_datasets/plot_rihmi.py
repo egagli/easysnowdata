@@ -6,12 +6,13 @@ Russia's weather stations survey snow along 1–2 km routes in the field and in
 forest every 10 days through the cold season (every 5 days during melt),
 measuring depth, density and SWE: the largest SWE record in Eurasia. The
 Russian Research Institute of Hydrometeorological Information (RIHMI-WDC)
-holds it from 1966 to the present, but its own portal (AISORI-M) needs a login
+holds it from 1966 to the present, but its own portal (AISORI-M) needs a free login
 and has no API. The open copy is NSIDC's G01170 mirror, **1966–1996**, about
 1,350 stations.
 
 ``RIHMIClient`` reads the NSIDC mirror with no account, and can also read
-files a user has exported from AISORI-M by hand (``data_dir=``). Every survey
+zips a user has exported from AISORI-M by hand (``data_dir=``; the client
+docstring lists the export steps). Every survey
 record is ``"periodic"`` and says which route it came from (``route_type``).
 It is not part of ``esd.stations.inventory()`` or ``load()``.
 

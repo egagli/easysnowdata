@@ -50,21 +50,28 @@ client does **not** log in or scrape АИСОРИ.  Instead:
 
 Manual export (АИСОРИ-М)
 ------------------------
-1. Register / log in at http://aisori-m.meteo.ru/waisori/ («Переход на
-   страницу авторизации»).
-2. Open the dataset (``index.xhtml?idata=6`` route surveys, ``idata=7``
-   snow cover), choose the data source, select stations (Ctrl-click; the
-   number of stations is not limited) and press «Дальше».
-3. Set the period, run the query, and save the result table from the
-   «Просмотр и получение результата выборки» page as a text file.
-4. Point ``RIHMIClient(data_dir="...")`` at the folder (or pass
-   ``get_data(files=[...])``).
+Checked against the live site on 2026-10-14 (free account).
+
+1. Register at http://aisori-m.meteo.ru/waisori/registration.xhtml (login,
+   password, name, e-mail, country, city, organisation; no confirmation
+   step), then log in through «Переход на страницу авторизации».
+2. «Выбор данных» → «Раздел БД: Сутки» → «источник данных»:
+   ``SNMAR - Маршрутные снегосъемки`` (route surveys) or
+   ``SNOW - Снежный покров`` (daily snow cover).  Tick stations in the left
+   list and move them right with «>», then «Дальше».  (In October 2026 the
+   SNMAR source offered 68 of the 517 catalogue stations.)
+3. Choose the delimiter («Пробел» or «Точка с запятой»), the year range
+   («Год», От/До), press «Все» to take every parameter, then «Результат» and
+   «Получить результат».
+4. On the result page press «Загрузить»: a ``.zip`` holding ``wr<id>.txt``
+   (the data), ``fld<id>.txt`` (columns) and ``statlist<id>.txt``.
+5. Point ``RIHMIClient(data_dir="...")`` at the folder holding the zips (or
+   their extracted files), or pass ``get_data(files=[...])``.
 
 If credentials are ever automated, an auth provider (like
-``easysnowdata/auth/nve.py``) would need the АИСОРИ username/password and a
-JSF session flow (``jsessionid`` cookie + ``jakarta.faces.ViewState`` per
-form post); none is added here because no programmatic access is documented
-or permitted.
+``easysnowdata/auth/nve.py``) would need the АИСОРИ username/password and the
+JSF session flow above (``jsessionid`` cookie + ``jakarta.faces.ViewState``
+per form post).
 
 Record layouts and what is verified
 -----------------------------------
@@ -86,17 +93,20 @@ Record layouts and what is verified
   meteo.ru description, but *missing-value codes are not documented*; this
   client treats blank fields and ``9999``/``-9999`` as missing and nulls
   values outside physical bounds.
-- **АИСОРИ-М export files — UNVERIFIED.**  No real export of either snow
-  dataset was seen (no account).  The parser assumes the documented field
-  order and accepts either whitespace-separated lines (the ``.dat`` layout)
-  or ``;``-separated, space-padded lines with blank fields for missing
-  values — the latter is how an АИСОРИ-М user quoted an export row of
-  another dataset on the site's comment board (``26063;2002;10; 9; 2; …``).
-  Non-data lines (headers, titles) are skipped: a data line must start with
-  a 5-digit WMO index and a 4-digit year.  The file kind is inferred from the
-  field count (19 → route survey, 9 → snow cover) unless ``kind=`` is given.
-  If АИСОРИ-М adds, drops or reorders columns, this parser will mis-assign
-  them — check one exported row against the tables below.
+- **АИСОРИ-М export files** — *verified against real exports* of both
+  datasets, in both delimiter variants (2026-10-14; trimmed copies are the
+  test fixtures in ``tests/stations/fixtures/rihmi_aisori/``).  Values are
+  right-aligned in fixed widths with a missing value written as blanks.  The
+  ``;`` variant separates fields with ``;``; the space variant is **fixed
+  width** (one space between fields), so it cannot be split on whitespace.
+  ``fld<id>.txt`` lists each column's width and Russian name
+  (:data:`AISORI_COLUMN_NAMES`), which is how a selection of only some
+  parameters is read; its widths are not always exact (the route survey's two
+  one-character code columns are printed two wide), so space-variant fields
+  are matched to columns by right edge.  Route-survey exports carry no flag
+  columns even with «Включать признаки» ticked; snow-cover exports always
+  carry ``Q1``–``Q3``.  :func:`read_aisori_export` reads the downloaded zip
+  directly.
 
 Station catalogues
 ------------------
@@ -155,6 +165,7 @@ import logging
 import os
 import re
 import tarfile
+import zipfile
 from collections.abc import Iterable, Iterator
 from datetime import date
 from pathlib import Path
@@ -749,74 +760,196 @@ def _iter_syn_tar(
             yield from _parse_syn_lines(day, text, wanted)
 
 
-# ── АИСОРИ export parsing (UNVERIFIED layout, see module docstring) ──────────
+# ── АИСОРИ export parsing (verified against real exports) ───────────────────
 
 _INDEX_RE = re.compile(r"^\d{5}$")
 _YEAR_RE = re.compile(r"^\d{4}$")
 
+#: Column names as АИСОРИ-M writes them in an export's ``fld*.txt`` (and on
+#: its result page) → this module's native field names.  Verified against
+#: real exports of both datasets (2026-10-14).
+AISORI_COLUMN_NAMES: dict[str, str] = {
+    "Индекс ВМО": "wmo_index",
+    "Год": "year",
+    "Месяц": "month",
+    "Тип маршрута": "route_type",
+    "День": "day",
+    "Степень покрытия окрестности станции снегом": "COVER_SURROUNDINGS",
+    "Степень покрытия маршрута снегом": "COVER_ROUTE",
+    "Степень покрытия маршрута ледяной коркой": "ICE_CRUST_COVER",
+    "Средняя высота снежного покрова на маршруте (см)": "HS_MEAN",
+    "Наибольшая высота снежного покрова на маршруте (см)": "HS_MAX",
+    "Наименьшая высота снежного покрова на маршруте (см)": "HS_MIN",
+    "Средняя плотность снега": "DENSITY",
+    "Средняя толщина ледяной корки": "ICE_CRUST_THICKNESS",
+    "Толщина слоя снега, насыщенного водой (мм)": "SATURATED_LAYER",
+    "Толщина слоя чистой воды (мм)": "WATER_LAYER",
+    "Запас воды в снеге (мм)": "SWE",
+    "Запас воды, общий (мм)": "WATER_TOTAL",
+    "Характер залегания снежного покрова": "SNOW_BEDDING",
+    "Характер снежного покрова": "SNOW_STRUCTURE",
+    # daily snow cover (SNOW)
+    "Высота снежного покрова": "H",
+    "Степень покрова окрестности станции снегом": "S",
+    "Дополнительная информация о высоте снежного покрова": "Q1",
+    "Признак качества по высоте снежного покрова": "Q2",
+    "Дополнительная информация с учетом температуры воздуха": "Q3",
+}
 
-def _split_line(line: str) -> list[str]:
-    line = line.rstrip("\r\n")
-    if ";" in line:
-        parts = [p.strip() for p in line.split(";")]
-        while parts and parts[-1] == "" and len(parts) > 9:
-            parts.pop()
-        return parts
-    if "\t" in line:
-        return [p.strip() for p in line.split("\t")]
-    return line.split()
+#: Column widths of a full АИСОРИ-M export, used when no ``fld*.txt`` is at
+#: hand.  The space-delimited variant is fixed width: each field is
+#: right-aligned in its width, fields are separated by one space, and a
+#: missing value is all blanks — so it cannot be split on whitespace.
+ROUTE_SURVEY_WIDTHS: tuple[int, ...] = (
+    5, 4, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 3, 3, 2, 4, 4, 1, 1,
+)  # fmt: skip
+SNOW_COVER_WIDTHS: tuple[int, ...] = (5, 4, 2, 2, 4, 2, 1, 1, 1)
+
+_FLD_RE = re.compile(r"^\s*\d+\s+\d+\s+(\d+)(?:,\d+)?\s+(.+?)\s*$")
 
 
-def parse_aisori_text(text: str, kind: str | None = None) -> list[dict[str, Any]]:
+def parse_aisori_columns(text: str) -> list[tuple[str, int]]:
+    """Parse an export's ``fld*.txt`` into ``[(native field, width), …]``.
+
+    Each line is ``N  N  width[,decimals]  <Russian column name>``.
+    Unknown column names are kept as the Russian name (and then ignored).
     """
-    Parse an АИСОРИ-M export (or an ``IIIII.dat`` file) into native rows.
+    cols: list[tuple[str, int]] = []
+    for line in text.splitlines():
+        m = _FLD_RE.match(line)
+        if m:
+            name = m.group(2).strip()
+            cols.append((AISORI_COLUMN_NAMES.get(name, name), int(m.group(1))))
+    return cols
+
+
+def _default_columns(n_fields: int) -> list[tuple[str, int]] | None:
+    if n_fields == len(ROUTE_SURVEY_FIELDS):
+        return list(zip(ROUTE_SURVEY_FIELDS, ROUTE_SURVEY_WIDTHS, strict=True))
+    if n_fields == len(SNOW_COVER_FIELDS):
+        return list(zip(SNOW_COVER_FIELDS, SNOW_COVER_WIDTHS, strict=True))
+    return None
+
+
+def _fixed_width(line: str, widths: list[int]) -> list[str] | None:
+    """Split a space-variant export line into fields by column position.
+
+    Fields are right-aligned in their widths with one space between them,
+    and a missing value is blanks, so whitespace splitting would shift every
+    later field.  The widths in ``fld*.txt`` are not always exact (the route
+    survey's two one-character code columns are printed two wide), so each
+    token is matched to the column whose right edge is nearest its own,
+    keeping column order; a line that cannot be matched within a few
+    characters returns ``None``.
+    """
+    edges, pos = [], 0
+    for w in widths:
+        pos += w
+        edges.append(pos)
+        pos += 1
+    parts = [""] * len(widths)
+    last = -1
+    for m in re.finditer(r"\S+", line):
+        end = m.end()
+        best = None
+        for j in range(last + 1, len(edges)):
+            diff = abs(edges[j] - end)
+            if best is None or diff < best[0]:
+                best = (diff, j)
+            if edges[j] > end + 3:
+                break
+        if best is None or best[0] > 3:
+            return None
+        last = best[1]
+        parts[last] = m.group()
+    return parts
+
+
+def parse_aisori_text(
+    text: str,
+    kind: str | None = None,
+    columns: list[tuple[str, int]] | None = None,
+) -> list[dict[str, Any]]:
+    """
+    Parse an АИСОРИ-M export data file (``wr*.txt``) into native rows.
+
+    Both delimiter choices on АИСОРИ-M's export form are handled: ``;``
+    separated, and the space variant, which is fixed width (one space
+    between right-aligned fields; a missing value is blanks).  A selection
+    of only some parameters is handled when ``columns`` (from the export's
+    ``fld*.txt``, see :func:`parse_aisori_columns`) is given;
+    :func:`read_aisori_export` finds and applies that file for you.
 
     Parameters
     ----------
     text : str
-        File contents.
+        Data file contents.
     kind : {"route_survey", "snow_cover"} or None
-        Record layout.  ``None`` infers it per line from the field count
-        (19 → route survey, 9 → snow cover).
+        Record layout.  ``None`` infers it from the columns (a ``Тип
+        маршрута`` column means route survey) or, without ``columns``, from
+        the field count of a ``;`` line (19 → route survey, 9 → snow cover).
+    columns : list of (field, width), optional
+        The export's column list, in order.
 
     Returns
     -------
     list[dict]
-        ``{station_id, date, route_type, values, flag, source, kind}`` rows
-        where ``values`` maps native variable names to native-unit floats
-        (``None`` when missing).  Lines that do not start with a 5-digit
-        index and a 4-digit year, or whose field count does not fit, are
-        skipped.
+        ``{station_id, date, route_type, values, flag, source, kind}`` rows,
+        ``values`` mapping native variable names to native-unit floats
+        (``None`` when missing).  Lines that are not data lines are skipped.
 
     Raises
     ------
     RIHMIError
         If ``kind`` is not one of the accepted values.
+
+    Examples
+    --------
+    >>> line = "22113;2020; 1; 1;10;10;10;  ;  62;  77;  43;0.26;   ;   ;  ; 161; 161; 3; 2"
+    >>> parse_aisori_text(line)[0]["values"]["SWE"]
+    161.0
     """
     if kind not in (None, "route_survey", "snow_cover"):
         raise RIHMIError(f"Unknown export kind {kind!r}")
+    if columns is not None and kind is None:
+        names = {name for name, _ in columns}
+        kind = "route_survey" if "route_type" in names else "snow_cover"
     rows: list[dict[str, Any]] = []
     skipped = 0
     for line in text.splitlines():
-        parts = _split_line(line)
-        if len(parts) < 9 or not _INDEX_RE.match(parts[0]):
+        line = line.rstrip("\r\n")
+        if not line.strip() or not _INDEX_RE.match(line[:5]):
             continue
-        if not _YEAR_RE.match(parts[1]):
-            continue
-        k = kind or (
-            "route_survey"
-            if len(parts) == len(ROUTE_SURVEY_FIELDS)
-            else "snow_cover"
-            if len(parts) == len(SNOW_COVER_FIELDS)
-            else None
-        )
-        expected = len(
-            ROUTE_SURVEY_FIELDS if k == "route_survey" else SNOW_COVER_FIELDS
-        )
-        if k is None or len(parts) != expected:
+        cols = columns
+        if ";" in line:
+            parts = [p.strip() for p in line.split(";")]
+            if parts and parts[-1] == "":
+                parts.pop()  # a trailing ";" (other tools add one)
+            if cols is None:
+                cols = _default_columns(len(parts))
+        else:
+            if cols is None:
+                # Fixed width needs the layout: try the full ones by length.
+                # Without fld*.txt, pick the full layout by line length.
+                n = len(line.rstrip())
+                for fields, widths in (
+                    (ROUTE_SURVEY_FIELDS, ROUTE_SURVEY_WIDTHS),
+                    (SNOW_COVER_FIELDS, SNOW_COVER_WIDTHS),
+                ):
+                    full = sum(widths) + len(widths) - 1
+                    if full - 2 <= n <= full + 4:
+                        cols = list(zip(fields, widths, strict=True))
+                        break
+            parts = _fixed_width(line, [w for _, w in cols]) if cols else None
+        if not cols or parts is None or len(parts) != len(cols):
             skipped += 1
             continue
-        row = _route_row(parts) if k == "route_survey" else _snow_cover_row(parts)
+        f = {name: value for (name, _), value in zip(cols, parts, strict=True)}
+        k = kind or ("route_survey" if "route_type" in f else "snow_cover")
+        if not _YEAR_RE.match(f.get("year", "")):
+            skipped += 1
+            continue
+        row = _route_row(f) if k == "route_survey" else _snow_cover_row(f)
         if row is None:
             skipped += 1
             continue
@@ -827,12 +960,75 @@ def parse_aisori_text(text: str, kind: str | None = None) -> list[dict[str, Any]
     return rows
 
 
-def _route_row(parts: list[str]) -> dict[str, Any] | None:
-    f = dict(zip(ROUTE_SURVEY_FIELDS, parts, strict=True))
+def read_aisori_export(path: str | os.PathLike) -> list[dict[str, Any]]:
+    """
+    Read one АИСОРИ-M export: the downloaded ``.zip`` or its ``wr*.txt``.
+
+    The zip АИСОРИ-M serves holds ``wr<id>.txt`` (the data), ``fld<id>.txt``
+    (column numbers, widths and names) and ``statlist<id>.txt`` (the
+    stations).  The column file is used when present (inside the zip, or
+    next to a ``wr*.txt``), so exports of a subset of parameters parse
+    correctly.
+
+    Parameters
+    ----------
+    path : str or PathLike
+        A ``.zip`` export or a data ``.txt``/``.dat`` file.
+
+    Returns
+    -------
+    list[dict]
+        As :func:`parse_aisori_text`.
+
+    Raises
+    ------
+    RIHMIError
+        If the file cannot be read or the zip holds no data file.
+    """
+    path = Path(path)
+    try:
+        if path.suffix.lower() == ".zip":
+            with zipfile.ZipFile(path) as zf:
+                names = zf.namelist()
+                data = [n for n in names if Path(n).name.lower().startswith("wr")]
+                if not data:
+                    raise RIHMIError(f"{path.name}: no wr*.txt data file inside")
+                rows: list[dict[str, Any]] = []
+                for name in data:
+                    stem = Path(name).name[2:]
+                    fld = next(
+                        (
+                            n
+                            for n in names
+                            if Path(n).name.lower() == "fld" + stem.lower()
+                        ),
+                        None,
+                    )
+                    columns = (
+                        parse_aisori_columns(_decode(zf.read(fld))) if fld else None
+                    )
+                    rows.extend(
+                        parse_aisori_text(
+                            _decode(zf.read(name)), columns=columns or None
+                        )
+                    )
+                return rows
+        raw = path.read_bytes()
+        columns = None
+        if path.name.lower().startswith("wr"):
+            fld = path.with_name("fld" + path.name[2:])
+            if fld.exists():
+                columns = parse_aisori_columns(_decode(fld.read_bytes())) or None
+        return parse_aisori_text(_decode(raw), columns=columns)
+    except (OSError, zipfile.BadZipFile) as exc:
+        raise RIHMIError(f"Cannot read export file {path}: {exc}") from exc
+
+
+def _route_row(f: dict[str, str]) -> dict[str, Any] | None:
     try:
         y, m, d = int(f["year"]), int(f["month"]), int(f["day"])
         route_code = int(f["route_type"])
-    except ValueError:
+    except (KeyError, ValueError):
         return None
     day = _valid_date(y, m, d)
     if day is None:
@@ -841,31 +1037,32 @@ def _route_row(parts: list[str]) -> dict[str, Any] | None:
         "station_id": f["wmo_index"],
         "date": day,
         "route_type": ROUTE_TYPES.get(route_code, "unknown"),
-        "values": {n: _num(f[n]) for n in ROUTE_SURVEY_FIELDS if n in VARIABLES},
+        "values": {n: _num(f.get(n)) for n in ROUTE_SURVEY_FIELDS if n in VARIABLES},
         "flag": None,
         "source": "aisori_export",
     }
 
 
-def _snow_cover_row(parts: list[str]) -> dict[str, Any] | None:
-    f = dict(zip(SNOW_COVER_FIELDS, parts, strict=True))
+def _snow_cover_row(f: dict[str, str]) -> dict[str, Any] | None:
     try:
         y, m, d = int(f["year"]), int(f["month"]), int(f["day"])
-    except ValueError:
+    except (KeyError, ValueError):
         return None
     day = _valid_date(y, m, d)
     if day is None:
         return None
-    h = _num(f["H"])
-    s = _num(f["S"])
-    q1 = f["Q1"].strip()
+    h = _num(f.get("H"))
+    s = _num(f.get("S"))
+    q1 = (f.get("Q1") or "").strip()
     if q1 == "9":
         h = None
     if s is not None and s == 99:
         s = None
     if s is not None and (y, m) < (1959, 8):
         s = None  # 0/1 code (≤50% / >50%) before Aug 1959, not tenths
-    flag = f"Q1:{q1 or '-'},Q2:{f['Q2'].strip() or '-'},Q3:{f['Q3'].strip() or '-'}"
+    q2 = (f.get("Q2") or "").strip()
+    q3 = (f.get("Q3") or "").strip()
+    flag = f"Q1:{q1 or '-'},Q2:{q2 or '-'},Q3:{q3 or '-'}"
     return {
         "station_id": f["wmo_index"],
         "date": day,
@@ -890,9 +1087,10 @@ class RIHMIClient:
     Parameters
     ----------
     data_dir : str or Path, optional
-        Folder of АИСОРИ-М export files (searched recursively for ``*.txt``,
-        ``*.dat``, ``*.csv``).  See the module docstring for the export steps
-        and for which parts of the layout are unverified.
+        Folder of АИСОРИ-М exports, searched recursively for the downloaded
+        ``*.zip`` files and for extracted ``*.txt``/``*.dat``/``*.csv`` data
+        files (an export's ``fld*``/``statlist*`` files are used, not read
+        as data).  See the module docstring for the export steps.
     use_nsidc : bool
         Include NSIDC G01170 stations and route-survey data (default True).
     cache_dir : str or Path, optional
@@ -1005,7 +1203,10 @@ class RIHMIClient:
         return sorted(
             p
             for p in self.data_dir.rglob("*")
-            if p.is_file() and p.suffix.lower() in (".txt", ".dat", ".csv")
+            if p.is_file()
+            and p.suffix.lower() in (".zip", ".txt", ".dat", ".csv")
+            # an export's column list and station list are not data
+            and not p.name.lower().startswith(("fld", "statlist"))
         )
 
     def _local_rows(self, files: Iterable | None) -> list[dict[str, Any]]:
@@ -1013,12 +1214,7 @@ class RIHMIClient:
         for path in self._local_files(files):
             key = str(path.resolve())
             if key not in self._local_cache:
-                try:
-                    raw = path.read_bytes()
-                except OSError as exc:
-                    raise RIHMIError(f"Cannot read export file {path}: {exc}") from exc
-                text = _decode(raw)
-                self._local_cache[key] = parse_aisori_text(text)
+                self._local_cache[key] = read_aisori_export(path)
             rows.extend(self._local_cache[key])
         return rows
 

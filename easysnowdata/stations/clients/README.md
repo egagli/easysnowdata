@@ -2112,7 +2112,7 @@ Route-survey АИСОРИ records have no flag field (`flag` is `None`).
 
 ```python
 RIHMIClient(
-    data_dir: str | PathLike | None = None,  # folder of АИСОРИ-М exports (*.txt, *.dat, *.csv)
+    data_dir: str | PathLike | None = None,  # folder of АИСОРИ-М exports (*.zip, or extracted *.txt)
     use_nsidc: bool = True,                  # include NSIDC G01170
     cache_dir: str | PathLike | None = None, # default cache_dir("stations", "rihmi")
     timeout: int = 300,
@@ -2170,19 +2170,28 @@ else NSIDC's Latin), `name_latin`, `latitude`, `longitude`,
 
 ### Manual export (АИСОРИ-М)
 
-1. Register / log in at <http://aisori-m.meteo.ru/waisori/>.
-2. Open the dataset (`index.xhtml?idata=6` route surveys, `idata=7` snow
-   cover), choose stations and press «Дальше».
-3. Set the period, run the query and save the result table as text.
-4. Point `RIHMIClient(data_dir=...)` at the folder, or pass
+1. Register (free, no confirmation step) at
+   <http://aisori-m.meteo.ru/waisori/registration.xhtml> and log in through
+   «Переход на страницу авторизации».
+2. «Выбор данных» → «Раздел БД: Сутки» → «источник данных»
+   `SNMAR - Маршрутные снегосъемки` (route surveys) or `SNOW - Снежный
+   покров` (daily snow cover). Tick stations, move them right with «>», then
+   «Дальше».
+3. Pick a delimiter, set «Год» От/До, press «Все» (every parameter), then
+   «Результат» and «Получить результат».
+4. Press «Загрузить» on the result page. The `.zip` holds `wr<id>.txt`
+   (data), `fld<id>.txt` (columns) and `statlist<id>.txt` (stations).
+5. Point `RIHMIClient(data_dir=...)` at the folder of zips, or pass
    `get_data(files=[...])`.
 
 ### Notes and gotchas
 
-- **The АИСОРИ-М export parser is unverified**: no real export was seen.
-  It follows the published field order and accepts whitespace- or
-  `;`-separated lines. Check one exported row against `ROUTE_SURVEY_FIELDS`
-  / `SNOW_COVER_FIELDS` before trusting it.
+- **АИСОРИ-М exports** are checked against real exports of both datasets
+  in both delimiter variants. Point `data_dir=` at the downloaded `.zip`
+  files as they are. The space-delimited variant is fixed width, not
+  whitespace separated; the reader handles that, but the `;` variant is the
+  safer choice for other tools. In October 2026 AISORI-M offered route
+  surveys for 68 of the 517 catalogue stations, with data to 2024.
 - NSIDC `.syn` files: `-2` means missing (documented); `-1` also occurs
   (often in ice-crust cover, ~7,300 times in SWE) and is treated as
   missing. Coordinates are packed degrees + minutes (`5545` = 55°45′), not

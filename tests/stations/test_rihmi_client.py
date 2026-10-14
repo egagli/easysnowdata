@@ -10,6 +10,8 @@ credentials); RIHMI's own АИСОРИ-M service needs a login and is not tested
 
 import io
 import tarfile
+import zipfile
+from pathlib import Path
 
 import pytest
 
@@ -19,13 +21,16 @@ from easysnowdata.stations.clients.rihmi.rihmi_client import (
     _ROUTE_CATALOGUE,
     _SNOW_COVER_CATALOGUE,
     DATA_FLAGS,
+    ROUTE_SURVEY_FIELDS,
     VARIABLES,
     _convert,
     _ddmm,
     _parse_station_loc,
     _read_catalogue,
     _resolve_variables,
+    parse_aisori_columns,
     parse_aisori_text,
+    read_aisori_export,
 )
 from easysnowdata.stations.networks import canonical_units
 from tests.stations.conftest import RECORD_KEYS
@@ -61,8 +66,8 @@ def _tar(files: dict[str, str]) -> bytes:
     return buf.getvalue()
 
 
-# АИСОРИ-M route-survey export, 19 fields, ";"-separated with blanks (the
-# layout is an assumption — see the module docstring).
+# Synthetic АИСОРИ-M route-survey lines in the real ";" layout, with edge
+# cases the real fixtures below don't have (9999, a trailing ";", a bad date).
 ROUTE_EXPORT = (
     "Маршрутные снегомерные съемки\n"
     "22113;1986;01;1;10; 10; 10;  0;  50;  80;  20;0.25;   ;   ;   ; 125; 125; 3; 4\n"
@@ -201,10 +206,82 @@ def test_parse_route_export_semicolon():
     assert rows[1]["values"]["WATER_TOTAL"] is None  # 9999 + trailing ';'
 
 
-def test_parse_route_export_whitespace():
-    line = "22113 1986 1 1 10 10 10 0 50 80 20 0.25 0 0 0 125 125 3 4\n"
-    (row,) = parse_aisori_text(line)
-    assert row["values"]["HS_MEAN"] == 50 and row["values"]["DENSITY"] == 0.25
+# ── Real АИСОРИ-M exports (tests/stations/fixtures/rihmi_aisori/) ────────────
+
+AISORI = Path(__file__).parent / "fixtures" / "rihmi_aisori"
+
+
+def _by_key(rows):
+    return {(r["station_id"], r["date"], r["route_type"]): r for r in rows}
+
+
+def test_real_route_export_semicolon():
+    rows = read_aisori_export(AISORI / "route_semicolon.zip")
+    assert len(rows) == 28 and {r["kind"] for r in rows} == {"route_survey"}
+    first = _by_key(rows)[("22113", "2021-01-10", "field")]["values"]
+    assert first["HS_MEAN"] == 29 and first["DENSITY"] == 0.17
+    assert first["SWE"] == 49 and first["ICE_CRUST_COVER"] is None  # blank
+    assert first["SNOW_BEDDING"] == 0 and first["SNOW_STRUCTURE"] == 1
+
+
+def test_real_route_export_space_is_fixed_width():
+    """Blanks must not shift later fields, and the two one-character code
+    columns, printed two wide (wider than fld*.txt says), still line up."""
+    rows = _by_key(read_aisori_export(AISORI / "route_space.zip"))
+    mur = rows[("22113", "2020-01-10", "field")]["values"]
+    assert (mur["HS_MEAN"], mur["HS_MAX"], mur["HS_MIN"]) == (62, 77, 43)
+    assert mur["ICE_CRUST_COVER"] is None and mur["ICE_CRUST_THICKNESS"] is None
+    assert (mur["SWE"], mur["WATER_TOTAL"]) == (161, 161)
+    assert (mur["SNOW_BEDDING"], mur["SNOW_STRUCTURE"]) == (3, 2)
+    # Petrozavodsk forest route with no surroundings cover: "10" is the
+    # route cover, not the surroundings.
+    pet = rows[("22820", "2020-01-31", "forest")]["values"]
+    assert pet["COVER_SURROUNDINGS"] is None and pet["COVER_ROUTE"] == 10
+    assert (pet["HS_MEAN"], pet["SWE"]) == (4, 4)
+
+
+def test_real_space_export_without_column_file():
+    with zipfile.ZipFile(AISORI / "route_space.zip") as zf:
+        data = next(n for n in zf.namelist() if n.startswith("wr"))
+        text = zf.read(data).decode("ascii")
+    assert _by_key(parse_aisori_text(text)) == _by_key(
+        read_aisori_export(AISORI / "route_space.zip")
+    )
+
+
+def test_real_snow_cover_exports_agree():
+    semi = read_aisori_export(AISORI / "snow_cover_semicolon.zip")
+    space = read_aisori_export(AISORI / "snow_cover_space.zip")
+    assert semi == space and len(semi) == 28
+    assert semi[0]["values"] == {"H": 17, "S": 10}
+    assert semi[0]["flag"] == "Q1:0,Q2:0,Q3:0"
+
+
+def test_column_file_maps_russian_names():
+    with zipfile.ZipFile(AISORI / "route_space.zip") as zf:
+        fld = next(n for n in zf.namelist() if n.startswith("fld"))
+        cols = parse_aisori_columns(zf.read(fld).decode("cp1251"))
+    assert [c for c, _ in cols] == list(ROUTE_SURVEY_FIELDS)
+    assert dict(cols)["DENSITY"] == 4
+
+
+def test_client_reads_downloaded_zips(tmp_path):
+    for name in ("route_space.zip", "snow_cover_semicolon.zip"):
+        (tmp_path / name).write_bytes((AISORI / name).read_bytes())
+    client = RIHMIClient(data_dir=tmp_path, use_nsidc=False)
+    swe = client.get_data("22113", variables="swe", begin_date="2020-01-01")
+    assert swe[0]["value"] == pytest.approx(16.1) and swe[0]["units"] == "cm"
+    assert {r["source"] for r in swe} == {"aisori_export"}
+    depth = client.get_data("22820", interval="daily", end_date="2023-01-14")
+    assert len(depth) == 14 and depth[0]["type"] == "snwd"
+
+
+@pytest.mark.parametrize("name", sorted(p.name for p in AISORI.glob("*.zip")))
+def test_extracted_export_reads_like_the_zip(tmp_path, name):
+    with zipfile.ZipFile(AISORI / name) as zf:
+        zf.extractall(tmp_path)
+    data = next(tmp_path.glob("wr*.txt"))
+    assert read_aisori_export(data) == read_aisori_export(AISORI / name)
 
 
 def test_parse_snow_cover_dat():
