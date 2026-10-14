@@ -1,0 +1,679 @@
+"""
+Tests for RIHMIClient.
+
+Offline tests serve synthetic NSIDC G01170 files (``station.loc`` and a
+``syn.tar`` built in memory, both in the real column layout) through a stub
+session, and parse synthetic АИСОРИ-M exports written from the documented
+RIHMI record layouts.  The ``live`` tests read the real NSIDC archive (no
+credentials).  The scripted АИСОРИ-M export is tested offline against stub
+pages and a stubbed session, and live (``requires_aisori``) when
+``AISORI_USERNAME`` / ``AISORI_PASSWORD`` are set.
+"""
+
+import io
+import tarfile
+import zipfile
+from pathlib import Path
+
+import pytest
+
+from easysnowdata.stations.clients._common import INTERVALS, TYPES
+from easysnowdata.stations.clients.rihmi import RIHMIClient, RIHMIError
+from easysnowdata.stations.clients.rihmi.rihmi_client import (
+    _ROUTE_CATALOGUE,
+    _SNOW_COVER_CATALOGUE,
+    DATA_FLAGS,
+    ROUTE_SURVEY_FIELDS,
+    VARIABLES,
+    _convert,
+    _ddmm,
+    _parse_station_loc,
+    _read_catalogue,
+    _resolve_variables,
+    parse_aisori_columns,
+    parse_aisori_text,
+    read_aisori_export,
+)
+from easysnowdata.stations.networks import canonical_units
+from tests.stations.conftest import RECORD_KEYS
+
+# Real-layout lines from G01170 station.loc (Murmansk is in both RIHMI
+# catalogues; 99001 is a made-up NSIDC-only station).
+STATION_LOC = (
+    "22113   MURMANSK                        6858     3303       46\n"
+    "21982   OSTROV VRANGELJA                7059    18131\n"
+    "99001   TEST NSIDC ONLY                 5000     4000      100\n"
+)
+
+# Real-layout .syn lines (17 columns): field + forest for Murmansk, a
+# duplicated field line, and a line with the undocumented -1 code.
+SYN_19860110 = (
+    "22113 6858 03303 1 10 10 -1 045 070 020  0.22 -02 -02 099 03 04 00\n"
+    "22113 6858 03303 2 10 10 -2 060 080 040  0.20 -02 -02 120 03 04 05\n"
+    "22113 6858 03303 1 10 10 -2 999 999 999  0.99 -02 -02 999 03 04 00\n"
+    "99001 5000 04000 1 10 10 -2 002 004 000 -1.00 -02 -02 -01 01 01 00\n"
+)
+SYN_19860120 = "22113 6858 03303 1 10 10 00 050 075 025  0.24 002 -02 120 03 04 01\n"
+SYN_19920110 = "22113 6858 03303 1 10 10 00 030 040 020  0.20 -02 -02 060 03 04 00\n"
+
+
+def _tar(files: dict[str, str]) -> bytes:
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w") as tf:
+        for name, text in files.items():
+            data = text.encode()
+            info = tarfile.TarInfo(name)
+            info.size = len(data)
+            tf.addfile(info, io.BytesIO(data))
+    return buf.getvalue()
+
+
+# Synthetic АИСОРИ-M route-survey lines in the real ";" layout, with edge
+# cases the real fixtures below don't have (9999, a trailing ";", a bad date).
+ROUTE_EXPORT = (
+    "Маршрутные снегомерные съемки\n"
+    "22113;1986;01;1;10; 10; 10;  0;  50;  80;  20;0.25;   ;   ;   ; 125; 125; 3; 4\n"
+    "22113;1986;01;2;10; 10; 10;  0;  70;  90;  50;0.21;   ;   ;   ; 147;9999; 3; 4;\n"
+    "22113;1986;02;1;31; 10; 10;  0;  50;  80;  20;0.25;   ;   ;   ; 125; 125; 3; 4\n"
+)
+
+# Daily snow cover in the documented IIIII.dat fixed-width layout.
+SNOW_COVER_DAT = (
+    "22113 1986 01 10   45 10 0 0 0\n"
+    "22113 1986 01 11 9999 99 9 0 0\n"
+    "22113 1986 01 12   47 10 0 1 0\n"
+    "22113 1955 01 12   30  1 0 0 0\n"
+)
+
+
+class _Resp:
+    def __init__(self, body: bytes, status: int = 200):
+        self.content = body
+        self.text = body.decode("latin-1")
+        self.ok = status == 200
+        self.status_code = status
+        self.headers = {}
+
+
+class _StubSession:
+    def __init__(self):
+        self.headers = {}
+        self.calls: list[str] = []
+        self.files = {
+            "station.loc": STATION_LOC.encode(),
+            "product/syn.tar": _tar(
+                {"./19860110.syn": SYN_19860110, "./19860120.syn": SYN_19860120}
+            ),
+            "update04012002/syn.tar": _tar({"19920110.syn": SYN_19920110}),
+            "update02172003/syn.tar": _tar({}),
+            "update05152003/syn.tar": _tar({}),
+            "update04052004/syn.tar": _tar({}),
+        }
+
+    def request(self, method, url, params=None, timeout=None):
+        self.calls.append(url)
+        for suffix, body in self.files.items():
+            if url.endswith(suffix):
+                return _Resp(body)
+        return _Resp(b"not found", 404)
+
+
+@pytest.fixture
+def stub_client(tmp_path):
+    return RIHMIClient(
+        cache_dir=tmp_path / "cache", session=_StubSession(), max_retries=1
+    )
+
+
+@pytest.fixture
+def export_dir(tmp_path):
+    d = tmp_path / "aisori"
+    d.mkdir()
+    (d / "routes.txt").write_bytes(ROUTE_EXPORT.encode("cp1251"))
+    (d / "22113.dat").write_text(SNOW_COVER_DAT)
+    return d
+
+
+# ── Registry compliance ──────────────────────────────────────────────────────
+
+
+def test_variables_use_shared_vocabulary():
+    required = {
+        "name",
+        "type",
+        "units",
+        "output_units",
+        "description",
+        "notes",
+        "source",
+        "interval",
+    }
+    for key, info in VARIABLES.items():
+        assert required <= set(info), key
+        assert info["type"] in TYPES, key
+        assert info["interval"] in INTERVALS, key
+        if info["type"] in {"swe", "snwd"}:
+            assert info["output_units"] == "cm", key
+    assert VARIABLES["DENSITY"]["output_units"] == "%"
+
+
+def test_output_units_are_canonical():
+    """Typed variables emit exactly the networks.TYPES unit (DESIGN.md §3.5)."""
+    for reg in (VARIABLES,):
+        for key, info in reg.items():
+            if info["type"] != "other":
+                assert info["output_units"] == canonical_units(info["type"]), key
+
+
+def test_data_flags_documented():
+    assert "NSIDC:5" in DATA_FLAGS and "Q1:9" in DATA_FLAGS
+
+
+# ── Catalogues and parsers ───────────────────────────────────────────────────
+
+
+def test_packaged_catalogues():
+    routes = _read_catalogue(_ROUTE_CATALOGUE)
+    cover = _read_catalogue(_SNOW_COVER_CATALOGUE)
+    assert len(routes) == 517
+    assert len(cover) == 620
+    murmansk = routes["22113"]
+    assert murmansk["latitude"] == pytest.approx(68 + 58 / 60, abs=1e-3)
+    assert murmansk["longitude"] == pytest.approx(33 + 3 / 60, abs=1e-3)
+    assert murmansk["elevation_m"] == 57
+    # Wrangel Island, printed 181°31′E → west of the antimeridian.
+    assert cover["21982"]["longitude"] == pytest.approx(-178.483, abs=1e-3)
+    assert all(-180 <= s["longitude"] <= 180 for s in cover.values())
+
+
+def test_ddmm_and_station_loc():
+    assert _ddmm("5545") == pytest.approx(55.75)
+    assert _ddmm("03734") == pytest.approx(37 + 34 / 60, abs=1e-4)
+    assert _ddmm("18131") == pytest.approx(-178.4833, abs=1e-3)
+    st = _parse_station_loc(STATION_LOC)
+    assert st["22113"]["name"] == "MURMANSK"
+    assert st["22113"]["elevation_m"] == 46
+    assert st["21982"]["elevation_m"] is None
+
+
+def test_parse_route_export_semicolon():
+    rows = parse_aisori_text(ROUTE_EXPORT)
+    assert len(rows) == 2  # the 31 February line is skipped
+    field = rows[0]
+    assert field["kind"] == "route_survey"
+    assert (field["date"], field["route_type"]) == ("1986-01-10", "field")
+    assert field["values"]["SWE"] == 125
+    assert field["values"]["ICE_CRUST_THICKNESS"] is None  # blank
+    assert rows[1]["route_type"] == "forest"
+    assert rows[1]["values"]["WATER_TOTAL"] is None  # 9999 + trailing ';'
+
+
+# ── Real АИСОРИ-M exports (tests/stations/fixtures/rihmi_aisori/) ────────────
+
+AISORI = Path(__file__).parent / "fixtures" / "rihmi_aisori"
+
+
+def _by_key(rows):
+    return {(r["station_id"], r["date"], r["route_type"]): r for r in rows}
+
+
+def test_real_route_export_semicolon():
+    rows = read_aisori_export(AISORI / "route_semicolon.zip")
+    assert len(rows) == 28 and {r["kind"] for r in rows} == {"route_survey"}
+    first = _by_key(rows)[("22113", "2021-01-10", "field")]["values"]
+    assert first["HS_MEAN"] == 29 and first["DENSITY"] == 0.17
+    assert first["SWE"] == 49 and first["ICE_CRUST_COVER"] is None  # blank
+    assert first["SNOW_BEDDING"] == 0 and first["SNOW_STRUCTURE"] == 1
+
+
+def test_real_route_export_space_is_fixed_width():
+    """Blanks must not shift later fields, and the two one-character code
+    columns, printed two wide (wider than fld*.txt says), still line up."""
+    rows = _by_key(read_aisori_export(AISORI / "route_space.zip"))
+    mur = rows[("22113", "2020-01-10", "field")]["values"]
+    assert (mur["HS_MEAN"], mur["HS_MAX"], mur["HS_MIN"]) == (62, 77, 43)
+    assert mur["ICE_CRUST_COVER"] is None and mur["ICE_CRUST_THICKNESS"] is None
+    assert (mur["SWE"], mur["WATER_TOTAL"]) == (161, 161)
+    assert (mur["SNOW_BEDDING"], mur["SNOW_STRUCTURE"]) == (3, 2)
+    # Petrozavodsk forest route with no surroundings cover: "10" is the
+    # route cover, not the surroundings.
+    pet = rows[("22820", "2020-01-31", "forest")]["values"]
+    assert pet["COVER_SURROUNDINGS"] is None and pet["COVER_ROUTE"] == 10
+    assert (pet["HS_MEAN"], pet["SWE"]) == (4, 4)
+
+
+def test_real_space_export_without_column_file():
+    with zipfile.ZipFile(AISORI / "route_space.zip") as zf:
+        data = next(n for n in zf.namelist() if n.startswith("wr"))
+        text = zf.read(data).decode("ascii")
+    assert _by_key(parse_aisori_text(text)) == _by_key(
+        read_aisori_export(AISORI / "route_space.zip")
+    )
+
+
+def test_real_snow_cover_exports_agree():
+    semi = read_aisori_export(AISORI / "snow_cover_semicolon.zip")
+    space = read_aisori_export(AISORI / "snow_cover_space.zip")
+    assert semi == space and len(semi) == 28
+    assert semi[0]["values"] == {"H": 17, "S": 10}
+    assert semi[0]["flag"] == "Q1:0,Q2:0,Q3:0"
+
+
+def test_column_file_maps_russian_names():
+    with zipfile.ZipFile(AISORI / "route_space.zip") as zf:
+        fld = next(n for n in zf.namelist() if n.startswith("fld"))
+        cols = parse_aisori_columns(zf.read(fld).decode("cp1251"))
+    assert [c for c, _ in cols] == list(ROUTE_SURVEY_FIELDS)
+    assert dict(cols)["DENSITY"] == 4
+
+
+def test_client_reads_downloaded_zips(tmp_path):
+    for name in ("route_space.zip", "snow_cover_semicolon.zip"):
+        (tmp_path / name).write_bytes((AISORI / name).read_bytes())
+    client = RIHMIClient(data_dir=tmp_path, use_nsidc=False)
+    swe = client.get_data("22113", variables="swe", begin_date="2020-01-01")
+    assert swe[0]["value"] == pytest.approx(16.1) and swe[0]["units"] == "cm"
+    assert {r["source"] for r in swe} == {"aisori_export"}
+    depth = client.get_data("22820", interval="daily", end_date="2023-01-14")
+    assert len(depth) == 14 and depth[0]["type"] == "snwd"
+
+
+@pytest.mark.parametrize("name", sorted(p.name for p in AISORI.glob("*.zip")))
+def test_extracted_export_reads_like_the_zip(tmp_path, name):
+    with zipfile.ZipFile(AISORI / name) as zf:
+        zf.extractall(tmp_path)
+    data = next(tmp_path.glob("wr*.txt"))
+    assert read_aisori_export(data) == read_aisori_export(AISORI / name)
+
+
+def test_parse_snow_cover_dat():
+    rows = parse_aisori_text(SNOW_COVER_DAT)
+    assert [r["kind"] for r in rows] == ["snow_cover"] * 4
+    assert rows[0]["values"] == {"H": 45, "S": 10}
+    assert rows[1]["values"] == {"H": None, "S": None}  # 9999 / 99 / Q1=9
+    assert rows[2]["flag"] == "Q1:0,Q2:1,Q3:0"
+    assert rows[3]["values"]["S"] is None  # 0/1 code before Aug 1959
+
+
+def test_parse_skips_bad_lines_and_kind_override():
+    text = "header\n22113;1986;13;1;10;10;10;0;5;8;2;.2;;;;12;12;3;4\n"
+    assert parse_aisori_text(text) == []  # month 13
+    with pytest.raises(RIHMIError):
+        parse_aisori_text("", kind="bogus")
+    # Forcing the wrong kind drops lines whose field count does not fit.
+    assert parse_aisori_text(SNOW_COVER_DAT, kind="route_survey") == []
+
+
+def test_convert_scales_and_clamps():
+    assert _convert("SWE", 125) == pytest.approx(12.5)  # mm → cm
+    assert _convert("DENSITY", 0.25) == pytest.approx(25.0)  # g/cm3 → %
+    assert _convert("COVER_ROUTE", 7) == pytest.approx(70.0)  # tenths → %
+    assert _convert("HS_MEAN", 2000) is None
+    assert _convert("DENSITY", 1.5) is None
+    assert _convert("COVER_ROUTE", 99) is None
+    assert _convert("SWE", None) is None
+
+
+# ── Variable / interval resolution ───────────────────────────────────────────
+
+
+def test_resolve_defaults_and_types():
+    assert _resolve_variables(None, "periodic") == ["SWE", "HS_MEAN"]
+    assert _resolve_variables(None, "daily") == ["H"]
+    assert _resolve_variables(["density", "SWE"], "periodic") == ["DENSITY", "SWE"]
+    assert _resolve_variables("snwd", "daily") == ["H"]
+
+
+def test_unknown_or_wrong_interval_variable_raises():
+    with pytest.raises(RIHMIError, match="Unknown variable"):
+        _resolve_variables(["WTEQ"], "periodic")
+    with pytest.raises(RIHMIError, match="belongs to interval"):
+        _resolve_variables(["H"], "periodic")
+
+
+def test_unknown_interval_route_and_source(stub_client):
+    with pytest.raises(RIHMIError, match="Unsupported interval"):
+        stub_client.get_data("22113", interval="hourly")
+    with pytest.raises(RIHMIError, match="route type"):
+        stub_client.get_data("22113", route_types="meadow")
+    with pytest.raises(RIHMIError, match="source"):
+        stub_client.get_data("22113", source="meteo")
+
+
+def test_get_data_requires_station_or_bbox(stub_client):
+    with pytest.raises(ValueError):
+        stub_client.get_data()
+
+
+# ── Client behaviour against the stub ───────────────────────────────────────
+
+
+def test_get_all_stations_union_and_status(stub_client):
+    stations = stub_client.get_all_stations()
+    by_id = {s["station_id"]: s for s in stations}
+    assert len(stations) == 517 + 620 - 231 + 1  # + the NSIDC-only test site
+    m = by_id["22113"]
+    assert m["name"] == "Мурманск" and m["name_latin"] == "MURMANSK"
+    assert m["status"] == "Active" and m["in_nsidc_g01170"]
+    assert by_id["99001"]["status"] == "Inactive"
+    assert by_id["20289"]["status"] == "Inactive"  # «Закрыта в 1999 г.»
+    for s in stations:
+        assert {"station_id", "name", "latitude", "longitude", "elevation_m"} <= set(s)
+        assert s["status"] in {"Active", "Inactive"}
+
+
+def test_get_all_stations_bbox_and_active(stub_client):
+    kola = stub_client.get_all_stations(bbox=(32.5, 68.5, 33.5, 69.5))
+    assert "22113" in {s["station_id"] for s in kola}
+    active = stub_client.get_all_stations(active_only=True)
+    assert all(s["status"] == "Active" for s in active)
+
+
+def test_get_metadata(stub_client):
+    meta = stub_client.get_metadata("22113")
+    names = {d["name"] for d in meta["data_variables"]}
+    assert {"SWE", "HS_MEAN", "H", "S"} <= names
+    assert all(d["interval"] in INTERVALS for d in meta["data_variables"])
+    only = stub_client.get_metadata("99001")
+    names = {d["name"] for d in only["data_variables"]}
+    assert "WATER_TOTAL" not in names and "H" not in names
+    with pytest.raises(RIHMIError, match="not found"):
+        stub_client.get_metadata("00001")
+
+
+def test_get_data_nsidc_records(stub_client):
+    recs = stub_client.get_data(
+        "22113",
+        variables=["SWE", "HS_MEAN", "ICE_CRUST_COVER"],
+        begin_date="1986-01-01",
+        end_date="1986-01-31",
+        include_flags=True,
+    )
+    assert all(RECORD_KEYS <= set(r) for r in recs)
+    assert all(r["interval"] == "periodic" for r in recs)
+    key = {(r["date"], r["route_type"], r["variable"]): r for r in recs}
+    assert key[("1986-01-10", "field", "SWE")]["value"] == pytest.approx(9.9)
+    assert key[("1986-01-10", "field", "HS_MEAN")]["value"] == 45
+    # -1 (undocumented) → None; duplicate field line ignored (first wins).
+    assert key[("1986-01-10", "field", "ICE_CRUST_COVER")]["value"] is None
+    assert key[("1986-01-10", "forest", "SWE")]["flag"] == "NSIDC:5"
+    assert key[("1986-01-20", "field", "SWE")]["source"] == "nsidc_g01170"
+    # Field before forest on the same date.
+    first = [r for r in recs if r["date"] == "1986-01-10"]
+    assert first[0]["route_type"] == "field"
+    # The 1991–96 update tar was not needed for a 1986 window.
+    assert not any("update" in u for u in stub_client._session.calls)
+
+
+def test_get_data_route_filter_and_updates(stub_client):
+    recs = stub_client.get_data("22113", route_types="forest", end_date="1986-12-31")
+    assert {r["route_type"] for r in recs} == {"forest"}
+    late = stub_client.get_data("22113", variables="swe", begin_date="1991-01-01")
+    assert [(r["date"], r["value"]) for r in late] == [("1992-01-10", 6.0)]
+
+
+def test_local_export_wins_over_nsidc(tmp_path, export_dir):
+    client = RIHMIClient(
+        data_dir=export_dir,
+        cache_dir=tmp_path / "cache",
+        session=_StubSession(),
+        max_retries=1,
+    )
+    recs = client.get_data("22113", variables="SWE", end_date="1986-12-31")
+    by = {(r["date"], r["route_type"]): r for r in recs}
+    assert by[("1986-01-10", "field")]["source"] == "aisori_export"
+    assert by[("1986-01-10", "field")]["value"] == pytest.approx(12.5)
+    assert by[("1986-01-20", "field")]["source"] == "nsidc_g01170"
+    # 31 February in the export is not a date: that line is skipped.
+    assert not any(d.startswith("1986-02") for d, _ in by)
+    files_only = client.get_data("22113", variables="SWE", source="files")
+    assert {r["source"] for r in files_only} == {"aisori_export"}
+
+
+def test_daily_from_export(tmp_path, export_dir):
+    client = RIHMIClient(data_dir=export_dir, use_nsidc=False)
+    recs = client.get_data("22113", interval="daily", include_flags=True)
+    vals = {r["date"]: r["value"] for r in recs}
+    assert vals["1986-01-10"] == 45 and vals["1986-01-11"] is None
+    assert all(r["type"] == "snwd" and r["interval"] == "daily" for r in recs)
+    assert {r["flag"] for r in recs} >= {"Q1:9,Q2:0,Q3:0"}
+    cov = client.get_data(
+        "22113",
+        interval="daily",
+        variables="S",
+        begin_date="1986-01-10",
+        end_date="1986-01-10",
+    )
+    assert cov[0]["value"] == pytest.approx(100.0) and cov[0]["units"] == "%"
+
+
+def test_daily_without_export_raises(stub_client):
+    with pytest.raises(RIHMIError, match="АИСОРИ"):
+        stub_client.get_data("22113", interval="daily")
+    with pytest.raises(RIHMIError, match="no daily"):
+        stub_client.get_data("22113", interval="daily", source="nsidc")
+
+
+def test_download_error_raises(tmp_path):
+    session = _StubSession()
+    session.files.pop("product/syn.tar")
+    client = RIHMIClient(cache_dir=tmp_path, session=session, max_retries=1)
+    with pytest.raises(RIHMIError, match="404"):
+        client.get_data("22113", end_date="1980-01-01")
+
+
+def test_base_url_override(tmp_path):
+    sess = _StubSession()
+    client = RIHMIClient(
+        base_url="https://mirror.example/G01170/",
+        cache_dir=tmp_path / "cache",
+        session=sess,
+        max_retries=1,
+    )
+    assert client.get_all_stations()
+    assert sess.calls == ["https://mirror.example/G01170/station.loc"]
+
+
+# ── Scripted АИСОРИ-М export (offline) ──────────────────────────────────────
+
+from easysnowdata.stations.clients.rihmi import _aisori  # noqa: E402
+
+QUERY_PAGE = """<html><body>
+<form id="j_idt59" action="/waisori/select.xhtml">
+  <input type="hidden" name="jakarta.faces.ViewState" value="vs-1"/>
+  <input type="text" name="j_idt59:0:j_idt70" value=""/>
+  <input type="checkbox" name="j_idt59:flags" value="on" checked="checked"/>
+  <input type="checkbox" name="j_idt59:unticked" value="on"/>
+  <select name="j_idt59:seldelim"><option value="0">Пробел</option>
+    <option value="1">Точка с запятой</option></select>
+  <select name="j_idt59:hlist1_input" multiple="multiple">
+    <option value="22113 Мурманск  Россия">22113 Мурманск Россия</option>
+    <option value="24959 Якутск &amp; Co">24959 Якутск</option></select>
+  <button name="j_idt59:butres1">Результат</button>
+  <button name="j_idt59:all">Все</button>
+  <button name="j_idt59:allx">Все станции</button>
+  <a id="j_idt59:auth" href="#">Переход на страницу авторизации</a>
+</form></body></html>"""
+
+
+def test_aisori_forms_collect_fields_buttons_links():
+    form = _aisori._forms(QUERY_PAGE, "http://x/waisori/index.xhtml")["j_idt59"]
+    assert form.action == "http://x/waisori/select.xhtml"
+    fields = dict(form.fields)
+    assert fields["jakarta.faces.ViewState"] == "vs-1"
+    assert fields["j_idt59:flags"] == "on" and "j_idt59:unticked" not in fields
+    # a single select with nothing selected submits its first option
+    assert fields["j_idt59:seldelim"] == "0"
+    assert "j_idt59:hlist1_input" not in fields  # multiple, nothing selected
+    assert form.links["Переход на страницу авторизации"] == "j_idt59:auth"
+
+
+def test_aisori_find_exact_and_prefix():
+    forms = _aisori._forms(QUERY_PAGE, "http://x/")
+    assert _aisori._find(forms, "Все", exact=True)[1] == "j_idt59:all"
+    assert _aisori._find(forms, "Рез")[1] == "j_idt59:butres1"
+    with pytest.raises(_aisori.AisoriExportError, match="Загрузить"):
+        _aisori._find(forms, "Загрузить")
+
+
+def test_aisori_options_are_verbatim():
+    assert _aisori._options(QUERY_PAGE)[2:] == [
+        "22113 Мурманск  Россия",
+        "24959 Якутск & Co",
+    ]
+    assert _aisori._option_starting(QUERY_PAGE, "24959") == "24959 Якутск &amp; Co"
+
+
+def test_aisori_partial_response_updates_viewstate_and_raises():
+    sess = _aisori.AisoriSession("u", "p")
+    ok = (
+        '<partial-response><changes><update id="j_idt59:flist2">'
+        "<![CDATA[<b>x</b>]]></update>"
+        '<update id="j_id1:jakarta.faces.ViewState:0"><![CDATA[vs-2]]></update>'
+        "</changes></partial-response>"
+    )
+    updates = sess._apply_partial(ok)
+    assert updates["j_idt59:flist2"] == "<b>x</b>" and sess._viewstate == "vs-2"
+    redirect = (
+        '<partial-response><redirect url="/waisori/index1.xhtml"/></partial-response>'
+    )
+    assert sess._apply_partial(redirect)["__redirect__"] == "/waisori/index1.xhtml"
+    err = (
+        "<partial-response><error><error-name>X</error-name></error></partial-response>"
+    )
+    with pytest.raises(_aisori.AisoriExportError, match="error"):
+        sess._apply_partial(err)
+    with pytest.raises(_aisori.AisoriExportError, match="dataset"):
+        sess.export("nope", ["22113"], 2020, 2021)
+
+
+class _FakeAisori:
+    """Stands in for AisoriSession: records calls, returns a real export zip."""
+
+    calls: list = []
+
+    def __init__(self, username, password, **kwargs):
+        self.creds = (username, password)
+
+    def export(self, dataset, station_ids, first_year, last_year):
+        _FakeAisori.calls.append(
+            (self.creds, dataset, station_ids, first_year, last_year)
+        )
+        return (AISORI / "route_space.zip").read_bytes()
+
+
+@pytest.fixture
+def fake_aisori(monkeypatch):
+    _FakeAisori.calls = []
+    monkeypatch.setattr(_aisori, "AisoriSession", _FakeAisori)
+    monkeypatch.setenv("AISORI_USERNAME", "env-user")
+    monkeypatch.setenv("AISORI_PASSWORD", "env-pass")
+    return _FakeAisori
+
+
+def test_source_aisori_exports_once_and_caches(tmp_path, fake_aisori):
+    client = RIHMIClient(cache_dir=tmp_path, use_nsidc=False)
+    recs = client.get_data(
+        ["22113", "22820"],
+        variables="swe",
+        begin_date="2020-01-01",
+        end_date="2024-12-31",
+        source="aisori",
+    )
+    assert recs and {r["source"] for r in recs} == {"aisori_export"}
+    assert fake_aisori.calls == [
+        (("env-user", "env-pass"), "route_survey", ["22113", "22820"], 2020, 2024)
+    ]
+    again = client.get_data(
+        ["22820", "22113"],
+        variables="swe",
+        begin_date="2020-01-01",
+        end_date="2024-12-31",
+        source="aisori",
+    )
+    assert again == recs and len(fake_aisori.calls) == 1  # served from the cache
+    assert len(list((tmp_path / "aisori").glob("route_survey_2020_2024_*.zip"))) == 1
+    client.fetch_aisori(
+        ["22113", "22820"], first_year=2020, last_year=2024, refresh=True
+    )
+    assert len(fake_aisori.calls) == 2
+
+
+def test_fetch_aisori_defaults_and_explicit_credentials(tmp_path, fake_aisori):
+    from datetime import date as _date
+
+    client = RIHMIClient(cache_dir=tmp_path, aisori_username="me", aisori_password="pw")
+    path = client.fetch_aisori("22113", interval="daily")
+    assert path.read_bytes().startswith(b"PK")
+    assert fake_aisori.calls == [
+        (("me", "pw"), "snow_cover", ["22113"], 1966, _date.today().year)
+    ]
+    with pytest.raises(RIHMIError, match="after"):
+        client.fetch_aisori("22113", first_year=2025, last_year=2020)
+
+
+def test_source_aisori_without_credentials_raises(tmp_path, monkeypatch):
+    from easysnowdata import auth
+    from easysnowdata.auth import CredentialError
+
+    monkeypatch.delenv("AISORI_USERNAME", raising=False)
+    monkeypatch.delenv("AISORI_PASSWORD", raising=False)
+    auth.reset()
+    client = RIHMIClient(cache_dir=tmp_path, use_nsidc=False)
+    with pytest.raises(CredentialError, match="AISORI"):
+        client.get_data("22113", interval="daily", source="aisori")
+
+
+def test_export_failure_becomes_rihmi_error(tmp_path, monkeypatch, fake_aisori):
+    def broken(self, *args):
+        raise _aisori.AisoriExportError("login failed")
+
+    monkeypatch.setattr(_FakeAisori, "export", broken)
+    client = RIHMIClient(cache_dir=tmp_path, use_nsidc=False)
+    with pytest.raises(RIHMIError, match="login failed"):
+        client.fetch_aisori("22113", first_year=2020, last_year=2020)
+    assert not list(tmp_path.glob("aisori/*"))
+
+
+# ── Live tests (NSIDC G01170, no credentials) ───────────────────────────────
+
+
+@pytest.mark.live
+def test_live_nsidc_station_list():
+    stations = RIHMIClient().get_all_stations()
+    nsidc = [s for s in stations if s["in_nsidc_g01170"]]
+    assert len(nsidc) == 1345
+    assert len(stations) == 1552
+
+
+@pytest.mark.live
+def test_live_nsidc_murmansk_winter():
+    recs = RIHMIClient().get_data(
+        "22113", begin_date="1986-01-01", end_date="1986-04-30", route_types="field"
+    )
+    swe = [r for r in recs if r["variable"] == "SWE" and r["value"] is not None]
+    assert swe and all(r["units"] == "cm" for r in swe)
+    assert max(r["value"] for r in swe) > 5
+
+
+@pytest.mark.live
+@pytest.mark.requires_aisori
+def test_live_aisori_exports(tmp_path):
+    client = RIHMIClient(cache_dir=tmp_path, use_nsidc=False)
+    swe = client.get_data(
+        "22113",
+        variables="swe",
+        begin_date="2022-01-01",
+        end_date="2022-12-31",
+        source="aisori",
+    )
+    assert swe and all(r["source"] == "aisori_export" for r in swe)
+    assert max(r["value"] or 0 for r in swe) > 5
+    depth = client.get_data(
+        "22113",
+        interval="daily",
+        begin_date="2023-01-01",
+        end_date="2023-12-31",
+        source="aisori",
+    )
+    assert len(depth) == 365 and depth[0]["type"] == "snwd"

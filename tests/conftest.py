@@ -45,6 +45,11 @@ def pytest_configure(config: pytest.Config) -> None:
     )
     config.addinivalue_line(
         "markers",
+        "requires_aisori: marks tests that need an RIHMI АИСОРИ-М account "
+        "(AISORI_USERNAME and AISORI_PASSWORD)",
+    )
+    config.addinivalue_line(
+        "markers",
         "recorded: marks tests replayed from pytest-recording cassettes or run "
         "against the tiny local fixtures (offline tier, no sockets)",
     )
@@ -59,6 +64,7 @@ _REQUIRES = {
     "requires_earthaccess": "earthdata",
     "requires_planet": "planet",
     "requires_nve": "nve",
+    "requires_aisori": "aisori",
 }
 
 

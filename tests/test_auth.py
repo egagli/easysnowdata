@@ -52,6 +52,7 @@ class TestRegistry:
             "planetary_computer",
             "planet",
             "nve",
+            "aisori",
         ]
 
     def test_get_unknown_raises(self):
@@ -684,6 +685,27 @@ class TestNVE:
         assert self.provider.detect().how == "env:NVE_API_KEY"
         assert self.provider.ensure() == "key"
         assert self.provider.headers()["X-API-Key"] == "key"
+        with pytest.raises(CredentialError, match="no interactive login"):
+            self.provider.login()
+
+
+# ── aisori ────────────────────────────────────────────────────────────────────
+
+
+class TestAisori:
+    provider = auth.get("aisori")
+
+    def test_detect_ensure_env(self, clean_env, monkeypatch):
+        assert not self.provider.detect()
+        monkeypatch.setenv("AISORI_USERNAME", "user")
+        assert not self.provider.detect()  # the password is needed too
+        with pytest.raises(CredentialError, match="AISORI_PASSWORD"):
+            self.provider.ensure()
+        monkeypatch.setenv("AISORI_PASSWORD", " secret ")
+        assert self.provider.detect().how == "env:AISORI_USERNAME/AISORI_PASSWORD"
+        assert self.provider.ensure() == ("user", "secret")
+        with self.provider.env() as options:
+            assert options == {"username": "user", "password": "secret"}
         with pytest.raises(CredentialError, match="no interactive login"):
             self.provider.login()
 

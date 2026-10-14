@@ -175,7 +175,16 @@ sphinx_gallery_conf = {
     "image_scrapers": (tight_matplotlib_scraper,),
     # One section per theme subpackage, in the catalog's order, then the
     # cross-cutting tools (AOI, time, water years).
-    "subsection_order": [f"gallery/{theme}" for theme in KNOWN_THEMES]
+    # The clients-only station datasets follow the daily station networks.
+    "subsection_order": [
+        d
+        for theme in KNOWN_THEMES
+        for d in (
+            [f"gallery/{theme}", "gallery/station_datasets"]
+            if theme == "stations"
+            else [f"gallery/{theme}"]
+        )
+    ]
     + ["gallery/tools"],
     "within_subsection_order": "FileNameSortKey",
     "doc_module": ("easysnowdata",),

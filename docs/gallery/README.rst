@@ -8,7 +8,9 @@ against live data on that day.
 
 The sections follow the package: ``esd.stations``, ``esd.snow``, ``esd.sar``,
 ``esd.optical``, ``esd.terrain``, ``esd.land``, ``esd.hydro``, ``esd.boundaries``, and
-``esd.climate``, then the cross-cutting tools. Pushes to ``main`` and the weekly
+``esd.climate``, then the cross-cutting tools. The stations section is followed
+by *Other station datasets*: the clients-only station data that is kept apart
+from the five daily networks. Pushes to ``main`` and the weekly
 scheduled build run every script with the provider credentials
 (:doc:`/credentials`); a pull-request build runs only the scripts that need no
 account and reuses the last output of the rest.

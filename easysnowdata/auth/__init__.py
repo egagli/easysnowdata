@@ -21,6 +21,7 @@ from typing import Any
 
 from easysnowdata import config
 from easysnowdata.auth._base import CredentialError, Detection, Provider
+from easysnowdata.auth.aisori import AisoriProvider
 from easysnowdata.auth.earthdata import EarthdataProvider
 from easysnowdata.auth.earthengine import EarthEngineProvider
 from easysnowdata.auth.nve import NVEProvider
@@ -52,6 +53,7 @@ PROVIDERS: dict[str, Provider] = {
         PlanetaryComputerProvider(),
         PlanetProvider(),
         NVEProvider(),
+        AisoriProvider(),
     )
 }
 # Providers shown in the import-time line (the optional, anonymous ones are not)

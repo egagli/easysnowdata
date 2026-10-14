@@ -15,6 +15,7 @@ import logging
 import time
 from collections.abc import Iterator
 from datetime import date, datetime
+from pathlib import Path
 from typing import Any
 
 import requests
@@ -252,3 +253,185 @@ def request_with_retries(
         )
 
     raise error_cls(f"Exhausted retries for {url}")  # unreachable
+
+
+# ── Large-file download (ranged, parallel, resumable) ────────────────────────
+
+#: Files at least this large are fetched in parallel byte ranges.
+PARALLEL_DOWNLOAD_MIN_BYTES = 200 * 1024 * 1024
+
+
+def download_file(
+    session: requests.Session,
+    url: str,
+    dest: Path,
+    *,
+    error_cls: type[Exception],
+    size: int | None = None,
+    md5: str | None = None,
+    parts: int = 8,
+    timeout: int = 120,
+    max_retries: int = 5,
+    backoff: int = 4,
+    progress: bool = True,
+) -> Path:
+    """Download ``url`` to ``dest``, resuming and verifying when possible.
+
+    Large files (``size`` ≥ :data:`PARALLEL_DOWNLOAD_MIN_BYTES`, with a
+    server that honours ``Range``) are fetched as ``parts`` byte ranges in
+    parallel, each written to ``dest.partNN``. An interrupted download
+    resumes from what those part files already hold, so a dropped
+    connection on a multi-gigabyte file costs one retry of one range, not
+    the whole file. Smaller files stream in one request. The result is
+    md5-checked when ``md5`` is given, then moved into place atomically.
+
+    Parameters
+    ----------
+    session : requests.Session
+        Session to issue the requests with.
+    url : str
+        File URL.
+    dest : Path
+        Final path. Nothing is written there until the file is complete
+        and verified.
+    error_cls : type[Exception]
+        The calling client's error class, raised on any failure.
+    size : int, optional
+        Expected size in bytes (needed for the parallel path).
+    md5 : str, optional
+        Expected md5 hex digest; a ``"md5:"`` prefix is accepted.
+    parts : int
+        Number of parallel ranges for large files.
+    timeout, max_retries, backoff
+        Per-request timeout and retry policy for each range.
+    progress : bool
+        Show a progress bar in interactive sessions.
+
+    Returns
+    -------
+    Path
+        ``dest``.
+
+    Raises
+    ------
+    error_cls
+        On HTTP failure after retries, a size mismatch or an md5 mismatch.
+    """
+    import hashlib  # noqa: PLC0415
+    import shutil  # noqa: PLC0415
+    from concurrent.futures import ThreadPoolExecutor  # noqa: PLC0415
+
+    from tqdm.auto import tqdm  # noqa: PLC0415
+
+    dest = Path(dest)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    expected = md5.split(":", 1)[-1] if md5 else None
+    parallel = size is not None and size >= PARALLEL_DOWNLOAD_MIN_BYTES and parts > 1
+    n_parts = parts if parallel else 1
+    if size:
+        bounds = [
+            (i * size // n_parts, (i + 1) * size // n_parts - 1) for i in range(n_parts)
+        ]
+    else:
+        bounds = [(0, None)]
+    part_paths = [dest.with_name(f"{dest.name}.part{i:02d}") for i in range(n_parts)]
+    if parallel and isinstance(session, requests.Session):
+        # One pooled connection per range, so parallel ranges don't churn
+        # connections ("Connection pool is full" warnings).
+        adapter = session.get_adapter(url)
+        if getattr(adapter, "_pool_maxsize", n_parts) < n_parts:
+            session.mount(
+                url.split("/", 3)[0] + "//" + url.split("/", 3)[2] + "/",
+                requests.adapters.HTTPAdapter(pool_maxsize=n_parts),
+            )
+
+    try:
+        from easysnowdata.config import is_interactive  # noqa: PLC0415
+
+        show = progress and is_interactive()
+    except Exception:  # noqa: BLE001 — progress display is optional
+        show = False
+    have = sum(p.stat().st_size for p in part_paths if p.exists())
+    bar = tqdm(
+        total=size,
+        initial=have,
+        unit="B",
+        unit_scale=True,
+        desc=dest.name,
+        disable=not show,
+    )
+
+    def fetch(i: int) -> None:
+        start, end = bounds[i]
+        path = part_paths[i]
+        want = None if end is None else end - start + 1
+        for attempt in range(1, max_retries + 1):
+            done = path.stat().st_size if path.exists() else 0
+            if want is not None and done >= want:
+                return
+            headers = {}
+            if parallel or done:
+                last = "" if end is None else str(end)
+                headers["Range"] = f"bytes={start + done}-{last}"
+            try:
+                with session.get(
+                    url, headers=headers, stream=True, timeout=timeout
+                ) as resp:
+                    if resp.status_code == 200 and headers:
+                        if parallel:
+                            raise error_cls(f"{url} ignores Range requests")
+                        done = 0  # server restarted from byte 0
+                        path.unlink(missing_ok=True)
+                    elif resp.status_code not in (200, 206):
+                        raise error_cls(f"HTTP {resp.status_code} from {url}")
+                    with open(path, "ab") as fh:
+                        for chunk in resp.iter_content(chunk_size=1024 * 1024):
+                            fh.write(chunk)
+                            bar.update(len(chunk))
+                if want is None or path.stat().st_size >= want:
+                    return
+            except requests.exceptions.RequestException as exc:
+                logger.warning(
+                    "Range %d of %s failed (attempt %d/%d): %s",
+                    i,
+                    dest.name,
+                    attempt,
+                    max_retries,
+                    exc,
+                )
+            time.sleep(backoff * attempt)
+        raise error_cls(
+            f"Download of {url} did not complete after {max_retries} attempts; "
+            "run again to resume"
+        )
+
+    try:
+        if n_parts == 1:
+            fetch(0)
+        else:
+            with ThreadPoolExecutor(max_workers=n_parts) as pool:
+                for future in [pool.submit(fetch, i) for i in range(n_parts)]:
+                    future.result()
+    finally:
+        bar.close()
+
+    tmp = dest.with_name(dest.name + ".tmp")
+    with open(tmp, "wb") as out:
+        for path in part_paths:
+            with open(path, "rb") as src:
+                shutil.copyfileobj(src, out, length=16 * 1024 * 1024)
+            path.unlink()
+    got = tmp.stat().st_size
+    if size is not None and got != size:
+        tmp.unlink()
+        raise error_cls(f"{dest.name}: got {got} bytes, expected {size}")
+    if expected:
+        digest = hashlib.md5()  # noqa: S324 — integrity check, not security
+        with open(tmp, "rb") as fh:
+            for block in iter(lambda: fh.read(16 * 1024 * 1024), b""):
+                digest.update(block)
+        if digest.hexdigest() != expected:
+            tmp.unlink()
+            raise error_cls(f"{dest.name}: md5 mismatch (download corrupted)")
+    tmp.replace(dest)
+    return dest

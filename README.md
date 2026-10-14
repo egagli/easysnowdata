@@ -206,6 +206,7 @@ Some data sources need free accounts and credentials passed as environment varia
 | Google Earth Engine | `EARTHENGINE_TOKEN` (or `~/.config/earthengine/credentials` from `ee.Authenticate()`) | [earthengine.google.com](https://earthengine.google.com) |
 | NASA Earthdata | `EARTHDATA_USERNAME` + `EARTHDATA_PASSWORD` (recommended), a `~/.netrc` entry from `earthaccess.login(persist=True)`, or `EARTHDATA_TOKEN`. A token alone does not reach NSIDC's on-premises files (RGI glacier outlines, the NSIDC-0768 snow classification) or ASF's OPERA datapool, and user tokens expire after about 60 days | [urs.earthdata.nasa.gov](https://urs.earthdata.nasa.gov) |
 | NVE HydAPI (Norwegian stations) | `NVE_API_KEY` | [hydapi.nve.no](https://hydapi.nve.no) |
+| RIHMI АИСОРИ-М (Russian snow surveys, `RIHMIClient`) | `AISORI_USERNAME` + `AISORI_PASSWORD` | [aisori-m.meteo.ru](http://aisori-m.meteo.ru/waisori/registration.xhtml) |
 | Planet (PlanetScope, commercial) | `PL_API_KEY`, or `planet auth login` | [planet.com](https://www.planet.com) |
 
 35 of the 41 products have at least one route that needs no account; each product's catalog page says which.

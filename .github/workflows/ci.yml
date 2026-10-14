@@ -152,4 +152,6 @@ jobs:
           EARTHDATA_PASSWORD: ${{ secrets.EARTHDATA_PASSWORD }}
           PL_API_KEY: ${{ secrets.PL_API_KEY }}
           NVE_API_KEY: ${{ secrets.NVE_API_KEY }}
+          AISORI_USERNAME: ${{ secrets.AISORI_USERNAME }}
+          AISORI_PASSWORD: ${{ secrets.AISORI_PASSWORD }}
         run: pixi run -e test-py313 test-live -v --tb=short -rfEs
