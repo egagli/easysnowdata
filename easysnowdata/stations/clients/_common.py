@@ -335,6 +335,15 @@ def download_file(
     else:
         bounds = [(0, None)]
     part_paths = [dest.with_name(f"{dest.name}.part{i:02d}") for i in range(n_parts)]
+    if parallel and isinstance(session, requests.Session):
+        # One pooled connection per range, so parallel ranges don't churn
+        # connections ("Connection pool is full" warnings).
+        adapter = session.get_adapter(url)
+        if getattr(adapter, "_pool_maxsize", n_parts) < n_parts:
+            session.mount(
+                url.split("/", 3)[0] + "//" + url.split("/", 3)[2] + "/",
+                requests.adapters.HTTPAdapter(pool_maxsize=n_parts),
+            )
 
     try:
         from easysnowdata.config import is_interactive  # noqa: PLC0415

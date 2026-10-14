@@ -1283,10 +1283,21 @@ NOAA NOHRSC airborne-gamma flight lines. It is **frozen**: v3 ends
 2021-07-31.
 
 **Storage.** The latest version is resolved through the Zenodo API;
-`record_id=` pins one. First use downloads the Zenodo file once, converts
-it to a compact Zarr store under
-`easysnowdata.config.cache_dir('stations', 'norswe')`, and deletes the
-downloaded file. <!-- TODO coordinator: confirm sizes -->
+`record_id=` pins one. First use builds a local store once, under
+`easysnowdata.config.cache_dir('stations', 'norswe')`:
+
+1. the 2.4 GB zip is downloaded in 8 parallel byte ranges, resumable and
+   md5-checked (about 50 minutes from Zenodo in testing; an interrupted
+   run continues where it stopped);
+2. the 21.6 GB netCDF is unzipped and the zip deleted;
+3. the netCDF is converted to a **31 MB** Zarr store (about 8 minutes,
+   1.6 GB of RAM) and deleted.
+
+Peak disk use is about 22 GB, during steps 2–3; the client checks free
+space first and says how much it needs (set `EASYSNOWDATA_CACHE_DIR` to
+use a bigger disk). After that, a new client lists all 10,153 stations in
+about 3 s and reads a station's record in well under a second. `path=`
+takes an existing netCDF (converted once, left in place) or store.
 
 ```python
 from easysnowdata.stations.clients import NorSWEClient

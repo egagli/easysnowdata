@@ -40,7 +40,8 @@ one.  First use builds a local store, once, in
 1. the 2.4 GB zip is downloaded in parallel byte ranges (resumable: an
    interrupted download continues where it stopped; md5-checked);
 2. the 21.6 GB netCDF is unzipped and the zip deleted;
-3. the netCDF is converted to a compact Zarr store (STORE_SIZE) — data
+3. the netCDF is converted to a compact Zarr store (31 MB for v3; about
+   8 minutes and 1.6 GB of RAM) — data
    as ``station_id × time`` float32, flags as int8 codes — and deleted.
 
 Peak disk use during step 2–3 is about 22 GB; the client checks free space
@@ -77,7 +78,7 @@ variable-length strings (``"AM"``, ``"AI-avg2"``, …) and the netCDF is
 21.6 GB uncompressed on disk (2.4 GB zipped) — mostly those flag
 strings.  The conversion handles both layouts; in the local store they
 are int8 codes and cost almost nothing.  The first station listing scans SWE,
-depth and density once (≈ 40 s, < 1 GB RAM) and caches the result.
+depth and density once (≈ 6 s from the store) and caches the result.
 
 Cadence
 -------
