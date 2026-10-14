@@ -10,9 +10,10 @@ holds it from 1966 to the present, but its own portal (AISORI-M) needs a free lo
 and has no API. The open copy is NSIDC's G01170 mirror, **1966–1996**, about
 1,350 stations.
 
-``RIHMIClient`` reads the NSIDC mirror with no account, and can also read
-zips a user has exported from AISORI-M by hand (``data_dir=``; the client
-docstring lists the export steps). Every survey
+``RIHMIClient`` reads the NSIDC mirror with no account. With a free AISORI-M
+account it also exports recent surveys and daily snow cover from the portal
+itself (``source="aisori"``; see the next example), or reads zips exported by
+hand (``data_dir=``). Every survey
 record is ``"periodic"`` and says which route it came from (``route_type``).
 It is not part of ``esd.stations.inventory()`` or ``load()``.
 

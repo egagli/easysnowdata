@@ -30,10 +30,16 @@ Data access
 Web АИСОРИ-М (http://aisori-m.meteo.ru/waisori/index.xhtml?idata=6 for route
 surveys, ``idata=7`` for daily snow cover), a JSF/PrimeFaces web app whose
 pages say «Пожалуйста, авторизуйтесь».  meteo.ru offers no bulk download,
-FTP or API for these datasets, and no documented programmatic access, so this
-client does **not** log in or scrape АИСОРИ.  Instead:
+FTP or API for these datasets.  This client reads them three ways:
 
-- ``RIHMIClient(data_dir=...)`` / ``get_data(files=...)`` parse files a user
+- ``get_data(..., source="aisori")`` logs in with the ``aisori`` auth
+  provider (``AISORI_USERNAME`` / ``AISORI_PASSWORD``) and runs the site's
+  export form itself (:mod:`._aisori`, which replays the form posts of the
+  manual export below).  Each export's zip is cached under
+  ``easysnowdata.config.cache_dir("stations", "rihmi") / "aisori"``.
+  The scripted flow is undocumented by RIHMI and may break if the site
+  changes.
+- ``RIHMIClient(data_dir=...)`` / ``get_data(files=...)`` parse files
   exported from АИСОРИ-М by hand (see *Manual export* below).
 - ``interval="periodic"`` (route surveys) additionally reads the **public,
   no-login NSIDC copy**: *Former Soviet Union Hydrological Snow Surveys,
@@ -44,9 +50,9 @@ client does **not** log in or scrape АИСОРИ.  Instead:
   1966–1990 and ~300 of them 1991–1996.  It is fetched live and cached via
   ``easysnowdata.config.cache_dir("stations", "rihmi")``.
 - Daily snow cover (``interval="daily"``) has **no** public no-login copy
-  that this client knows of — it is available only from local АИСОРИ
-  exports.  (GHCN-Daily carries daily SNWD for many of the same WMO stations
-  as ``RSM000xxxxx``; use the ``ghcnd`` client for that.)
+  that this client knows of: it needs ``source="aisori"`` or local exports.
+  (GHCN-Daily carries daily SNWD for many of the same WMO stations as
+  ``RSM000xxxxx``; use the ``ghcnd`` client for that.)
 
 Manual export (АИСОРИ-М)
 ------------------------
@@ -67,11 +73,6 @@ Checked against the live site on 2026-10-14 (free account).
    (the data), ``fld<id>.txt`` (columns) and ``statlist<id>.txt``.
 5. Point ``RIHMIClient(data_dir="...")`` at the folder holding the zips (or
    their extracted files), or pass ``get_data(files=[...])``.
-
-If credentials are ever automated, an auth provider (like
-``easysnowdata/auth/nve.py``) would need the АИСОРИ username/password and the
-JSF session flow above (``jsessionid`` cookie + ``jakarta.faces.ViewState``
-per form post).
 
 Record layouts and what is verified
 -----------------------------------
@@ -126,8 +127,7 @@ Status
 last updated on АИСОРИ-М in Jan 2025 through Oct 2024) or listed in the
 snow-cover catalogue without a «закрыта»/«законсервирована» note.  All
 other stations (NSIDC-only, or marked closed) are ``"Inactive"``.  This is
-a catalogue-based judgement: whether a given station still reports is not
-verifiable without a login.
+a catalogue-based judgement, not a check of each station's latest data.
 
 Terms of use
 ------------
@@ -150,7 +150,8 @@ Design principles
   ``nsidc_g01170``).  Records are emitted field → forest → ravine → unknown
   for each station/date, so a per-type pivot that keeps the first value
   prefers the field route.  ``route_types=`` filters them.
-- Local АИСОРИ exports win over NSIDC on the same station/date/route.
+- АИСОРИ exports (scripted or local) win over NSIDC on the same
+  station/date/route.
 - Physically implausible snow values are nulled (SWE/depth 0–15 m).
 - ``interval`` is ``"periodic"`` (route surveys) or ``"daily"`` (snow
   cover); anything else raises :class:`RIHMIError`.
@@ -160,11 +161,13 @@ Design principles
 from __future__ import annotations
 
 import csv
+import hashlib
 import io
 import logging
 import os
 import re
 import tarfile
+import time
 import zipfile
 from collections.abc import Iterable, Iterator
 from datetime import date
@@ -205,6 +208,8 @@ _ROUTE_CATALOGUE = _HERE / "route_survey_stations.csv"
 _SNOW_COVER_CATALOGUE = _HERE / "snow_cover_stations.csv"
 
 _DEFAULT_TIMEOUT = 300
+#: A cached АИСОРИ export that reaches the current year is re-run after this.
+_AISORI_REFRESH_S = 7 * 86400
 _DEFAULT_RETRIES = 3
 _DEFAULT_BACKOFF = 4
 
@@ -1080,9 +1085,10 @@ class RIHMIClient:
     """
     Client for RIHMI-WDC route snow surveys and daily snow cover.
 
-    Route surveys (``interval="periodic"``) come from local АИСОРИ-М exports
-    and/or the public NSIDC G01170 archive (1966–1996, no credentials).
-    Daily snow cover (``interval="daily"``) comes only from local exports.
+    Route surveys (``interval="periodic"``) come from АИСОРИ-М exports
+    (scripted with ``source="aisori"``, or local files) and/or the public
+    NSIDC G01170 archive (1966–1996, no credentials).  Daily snow cover
+    (``interval="daily"``) comes only from АИСОРИ-М.
 
     Parameters
     ----------
@@ -1094,14 +1100,19 @@ class RIHMIClient:
     use_nsidc : bool
         Include NSIDC G01170 stations and route-survey data (default True).
     cache_dir : str or Path, optional
-        Where the G01170 tar files are cached (~50 MB).  Defaults to
+        Where the G01170 tar files (~50 MB) and scripted АИСОРИ-М exports
+        are cached.  Defaults to
         ``easysnowdata.config.cache_dir("stations", "rihmi")``.
     base_url : str
         Root of the NSIDC G01170 archive.  Override for a mirror.
     timeout, max_retries, backoff : int
         HTTP settings for the NSIDC downloads.
     session : requests.Session, optional
-        Pre-configured session.
+        Pre-configured session (NSIDC downloads only; each АИСОРИ-М export
+        opens its own).
+    aisori_username, aisori_password : str, optional
+        АИСОРИ-М account for ``source="aisori"``.  Default: the ``aisori``
+        auth provider (``AISORI_USERNAME`` / ``AISORI_PASSWORD``).
     """
 
     def __init__(
@@ -1114,6 +1125,8 @@ class RIHMIClient:
         max_retries: int = _DEFAULT_RETRIES,
         backoff: int = _DEFAULT_BACKOFF,
         session: requests.Session | None = None,
+        aisori_username: str | None = None,
+        aisori_password: str | None = None,
     ) -> None:
         self.data_dir = Path(data_dir) if data_dir is not None else None
         self.use_nsidc = use_nsidc
@@ -1128,6 +1141,11 @@ class RIHMIClient:
         self._cover_cat = _read_catalogue(_SNOW_COVER_CATALOGUE)
         self._nsidc_cat: dict[str, dict] | None = None
         self._local_cache: dict[str, list[dict]] = {}
+        self._aisori_creds = (
+            (aisori_username, aisori_password)
+            if aisori_username and aisori_password
+            else None
+        )
 
     # ── NSIDC files ──────────────────────────────────────────────────────────
 
@@ -1217,6 +1235,80 @@ class RIHMIClient:
                 self._local_cache[key] = read_aisori_export(path)
             rows.extend(self._local_cache[key])
         return rows
+
+    # ── Scripted АИСОРИ-М export ─────────────────────────────────────────────
+
+    def fetch_aisori(
+        self,
+        station_ids: list[str] | str,
+        interval: str = "periodic",
+        first_year: int = 1966,
+        last_year: int | None = None,
+        refresh: bool = False,
+    ) -> Path:
+        """
+        Log in to АИСОРИ-М, export stations and years, return the cached zip.
+
+        Parameters
+        ----------
+        station_ids : list[str] or str
+            WMO indexes.  Stations the АИСОРИ-М source does not offer are
+            skipped with a warning; if none is offered, :class:`RIHMIError`.
+        interval : {"periodic", "daily"}
+            Route surveys (``SNMAR``) or daily snow cover (``SNOW``).
+        first_year, last_year : int
+            Inclusive year range (``last_year`` defaults to this year).
+        refresh : bool
+            Re-run the export even if a cached copy exists.  A cached export
+            whose range reaches the current year is re-run after 7 days.
+
+        Returns
+        -------
+        Path
+            The export zip, readable with :func:`read_aisori_export`.
+        """
+        from easysnowdata import auth  # noqa: PLC0415
+
+        from ._aisori import AisoriExportError, AisoriSession  # noqa: PLC0415
+
+        if interval not in _DEFAULT_VARS:
+            raise RIHMIError(f"Unsupported interval {interval!r} for RIHMI.")
+        dataset = "route_survey" if interval == "periodic" else "snow_cover"
+        ids = sorted({str(s).zfill(5) for s in _coerce_list(station_ids)})
+        this_year = date.today().year
+        last = this_year if last_year is None else int(last_year)
+        first = int(first_year)
+        if first > last:
+            raise RIHMIError(f"first_year {first} is after last_year {last}")
+        digest = hashlib.sha1(",".join(ids).encode()).hexdigest()[:10]
+        path = self._cache_root() / "aisori" / f"{dataset}_{first}_{last}_{digest}.zip"
+        if path.exists() and not refresh:
+            stale = (
+                last >= this_year
+                and time.time() - path.stat().st_mtime > _AISORI_REFRESH_S
+            )
+            if not stale:
+                return path
+        user, password = self._aisori_creds or auth.get("aisori").ensure()
+        logger.info(
+            "RIHMI: АИСОРИ-М %s export, %d stations, %d–%d",
+            dataset,
+            len(ids),
+            first,
+            last,
+        )
+        try:
+            content = AisoriSession(user, password, timeout=self.timeout).export(
+                dataset, ids, first, last
+            )
+        except (AisoriExportError, requests.RequestException) as exc:
+            raise RIHMIError(f"АИСОРИ-М export failed: {exc}") from exc
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(".part")
+        tmp.write_bytes(content)
+        tmp.replace(path)
+        self._local_cache.pop(str(path.resolve()), None)
+        return path
 
     # ── Public API — stations ────────────────────────────────────────────────
 
@@ -1412,9 +1504,12 @@ class RIHMIClient:
             ``"unknown"``).  Periodic only.
         files : path or list of paths, optional
             АИСОРИ-М export files; overrides ``data_dir`` for this call.
-        source : {"auto", "nsidc", "files"}
+        source : {"auto", "nsidc", "files", "aisori"}
             ``"auto"`` merges local exports (preferred) with NSIDC;
-            ``"nsidc"`` / ``"files"`` restrict to one.
+            ``"nsidc"`` / ``"files"`` restrict to one.  ``"aisori"`` logs in
+            to АИСОРИ-М and exports the stations and the years of
+            ``begin_date``–``end_date`` (default 1966 to this year) with
+            :meth:`fetch_aisori`; it needs the ``aisori`` credentials.
 
         Returns
         -------
@@ -1429,7 +1524,7 @@ class RIHMIClient:
             If neither ``station_ids`` nor ``bbox`` is provided.
         RIHMIError
             Unknown variable, interval, route type or source; daily data
-            requested with no local export; download failure.
+            requested with no АИСОРИ-М export; download or export failure.
 
         Example
         -------
@@ -1449,9 +1544,9 @@ class RIHMIClient:
                 f"Unsupported interval {interval!r} for RIHMI — use 'periodic' "
                 "(route snow surveys) or 'daily' (station snow cover)."
             )
-        if source not in ("auto", "nsidc", "files"):
+        if source not in ("auto", "nsidc", "files", "aisori"):
             raise RIHMIError(
-                f"Unknown source {source!r}; use 'auto', 'nsidc' or 'files'."
+                f"Unknown source {source!r}; use 'auto', 'nsidc', 'files' or 'aisori'."
             )
         wanted_vars = _resolve_variables(variables, interval)
         routes = _resolve_routes(route_types) if interval == "periodic" else None
@@ -1467,8 +1562,17 @@ class RIHMIClient:
         end = _date_str(end_date) if end_date else None
         kind = "route_survey" if interval == "periodic" else "snow_cover"
 
+        if source == "aisori":
+            files = [
+                self.fetch_aisori(
+                    ids,
+                    interval=interval,
+                    first_year=int(begin[:4]) if begin else 1966,
+                    last_year=int(end[:4]) if end else None,
+                )
+            ]
         local: list[dict] = []
-        if source in ("auto", "files"):
+        if source in ("auto", "files", "aisori"):
             local = [
                 r
                 for r in self._local_rows(files)
@@ -1484,7 +1588,8 @@ class RIHMIClient:
         if interval == "daily" and not local and not self._local_files(files):
             raise RIHMIError(
                 "Daily snow cover is only available from АИСОРИ-М exports "
-                f"(login required: {AISORI_SNOW_COVER_URL}). Pass data_dir= or files=."
+                f"(login required: {AISORI_SNOW_COVER_URL}). Use source='aisori' "
+                "with AISORI_USERNAME/AISORI_PASSWORD set, or pass data_dir= or files=."
             )
 
         # Merge: local first, NSIDC fills gaps (same station/date/route).

@@ -119,6 +119,8 @@ AWDBClient(
     max_retries: int = 3,
     backoff: int = 6,
     session: requests.Session | None = None,
+    aisori_username: str | None = None,      # default: the "aisori" auth provider
+    aisori_password: str | None = None,
 )
 ```
 
@@ -265,6 +267,8 @@ CDECClient(
     max_retries: int = 3,
     backoff: int = 4,
     session: requests.Session | None = None,
+    aisori_username: str | None = None,      # default: the "aisori" auth provider
+    aisori_password: str | None = None,
 )
 ```
 
@@ -623,6 +627,8 @@ NVEClient(
     max_retries: int = 3,
     backoff: int = 4,
     session: requests.Session | None = None,
+    aisori_username: str | None = None,      # default: the "aisori" auth provider
+    aisori_password: str | None = None,
 )
 ```
 
@@ -810,6 +816,8 @@ YukonClient(
     max_retries: int = 3,
     backoff: int = 4,
     session: requests.Session | None = None,
+    aisori_username: str | None = None,      # default: the "aisori" auth provider
+    aisori_password: str | None = None,
 )
 ```
 
@@ -1119,7 +1127,7 @@ window of a season.
 | [`DWDClient`](#13-dwdclient) | DWD Climate Data Center | 1,177 SWE (527 active); 6,628 depth | manual cores when depth is about 5 cm or more | 77 in 2025–26 (7 with ≥ 60) | to ~1927 / 1854; recent files daily | CC BY 4.0 |
 | [`SYKEClient`](#14-sykeclient) | SYKE Hydrologiarajapinta OData | 392 snow courses (150 active) | manual, monthly Nov–May | none | 1947–present | CC BY 4.0 |
 | [`SLFClient`](#15-slfclient) | SLF on EnviDat / measurement-data.slf.ch | 11 GCOS SWE sites; 135 study plots; 179 IMIS | manual, every ~15 days | none | GCOS from 1936; yearly | CC BY 4.0 / ODbL |
-| [`RIHMIClient`](#16-rihmiclient) | NSIDC G01170 mirror + AISORI-M exports | 1,552 (517 route surveys) | manual route surveys every 10 days | none | public 1966–1996; current data needs an AISORI-M login | NSIDC: open with citation; RIHMI: none stated |
+| [`RIHMIClient`](#16-rihmiclient) | NSIDC G01170 mirror + AISORI-M exports | 1,552 (517 route surveys) | manual route surveys every 10 days | none (NSIDC); free AISORI-M account | public 1966–1996; current data via a scripted AISORI-M export | NSIDC: open with citation; RIHMI: none stated |
 
 Overlaps to know about: NorSWE contains CanSWE, SNOTEL, NRCS courses,
 CDEC, NVE, SYKE, SLF GCOS and RIHMI route surveys; CanSWE contains the
@@ -1430,6 +1438,8 @@ HydroQuebecClient(
     max_retries: int = 3,
     backoff: int = 4,
     session: requests.Session | None = None,
+    aisori_username: str | None = None,      # default: the "aisori" auth provider
+    aisori_password: str | None = None,
 )
 ```
 
@@ -2045,11 +2055,12 @@ adds `start_year`.
 
 **Module:** `easysnowdata.stations.clients.rihmi.rihmi_client` (packaged catalogues: `route_survey_stations.csv`, `snow_cover_stations.csv`)
 **Source:** ВНИИГМИ-МЦД (RIHMI-WDC, Obninsk), <http://meteo.ru/>, via
-manual Web АИСОРИ-М exports; plus the public NSIDC copy *Former Soviet
+Web АИСОРИ-М exports (scripted or manual); plus the public NSIDC copy *Former Soviet
 Union Hydrological Snow Surveys, 1966–1996*, NSIDC G01170 v1
 (<https://doi.org/10.7265/N58C9T60>, <https://noaadata.apps.nsidc.org/NOAA/G01170/>)
-**Auth:** none for NSIDC. **RIHMI data need a (free) АИСОРИ-М login**,
-which this client does not automate.
+**Auth:** none for NSIDC. **RIHMI data need a (free) АИСОРИ-М login**:
+the `aisori` auth provider (`AISORI_USERNAME` + `AISORI_PASSWORD`), used
+by `source="aisori"` to run the export form.
 **Licence:** NSIDC — free to use with citation (Krenke 1998). RIHMI —
 "open access" per the АИСОРИ-М footer, but no licence or redistribution
 terms published.
@@ -2062,7 +2073,7 @@ in intense melt, on separate field, forest and — on request — ravine
 routes) and **daily snow cover** at 620 met stations of Russia and the
 former USSR (stake depth plus cover degree and three QC codes).
 
-| `interval` | Dataset | Public, no login | Needs АИСОРИ-М export |
+| `interval` | Dataset | Public, no login | Needs АИСОРИ-М (`source="aisori"` or an export) |
 |---|---|---|---|
 | `"periodic"` (default) | route surveys | NSIDC G01170: 1,345 stations 1966–1990, ~300 of them 1991–1996 | current data |
 | `"daily"` | snow cover | none (use `GHCNDClient`, `RSM000xxxxx`, for daily depth at many of the same stations) | all of it |
@@ -2074,6 +2085,9 @@ from easysnowdata.stations.clients.rihmi.rihmi_client import (
 )
 client = RIHMIClient()                          # NSIDC only
 client = RIHMIClient(data_dir="~/aisori")       # + your АИСОРИ-М exports
+# With AISORI_USERNAME / AISORI_PASSWORD set, export from the portal itself:
+recs = client.get_data("22113", interval="daily", begin_date="2023-10-01",
+                       end_date="2024-06-30", source="aisori")
 ```
 
 ### Variables
@@ -2119,6 +2133,8 @@ RIHMIClient(
     max_retries: int = 3,
     backoff: int = 4,
     session: requests.Session | None = None,
+    aisori_username: str | None = None,      # default: the "aisori" auth provider
+    aisori_password: str | None = None,
 )
 ```
 
@@ -2140,8 +2156,10 @@ otherwise (ongoing behind the login); `n_obs` is `None`.
 Extra arguments: `route_types` (`"field"`, `"forest"`, `"ravine"`,
 `"unknown"`; periodic only), `files` (export files for this call,
 overriding `data_dir`) and `source` (`"auto"` merges local exports,
-which win, with NSIDC; `"nsidc"` or `"files"` restrict to one). Daily data
-with no export raises `RIHMIError`. Records add `route_type` and `source`
+which win, with NSIDC; `"nsidc"` or `"files"` restrict to one;
+`"aisori"` logs in and exports the stations and years of
+`begin_date`–`end_date` with `fetch_aisori`). Daily data with no export
+raises `RIHMIError`. Records add `route_type` and `source`
 (`"aisori_export"` or `"nsidc_g01170"`), emitted field → forest → ravine
 → unknown per station and date, so a first-value pivot prefers the field
 route.
@@ -2153,6 +2171,15 @@ recs = client.get_data("27612", begin_date="1985-01-01", end_date="1985-04-30",
 #    "type": "swe", "value": 6.1, "units": "cm", "interval": "periodic",
 #    "route_type": "field", "source": "nsidc_g01170"}
 ```
+
+#### `fetch_aisori(station_ids, interval="periodic", first_year=1966, last_year=None, refresh=False)` → `Path`
+
+Logs in to АИСОРИ-М, runs one export (stations the portal does not offer
+are skipped with a warning) and returns the zip, cached under
+`cache_dir / "aisori"`. A cached export reaching the current year is re-run
+after 7 days. Each export takes about 5 s. The scripted flow replays the
+portal's JSF form posts (`rihmi/_aisori.py`) and is not documented by RIHMI,
+so a site change can break it; the error names the failing step.
 
 #### `parse_aisori_text(text, kind=None)` → `list[dict]` (module function)
 
@@ -2169,6 +2196,8 @@ else NSIDC's Latin), `name_latin`, `latitude`, `longitude`,
 `public_period`, `login_period`, `note`, `station_url`.
 
 ### Manual export (АИСОРИ-М)
+
+`source="aisori"` does these steps for you; by hand:
 
 1. Register (free, no confirmation step) at
    <http://aisori-m.meteo.ru/waisori/registration.xhtml> and log in through
@@ -2221,7 +2250,7 @@ else NSIDC's Latin), `name_latin`, `latitude`, `longitude`,
 | DWDClient | `DWDError` | HTTP 4xx/5xx, corrupt zip, unknown or non-numeric station, unknown variable, product or interval |
 | SYKEClient | `SYKEError` | HTTP 4xx/5xx (incl. OData filter-size 400), unknown variable or interval, non-integer station id |
 | SLFClient | `SLFError` | HTTP 4xx/5xx, EnviDat lookup failure, unknown dataset, variable or interval not in dataset |
-| RIHMIClient | `RIHMIError` | NSIDC download failure, unreadable export, unknown variable, interval, route type or source, daily data without an export |
+| RIHMIClient | `RIHMIError` | NSIDC download failure, АИСОРИ-М export failure, unreadable export, unknown variable, interval, route type or source, daily data without an export |
 
 All exceptions are subclasses of `Exception` with descriptive messages.
 

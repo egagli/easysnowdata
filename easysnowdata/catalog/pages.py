@@ -597,6 +597,7 @@ def credentials_page(products: dict[str, Product] | None = None) -> str:
         "| `EARTHENGINE_TOKEN` | live tests, health probes, scheduled docs build |",
         "| `PL_API_KEY` | Planet live tests and the PlanetScope gallery example |",
         "| `NVE_API_KEY` | the NVE station live test and gallery example |",
+        "| `AISORI_USERNAME` + `AISORI_PASSWORD` | the RIHMI АИСОРИ-М live test and gallery example |",
         "",
         "Pull-request builds get none of them, by design: they run the offline test "
         "tiers and the credential-free subset of the gallery.",

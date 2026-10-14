@@ -5,7 +5,9 @@ Offline tests serve synthetic NSIDC G01170 files (``station.loc`` and a
 ``syn.tar`` built in memory, both in the real column layout) through a stub
 session, and parse synthetic АИСОРИ-M exports written from the documented
 RIHMI record layouts.  The ``live`` tests read the real NSIDC archive (no
-credentials); RIHMI's own АИСОРИ-M service needs a login and is not tested.
+credentials).  The scripted АИСОРИ-M export is tested offline against stub
+pages and a stubbed session, and live (``requires_aisori``) when
+``AISORI_USERNAME`` / ``AISORI_PASSWORD`` are set.
 """
 
 import io
@@ -335,7 +337,7 @@ def test_unknown_interval_route_and_source(stub_client):
     with pytest.raises(RIHMIError, match="route type"):
         stub_client.get_data("22113", route_types="meadow")
     with pytest.raises(RIHMIError, match="source"):
-        stub_client.get_data("22113", source="aisori")
+        stub_client.get_data("22113", source="meteo")
 
 
 def test_get_data_requires_station_or_bbox(stub_client):
@@ -472,6 +474,167 @@ def test_base_url_override(tmp_path):
     assert sess.calls == ["https://mirror.example/G01170/station.loc"]
 
 
+# ── Scripted АИСОРИ-М export (offline) ──────────────────────────────────────
+
+from easysnowdata.stations.clients.rihmi import _aisori  # noqa: E402
+
+QUERY_PAGE = """<html><body>
+<form id="j_idt59" action="/waisori/select.xhtml">
+  <input type="hidden" name="jakarta.faces.ViewState" value="vs-1"/>
+  <input type="text" name="j_idt59:0:j_idt70" value=""/>
+  <input type="checkbox" name="j_idt59:flags" value="on" checked="checked"/>
+  <input type="checkbox" name="j_idt59:unticked" value="on"/>
+  <select name="j_idt59:seldelim"><option value="0">Пробел</option>
+    <option value="1">Точка с запятой</option></select>
+  <select name="j_idt59:hlist1_input" multiple="multiple">
+    <option value="22113 Мурманск  Россия">22113 Мурманск Россия</option>
+    <option value="24959 Якутск &amp; Co">24959 Якутск</option></select>
+  <button name="j_idt59:butres1">Результат</button>
+  <button name="j_idt59:all">Все</button>
+  <button name="j_idt59:allx">Все станции</button>
+  <a id="j_idt59:auth" href="#">Переход на страницу авторизации</a>
+</form></body></html>"""
+
+
+def test_aisori_forms_collect_fields_buttons_links():
+    form = _aisori._forms(QUERY_PAGE, "http://x/waisori/index.xhtml")["j_idt59"]
+    assert form.action == "http://x/waisori/select.xhtml"
+    fields = dict(form.fields)
+    assert fields["jakarta.faces.ViewState"] == "vs-1"
+    assert fields["j_idt59:flags"] == "on" and "j_idt59:unticked" not in fields
+    # a single select with nothing selected submits its first option
+    assert fields["j_idt59:seldelim"] == "0"
+    assert "j_idt59:hlist1_input" not in fields  # multiple, nothing selected
+    assert form.links["Переход на страницу авторизации"] == "j_idt59:auth"
+
+
+def test_aisori_find_exact_and_prefix():
+    forms = _aisori._forms(QUERY_PAGE, "http://x/")
+    assert _aisori._find(forms, "Все", exact=True)[1] == "j_idt59:all"
+    assert _aisori._find(forms, "Рез")[1] == "j_idt59:butres1"
+    with pytest.raises(_aisori.AisoriExportError, match="Загрузить"):
+        _aisori._find(forms, "Загрузить")
+
+
+def test_aisori_options_are_verbatim():
+    assert _aisori._options(QUERY_PAGE)[2:] == [
+        "22113 Мурманск  Россия",
+        "24959 Якутск & Co",
+    ]
+    assert _aisori._option_starting(QUERY_PAGE, "24959") == "24959 Якутск &amp; Co"
+
+
+def test_aisori_partial_response_updates_viewstate_and_raises():
+    sess = _aisori.AisoriSession("u", "p")
+    ok = (
+        '<partial-response><changes><update id="j_idt59:flist2">'
+        "<![CDATA[<b>x</b>]]></update>"
+        '<update id="j_id1:jakarta.faces.ViewState:0"><![CDATA[vs-2]]></update>'
+        "</changes></partial-response>"
+    )
+    updates = sess._apply_partial(ok)
+    assert updates["j_idt59:flist2"] == "<b>x</b>" and sess._viewstate == "vs-2"
+    redirect = (
+        '<partial-response><redirect url="/waisori/index1.xhtml"/></partial-response>'
+    )
+    assert sess._apply_partial(redirect)["__redirect__"] == "/waisori/index1.xhtml"
+    err = (
+        "<partial-response><error><error-name>X</error-name></error></partial-response>"
+    )
+    with pytest.raises(_aisori.AisoriExportError, match="error"):
+        sess._apply_partial(err)
+    with pytest.raises(_aisori.AisoriExportError, match="dataset"):
+        sess.export("nope", ["22113"], 2020, 2021)
+
+
+class _FakeAisori:
+    """Stands in for AisoriSession: records calls, returns a real export zip."""
+
+    calls: list = []
+
+    def __init__(self, username, password, **kwargs):
+        self.creds = (username, password)
+
+    def export(self, dataset, station_ids, first_year, last_year):
+        _FakeAisori.calls.append(
+            (self.creds, dataset, station_ids, first_year, last_year)
+        )
+        return (AISORI / "route_space.zip").read_bytes()
+
+
+@pytest.fixture
+def fake_aisori(monkeypatch):
+    _FakeAisori.calls = []
+    monkeypatch.setattr(_aisori, "AisoriSession", _FakeAisori)
+    monkeypatch.setenv("AISORI_USERNAME", "env-user")
+    monkeypatch.setenv("AISORI_PASSWORD", "env-pass")
+    return _FakeAisori
+
+
+def test_source_aisori_exports_once_and_caches(tmp_path, fake_aisori):
+    client = RIHMIClient(cache_dir=tmp_path, use_nsidc=False)
+    recs = client.get_data(
+        ["22113", "22820"],
+        variables="swe",
+        begin_date="2020-01-01",
+        end_date="2024-12-31",
+        source="aisori",
+    )
+    assert recs and {r["source"] for r in recs} == {"aisori_export"}
+    assert fake_aisori.calls == [
+        (("env-user", "env-pass"), "route_survey", ["22113", "22820"], 2020, 2024)
+    ]
+    again = client.get_data(
+        ["22820", "22113"],
+        variables="swe",
+        begin_date="2020-01-01",
+        end_date="2024-12-31",
+        source="aisori",
+    )
+    assert again == recs and len(fake_aisori.calls) == 1  # served from the cache
+    assert len(list((tmp_path / "aisori").glob("route_survey_2020_2024_*.zip"))) == 1
+    client.fetch_aisori(
+        ["22113", "22820"], first_year=2020, last_year=2024, refresh=True
+    )
+    assert len(fake_aisori.calls) == 2
+
+
+def test_fetch_aisori_defaults_and_explicit_credentials(tmp_path, fake_aisori):
+    from datetime import date as _date
+
+    client = RIHMIClient(cache_dir=tmp_path, aisori_username="me", aisori_password="pw")
+    path = client.fetch_aisori("22113", interval="daily")
+    assert path.read_bytes().startswith(b"PK")
+    assert fake_aisori.calls == [
+        (("me", "pw"), "snow_cover", ["22113"], 1966, _date.today().year)
+    ]
+    with pytest.raises(RIHMIError, match="after"):
+        client.fetch_aisori("22113", first_year=2025, last_year=2020)
+
+
+def test_source_aisori_without_credentials_raises(tmp_path, monkeypatch):
+    from easysnowdata import auth
+    from easysnowdata.auth import CredentialError
+
+    monkeypatch.delenv("AISORI_USERNAME", raising=False)
+    monkeypatch.delenv("AISORI_PASSWORD", raising=False)
+    auth.reset()
+    client = RIHMIClient(cache_dir=tmp_path, use_nsidc=False)
+    with pytest.raises(CredentialError, match="AISORI"):
+        client.get_data("22113", interval="daily", source="aisori")
+
+
+def test_export_failure_becomes_rihmi_error(tmp_path, monkeypatch, fake_aisori):
+    def broken(self, *args):
+        raise _aisori.AisoriExportError("login failed")
+
+    monkeypatch.setattr(_FakeAisori, "export", broken)
+    client = RIHMIClient(cache_dir=tmp_path, use_nsidc=False)
+    with pytest.raises(RIHMIError, match="login failed"):
+        client.fetch_aisori("22113", first_year=2020, last_year=2020)
+    assert not list(tmp_path.glob("aisori/*"))
+
+
 # ── Live tests (NSIDC G01170, no credentials) ───────────────────────────────
 
 
@@ -491,3 +654,26 @@ def test_live_nsidc_murmansk_winter():
     swe = [r for r in recs if r["variable"] == "SWE" and r["value"] is not None]
     assert swe and all(r["units"] == "cm" for r in swe)
     assert max(r["value"] for r in swe) > 5
+
+
+@pytest.mark.live
+@pytest.mark.requires_aisori
+def test_live_aisori_exports(tmp_path):
+    client = RIHMIClient(cache_dir=tmp_path, use_nsidc=False)
+    swe = client.get_data(
+        "22113",
+        variables="swe",
+        begin_date="2022-01-01",
+        end_date="2022-12-31",
+        source="aisori",
+    )
+    assert swe and all(r["source"] == "aisori_export" for r in swe)
+    assert max(r["value"] or 0 for r in swe) > 5
+    depth = client.get_data(
+        "22113",
+        interval="daily",
+        begin_date="2023-01-01",
+        end_date="2023-12-31",
+        source="aisori",
+    )
+    assert len(depth) == 365 and depth[0]["type"] == "snwd"
