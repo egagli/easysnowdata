@@ -7,6 +7,7 @@ back through the client; the Zenodo lookup goes through a stub session.
 The ``live`` tests resolve and download the real latest CanSWE (14 MB).
 """
 
+import hashlib
 import json
 
 import numpy as np
@@ -17,8 +18,10 @@ import xarray as xr
 from easysnowdata.stations.clients._common import INTERVALS, TYPES
 from easysnowdata.stations.clients.canswe import CanSWEClient, CanSWEError
 from easysnowdata.stations.clients.canswe._format import (
+    FLAG_VARS,
     CanSWEFormat,
     convert,
+    convert_to_zarr,
     max_window_count,
     season_of,
 )
@@ -108,8 +111,8 @@ def nc_path(tmp_path):
 
 
 @pytest.fixture
-def client(nc_path):
-    return CanSWEClient(path=nc_path)
+def client(nc_path, tmp_path):
+    return CanSWEClient(path=nc_path, cache_dir=tmp_path / "cache")
 
 
 # ── Registry compliance ──────────────────────────────────────────────────────
@@ -173,16 +176,33 @@ def test_season_of_and_window_count():
 # ── Reader / summary ─────────────────────────────────────────────────────────
 
 
-def test_summary_is_cached_next_to_file(nc_path):
-    reader = CanSWEFormat(nc_path)
+def test_conversion_round_trips_values_and_flags(nc_path, tmp_path):
+    store = convert_to_zarr(nc_path, tmp_path / "t.zarr", source={"checksum": "md5:x"})
+    reader = CanSWEFormat(store)
+    with xr.open_dataset(nc_path, drop_variables=list(FLAG_VARS)) as src:
+        for var in ("snw", "snd", "den"):
+            np.testing.assert_array_equal(
+                reader.ds[var].values,
+                src[var].transpose("station_id", "time").values,
+            )
+    i = IDS.index("BCE-1A01")
+    flags = reader._flag_grid("data_flag_snw", [i], slice(None))[0]
+    assert set(flags) == {"", "B"}
+    assert reader.ds.attrs["source_file"] == {"checksum": "md5:x"}
+    assert not (tmp_path / "t.zarr.tmp").exists()
+
+
+def test_summary_is_cached_next_to_store(nc_path, tmp_path):
+    store = convert_to_zarr(nc_path, tmp_path / "t.zarr")
+    reader = CanSWEFormat(store)
     summ = reader.summary()
     assert summ["BCE-1A01P"]["daily_seasons"] == [2025]
     assert summ["BCE-1A01"]["snw"]["n"] == 4
     assert "snw" not in summ["SCD-AL001"]
-    cache = nc_path.with_name(nc_path.name + ".summary.json")
+    cache = store.with_name(store.name + ".summary.json")
     assert json.loads(cache.read_text())["stations"]["HQ-GMON1"]["max90_swe_pos"] == 40
     # A second reader uses the cache.
-    assert CanSWEFormat(nc_path).summary() == summ
+    assert CanSWEFormat(store).summary() == summ
 
 
 # ── Stations ─────────────────────────────────────────────────────────────────
@@ -277,7 +297,7 @@ def test_get_data_flags_include_qc_removed_days(client):
         }
     ]
     survey = client.get_data("BCE-1A01", variables="snw", include_flags=True)
-    assert [r["flag"] for r in survey] == [",", ",", "B,", ","]
+    assert [r["flag"] for r in survey] == [None, None, "B,", None]
     assert {r["interval"] for r in survey} == {"periodic"}
 
 
@@ -287,7 +307,11 @@ def test_get_data_interval_filter(client):
     daily = client.get_data(
         ["BCE-1A01P", "BCE-1A01"], variables="swe", interval="daily"
     )
-    assert {r["station_id"] for r in daily} == {"BCE-1A01P"}
+    # "daily" returns every station at its own cadence, as DataBC does
+    assert {(r["station_id"], r["interval"]) for r in daily} == {
+        ("BCE-1A01P", "daily"),
+        ("BCE-1A01", "periodic"),
+    }
     periodic = client.get_data(["BCE-1A01P", "BCE-1A01"], interval="periodic")
     assert {r["station_id"] for r in periodic} == {"BCE-1A01"}
     with pytest.raises(CanSWEError):
@@ -319,53 +343,108 @@ class _Resp:
         return self._payload
 
 
+class _Download:
+    def __init__(self, body):
+        self.body, self.status_code = body, 200
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def iter_content(self, chunk_size=1):
+        for i in range(0, len(self.body), chunk_size):
+            yield self.body[i : i + chunk_size]
+
+
 class _StubSession:
-    def __init__(self, payload=None, status=200):
+    """Zenodo API through ``request``; file downloads through ``get``."""
+
+    def __init__(self, payload=None, status=200, files=None):
         self.headers = {}
         self.payload, self.status = payload, status
-        self.urls = []
+        self.files = files or {}
+        self.urls, self.downloads = [], []
 
     def request(self, method, url, params=None, timeout=None):
         self.urls.append(url)
         return _Resp(self.payload or {}, self.status)
 
+    def get(self, url, headers=None, stream=False, timeout=None):
+        self.downloads.append(url)
+        return _Download(self.files[url])
 
-def test_resolves_latest_version_and_uses_cached_file(tmp_path, nc_path):
-    cached = tmp_path / "cache" / "CanSWE-CanEEN_1928-2099_v99.nc"
-    cached.parent.mkdir()
-    cached.write_bytes(nc_path.read_bytes())
-    record = {
+
+def _record(key, body, url="https://example.invalid/f"):
+    return {
         "id": 99,
+        "metadata": {"version": "v99"},
         "files": [
-            {"key": "CanSWE-CanEEN_1928-2099_v99.zip", "size": 1},
+            {"key": "ReadMe.pdf", "size": 1},
             {
-                "key": cached.name,
-                "size": cached.stat().st_size,
-                "checksum": "md5:x",
-                "links": {"self": "https://example.invalid/f"},
+                "key": key,
+                "size": len(body),
+                "checksum": "md5:" + hashlib.md5(body).hexdigest(),
+                "links": {"self": url},
             },
         ],
     }
-    session = _StubSession(record)
-    c = CanSWEClient(cache_dir=tmp_path / "cache", session=session, max_retries=1)
-    assert c.dataset_path() == cached
+
+
+def test_download_converts_deletes_source_and_reuses_store(tmp_path, nc_path):
+    body = nc_path.read_bytes()
+    key = "CanSWE-CanEEN_1928-2099_v99.nc"
+    session = _StubSession(
+        _record(key, body), files={"https://example.invalid/f": body}
+    )
+    cache = tmp_path / "cache"
+    c = CanSWEClient(cache_dir=cache, session=session, max_retries=1)
+    store = c.dataset_path()
+    assert store == cache / "CanSWE-CanEEN_1928-2099_v99.zarr"
     assert session.urls == ["https://zenodo.org/api/records/4734371/versions/latest"]
+    assert not (cache / key).exists()  # the netCDF is deleted after conversion
     assert len(c.get_all_stations()) == len(IDS)
+    again = CanSWEClient(cache_dir=cache, session=session, max_retries=1)
+    assert again.dataset_path() == store
+    assert len(session.downloads) == 1  # the store is reused, not rebuilt
+
+
+def test_bad_checksum_raises_and_leaves_no_store(tmp_path, nc_path):
+    body = nc_path.read_bytes()
+    record = _record("CanSWE-CanEEN_x.nc", body)
+    record["files"][1]["checksum"] = "md5:" + "0" * 32
+    session = _StubSession(record, files={"https://example.invalid/f": body})
+    c = CanSWEClient(cache_dir=tmp_path / "cache", session=session, max_retries=1)
+    with pytest.raises(CanSWEError, match="md5"):
+        c.dataset_path()
+    assert not list((tmp_path / "cache").glob("*.zarr"))
 
 
 def test_pinned_record_and_offline_fallback(tmp_path, nc_path):
     cache = tmp_path / "cache"
     cache.mkdir()
-    (cache / "old.nc").write_bytes(nc_path.read_bytes())
+    convert_to_zarr(nc_path, cache / "old.zarr")
     session = _StubSession({"message": "down"}, status=404)
     c = CanSWEClient(
         record_id="19075529", cache_dir=cache, session=session, max_retries=1
     )
-    assert c.dataset_path() == cache / "old.nc"
+    assert c.dataset_path() == cache / "old.zarr"
     assert session.urls == ["https://zenodo.org/api/records/19075529"]
     empty = CanSWEClient(cache_dir=tmp_path / "empty", session=session, max_retries=1)
     with pytest.raises(CanSWEError):
         empty.dataset_path()
+
+
+def test_local_netcdf_path_is_converted_once(tmp_path, nc_path):
+    cache = tmp_path / "cache"
+    c = CanSWEClient(path=nc_path, cache_dir=cache)
+    store = c.dataset_path()
+    assert store.suffix == ".zarr" and store.parent == cache
+    assert nc_path.exists()  # a user's own file is never deleted
+    mtime = (store / "zarr.json").stat().st_mtime
+    assert CanSWEClient(path=nc_path, cache_dir=cache).dataset_path() == store
+    assert (store / "zarr.json").stat().st_mtime == mtime
 
 
 # ── Live ─────────────────────────────────────────────────────────────────────

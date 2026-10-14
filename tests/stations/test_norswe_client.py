@@ -8,6 +8,7 @@ read it back; the zip download path is exercised with a local zip.  The
 data file is 2.4 GB).
 """
 
+import hashlib
 import zipfile
 
 import numpy as np
@@ -61,8 +62,8 @@ def nc_path(tmp_path):
 
 
 @pytest.fixture
-def client(nc_path):
-    return NorSWEClient(path=nc_path)
+def client(nc_path, tmp_path):
+    return NorSWEClient(path=nc_path, cache_dir=tmp_path / "cache")
 
 
 def test_registries():
@@ -143,48 +144,66 @@ class _Resp:
         return self._payload
 
 
+class _Download:
+    def __init__(self, body):
+        self.body, self.status_code = body, 200
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def iter_content(self, chunk_size=1):
+        for i in range(0, len(self.body), chunk_size):
+            yield self.body[i : i + chunk_size]
+
+
 class _Session:
-    def __init__(self, payload):
-        self.headers, self.payload = {}, payload
+    def __init__(self, payload, files):
+        self.headers, self.payload, self.files = {}, payload, files
+        self.downloads = []
 
     def request(self, method, url, params=None, timeout=None):
         return _Resp(self.payload)
 
+    def get(self, url, headers=None, stream=False, timeout=None):
+        self.downloads.append(url)
+        return _Download(self.files[url])
 
-def test_zip_is_downloaded_extracted_and_reused(tmp_path, nc_path, monkeypatch):
+
+def test_zip_is_downloaded_converted_cleaned_up_and_reused(tmp_path, nc_path):
     cache = tmp_path / "cache"
     zpath = tmp_path / "src.zip"
-    with zipfile.ZipFile(zpath, "w") as zf:
+    with zipfile.ZipFile(zpath, "w", compression=zipfile.ZIP_DEFLATED) as zf:
         zf.write(nc_path, "NorSWE-NorEEN_1979-2021_v9.nc")
+    body = zpath.read_bytes()
+    url = "https://example.invalid/norswe.zip"
     record = {
         "id": 1,
         "files": [
             {"key": "Readme.pdf", "size": 1},
-            {"key": "NorSWE-NorEEN_1979-2021_v9.zip", "size": zpath.stat().st_size},
+            {
+                "key": "NorSWE-NorEEN_1979-2021_v9.zip",
+                "size": len(body),
+                "checksum": "md5:" + hashlib.md5(body).hexdigest(),
+                "links": {"self": url},
+            },
         ],
     }
-    calls = []
-
-    def fake_retrieve(url, known_hash, fname, path, downloader=None):
-        calls.append(fname)
-        dest = path / fname
-        dest.write_bytes(zpath.read_bytes())
-        return str(dest)
-
-    import pooch
-
-    monkeypatch.setattr(pooch, "retrieve", fake_retrieve)
-    c = NorSWEClient(cache_dir=cache, session=_Session(record), max_retries=1)
-    path = c.dataset_path()
-    assert (
-        path == cache / "NorSWE-NorEEN_1979-2021_v9" / "NorSWE-NorEEN_1979-2021_v9.nc"
-    )
-    assert not (cache / "NorSWE-NorEEN_1979-2021_v9.zip").exists()  # zip removed
+    session = _Session(record, {url: body})
+    c = NorSWEClient(cache_dir=cache, session=session, max_retries=1)
+    store = c.dataset_path()
+    assert store == cache / "NorSWE-NorEEN_1979-2021_v9.zarr"
+    # Only the compact store (and its summary, once listed) stays behind.
+    assert sorted(p.name for p in cache.iterdir()) == [store.name]
     assert len(c.get_all_stations()) == 4
-    # A second client finds the extracted file and does not download again.
-    again = NorSWEClient(cache_dir=cache, session=_Session(record), max_retries=1)
-    assert again.dataset_path() == path
-    assert calls == ["NorSWE-NorEEN_1979-2021_v9.zip"]
+    recs = c.get_data("NOHRSC-AB101", variables="swe", include_flags=True)
+    assert [r["flag"] for r in recs if r["value"] is not None] == ["AM-avg2,"]
+    # A second client finds the store and does not download again.
+    again = NorSWEClient(cache_dir=cache, session=session, max_retries=1)
+    assert again.dataset_path() == store
+    assert session.downloads == [url]
 
 
 @pytest.mark.live

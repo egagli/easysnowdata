@@ -1148,9 +1148,11 @@ updated once a year.
 
 **Storage.** The latest version is resolved through the Zenodo API
 (`/api/records/4734371/versions/latest`); `record_id=` pins one. First use
-downloads the Zenodo file once, converts it to a compact Zarr store under
-`easysnowdata.config.cache_dir('stations', 'canswe')`, and deletes the
-downloaded file. <!-- TODO coordinator: confirm sizes -->
+downloads the 14 MB netCDF once (resumable, md5-checked), converts it to a
+~10 MB Zarr store under `easysnowdata.config.cache_dir('stations', 'canswe')`
+in about 15 s, and deletes the netCDF. Later calls read the store lazily;
+a new Zenodo version replaces it automatically. `path=` takes a local
+netCDF (converted once, left in place) or a store.
 
 ```python
 from easysnowdata.stations.clients import CanSWEClient
@@ -1221,10 +1223,12 @@ data, with period of record and `n_obs`).
 
 #### `get_data(station_ids, variables, bbox, begin_date, end_date, interval, include_flags)` → `list[dict]`
 
-`interval=None` (default) returns every requested station at its own
-cadence; `"daily"` keeps only automated stations and `"periodic"` only
-manual ones (the others are logged and skipped). Any other interval
-raises `CanSWEError`.
+`interval="daily"` (default) returns every requested station at its own
+cadence, each record labelled `"daily"` (automated) or `"periodic"`
+(manual surveys), as DataBC does for its snow courses. `"periodic"` keeps
+only the manual stations (the others are logged and skipped). To keep only
+automated stations, pick them with `get_all_stations(methods="automated")`.
+Any other interval raises `CanSWEError`. NorSWE behaves the same way.
 
 ```python
 records = client.get_data("BCE-1A01P", begin_date="2024-10-01", end_date="2025-06-30")

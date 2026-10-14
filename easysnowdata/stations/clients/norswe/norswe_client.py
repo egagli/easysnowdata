@@ -34,13 +34,22 @@ Files used
 ----------
 The latest version is resolved through the Zenodo API
 (``/api/records/10287092/versions/latest``); pass ``record_id=`` to pin
-one.  The zip is downloaded once (md5-checked with pooch) into
-``easysnowdata.config.cache_dir("stations", "norswe")``, the netCDF is
-extracted next to it and the zip deleted.  The netCDF is opened lazily
-with ``xarray`` + ``h5netcdf``: listing stations reads only the 1-D
-metadata; the first listing also scans the data once (in row blocks)
-for the per-station period of record and daily-cadence test, cached as
-``<file>.nc.summary.json``.
+one.  First use builds a local store, once, in
+``easysnowdata.config.cache_dir("stations", "norswe")``:
+
+1. the 2.4 GB zip is downloaded in parallel byte ranges (resumable: an
+   interrupted download continues where it stopped; md5-checked);
+2. the 21.6 GB netCDF is unzipped and the zip deleted;
+3. the netCDF is converted to a compact Zarr store (STORE_SIZE) — data
+   as ``station_id × time`` float32, flags as int8 codes — and deleted.
+
+Peak disk use during step 2–3 is about 22 GB; the client checks free space
+first and says how much it needs (set ``EASYSNOWDATA_CACHE_DIR`` to put
+the cache on a bigger disk).  Every later call reads the store lazily.
+The first station listing also computes a per-station summary (period
+of record, counts, daily-cadence test), cached as
+``<store>.summary.json``.  ``path=`` accepts an existing netCDF (converted
+once into the cache, left in place) or store.
 
 Station ids, sources and countries
 ----------------------------------
@@ -66,8 +75,8 @@ Data arrays are ``time × station_id`` (CanSWE: ``station_id × time``),
 ``type_mes`` adds code 64 (airborne gamma), the flag arrays are
 variable-length strings (``"AM"``, ``"AI-avg2"``, …) and the netCDF is
 21.6 GB uncompressed on disk (2.4 GB zipped) — mostly those flag
-strings.  The shared reader handles both layouts and never reads flags
-unless ``include_flags=True``.  The first station listing scans SWE,
+strings.  The conversion handles both layouts; in the local store they
+are int8 codes and cost almost nothing.  The first station listing scans SWE,
 depth and density once (≈ 40 s, < 1 GB RAM) and caches the result.
 
 Cadence

@@ -24,14 +24,21 @@ Layout (verified against ``CanSWE-CanEEN_1928-2025_v8.nc`` and
   authors, :data:`AGENCY_FLAGS`) and ``qc_flag_snw/_snd`` (dataset QC,
   :data:`QC_FLAGS`).  Values that failed QC are already NaN in the file;
   the flag says why.  CanSWE stores flags as ``S1`` chars, NorSWE as
-  variable-length strings; both are read with h5py (xarray would load a
-  variable-length string array whole on open).
+  variable-length strings; the conversion reads both with h5py (xarray
+  would load a variable-length string array whole on open).
 
-The file is opened lazily with ``xarray`` + ``h5netcdf``: listing stations
-reads only the 1-D metadata, and :meth:`CanSWEFormat.read` reads just the
-station rows (and time span) asked for.  A one-off per-station summary
-(period of record, observation counts, daily-cadence test) is computed by
-scanning the data in row blocks and cached as JSON next to the file.
+Local storage
+-------------
+The Zenodo file is downloaded once (resumable, md5-checked; large files in
+parallel byte ranges), then converted to a compact Zarr store — data as
+``station_id × time`` float32, flags as int8 codes with their vocabulary in
+the array attributes — and the downloaded zip/netCDF is deleted.  The grid
+is almost all NaN and compresses to a small fraction of its netCDF size, so
+the cache stays small (NorSWE: 2.4 GB zip → 21.6 GB netCDF → a Zarr store
+of well under 1 GB), while every later read is a lazy, chunked slice.  A
+one-off per-station summary (period of record, observation counts,
+daily-cadence test) is computed from the store and cached as JSON beside
+it.
 """
 
 from __future__ import annotations
@@ -231,8 +238,8 @@ def _num(value: Any) -> float | None:
 
 def _flag_text(value: Any) -> str:
     if isinstance(value, bytes):
-        return value.decode("ascii", errors="replace").strip()
-    return "" if value is None else str(value).strip()
+        return value.decode("ascii", errors="replace").strip("\x00 \t")
+    return "" if value is None else str(value).strip("\x00 \t")
 
 
 #: Flag variables (read through h5py, never through xarray).
@@ -256,16 +263,6 @@ def _h5_dims(dset: Any) -> list[str]:
             label = label or f"dim{i}"
         names.append(label)
     return names
-
-
-def _flag_strings(arr: np.ndarray) -> np.ndarray:
-    """Flag array (S1 bytes, or variable-length str/bytes/None) → stripped str."""
-    if arr.dtype.kind in ("S", "U"):
-        out = np.char.strip(arr.astype(str))
-    else:
-        out = np.vectorize(_flag_text, otypes=[object])(arr).astype(str)
-    out[(out == "nan") | (out == "None")] = ""
-    return out
 
 
 def season_of(day: np.datetime64 | date) -> int:
@@ -299,13 +296,249 @@ def max_window_count(mask: np.ndarray, window: int = DAILY_WINDOW) -> np.ndarray
     return (csum[:, w:] - csum[:, :-w]).max(axis=1)
 
 
+#: Version of the local Zarr layout written by :func:`convert_to_zarr`.
+#: Bumped when the layout changes; older stores are rebuilt.
+STORE_VERSION = 1
+
+#: Stations per chunk along ``station_id`` in the local store.  Each chunk
+#: spans the whole time axis, so one station's full record is one chunk.
+STORE_BLOCK = 128
+
+
+def convert_to_zarr(
+    nc_path: str | Path,
+    zarr_path: str | Path,
+    error_cls: type[Exception] = RuntimeError,
+    source: dict | None = None,
+) -> Path:
+    """Convert a CanSWE-convention netCDF to the compact local Zarr store.
+
+    The store holds every 1-D station variable, ``time`` and the ``snw``,
+    ``snd`` and ``den`` grids as ``station_id × time`` float32 chunked
+    :data:`STORE_BLOCK` stations at a time, and each flag grid as int8
+    codes into a vocabulary kept in the array's ``flag_vocab`` attribute
+    (code 0 = no flag).  It is written to ``<zarr_path>.tmp`` and renamed
+    into place only when complete, so an interrupted conversion is redone
+    rather than half-read.
+
+    Parameters
+    ----------
+    nc_path : str or Path
+        The source netCDF.
+    zarr_path : str or Path
+        Destination directory (``*.zarr``).
+    error_cls : type[Exception]
+        Raised if the netCDF cannot be read.
+    source : dict, optional
+        Provenance stored in the store attributes (e.g. the Zenodo record
+        id, file name and md5).
+
+    Returns
+    -------
+    Path
+        ``zarr_path``.
+    """
+    import shutil  # noqa: PLC0415
+
+    import h5py  # noqa: PLC0415
+    import xarray as xr  # noqa: PLC0415
+    import zarr  # noqa: PLC0415
+
+    nc_path, zarr_path = Path(nc_path), Path(zarr_path)
+    tmp = zarr_path.with_name(zarr_path.name + ".tmp")
+    if tmp.exists():
+        shutil.rmtree(tmp)
+    logger.info("Converting %s to %s (one-off)", nc_path.name, zarr_path.name)
+    try:
+        ds = xr.open_dataset(nc_path, engine="h5netcdf", drop_variables=list(FLAG_VARS))
+    except Exception as exc:  # noqa: BLE001 — surface as client error
+        raise error_cls(f"Could not open {nc_path}: {exc}") from exc
+    with ds, h5py.File(nc_path, "r") as h5:
+        ids = [_text(v) or "" for v in ds["station_id"].values]
+        n, nt = len(ids), ds.sizes["time"]
+        root = zarr.open_group(tmp, mode="w", zarr_format=3)
+        attrs = {k: _attr(v) for k, v in ds.attrs.items()}
+        attrs.update(
+            {
+                "easysnowdata_store_version": STORE_VERSION,
+                "converted_from": nc_path.name,
+                "source_file": source or {},
+            }
+        )
+        root.attrs.update(attrs)
+
+        sid = root.create_array(
+            "station_id", shape=(n,), dtype=str, dimension_names=["station_id"]
+        )
+        sid[:] = np.array(ids, dtype=object)
+        days = ds["time"].values.astype("datetime64[D]").astype("int64")
+        tarr = root.create_array(
+            "time", shape=(nt,), dtype="int64", dimension_names=["time"]
+        )
+        tarr[:] = days
+        tarr.attrs.update({"units": "days since 1970-01-01", "calendar": "standard"})
+
+        for name, var in ds.data_vars.items():
+            if var.dims != ("station_id",):
+                continue
+            values = var.values
+            if np.issubdtype(values.dtype, np.number):
+                arr = root.create_array(
+                    name,
+                    shape=(n,),
+                    dtype=values.dtype,
+                    dimension_names=["station_id"],
+                    fill_value=np.nan if values.dtype.kind == "f" else 0,
+                )
+                arr[:] = values
+            else:
+                arr = root.create_array(
+                    name, shape=(n,), dtype=str, dimension_names=["station_id"]
+                )
+                arr[:] = np.array([_text(v) or "" for v in values], dtype=object)
+            arr.attrs.update({k: _attr(v) for k, v in var.attrs.items()})
+
+        block = STORE_BLOCK
+        grids = [v for v in ("snw", "snd", "den") if v in ds]
+        flags = [v for v in FLAG_VARS if v in h5]
+        out_grid = {
+            v: root.create_array(
+                v,
+                shape=(n, nt),
+                chunks=(block, nt),
+                dtype="float32",
+                fill_value=np.nan,
+                dimension_names=["station_id", "time"],
+            )
+            for v in grids
+        }
+        for v in grids:
+            out_grid[v].attrs.update({k: _attr(a) for k, a in ds[v].attrs.items()})
+        out_flag = {
+            v: root.create_array(
+                v,
+                shape=(n, nt),
+                chunks=(block, nt),
+                dtype="int8",
+                fill_value=0,
+                dimension_names=["station_id", "time"],
+            )
+            for v in flags
+        }
+        vocab: dict[str, list[str]] = {v: [""] for v in flags}
+        # Read in station blocks aligned to the source's own chunking (a
+        # misaligned block decompresses the same source chunk many times),
+        # capped so one block of one variable stays under ~1 GB in memory.
+        src_rows = block
+        for v in grids:
+            dset = h5[v]
+            if dset.chunks and "station_id" in _h5_dims(dset):
+                src_rows = max(
+                    src_rows, dset.chunks[_h5_dims(dset).index("station_id")]
+                )
+        read_rows = -(-src_rows // block) * block
+        cap = max(block, (1_000_000_000 // (8 * max(nt, 1))) // block * block)
+        read_rows = min(read_rows, cap)
+        for start in range(0, n, read_rows):
+            stop = min(n, start + read_rows)
+            for v in grids:
+                da = ds[v].isel(station_id=slice(start, stop))
+                extra = [d for d in da.dims if d not in ("station_id", "time")]
+                if extra:
+                    da = da.isel({d: 0 for d in extra})
+                out_grid[v][start:stop] = da.transpose("station_id", "time").values
+            for v in flags:
+                out_flag[v][start:stop] = _encode_flags(
+                    _read_flag_block(h5[v], start, stop), vocab[v], error_cls, v
+                )
+        for v in flags:
+            out_flag[v].attrs["flag_vocab"] = vocab[v]
+    zarr.consolidate_metadata(tmp)
+    if zarr_path.exists():
+        shutil.rmtree(zarr_path)
+    tmp.rename(zarr_path)
+    return zarr_path
+
+
+def _attr(value: Any) -> Any:
+    """netCDF attribute → JSON-safe value for the Zarr store."""
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    if isinstance(value, np.ndarray):
+        return [_attr(v) for v in value.tolist()]
+    if isinstance(value, np.generic):
+        return value.item()
+    return value
+
+
+def _read_flag_block(dset: Any, start: int, stop: int) -> np.ndarray:
+    """Rows ``start:stop`` of an h5py flag dataset, ``station × time``, raw."""
+    dims = _h5_dims(dset)
+    sel: list[Any] = []
+    for d in dims:
+        if d == "station_id":
+            sel.append(slice(start, stop))
+        elif d == "time":
+            sel.append(slice(None))
+        else:
+            sel.append(0)
+    arr = dset[tuple(sel)]
+    kept = [d for d in dims if d in ("station_id", "time")]
+    if kept == ["time", "station_id"]:
+        arr = arr.T
+    return np.asarray(arr)
+
+
+def _encode_flags(
+    raw: np.ndarray, vocab: list[str], error_cls: type[Exception], name: str
+) -> np.ndarray:
+    """Raw flag block → int8 codes into ``vocab`` (extended in place).
+
+    Almost every cell is empty, so only the non-empty cells are decoded:
+    ``S1`` arrays (CanSWE) through their byte values, variable-length
+    strings (NorSWE) through one pass over the non-empty subset.
+    """
+    codes = np.zeros(raw.shape, dtype=np.int8)
+
+    def code_of(text: str) -> int:
+        if text not in vocab:
+            vocab.append(text)
+            if len(vocab) > 127:
+                raise error_cls(f"{name}: more than 127 distinct flag values")
+        return vocab.index(text)
+
+    if raw.dtype.kind == "S" and raw.dtype.itemsize == 1:
+        byte = raw.view(np.uint8)
+        table = np.zeros(256, dtype=np.int8)
+        for b in np.unique(byte):
+            text = bytes([int(b)]).decode("ascii", errors="replace").strip("\x00 ")
+            table[b] = code_of(text) if text else 0
+        return table[byte]
+    flat = raw.ravel()
+    if raw.dtype.kind == "O":
+        nonempty = np.flatnonzero((flat != b"") & (flat != "") & (flat != None))  # noqa: E711
+    else:
+        nonempty = np.flatnonzero(np.char.str_len(flat.astype(str)) > 0)
+    out = codes.ravel()
+    lookup: dict[Any, int] = {}
+    for i in nonempty:
+        value = flat[i]
+        c = lookup.get(value)
+        if c is None:
+            text = _flag_text(value)
+            c = code_of(text) if text and text not in ("nan", "None") else 0
+            lookup[value] = c
+        out[i] = c
+    return codes
+
+
 class CanSWEFormat:
-    """Lazy reader for one CanSWE-convention netCDF file.
+    """Lazy reader for one local store written by :func:`convert_to_zarr`.
 
     Parameters
     ----------
     path : str or Path
-        The ``.nc`` file.
+        The ``.zarr`` store.
     error_cls : type[Exception]
         Exception raised on read problems (the owning client's error).
     """
@@ -327,12 +560,8 @@ class CanSWEFormat:
             import xarray as xr  # noqa: PLC0415 — keep import light
 
             try:
-                # The flag arrays are left out: NorSWE stores them as
-                # variable-length strings, and xarray's CF decoding reads
-                # such arrays whole on open (> 14 GB for NorSWE).  They are
-                # read on demand through h5py instead (:meth:`_flag_grid`).
                 self._ds = xr.open_dataset(
-                    self.path, engine="h5netcdf", drop_variables=list(FLAG_VARS)
+                    self.path, engine="zarr", chunks=None, consolidated=True
                 )
             except Exception as exc:  # noqa: BLE001 — surface as client error
                 raise self.error_cls(f"Could not open {self.path}: {exc}") from exc
@@ -364,6 +593,9 @@ class CanSWEFormat:
             for name in ds.data_vars:
                 if ds[name].dims == ("station_id",):
                     cols[name] = ds[name].values
+            for name in ds.coords:
+                if name != "station_id" and ds[name].dims == ("station_id",):
+                    cols[name] = ds[name].values
             meta: list[dict] = []
             for i, sid in enumerate(ids):
                 row: dict[str, Any] = {"station_id": sid, "_index": i}
@@ -388,6 +620,11 @@ class CanSWEFormat:
     def _summary_path(self) -> Path:
         return self.path.with_name(self.path.name + ".summary.json")
 
+    def _store_key(self) -> dict:
+        meta = self.path / "zarr.json"
+        stat = (meta if meta.exists() else self.path).stat()
+        return {"name": self.path.name, "mtime": int(stat.st_mtime)}
+
     def summary(self) -> dict[str, dict]:
         """Per-station period of record, counts and daily-cadence test.
 
@@ -399,8 +636,7 @@ class CanSWEFormat:
         if self._summary is not None:
             return self._summary
         cache = self._summary_path()
-        stat = self.path.stat()
-        key = {"size": stat.st_size, "mtime": int(stat.st_mtime)}
+        key = self._store_key()
         try:
             payload = json.loads(cache.read_text())
             if (
@@ -428,40 +664,22 @@ class CanSWEFormat:
 
     def _row_block(self) -> int:
         """Station-axis chunk length of ``snw`` (rows read per scan step)."""
-        var = self.ds["snw"]
-        enc = var.encoding
-        chunks = enc.get("chunksizes") or enc.get("chunks")
-        if chunks and "station_id" in var.dims:
-            return max(1, int(chunks[var.dims.index("station_id")]))
-        return 256
+        chunks = self.ds["snw"].encoding.get("chunks")
+        if chunks:
+            return max(1, int(chunks[0]))
+        return STORE_BLOCK
 
     def _flag_grid(self, var: str, rows: list[int], tslice: slice) -> np.ndarray | None:
-        """Flag subset as a ``(station, time)`` array of stripped strings.
+        """Flag subset as a ``(station, time)`` array of strings ("" = none).
 
-        Read with h5py: works for both the CanSWE ``S1`` char arrays
-        (``station_id × time × string1``) and NorSWE's variable-length
-        strings (``time × station_id``).  ``None`` if the file lacks it.
+        ``None`` if the store lacks the flag variable.
         """
-        import h5py  # noqa: PLC0415
-
-        with h5py.File(self.path, "r") as f:
-            if var not in f:
-                return None
-            dset = f[var]
-            dims = _h5_dims(dset)
-            sel: list[Any] = []
-            for d in dims:
-                if d == "station_id":
-                    sel.append(rows)
-                elif d == "time":
-                    sel.append(tslice)
-                else:
-                    sel.append(0)
-            arr = dset[tuple(sel)]
-        kept = [d for d in dims if d in ("station_id", "time")]
-        if kept == ["time", "station_id"]:
-            arr = arr.T
-        return _flag_strings(np.asarray(arr))
+        if var not in self.ds:
+            return None
+        da = self.ds[var]
+        vocab = np.array(da.attrs.get("flag_vocab", [""]), dtype=object)
+        codes = da.isel(station_id=rows, time=tslice).values.astype(np.int64)
+        return vocab[codes].astype(str)
 
     def _grid(self, var: str, **isel: Any) -> np.ndarray:
         """``var`` subset as a ``(station, time)`` array, whatever the file's
@@ -700,32 +918,79 @@ class CanSWEStyleClient:
             )
         return files[0]
 
-    def _cached_nc(self) -> Path | None:
+    def _cached_store(self) -> Path | None:
         found = sorted(
-            self.cache_dir.rglob("*.nc"), key=lambda p: p.stat().st_mtime, reverse=True
+            (p for p in self.cache_dir.glob("*.zarr") if (p / "zarr.json").exists()),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
         )
         return found[0] if found else None
 
-    def _target_nc(self, key: str) -> Path:
-        if key.endswith(".zip"):
-            return self.cache_dir / key[: -len(".zip")]
-        return self.cache_dir / key
+    @staticmethod
+    def _store_name(key: str) -> str:
+        for suffix in (".zip", ".nc"):
+            if key.endswith(suffix):
+                key = key[: -len(suffix)]
+        return key + ".zarr"
+
+    @staticmethod
+    def _store_matches(store: Path, info: dict) -> bool:
+        """True when ``store`` is complete, current-layout and built from ``info``."""
+        meta = store / "zarr.json"
+        if not meta.exists():
+            return False
+        try:
+            attrs = json.loads(meta.read_text()).get("attributes", {})
+        except (OSError, ValueError):
+            return False
+        src = attrs.get("source_file") or {}
+        return attrs.get("easysnowdata_store_version") == STORE_VERSION and src.get(
+            "checksum"
+        ) == info.get("checksum")
 
     def dataset_path(self) -> Path:
-        """Local path of the netCDF, downloading the latest version if needed.
+        """Local Zarr store of the dataset, building it on first use.
 
-        If Zenodo cannot be reached, the newest netCDF already in the cache
-        is used (with a warning) instead of failing.
+        The latest (or pinned) Zenodo version is looked up. If its store is
+        already in the cache it is used as is. Otherwise the file is
+        downloaded (resumable and md5-checked; large files in parallel byte
+        ranges), unzipped if needed, converted with :func:`convert_to_zarr`,
+        and the downloaded zip/netCDF deleted. If Zenodo cannot be reached,
+        the newest store already in the cache is used, with a warning.
+
+        A ``path=`` given to the constructor may be a store (used as is) or
+        a netCDF, which is converted into the cache once and left in place.
+
+        Returns
+        -------
+        Path
+            The ``.zarr`` store.
+
+        Raises
+        ------
+        Exception
+            The client's error class, if nothing usable can be found or
+            built (including too little disk space, with the space needed).
         """
         if self._path is not None:
             if not self._path.exists():
                 raise self.ERROR(f"No such file: {self._path}")
-            return self._path
+            if self._path.suffix == ".zarr":
+                return self._path
+            store = self.cache_dir / self._store_name(self._path.name)
+            info = {
+                "key": self._path.name,
+                "checksum": f"local:{self._path.stat().st_size}",
+            }
+            if not self._store_matches(store, info):
+                convert_to_zarr(self._path, store, self.ERROR, source=info)
+            self._path = store
+            return store
         try:
             record = self.resolve_record()
             info = self._pick_file(record)
         except self.ERROR as exc:
-            cached = self._cached_nc()
+            cached = self._cached_store()
             if cached is None:
                 raise
             logger.warning(
@@ -733,66 +998,88 @@ class CanSWEStyleClient:
             )
             self._path = cached
             return cached
-        key = info["key"]
-        target = self._target_nc(key)
-        if key.endswith(".zip"):
-            existing = sorted(target.glob("*.nc")) if target.is_dir() else []
-            if existing:
-                self._path = existing[0]
-                return self._path
-        elif target.exists() and target.stat().st_size == int(info.get("size", -1)):
-            self._path = target
-            return target
-        self._path = self._download(info, target)
-        return self._path
+        store = self.cache_dir / self._store_name(info["key"])
+        if not self._store_matches(store, info):
+            self._build_store(record, info, store)
+        self._path = store
+        return store
 
-    def _download(self, info: dict, target: Path) -> Path:
-        import pooch  # noqa: PLC0415
+    def _build_store(self, record: dict, info: dict, store: Path) -> None:
+        """Download, (unzip,) convert and clean up — see :meth:`dataset_path`."""
+        import shutil  # noqa: PLC0415
+
+        from .._common import download_file  # noqa: PLC0415
 
         key = info["key"]
+        size = int(info.get("size") or 0) or None
         url = info.get("links", {}).get("self") or (
-            f"{ZENODO_API}/{info.get('record_id', '')}/files/{key}/content"
+            f"{ZENODO_API}/{record.get('id', '')}/files/{key}/content"
         )
-        checksum = info.get("checksum")  # "md5:<hex>"
-        logger.info("%s: downloading %s (%s bytes)", self.NAME, key, info.get("size"))
-        try:
-            local = pooch.retrieve(
+        download = self.cache_dir / key
+        if not download.exists():
+            self._check_space(size or 0, f"download {key}")
+            logger.info("%s: downloading %s (%s bytes)", self.NAME, key, size)
+            download_file(
+                self._session,
                 url,
-                known_hash=checksum,
-                fname=key,
-                path=self.cache_dir,
-                downloader=pooch.HTTPDownloader(timeout=self.timeout),
+                download,
+                error_cls=self.ERROR,
+                size=size,
+                md5=info.get("checksum"),
+                timeout=self.timeout,
             )
-        except Exception as exc:  # noqa: BLE001 — pooch raises many kinds
-            raise self.ERROR(f"Download of {url} failed: {exc}") from exc
-        local = Path(local)
-        if key.endswith(".zip"):
-            return self._extract_nc(local, target)
-        return local
+        nc = self._extract_nc(download) if key.endswith(".zip") else download
+        source = {
+            "record_id": record.get("id"),
+            "version": (record.get("metadata") or {}).get("version"),
+            "key": key,
+            "checksum": info.get("checksum"),
+            "url": url,
+        }
+        convert_to_zarr(nc, store, self.ERROR, source=source)
+        # The store is all later reads need, and the source files are large.
+        for path in (download, nc):
+            path.unlink(missing_ok=True)
+        for stale in self.cache_dir.glob("*.zarr"):
+            if stale != store:
+                shutil.rmtree(stale, ignore_errors=True)
+                logger.info("%s: removed superseded store %s", self.NAME, stale.name)
 
-    def _extract_nc(self, zip_path: Path, target_dir: Path) -> Path:
+    def _check_space(self, needed: int, what: str) -> None:
+        import shutil  # noqa: PLC0415
+
+        free = shutil.disk_usage(self.cache_dir).free
+        margin = 512 * 1024 * 1024
+        if needed and free < needed + margin:
+            raise self.ERROR(
+                f"{self.NAME}: not enough disk space to {what}: need about "
+                f"{(needed + margin) / 1e9:.1f} GB in {self.cache_dir}, "
+                f"{free / 1e9:.1f} GB free. Set EASYSNOWDATA_CACHE_DIR to a "
+                "larger disk, or pass path= to an existing copy."
+            )
+
+    def _extract_nc(self, zip_path: Path) -> Path:
+        """Unzip the netCDF next to the archive, then delete the archive."""
         import shutil  # noqa: PLC0415
         import zipfile  # noqa: PLC0415
 
-        target_dir.mkdir(parents=True, exist_ok=True)
         try:
             with zipfile.ZipFile(zip_path) as zf:
-                members = [m for m in zf.namelist() if m.endswith(".nc")]
+                members = [m for m in zf.infolist() if m.filename.endswith(".nc")]
                 if not members:
                     raise self.ERROR(f"{zip_path.name} holds no .nc file")
-                name = Path(members[0]).name
-                out = target_dir / name
-                tmp = out.with_suffix(".nc.part")
-                with zf.open(members[0]) as src, open(tmp, "wb") as dst:
+                member = members[0]
+                out = self.cache_dir / Path(member.filename).name
+                if out.exists() and out.stat().st_size == member.file_size:
+                    return out
+                self._check_space(member.file_size, f"unzip {member.filename}")
+                tmp = out.with_name(out.name + ".part")
+                with zf.open(member) as src, open(tmp, "wb") as dst:
                     shutil.copyfileobj(src, dst, length=16 * 1024 * 1024)
                 tmp.replace(out)
         except zipfile.BadZipFile as exc:
             raise self.ERROR(f"Corrupt archive {zip_path}: {exc}") from exc
-        # The archive is no longer needed once the netCDF is out.
-        try:
-            zip_path.unlink()
-        except OSError:
-            pass
+        zip_path.unlink(missing_ok=True)
         return out
 
     @property
@@ -1018,7 +1305,7 @@ class CanSWEStyleClient:
         bbox: tuple[float, float, float, float] | None = None,
         begin_date: Any = None,
         end_date: Any = None,
-        interval: str | None = None,
+        interval: str = "daily",
         include_flags: bool = False,
     ) -> list[dict]:
         """
@@ -1036,17 +1323,22 @@ class CanSWEStyleClient:
             ``(min_lon, min_lat, max_lon, max_lat)``.
         begin_date, end_date : str or date, optional
             Inclusive bounds.
-        interval : {"daily", "periodic", None}
+        interval : {"daily", "periodic"}
             Every record carries its station's native cadence: ``"daily"``
             for automated sensors (pillow, scale, GMON), ``"periodic"`` for
-            manual surveys.  ``None`` (default) returns every requested
-            station; ``"daily"`` keeps only automated stations and
-            ``"periodic"`` only manual ones (others are logged and skipped).
-            Any other value raises.
+            manual surveys and airborne-gamma lines.  ``"daily"`` (default,
+            as for the other clients) returns every requested station, each
+            at its own cadence, the way the DataBC client returns snow
+            courses under ``"daily"``; ``"periodic"`` keeps only the manual
+            stations (others are logged and skipped).  To keep only
+            automated stations, select them with
+            ``get_all_stations(methods="automated")``.  Any other value
+            raises.
         include_flags : bool
             Add ``flag`` = ``"<agency flag>,<qc flag>"`` (see
-            :data:`DATA_FLAGS`).  With flags on, days whose value was
-            removed by QC are also returned (``value=None``).
+            :data:`DATA_FLAGS`), or ``None`` when neither is set.  With flags
+            on, days whose value was removed by QC are also returned
+            (``value=None``).
 
         Returns
         -------
@@ -1056,12 +1348,13 @@ class CanSWEStyleClient:
         """
         from .._common import coerce_list, date_str  # noqa: PLC0415
 
-        if interval is not None and str(interval).lower() not in ("daily", "periodic"):
+        want_interval = str(interval).lower()
+        if want_interval not in ("daily", "periodic"):
             raise self.ERROR(
                 f"Unsupported interval {interval!r} for {self.NAME} — expected "
-                "'daily' (automated stations), 'periodic' (manual surveys) or None."
+                "'daily' (every station at its own cadence) or 'periodic' "
+                "(manual surveys only)."
             )
-        want_interval = str(interval).lower() if interval is not None else None
         native = self.resolve_variables(variables)
 
         if station_ids is None and bbox is not None:
@@ -1078,7 +1371,7 @@ class CanSWEStyleClient:
             if sta is None:
                 logger.warning("%s: unknown station %s skipped", self.NAME, sid)
                 continue
-            if want_interval and sta["interval"] != want_interval:
+            if want_interval == "periodic" and sta["interval"] != "periodic":
                 logger.warning(
                     "%s: station %s is %s (%s), not %s — skipped",
                     self.NAME,
@@ -1110,7 +1403,7 @@ class CanSWEStyleClient:
                         "interval": ivl,
                     }
                     if include_flags:
-                        rec["flag"] = flag
+                        rec["flag"] = flag if flag.strip(",") else None
                     records.append(rec)
         return records
 

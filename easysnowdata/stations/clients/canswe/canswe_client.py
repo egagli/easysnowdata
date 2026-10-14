@@ -25,10 +25,13 @@ Files used
 ----------
 The latest version is resolved through the Zenodo API
 (``/api/records/4734371/versions/latest``); pass ``record_id=`` to pin
-one.  The netCDF is downloaded once (md5-checked with pooch) into
-``easysnowdata.config.cache_dir("stations", "canswe")`` and read lazily
-(see :mod:`._format`).  If Zenodo cannot be reached, the newest cached
-copy is used.  The CSV in the record's ``.zip`` holds the same data
+one.  On first use the 14 MB netCDF is downloaded once (resumable,
+md5-checked) into ``easysnowdata.config.cache_dir("stations", "canswe")``,
+converted to a ~10 MB Zarr store (about 15 s) and deleted; every later
+call reads the store lazily (see :mod:`._format`).  A new Zenodo version
+is picked up automatically and replaces the old store.  If Zenodo cannot
+be reached, the newest cached store is used.  ``path=`` accepts a local
+netCDF (converted once into the cache, left in place) or a store.  The CSV in the record's ``.zip`` holds the same data
 (``b''``-style Python bytes reprs in its flag columns) and is not used.
 
 Station ids and sources
