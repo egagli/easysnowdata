@@ -7,6 +7,7 @@ GHCN-Daily files (no credentials needed).
 """
 
 import gzip
+import io
 
 import pytest
 
@@ -52,6 +53,11 @@ STATION_CSV = (
 )
 
 
+YEAR_CSV = STATION_CSV + (
+    "RSM00027612,20240101,SNWD,250,,,E,\nRSM00027612,20240101,TMAX,-80,,,E,\n"
+)
+
+
 class _Resp:
     def __init__(self, body: bytes):
         self.content = body
@@ -69,6 +75,7 @@ class _StubSession:
             "ghcnd-stations.txt": STATIONS_TXT.encode(),
             "ghcnd-inventory.txt": INVENTORY_TXT.encode(),
             "by_station/USS0021D08S.csv.gz": gzip.compress(STATION_CSV.encode()),
+            "by_year/2024.csv.gz": gzip.compress(YEAR_CSV.encode()),
         }
 
     def request(self, method, url, params=None, timeout=None):
@@ -78,6 +85,22 @@ class _StubSession:
         resp = _Resp(b"not found")
         resp.ok, resp.status_code = False, 404
         return resp
+
+    def get(self, url, stream=False, timeout=None):
+        resp = self.request("GET", url)
+        resp.raw = io.BytesIO(resp.content)
+        return _Ctx(resp)
+
+
+class _Ctx:
+    def __init__(self, resp):
+        self.resp = resp
+
+    def __enter__(self):
+        return self.resp
+
+    def __exit__(self, *exc):
+        return False
 
 
 @pytest.fixture
@@ -248,6 +271,21 @@ def test_keep_qc_failed_returns_stored_value():
 
 def test_get_data_skips_missing_station(stub_client):
     assert stub_client.get_data(["ZZZ00000000"]) == []
+
+
+def test_get_year_data_streams_and_filters(stub_client):
+    recs = list(stub_client.get_year_data(2024, variables="snwd"))
+    assert {r["station_id"] for r in recs} == {"USS0021D08S", "RSM00027612"}
+    assert all(r["variable"] == "SNWD" for r in recs)
+    moscow = [r for r in recs if r["station_id"] == "RSM00027612"]
+    assert moscow[0]["value"] == pytest.approx(25.0)
+    only = list(stub_client.get_year_data(2024, station_ids="RSM00027612"))
+    assert [r["variable"] for r in only] == ["SNWD"]
+
+
+def test_get_year_data_missing_year_raises(stub_client):
+    with pytest.raises(GHCNDError, match="HTTP 404"):
+        list(stub_client.get_year_data(1700))
 
 
 # ── Live tests ───────────────────────────────────────────────────────────────

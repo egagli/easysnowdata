@@ -56,6 +56,7 @@ import csv
 import gzip
 import io
 import logging
+from collections.abc import Iterator
 from datetime import date
 from typing import Any
 
@@ -87,6 +88,7 @@ _DEFAULT_BACKOFF = 4
 _STATIONS_FILE = "ghcnd-stations.txt"
 _INVENTORY_FILE = "ghcnd-inventory.txt"
 _BY_STATION = "by_station/{station_id}.csv.gz"
+_BY_YEAR = "by_year/{year}.csv.gz"
 
 # GHCN-D marks a missing elevation as -999.9 in ghcnd-stations.txt.
 _MISSING_ELEVATION = -999.9
@@ -317,6 +319,51 @@ def _parse_inventory_txt(
     return inv
 
 
+def _iter_rows(
+    lines: Any,
+    elements: set[str],
+    begin: str | None,
+    end: str | None,
+    station_ids: set[str] | None = None,
+) -> Iterator[tuple[str, str, str, int, str, str, str]]:
+    """Yield ``(station_id, YYYY-MM-DD, element, raw_value, mflag, qflag, sflag)``.
+
+    ``lines`` is any iterable of CSV text lines in the GHCN-D
+    ``ID,YYYYMMDD,ELEMENT,VALUE,MFLAG,QFLAG,SFLAG,OBS_TIME`` layout shared by
+    the ``by_station/`` and ``by_year/`` files.  Rows outside ``[begin, end]``
+    (``YYYY-MM-DD``, either may be ``None``), for other elements, or for
+    stations outside ``station_ids`` are skipped.
+    """
+    begin_key = begin.replace("-", "") if begin else None
+    end_key = end.replace("-", "") if end else None
+    for rec in csv.reader(lines):
+        if len(rec) < 4 or rec[2] not in elements:
+            continue
+        if station_ids is not None and rec[0] not in station_ids:
+            continue
+        day = rec[1]
+        if begin_key and day < begin_key:
+            continue
+        if end_key and day > end_key:
+            continue
+        try:
+            value = int(rec[3])
+        except ValueError:
+            continue
+        mflag = rec[4] if len(rec) > 4 else ""
+        qflag = rec[5] if len(rec) > 5 else ""
+        sflag = rec[6] if len(rec) > 6 else ""
+        yield (
+            rec[0],
+            f"{day[:4]}-{day[4:6]}-{day[6:8]}",
+            rec[2],
+            value,
+            mflag,
+            qflag,
+            sflag,
+        )
+
+
 def _parse_by_station_csv(
     raw: bytes,
     elements: set[str],
@@ -333,28 +380,7 @@ def _parse_by_station_csv(
         text = gzip.decompress(raw).decode("ascii", errors="replace")
     except (OSError, EOFError) as exc:
         raise GHCNDError(f"Could not decompress GHCN-D station file: {exc}") from exc
-    begin_key = begin.replace("-", "") if begin else None
-    end_key = end.replace("-", "") if end else None
-    rows: list[tuple[str, str, int, str, str, str]] = []
-    for rec in csv.reader(io.StringIO(text)):
-        if len(rec) < 4 or rec[2] not in elements:
-            continue
-        day = rec[1]
-        if begin_key and day < begin_key:
-            continue
-        if end_key and day > end_key:
-            continue
-        try:
-            value = int(rec[3])
-        except ValueError:
-            continue
-        mflag = rec[4] if len(rec) > 4 else ""
-        qflag = rec[5] if len(rec) > 5 else ""
-        sflag = rec[6] if len(rec) > 6 else ""
-        rows.append(
-            (f"{day[:4]}-{day[4:6]}-{day[6:8]}", rec[2], value, mflag, qflag, sflag)
-        )
-    return rows
+    return [row[1:] for row in _iter_rows(io.StringIO(text), elements, begin, end)]
 
 
 def _convert(element: str, raw: int) -> float | None:
@@ -642,24 +668,98 @@ class GHCNDClient:
             except GHCNDError as exc:
                 logger.warning("GHCN-D: skipping station %s: %s", sid, exc)
                 continue
-            for day, elem, stored, mflag, qflag, sflag in rows:
-                info = VARIABLES[elem]
-                value = _convert(elem, stored)
-                if qflag.strip() and not self.keep_qc_failed:
-                    value = None
-                rec: dict[str, Any] = {
-                    "station_id": sid,
-                    "date": day,
-                    "variable": elem,
-                    "type": info["type"],
-                    "value": value,
-                    "units": info["output_units"],
-                    "interval": "daily",
-                }
-                if include_flags:
-                    rec["flag"] = f"{mflag},{qflag},{sflag}"
-                records.append(rec)
+            records.extend(
+                self._record(sid, *row, include_flags=include_flags) for row in rows
+            )
         return records
+
+    def get_year_data(
+        self,
+        year: int,
+        station_ids: list[str] | str | None = None,
+        variables: list[str] | str | None = None,
+        begin_date: str | date | None = None,
+        end_date: str | date | None = None,
+        include_flags: bool = False,
+    ) -> Iterator[dict]:
+        """
+        Stream one ``by_year/{year}.csv.gz`` file as observation records.
+
+        The bulk path for refreshing many stations: one download (~115–170 MB
+        compressed for a recent year) instead of one full-record file per
+        station.  NCEI rebuilds the current year's file daily.  Late-arriving
+        sources (COOP paper forms, ECA&D batches) can still add values to the
+        previous year's file for a month or two.
+
+        Parameters
+        ----------
+        year : int
+            Calendar year of the file.
+        station_ids : list[str] or str or None
+            Keep only these stations.  ``None`` keeps every station.
+        variables : list[str] or str or None
+            As in :meth:`get_data`; ``None`` means ``WESD`` and ``SNWD``.
+        begin_date, end_date : str or date, optional
+            Inclusive row filter within the year.
+        include_flags : bool
+            Add ``flag`` = ``"MFLAG,QFLAG,SFLAG"`` to each record.
+
+        Yields
+        ------
+        dict
+            The same records :meth:`get_data` returns, in file order.
+
+        Raises
+        ------
+        GHCNDError
+            On an unknown variable or a failed download.
+        """
+        wanted = set(_resolve_variables(variables))
+        keep = set(_coerce_list(station_ids)) if station_ids is not None else None
+        begin = _date_str(begin_date) if begin_date else None
+        end = _date_str(end_date) if end_date else None
+        url = f"{self.base_url}/{_BY_YEAR.format(year=int(year))}"
+        try:
+            with self._session.get(url, stream=True, timeout=self.timeout) as resp:
+                if not resp.ok:
+                    raise GHCNDError(f"HTTP {resp.status_code} from {url}")
+                resp.raw.decode_content = True
+                with gzip.open(
+                    resp.raw, "rt", encoding="ascii", errors="replace"
+                ) as fh:
+                    for row in _iter_rows(fh, wanted, begin, end, keep):
+                        yield self._record(*row, include_flags=include_flags)
+        except (requests.exceptions.RequestException, OSError, EOFError) as exc:
+            raise GHCNDError(f"Reading {url} failed: {exc}") from exc
+
+    def _record(
+        self,
+        sid: str,
+        day: str,
+        elem: str,
+        stored: int,
+        mflag: str,
+        qflag: str,
+        sflag: str,
+        *,
+        include_flags: bool,
+    ) -> dict[str, Any]:
+        info = VARIABLES[elem]
+        value = _convert(elem, stored)
+        if qflag.strip() and not self.keep_qc_failed:
+            value = None
+        rec: dict[str, Any] = {
+            "station_id": sid,
+            "date": day,
+            "variable": elem,
+            "type": info["type"],
+            "value": value,
+            "units": info["output_units"],
+            "interval": "daily",
+        }
+        if include_flags:
+            rec["flag"] = f"{mflag},{qflag},{sflag}"
+        return rec
 
     # ── Internal helpers ─────────────────────────────────────────────────────
 
