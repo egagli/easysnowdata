@@ -123,6 +123,16 @@ Quality flags
 -------------
 The download carries no quality flags.  :data:`DATA_FLAGS` is empty and
 ``include_flags=True`` adds ``flag: None``.
+
+Design principles
+-----------------
+- Returns plain Python objects (dicts / lists).
+- Metric-first: SWE returned in cm (native mm × 0.1); depth cm, TA °C and
+  PC mm pass through.
+- Missing values are ``None``; snow values outside 0–15 m are nulled.
+- Unknown variables or intervals raise :class:`AlbertaError` (no
+  fallback); a named parameter not offered at ``interval`` raises too.
+- HTTP retries use the shared ``_common.request_with_retries`` loop.
 """
 
 from __future__ import annotations
@@ -255,8 +265,8 @@ VARIABLES: dict[str, dict] = {
     "TA": {
         "name": "Air Temperature",
         "type": "temp",
-        "units": "degC",
-        "output_units": "degC",
+        "units": "°C",
+        "output_units": "°C",
         "scale": 1.0,
         "intervals": ("sub_hourly", "hourly", "daily"),
         "source": _SOURCE,
@@ -368,7 +378,7 @@ def _convert(param: str, raw: Any) -> float | None:
     if value is None:
         return None
     info = VARIABLES[param]
-    value = round(value * info["scale"], 4)
+    value = round(value * info["scale"], 3)
     if info["type"] in ("swe", "snwd") and not (0.0 <= value <= _MAX_SNOW_CM):
         return None
     return value
@@ -405,10 +415,11 @@ def _resolve_variables(variables: list[str] | str | None, interval: str) -> list
     that does not support ``interval``, or for a type with no parameter at
     that interval.
     """
-    if variables is None:
+    items = _coerce_list(variables) if variables is not None else []
+    if not items:
         return list(_DEFAULT_BY_INTERVAL[interval])
     out: list[str] = []
-    for item in _coerce_list(variables):
+    for item in items:
         key = item.strip()
         if key.upper() in VARIABLES:
             native = key.upper()
@@ -607,6 +618,14 @@ class AlbertaClient:
         """
         All ARB stations with automated or manual SWE / snow depth.
 
+        Parameters
+        ----------
+        active_only : bool
+            Keep stations with a ``current`` automated snow series or a snow
+            survey in the last 550 days.
+        bbox : tuple, optional
+            ``(min_lon, min_lat, max_lon, max_lat)``.
+
         Returns
         -------
         list[dict]
@@ -618,6 +637,11 @@ class AlbertaClient:
             ``begin_date``, ``end_date``, ``parameters`` and
             ``station_url``.  Stations without coordinates are dropped when
             ``bbox`` is given.
+
+        Raises
+        ------
+        AlbertaError
+            On a catalog query failure.
         """
         stations = list(self._stations().values())
         if active_only:
@@ -627,10 +651,22 @@ class AlbertaClient:
 
     def get_metadata(self, station_id: str) -> dict:
         """
-        Station dict plus ``data_variables`` (one entry per parameter ×
-        supported interval) with ``name``, ``type``, ``interval``,
-        ``units``, ``description``, ``notes``, ``begin_date``, ``end_date``
-        and ``n_obs`` (``None``).  Dates are MST.
+        Metadata and series inventory for one station.
+
+        Parameters
+        ----------
+        station_id : str
+            ARB station number, e.g. ``"05BB803"``.
+
+        Returns
+        -------
+        dict
+            The :meth:`get_all_stations` dict plus ``data_variables`` (one
+            entry per parameter × supported interval) with ``name``,
+            ``type``, ``interval``, ``units`` (emitted), ``description``,
+            ``notes``, ``begin_date``, ``end_date`` and ``n_obs``
+            (``None``), plus the WISKI ``ts_id`` / ``ts_name``.  Dates are
+            MST.
 
         Raises
         ------
@@ -673,10 +709,28 @@ class AlbertaClient:
     def download_series(
         self, ts_id: str, begin_date: str, end_date: str
     ) -> tuple[dict, list[tuple[datetime, Any]]]:
-        """Raw WISKI download for one ``tsId`` (inclusive ``YYYY-MM-DD``).
+        """
+        Raw WISKI download for one time series.
 
-        Returns ``(header, rows)``; rows are ``(naive MST datetime, raw
-        value)``.
+        Parameters
+        ----------
+        ts_id : str
+            WISKI time-series id (``tsID`` / ``TsIdLowres`` from the catalog).
+        begin_date, end_date : str
+            Inclusive ``YYYY-MM-DD`` bounds (MST).
+
+        Returns
+        -------
+        tuple[dict, list[tuple[datetime, Any]]]
+            ``(header, rows)``; ``header`` is the download's metadata
+            (``station_no``, ``stationparameter_name``, ``ts_name``, …) and
+            rows are ``(naive MST datetime, raw value)`` in native units.
+
+        Raises
+        ------
+        AlbertaError
+            On a failed request (HTTP 500 for an unknown ``tsId``) or an
+            unexpected payload.
         """
         qs = urllib.parse.urlencode(
             {
@@ -743,6 +797,18 @@ class AlbertaClient:
             If neither ``station_ids`` nor ``bbox`` is given.
         AlbertaError
             On an unknown variable or unsupported interval.
+
+        Example
+        -------
+        >>> client = AlbertaClient()
+        >>> records = client.get_data(
+        ...     station_ids="05BB803",
+        ...     variables=["swe"],
+        ...     begin_date="2026-03-01",
+        ...     end_date="2026-03-15",
+        ... )
+        >>> records[0]["units"]
+        'cm'
         """
         iv = _check_interval(interval)
         params = _resolve_variables(variables, iv)
@@ -876,7 +942,8 @@ def _build_station(sid: str, pars: dict[str, dict], point: dict | None) -> dict:
         if p in pars
     ]
     recent_survey = any(
-        d is not None and (datetime.now() - d).days <= _SURVEY_ACTIVE_DAYS
+        d is not None
+        and (datetime.now(MST).replace(tzinfo=None) - d).days <= _SURVEY_ACTIVE_DAYS
         for d in survey_end
     )
     starts = [

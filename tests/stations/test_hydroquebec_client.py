@@ -28,6 +28,7 @@ from easysnowdata.stations.clients.hydroquebec.hydroquebec_client import (
     _site_date,
     _station_code,
 )
+from easysnowdata.stations.networks import canonical_units
 from tests.stations.conftest import RECORD_KEYS
 
 SWE = "Équivalent en eau de la neige"
@@ -179,6 +180,14 @@ def test_variables_use_shared_vocabulary():
         assert info["type"] in TYPES, key
 
 
+def test_output_units_are_canonical():
+    """Typed variables emit exactly the networks.TYPES unit (DESIGN.md §3.5)."""
+    for reg in (VARIABLES,):
+        for key, info in reg.items():
+            if info["type"] != "other":
+                assert info["output_units"] == canonical_units(info["type"]), key
+
+
 def test_snow_variables_emit_cm():
     assert VARIABLES[SWE]["output_units"] == "cm"
     assert VARIABLES[SD]["output_units"] == "cm"
@@ -222,7 +231,13 @@ def test_aggregate_methods():
     assert _aggregate("sum", hours) == pytest.approx(MIN_HOURS_DAILY)
     assert _aggregate("sum", hours[:-1]) is None  # too few hours
     assert _aggregate("max", [1.0] * 19 + [5.0]) == 5.0
-    assert _aggregate("circmean", [350.0] * 10 + [10.0] * 10) in (0.0, 360.0)
+    assert _aggregate("circmean", [350.0] * 10 + [10.0] * 10) == 0.0
+
+
+def test_circmean_wraps_to_zero_not_360():
+    # atan2 gives a tiny negative angle here; it must wrap to 0.0, not 360.0.
+    assert _aggregate("circmean", [350.0, 10.0] * 12) == 0.0
+    assert _aggregate("circmean", [90.0] * 24) == 90.0
 
 
 def test_build_stations_status_and_flags():

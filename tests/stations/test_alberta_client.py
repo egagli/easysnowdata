@@ -25,6 +25,7 @@ from easysnowdata.stations.clients.alberta.alberta_client import (
     _resolve_variables,
     _split_name,
 )
+from easysnowdata.stations.networks import canonical_units
 from tests.stations.conftest import RECORD_KEYS
 
 
@@ -230,6 +231,14 @@ def test_variables_use_shared_vocabulary():
         assert set(info["intervals"]) <= INTERVALS, key
 
 
+def test_output_units_are_canonical():
+    """Typed variables emit exactly the networks.TYPES unit (DESIGN.md §3.5)."""
+    for reg in (VARIABLES,):
+        for key, info in reg.items():
+            if info["type"] != "other":
+                assert info["output_units"] == canonical_units(info["type"]), key
+
+
 def test_snow_variables_emit_cm():
     for key, info in VARIABLES.items():
         if info["type"] in {"swe", "snwd"}:
@@ -291,6 +300,7 @@ def test_daily_means_require_coverage():
 def test_resolve_defaults_per_interval():
     assert _resolve_variables(None, "daily") == ["SW", "SD"]
     assert _resolve_variables(None, "periodic") == ["SW-SS", "SD-SS"]
+    assert _resolve_variables([], "daily") == ["SW", "SD"]  # empty = default
 
 
 def test_resolve_types_follow_interval():
@@ -410,7 +420,7 @@ def test_ta_daily_is_computed_when_aggregate_is_other_sensor(client):
     assert [(r["date"], r["value"]) for r in recs] == [
         ("2026-03-01", pytest.approx(11.5))
     ]
-    assert recs[0]["units"] == "degC"
+    assert recs[0]["units"] == "°C"
 
 
 def test_pc_daily_total(client):

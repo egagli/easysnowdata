@@ -207,10 +207,11 @@ class SYKEError(Exception):
 
 def _resolve_variables(variables: list[str] | str | None) -> list[str]:
     """Map native codes or standardized types to native codes."""
-    if variables is None:
+    items = _coerce_list(variables) if variables is not None else []
+    if not items:
         return list(_DEFAULT_VARS)
     out: list[str] = []
-    for v in _coerce_list(variables):
+    for v in items:
         if v in VARIABLES:
             codes = [v]
         elif v.upper() in VARIABLES:
@@ -447,6 +448,13 @@ class SYKEClient:
         """
         All Syke snow courses (``Suure_Id`` 8).
 
+        Parameters
+        ----------
+        active_only : bool
+            Keep sites whose ``Tila`` is continuous or fixed-term.
+        bbox : tuple, optional
+            ``(min_lon, min_lat, max_lon, max_lat)``.
+
         Returns
         -------
         list[dict]
@@ -457,6 +465,11 @@ class SYKEClient:
             ETRS-TM35FIN coordinates and ``station_url`` (``None``).  The
             period of record is not in the site table; use
             :meth:`get_metadata`.
+
+        Raises
+        ------
+        SYKEError
+            On an API failure.
         """
         sites = [dict(s) for s in self._sites(SUURE_SNOW_COURSE)]
         if active_only:
@@ -468,7 +481,26 @@ class SYKEClient:
         active_only: bool = False,
         bbox: tuple[float, float, float, float] | None = None,
     ) -> list[dict]:
-        """Areal-SWE units (``Suure_Id`` 7), same schema as stations."""
+        """
+        Areal-SWE units (``Suure_Id`` 7).
+
+        Parameters
+        ----------
+        active_only : bool
+            Keep units whose ``Tila`` is continuous or fixed-term.
+        bbox : tuple, optional
+            ``(min_lon, min_lat, max_lon, max_lat)``.
+
+        Returns
+        -------
+        list[dict]
+            Same schema as :meth:`get_all_stations`.
+
+        Raises
+        ------
+        SYKEError
+            On an API failure.
+        """
         sites = [dict(s) for s in self._sites(SUURE_AREAL_SWE)]
         if active_only:
             sites = [s for s in sites if s["status"] == "Active"]
@@ -504,10 +536,25 @@ class SYKEClient:
         Works for snow courses and for areal-SWE units (``variable`` "SA",
         ``interval`` "semi_monthly").
 
+        Parameters
+        ----------
+        station_id : str
+            ``Paikka_Id`` of a snow course or areal-SWE unit.
+
+        Returns
+        -------
+        dict
+            The station dict plus ``kind`` (``"snow_course"`` / ``"areal"``)
+            and ``data_variables``: one entry with ``name``, ``type``,
+            ``interval``, ``units`` (emitted), ``description``, ``notes``,
+            ``begin_date``, ``end_date`` and ``n_obs`` (from the data
+            table).
+
         Raises
         ------
         SYKEError
-            If the id is neither a snow course nor an areal-SWE unit.
+            If the id is neither a snow course nor an areal-SWE unit, or on
+            an API failure.
         """
         sid = str(station_id)
         for suure, table, reg, interval in (
@@ -586,7 +633,28 @@ class SYKEClient:
         Returns
         -------
         list[dict]
-            ``{station_id, date, variable, type, value, units, interval}``.
+            ``{station_id, date, variable, type, value, units, interval}``
+            (+ ``flag``).
+
+        Raises
+        ------
+        ValueError
+            If neither ``station_ids`` nor ``bbox`` is given.
+        SYKEError
+            On an unknown variable, unsupported interval, non-integer
+            station id or API failure.
+
+        Example
+        -------
+        >>> client = SYKEClient()
+        >>> stations = client.get_all_stations(active_only=True)
+        >>> records = client.get_data(
+        ...     station_ids=stations[0]["station_id"],
+        ...     begin_date="2024-01-01",
+        ...     end_date="2024-05-31",
+        ... )
+        >>> records[0]["units"]
+        'cm'
         """
         if interval.lower() != "periodic":
             raise SYKEError(
@@ -621,10 +689,29 @@ class SYKEClient:
         """
         Areal (catchment-average) SWE, ``interval="semi_monthly"``.
 
-        ``area_ids`` are areal-unit Paikka_Ids (see :meth:`get_areal_units`);
-        with neither ``area_ids`` nor ``bbox`` every unit is fetched (≈116 000
-        rows for the full record — pass dates).  Records use variable
-        ``"SA"`` and units cm.
+        Parameters
+        ----------
+        area_ids : list[str] or str or None
+            Areal-unit ``Paikka_Id`` values (see :meth:`get_areal_units`).
+            With neither ``area_ids`` nor ``bbox`` every unit is fetched
+            (≈116 000 rows for the full record — pass dates).
+        bbox : tuple, optional
+            ``(min_lon, min_lat, max_lon, max_lat)``.
+        begin_date, end_date : str or date, optional
+            Inclusive ``YYYY-MM-DD`` bounds (applied server side).
+        active_only : bool
+            When resolving units from ``bbox`` / all units, keep active ones.
+
+        Returns
+        -------
+        list[dict]
+            ``{station_id, date, variable ("SA"), type, value (cm), units,
+            interval ("semi_monthly")}`` records.
+
+        Raises
+        ------
+        SYKEError
+            On an API failure.
         """
         if area_ids is not None:
             ids = _coerce_list(area_ids)

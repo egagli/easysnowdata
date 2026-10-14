@@ -27,6 +27,7 @@ from easysnowdata.stations.clients.rihmi.rihmi_client import (
     _resolve_variables,
     parse_aisori_text,
 )
+from easysnowdata.stations.networks import canonical_units
 from tests.stations.conftest import RECORD_KEYS
 
 # Real-layout lines from G01170 station.loc (Murmansk is in both RIHMI
@@ -147,6 +148,14 @@ def test_variables_use_shared_vocabulary():
         if info["type"] in {"swe", "snwd"}:
             assert info["output_units"] == "cm", key
     assert VARIABLES["DENSITY"]["output_units"] == "%"
+
+
+def test_output_units_are_canonical():
+    """Typed variables emit exactly the networks.TYPES unit (DESIGN.md §3.5)."""
+    for reg in (VARIABLES,):
+        for key, info in reg.items():
+            if info["type"] != "other":
+                assert info["output_units"] == canonical_units(info["type"]), key
 
 
 def test_data_flags_documented():
@@ -372,6 +381,18 @@ def test_download_error_raises(tmp_path):
     client = RIHMIClient(cache_dir=tmp_path, session=session, max_retries=1)
     with pytest.raises(RIHMIError, match="404"):
         client.get_data("22113", end_date="1980-01-01")
+
+
+def test_base_url_override(tmp_path):
+    sess = _StubSession()
+    client = RIHMIClient(
+        base_url="https://mirror.example/G01170/",
+        cache_dir=tmp_path / "cache",
+        session=sess,
+        max_retries=1,
+    )
+    assert client.get_all_stations()
+    assert sess.calls == ["https://mirror.example/G01170/station.loc"]
 
 
 # ── Live tests (NSIDC G01170, no credentials) ───────────────────────────────

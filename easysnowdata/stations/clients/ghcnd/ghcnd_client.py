@@ -13,6 +13,9 @@ SNOTEL stations duplicate what the AWDB client already serves.
 Data source       : https://www.ncei.noaa.gov/pub/data/ghcn/daily/
 Format reference  : https://www.ncei.noaa.gov/pub/data/ghcn/daily/readme.txt
 Authentication    : none
+Licence           : none stated in ``readme.txt``; NCEI asks users to cite
+                    Menne et al. (2012), doi:10.1175/JTECH-D-11-00103.1, and
+                    the dataset version, doi:10.7289/V5D21VHZ.
 
 Files used
 ----------
@@ -48,6 +51,9 @@ Design principles
   ``MFLAG,QFLAG,SFLAG`` triple either way.
 - Physically implausible snow values are nulled with per-type clamps.
 - Only ``interval="daily"`` exists; anything else raises.
+- Missing values (``-9999``) are ``None``; HTTP retries use the shared
+  ``_common.request_with_retries`` loop (except the streamed ``by_year``
+  read, which ``get_year_data`` performs directly).
 """
 
 from __future__ import annotations
@@ -176,7 +182,7 @@ VARIABLES: dict[str, dict] = {
         "name": "Average Air Temperature",
         "type": "temp",
         "units": "tenths of degC",
-        "output_units": "degC",
+        "output_units": "°C",
         "scale": 0.1,
         "source": _GHCND_SOURCE,
         "description": "Daily mean air temperature.",
@@ -189,7 +195,7 @@ VARIABLES: dict[str, dict] = {
         "name": "Maximum Air Temperature",
         "type": "temp_max",
         "units": "tenths of degC",
-        "output_units": "degC",
+        "output_units": "°C",
         "scale": 0.1,
         "source": _GHCND_SOURCE,
         "description": "Daily maximum air temperature.",
@@ -199,7 +205,7 @@ VARIABLES: dict[str, dict] = {
         "name": "Minimum Air Temperature",
         "type": "temp_min",
         "units": "tenths of degC",
-        "output_units": "degC",
+        "output_units": "°C",
         "scale": 0.1,
         "source": _GHCND_SOURCE,
         "description": "Daily minimum air temperature.",
@@ -513,6 +519,11 @@ class GHCNDClient:
             ``gsn``, ``hcn_crn``, ``wmo_id``, ``has_swe``, ``has_snwd``,
             ``elements`` (``{code: {first_year, last_year}}``) and
             ``station_url``.
+
+        Raises
+        ------
+        GHCNDError
+            On an unknown element code or a failed inventory download.
         """
         wanted = set(_coerce_list(elements))
         unknown = wanted - set(VARIABLES)
@@ -546,9 +557,27 @@ class GHCNDClient:
         active_only: bool = False,
         bbox: tuple[float, float, float, float] | None = None,
     ) -> list[dict]:
-        """All GHCN-D stations reporting snow depth or SWE (any network).
+        """
+        All GHCN-D stations reporting snow depth or SWE (any network).
 
-        See :meth:`get_stations` for the schema and for dropping networks.
+        Parameters
+        ----------
+        active_only : bool
+            Keep only stations whose latest snow-element year is this year
+            or last.
+        bbox : tuple, optional
+            ``(min_lon, min_lat, max_lon, max_lat)``.
+
+        Returns
+        -------
+        list[dict]
+            Same schema as :meth:`get_stations` (which can also drop
+            networks).
+
+        Raises
+        ------
+        GHCNDError
+            If the station or inventory file cannot be downloaded.
         """
         return self.get_stations(active_only=active_only, bbox=bbox)
 
@@ -556,11 +585,20 @@ class GHCNDClient:
         """
         Metadata and element inventory for one station.
 
-        Returns the :meth:`get_stations` dict plus ``data_variables``: one
-        entry per known element with ``name``, ``type``, ``interval``,
-        ``units`` (emitted), ``description``, ``notes``, ``begin_date``,
-        ``end_date`` and ``n_obs`` (``None`` — the inventory does not say).
-        Dates are year-resolution (``"YYYY-01-01"`` / ``"YYYY-12-31"``).
+        Parameters
+        ----------
+        station_id : str
+            GHCN-D station id, e.g. ``"USS0021D08S"``.
+
+        Returns
+        -------
+        dict
+            The :meth:`get_stations` dict plus ``data_variables``: one
+            entry per known element with ``name``, ``type``, ``interval``,
+            ``units`` (emitted), ``description``, ``notes``, ``begin_date``,
+            ``end_date`` and ``n_obs`` (``None`` — the inventory does not
+            say).  Dates are year-resolution (``"YYYY-01-01"`` /
+            ``"YYYY-12-31"``).
 
         Raises
         ------
@@ -593,7 +631,24 @@ class GHCNDClient:
     # ── Public API — data ────────────────────────────────────────────────────
 
     def get_station_file(self, station_id: str) -> bytes:
-        """Raw ``by_station/{ID}.csv.gz`` bytes for one station."""
+        """
+        Raw ``by_station/{ID}.csv.gz`` bytes for one station.
+
+        Parameters
+        ----------
+        station_id : str
+            GHCN-D station id.
+
+        Returns
+        -------
+        bytes
+            The gzipped CSV, full period of record.
+
+        Raises
+        ------
+        GHCNDError
+            If the file cannot be downloaded (HTTP 404 for an unknown id).
+        """
         return self._get(_BY_STATION.format(station_id=station_id)).content
 
     def get_data(
@@ -642,6 +697,18 @@ class GHCNDClient:
             If neither ``station_ids`` nor ``bbox`` is provided.
         GHCNDError
             On an unknown variable or interval.
+
+        Example
+        -------
+        >>> client = GHCNDClient()
+        >>> records = client.get_data(
+        ...     station_ids="USS0021D08S",
+        ...     variables=["snwd"],
+        ...     begin_date="2024-01-01",
+        ...     end_date="2024-01-15",
+        ... )
+        >>> records[0]["units"]
+        'cm'
         """
         if interval.lower() != "daily":
             raise GHCNDError(

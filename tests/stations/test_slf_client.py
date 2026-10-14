@@ -27,6 +27,7 @@ from easysnowdata.stations.clients.slf.slf_client import (
     _resolve_variables,
     lv03_to_wgs84,
 )
+from easysnowdata.stations.networks import canonical_units
 from tests.stations.conftest import RECORD_KEYS
 
 # ── Synthetic payloads in the real formats ───────────────────────────────────
@@ -242,6 +243,14 @@ def test_variables_use_shared_vocabulary():
     assert DATA_FLAGS == {}
 
 
+def test_output_units_are_canonical():
+    """Typed variables emit exactly the networks.TYPES unit (DESIGN.md §3.5)."""
+    for reg in (VARIABLES,):
+        for key, info in reg.items():
+            if info["type"] != "other":
+                assert info["output_units"] == canonical_units(info["type"]), key
+
+
 def test_datasets_reference_known_variables_and_intervals():
     for ds, spec in DATASETS.items():
         for var, vspec in spec["variables"].items():
@@ -449,6 +458,19 @@ def test_imis_daily_and_sub_hourly(tmp_path):
     assert len([r for r in sub if r["variable"] == "HS"]) == 1
     with pytest.raises(SLFError):
         c.get_data("WFJ2", variables="HN_1D", interval="sub_hourly")
+
+
+def test_base_url_override(tmp_path):
+    sess = _StubSession()
+    client = SLFClient(
+        "study_plot",
+        cache_dir=tmp_path,
+        base_url="https://mirror.example/slf/",
+        session=sess,
+        max_retries=1,
+    )
+    assert client.get_all_stations()
+    assert sess.calls == ["https://mirror.example/slf/study-plot/stations.csv"]
 
 
 # ── Live ─────────────────────────────────────────────────────────────────────

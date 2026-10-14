@@ -103,6 +103,17 @@ Unverified
   39 blank-``Abgabe`` water_equiv stations had no data file at all.
 - DWD docs give no explicit "active" definition; ``status`` here is
   derived from the station list's ``bis_datum``.
+
+Design principles
+-----------------
+- Returns plain Python objects (dicts / lists).
+- Metric-first: SWE returned in cm (native mm × 0.1); depths cm and
+  precipitation mm pass through.
+- ``-999`` → ``None`` (shared ``_common`` sentinel policy); days without a
+  value are omitted rather than emitted as ``None``.  Snow values outside
+  0–15 m (new snow 0–5 m) are nulled.
+- Only ``interval="daily"`` exists; anything else raises :class:`DWDError`.
+- HTTP retries use the shared ``_common.request_with_retries`` loop.
 """
 
 from __future__ import annotations
@@ -129,6 +140,9 @@ from .._common import (
 )
 from .._common import (
     request_with_retries,
+)
+from .._common import (
+    to_float as _to_float,
 )
 
 logger = logging.getLogger(__name__)
@@ -165,8 +179,6 @@ _ACTIVE_DAYS = 400
 #: ``recent/`` holds roughly the last 500 days; skip it for windows that
 #: end well before that.
 _RECENT_SPAN_DAYS = 600
-
-_MISSING = -999.0
 
 # Plausibility bounds in output units (DESIGN.md: SWE/depth 0–15 m).
 _MAX_PLAUSIBLE = {
@@ -407,20 +419,10 @@ def _parse_produkt(raw: bytes) -> tuple[list[str], dict[str, dict[str, Any]]]:
             continue
         row: dict[str, Any] = {}
         for i, h in value_cols:
-            row[h] = _to_value(rec[i]) if i < len(rec) else None
+            row[h] = _to_float(rec[i]) if i < len(rec) else None
         row["QN_6"] = rec[i_qn].strip() if i_qn is not None and i_qn < len(rec) else ""
         rows[_ymd(day)] = row
     return [h for _, h in value_cols], rows
-
-
-def _to_value(text: str) -> float | None:
-    try:
-        v = float(text.strip())
-    except ValueError:
-        return None
-    if v == _MISSING or v != v:
-        return None
-    return v
 
 
 def _convert(var: str, stored: float | None) -> float | None:
@@ -563,6 +565,11 @@ class DWDClient:
             ``begin_date``, ``end_date``, ``swe_begin_date``,
             ``swe_end_date`` and ``station_url`` (``None`` — DWD has no
             per-station page).
+
+        Raises
+        ------
+        DWDError
+            On an unknown product or a failed station-list download.
         """
         wanted = _coerce_list(products)
         unknown = set(wanted) - set(PRODUCTS)
@@ -637,9 +644,26 @@ class DWDClient:
         active_only: bool = False,
         bbox: tuple[float, float, float, float] | None = None,
     ) -> list[dict]:
-        """All SWE (water_equiv) and snow-depth (more_precip) stations.
+        """
+        All SWE (water_equiv) and snow-depth (more_precip) stations.
 
-        See :meth:`get_stations` for the schema and for one product only.
+        Parameters
+        ----------
+        active_only : bool
+            Keep stations whose latest ``bis_datum`` is within ~400 days.
+        bbox : tuple, optional
+            ``(min_lon, min_lat, max_lon, max_lat)``.
+
+        Returns
+        -------
+        list[dict]
+            Same schema as :meth:`get_stations` (which can also select one
+            product).
+
+        Raises
+        ------
+        DWDError
+            If a station list cannot be downloaded.
         """
         return self.get_stations(active_only=active_only, bbox=bbox)
 
@@ -647,17 +671,27 @@ class DWDClient:
         """
         Metadata and variable inventory for one station.
 
-        Returns the :meth:`get_stations` dict plus ``data_variables``: one
-        entry per variable available from the station's products, with
-        ``name``, ``type``, ``interval``, ``units`` (emitted),
-        ``description``, ``notes``, ``begin_date``/``end_date`` (from the
-        product station list: the period of record of the product, not
-        of the individual column) and ``n_obs`` (``None``).
+        Parameters
+        ----------
+        station_id : str or int
+            DWD station id, with or without zero padding (``"00020"``,
+            ``20``).
+
+        Returns
+        -------
+        dict
+            The :meth:`get_stations` dict plus ``data_variables``: one entry
+            per variable available from the station's products, with
+            ``name``, ``type``, ``interval``, ``units`` (emitted),
+            ``description``, ``notes``, ``begin_date``/``end_date`` (from
+            the product station list: the period of record of the product,
+            not of the individual column) and ``n_obs`` (``None``).
 
         Raises
         ------
         DWDError
-            If the station is in neither station list.
+            If the id is not numeric or the station is in neither station
+            list.
         """
         sid = _pad_id(station_id)
         matches = [s for s in self.get_stations() if s["station_id"] == sid]
@@ -697,10 +731,30 @@ class DWDClient:
         """
         Merged historical + recent rows for one station and product.
 
-        Returns ``{YYYY-MM-DD: {column: stored value or None, "QN_6": str}}``
-        in native units.  Historical rows win on overlapping dates.  Files
-        that cannot hold the window (by historical file name / recent span)
-        are not downloaded.  Returns ``{}`` when the station has no file.
+        Historical rows win on overlapping dates.  Files that cannot hold
+        the window (by historical file name / recent span) are not
+        downloaded.
+
+        Parameters
+        ----------
+        station_id : str or int
+            DWD station id.
+        product : str
+            ``"water_equiv"`` or ``"more_precip"``.
+        begin_date, end_date : str or date, optional
+            Inclusive ``YYYY-MM-DD`` bounds.
+
+        Returns
+        -------
+        dict
+            ``{YYYY-MM-DD: {column: stored value or None, "QN_6": str}}`` in
+            native units; ``{}`` when the station has no file.
+
+        Raises
+        ------
+        DWDError
+            On an unknown product, a bad station id, a failed download or a
+            malformed zip.
         """
         if product not in PRODUCTS:
             raise DWDError(f"Unknown DWD product {product!r}")
@@ -776,6 +830,18 @@ class DWDClient:
             If neither ``station_ids`` nor ``bbox`` is provided.
         DWDError
             On an unknown variable or interval.
+
+        Example
+        -------
+        >>> client = DWDClient()
+        >>> records = client.get_data(
+        ...     station_ids="00020",
+        ...     variables=["snwd"],
+        ...     begin_date="2024-01-01",
+        ...     end_date="2024-01-15",
+        ... )
+        >>> records[0]["units"]
+        'cm'
         """
         if str(interval).lower() != "daily":
             raise DWDError(

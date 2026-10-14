@@ -98,6 +98,21 @@ timezone; Eastern time, with DST) using:
 Non-``last`` aggregations require at least :data:`MIN_HOURS_DAILY` valid
 hours in the day, otherwise the value is ``None`` (this mainly affects the
 first and last day of the rolling window).
+
+Design principles
+-----------------
+- Returns plain Python objects (dicts / lists).
+- Metric-first: SWE returned in cm (native mm × 0.1); everything else
+  keeps its (already metric) native unit.
+- ``-999.00`` sentinels and junk rows are ``None`` / dropped; SWE and
+  depth outside 0–15 m, negative precipitation and RH outside 0–100 % are
+  nulled.
+- ``interval`` defaults to ``"hourly"`` — the only native cadence;
+  ``"daily"`` is aggregated in-client as described above.  Anything else
+  raises :class:`HydroQuebecError`.
+- The feed has no quality flags; ``include_flags=True`` adds the native
+  ``type_mesure`` as ``flag`` (see :data:`DATA_FLAGS`).
+- HTTP retries use the shared ``_common.request_with_retries`` loop.
 """
 
 from __future__ import annotations
@@ -106,6 +121,7 @@ import logging
 import math
 import re
 from collections import defaultdict
+from collections.abc import Iterator
 from datetime import UTC, date, datetime, timedelta, timezone
 from typing import Any
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -240,7 +256,7 @@ VARIABLES: dict[str, dict] = {
         "name": "Maximum Air Temperature",
         "type": "temp_max",
         "units": "°C",
-        "output_units": "degC",
+        "output_units": "°C",
         "scale": 1.0,
         "daily": "max",
         "measure": "Maximum",
@@ -252,7 +268,7 @@ VARIABLES: dict[str, dict] = {
         "name": "Minimum Air Temperature",
         "type": "temp_min",
         "units": "°C",
-        "output_units": "degC",
+        "output_units": "°C",
         "scale": 1.0,
         "daily": "min",
         "measure": "Minimum",
@@ -291,7 +307,7 @@ VARIABLES: dict[str, dict] = {
         "name": "Wind Direction (10 m)",
         "type": "wind_dir",
         "units": "°",
-        "output_units": "deg",
+        "output_units": "degrees",
         "scale": 1.0,
         "daily": "circmean",
         "measure": "Instantanée",
@@ -318,7 +334,7 @@ VARIABLES: dict[str, dict] = {
         "name": "Discharge",
         "type": "other",
         "units": "m³/s",
-        "output_units": "m3/s",
+        "output_units": "m³/s",
         "scale": 1.0,
         "daily": "mean",
         "measure": "Moyenne",
@@ -330,7 +346,7 @@ VARIABLES: dict[str, dict] = {
         "name": "Water Temperature",
         "type": "other",
         "units": "°C",
-        "output_units": "degC",
+        "output_units": "°C",
         "scale": 1.0,
         "daily": "mean",
         "measure": "Moyenne",
@@ -392,7 +408,7 @@ def _convert(variable: str, raw: Any) -> float | None:
     if value is None:
         return None
     info = VARIABLES[variable]
-    value = round(value * info["scale"], 4)
+    value = round(value * info["scale"], 3)
     if info["type"] in ("swe", "snwd") and not (0.0 <= value <= _SNOW_MAX_CM):
         return None
     if info["type"] == "precip" and value < 0:
@@ -423,7 +439,9 @@ def _aggregate(method: str, values: list[float]) -> float | None:
         c = sum(math.cos(math.radians(v)) for v in values)
         if abs(s) < 1e-9 and abs(c) < 1e-9:
             return None
-        return round(math.degrees(math.atan2(s, c)) % 360.0, 1)
+        # Round before wrapping: a tiny negative angle would otherwise
+        # wrap to 359.9999… and round up to 360.0.
+        return round(math.degrees(math.atan2(s, c)), 3) % 360.0
     raise HydroQuebecError(f"Unknown daily aggregation {method!r}")
 
 
@@ -650,11 +668,29 @@ class HydroQuebecClient:
         active_only: bool = False,
         bbox: tuple[float, float, float, float] | None = None,
     ) -> list[dict]:
-        """All stations listing SWE or snow depth.
+        """
+        All stations listing SWE or snow depth.
 
         ``status`` is ``"Active"`` when the station has at least one valid
-        (non ``-999``) value of any variable in the rolling window.  See
-        :meth:`get_stations` for the schema and for non-snow stations.
+        (non ``-999``) value of any variable in the rolling window.
+
+        Parameters
+        ----------
+        active_only : bool
+            Keep stations with at least one valid value in the window.
+        bbox : tuple, optional
+            ``(min_lon, min_lat, max_lon, max_lat)``.
+
+        Returns
+        -------
+        list[dict]
+            Same schema as :meth:`get_stations` (which also lists non-snow
+            stations).
+
+        Raises
+        ------
+        HydroQuebecError
+            On a portal failure.
         """
         return self.get_stations(active_only=active_only, bbox=bbox)
 
@@ -662,9 +698,25 @@ class HydroQuebecClient:
         """
         Metadata and variable inventory for one station.
 
-        ``data_variables`` has one entry per variable the station lists,
-        with ``begin_date``/``end_date``/``n_obs`` describing the
-        **current rolling window** only (valid hourly values).
+        Parameters
+        ----------
+        station_id : str
+            Hydro-Québec ``identifiant``, e.g. ``"1-10613"``.
+
+        Returns
+        -------
+        dict
+            The :meth:`get_stations` dict plus ``data_variables``: one entry
+            per variable the station lists, with ``name``, ``type``,
+            ``interval`` (``"hourly"``), ``units`` (emitted),
+            ``description``, ``notes``, and ``begin_date``/``end_date``/
+            ``n_obs`` describing the **current rolling window** only (valid
+            hourly values).
+
+        Raises
+        ------
+        HydroQuebecError
+            If the station is not in the feed, or on a portal failure.
         """
         sta = self._station_table().get(station_id)
         if sta is None:
@@ -697,7 +749,30 @@ class HydroQuebecClient:
         begin_utc: datetime | None = None,
         end_utc: datetime | None = None,
     ) -> list[dict]:
-        """Raw portal rows (junk ``date = null`` rows excluded)."""
+        """
+        Raw portal rows (junk ``date = null`` rows excluded).
+
+        Parameters
+        ----------
+        station_ids : list[str]
+            Hydro-Québec ``identifiant`` values.
+        variables : list[str]
+            Native French variable labels.
+        begin_utc, end_utc : datetime, optional
+            Half-open UTC bounds ``[begin_utc, end_utc)``.
+
+        Returns
+        -------
+        list[dict]
+            Portal rows with ``identifiant``, the variable label, measure
+            kind, unit, ``date`` (UTC ISO) and ``valeur`` (text), ordered by
+            ``date``.
+
+        Raises
+        ------
+        HydroQuebecError
+            On a portal failure.
+        """
         where = [
             "date is not null",
             f"identifiant in ({_quote_list(station_ids)})",
@@ -769,6 +844,15 @@ class HydroQuebecClient:
             If neither ``station_ids`` nor ``bbox`` is provided.
         HydroQuebecError
             On an unknown variable, unsupported interval or portal error.
+
+        Example
+        -------
+        >>> client = HydroQuebecClient()
+        >>> records = client.get_data(
+        ...     bbox=(-80.0, 45.0, -57.0, 63.0), variables=["swe"], interval="daily"
+        ... )
+        >>> records[0]["units"]
+        'cm'
         """
         interval = (interval or "").lower()
         if interval not in _SUPPORTED_INTERVALS:
@@ -823,7 +907,9 @@ class HydroQuebecError(Exception):
 # ── Record builders ──────────────────────────────────────────────────────────
 
 
-def _iter_rows(rows: list[dict]):
+def _iter_rows(
+    rows: list[dict],
+) -> Iterator[tuple[str, str, datetime, str | None, float | None]]:
     """Yield ``(sid, variable, utc datetime, measure, value)`` for usable rows,
     de-duplicated on (sid, variable, datetime) preferring the variable's
     native ``measure`` (two sites carry both mean and instantaneous level)."""

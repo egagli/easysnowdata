@@ -144,6 +144,7 @@ Design principles
 - Physically implausible snow values are nulled (SWE/depth 0–15 m).
 - ``interval`` is ``"periodic"`` (route surveys) or ``"daily"`` (snow
   cover); anything else raises :class:`RIHMIError`.
+- NSIDC downloads use the shared ``_common.request_with_retries`` loop.
 """
 
 from __future__ import annotations
@@ -658,7 +659,7 @@ def _convert(variable: str, raw: float | None) -> float | None:
     lo, hi = info["valid_range"] or (float("-inf"), float("inf"))
     if not (lo <= raw <= hi):
         return None
-    value = round(raw * info["scale"], 4)
+    value = round(raw * info["scale"], 3)
     if info["type"] in ("swe", "snwd") and not (0.0 <= value <= _MAX_SNOW_CM):
         return None
     return value
@@ -786,6 +787,11 @@ def parse_aisori_text(text: str, kind: str | None = None) -> list[dict[str, Any]
         (``None`` when missing).  Lines that do not start with a 5-digit
         index and a 4-digit year, or whose field count does not fit, are
         skipped.
+
+    Raises
+    ------
+    RIHMIError
+        If ``kind`` is not one of the accepted values.
     """
     if kind not in (None, "route_survey", "snow_cover"):
         raise RIHMIError(f"Unknown export kind {kind!r}")
@@ -892,6 +898,8 @@ class RIHMIClient:
     cache_dir : str or Path, optional
         Where the G01170 tar files are cached (~50 MB).  Defaults to
         ``easysnowdata.config.cache_dir("stations", "rihmi")``.
+    base_url : str
+        Root of the NSIDC G01170 archive.  Override for a mirror.
     timeout, max_retries, backoff : int
         HTTP settings for the NSIDC downloads.
     session : requests.Session, optional
@@ -903,6 +911,7 @@ class RIHMIClient:
         data_dir: str | os.PathLike | None = None,
         use_nsidc: bool = True,
         cache_dir: str | os.PathLike | None = None,
+        base_url: str = NSIDC_BASE_URL,
         timeout: int = _DEFAULT_TIMEOUT,
         max_retries: int = _DEFAULT_RETRIES,
         backoff: int = _DEFAULT_BACKOFF,
@@ -911,6 +920,7 @@ class RIHMIClient:
         self.data_dir = Path(data_dir) if data_dir is not None else None
         self.use_nsidc = use_nsidc
         self._cache_dir = Path(cache_dir) if cache_dir is not None else None
+        self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.max_retries = max_retries
         self.backoff = backoff
@@ -932,14 +942,14 @@ class RIHMIClient:
         return self._cache_dir
 
     def _nsidc_file(self, rel: str) -> Path:
-        """Return the cached path of ``NSIDC_BASE_URL/rel``, downloading once."""
+        """Return the cached path of ``base_url/rel``, downloading once."""
         path = self._cache_root() / "g01170" / rel
         if path.exists() and path.stat().st_size > 0:
             return path
         path.parent.mkdir(parents=True, exist_ok=True)
         resp = request_with_retries(
             self._session,
-            f"{NSIDC_BASE_URL}/{rel}",
+            f"{self.base_url}/{rel}",
             error_cls=RIHMIError,
             timeout=self.timeout,
             max_retries=self.max_retries,
@@ -1061,6 +1071,14 @@ class RIHMIClient:
         Every station in the RIHMI route-survey and snow-cover catalogues and
         (when ``use_nsidc``) NSIDC G01170's ``station.loc``.
 
+        Parameters
+        ----------
+        active_only : bool
+            Keep only catalogue-``"Active"`` stations (see the module
+            docstring).
+        bbox : tuple, optional
+            ``(min_lon, min_lat, max_lon, max_lat)``.
+
         Returns
         -------
         list[dict]
@@ -1070,6 +1088,11 @@ class RIHMIClient:
             ``measurement_method``, ``has_swe``, ``has_snwd``, catalogue
             membership flags, start years, ``public_period``,
             ``login_period``, ``note`` and ``station_url``.
+
+        Raises
+        ------
+        RIHMIError
+            If NSIDC's ``station.loc`` cannot be downloaded.
         """
         ids = set(self._routes_cat) | set(self._cover_cat) | set(self._nsidc_stations())
         out = [s for sid in sorted(ids) if (s := self._build_station(sid)) is not None]
@@ -1081,6 +1104,21 @@ class RIHMIClient:
         """
         Station dict plus ``data_variables``.
 
+        Parameters
+        ----------
+        station_id : str
+            WMO index, e.g. ``"22113"`` (zero-padded to 5 digits).
+
+        Returns
+        -------
+        dict
+            The :meth:`get_all_stations` dict plus ``data_variables``, one
+            entry per variable with ``name``, ``type``, ``interval``,
+            ``units`` (emitted), ``description``, ``notes``,
+            ``begin_date``, ``end_date`` and ``n_obs``.
+
+        Notes
+        -----
         Route-survey variables are listed when the station is in the RIHMI
         route catalogue or NSIDC (NSIDC-only stations list just the fields
         NSIDC carries); snow-cover variables when it is in the snow-cover
@@ -1196,6 +1234,18 @@ class RIHMIClient:
         RIHMIError
             Unknown variable, interval, route type or source; daily data
             requested with no local export; download failure.
+
+        Example
+        -------
+        >>> client = RIHMIClient()
+        >>> records = client.get_data(
+        ...     station_ids="22113",
+        ...     variables=["swe"],
+        ...     begin_date="1985-01-01",
+        ...     end_date="1985-04-30",
+        ... )
+        >>> records[0]["units"], records[0]["route_type"]
+        ('cm', 'field')
         """
         interval = interval.lower()
         if interval not in _DEFAULT_VARS:

@@ -26,6 +26,7 @@ from easysnowdata.stations.clients.dwd.dwd_client import (
     _parse_station_list,
     _resolve_variables,
 )
+from easysnowdata.stations.networks import canonical_units
 from tests.stations.conftest import RECORD_KEYS
 
 # Real-layout station lists.  The water_equiv list pads the coordinates
@@ -168,6 +169,14 @@ def test_variables_use_shared_vocabulary():
     for key, info in VARIABLES.items():
         assert required | {"source"} <= set(info), key
         assert info["type"] in TYPES, key
+
+
+def test_output_units_are_canonical():
+    """Typed variables emit exactly the networks.TYPES unit (DESIGN.md §3.5)."""
+    for reg in (VARIABLES,):
+        for key, info in reg.items():
+            if info["type"] != "other":
+                assert info["output_units"] == canonical_units(info["type"]), key
 
 
 def test_snow_variables_emit_cm():

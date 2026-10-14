@@ -48,8 +48,9 @@ Terms of use   : https://www.slf.ch/en/services-and-products/slf-data-service/
                  link to www.slf.ch; do not overload SLF infrastructure).
                  EnviDat datasets carry the licence on their CKAN record.
 
-Design notes
-------------
+Design principles
+-----------------
+- Returns plain Python objects (dicts / lists).
 - Metric-first: SWE (mm) is returned in cm; HS/HN stay in cm; HNW in mm;
   air temperature in °C.  Missing values (``-9999``, empty) → ``None``.
 - Physically implausible snow values are nulled with scoped clamps
@@ -71,6 +72,7 @@ Design notes
   "slf")`` and refreshed after ``cache_ttl_hours`` (static datasets never
   expire).  The live API (https://measurement-api.slf.ch, last 1–7 days)
   is not used: the file service already carries data to yesterday.
+- HTTP retries use the shared ``_common.request_with_retries`` loop.
 """
 
 from __future__ import annotations
@@ -279,7 +281,7 @@ VARIABLES: dict[str, dict] = {
         "name": "Air Temperature",
         "type": "temp",
         "units": "degC",
-        "output_units": "degC",
+        "output_units": "°C",
         "scale": 1.0,
         "description": "Air temperature, mean over the last 30 minutes.",
         "notes": "IMIS only, interval 'sub_hourly'.",
@@ -516,6 +518,9 @@ class SLFClient:
         ``easysnowdata.config.cache_dir("stations", "slf")``.
     cache_ttl_hours : float
         Re-download a cached file of a non-static dataset older than this.
+    base_url : str
+        Root of the SLF measurement-data file service (``study_plot`` and
+        ``imis``).  The EnviDat datasets are resolved through CKAN.
     timeout, max_retries, backoff : int
         HTTP settings passed to the shared retry loop.
     session : requests.Session or None
@@ -527,6 +532,7 @@ class SLFClient:
         dataset: str = DEFAULT_DATASET,
         cache_dir: str | Path | None = None,
         cache_ttl_hours: float = _DEFAULT_TTL_HOURS,
+        base_url: str = MEASUREMENT_DATA_URL,
         timeout: int = _DEFAULT_TIMEOUT,
         max_retries: int = _DEFAULT_RETRIES,
         backoff: int = _DEFAULT_BACKOFF,
@@ -539,6 +545,7 @@ class SLFClient:
             cache_dir = _cache_dir("stations", "slf")
         self.cache_dir = Path(cache_dir)
         self.cache_ttl_hours = cache_ttl_hours
+        self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.max_retries = max_retries
         self.backoff = backoff
@@ -577,7 +584,24 @@ class SLFClient:
         return body
 
     def ckan_package(self, ckan_id: str | None = None) -> dict:
-        """The EnviDat CKAN ``package_show`` record for the dataset."""
+        """
+        The EnviDat CKAN ``package_show`` record for a dataset.
+
+        Parameters
+        ----------
+        ckan_id : str, optional
+            CKAN package id; defaults to the selected dataset's.
+
+        Returns
+        -------
+        dict
+            The ``result`` object of the CKAN response (cached).
+
+        Raises
+        ------
+        SLFError
+            On a failed request or an unsuccessful CKAN reply.
+        """
         ckan_id = ckan_id or DATASETS[self.dataset]["ckan_id"]
         if ckan_id not in self._ckan:
             resp = self._get(CKAN_URL, params={"id": ckan_id})
@@ -672,13 +696,16 @@ class SLFClient:
     def _measurement_frame(self, station_id: str, interval: str) -> pd.DataFrame:
         if self.dataset == "study_plot":
             name = f"{station_id}.csv"
-            url = f"{MEASUREMENT_DATA_URL}/study-plot/data/by_station/{name}"
+            url = f"{self.base_url}/study-plot/data/by_station/{name}"
         elif interval == "daily":
             name = f"daily_snow_{station_id}.csv"
-            url = f"{MEASUREMENT_DATA_URL}/imis/data/daily_snow_values/daily_snow_by_station/{name}"
+            url = (
+                f"{self.base_url}/imis/data/daily_snow_values/"
+                f"daily_snow_by_station/{name}"
+            )
         else:
             name = f"{station_id}.csv"
-            url = f"{MEASUREMENT_DATA_URL}/imis/data/by_station/{name}"
+            url = f"{self.base_url}/imis/data/by_station/{name}"
         key = f"{self.dataset}:{interval}:{station_id}"
         if key not in self._frames:
             text = self._cached(name, url).decode("utf-8", errors="replace")
@@ -758,7 +785,7 @@ class SLFClient:
         else:
             folder = "study-plot" if self.dataset == "study_plot" else "imis"
             text = self._cached(
-                "stations.csv", f"{MEASUREMENT_DATA_URL}/{folder}/stations.csv"
+                "stations.csv", f"{self.base_url}/{folder}/stations.csv"
             ).decode("utf-8", errors="replace")
             df = pd.read_csv(io.StringIO(text), dtype=str).fillna("")
             for _, row in df.iterrows():
@@ -798,6 +825,14 @@ class SLFClient:
         """
         All stations of the selected dataset.
 
+        Parameters
+        ----------
+        active_only : bool
+            Keep only ``"Active"`` stations (see the module docstring for
+            each dataset's definition).
+        bbox : tuple, optional
+            ``(min_lon, min_lat, max_lon, max_lat)``.
+
         Returns
         -------
         list[dict]
@@ -807,6 +842,11 @@ class SLFClient:
             (``"first/last"`` where known), ``has_swe``, ``has_snwd``,
             ``station_url``; ``study_plot``/``imis`` add ``network`` and
             ``station_type``; ``new_snow`` adds LV03 coordinates.
+
+        Raises
+        ------
+        SLFError
+            If the station list or data file cannot be fetched or parsed.
         """
         out = [dict(s) for s in self._station_table().values()]
         if active_only:
@@ -891,6 +931,18 @@ class SLFClient:
             If neither ``station_ids`` nor ``bbox`` is given.
         SLFError
             On an unknown variable / interval, or a source failure.
+
+        Example
+        -------
+        >>> client = SLFClient("gcos")
+        >>> records = client.get_data(
+        ...     station_ids="5WJ",
+        ...     variables=["swe"],
+        ...     begin_date="2024-01-01",
+        ...     end_date="2024-05-31",
+        ... )
+        >>> records[0]["units"], records[0]["interval"]
+        ('cm', 'periodic')
         """
         wanted = _resolve_variables(self.dataset, variables, interval)
         if station_ids is not None:
@@ -942,9 +994,22 @@ class SLFClient:
         """
         Station dict plus ``data_variables`` for one station.
 
-        ``begin_date``/``end_date``/``n_obs`` are computed from the data
-        file (non-missing values) except for IMIS 30-minute variables,
-        whose files are large; those report ``None``.
+        Parameters
+        ----------
+        station_id : str
+            Dataset station code, e.g. ``"5WJ"`` (gcos).
+
+        Returns
+        -------
+        dict
+            The :meth:`get_all_stations` dict plus ``terms_url`` and
+            ``data_variables``: one entry per variable × interval with
+            ``name``, ``type``, ``interval``, ``units`` (emitted),
+            ``description``, ``notes``, ``begin_date``, ``end_date`` and
+            ``n_obs``.  These are computed from the data file (non-missing
+            values; variables without any are omitted) except for IMIS
+            30-minute variables, whose files are large; those report
+            ``None``.
 
         Raises
         ------

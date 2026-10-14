@@ -22,6 +22,7 @@ from easysnowdata.stations.clients.syke.syke_client import (
     _site_coords,
     _tm35fin_to_wgs84,
 )
+from easysnowdata.stations.networks import canonical_units
 from tests.stations.conftest import RECORD_KEYS
 
 BASE = "https://example.test/odata"
@@ -192,8 +193,17 @@ def test_registries_use_shared_vocab():
     assert "96" in DATA_FLAGS
 
 
+def test_output_units_are_canonical():
+    """Typed variables emit exactly the networks.TYPES unit (DESIGN.md §3.5)."""
+    for reg in (VARIABLES, AREAL_VARIABLES):
+        for key, info in reg.items():
+            if info["type"] != "other":
+                assert info["output_units"] == canonical_units(info["type"]), key
+
+
 def test_resolve_variables():
     assert _resolve_variables(None) == ["S"]
+    assert _resolve_variables([]) == ["S"]  # empty = default
     assert _resolve_variables("swe") == ["S"]
     assert _resolve_variables(["S", "s"]) == ["S"]
     with pytest.raises(SYKEError):
