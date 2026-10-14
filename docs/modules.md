@@ -16,6 +16,16 @@ supporting modules sit underneath them.
   archive of all five in one request.
   [Examples](auto_examples/stations/index.rst) · {doc}`API <api/stations>`
 
+`esd.stations.clients` — other station datasets
+: Station data that is *not* one of the five daily networks above, read only
+  through its own client: GHCN-Daily snow depth worldwide, CanSWE and NorSWE
+  (historical SWE, mostly snow courses), Hydro-Québec's gamma SWE sensors,
+  Alberta's pillows and courses, Germany's DWD, Finland's Syke, Switzerland's
+  SLF and Russia's route snow surveys. Much of it is periodic SWE or daily snow
+  depth rather than daily SWE, so it is kept out of `inventory()`, `load()` and
+  the daily archive; every record says its own `interval`.
+  [Examples](auto_examples/station_datasets/index.rst)
+
 `esd.snow`
 : Gridded snow products: MODIS and VIIRS snow cover, {term}`SNODAS` and the UCLA
   snow reanalysis ({term}`SWE` and depth), the Sturm & Liston snow classes, and a

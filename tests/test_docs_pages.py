@@ -20,6 +20,11 @@ from easysnowdata.catalog import pages
 REPO_ROOT = Path(__file__).resolve().parent.parent
 GALLERY = REPO_ROOT / "docs" / "gallery"
 
+#: Gallery sections whose examples belong to no catalog product: ``tools/``
+#: (AOI, time, water years) and ``station_datasets/`` (the clients-only
+#: station datasets, kept apart from the five daily station networks).
+NON_PRODUCT_SECTIONS = ("tools", "station_datasets")
+
 #: Products with no gallery example, and why. Anything else must have one.
 #: Empty since 0.3: every product is drawn somewhere in the gallery.
 NO_EXAMPLE: dict[str, str] = {}
@@ -64,9 +69,7 @@ class TestGalleryLinks:
         on_disk = {
             path.relative_to(GALLERY).as_posix()
             for path in GALLERY.rglob("plot_*.py")
-            # tools/ holds the cross-cutting examples (AOI, time, water years)
-            # that belong to no single product.
-            if path.relative_to(GALLERY).parts[0] != "tools"
+            if path.relative_to(GALLERY).parts[0] not in NON_PRODUCT_SECTIONS
         }
         assert on_disk - claimed == set(), (
             "gallery scripts no catalog entry claims: "
@@ -91,7 +94,7 @@ class TestCredentialMarkers:
         # secrets; the pull-request build still needs something to execute.
         assert len(free) >= 5
         sections = {Path(name).parent.name for name in requirements}
-        assert sections <= {*catalog.KNOWN_THEMES, "tools"}
+        assert sections <= {*catalog.KNOWN_THEMES, *NON_PRODUCT_SECTIONS}
 
     def test_pattern_selects_exactly_the_free_examples(self, esd_docs):
         pattern = re.compile(esd_docs.credential_free_pattern())
@@ -105,8 +108,8 @@ class TestCredentialMarkers:
         An example may go beyond its product's default route to compare a
         credentialed alternative (SNODAS against its Earth Engine mirror), so
         extra markers are allowed when some route of some product the example
-        draws requires them. The tools examples belong to no product and are
-        checked only for known providers.
+        draws requires them. Examples in :data:`NON_PRODUCT_SECTIONS` belong to
+        no product and are checked only for known providers.
         """
         requirements = esd_docs.example_requirements()
         claimed: dict[str, set[str]] = {}
@@ -115,7 +118,9 @@ class TestCredentialMarkers:
                 claimed.setdefault(example, set()).add(product.id)
         for name, needs in requirements.items():
             if name not in claimed:
-                assert Path(name).parts[0] == "tools", f"{name} is unclaimed"
+                assert Path(name).parts[0] in NON_PRODUCT_SECTIONS, (
+                    f"{name} is unclaimed"
+                )
                 continue
             products = [catalog.get(pid) for pid in claimed[name]]
             # the default route of at least one claiming product must be covered

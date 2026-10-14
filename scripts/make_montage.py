@@ -28,7 +28,14 @@ DEFAULT_OUT = Path("docs/_build/html/_static/gallery.webp")
 
 #: Themes in the order the gallery shows them — the catalog's order, then the
 #: cross-cutting tools section — so the montage is stable between builds.
-ORDER = (*KNOWN_THEMES, "tools")
+ORDER = (
+    *(
+        d
+        for theme in KNOWN_THEMES
+        for d in ((theme, "station_datasets") if theme == "stations" else (theme,))
+    ),
+    "tools",
+)
 
 
 def _was_executed(thumb: Path) -> bool:
