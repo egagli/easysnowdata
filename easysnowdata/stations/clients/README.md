@@ -30,8 +30,9 @@ time-series data.
 14. [SYKEClient — Syke hydrology API (Finland)](#14-sykeclient)
 15. [SLFClient — WSL-SLF (Switzerland)](#15-slfclient)
 16. [RIHMIClient — RIHMI-WDC / NSIDC G01170 (Russia, FSU)](#16-rihmiclient)
-17. [Error Handling](#17-error-handling)
-18. [Adding a New Client](#18-adding-a-new-client)
+17. [SouthernAndesClient — Southern Andes snow depth (Chile, Argentina)](#17-southernandesclient)
+18. [Error Handling](#18-error-handling)
+19. [Adding a New Client](#19-adding-a-new-client)
 
 ---
 
@@ -1108,7 +1109,7 @@ for rec in c.get_year_data(2026, station_ids=["RSM00027612", "USC00457780"]):
 
 ## 8. Other SWE and snow-depth clients: overview
 
-The eight clients in §9–§16 follow the same contract (DESIGN.md §3) but
+The nine clients in §9–§17 follow the same contract (DESIGN.md §3) but
 are **not wired into** `stations.networks`, the catalog,
 `inventory()`/`load()` or the `global_snow_networks` archive. Use them
 directly. All are exported from `easysnowdata.stations.clients`, need no
@@ -1128,6 +1129,7 @@ window of a season.
 | [`SYKEClient`](#14-sykeclient) | SYKE Hydrologiarajapinta OData | 392 snow courses (150 active) | manual, monthly Nov–May | none | 1947–present | CC BY 4.0 |
 | [`SLFClient`](#15-slfclient) | SLF on EnviDat / measurement-data.slf.ch | 11 GCOS SWE sites; 135 study plots; 179 IMIS | manual, every ~15 days | none | GCOS from 1936; yearly | CC BY 4.0 / ODbL |
 | [`RIHMIClient`](#16-rihmiclient) | NSIDC G01170 mirror + AISORI-M exports | 1,552 (517 route surveys) | manual route surveys every 10 days | none (NSIDC); free AISORI-M account | public 1966–1996; current data via a scripted AISORI-M export | NSIDC: open with citation; RIHMI: none stated |
+| [`SouthernAndesClient`](#17-southernandesclient) | Southern Andes snow depth (Zenodo, Medina Mendoza & Caro 2026) | 69 (57 reporting in 2024) | no SWE: ultrasonic snow depth, daily | none | 2010–2024; versioned | CC BY 4.0 |
 
 Overlaps to know about: NorSWE contains CanSWE, SNOTEL, NRCS courses,
 CDEC, NVE, SYKE, SLF GCOS and RIHMI route surveys; CanSWE contains the
@@ -2233,7 +2235,133 @@ else NSIDC's Latin), `name_latin`, `latitude`, `longitude`,
 
 ---
 
-## 17. Error Handling
+## 17. SouthernAndesClient
+
+**Module:** `easysnowdata.stations.clients.southern_andes.southern_andes_client`
+**Source:** *The Southern Andes Daily Snow Depth Dataset (2010–2024)*,
+Medina Mendoza & Caro (2026), Zenodo concept record 19560127
+(<https://doi.org/10.5281/zenodo.19560127>; checked: record 21577171,
+<https://doi.org/10.5281/zenodo.21577171>), described in Caro et al. (2026),
+*ESSD* 18, 7097–7123, <https://doi.org/10.5194/essd-18-7097-2026>
+**Auth:** none
+**Licence:** CC BY 4.0; cite the dataset and the paper.
+**Status:** not wired into `stations.networks`, the catalog or
+`global_snow_networks`.
+
+Daily snow depth from 69 automatic stations in the Andes of Chile and
+Argentina, 21–54° S and 30–5,804 m, 2010–2024, quality controlled by the
+authors (baseline correction, spike removal, physical limits, and a
+cross-check against precipitation and air temperature). Networks: DGA (52,
+Chile), IANIGLA (8, Argentina), CEAZA (7, Chile), CIEP (2, Chile). Sensors
+are ultrasonic (Campbell SR50A, at most DGA stations replaced by a Lufft
+SHM31). **There is no SWE.**
+
+```python
+from easysnowdata.stations.clients import SouthernAndesClient
+from easysnowdata.stations.clients.southern_andes.southern_andes_client import (
+    VARIABLES, DATA_FLAGS, NETWORKS, NETWORK_URLS,
+)
+client = SouthernAndesClient()
+```
+
+### Variables
+
+| Key | `type` | Native | Emitted | Interval |
+|---|---|---|---|---|
+| `SD` | `snwd` | cm (daily mean) | cm | `daily` |
+
+Depths outside 0–15 m are nulled (none were in October 2026).
+
+### Flags
+
+None: `DATA_FLAGS` is empty. Values the authors' quality control removed
+are missing from the file. `include_flags=True` adds `flag=None`.
+
+### Constructor
+
+```python
+SouthernAndesClient(
+    path: str | PathLike | None = None,       # folder holding the two CSVs
+    record_id: str | None = None,             # pin a Zenodo version
+    cache_dir: str | PathLike | None = None,  # default cache_dir("stations", "southern_andes")
+    timeout: int = 120,
+    max_retries: int = 3,
+    backoff: int = 4,
+    session: requests.Session | None = None,
+)
+```
+
+### Key methods
+
+#### `get_all_stations(active_only, bbox, networks)` → `list[dict]`
+
+All stations; `networks=` keeps `"DGA"`, `"IANIGLA"`, `"CEAZA"` and/or
+`"CIEP"`.
+
+#### `get_metadata(station_id)` → `dict`
+
+Station dict plus `data_variables` (one `SD` entry with the first and last
+value in the data file and `n_obs`).
+
+#### `get_data(station_ids, variables, bbox, begin_date, end_date, interval, include_flags)` → `list[dict]`
+
+Only `interval="daily"`; `variables` is `"SD"` / `"snwd"` (asking for SWE
+raises). One record per day with a value in the file.
+
+```python
+recs = client.get_data("5703009", begin_date="2023-06-01", end_date="2023-09-30")
+# → {"station_id": "5703009", "date": "2023-06-01", "variable": "SD",
+#    "type": "snwd", "value": 1.0, "units": "cm", "interval": "daily"}
+```
+
+#### `dataset_files()` → `(Path, Path)`
+
+The local data and metadata CSVs, downloading them on first use.
+
+### Station dict schema
+
+`station_id` (kept verbatim: DGA/CEAZA/CIEP numeric codes such as
+`"5703009"`, IANIGLA names such as `"Capayan"`), `name`, `latitude`,
+`longitude`, `elevation_m`, `status`, `network` (the file's `source`),
+`operator` (from `NETWORKS`), `country` (`"CL"` / `"AR"`), `basin`,
+`sensor`, `measurement_method`, `begin_date` / `end_date` /
+`potential_days` / `effective_days` (from the metadata file), `first_obs` /
+`last_obs` / `n_snwd` (from the data file), `has_swe` (`False`),
+`has_snwd`, `station_url` (the network's own data portal).
+
+### Files used
+
+The latest version is found through the Zenodo API and its two CSVs (about
+0.9 MB together) are downloaded once, md5-checked, into
+`cache_dir / <record id>`. A new version is picked up automatically; if
+Zenodo cannot be reached, the newest cached version is used.
+
+- `Southern_Andes_Snow_Depth_Dataset_v4.2.csv`: wide, a `date` column
+  (every day 2010-06-11 to 2024-12-31) and one column per station, daily
+  mean depth in cm with two decimals.
+- `Station_metadata_for_snow_depth_observations.csv`: one row per
+  station (coordinates, elevation, basin, network, sensor, period and day
+  counts).
+
+### Notes and gotchas
+
+- Three cells of record 21577171 hold quoted text instead of a number
+  (`","` twice, `",0.45"` once); they are read as missing days. With that,
+  every station's first date and day count match the metadata file.
+- The paper reports 81 stations after quality control; the Zenodo files
+  hold 69. The University of Chile stations the paper includes are not
+  in them.
+- Records are short: most stations start between 2015 and 2022, and the
+  median station has about 1,300 days of data (108,383 values in all).
+- `status` is "Active" when a station reported in the dataset's final year
+  (2024) and that year is at most two years ago: it means "still in the
+  latest version", not "reporting today".
+- The authors' compilation comes from each network's own portal
+  (`NETWORK_URLS`); those portals, not this file, carry data after 2024.
+
+---
+
+## 18. Error Handling
 
 | Client | Exception | Scenarios |
 |---|---|---|
@@ -2251,6 +2379,7 @@ else NSIDC's Latin), `name_latin`, `latitude`, `longitude`,
 | SYKEClient | `SYKEError` | HTTP 4xx/5xx (incl. OData filter-size 400), unknown variable or interval, non-integer station id |
 | SLFClient | `SLFError` | HTTP 4xx/5xx, EnviDat lookup failure, unknown dataset, variable or interval not in dataset |
 | RIHMIClient | `RIHMIError` | NSIDC download failure, АИСОРИ-М export failure, unreadable export, unknown variable, interval, route type or source, daily data without an export |
+| SouthernAndesClient | `SouthernAndesError` | Zenodo lookup/download failure, unexpected file layout, unknown station, network, variable or interval |
 
 All exceptions are subclasses of `Exception` with descriptive messages.
 
@@ -2262,7 +2391,7 @@ from easysnowdata.stations.clients.nve import NVEClient, NVEError
 from easysnowdata.stations.clients.yukon import YukonClient, YukonError
 from easysnowdata.stations.clients.ghcnd import GHCNDClient, GHCNDError
 # ... and likewise CanSWEError, NorSWEError, HydroQuebecError, AlbertaError,
-# DWDError, SYKEError, SLFError and RIHMIError, all also re-exported from
+# DWDError, SYKEError, SLFError, RIHMIError and SouthernAndesError, all also re-exported from
 # easysnowdata.stations.clients.
 
 try:
@@ -2276,7 +2405,7 @@ with linear backoff up to `max_retries` attempts.
 
 ---
 
-## 18. Adding a New Client
+## 19. Adding a New Client
 
 The full normative contract and checklist live in
 [DESIGN.md](https://github.com/egagli/global_snow_networks/blob/main/DESIGN.md) §3 and the

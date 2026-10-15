@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import importlib
 import inspect
+import logging as logging_std
 import re
 import types
 from pathlib import Path
@@ -425,7 +426,28 @@ def generate_catalog(app: Sphinx) -> None:
     logger.info("[esd] wrote %d catalog pages", len(written))
 
 
+class _UnreachableInventoryFilter(logging_std.Filter):
+    """Log an unreachable intersphinx inventory as info, not as a warning.
+
+    A peer's ``objects.inv`` being offline (a 404 or a timeout) is not a fault
+    in these docs, yet under ``-W`` its warning fails the build. Sphinx gives
+    the warning no type, so ``suppress_warnings`` cannot select it; this
+    filter matches its message instead. Cross-references into that project
+    simply render as plain text for that build.
+    """
+
+    def filter(self, record: logging_std.LogRecord) -> bool:
+        if record.levelno == logging_std.WARNING and str(record.msg).startswith(
+            "failed to reach any of the inventories"
+        ):
+            record.levelno, record.levelname = logging_std.INFO, "INFO"
+        return True
+
+
 def setup(app: Sphinx) -> dict[str, object]:
+    logging_std.getLogger("sphinx.sphinx.ext.intersphinx").addFilter(
+        _UnreachableInventoryFilter()
+    )
     app.connect("builder-inited", generate_api, priority=100)
     # After sphinx-gallery's generate_gallery_rst (priority 500), so the
     # catalog pages can link the thumbnails it has just written.

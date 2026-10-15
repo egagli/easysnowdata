@@ -14,7 +14,8 @@ They differ from the daily networks in what they measure and how often.
   four weeks: CanSWE and NorSWE (mostly), Finland's SYKE, Switzerland's SLF and
   Russia's RIHMI-WDC.
 - **Snow depth, daily.** GHCN-Daily worldwide, DWD in Germany: many stations,
-  but daily SWE at only a few.
+  but daily SWE at only a few. The Southern Andes dataset (Chile and
+  Argentina) is snow depth only.
 - **Daily SWE that is new.** Hydro-Québec's gamma sensors (a rolling 10-day
   feed), the automated stations in CanSWE, and Alberta's pillows (which AWDB
   also mirrors).
