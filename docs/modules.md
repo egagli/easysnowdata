@@ -21,7 +21,8 @@ supporting modules sit underneath them.
   through its own client: GHCN-Daily snow depth worldwide, CanSWE and NorSWE
   (historical SWE, mostly snow courses), Hydro-Québec's gamma SWE sensors,
   Alberta's pillows and courses, Germany's DWD, Finland's Syke, Switzerland's
-  SLF, Russia's route snow surveys and daily snow depth in the Southern Andes.
+  SLF, Russia's route snow surveys, daily snow depth in the Southern Andes, and
+  Andean snow pillows and sensors from Argentina's SNIH and Chile's CEAZA.
   Much of it is periodic SWE or daily snow
   depth rather than daily SWE, so it is kept out of `inventory()`, `load()` and
   the daily archive; every record says its own `interval`.

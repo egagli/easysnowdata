@@ -33,6 +33,8 @@ from easysnowdata.stations.clients.cdec.cdec_client import (
     _normalise_cdec_date,
     _resolve_variables_to_cdec_sensors,
 )
+from easysnowdata.stations.clients.ceaza import CEAZAClient, CEAZAError
+from easysnowdata.stations.clients.ceaza import ceaza_client as ceaza
 from easysnowdata.stations.clients.databc import DataBCClient, DataBCError
 from easysnowdata.stations.clients.dwd import DWDClient, DWDError
 from easysnowdata.stations.clients.dwd import dwd_client as dwd
@@ -51,6 +53,8 @@ from easysnowdata.stations.clients.rihmi import RIHMIClient, RIHMIError
 from easysnowdata.stations.clients.rihmi import rihmi_client as rihmi
 from easysnowdata.stations.clients.slf import SLFClient, SLFError
 from easysnowdata.stations.clients.slf import slf_client as slf
+from easysnowdata.stations.clients.snih import SNIHClient, SNIHError
+from easysnowdata.stations.clients.snih import snih_client as snih
 from easysnowdata.stations.clients.southern_andes import (
     SouthernAndesClient,
     SouthernAndesError,
@@ -330,6 +334,8 @@ _ALL_CLIENT_MODULES = (
     "slf",
     "rihmi",
     "southern_andes",
+    "snih",
+    "ceaza",
 )
 
 
@@ -429,7 +435,7 @@ def test_awdb_get_metadata_for_one_rejected_triplet_still_raises(monkeypatch):
 # ══ Clients added in October 2026 ════════════════════════════════════════════
 #
 # Same contract points as above, for GHCN-D, Hydro-Québec, Alberta, DWD,
-# Syke, SLF, RIHMI and the Southern Andes dataset.  Every constructor here is network-free; methods
+# Syke, SLF, RIHMI, the Southern Andes dataset, SNIH and CEAZA.  Every constructor here is network-free; methods
 # that would download are stubbed on the instance.
 
 
@@ -441,6 +447,8 @@ _NEW_CLIENTS = (
     (SYKEClient, SYKEError, "1", "daily"),
     (RIHMIClient, RIHMIError, "27612", "hourly"),
     (SouthernAndesClient, SouthernAndesError, "5703009", "periodic"),
+    (SNIHClient, SNIHError, "19145", "hourly"),
+    (CEAZAClient, CEAZAError, "TPF", "periodic"),
 )
 
 
@@ -499,6 +507,8 @@ def test_new_clients_snow_output_units_are_cm():
         "slf": slf.VARIABLES,
         "rihmi": rihmi.VARIABLES,
         "southern_andes": southern_andes.VARIABLES,
+        "snih": snih.VARIABLES,
+        "ceaza": ceaza.VARIABLES,
     }
     bad = {
         (name, key): info["output_units"]

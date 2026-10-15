@@ -170,8 +170,12 @@ def request_with_retries(
     max_retries: int = 3,
     backoff: int = 4,
     method: str = "GET",
+    json: Any = None,
 ) -> requests.Response:
     """One retry policy for every client.
+
+    ``json`` is sent as a JSON request body (for POST APIs such as ASP.NET
+    page methods); ``params`` stay in the query string.
 
     - Network errors and HTTP 5xx retry with linear backoff
       (``backoff × attempt`` seconds).
@@ -184,7 +188,12 @@ def request_with_retries(
     """
     for attempt in range(1, max_retries + 1):
         try:
-            response = session.request(method, url, params=params, timeout=timeout)
+            if json is None:
+                response = session.request(method, url, params=params, timeout=timeout)
+            else:
+                response = session.request(
+                    method, url, params=params, json=json, timeout=timeout
+                )
         except requests.exceptions.RequestException as exc:
             logger.warning(
                 "Request failed (attempt %d/%d): %s",
