@@ -10,6 +10,10 @@ from .norswe.norswe_client import NorSWEClient, NorSWEError
 from .nve.nve_client import NVEClient, NVEError
 from .rihmi.rihmi_client import RIHMIClient, RIHMIError
 from .slf.slf_client import SLFClient, SLFError
+from .southern_andes.southern_andes_client import (
+    SouthernAndesClient,
+    SouthernAndesError,
+)
 from .syke.syke_client import SYKEClient, SYKEError
 from .yukon.yukon_client import YukonClient, YukonError
 
@@ -40,6 +44,8 @@ __all__ = [
     "SLFError",
     "SYKEClient",
     "SYKEError",
+    "SouthernAndesClient",
+    "SouthernAndesError",
     "YukonClient",
     "YukonError",
 ]

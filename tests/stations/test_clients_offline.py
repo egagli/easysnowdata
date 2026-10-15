@@ -51,6 +51,13 @@ from easysnowdata.stations.clients.rihmi import RIHMIClient, RIHMIError
 from easysnowdata.stations.clients.rihmi import rihmi_client as rihmi
 from easysnowdata.stations.clients.slf import SLFClient, SLFError
 from easysnowdata.stations.clients.slf import slf_client as slf
+from easysnowdata.stations.clients.southern_andes import (
+    SouthernAndesClient,
+    SouthernAndesError,
+)
+from easysnowdata.stations.clients.southern_andes import (
+    southern_andes_client as southern_andes,
+)
 from easysnowdata.stations.clients.syke import SYKEClient, SYKEError
 from easysnowdata.stations.clients.syke import syke_client as syke
 from easysnowdata.stations.clients.yukon import YukonClient, YukonError
@@ -322,6 +329,7 @@ _ALL_CLIENT_MODULES = (
     "syke",
     "slf",
     "rihmi",
+    "southern_andes",
 )
 
 
@@ -421,7 +429,7 @@ def test_awdb_get_metadata_for_one_rejected_triplet_still_raises(monkeypatch):
 # ══ Clients added in October 2026 ════════════════════════════════════════════
 #
 # Same contract points as above, for GHCN-D, Hydro-Québec, Alberta, DWD,
-# Syke, SLF and RIHMI.  Every constructor here is network-free; methods
+# Syke, SLF, RIHMI and the Southern Andes dataset.  Every constructor here is network-free; methods
 # that would download are stubbed on the instance.
 
 
@@ -432,6 +440,7 @@ _NEW_CLIENTS = (
     (DWDClient, DWDError, "00020", "hourly"),
     (SYKEClient, SYKEError, "1", "daily"),
     (RIHMIClient, RIHMIError, "27612", "hourly"),
+    (SouthernAndesClient, SouthernAndesError, "5703009", "periodic"),
 )
 
 
@@ -472,6 +481,7 @@ def test_new_clients_data_flags_importable():
     assert hq.DATA_FLAGS == {}
     assert alberta.DATA_FLAGS == {}
     assert slf.DATA_FLAGS == {}
+    assert southern_andes.DATA_FLAGS == {}
     assert "W" in ghcnd.DATA_FLAGS  # QFLAG "too warm for snow"
     assert dwd.DATA_FLAGS["10"].startswith("Quality control finished")
     assert set(syke.DATA_FLAGS) == {"96", "110", "117"}
@@ -488,6 +498,7 @@ def test_new_clients_snow_output_units_are_cm():
         "syke": {**syke.VARIABLES, **syke.AREAL_VARIABLES},
         "slf": slf.VARIABLES,
         "rihmi": rihmi.VARIABLES,
+        "southern_andes": southern_andes.VARIABLES,
     }
     bad = {
         (name, key): info["output_units"]
