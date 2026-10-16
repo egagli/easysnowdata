@@ -79,10 +79,29 @@ jobs:
           restore-keys: |
             gallery-
 
+      # Zenodo intermittently drops TLS connections from GitHub runners
+      # (SSLEOFError for the whole build), which failed every Zenodo-backed
+      # example at once. Keeping those downloads between builds lets the
+      # loaders work offline: the Southern Andes and CanSWE clients fall back
+      # to their cached copy when Zenodo is unreachable, and pooch reuses the
+      # mountain snow mask zips without a request. About 55 MB; the key
+      # rotates every run so the newest copy is always the one restored.
+      - name: Restore cached Zenodo downloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ runner.temp }}/esd-cache/stations/southern_andes
+            ${{ runner.temp }}/esd-cache/stations/canswe
+            ${{ runner.temp }}/esd-cache/mountain_snow_mask
+          key: esd-zenodo-${{ github.run_id }}
+          restore-keys: |
+            esd-zenodo-
+
       - name: Build
         env:
           ESD_DOCS_GALLERY: ${{ steps.mode.outputs.gallery }}
           EASYSNOWDATA_QUIET: "1"
+          EASYSNOWDATA_CACHE_DIR: ${{ runner.temp }}/esd-cache
           # Present on pushes to main and scheduled runs; absent on pull
           # requests by design: nothing in the credential-free build reads
           # them, and a fork's PR cannot see them anyway.
