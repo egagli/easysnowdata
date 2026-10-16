@@ -177,6 +177,8 @@ EP_RECENT = "MuestraDatos.aspx/LeerUltimosRegistros"
 
 #: Argentina time.  Timestamps are converted to it before taking the date.
 ART = timezone(timedelta(hours=-3), "ART")
+#: The Unix epoch, for /Date(ms)/ values (some are before 1970).
+_EPOCH = datetime(1970, 1, 1, tzinfo=UTC)
 
 _DEFAULT_TIMEOUT = 120
 _DEFAULT_RETRIES = 3
@@ -467,7 +469,9 @@ def parse_ms_date(text: Any) -> datetime | None:
         ms = int(body)
     except ValueError:
         return None
-    return datetime.fromtimestamp(ms / 1000, UTC).astimezone(ART)
+    # Epoch + offset, not fromtimestamp: Windows rejects negative (pre-1970)
+    # timestamps, and the snow courses go back to 1951.
+    return (_EPOCH + timedelta(milliseconds=ms)).astimezone(ART)
 
 
 def _convert(raw: Any, var: str) -> float | None:
