@@ -2,6 +2,7 @@ from .alberta.alberta_client import AlbertaClient, AlbertaError
 from .awdb.awdb_client import AWDBClient, AWDBError
 from .canswe.canswe_client import CanSWEClient, CanSWEError
 from .cdec.cdec_client import CDECClient, CDECError
+from .ceaza.ceaza_client import CEAZAClient, CEAZAError
 from .databc.databc_client import DataBCClient, DataBCError
 from .dwd.dwd_client import DWDClient, DWDError
 from .ghcnd.ghcnd_client import GHCNDClient, GHCNDError
@@ -10,6 +11,7 @@ from .norswe.norswe_client import NorSWEClient, NorSWEError
 from .nve.nve_client import NVEClient, NVEError
 from .rihmi.rihmi_client import RIHMIClient, RIHMIError
 from .slf.slf_client import SLFClient, SLFError
+from .snih.snih_client import SNIHClient, SNIHError
 from .southern_andes.southern_andes_client import (
     SouthernAndesClient,
     SouthernAndesError,
@@ -22,6 +24,8 @@ __all__ = [
     "AWDBError",
     "AlbertaClient",
     "AlbertaError",
+    "CEAZAClient",
+    "CEAZAError",
     "CDECClient",
     "CDECError",
     "CanSWEClient",
@@ -42,6 +46,8 @@ __all__ = [
     "RIHMIError",
     "SLFClient",
     "SLFError",
+    "SNIHClient",
+    "SNIHError",
     "SYKEClient",
     "SYKEError",
     "SouthernAndesClient",

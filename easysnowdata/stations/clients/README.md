@@ -31,8 +31,10 @@ time-series data.
 15. [SLFClient — WSL-SLF (Switzerland)](#15-slfclient)
 16. [RIHMIClient — RIHMI-WDC / NSIDC G01170 (Russia, FSU)](#16-rihmiclient)
 17. [SouthernAndesClient — Southern Andes snow depth (Chile, Argentina)](#17-southernandesclient)
-18. [Error Handling](#18-error-handling)
-19. [Adding a New Client](#19-adding-a-new-client)
+18. [SNIHClient — SNIH snow pillows and courses (Argentina)](#18-snihclient)
+19. [CEAZAClient — CEAZA-Met (Chile)](#19-ceazaclient)
+20. [Error Handling](#20-error-handling)
+21. [Adding a New Client](#21-adding-a-new-client)
 
 ---
 
@@ -1109,12 +1111,14 @@ for rec in c.get_year_data(2026, station_ids=["RSM00027612", "USC00457780"]):
 
 ## 8. Other SWE and snow-depth clients: overview
 
-The nine clients in §9–§17 follow the same contract (DESIGN.md §3) but
+The eleven clients in §9–§19 follow the same contract (DESIGN.md §3) but
 are **not wired into** `stations.networks`, the catalog,
 `inventory()`/`load()` or the `global_snow_networks` archive. Use them
-directly. All are exported from `easysnowdata.stations.clients`, need no
-credentials, and their module docstrings document endpoints, units,
-conventions and caveats in full. Counts were checked live on 2026-10-14.
+directly. All are exported from `easysnowdata.stations.clients` and need no
+credentials (RIHMI's scripted АИСОРИ-М export and a registered CEAZA user
+name are optional), and their module docstrings document endpoints, units,
+conventions and caveats in full. Counts were checked live on 2026-10-14
+(the Southern Andes, SNIH and CEAZA clients on 2026-10-15).
 
 "Daily SWE" means at least 30 days with SWE > 0 in the densest 90-day
 window of a season.
@@ -1130,6 +1134,8 @@ window of a season.
 | [`SLFClient`](#15-slfclient) | SLF on EnviDat / measurement-data.slf.ch | 11 GCOS SWE sites; 135 study plots; 179 IMIS | manual, every ~15 days | none | GCOS from 1936; yearly | CC BY 4.0 / ODbL |
 | [`RIHMIClient`](#16-rihmiclient) | NSIDC G01170 mirror + AISORI-M exports | 1,552 (517 route surveys) | manual route surveys every 10 days | none (NSIDC); free AISORI-M account | public 1966–1996; current data via a scripted AISORI-M export | NSIDC: open with citation; RIHMI: none stated |
 | [`SouthernAndesClient`](#17-southernandesclient) | Southern Andes snow depth (Zenodo, Medina Mendoza & Caro 2026) | 69 (57 reporting in 2024) | no SWE: ultrasonic snow depth, daily | none | 2010–2024; versioned | CC BY 4.0 |
+| [`SNIHClient`](#18-snihclient) | SNIH / Base de Datos Hidrológica Integrada, Argentina (portal page methods) | 50 snow (34 pillows; 29 reporting) | pillows: validated daily SWE + raw 4–6 h telemetry; manual snow courses at 5 sites | 23 in 2023 (validated); 25 in 2026 from raw telemetry | validated 1989–2024; courses from 1951; raw 2009–present | SNIH terms of use: free use incl. commercial, cite SIPH/network |
+| [`CEAZAClient`](#19-ceazaclient) | CEAZA-Met web service (CEAZA, Chile) | 17 snow stations (10 active) of ~95 | automatic SWE (5 sensors) and snow weight (3 sensors) at 6 stations; hourly | 3 in 2025 (El Tapado, Tascadero, Llano de Las Liebres) | snow from 2011; near real time | none stated; terms: register by e-mail, credit CEAZA |
 
 Overlaps to know about: NorSWE contains CanSWE, SNOTEL, NRCS courses,
 CDEC, NVE, SYKE, SLF GCOS and RIHMI route surveys; CanSWE contains the
@@ -2361,7 +2367,353 @@ Zenodo cannot be reached, the newest cached version is used.
 
 ---
 
-## 18. Error Handling
+## 18. SNIHClient
+
+**Module:** `easysnowdata.stations.clients.snih.snih_client`
+**Source:** Sistema Nacional de Información Hídrica (SNIH) / Base de Datos
+Hidrológica Integrada, Secretaría de Infraestructura y Política Hídrica
+(SIPH), Argentina, <https://snih.hidricosargentina.gob.ar> (the portal's
+ASP.NET page methods; no documented API)
+**Auth:** none (the web map's "Acepto los Términos y Condiciones de Uso"
+tick box is not needed by the page methods)
+**Licence:** the portal's *Términos y condiciones de uso*
+(<https://snih.hidricosargentina.gob.ar/Terminos.aspx>), not a named
+licence: the data are public and free, and any use, including commercial use,
+derived works and redistribution, is allowed if you keep the data's original
+meaning, cite SIPH and/or the contributing network, state the date of the
+last update and keep the source metadata.
+**Status:** not wired into `stations.networks`, the catalog or
+`global_snow_networks`.
+
+The 50 SNIH stations that the portal associates with a snow parameter
+(codes 70–74), out of 1,441 hydrometeorological stations. 34 are snow
+pillows along the Andes from Jujuy (24° S) to Santa Cruz (52° S): 24 of the
+Red Hidrológica Nacional and 10 of the Red Meteorológica RMET (installed
+2024–2026). Three products are kept apart: **validated daily pillow SWE**
+(24 stations; Toscas and Laguna Atuel from 1989, Valle Hermoso and Laguna
+Diamante from 1990, Paso Pehuenche from 1999, the rest from 2010–2023;
+every series ends in 2023–2024), **raw pillow telemetry** every 4 or 6 h
+(2009 to today; 29 pillows reported in the 30 days to 2026-10-15), and
+**snow-course surveys** (SWE, depth, density, core length) at the five
+Mendoza courses from 1951.
+
+```python
+from easysnowdata.stations.clients import SNIHClient
+from easysnowdata.stations.clients.snih.snih_client import (
+    VARIABLES, DATA_FLAGS, PROVINCES, STATION_TYPES, TERMS_URL,
+)
+client = SNIHClient()
+```
+
+### Variables
+
+| Key | Code | `type` | Native | Emitted | Interval |
+|---|---|---|---|---|---|
+| `SWE_PILLOW` | 73 | `swe` | mm | cm (× 0.1) | `daily` (validated), `sub_daily` (raw) |
+| `SWE_COURSE` | 74 | `swe` | mm | cm (× 0.1) | `periodic` |
+| `SNWD` | 70 | `snwd` | cm | cm | `periodic` |
+| `DENSITY` | 72 | `density` | g/cm³ | % (× 100) | `periodic` |
+| `CORE_LENGTH` | 71 | `other` | cm | cm | `periodic` |
+
+`variables` also accepts the code (`"73"`) and the portal's abbreviation
+(`"h_spilow"`). `None` means `SWE_PILLOW` for `daily` and `sub_daily`, and
+`SWE_COURSE` + `SNWD` for `periodic`; asking for a variable at an interval
+that does not offer it raises. SWE and depth outside 0–15 m and density
+outside 0–100 % are nulled, as are values below −998.999 (the portal's
+no-data marker).
+
+### Flags
+
+`DATA_FLAGS` holds the portal's `Calificador` qualifiers as its own page
+renders them (`D` dudoso, `T` desbordado, `A` acumulado, `C` congelado,
+`S` río seco, `<`, `>`, and five text-only codes whose value the portal
+hides, which are nulled), plus two set by the client: `"unvalidated"` for a
+historical value served with `Validado = false`, and `"raw"` on every
+`sub_daily` record. In October 2026 every snow qualifier was blank and every
+historical value had `Validado = true`.
+
+### Constructor
+
+```python
+SNIHClient(
+    base_url: str = "https://snih.hidricosargentina.gob.ar",
+    timeout: int = 120,
+    max_retries: int = 3,
+    backoff: int = 4,
+    session: requests.Session | None = None,
+)
+```
+
+### Key methods
+
+#### `get_all_stations(active_only, bbox)` → `list[dict]`
+
+The 50 snow stations. The first call reads the station list, the network
+names and the station–parameter associations (about 5 MB), then checks the
+last 30 days of raw telemetry at each of the 34 pillows for `status` (about
+12 s in all). Both are cached on the client.
+
+#### `get_metadata(station_id)` → `dict`
+
+Station dict plus `data_variables`: one entry per variable and interval with
+the association start (`associated_since`) and, for `daily` and
+`periodic`, the first and last value and `n_obs` of the historical series.
+
+#### `get_data(station_ids, variables, bbox, begin_date, end_date, interval, include_flags)` → `list[dict]`
+
+`interval` is `"daily"` (default), `"sub_daily"` or `"periodic"`. Dates are
+inclusive local (Argentina, UTC−3) days. `sub_daily` records carry a
+`datetime` with a `-03:00` offset; without `begin_date` they are read from
+2009 in yearly requests, which takes a while.
+
+```python
+recs = client.get_data("19145", begin_date="2015-06-01", end_date="2015-09-30")
+# → 122 records; {"station_id": "19145", "date": "2015-06-01",
+#    "variable": "SWE_PILLOW", "type": "swe", "value": 0.0, "units": "cm",
+#    "interval": "daily"}; maximum 35.8 cm
+raw = client.get_data("19145", interval="sub_daily",
+                      begin_date="2026-08-01", end_date="2026-08-05")
+# → {"date": "2026-08-01", "datetime": "2026-08-01T00:00:00-03:00",
+#    "value": 35.7, "interval": "sub_daily", ...}
+```
+
+### Station dict schema
+
+`station_id` (SNIH `Codigo`, e.g. `"19145"` Toscas), `name`, `latitude`,
+`longitude` (negated: the portal publishes both positive), `elevation_m`
+(`None` where `Cota` is −999 or 0), `status`, `last_raw_obs`, `network_id`,
+`network` and `operator` (the network name the portal gives: "Red
+Hidrológica Nacional" or "Red Meteorológica RMET"), `data_provider`,
+`country`, `province` / `province_code`, `basin_code`, `system_code`,
+`regional_code`, `river`, `place`, `station_type` (`Tipo` letters:
+H, M, G, A, N = nivométrico) and `station_type_description`,
+`transmission` / `transmission_code`, `snow_codes`, `variables`,
+`variables_since`, `measurement_method`, `has_swe`, `has_snwd`,
+`station_url` (the portal; it has no per-station page).
+
+### Endpoints used
+
+All are `POST https://snih.hidricosargentina.gob.ar/<page>` with a JSON
+body and `Content-Type: application/json`; answers are wrapped in
+`{"d": ...}` and timestamps are .NET `/Date(ms)/` instants.
+
+- `Filtros.aspx/LeerEstaciones`: every station (coordinates, `Cota`, `Red`,
+  `Provincia`, `Tipo`, `Transmision`).
+- `Filtros.aspx/leerListaRedes`: network names.
+- `MuestraDatos.aspx/LeerListaAsociaciones`: station–parameter pairs, which
+  define the snow scope.
+- `MuestraDatos.aspx/LeerDatosHistoricos` (`fechaDesde`, `fechaHasta`,
+  `estacion`, `codigo`, `validados`): validated historical values (`daily`,
+  `periodic`).
+- `MuestraDatos.aspx/LeerUltimosRegistros` (`fechaDesde`, `fechaHasta`,
+  `estacion`, `codigo`): raw telemetry (`sub_daily`).
+
+### Notes and gotchas
+
+- `status` is "Active" when the pillow's raw telemetry has a record in the
+  last 30 days. Snow-course and depth-only stations are always "Inactive".
+  The portal's `LeerDatosActuales` "current value" is not used: it showed
+  a placeholder (1900-01-01, −999) for Toscas while its telemetry was
+  current.
+- Validated daily SWE ends in 2023–2024 everywhere, and the RMET pillows
+  have none; use `sub_daily` for anything later. It is raw and noisy
+  (10 mm steps, long runs of 0, spikes up to 14,370 mm at Laguna Diamante)
+  and is never merged into `daily`.
+- `LeerUltimosRegistros` returns one logger block per call and can answer
+  a long range with nothing (Las Lágrimas, 2009–2026). The client asks one
+  year at a time and asks again from the last day received; checked against
+  30-day requests at seven stations, no record was missed.
+- `LeerDatosHistoricos` treats `fechaHasta` as 00:00 of that day, so the
+  client asks one day more. Its `validados` flag changed nothing for any
+  snow station.
+- Some days carry two validated values (17 at Toscas; 00:00 and 00:01 pairs
+  that differ at La Hoya and Túnel Internacional); `daily` keeps the
+  earliest value of each local day.
+- Dates use a fixed UTC−3 offset; for the Toscas record it gives the same
+  days as the IANA `America/Argentina/Mendoza` zone.
+- 16 river and weather stations are associated with snow depth (code 70)
+  but no value came back from either endpoint; they stay in the inventory
+  as "Inactive". 22 of the 50 snow stations have no usable elevation.
+- Lago Bagillt (282337) reports raw values near 0.2, possibly in another
+  unit; the portal does not say.
+- The agencies that run individual stations are not given by the service,
+  so `operator` is the network name only.
+
+---
+
+## 19. CEAZAClient
+
+**Module:** `easysnowdata.stations.clients.ceaza.ceaza_client`
+**Source:** CEAZA-Met, the station network of the Centro de Estudios Avanzados
+en Zonas Áridas (CEAZA, La Serena, Chile), through its open web service
+<https://www.ceazamet.cl/ws/pop_ws.php> (documented at
+<https://www.ceazamet.cl/ws/pop_ws_doc.php>)
+**Auth:** none. An optional `user=` (the e-mail address registered with
+CEAZA-Met) lifts the service's anonymous limits.
+**Licence:** none stated. The terms of use ("Condiciones de uso" on the
+documentation page) require users to request a user name by e-mail to
+ceazamet@ceaza.cl (name, e-mail, organisation, sector, intended use,
+download frequency and daily volume) and to credit the source with a link
+("Datos provistos por el laboratorio de meteorología CEAZA",
+<https://www.ceazamet.cl>). The service comes with no guarantee of data
+reliability or availability.
+**Status:** not wired into `stations.networks`, the catalog or
+`global_snow_networks`.
+
+Automatic snow depth and SWE from 17 high-Andes stations of the Coquimbo
+region, 30–32° S and 2,284–4,306 m (of about 95 CEAZA-Met stations in all).
+All 17 measure snow depth; six also measure SWE, as "Agua equivalente" in mm
+(El Tapado, Tascadero) or cm (Hualtatas 2014–2019, La Laguna 2013–2017), or as
+"Peso de la Nieve" (snow weight, kg/m²: Guandacol, Llano de Las Liebres). The
+same stations measure air temperature, and Tascadero precipitation; both are
+served as non-default variables, at any CEAZA-Met station. Values are hourly
+or daily aggregates of raw logger output, **not quality controlled**. Ten of
+the 17 stations reported in the last 90 days (October 2026).
+
+```python
+from easysnowdata.stations.clients.ceaza import CEAZAClient
+from easysnowdata.stations.clients.ceaza.ceaza_client import (
+    VARIABLES, DATA_FLAGS, SNOW_VARIABLES, OWNERS, ATTRIBUTION,
+)
+client = CEAZAClient()  # or CEAZAClient(user="you@example.org") once registered
+```
+
+### Variables
+
+Keyed by the service's measurement-type code `tm_cod`.
+
+| Key | `type` | Native | Emitted | Interval |
+|---|---|---|---|---|
+| `ani_cm` "Altura de Nieve" | `snwd` | cm | cm | `daily`, `hourly` |
+| `ae_mm` "Agua equivalente" | `swe` | mm | cm (× 0.1) | `daily`, `hourly` |
+| `ae_cm` "Agua equivalente" | `swe` | cm | cm | `daily`, `hourly` |
+| `pnkg` "Peso de la Nieve" | `swe` | kg/m² (= mm of water) | cm (× 0.1) | `daily`, `hourly` |
+| `ta_c` "Temperatura del Aire" (non-default) | `temp` | °C | °C | `daily`, `hourly` |
+| `pp_mm` "Precipitación" (non-default) | `precip` | mm (interval total) | mm | `daily`, `hourly` |
+
+`variables=None` means the four snow keys. `value` is the interval mean
+(`prom`); for precipitation the service sums, and `value` is the total.
+Records also carry `sensor` (the `s_cod`), `value_min` / `value_max` (the
+interval extremes, `None` for precipitation) and `data_pct`. Bounds: SWE and
+depth 0–15 m, air temperature −60 to 50 °C, precipitation 0–500 mm per
+interval; values outside are `None`. Negative bare-ground depths and summer
+SWE drift are therefore nulled, not zeroed. Not served: `ppa_mm` (a
+cumulative gauge level), `acol_mm` "Agua Colectada", and `an_mm` "Agua
+Nieve" (Puerto Williams only, undocumented).
+
+### Flags
+
+From the service's `data_pc` (share of the expected records present in the
+interval), with `include_flags=True`:
+
+| Flag | Meaning |
+|---|---|
+| `complete` | `data_pc` = 100 |
+| `partial` | `data_pc` 1–99 (the percentage is in `data_pct`; a partial precipitation total undercounts) |
+
+Intervals with no data are not returned.
+
+### Constructor
+
+```python
+CEAZAClient(
+    user: str | None = None,              # registered e-mail, sent as user=
+    base_url: str = "https://www.ceazamet.cl/ws/pop_ws.php",
+    timeout: int = 120,
+    max_retries: int = 3,
+    backoff: int = 4,
+    session: requests.Session | None = None,
+)
+```
+
+### Key methods
+
+#### `get_all_stations(active_only, bbox, snow_only=True)` → `list[dict]`
+
+The snow stations (a snow-depth, SWE or snow-weight sensor); `snow_only=False`
+lists the whole network. Two requests (station list and the network-wide
+sensor list), cached on the client.
+
+#### `get_metadata(station_id)` → `dict`
+
+Station dict plus `data_variables` (one entry per served sensor: `name`
+(`tm_cod`), `sensor`, `native_name`, `type`, `units`, `output_units`,
+`height_m`, `begin_date`, `end_date`, `intervals`) and `sensors` (every
+sensor of the station, served or not).
+
+#### `get_data(station_ids, variables, bbox, begin_date, end_date, interval, include_flags, sensors)` → `list[dict]`
+
+`interval="daily"` (default) or `"hourly"`; hourly records add `datetime`
+with the `-04:00` offset. Without dates, each sensor's whole record. `bbox`
+selects snow stations; `sensors=` keeps given sensor codes (El Tapado has two
+SWE sensors, Llano de Las Liebres two snow-weight sensors).
+
+```python
+recs = client.get_data("TASC", begin_date="2025-08-01", end_date="2025-08-01")
+# → {"station_id": "TASC", "date": "2025-08-01", "variable": "ae_mm",
+#    "type": "swe", "value": 6.675, "units": "cm", "interval": "daily",
+#    "sensor": "TASCPN", "value_min": 1.885, "value_max": 9.04, "data_pct": 100}
+```
+
+#### `get_sensors(station_id)` / `get_series(sensor, begin_date, end_date, interval)`
+
+The raw sensor list of a station, and the raw `GetSerieSensor` JSON for one
+sensor and window.
+
+### Station dict schema
+
+`station_id` (`e_cod`, e.g. `"TPF"`, `"TASC"`), `name`, `latitude`,
+`longitude`, `elevation_m`, `status`, `network` (`"CEAZA-Met"`), `owner`
+(`e_owner` code), `operator` (from `OWNERS`, else the code; `None` when the
+service gives no owner), `province_code`, `first_reading` / `last_reading`
+(as served) and `begin_date` / `end_date` (their dates),
+`measurement_method`, `has_swe`, `has_snwd`, `has_temp`, `has_precip`,
+`is_snow_station`, `snow_sensors` / `snow_variables` (`s_cod` / `tm_cod`
+lists), `n_sensors`, `served_sensors`, `station_url` (the station's
+CEAZA-Met page).
+
+`status` is "Active" when `last_reading` is at most 90 days old.
+
+### Endpoints used
+
+All `GET https://www.ceazamet.cl/ws/pop_ws.php?fn=…&p_cod=ceazamet`:
+
+- `fn=GetListaEstaciones&c0=e_cod&…&c8=e_owner`: station list (CSV, `#`
+  metadata lines, the last of them the header).
+- `fn=GetListaSensores&c0=e_cod&…&c7=tm_cod` without `e_cod`: every sensor
+  of the network in one CSV (1,515 sensors on 99 station codes).
+- `fn=GetSerieSensor&s_cod=…&fecha_inicio=…&fecha_fin=…&interv=dia|hora&tipo_resp=json`:
+  one sensor's series, dates inclusive, in windows of 10 years (daily) or
+  one year (hourly).
+
+### Notes and gotchas
+
+- The CSV form of `GetSerieSensor` returns at most 24 rows per request
+  without a registered `user`; the JSON form returned full ranges (4,748 daily
+  rows in 3.5 s), so the client uses JSON.
+- Errors arrive as HTTP 200: an HTML `<p>ERROR …</p>` before the JSON, or
+  `e_cod: null` for an unknown sensor. Both raise `CEAZAError`.
+- Times are fixed UTC−4. A daily row aggregates the hourly rows 00:00–23:00
+  of that UTC−4 day. Whether an hourly label opens or closes its hour is not
+  documented.
+- The data are raw: about 45 % of Tascadero's daily depths are slightly
+  negative on bare ground, SWE sensors drift below zero in summer (El Tapado
+  to −113 mm), and there are spikes (El Jote 4,021 cm, El Tapado −82.8 °C).
+  Spikes below the 15 m bound pass (El Jote 1,348 cm in 2026).
+- Paired sensors disagree: El Tapado's `TPFSWE_K` and `TPFSWE_TL` by a
+  median of 15 mm (up to 210 mm), Llano de Las Liebres' two snow-weight
+  sensors by a median of 32 kg/m² (up to 182).
+- `s_ultima_lectura` is not always the last real value (El Tapado `TPFSNOWD`:
+  listed 2025-10-08, last value 2023-10-25); `get_metadata` reports it as
+  served.
+- El Tapado (SWE since 2016) stopped reporting on 2025-11-26; El Tapado 2
+  (4,250 m, from 2024) has snow depth only.
+- Guandacol's `last_reading` can be ahead of the service's own clock (22:00
+  at 19:30 UTC−4), so that station's logger time is probably not UTC−4.
+
+---
+
+## 20. Error Handling
 
 | Client | Exception | Scenarios |
 |---|---|---|
@@ -2380,6 +2732,8 @@ Zenodo cannot be reached, the newest cached version is used.
 | SLFClient | `SLFError` | HTTP 4xx/5xx, EnviDat lookup failure, unknown dataset, variable or interval not in dataset |
 | RIHMIClient | `RIHMIError` | NSIDC download failure, АИСОРИ-М export failure, unreadable export, unknown variable, interval, route type or source, daily data without an export |
 | SouthernAndesClient | `SouthernAndesError` | Zenodo lookup/download failure, unexpected file layout, unknown station, network, variable or interval |
+| SNIHClient | `SNIHError` | HTTP 4xx/5xx (incl. ASP.NET 500 for a malformed body), non-JSON answer, `RespuestaOK` false, unknown variable or interval, variable not offered at that interval, non-numeric station id, station not a snow station (`get_metadata`) |
+| CEAZAClient | `CEAZAError` | HTTP 4xx/5xx, network timeout, service error text in an HTTP 200 reply, unknown station/sensor/variable, unsupported interval |
 
 All exceptions are subclasses of `Exception` with descriptive messages.
 
@@ -2391,7 +2745,7 @@ from easysnowdata.stations.clients.nve import NVEClient, NVEError
 from easysnowdata.stations.clients.yukon import YukonClient, YukonError
 from easysnowdata.stations.clients.ghcnd import GHCNDClient, GHCNDError
 # ... and likewise CanSWEError, NorSWEError, HydroQuebecError, AlbertaError,
-# DWDError, SYKEError, SLFError, RIHMIError and SouthernAndesError, all also re-exported from
+# DWDError, SYKEError, SLFError, RIHMIError, SouthernAndesError, SNIHError and CEAZAError, all also re-exported from
 # easysnowdata.stations.clients.
 
 try:
@@ -2405,7 +2759,7 @@ with linear backoff up to `max_retries` attempts.
 
 ---
 
-## 19. Adding a New Client
+## 21. Adding a New Client
 
 The full normative contract and checklist live in
 [DESIGN.md](https://github.com/egagli/global_snow_networks/blob/main/DESIGN.md) §3 and the

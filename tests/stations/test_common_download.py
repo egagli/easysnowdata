@@ -131,3 +131,31 @@ def test_small_file_single_stream(tmp_path):
     download_file(session, "u", tmp_path / "s.bin", error_cls=_Err, size=len(body))
     assert (tmp_path / "s.bin").read_bytes() == body
     assert session.ranges == [None]
+
+
+# ── request_with_retries: JSON bodies ────────────────────────────────────────
+
+
+class _Recorder:
+    """Records each request's keyword arguments; answers 200 OK."""
+
+    def __init__(self):
+        self.calls = []
+
+    def request(self, method, url, **kwargs):
+        self.calls.append((method, kwargs))
+        resp = requests.Response()
+        resp.status_code = 200
+        return resp
+
+
+def test_request_with_retries_sends_json_only_when_given():
+    rec = _Recorder()
+    _common.request_with_retries(rec, "https://x.test/a", error_cls=_Err)
+    _common.request_with_retries(
+        rec, "https://x.test/b", method="POST", json={"k": 1}, error_cls=_Err
+    )
+    (m1, kw1), (m2, kw2) = rec.calls
+    # Sessions that predate the json argument keep working unchanged.
+    assert m1 == "GET" and "json" not in kw1
+    assert m2 == "POST" and kw2["json"] == {"k": 1}

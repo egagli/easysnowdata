@@ -17,8 +17,9 @@ They differ from the daily networks in what they measure and how often.
   but daily SWE at only a few. The Southern Andes dataset (Chile and
   Argentina) is snow depth only.
 - **Daily SWE that is new.** Hydro-Québec's gamma sensors (a rolling 10-day
-  feed), the automated stations in CanSWE, and Alberta's pillows (which AWDB
-  also mirrors).
+  feed), the automated stations in CanSWE, Alberta's pillows (which AWDB
+  also mirrors), Argentina's snow pillows (SNIH) and CEAZA's SWE sensors in
+  the Chilean Andes.
 
 Every record carries an ``interval`` (``"daily"``, ``"periodic"``, ``"hourly"``,
 …), so check it before treating a series as daily. The clients return plain
