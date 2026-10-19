@@ -5,18 +5,16 @@
     "daily": 1219
   },
   "cdec": {
-    "active": 560,
-    "count": 560,
-    "daily": 560
+    "active": 564,
+    "count": 564,
+    "daily": 564
   },
   "databc": {
-    "active": 279,
-    "count": 573,
-    "daily": 183
+    "active": 275,
+    "count": 570,
+    "daily": 180
   },
   "yukon": {
-    "active": 77,
-    "count": 109,
-    "daily": 17
+    "count": "unreachable: YukonError"
   }
 }

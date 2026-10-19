@@ -44,6 +44,7 @@
     "Prediction payload formats",
     "Example workflows notebooks",
     "Cloud AI Platform Migration Guide",
+    "Cloud optimized GeoTIFF (COG)",
     "Exporting table and vector data",
     "Exporting video and animations",
     "Extracting image data programmatically",
@@ -74,6 +75,9 @@
     "it lists releases by date and includes any new features, bug fixes, and significant",
     "performance improvements. You can also browse and filter release notes for all",
     "Google Cloud products in the",
+    ": EC JRC global map of forest cover 2020, V4",
+    "projects/climate-and-sustainability/assets/gem-15_v1",
+    ": GEM-15: Near-Global Surface and Terrain Elevation Models (15m) (Experimental)",
     "projects/gtac-data-publish/assets/TreeMap/Product_Version/2023-1",
     ": CSIRO Biodiversity Habitat Index v4 (BHI v4)",
     ": FAO GAUL: Global Administrative Unit Layers 2025, First-Level Administrative Units",
@@ -595,10 +599,6 @@
     ": Landsat Collection 2 Tier 1 Level 2 8-Day NDWI Composite",
     ": MYD09CMG.061 Aqua Surface Reflectance Daily L3 Global 0.05 Deg CMG",
     ": IPCC AR6 Sea Level Projections Regional (Medium Confidence)",
-    "NASA/GPM_L3/IMERG_MONTHLY_V07",
-    ": GPM: Monthly Global Precipitation Measurement (GPM) vRelease 07",
-    "NASA/GRACE/MASS_GRIDS_V04/OCEAN",
-    ": GRACE Monthly Mass Grids Release 06 Version 04 - Ocean",
-    "Added projects/forestdatapartnership/assets/community_palm/20240312 (no longer available)"
+    "NASA/GPM_L3/IMERG_MONTHLY_V07"
   ]
 }

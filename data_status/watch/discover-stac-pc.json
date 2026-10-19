@@ -108,6 +108,7 @@
     "noaa-climate-normals-gridded",
     "noaa-climate-normals-netcdf",
     "noaa-climate-normals-tabular",
+    "noaa-hrrr",
     "noaa-mrms-qpe-1h-pass1",
     "noaa-mrms-qpe-1h-pass2",
     "noaa-mrms-qpe-24h-pass2",

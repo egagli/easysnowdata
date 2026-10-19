@@ -1,6 +1,6 @@
 {
   "asf-search": {
-    "latest_version": "14.0.3",
+    "latest_version": "14.1.0",
     "url": "https://github.com/asfadmin/Discovery-asf_search/blob/master/CHANGELOG.md"
   },
   "dask": {
@@ -12,7 +12,7 @@
     "url": "https://github.com/nsidc/earthaccess/releases"
   },
   "earthengine-api": {
-    "latest_version": "1.7.47",
+    "latest_version": "1.7.48",
     "url": "https://pypi.org/project/earthengine-api/"
   },
   "geopandas": {
@@ -60,7 +60,7 @@
     "url": "https://pypi.org/project/sphinx-gallery/"
   },
   "virtualizarr": {
-    "latest_version": "2.7.3",
+    "latest_version": "2.8.0",
     "url": "https://virtualizarr.readthedocs.io/en/latest/releases.html"
   },
   "xarray": {

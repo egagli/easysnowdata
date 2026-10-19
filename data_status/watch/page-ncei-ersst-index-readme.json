@@ -1,0 +1,13 @@
+{
+  "lines": [
+    "(1) ersst.VERSION.el_nino.dat",
+    "(2) ersst.VERSION.el_nino.sst.dat",
+    "same as in (1) except for full SSTs rather than anomalies.",
+    "(3) ersst.VERSION.pdo.dat",
+    "PDO index in the format of",
+    "Year Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec",
+    "Note: The anomalies are based on climatology from 1971 to 2000",
+    "These indices are generated for the convenience of users.",
+    "They are not the official NOAA indices used for climate monitoring. (2015/1/15)"
+  ]
+}

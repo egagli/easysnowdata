@@ -1,7 +1,11 @@
 {
   "lines": [
     "Welcome to Pangeo Discourse",
+    "Staff Scientist position at [C]Worthy working on ocean modeling tools",
+    "Scientific Developer for UFS In-Core Data Assimilation",
     "Pangeo Showcase: \"Firecube: A plugin-based batch ingestion engine for creating operational analysis-ready data cubes\" (October 14, 12 PM EDT / 16:00 UTC)",
+    "Free Weather Data Scorecard: matched-window comparisons for historical dataset selection",
+    "🎉 [Release] Stac-stack : A read-to-use docker stack to easily publish your dataset with STAC",
     "Data Scientist position in global cryosphere and water modelling – MountAInWater project (ISTA, Austria)",
     "Feedback wanted: recipe-based tool for building aligned radar/satellite/model/obs datasets (CONUS)",
     "[JOB] Simons Center Postdoctoral Fellows in Computational Climate at NYU",
@@ -25,10 +29,6 @@
     "Where Do You Spend the Most Time in an ICESat-2 Workflow?",
     "EGU27 Pangeo session",
     "New Working Group for Distributed Array Computing",
-    "Dask in Rust -- Frisky",
-    "Fall Pangeo Showcase: seeking conveners and presenters",
-    "Best way of copying and rechunking a remote zarr store",
-    "Ai-science-toolkit: reviewer \"agents\" and research skills for Claude Code, for climate and atmospheric science",
-    "Open Call Postdoc - Global Delta Dynamics from Satellite Observations"
+    "Dask in Rust -- Frisky"
   ]
 }

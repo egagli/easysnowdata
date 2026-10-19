@@ -1,0 +1,27 @@
+{
+  "lines": [
+    "Climate Prediction Center - Relative Oceanic Ni&ntilde;o Index (RONI)",
+    "El Ni&ntilde;o/La Ni&ntilde;a",
+    "Climate &amp; Weather Linkage",
+    "El Ni&ntilde;o / Southern Oscillation (ENSO)",
+    "&gt; Relative Oceanic Ni&ntilde;o Index (RONI): Historical El Ni&ntilde;o / La Ni&ntilde;a episodes (1950&ndash;Present)",
+    "Cold &amp; Warm Episodes by Season",
+    "Relative Oceanic Ni&ntilde;o Index (RONI):",
+    "Historical El Ni&ntilde;o / La Ni&ntilde;a episodes (1950&ndash;Present)",
+    "Warm (red) and cold (blue) periods based on a threshold of +/- 0.5&deg;C for the Relative Oceanic Ni&ntilde;o Index (RONI), using the 1991&ndash;2020 base period [3 month running mean of ERSST.v6 SST anomalies in the Ni&ntilde;o 3.4 region (5&deg;N&ndash;5&deg;S, 120&deg;&ndash;170&deg;W) with average tropical mean (20&deg;N&ndash;20&deg;S) SST anomalies subtracted. The difference is then adjusted so the variance equals the original Ni&ntilde;o 3.4 index].",
+    "For historical purposes, periods of below and above normal SSTs are colored in blue and red when the threshold is met for a minimum of five (5) consecutive overlapping seasons. The RONI is one measure of the El Ni&ntilde;o Southern Oscillation, and other indices can confirm whether features consistent with a coupled ocean-atmosphere phenomenon accompanied these periods.",
+    "Warm value: The three month running average where the Relative Oceanic Ni&ntilde;o Index (RONI) is greater than 0.5 degrees Celsius (El Ni&ntilde;o).",
+    "Cold value: The three month running average where the Relative Oceanic Ni&ntilde;o Index (RONI) is less than -0.5 degrees Celsius (La Ni&ntilde;a).",
+    "Data availability: 1950&ndash;2026",
+    "This page is updated by the 5th of each month. Because of the high frequency filter applied to the ERSSTv6 data (Huang et al., 2025,",
+    "), RONI values may change up to two months after the initial \"real time\" value is posted. Therefore, the most recent RONI values should be considered an estimate.",
+    "View the Oceanic Ni&ntilde;o Index (ONI)",
+    "Relative Oceanic Ni&ntilde;o Index (RONI): The three month running average of the relative Ni&ntilde;o 3.4 index",
+    "Skip to latest data &downarrow;",
+    "National Centers for Environmental Prediction",
+    "Climate Prediction Center",
+    "5830 University Research Court",
+    "Climate Prediction Center Internet Team",
+    "Freedom of Information Act (FOIA)"
+  ]
+}
