@@ -45,12 +45,12 @@ and both Earth Engine catalogs, under "Worth adding" when they are about the
 cryosphere.
 
 <!-- DATA_STATUS_START -->
-_Last updated: 2026-10-12 08:31 UTC_  
+_Last updated: 2026-10-19 08:22 UTC_  
 _⚠️ = skipped (credentials not available in this run). Latency and virtualization probes are on the [status page](https://egagli.github.io/easysnowdata/status.html)._
 
 ### Stations (`esd.stations`)
 
-| Data Source | Latest (Oct 12) | Oct 5 | Sep 29 | Sep 28 |
+| Data Source | Latest (Oct 19) | Oct 12 | Oct 5 | Sep 29 |
 | :---------- | :------: | :------: | :------: | :------: |
 | AWDB stations (NRCS REST API) | ✅ | ✅ | ✅ | ✅ |
 | CDEC stations (JSON data servlet) | ✅ | ✅ | ✅ | ✅ |
@@ -64,7 +64,7 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Snow (`esd.snow`)
 
-| Data Source | Latest (Oct 12) | Oct 5 | Sep 29 | Sep 28 |
+| Data Source | Latest (Oct 19) | Oct 12 | Oct 5 | Sep 29 |
 | :---------- | :------: | :------: | :------: | :------: |
 | MODIS snow cover MOD10A1F (NASA NSIDC) | ✅ | ✅ | ✅ | ✅ |
 | MODIS snow cover MOD10A1 (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
@@ -79,7 +79,7 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### SAR (`esd.sar`)
 
-| Data Source | Latest (Oct 12) | Oct 5 | Sep 29 | Sep 28 |
+| Data Source | Latest (Oct 19) | Oct 12 | Oct 5 | Sep 29 |
 | :---------- | :------: | :------: | :------: | :------: |
 | Sentinel-1 RTC (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | Sentinel-1 RTC OPERA (CMR-STAC ASF) | ✅ | ✅ | ✅ | ✅ |
@@ -90,13 +90,13 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Optical imagery (`esd.optical`)
 
-| Data Source | Latest (Oct 12) | Oct 5 | Sep 29 | Sep 28 |
+| Data Source | Latest (Oct 19) | Oct 12 | Oct 5 | Sep 29 |
 | :---------- | :------: | :------: | :------: | :------: |
 | HLS L30 (CMR-STAC LPCLOUD) | ✅ | ✅ | ✅ | ✅ |
-| HLS S30 (CMR-STAC LPCLOUD) | ✅ | ✅ | ✅ | — |
-| HLS L30 COG read (CMR-STAC LPCLOUD, Earthdata Login) | ✅ | ✅ | ✅ | — |
-| HLS S30 COG read (CMR-STAC LPCLOUD, Earthdata Login) | ✅ | ✅ | ✅ | — |
-| HLS L30 (Planetary Computer) | ✅ | ✅ | ✅ | — |
+| HLS S30 (CMR-STAC LPCLOUD) | ✅ | ✅ | ✅ | ✅ |
+| HLS L30 COG read (CMR-STAC LPCLOUD, Earthdata Login) | ✅ | ✅ | ✅ | ✅ |
+| HLS S30 COG read (CMR-STAC LPCLOUD, Earthdata Login) | ✅ | ✅ | ✅ | ✅ |
+| HLS L30 (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | HLS S30 (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | PlanetScope (Planet Data API) | ✅ | ✅ | ✅ | ✅ |
 | Sentinel-2 L2A (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
@@ -104,31 +104,31 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Terrain (`esd.terrain`)
 
-| Data Source | Latest (Oct 12) | Oct 5 | Sep 29 | Sep 28 |
+| Data Source | Latest (Oct 19) | Oct 12 | Oct 5 | Sep 29 |
 | :---------- | :------: | :------: | :------: | :------: |
 | CHILI (GEE/CSP ERGo) | ✅ | ✅ | ✅ | ✅ |
 | Copernicus DEM (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | Copernicus DEM (Earth Search) | ✅ | ✅ | ✅ | ✅ |
 | Copernicus DEM (Earth Engine) | ✅ | ✅ | ✅ | ✅ |
-| Copernicus DEM (OpenTopography) | ✅ | ✅ | — | — |
+| Copernicus DEM (OpenTopography) | ✅ | ✅ | ✅ | — |
 | NASADEM (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | NASADEM (Earth Engine) | ✅ | ✅ | ✅ | ✅ |
-| NASADEM (OpenTopography) | ✅ | ✅ | — | — |
-| SRTM GL1 (OpenTopography) | ✅ | ✅ | — | — |
+| NASADEM (OpenTopography) | ✅ | ✅ | ✅ | — |
+| SRTM GL1 (OpenTopography) | ✅ | ✅ | ✅ | — |
 | SRTM GL1 (Earth Engine) | ✅ | ✅ | ✅ | ✅ |
 | 3DEP seamless (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | 3DEP 10 m (Earth Engine) | ✅ | ✅ | ✅ | ✅ |
 | ALOS World 3D (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | ALOS World 3D (Earth Engine) | ✅ | ✅ | ✅ | ✅ |
-| ALOS World 3D (OpenTopography) | ✅ | ✅ | — | — |
-| GEDTM30 (OpenTopography) | ✅ | ✅ | — | — |
+| ALOS World 3D (OpenTopography) | ✅ | ✅ | ✅ | — |
+| GEDTM30 (OpenTopography) | ✅ | ✅ | ✅ | — |
 | Natural Earth hillshade (S3) | ✅ | ✅ | ✅ | ✅ |
 
 ### Land cover (`esd.land`)
 
-| Data Source | Latest (Oct 12) | Oct 5 | Sep 29 | Sep 28 |
+| Data Source | Latest (Oct 19) | Oct 12 | Oct 5 | Sep 29 |
 | :---------- | :------: | :------: | :------: | :------: |
-| Forest cover fraction (Zenodo) | <abbr title="ReadTimeout: HTTPSConnectionPool(host=&#x27;zenodo.org&#x27;, port=443): Read timed out. (">❌</abbr> | ✅ | ✅ | ✅ |
+| Forest cover fraction (Zenodo) | ✅ | <abbr title="ReadTimeout: HTTPSConnectionPool(host=&#x27;zenodo.org&#x27;, port=443): Read timed out. (">❌</abbr> | ✅ | ✅ |
 | Forest cover fraction (GEE/CGLS-LC100) | ✅ | ✅ | ✅ | ✅ |
 | ESA WorldCover (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | ESA WorldCover (AWS bucket) | ✅ | ✅ | ✅ | ✅ |
@@ -137,7 +137,7 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Hydrography (`esd.hydro`)
 
-| Data Source | Latest (Oct 12) | Oct 5 | Sep 29 | Sep 28 |
+| Data Source | Latest (Oct 19) | Oct 12 | Oct 5 | Sep 29 |
 | :---------- | :------: | :------: | :------: | :------: |
 | HUC geometries (USGS WBD REST) | ✅ | ✅ | ✅ | ✅ |
 | HUC geometries (GEE/USGS WBD) | ✅ | ✅ | ✅ | ✅ |
@@ -149,7 +149,7 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Boundaries (`esd.boundaries`)
 
-| Data Source | Latest (Oct 12) | Oct 5 | Sep 29 | Sep 28 |
+| Data Source | Latest (Oct 19) | Oct 12 | Oct 5 | Sep 29 |
 | :---------- | :------: | :------: | :------: | :------: |
 | Natural Earth countries (naciscdn) | ✅ | ✅ | ✅ | ✅ |
 | geoBoundaries countries (ADM0, gbOpen) | ✅ | ✅ | ✅ | ✅ |
@@ -158,18 +158,22 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 | geoBoundaries states and provinces (ADM1, gbOpen) | ✅ | ✅ | ✅ | ✅ |
 | US Census counties (cartographic boundaries) | ✅ | ✅ | ✅ | ✅ |
 | geoBoundaries admin units (ADM2, gbOpen) | ✅ | ✅ | ✅ | ✅ |
-| RGI 7.0 glacier outlines (NSIDC) | ✅ | ✅ | ✅ | <abbr title="RuntimeError: Unreachable through Earthdata Login: HTTP 200 (https://urs.earthda">❌</abbr> |
-| RGI 6.0 glacier outlines (NSIDC) | ✅ | ✅ | ✅ | <abbr title="RuntimeError: Unreachable through Earthdata Login: HTTP 200 (https://urs.earthda">❌</abbr> |
+| RGI 7.0 glacier outlines (NSIDC) | ✅ | ✅ | ✅ | ✅ |
+| RGI 6.0 glacier outlines (NSIDC) | ✅ | ✅ | ✅ | ✅ |
 | RGI 6.0 glacier outlines (OGGM mirror) | ✅ | ✅ | ✅ | ✅ |
 | GMBA mountains (EarthEnv) | ✅ | ✅ | ✅ | ✅ |
 | Natural Earth vector layers (naciscdn) | ✅ | ✅ | ✅ | ✅ |
 
 ### Climate (`esd.climate`)
 
-| Data Source | Latest (Oct 12) | Oct 5 | Sep 29 | Sep 28 |
+| Data Source | Latest (Oct 19) | Oct 12 | Oct 5 | Sep 29 |
 | :---------- | :------: | :------: | :------: | :------: |
 | ARCO-ERA5 (GCS anonymous) | ✅ | ✅ | ✅ | ✅ |
 | ERA5 (Google Earth Engine) | ✅ | ✅ | ✅ | ✅ |
+| Climate indices (CPC RONI) | ✅ | — | — | — |
+| Climate indices (NCEI PDO) | ✅ | — | — | — |
+| Climate indices (PSL MEI.v2) | ✅ | — | — | — |
+| Climate indices (PSL pdo.data) | ✅ | — | — | — |
 | Köppen-Geiger classification (figshare) | ✅ | ✅ | ✅ | ✅ |
 <!-- DATA_STATUS_END -->
 
@@ -214,7 +218,7 @@ Some data sources need free accounts and credentials passed as environment varia
 ## What is in it
 
 <!-- CATALOG_START -->
-41 products across 9 themes, each with one or more access routes:
+42 products across 9 themes, each with one or more access routes:
 
 | theme | products | open without an account |
 | --- | --- | --- |
@@ -226,7 +230,7 @@ Some data sources need free accounts and credentials passed as environment varia
 | **land** | [`esa-worldcover`](https://egagli.github.io/easysnowdata/catalog/esa-worldcover.html), [`forest-cover-fraction`](https://egagli.github.io/easysnowdata/catalog/forest-cover-fraction.html), [`nlcd`](https://egagli.github.io/easysnowdata/catalog/nlcd.html) | 2 of 3 |
 | **hydro** | [`grdc-major-river-basins`](https://egagli.github.io/easysnowdata/catalog/grdc-major-river-basins.html), [`grdc-wmo-basins`](https://egagli.github.io/easysnowdata/catalog/grdc-wmo-basins.html), [`huc`](https://egagli.github.io/easysnowdata/catalog/huc.html), [`hydrobasins`](https://egagli.github.io/easysnowdata/catalog/hydrobasins.html) | 4 of 4 |
 | **boundaries** | [`admin-boundaries`](https://egagli.github.io/easysnowdata/catalog/admin-boundaries.html), [`countries`](https://egagli.github.io/easysnowdata/catalog/countries.html), [`gmba-mountains`](https://egagli.github.io/easysnowdata/catalog/gmba-mountains.html), [`natural-earth-vectors`](https://egagli.github.io/easysnowdata/catalog/natural-earth-vectors.html), [`rgi-glaciers`](https://egagli.github.io/easysnowdata/catalog/rgi-glaciers.html), [`states-provinces`](https://egagli.github.io/easysnowdata/catalog/states-provinces.html), [`us-counties`](https://egagli.github.io/easysnowdata/catalog/us-counties.html) | 7 of 7 |
-| **climate** | [`era5`](https://egagli.github.io/easysnowdata/catalog/era5.html), [`koppen-geiger`](https://egagli.github.io/easysnowdata/catalog/koppen-geiger.html) | 2 of 2 |
+| **climate** | [`climate-indices`](https://egagli.github.io/easysnowdata/catalog/climate-indices.html), [`era5`](https://egagli.github.io/easysnowdata/catalog/era5.html), [`koppen-geiger`](https://egagli.github.io/easysnowdata/catalog/koppen-geiger.html) | 3 of 3 |
 <!-- CATALOG_END -->
 
 Every product's routes, resolution, credentials, licence, and health are on its
