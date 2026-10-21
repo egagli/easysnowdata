@@ -43,10 +43,11 @@ jobs:
 
       - name: Watch
         env:
-          # Only the Earth Engine asset check needs a credential; everything
-          # else is public, and an entry that cannot be checked is reported in
-          # the digest rather than failing the job.
+          # Only the Earth Engine asset check and the NVE station count need
+          # a credential; everything else is public, and an entry that cannot
+          # be checked is reported in the digest rather than failing the job.
           EARTHENGINE_TOKEN: ${{ secrets.EARTHENGINE_TOKEN }}
+          NVE_API_KEY: ${{ secrets.NVE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           EASYSNOWDATA_QUIET: "1"
