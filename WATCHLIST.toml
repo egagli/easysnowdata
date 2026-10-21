@@ -284,13 +284,16 @@ products = ["rgi-glaciers"]
 
 [[stations]]
 id = "stations-counts"
-networks = ["awdb", "cdec", "databc", "yukon"]
+networks = ["awdb", "cdec", "databc", "nve", "yukon"]
 products = ["snow-station-archive"]
-# nve is left out: it needs an API key, and the digest must run without one.
+# nve needs an API key: upstream_watch.yml passes the NVE_API_KEY secret.
+# Without one (a local --dry-run) it is reported as unreachable, like a
+# network that is down, rather than failing the run.
 [stations.match_products]
 "awdb" = ["awdb-stations", "snow-station-archive"]
 "cdec" = ["cdec-stations", "snow-station-archive"]
 "databc" = ["databc-stations", "snow-station-archive"]
+"nve" = ["nve-stations", "snow-station-archive"]
 "yukon" = ["yukon-stations", "snow-station-archive"]
 
 # Dependencies: the PyPI JSON for each, with a link to its changelog.
