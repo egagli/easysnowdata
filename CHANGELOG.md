@@ -6,6 +6,29 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
+## [v0.3.3](https://github.com/egagli/easysnowdata/releases/tag/v0.3.3) - 2026-10-21
+
+<small>[Compare with v0.3.2](https://github.com/egagli/easysnowdata/compare/v0.3.2...v0.3.3)</small>
+
+### Fixed
+
+- fix(snih): parse pre-1970 /Date()/ values on Windows ([5488a84](https://github.com/egagli/easysnowdata/commit/5488a8453c4bd07b607323e27f5a253ab1c5fc13) by Claude).
+- fix(tests): read client sources as UTF-8 so the credential scan passes on Windows ([e57a543](https://github.com/egagli/easysnowdata/commit/e57a543a26c3a803e5736ef6a549f9213e0649c3) by Claude).
+- fix(stations): RIHMI reads real AISORI-M exports; fixed-width layout, zips, column files ([4cb9bf5](https://github.com/egagli/easysnowdata/commit/4cb9bf541d8517aa6f63531e33cbb8b5a88a5d65) by Claude).
+- fix(stations): bring the new clients to the established client conventions ([4b98936](https://github.com/egagli/easysnowdata/commit/4b98936252975bca81e3a1beaa031ef250c629f7) by Claude).
+- fix(gallery): climate indices example reads SWE from the station archive; add a western-US analysis ([afa84ee](https://github.com/egagli/easysnowdata/commit/afa84eee7d46b9506613bec76deefebc11cbeb3e) by Claude).
+- fix(planetscope): pair UDM2 with its scene, scale radiance with Planet's coefficients (#59) ([8c166c6](https://github.com/egagli/easysnowdata/commit/8c166c6a9ad243070f95ddab526bbfde3508ed74) by Eric Gagliano).
+- fix(docs): gallery fallback uses POSIX page paths for git lookups (Windows) ([2db26ae](https://github.com/egagli/easysnowdata/commit/2db26ae9ed7d159c01473665f43744325e13fdaa) by egagli).
+- fix(modis): name the sinusoidal grid for Planetary Computer loads ([e5eeaf4](https://github.com/egagli/easysnowdata/commit/e5eeaf4824d59e8e23f0f8c5da0dc251545df5d7) by egagli).
+- fix(auth): bearer-token GDAL reads skip the HEAD request LP DAAC answers with 404 ([0728852](https://github.com/egagli/easysnowdata/commit/072885248021d2cf1433e86390681a14506bed5a) by egagli).
+- fix(watch): name the product a change touches; stop routine moves looking new ([47d21ce](https://github.com/egagli/easysnowdata/commit/47d21ce7d4af24a798d51c5f1a2f3c66e5acdcab) by egagli).
+- fix(health): probe HLS L30 and S30 on both routes, and the LPCLOUD reads ([cfd0634](https://github.com/egagli/easysnowdata/commit/cfd0634a059ead0274e18ee5f3483630296ed540) by egagli).
+- fix(auth): NSIDC on-premises files log in with the password, even with a token set ([5827702](https://github.com/egagli/easysnowdata/commit/5827702291853895f97889e6e366dc49a079989d) by egagli).
+- fix(auth): read an Earthdata token's expiry from the token, not from URS ([2951938](https://github.com/egagli/easysnowdata/commit/2951938646740dda547cf908b338efaba5005717) by egagli).
+- fix(status): escape probe errors in the README tooltips ([826e7df](https://github.com/egagli/easysnowdata/commit/826e7dfd9c66f0de6f25427b4bed534bbb0c4348) by egagli).
+- fix(boundaries): clearer health probes, Census 2025, explain NSIDC's login page ([0086513](https://github.com/egagli/easysnowdata/commit/008651397cd72abf3dc71437fb10d2d3c9b61e3d) by egagli).
+- fix(plotting): graticule on global projected maps ([5d46dfa](https://github.com/egagli/easysnowdata/commit/5d46dfaf9732f5a0b331e36a6cfd52570b002e34) by egagli).
+
 ## [v0.3.2](https://github.com/egagli/easysnowdata/releases/tag/v0.3.2) - 2026-09-23
 
 <small>[Compare with v0.3.1](https://github.com/egagli/easysnowdata/compare/v0.3.1...v0.3.2)</small>
