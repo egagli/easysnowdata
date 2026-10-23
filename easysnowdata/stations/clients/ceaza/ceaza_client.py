@@ -66,7 +66,9 @@ Known quirks (checked October 2026)
   date range and also with the documentation's example ``user`` values.
   The **JSON** form returned full ranges (13 years daily for Tascadero
   snow depth, 4,748 rows, in 3.5 s).  The client uses JSON and splits
-  requests into windows of 10 years (daily) or one year (hourly).
+  requests into windows of at most one year (365 days), the limit CEAZA-Met
+  gave for registered users (e-mail from Cristian Orrego, 2026-10-23: "hasta
+  1 año en cada [consulta]").
 - Errors come back as HTTP 200: an unsupported ``interv`` gives an HTML
   ``<p>ERROR en lib_datos…</p>`` before the JSON (no ``serie``); an unknown
   sensor gives ``e_cod: null`` and a ``serie`` of empty rows.  Both raise
@@ -194,7 +196,8 @@ SENSOR_COLUMNS = (
 
 #: Interval enum → ``interv`` code, and the request window per interval.
 _INTERV: dict[str, str] = {"daily": "dia", "hourly": "hora"}
-_WINDOW_DAYS: dict[str, int] = {"daily": 3650, "hourly": 365}
+#: CEAZA-Met allows registered users at most one year per request.
+_WINDOW_DAYS: dict[str, int] = {"daily": 365, "hourly": 365}
 
 #: Earliest date the documentation allows for ``fecha_inicio``.
 _EARLIEST = "2004-01-31"
