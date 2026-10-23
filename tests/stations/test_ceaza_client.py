@@ -8,7 +8,7 @@ stub session.  ``live`` tests hit the real web service (no credentials).
 """
 
 import json
-from datetime import date
+from datetime import date, timedelta
 
 import pytest
 
@@ -453,18 +453,23 @@ def test_get_data_hourly_has_datetime(client, session):
 
 def test_get_data_clips_to_sensor_dates_and_splits_windows(client, session):
     # No dates: each sensor from its first reading to its last (HUAL ended
-    # 2019), in ≤ 10-year windows.
+    # 2019), in windows of at most one year (CEAZA-Met's per-request limit).
     client.get_data("HUAL", variables="snwd")
-    (call,) = session.series_calls()
-    assert (call["s_cod"], call["fecha_inicio"], call["fecha_fin"]) == (
-        "HUALAN",
-        "2014-04-30",
-        "2019-10-23",
+    calls = session.series_calls()
+    assert {c["s_cod"] for c in calls} == {"HUALAN"}
+    spans = [(c["fecha_inicio"], c["fecha_fin"]) for c in calls]
+    assert spans[0][0] == "2014-04-30" and spans[-1][1] == "2019-10-23"
+    for (b, e), (nb, _) in zip(spans, spans[1:]):
+        assert date.fromisoformat(nb) == date.fromisoformat(e) + timedelta(days=1)
+    assert all(
+        (date.fromisoformat(e) - date.fromisoformat(b)).days < 365 for b, e in spans
     )
     session.calls.clear()
     client.get_data("TASC", variables="ae_mm", end_date="2025-12-31")
     spans = [(c["fecha_inicio"], c["fecha_fin"]) for c in session.series_calls()]
-    assert spans == [("2012-11-27", "2022-11-24"), ("2022-11-25", "2025-12-31")]
+    assert len(spans) == 14
+    assert spans[0] == ("2012-11-27", "2013-11-26")
+    assert spans[-1][1] == "2025-12-31"
     session.calls.clear()
     # Outside a sensor's life: no request at all.
     assert client.get_data("HUAL", begin_date="2024-01-01") == []
