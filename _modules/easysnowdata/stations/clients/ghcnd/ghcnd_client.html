@@ -1,0 +1,1404 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>easysnowdata.stations.clients.ghcnd.ghcnd_client &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../../../_static/documentation_options.js?v=1e500ddc"></script>
+    <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/easysnowdata/stations/clients/ghcnd/ghcnd_client';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.4.dev3" />
+  
+    
+    <script src="../../../../../_static/searchtools.js"></script>
+    <script src="../../../../../_static/language_data.js"></script>
+    <script src="../../../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../catalog/index.html">
+    Dataset catalog and status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../development.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../catalog/index.html">
+    Dataset catalog and status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../development.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">easysnowdata.stations.clients.ghcnd.ghcnd_client</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for easysnowdata.stations.clients.ghcnd.ghcnd_client</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">clients/ghcnd/ghcnd_client.py</span>
+<span class="sd">=============================</span>
+<span class="sd">Python client for GHCN-Daily — NOAA NCEI&#39;s Global Historical Climatology</span>
+<span class="sd">Network daily station archive.</span>
+
+<span class="sd">Primary use case: global daily snow depth (``SNWD``) and, at a smaller set</span>
+<span class="sd">of stations, daily snow water equivalent (``WESD``) from national</span>
+<span class="sd">meteorological services, the U.S. COOP and CoCoRaHS networks, ECA&amp;D and</span>
+<span class="sd">others.  GHCN-D also mirrors SNOTEL (network code ``S``), so its U.S.</span>
+<span class="sd">SNOTEL stations duplicate what the AWDB client already serves.</span>
+
+<span class="sd">Data source       : https://www.ncei.noaa.gov/pub/data/ghcn/daily/</span>
+<span class="sd">Format reference  : https://www.ncei.noaa.gov/pub/data/ghcn/daily/readme.txt</span>
+<span class="sd">Authentication    : none</span>
+<span class="sd">Licence           : none stated in ``readme.txt``; NCEI asks users to cite</span>
+<span class="sd">                    Menne et al. (2012), doi:10.1175/JTECH-D-11-00103.1, and</span>
+<span class="sd">                    the dataset version, doi:10.7289/V5D21VHZ.</span>
+
+<span class="sd">Files used</span>
+<span class="sd">----------</span>
+<span class="sd">- ``ghcnd-stations.txt``  — fixed-width station list (id, lat, lon,</span>
+<span class="sd">  elevation, state, name, GSN/HCN flags, WMO id).  ~11 MB.</span>
+<span class="sd">- ``ghcnd-inventory.txt`` — fixed-width (station, element, first year,</span>
+<span class="sd">  last year) table.  ~36 MB.  This is what tells snow stations apart.</span>
+<span class="sd">- ``by_station/{ID}.csv.gz`` — one gzipped CSV per station holding every</span>
+<span class="sd">  element for the full period of record.  Rows are</span>
+<span class="sd">  ``ID,YYYYMMDD,ELEMENT,VALUE,MFLAG,QFLAG,SFLAG,OBS_TIME``, no header.</span>
+
+<span class="sd">Both inventory files are downloaded once per client instance and cached in</span>
+<span class="sd">memory.  A station&#39;s full record is downloaded for every ``get_data()``</span>
+<span class="sd">call regardless of the date range — GHCN-D serves no windowed per-station</span>
+<span class="sd">files — so callers looping over many date windows should reuse the</span>
+<span class="sd">records rather than re-request.</span>
+
+<span class="sd">Station ids</span>
+<span class="sd">-----------</span>
+<span class="sd">GHCN-D ids are 11 characters: a 2-letter FIPS country code, a 1-character</span>
+<span class="sd">network code (see :data:`GHCN_NETWORKS`) and an 8-character station</span>
+<span class="sd">number, e.g. ``USS0021D08S`` (a SNOTEL site), ``RSM00027612`` (Moscow,</span>
+<span class="sd">WMO 27612).</span>
+
+<span class="sd">Design principles</span>
+<span class="sd">-----------------</span>
+<span class="sd">- Metric-first: SNWD (mm) and SNOW (mm) are returned in cm; WESD</span>
+<span class="sd">  (tenths of mm) in cm; PRCP and WESF (tenths of mm) in mm; temperatures</span>
+<span class="sd">  (tenths of °C) in °C.</span>
+<span class="sd">- Values that failed a GHCN-D quality check (non-blank ``QFLAG``) are</span>
+<span class="sd">  returned as ``None`` unless the client is built with</span>
+<span class="sd">  ``keep_qc_failed=True``.  ``include_flags=True`` exposes the raw</span>
+<span class="sd">  ``MFLAG,QFLAG,SFLAG`` triple either way.</span>
+<span class="sd">- Physically implausible snow values are nulled with per-type clamps.</span>
+<span class="sd">- Only ``interval=&quot;daily&quot;`` exists; anything else raises.</span>
+<span class="sd">- Missing values (``-9999``) are ``None``; HTTP retries use the shared</span>
+<span class="sd">  ``_common.request_with_retries`` loop (except the streamed ``by_year``</span>
+<span class="sd">  read, which ``get_year_data`` performs directly).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">gzip</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">coerce_list</span> <span class="k">as</span> <span class="n">_coerce_list</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">date_str</span> <span class="k">as</span> <span class="n">_date_str</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">filter_by_bbox</span> <span class="k">as</span> <span class="n">_filter_by_bbox</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">request_with_retries</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># ── Constants ────────────────────────────────────────────────────────────────</span>
+
+<span class="n">BASE_URL</span> <span class="o">=</span> <span class="s2">&quot;https://www.ncei.noaa.gov/pub/data/ghcn/daily&quot;</span>
+
+<span class="n">_DEFAULT_TIMEOUT</span> <span class="o">=</span> <span class="mi">120</span>
+<span class="n">_DEFAULT_RETRIES</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">_DEFAULT_BACKOFF</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="n">_STATIONS_FILE</span> <span class="o">=</span> <span class="s2">&quot;ghcnd-stations.txt&quot;</span>
+<span class="n">_INVENTORY_FILE</span> <span class="o">=</span> <span class="s2">&quot;ghcnd-inventory.txt&quot;</span>
+<span class="n">_BY_STATION</span> <span class="o">=</span> <span class="s2">&quot;by_station/</span><span class="si">{station_id}</span><span class="s2">.csv.gz&quot;</span>
+<span class="n">_BY_YEAR</span> <span class="o">=</span> <span class="s2">&quot;by_year/</span><span class="si">{year}</span><span class="s2">.csv.gz&quot;</span>
+
+<span class="c1"># GHCN-D marks a missing elevation as -999.9 in ghcnd-stations.txt.</span>
+<span class="n">_MISSING_ELEVATION</span> <span class="o">=</span> <span class="o">-</span><span class="mf">999.9</span>
+
+<span class="c1"># A station counts as Active when its latest snow-element year is at least</span>
+<span class="c1"># this many years before the current one.  The inventory is year-resolution</span>
+<span class="c1"># only, so &quot;active&quot; here means &quot;reported this year or last&quot;.</span>
+<span class="n">_ACTIVE_LAG_YEARS</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1"># Plausibility bounds (output units).  World-record snow depth is ~11.8 m</span>
+<span class="c1"># and the largest SNOTEL SWE is ~4 m; daily snowfall above 5 m is a glitch.</span>
+<span class="n">_MAX_PLAUSIBLE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;swe&quot;</span><span class="p">:</span> <span class="mf">1500.0</span><span class="p">,</span>  <span class="c1"># cm</span>
+    <span class="s2">&quot;snwd&quot;</span><span class="p">:</span> <span class="mf">1500.0</span><span class="p">,</span>  <span class="c1"># cm</span>
+    <span class="s2">&quot;snowfall&quot;</span><span class="p">:</span> <span class="mf">500.0</span><span class="p">,</span>  <span class="c1"># cm</span>
+<span class="p">}</span>
+
+<span class="n">_GHCND_SOURCE</span> <span class="o">=</span> <span class="s2">&quot;NOAA NCEI GHCN-Daily — &quot;</span> <span class="o">+</span> <span class="n">BASE_URL</span> <span class="o">+</span> <span class="s2">&quot;/by_station/&quot;</span>
+
+<span class="c1">#: Elements that make a station a *snow* station for get_all_stations().</span>
+<span class="n">SNOW_ELEMENTS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;WESD&quot;</span><span class="p">,</span> <span class="s2">&quot;SNWD&quot;</span><span class="p">)</span>
+
+<span class="c1"># ── Public variable / flag tables ────────────────────────────────────────────</span>
+
+<span class="c1">#: GHCN-D elements this client knows, keyed by the native element code.</span>
+<span class="c1">#: ``scale`` converts the stored integer to ``output_units``.</span>
+<span class="n">VARIABLES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;WESD&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Snow Water Equivalent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;swe&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;tenths of mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_GHCND_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Water equivalent of snow on the ground.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Stored as tenths of mm; returned in cm (× 0.01). Most WESD &quot;</span>
+            <span class="s2">&quot;records outside the U.S. are sparse or periodic.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;SNWD&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Snow Depth&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;snwd&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_GHCND_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Depth of snow on the ground.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="s2">&quot;Stored as mm; returned in cm (× 0.1).&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;SNOW&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Snowfall&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;snowfall&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_GHCND_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;New snow over the observation day, as a depth of snow.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="s2">&quot;Stored as mm; returned in cm (× 0.1).&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;WESF&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Snowfall Water Equivalent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;other&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;tenths of mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_GHCND_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Water equivalent of the day&#39;s snowfall.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Stored as tenths of mm; returned in mm (× 0.1). Typed &#39;other&#39; &quot;</span>
+            <span class="s2">&quot;rather than &#39;precip&#39; so it is never mistaken for total PRCP.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;PRCP&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Precipitation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;precip&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;tenths of mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_GHCND_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Total daily precipitation (rain and melted snow).&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="s2">&quot;Stored as tenths of mm; returned in mm (× 0.1).&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;TAVG&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Average Air Temperature&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;temp&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;tenths of degC&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;°C&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_GHCND_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Daily mean air temperature.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Stored as tenths of °C; returned in °C. Computed differently &quot;</span>
+            <span class="s2">&quot;by different sources (hourly mean vs. (max+min)/2).&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;TMAX&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Maximum Air Temperature&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;temp_max&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;tenths of degC&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;°C&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_GHCND_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Daily maximum air temperature.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="s2">&quot;Stored as tenths of °C; returned in °C.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;TMIN&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Minimum Air Temperature&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;temp_min&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;tenths of degC&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;°C&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_GHCND_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Daily minimum air temperature.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="s2">&quot;Stored as tenths of °C; returned in °C.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1">#: Standardized type → GHCN-D element(s), priority order.</span>
+<span class="n">_TYPE_TO_ELEMENTS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">_elem</span><span class="p">,</span> <span class="n">_info</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">_TYPE_TO_ELEMENTS</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_elem</span><span class="p">)</span>
+
+<span class="c1">#: Default variables when ``variables=None`` (DESIGN.md §3.4: snow only).</span>
+<span class="n">_DEFAULT_ELEMENTS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;WESD&quot;</span><span class="p">,</span> <span class="s2">&quot;SNWD&quot;</span><span class="p">]</span>
+
+<span class="c1">#: GHCN-D quality flags (``QFLAG``).  Blank means the value passed QC.</span>
+<span class="c1">#: The emitted ``flag`` string is ``&quot;MFLAG,QFLAG,SFLAG&quot;`` — the same layout</span>
+<span class="c1">#: NCEI&#39;s Access Data Service uses for its ``*_ATTRIBUTES`` fields.</span>
+<span class="n">DATA_FLAGS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;D&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed duplicate check&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;G&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed gap check&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;I&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed internal consistency check&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;K&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed streak/frequent-value check&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;L&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed check on length of multiday period&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed megaconsistency check&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed naught check&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;O&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed climatological outlier check&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;R&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed lagged range check&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed spatial consistency check&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;T&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed temporal consistency check&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;W&quot;</span><span class="p">:</span> <span class="s2">&quot;Temperature too warm for snow&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;X&quot;</span><span class="p">:</span> <span class="s2">&quot;Failed bounds check&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Z&quot;</span><span class="p">:</span> <span class="s2">&quot;Flagged as a result of an official Datzilla investigation&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1">#: The 3rd character of a GHCN-D id: which numbering system the id uses.</span>
+<span class="c1">#: It is a reasonable proxy for the observing network, and the way to drop</span>
+<span class="c1">#: the SNOTEL mirror (``&quot;S&quot;``) when AWDB is also in use.</span>
+<span class="n">GHCN_NETWORKS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;0&quot;</span><span class="p">:</span> <span class="s2">&quot;Unspecified&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="s2">&quot;CoCoRaHS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="s2">&quot;U.S. Cooperative Observer Network (COOP)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="s2">&quot;ECA&amp;D (European Climate Assessment &amp; Dataset)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="s2">&quot;WMO station id&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="s2">&quot;National Meteorological or Hydrological Center&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;P&quot;</span><span class="p">:</span> <span class="s2">&quot;Pre-COOP (NCEI internal id)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;R&quot;</span><span class="p">:</span> <span class="s2">&quot;U.S. RAWS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="s2">&quot;USDA NRCS SNOTEL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;W&quot;</span><span class="p">:</span> <span class="s2">&quot;WBAN&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="c1"># ── Fixed-width parsers ──────────────────────────────────────────────────────</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_stations_txt</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse ``ghcnd-stations.txt`` into ``{station_id: station dict}``.</span>
+
+<span class="sd">    Column layout (1-based, from the GHCN-D readme): ID 1–11, LATITUDE</span>
+<span class="sd">    13–20, LONGITUDE 22–30, ELEVATION 32–37, STATE 39–40, NAME 42–71,</span>
+<span class="sd">    GSN FLAG 73–75, HCN/CRN FLAG 77–79, WMO ID 81–85.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stations</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">sid</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">11</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">12</span><span class="p">:</span><span class="mi">20</span><span class="p">])</span>
+            <span class="n">lon</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">21</span><span class="p">:</span><span class="mi">30</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">elev</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">31</span><span class="p">:</span><span class="mi">37</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">elev</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">elev</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">elev</span> <span class="o">&lt;=</span> <span class="n">_MISSING_ELEVATION</span><span class="p">:</span>
+            <span class="n">elev</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">stations</span><span class="p">[</span><span class="n">sid</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;station_id&quot;</span><span class="p">:</span> <span class="n">sid</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">line</span><span class="p">[</span><span class="mi">41</span><span class="p">:</span><span class="mi">71</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">lon</span><span class="p">,</span>
+            <span class="s2">&quot;elevation_m&quot;</span><span class="p">:</span> <span class="n">elev</span><span class="p">,</span>
+            <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">line</span><span class="p">[</span><span class="mi">38</span><span class="p">:</span><span class="mi">40</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;country_code&quot;</span><span class="p">:</span> <span class="n">sid</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span>
+            <span class="s2">&quot;ghcn_network&quot;</span><span class="p">:</span> <span class="n">sid</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">3</span><span class="p">],</span>
+            <span class="s2">&quot;ghcn_network_name&quot;</span><span class="p">:</span> <span class="n">GHCN_NETWORKS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sid</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;gsn&quot;</span><span class="p">:</span> <span class="n">line</span><span class="p">[</span><span class="mi">72</span><span class="p">:</span><span class="mi">75</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;GSN&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;hcn_crn&quot;</span><span class="p">:</span> <span class="n">line</span><span class="p">[</span><span class="mi">76</span><span class="p">:</span><span class="mi">79</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;wmo_id&quot;</span><span class="p">:</span> <span class="n">line</span><span class="p">[</span><span class="mi">80</span><span class="p">:</span><span class="mi">85</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">return</span> <span class="n">stations</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_inventory_txt</span><span class="p">(</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">elements</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse ``ghcnd-inventory.txt`` into ``{station_id: {element: (first, last)}}``.</span>
+
+<span class="sd">    Column layout: ID 1–11, LATITUDE 13–20, LONGITUDE 22–30, ELEMENT 32–35,</span>
+<span class="sd">    FIRSTYEAR 37–40, LASTYEAR 42–45.  When ``elements`` is given, other</span>
+<span class="sd">    elements are skipped (the file has ~800 000 rows).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">inv</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">45</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">elem</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">31</span><span class="p">:</span><span class="mi">35</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">elements</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">elem</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">first</span><span class="p">,</span> <span class="n">last</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">36</span><span class="p">:</span><span class="mi">40</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">41</span><span class="p">:</span><span class="mi">45</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">inv</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">11</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="p">{})[</span><span class="n">elem</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">inv</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_iter_rows</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">elements</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">begin</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">end</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">station_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Yield ``(station_id, YYYY-MM-DD, element, raw_value, mflag, qflag, sflag)``.</span>
+
+<span class="sd">    ``lines`` is any iterable of CSV text lines in the GHCN-D</span>
+<span class="sd">    ``ID,YYYYMMDD,ELEMENT,VALUE,MFLAG,QFLAG,SFLAG,OBS_TIME`` layout shared by</span>
+<span class="sd">    the ``by_station/`` and ``by_year/`` files.  Rows outside ``[begin, end]``</span>
+<span class="sd">    (``YYYY-MM-DD``, either may be ``None``), for other elements, or for</span>
+<span class="sd">    stations outside ``station_ids`` are skipped.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">begin_key</span> <span class="o">=</span> <span class="n">begin</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">begin</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">end_key</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">end</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span> <span class="ow">or</span> <span class="n">rec</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">station_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">rec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">station_ids</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">day</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">begin_key</span> <span class="ow">and</span> <span class="n">day</span> <span class="o">&lt;</span> <span class="n">begin_key</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">end_key</span> <span class="ow">and</span> <span class="n">day</span> <span class="o">&gt;</span> <span class="n">end_key</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">mflag</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">qflag</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">5</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">sflag</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">6</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">yield</span> <span class="p">(</span>
+            <span class="n">rec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">day</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">day</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">day</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">rec</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+            <span class="n">value</span><span class="p">,</span>
+            <span class="n">mflag</span><span class="p">,</span>
+            <span class="n">qflag</span><span class="p">,</span>
+            <span class="n">sflag</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_by_station_csv</span><span class="p">(</span>
+    <span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span>
+    <span class="n">elements</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">begin</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">end</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a ``by_station/{ID}.csv.gz`` payload.</span>
+
+<span class="sd">    Returns ``(YYYY-MM-DD, element, raw_value, mflag, qflag, sflag)`` rows</span>
+<span class="sd">    for the wanted elements inside ``[begin, end]`` (``YYYY-MM-DD`` strings,</span>
+<span class="sd">    either may be ``None``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">EOFError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">GHCNDError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not decompress GHCN-D station file: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">_iter_rows</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">(</span><span class="n">text</span><span class="p">),</span> <span class="n">elements</span><span class="p">,</span> <span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">)]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert</span><span class="p">(</span><span class="n">element</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Scale a stored GHCN-D integer to output units, applying snow clamps.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">raw</span> <span class="o">==</span> <span class="o">-</span><span class="mi">9999</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">element</span><span class="p">]</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">raw</span> <span class="o">*</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;scale&quot;</span><span class="p">],</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">bound</span> <span class="o">=</span> <span class="n">_MAX_PLAUSIBLE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">bound</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="n">bound</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">value</span>
+
+
+<span class="c1"># ── Client ───────────────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="GHCNDClient">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.GHCNDClient.html#easysnowdata.stations.clients.GHCNDClient">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GHCNDClient</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Client for NOAA NCEI GHCN-Daily station files.</span>
+
+<span class="sd">    No credentials are needed.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    base_url : str</span>
+<span class="sd">        Root of the GHCN-D directory.  Override for a mirror.</span>
+<span class="sd">    timeout : int</span>
+<span class="sd">        HTTP request timeout in seconds.  The inventory file is ~36 MB, so</span>
+<span class="sd">        the default is generous.</span>
+<span class="sd">    max_retries : int</span>
+<span class="sd">        Number of retry attempts on transient errors (5xx, network).</span>
+<span class="sd">    backoff : int</span>
+<span class="sd">        Base backoff delay in seconds.  Actual delay = backoff × attempt.</span>
+<span class="sd">    session : requests.Session or None</span>
+<span class="sd">        Optional pre-configured session.</span>
+<span class="sd">    keep_qc_failed : bool</span>
+<span class="sd">        If False (default), values carrying a non-blank GHCN-D ``QFLAG``</span>
+<span class="sd">        are returned as ``None``.  If True they are returned as stored.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">BASE_URL</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_DEFAULT_TIMEOUT</span><span class="p">,</span>
+        <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_DEFAULT_RETRIES</span><span class="p">,</span>
+        <span class="n">backoff</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_DEFAULT_BACKOFF</span><span class="p">,</span>
+        <span class="n">session</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">keep_qc_failed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">=</span> <span class="n">base_url</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">=</span> <span class="n">max_retries</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backoff</span> <span class="o">=</span> <span class="n">backoff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keep_qc_failed</span> <span class="o">=</span> <span class="n">keep_qc_failed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">session</span> <span class="ow">or</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;User-Agent&quot;</span><span class="p">:</span> <span class="s2">&quot;easysnowdata&quot;</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stations_cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inventory_cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># ── Inventory files ──────────────────────────────────────────────────────</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_station_table</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stations_cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">_STATIONS_FILE</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_stations_cache</span> <span class="o">=</span> <span class="n">_parse_stations_txt</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;GHCN-D: parsed </span><span class="si">%d</span><span class="s2"> stations&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stations_cache</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stations_cache</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_inventory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inventory_cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">_INVENTORY_FILE</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_inventory_cache</span> <span class="o">=</span> <span class="n">_parse_inventory_txt</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">set</span><span class="p">(</span><span class="n">VARIABLES</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;GHCN-D: parsed inventory for </span><span class="si">%d</span><span class="s2"> stations&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_inventory_cache</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inventory_cache</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_station</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_station_table</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">base</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inventory</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sid</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">snow_last</span> <span class="o">=</span> <span class="p">[</span><span class="n">elems</span><span class="p">[</span><span class="n">e</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">SNOW_ELEMENTS</span> <span class="k">if</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">elems</span><span class="p">]</span>
+        <span class="n">active</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">snow_last</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="nb">max</span><span class="p">(</span><span class="n">snow_last</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">year</span> <span class="o">-</span> <span class="n">_ACTIVE_LAG_YEARS</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="o">**</span><span class="n">base</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;Active&quot;</span> <span class="k">if</span> <span class="n">active</span> <span class="k">else</span> <span class="s2">&quot;Inactive&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;has_swe&quot;</span><span class="p">:</span> <span class="s2">&quot;WESD&quot;</span> <span class="ow">in</span> <span class="n">elems</span><span class="p">,</span>
+            <span class="s2">&quot;has_snwd&quot;</span><span class="p">:</span> <span class="s2">&quot;SNWD&quot;</span> <span class="ow">in</span> <span class="n">elems</span><span class="p">,</span>
+            <span class="s2">&quot;elements&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="n">e</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;first_year&quot;</span><span class="p">:</span> <span class="n">f</span><span class="p">,</span> <span class="s2">&quot;last_year&quot;</span><span class="p">:</span> <span class="n">la</span><span class="p">}</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">la</span><span class="p">)</span> <span class="ow">in</span> <span class="n">elems</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+
+    <span class="c1"># ── Public API — stations ────────────────────────────────────────────────</span>
+
+<div class="viewcode-block" id="GHCNDClient.get_stations">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.GHCNDClient.html#easysnowdata.stations.clients.GHCNDClient.get_stations">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_stations</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">elements</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">SNOW_ELEMENTS</span><span class="p">,</span>
+        <span class="n">active_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">exclude_networks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stations reporting any of ``elements``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        elements : list[str] or str</span>
+<span class="sd">            GHCN-D element codes; a station is kept if it reports any of</span>
+<span class="sd">            them.  Defaults to ``(&quot;WESD&quot;, &quot;SNWD&quot;)``.</span>
+<span class="sd">        active_only : bool</span>
+<span class="sd">            Keep only stations whose latest snow-element year is this year</span>
+<span class="sd">            or last.</span>
+<span class="sd">        bbox : tuple, optional</span>
+<span class="sd">            ``(min_lon, min_lat, max_lon, max_lat)``.</span>
+<span class="sd">        exclude_networks : list[str] or str, optional</span>
+<span class="sd">            GHCN-D network codes to drop (see :data:`GHCN_NETWORKS`), e.g.</span>
+<span class="sd">            ``&quot;S&quot;`` to drop the SNOTEL mirror when AWDB is used alongside.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[dict]</span>
+<span class="sd">            Station dicts with ``station_id``, ``name``, ``latitude``,</span>
+<span class="sd">            ``longitude``, ``elevation_m``, ``status``, ``state``,</span>
+<span class="sd">            ``country_code``, ``ghcn_network``, ``ghcn_network_name``,</span>
+<span class="sd">            ``gsn``, ``hcn_crn``, ``wmo_id``, ``has_swe``, ``has_snwd``,</span>
+<span class="sd">            ``elements`` (``{code: {first_year, last_year}}``) and</span>
+<span class="sd">            ``station_url``.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        GHCNDError</span>
+<span class="sd">            On an unknown element code or a failed inventory download.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">wanted</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">_coerce_list</span><span class="p">(</span><span class="n">elements</span><span class="p">))</span>
+        <span class="n">unknown</span> <span class="o">=</span> <span class="n">wanted</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">VARIABLES</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">unknown</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">GHCNDError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown GHCN-D element(s) </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">unknown</span><span class="p">)</span><span class="si">}</span><span class="s2"> — expected some &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;of </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">VARIABLES</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">excluded</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">_coerce_list</span><span class="p">(</span><span class="n">exclude_networks</span><span class="p">))</span> <span class="k">if</span> <span class="n">exclude_networks</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">inventory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inventory</span><span class="p">()</span>
+        <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sid</span><span class="p">,</span> <span class="n">elems</span> <span class="ow">in</span> <span class="n">inventory</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">wanted</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">elems</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">sid</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="ow">in</span> <span class="n">excluded</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">sta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_station</span><span class="p">(</span><span class="n">sid</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">active_only</span> <span class="ow">and</span> <span class="n">sta</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;Active&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">sta</span><span class="p">[</span><span class="s2">&quot;station_url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;https://www.ncei.noaa.gov/cdo-web/datasets/GHCND/stations/&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;GHCND:</span><span class="si">{</span><span class="n">sid</span><span class="si">}</span><span class="s2">/detail&quot;</span>
+            <span class="p">)</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sta</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_filter_by_bbox</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">bbox</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GHCNDClient.get_all_stations">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.GHCNDClient.html#easysnowdata.stations.clients.GHCNDClient.get_all_stations">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_all_stations</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">active_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        All GHCN-D stations reporting snow depth or SWE (any network).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        active_only : bool</span>
+<span class="sd">            Keep only stations whose latest snow-element year is this year</span>
+<span class="sd">            or last.</span>
+<span class="sd">        bbox : tuple, optional</span>
+<span class="sd">            ``(min_lon, min_lat, max_lon, max_lat)``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[dict]</span>
+<span class="sd">            Same schema as :meth:`get_stations` (which can also drop</span>
+<span class="sd">            networks).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        GHCNDError</span>
+<span class="sd">            If the station or inventory file cannot be downloaded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_stations</span><span class="p">(</span><span class="n">active_only</span><span class="o">=</span><span class="n">active_only</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GHCNDClient.get_metadata">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.GHCNDClient.html#easysnowdata.stations.clients.GHCNDClient.get_metadata">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">station_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Metadata and element inventory for one station.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        station_id : str</span>
+<span class="sd">            GHCN-D station id, e.g. ``&quot;USS0021D08S&quot;``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            The :meth:`get_stations` dict plus ``data_variables``: one</span>
+<span class="sd">            entry per known element with ``name``, ``type``, ``interval``,</span>
+<span class="sd">            ``units`` (emitted), ``description``, ``notes``, ``begin_date``,</span>
+<span class="sd">            ``end_date`` and ``n_obs`` (``None`` — the inventory does not</span>
+<span class="sd">            say).  Dates are year-resolution (``&quot;YYYY-01-01&quot;`` /</span>
+<span class="sd">            ``&quot;YYYY-12-31&quot;``).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        GHCNDError</span>
+<span class="sd">            If the station id is not in ``ghcnd-stations.txt``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_station</span><span class="p">(</span><span class="n">station_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">GHCNDError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Station </span><span class="si">{</span><span class="n">station_id</span><span class="si">!r}</span><span class="s2"> not found in GHCN-D&quot;</span><span class="p">)</span>
+        <span class="n">sta</span><span class="p">[</span><span class="s2">&quot;station_url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;https://www.ncei.noaa.gov/cdo-web/datasets/GHCND/stations/&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;GHCND:</span><span class="si">{</span><span class="n">station_id</span><span class="si">}</span><span class="s2">/detail&quot;</span>
+        <span class="p">)</span>
+        <span class="n">sta</span><span class="p">[</span><span class="s2">&quot;data_variables&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">elem</span><span class="p">,</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">elem</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;interval&quot;</span><span class="p">:</span> <span class="s2">&quot;daily&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">elem</span><span class="p">][</span><span class="s2">&quot;output_units&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">elem</span><span class="p">][</span><span class="s2">&quot;description&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">elem</span><span class="p">][</span><span class="s2">&quot;notes&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;begin_date&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">yrs</span><span class="p">[</span><span class="s1">&#39;first_year&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">-01-01&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">yrs</span><span class="p">[</span><span class="s1">&#39;last_year&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">-12-31&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;n_obs&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">elem</span><span class="p">,</span> <span class="n">yrs</span> <span class="ow">in</span> <span class="n">sta</span><span class="p">[</span><span class="s2">&quot;elements&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">sta</span></div>
+
+
+    <span class="c1"># ── Public API — data ────────────────────────────────────────────────────</span>
+
+<div class="viewcode-block" id="GHCNDClient.get_station_file">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.GHCNDClient.html#easysnowdata.stations.clients.GHCNDClient.get_station_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_station_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">station_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Raw ``by_station/{ID}.csv.gz`` bytes for one station.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        station_id : str</span>
+<span class="sd">            GHCN-D station id.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bytes</span>
+<span class="sd">            The gzipped CSV, full period of record.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        GHCNDError</span>
+<span class="sd">            If the file cannot be downloaded (HTTP 404 for an unknown id).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">_BY_STATION</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">station_id</span><span class="o">=</span><span class="n">station_id</span><span class="p">))</span><span class="o">.</span><span class="n">content</span></div>
+
+
+<div class="viewcode-block" id="GHCNDClient.get_data">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.GHCNDClient.html#easysnowdata.stations.clients.GHCNDClient.get_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">station_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">variables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">begin_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">interval</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;daily&quot;</span><span class="p">,</span>
+        <span class="n">include_flags</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Standardized data fetch — returns a flat list of observation records.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        station_ids : list[str] or str or None</span>
+<span class="sd">            GHCN-D station id(s), e.g. ``&quot;USS0021D08S&quot;``.  Required unless</span>
+<span class="sd">            ``bbox`` is provided.</span>
+<span class="sd">        variables : list[str] or str or None</span>
+<span class="sd">            Element codes (``&quot;SNWD&quot;``) or standardized types (``&quot;snwd&quot;``).</span>
+<span class="sd">            ``None`` means snow only: ``WESD`` and ``SNWD``.</span>
+<span class="sd">        bbox : tuple, optional</span>
+<span class="sd">            ``(min_lon, min_lat, max_lon, max_lat)``; fetches every snow</span>
+<span class="sd">            station in the box.  GHCN-D is dense — a large box means many</span>
+<span class="sd">            full-record downloads.</span>
+<span class="sd">        begin_date, end_date : str or date, optional</span>
+<span class="sd">            Inclusive ``YYYY-MM-DD`` bounds.  The whole station file is</span>
+<span class="sd">            downloaded either way; the bounds only filter rows.</span>
+<span class="sd">        interval : str</span>
+<span class="sd">            Only ``&quot;daily&quot;`` is supported.</span>
+<span class="sd">        include_flags : bool</span>
+<span class="sd">            Add ``flag`` = ``&quot;MFLAG,QFLAG,SFLAG&quot;`` to each record.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[dict]</span>
+<span class="sd">            ``{station_id, date, variable, type, value, units, interval}``</span>
+<span class="sd">            records (plus ``flag``).  Stations whose file cannot be fetched</span>
+<span class="sd">            are logged and skipped.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If neither ``station_ids`` nor ``bbox`` is provided.</span>
+<span class="sd">        GHCNDError</span>
+<span class="sd">            On an unknown variable or interval.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        &gt;&gt;&gt; client = GHCNDClient()</span>
+<span class="sd">        &gt;&gt;&gt; records = client.get_data(</span>
+<span class="sd">        ...     station_ids=&quot;USS0021D08S&quot;,</span>
+<span class="sd">        ...     variables=[&quot;snwd&quot;],</span>
+<span class="sd">        ...     begin_date=&quot;2024-01-01&quot;,</span>
+<span class="sd">        ...     end_date=&quot;2024-01-15&quot;,</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; records[0][&quot;units&quot;]</span>
+<span class="sd">        &#39;cm&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">interval</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;daily&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">GHCNDError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unsupported interval </span><span class="si">{</span><span class="n">interval</span><span class="si">!r}</span><span class="s2"> for GHCN-D — only &#39;daily&#39; exists.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">elements</span> <span class="o">=</span> <span class="n">_resolve_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">station_ids</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;station_id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_stations</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="n">station_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="n">_coerce_list</span><span class="p">(</span><span class="n">station_ids</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Provide station_ids or bbox.&quot;</span><span class="p">)</span>
+
+        <span class="n">begin</span> <span class="o">=</span> <span class="n">_date_str</span><span class="p">(</span><span class="n">begin_date</span><span class="p">)</span> <span class="k">if</span> <span class="n">begin_date</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">_date_str</span><span class="p">(</span><span class="n">end_date</span><span class="p">)</span> <span class="k">if</span> <span class="n">end_date</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">wanted</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span>
+
+        <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sid</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_station_file</span><span class="p">(</span><span class="n">sid</span><span class="p">)</span>
+                <span class="n">rows</span> <span class="o">=</span> <span class="n">_parse_by_station_csv</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">wanted</span><span class="p">,</span> <span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">GHCNDError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;GHCN-D: skipping station </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">sid</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">records</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_record</span><span class="p">(</span><span class="n">sid</span><span class="p">,</span> <span class="o">*</span><span class="n">row</span><span class="p">,</span> <span class="n">include_flags</span><span class="o">=</span><span class="n">include_flags</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">records</span></div>
+
+
+<div class="viewcode-block" id="GHCNDClient.get_year_data">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.GHCNDClient.html#easysnowdata.stations.clients.GHCNDClient.get_year_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_year_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">station_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">variables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">begin_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">include_flags</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stream one ``by_year/{year}.csv.gz`` file as observation records.</span>
+
+<span class="sd">        The bulk path for refreshing many stations: one download (~115–170 MB</span>
+<span class="sd">        compressed for a recent year) instead of one full-record file per</span>
+<span class="sd">        station.  NCEI rebuilds the current year&#39;s file daily.  Late-arriving</span>
+<span class="sd">        sources (COOP paper forms, ECA&amp;D batches) can still add values to the</span>
+<span class="sd">        previous year&#39;s file for a month or two.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        year : int</span>
+<span class="sd">            Calendar year of the file.</span>
+<span class="sd">        station_ids : list[str] or str or None</span>
+<span class="sd">            Keep only these stations.  ``None`` keeps every station.</span>
+<span class="sd">        variables : list[str] or str or None</span>
+<span class="sd">            As in :meth:`get_data`; ``None`` means ``WESD`` and ``SNWD``.</span>
+<span class="sd">        begin_date, end_date : str or date, optional</span>
+<span class="sd">            Inclusive row filter within the year.</span>
+<span class="sd">        include_flags : bool</span>
+<span class="sd">            Add ``flag`` = ``&quot;MFLAG,QFLAG,SFLAG&quot;`` to each record.</span>
+
+<span class="sd">        Yields</span>
+<span class="sd">        ------</span>
+<span class="sd">        dict</span>
+<span class="sd">            The same records :meth:`get_data` returns, in file order.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        GHCNDError</span>
+<span class="sd">            On an unknown variable or a failed download.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">wanted</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">_resolve_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">))</span>
+        <span class="n">keep</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">_coerce_list</span><span class="p">(</span><span class="n">station_ids</span><span class="p">))</span> <span class="k">if</span> <span class="n">station_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">begin</span> <span class="o">=</span> <span class="n">_date_str</span><span class="p">(</span><span class="n">begin_date</span><span class="p">)</span> <span class="k">if</span> <span class="n">begin_date</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">_date_str</span><span class="p">(</span><span class="n">end_date</span><span class="p">)</span> <span class="k">if</span> <span class="n">end_date</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">_BY_YEAR</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">year</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">resp</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">GHCNDError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;HTTP </span><span class="si">{</span><span class="n">resp</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">resp</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">decode_content</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
+                    <span class="n">resp</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="s2">&quot;rt&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;ascii&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span>
+                <span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">_iter_rows</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">wanted</span><span class="p">,</span> <span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">keep</span><span class="p">):</span>
+                        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record</span><span class="p">(</span><span class="o">*</span><span class="n">row</span><span class="p">,</span> <span class="n">include_flags</span><span class="o">=</span><span class="n">include_flags</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">,</span> <span class="ne">EOFError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">GHCNDError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reading </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> failed: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_record</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">day</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">elem</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">stored</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">mflag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">qflag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">sflag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">include_flags</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">elem</span><span class="p">]</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">_convert</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">stored</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">qflag</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_qc_failed</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">rec</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;station_id&quot;</span><span class="p">:</span> <span class="n">sid</span><span class="p">,</span>
+            <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">day</span><span class="p">,</span>
+            <span class="s2">&quot;variable&quot;</span><span class="p">:</span> <span class="n">elem</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;output_units&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;interval&quot;</span><span class="p">:</span> <span class="s2">&quot;daily&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">include_flags</span><span class="p">:</span>
+            <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;flag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mflag</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">qflag</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">sflag</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">rec</span>
+
+    <span class="c1"># ── Internal helpers ─────────────────────────────────────────────────────</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">request_with_retries</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">error_cls</span><span class="o">=</span><span class="n">GHCNDError</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span>
+            <span class="n">max_retries</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span><span class="p">,</span>
+            <span class="n">backoff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">backoff</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<span class="c1"># ── Exception ────────────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="GHCNDError">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.GHCNDError.html#easysnowdata.stations.clients.GHCNDError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GHCNDError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a GHCN-D file cannot be fetched or parsed.&quot;&quot;&quot;</span></div>
+
+
+
+<span class="c1"># ── Private helpers ──────────────────────────────────────────────────────────</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Translate element codes and/or standardized types to element codes.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_DEFAULT_ELEMENTS</span><span class="p">)</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="p">[</span><span class="n">variables</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">raw</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_DEFAULT_ELEMENTS</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">raw</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="p">:</span>
+            <span class="n">candidates</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_TYPE_TO_ELEMENTS</span><span class="p">:</span>
+            <span class="n">candidates</span> <span class="o">=</span> <span class="n">_TYPE_TO_ELEMENTS</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># No silent fallback (DESIGN.md §3.6)</span>
+            <span class="k">raise</span> <span class="n">GHCNDError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown variable </span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s2"> for GHCN-D — expected one of &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">VARIABLES</span><span class="p">)</span><span class="si">}</span><span class="s2"> or a standardized type &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_TYPE_TO_ELEMENTS</span><span class="p">)</span><span class="si">}</span><span class="s2">).&quot;</span>
+            <span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">candidates</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">out</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

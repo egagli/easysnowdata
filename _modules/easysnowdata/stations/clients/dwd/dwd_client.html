@@ -1,0 +1,1493 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>easysnowdata.stations.clients.dwd.dwd_client &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../../../_static/documentation_options.js?v=1e500ddc"></script>
+    <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/easysnowdata/stations/clients/dwd/dwd_client';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.4.dev3" />
+  
+    
+    <script src="../../../../../_static/searchtools.js"></script>
+    <script src="../../../../../_static/language_data.js"></script>
+    <script src="../../../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../catalog/index.html">
+    Dataset catalog and status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../development.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../catalog/index.html">
+    Dataset catalog and status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../development.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">easysnowdata.stations.clients.dwd.dwd_client</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for easysnowdata.stations.clients.dwd.dwd_client</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">clients/dwd/dwd_client.py</span>
+<span class="sd">=========================</span>
+<span class="sd">Python client for the Deutscher Wetterdienst (DWD) Climate Data Center</span>
+<span class="sd">(CDC) open-data daily station archive — snow water equivalent and snow</span>
+<span class="sd">depth for Germany.</span>
+
+<span class="sd">Primary use case: daily manual snow water equivalent (``WASH_6``) at</span>
+<span class="sd">~550 DWD and partner-network climate stations, plus daily snow depth</span>
+<span class="sd">(``SH_TAG``) and new-snow depth (``NSH_TAG``) at the ~2 300 currently</span>
+<span class="sd">reporting precipitation stations, including the mountain synoptic stations</span>
+<span class="sd">(Zugspitze, Feldberg, Fichtelberg, Brocken, Großer Arber) that are *not* in</span>
+<span class="sd">the SWE product.</span>
+
+<span class="sd">Data source       : https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/daily/</span>
+<span class="sd">Format reference  : the dataset descriptions in each product directory,</span>
+<span class="sd">                    ``water_equiv/DESCRIPTION_f62e277b-…_en.pdf`` (and the</span>
+<span class="sd">                    German ``BESCHREIBUNG_…_de.pdf``, which is more complete)</span>
+<span class="sd">                    and ``more_precip/DESCRIPTION_obsgermany-climate-daily-more_precip_en.pdf``</span>
+<span class="sd">Licence           : CC BY 4.0 (stated in the &quot;COPYRIGHT&quot; section of both</span>
+<span class="sd">                    dataset descriptions); cite as &quot;Deutscher Wetterdienst&quot;.</span>
+<span class="sd">Authentication    : none</span>
+
+<span class="sd">Products used</span>
+<span class="sd">-------------</span>
+<span class="sd">- ``water_equiv/`` — &quot;Daily observations of snow height and water</span>
+<span class="sd">  equivalent for Germany&quot;.  Columns ``STATIONS_ID;MESS_DATUM;QN_6;ASH_6;</span>
+<span class="sd">  SH_TAG;WASH_6;WAAS_6;eor``.  Source of ``WASH_6``, ``WAAS_6``, ``ASH_6``</span>
+<span class="sd">  (and of ``SH_TAG`` for the few stations not in ``more_precip``).</span>
+<span class="sd">- ``more_precip/`` — daily precipitation-station values.  Columns</span>
+<span class="sd">  ``STATIONS_ID;MESS_DATUM;QN_6;RS;RSF;SH_TAG;NSH_TAG;eor``.  Source of</span>
+<span class="sd">  ``SH_TAG``, ``NSH_TAG`` and ``RS``.</span>
+
+<span class="sd">Each product has a ``recent/`` directory (rolling ~500 days up to</span>
+<span class="sd">yesterday, rebuilt daily, quality control *not* finished) and a</span>
+<span class="sd">``historical/`` directory (rebuilt annually, quality control finished).</span>
+<span class="sd">Per-station zips are ``tageswerte_{Wa|RR}_{id5}_akt.zip`` (recent) and</span>
+<span class="sd">``tageswerte_{Wa|RR}_{id5}_{begin}_{end}_hist.zip`` (historical — the</span>
+<span class="sd">date range is in the name, so the directory listing is parsed to find</span>
+<span class="sd">it).  Each zip holds one ``produkt_*.txt`` (semicolon CSV, ``-999`` =</span>
+<span class="sd">missing) plus ``Metadaten_*`` files (instrument, station-move and</span>
+<span class="sd">parameter history).  Station lists are fixed-width latin-1 text files</span>
+<span class="sd">(``Wa_/RR_Tageswerte_Beschreibung_Stationen.txt``).</span>
+
+<span class="sd">Merging recent + historical</span>
+<span class="sd">---------------------------</span>
+<span class="sd">The two directories overlap (in Oct 2026: historical to 2025-12-31,</span>
+<span class="sd">recent from 2025-04-12).  Per DWD, ``historical/`` has completed quality</span>
+<span class="sd">control and ``recent/`` has not, so the historical value is kept for</span>
+<span class="sd">every date it covers and ``recent/`` only fills later dates.  Historical</span>
+<span class="sd">zips are immutable per file name and are cached on disk under</span>
+<span class="sd">``easysnowdata.config.cache_dir(&quot;stations&quot;, &quot;dwd&quot;)``; recent zips are</span>
+<span class="sd">always re-downloaded.</span>
+
+<span class="sd">Measurement and cadence (from the German dataset description)</span>
+<span class="sd">-------------------------------------------------------------</span>
+<span class="sd">SWE is measured manually: a snow core of defined area is cut out</span>
+<span class="sd">(*ausgestochen*), melted, and the melt-water column read in mm (station</span>
+<span class="sd">metadata: &quot;Schneesonde WS 43; Wasseräquivalentmessung, manuell&quot; at</span>
+<span class="sd">essentially every station).  DWD: &quot;Wasseräquivalente [wurden] meistens</span>
+<span class="sd">nicht an allen Tagen bestimmt …, sondern je nach gültigen</span>
+<span class="sd">Messvorschriften und erst ab einer Mindestschneehöhe (oft 5 cm)&quot; — SWE</span>
+<span class="sd">is mostly not determined every day, but according to the observing rules</span>
+<span class="sd">in force and only above a minimum snow depth (often 5 cm).  The</span>
+<span class="sd">reference time is the 06 UTC morning observation (05:50 UTC).  Zero SWE</span>
+<span class="sd">is never reported: days without a measurement are ``-999`` (→ ``None``).</span>
+
+<span class="sd">Variables</span>
+<span class="sd">---------</span>
+<span class="sd">- ``WASH_6`` — water equivalent of the total snow depth (mm → cm).</span>
+<span class="sd">- ``WAAS_6`` — water equivalent of the cored (*ausgestochene*) snow (mm →</span>
+<span class="sd">  cm).  In 2025–26 identical to ``WASH_6`` on every row.</span>
+<span class="sd">- ``ASH_6`` — height of the cored snow sample (cm).</span>
+<span class="sd">- ``SH_TAG`` — daily snow depth (cm).</span>
+<span class="sd">- ``NSH_TAG`` — new-snow depth (cm).</span>
+<span class="sd">- ``RS`` — daily precipitation (mm).</span>
+
+<span class="sd">Quirks</span>
+<span class="sd">------</span>
+<span class="sd">- water_equiv ``produkt`` files end at the station&#39;s last SWE day (the</span>
+<span class="sd">  station list&#39;s ``bis_datum`` is that day too), so out of season the</span>
+<span class="sd">  newest water_equiv row is months old while more_precip runs to</span>
+<span class="sd">  yesterday.</span>
+<span class="sd">- Every water_equiv station is also a more_precip station, and the two</span>
+<span class="sd">  ``SH_TAG`` columns agreed on 86 681 of 86 683 shared 2025–26 rows.</span>
+<span class="sd">- ``NSH_TAG`` was added to more_precip in January 2019 (CDC change log);</span>
+<span class="sd">  older files lack the column, and the automated mountain synoptic</span>
+<span class="sd">  stations (Zugspitze, Feldberg, Fichtelberg, Brocken) report none.</span>
+<span class="sd">- The more_precip station list holds every precipitation station; some</span>
+<span class="sd">  never report snow depth.</span>
+
+<span class="sd">Quality flags</span>
+<span class="sd">-------------</span>
+<span class="sd">``QN_6`` is the row-level quality level (see :data:`DATA_FLAGS`);</span>
+<span class="sd">``include_flags=True`` emits it as the record ``flag`` string.</span>
+
+<span class="sd">Unverified</span>
+<span class="sd">----------</span>
+<span class="sd">- The ``RSF`` precipitation-form code in ``more_precip`` is not exposed:</span>
+<span class="sd">  its code table is not given in the dataset description.</span>
+<span class="sd">- The ``Abgabe`` column of the station list reads ``Frei`` (&quot;free&quot;) or</span>
+<span class="sd">  is blank; the meaning of a blank is not documented, but in Oct 2026 all</span>
+<span class="sd">  39 blank-``Abgabe`` water_equiv stations had no data file at all.</span>
+<span class="sd">- DWD docs give no explicit &quot;active&quot; definition; ``status`` here is</span>
+<span class="sd">  derived from the station list&#39;s ``bis_datum``.</span>
+
+<span class="sd">Design principles</span>
+<span class="sd">-----------------</span>
+<span class="sd">- Returns plain Python objects (dicts / lists).</span>
+<span class="sd">- Metric-first: SWE returned in cm (native mm × 0.1); depths cm and</span>
+<span class="sd">  precipitation mm pass through.</span>
+<span class="sd">- ``-999`` → ``None`` (shared ``_common`` sentinel policy); days without a</span>
+<span class="sd">  value are omitted rather than emitted as ``None``.  Snow values outside</span>
+<span class="sd">  0–15 m (new snow 0–5 m) are nulled.</span>
+<span class="sd">- Only ``interval=&quot;daily&quot;`` exists; anything else raises :class:`DWDError`.</span>
+<span class="sd">- HTTP retries use the shared ``_common.request_with_retries`` loop.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">coerce_list</span> <span class="k">as</span> <span class="n">_coerce_list</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">date_str</span> <span class="k">as</span> <span class="n">_date_str</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">filter_by_bbox</span> <span class="k">as</span> <span class="n">_filter_by_bbox</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">request_with_retries</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">to_float</span> <span class="k">as</span> <span class="n">_to_float</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># ── Constants ────────────────────────────────────────────────────────────────</span>
+
+<span class="n">BASE_URL</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/daily&quot;</span>
+<span class="p">)</span>
+
+<span class="n">_DEFAULT_TIMEOUT</span> <span class="o">=</span> <span class="mi">120</span>
+<span class="n">_DEFAULT_RETRIES</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">_DEFAULT_BACKOFF</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="c1">#: Product directory → file-name prefix and station-list file.</span>
+<span class="n">PRODUCTS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;water_equiv&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;prefix&quot;</span><span class="p">:</span> <span class="s2">&quot;Wa&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;stations&quot;</span><span class="p">:</span> <span class="s2">&quot;Wa_Tageswerte_Beschreibung_Stationen.txt&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Daily observations of snow height and water equivalent&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;more_precip&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;prefix&quot;</span><span class="p">:</span> <span class="s2">&quot;RR&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;stations&quot;</span><span class="p">:</span> <span class="s2">&quot;RR_Tageswerte_Beschreibung_Stationen.txt&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Daily precipitation, snow depth and new snow&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1">#: A station is Active when its station-list ``bis_datum`` is within this</span>
+<span class="c1">#: many days of today.  Generous because SWE stops each spring: the</span>
+<span class="c1">#: water_equiv list&#39;s ``bis_datum`` is the last SWE-season day (~April).</span>
+<span class="n">_ACTIVE_DAYS</span> <span class="o">=</span> <span class="mi">400</span>
+
+<span class="c1">#: ``recent/`` holds roughly the last 500 days; skip it for windows that</span>
+<span class="c1">#: end well before that.</span>
+<span class="n">_RECENT_SPAN_DAYS</span> <span class="o">=</span> <span class="mi">600</span>
+
+<span class="c1"># Plausibility bounds in output units (DESIGN.md: SWE/depth 0–15 m).</span>
+<span class="n">_MAX_PLAUSIBLE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;swe&quot;</span><span class="p">:</span> <span class="mf">1500.0</span><span class="p">,</span>  <span class="c1"># cm</span>
+    <span class="s2">&quot;snwd&quot;</span><span class="p">:</span> <span class="mf">1500.0</span><span class="p">,</span>  <span class="c1"># cm</span>
+    <span class="s2">&quot;snowfall&quot;</span><span class="p">:</span> <span class="mf">500.0</span><span class="p">,</span>  <span class="c1"># cm, one day</span>
+<span class="p">}</span>
+
+<span class="n">_SRC_WA</span> <span class="o">=</span> <span class="n">BASE_URL</span> <span class="o">+</span> <span class="s2">&quot;/water_equiv/&quot;</span>
+<span class="n">_SRC_RR</span> <span class="o">=</span> <span class="n">BASE_URL</span> <span class="o">+</span> <span class="s2">&quot;/more_precip/&quot;</span>
+
+<span class="c1"># ── Public variable / flag tables ────────────────────────────────────────────</span>
+
+<span class="c1">#: Variables this client knows, keyed by the native column name.</span>
+<span class="c1">#: ``product`` lists the product(s) the column is read from, in priority</span>
+<span class="c1">#: order; ``scale`` converts the stored value to ``output_units``.</span>
+<span class="n">VARIABLES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;WASH_6&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Snow Water Equivalent (total snow depth)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;swe&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;water_equiv&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SRC_WA</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Water equivalent of the total snow depth &quot;</span>
+            <span class="s2">&quot;(Wasseräquivalent der Gesamtschneehöhe), 06 UTC observation.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Manual snow-sampler measurement; stored in mm, returned in cm. &quot;</span>
+            <span class="s2">&quot;Per DWD mostly not measured every day, and only above a minimum &quot;</span>
+            <span class="s2">&quot;snow depth (often 5 cm). Zero is never reported — no measurement &quot;</span>
+            <span class="s2">&quot;and no snow are both missing.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;WAAS_6&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Snow Water Equivalent (cored snow)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;other&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;water_equiv&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SRC_WA</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Water equivalent of the cored snow sample &quot;</span>
+            <span class="s2">&quot;(Wasseräquivalent ausgestochene Schneehöhe).&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Stored in mm, returned in cm. Typed &#39;other&#39; so that &#39;swe&#39; &quot;</span>
+            <span class="s2">&quot;resolves to WASH_6 only; in 2025-26 it equals WASH_6 on every row.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;ASH_6&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Height of Cored Snow&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;other&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;water_equiv&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SRC_WA</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Height of the snow sample cut out for the SWE measurement &quot;</span>
+            <span class="s2">&quot;(Höhe ausgestochener Schnee).&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="s2">&quot;Usually equals SH_TAG on SWE days.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;SH_TAG&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Snow Depth&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;snwd&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;more_precip&quot;</span><span class="p">,</span> <span class="s2">&quot;water_equiv&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SRC_RR</span> <span class="o">+</span> <span class="s2">&quot; (fallback &quot;</span> <span class="o">+</span> <span class="n">_SRC_WA</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Daily snow depth (Schneehöhe Tageswert), morning observation.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Read from more_precip (year-round, ~2 300 stations); stations &quot;</span>
+            <span class="s2">&quot;absent from more_precip fall back to the water_equiv column. &quot;</span>
+            <span class="s2">&quot;Manual snow stake at most stations, a few ultrasonic/laser sensors.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;NSH_TAG&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;New Snow Depth&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;snowfall&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;more_precip&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SRC_RR</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Depth of fresh snow (Neuschneehöhe) over the observation day.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="s2">&quot;Stored and returned in cm.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;RS&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Precipitation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;precip&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;product&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;more_precip&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SRC_RR</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Daily precipitation height.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="s2">&quot;Stored and returned in mm.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1">#: Standardized type → native column(s), priority order.</span>
+<span class="n">_TYPE_TO_VARS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">_var</span><span class="p">,</span> <span class="n">_info</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">_TYPE_TO_VARS</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_var</span><span class="p">)</span>
+
+<span class="c1">#: Default variables when ``variables=None`` (DESIGN.md §3.4: snow only).</span>
+<span class="n">_DEFAULT_VARS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;WASH_6&quot;</span><span class="p">,</span> <span class="s2">&quot;SH_TAG&quot;</span><span class="p">]</span>
+
+<span class="c1">#: ``QN_6`` quality levels (row-level), from the dataset descriptions.</span>
+<span class="c1">#: Data up to 1980 reach at best QN 5, later data QN 10.</span>
+<span class="n">DATA_FLAGS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="s2">&quot;Only formal control&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="s2">&quot;Controlled with individually defined criteria&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;3&quot;</span><span class="p">:</span> <span class="s2">&quot;Automatic control and correction&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;5&quot;</span><span class="p">:</span> <span class="s2">&quot;Historic, subjective procedures&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;7&quot;</span><span class="p">:</span> <span class="s2">&quot;Second control done, before correction&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;8&quot;</span><span class="p">:</span> <span class="s2">&quot;Quality control outside ROUTINE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;9&quot;</span><span class="p">:</span> <span class="s2">&quot;Not all parameters corrected&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;10&quot;</span><span class="p">:</span> <span class="s2">&quot;Quality control finished, all corrections finished&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># ── Parsers ──────────────────────────────────────────────────────────────────</span>
+
+<span class="n">_STATION_LINE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;^(\d+)\s+(\d</span><span class="si">{8}</span><span class="s2">)\s+(\d</span><span class="si">{8}</span><span class="s2">)\s+(-?\d+(?:\.\d+)?)\s+(-?[\d.]+)\s+(-?[\d.]+)\s(.*)$&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Name and Bundesland are fixed 41-character fields after the longitude.</span>
+<span class="n">_NAME_W</span> <span class="o">=</span> <span class="mi">41</span>
+<span class="n">_STATE_W</span> <span class="o">=</span> <span class="mi">41</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ymd</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">text</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">text</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">text</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_pad_id</span><span class="p">(</span><span class="n">station_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize a DWD station id to its 5-digit zero-padded form.&quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">station_id</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">DWDError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid DWD station id </span><span class="si">{</span><span class="n">station_id</span><span class="si">!r}</span><span class="s2"> — expected digits.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">text</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_station_list</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a ``*_Tageswerte_Beschreibung_Stationen.txt`` station list.</span>
+
+<span class="sd">    Returns ``{id5: {station_id, name, latitude, longitude, elevation_m,</span>
+<span class="sd">    state, release, begin_date, end_date}}``.  The two header lines and</span>
+<span class="sd">    blank lines are skipped.  The numeric columns are whitespace-split</span>
+<span class="sd">    (their widths differ between products); name and Bundesland are fixed</span>
+<span class="sd">    41-character fields after the longitude.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">_STATION_LINE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">sid</span><span class="p">,</span> <span class="n">von</span><span class="p">,</span> <span class="n">bis</span><span class="p">,</span> <span class="n">elev</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">rest</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+        <span class="n">sid</span> <span class="o">=</span> <span class="n">sid</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">sid</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;station_id&quot;</span><span class="p">:</span> <span class="n">sid</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">rest</span><span class="p">[:</span><span class="n">_NAME_W</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">lat</span><span class="p">),</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">lon</span><span class="p">),</span>
+            <span class="s2">&quot;elevation_m&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">elev</span><span class="p">),</span>
+            <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">rest</span><span class="p">[</span><span class="n">_NAME_W</span> <span class="p">:</span> <span class="n">_NAME_W</span> <span class="o">+</span> <span class="n">_STATE_W</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;release&quot;</span><span class="p">:</span> <span class="n">rest</span><span class="p">[</span><span class="n">_NAME_W</span> <span class="o">+</span> <span class="n">_STATE_W</span> <span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;begin_date&quot;</span><span class="p">:</span> <span class="n">_ymd</span><span class="p">(</span><span class="n">von</span><span class="p">),</span>
+            <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="n">_ymd</span><span class="p">(</span><span class="n">bis</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="n">_LISTING_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s1">&#39;href=&quot;(tageswerte_([A-Za-z]+)_(\d</span><span class="si">{5}</span><span class="s1">)_(?:(\d</span><span class="si">{8}</span><span class="s1">)_(\d</span><span class="si">{8}</span><span class="s1">)_hist|akt)\.zip)&quot;&#39;</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_listing</span><span class="p">(</span><span class="n">html</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse an Apache directory index into ``{id5: {file, begin, end}}``.</span>
+
+<span class="sd">    ``begin``/``end`` (``YYYY-MM-DD``) come from historical file names and</span>
+<span class="sd">    are ``None`` for recent (``_akt``) files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">_LISTING_RE</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">html</span><span class="p">):</span>
+        <span class="n">fname</span><span class="p">,</span> <span class="n">_prefix</span><span class="p">,</span> <span class="n">sid</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">sid</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">fname</span><span class="p">,</span>
+            <span class="s2">&quot;begin&quot;</span><span class="p">:</span> <span class="n">_ymd</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">if</span> <span class="n">b</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">_ymd</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">if</span> <span class="n">e</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_produkt</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read the ``produkt_*.txt`` member of a station zip.</span>
+
+<span class="sd">    Returns ``(columns, {YYYY-MM-DD: {column: float|None, &quot;QN_6&quot;: str}})``.</span>
+<span class="sd">    ``-999`` → ``None``.  Raises :class:`DWDError` on a bad archive.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">zf</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">raw</span><span class="p">))</span>
+    <span class="k">except</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">BadZipFile</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">DWDError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not a valid DWD station zip: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+    <span class="n">members</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">zf</span><span class="o">.</span><span class="n">namelist</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;produkt&quot;</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">members</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">DWDError</span><span class="p">(</span><span class="s2">&quot;DWD station zip has no produkt_*.txt member&quot;</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">zf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">members</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;latin-1&quot;</span><span class="p">)</span>
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">(</span><span class="n">text</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">next</span><span class="p">(</span><span class="n">reader</span><span class="p">)]</span>
+    <span class="k">except</span> <span class="ne">StopIteration</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">DWDError</span><span class="p">(</span><span class="s2">&quot;Empty produkt file&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">i_date</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;MESS_DATUM&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">DWDError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;produkt file lacks MESS_DATUM: </span><span class="si">{</span><span class="n">header</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+    <span class="n">i_qn</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;QN_6&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="s2">&quot;QN_6&quot;</span> <span class="ow">in</span> <span class="n">header</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">value_cols</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">h</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;STATIONS_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;MESS_DATUM&quot;</span><span class="p">,</span> <span class="s2">&quot;QN_6&quot;</span><span class="p">,</span> <span class="s2">&quot;eor&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
+    <span class="p">]</span>
+    <span class="n">rows</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">i_date</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">day</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="n">i_date</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">day</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">8</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">day</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">value_cols</span><span class="p">:</span>
+            <span class="n">row</span><span class="p">[</span><span class="n">h</span><span class="p">]</span> <span class="o">=</span> <span class="n">_to_float</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">row</span><span class="p">[</span><span class="s2">&quot;QN_6&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="n">i_qn</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">if</span> <span class="n">i_qn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">i_qn</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">rows</span><span class="p">[</span><span class="n">_ymd</span><span class="p">(</span><span class="n">day</span><span class="p">)]</span> <span class="o">=</span> <span class="n">row</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">h</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">value_cols</span><span class="p">],</span> <span class="n">rows</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert</span><span class="p">(</span><span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stored</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Scale a stored value to output units, applying the snow clamps.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">stored</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">stored</span> <span class="o">*</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;scale&quot;</span><span class="p">],</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">bound</span> <span class="o">=</span> <span class="n">_MAX_PLAUSIBLE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">bound</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="n">bound</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">value</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_merge</span><span class="p">(</span>
+    <span class="n">hist</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">recent</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Union of historical and recent rows; historical wins on overlap.&quot;&quot;&quot;</span>
+    <span class="n">merged</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">recent</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="n">merged</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">hist</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="k">return</span> <span class="n">merged</span>
+
+
+<span class="c1"># ── Client ───────────────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="DWDClient">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.DWDClient.html#easysnowdata.stations.clients.DWDClient">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DWDClient</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Client for DWD CDC daily snow water equivalent and snow depth.</span>
+
+<span class="sd">    No credentials are needed.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    base_url : str</span>
+<span class="sd">        Root of the CDC ``observations_germany/climate/daily`` tree.</span>
+<span class="sd">    timeout, max_retries, backoff : int</span>
+<span class="sd">        HTTP settings for the shared retry loop.</span>
+<span class="sd">    session : requests.Session or None</span>
+<span class="sd">        Optional pre-configured session.</span>
+<span class="sd">    cache : bool</span>
+<span class="sd">        Cache historical station zips on disk (they never change for a</span>
+<span class="sd">        given file name).  Recent zips are never cached.</span>
+<span class="sd">    cache_path : str or Path or None</span>
+<span class="sd">        Override the cache directory (default</span>
+<span class="sd">        ``easysnowdata.config.cache_dir(&quot;stations&quot;, &quot;dwd&quot;)``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">BASE_URL</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_DEFAULT_TIMEOUT</span><span class="p">,</span>
+        <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_DEFAULT_RETRIES</span><span class="p">,</span>
+        <span class="n">backoff</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_DEFAULT_BACKOFF</span><span class="p">,</span>
+        <span class="n">session</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">cache_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">=</span> <span class="n">base_url</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">=</span> <span class="n">max_retries</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backoff</span> <span class="o">=</span> <span class="n">backoff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">cache</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">cache_path</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">session</span> <span class="ow">or</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;User-Agent&quot;</span><span class="p">:</span> <span class="s2">&quot;easysnowdata&quot;</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_station_lists</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listings</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># ── Directory / station-list access ──────────────────────────────────────</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_station_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">product</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">product</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_station_lists</span><span class="p">:</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="n">PRODUCTS</span><span class="p">[</span><span class="n">product</span><span class="p">][</span><span class="s2">&quot;stations&quot;</span><span class="p">]</span>
+            <span class="n">raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">product</span><span class="si">}</span><span class="s2">/recent/</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">content</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_station_lists</span><span class="p">[</span><span class="n">product</span><span class="p">]</span> <span class="o">=</span> <span class="n">_parse_station_list</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;latin-1&quot;</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;DWD </span><span class="si">%s</span><span class="s2">: parsed </span><span class="si">%d</span><span class="s2"> stations&quot;</span><span class="p">,</span> <span class="n">product</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_station_lists</span><span class="p">[</span><span class="n">product</span><span class="p">])</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_station_lists</span><span class="p">[</span><span class="n">product</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_listing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">product</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="n">kind</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listings</span><span class="p">:</span>
+            <span class="n">html</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">product</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">/&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_parse_listing</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cache_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">product</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_path</span> <span class="o">/</span> <span class="n">product</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">path</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">easysnowdata.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">cache_dir</span>  <span class="c1"># noqa: PLC0415</span>
+
+        <span class="k">return</span> <span class="n">cache_dir</span><span class="p">(</span><span class="s2">&quot;stations&quot;</span><span class="p">,</span> <span class="s2">&quot;dwd&quot;</span><span class="p">,</span> <span class="n">product</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fetch_zip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">product</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">product</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;historical&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_dir</span><span class="p">(</span><span class="n">product</span><span class="p">)</span> <span class="o">/</span> <span class="n">fname</span>
+            <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
+            <span class="n">raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">content</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;.part&quot;</span><span class="p">)</span>
+            <span class="n">tmp</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+            <span class="n">tmp</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">raw</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">content</span>
+
+    <span class="c1"># ── Public API — stations ────────────────────────────────────────────────</span>
+
+<div class="viewcode-block" id="DWDClient.get_stations">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.DWDClient.html#easysnowdata.stations.clients.DWDClient.get_stations">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_stations</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">products</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;water_equiv&quot;</span><span class="p">,</span> <span class="s2">&quot;more_precip&quot;</span><span class="p">),</span>
+        <span class="n">active_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stations in the given product station lists, merged by id.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        products : list[str] or str</span>
+<span class="sd">            Any of ``&quot;water_equiv&quot;`` (SWE stations) and ``&quot;more_precip&quot;``</span>
+<span class="sd">            (precipitation stations reporting snow depth / new snow).</span>
+<span class="sd">        active_only : bool</span>
+<span class="sd">            Keep stations whose latest ``bis_datum`` is within ~400 days.</span>
+<span class="sd">        bbox : tuple, optional</span>
+<span class="sd">            ``(min_lon, min_lat, max_lon, max_lat)``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[dict]</span>
+<span class="sd">            ``station_id`` (5-digit), ``name``, ``latitude``, ``longitude``,</span>
+<span class="sd">            ``elevation_m``, ``status``, ``state`` (Bundesland), ``operator``,</span>
+<span class="sd">            ``measurement_method``, ``release``, ``has_swe``, ``has_snwd``,</span>
+<span class="sd">            ``products`` (``{product: {begin_date, end_date}}``),</span>
+<span class="sd">            ``begin_date``, ``end_date``, ``swe_begin_date``,</span>
+<span class="sd">            ``swe_end_date`` and ``station_url`` (``None`` — DWD has no</span>
+<span class="sd">            per-station page).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        DWDError</span>
+<span class="sd">            On an unknown product or a failed station-list download.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">wanted</span> <span class="o">=</span> <span class="n">_coerce_list</span><span class="p">(</span><span class="n">products</span><span class="p">)</span>
+        <span class="n">unknown</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">wanted</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">PRODUCTS</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">unknown</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DWDError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown DWD product(s) </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">unknown</span><span class="p">)</span><span class="si">}</span><span class="s2"> — expected some of &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">PRODUCTS</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">merged</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">product</span> <span class="ow">in</span> <span class="n">PRODUCTS</span><span class="p">:</span>  <span class="c1"># fixed order: water_equiv attributes win</span>
+            <span class="k">if</span> <span class="n">product</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">wanted</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">sid</span><span class="p">,</span> <span class="n">sta</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_station_list</span><span class="p">(</span><span class="n">product</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">entry</span> <span class="o">=</span> <span class="n">merged</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sid</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">entry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">entry</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="n">k</span><span class="p">:</span> <span class="n">sta</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span>
+                            <span class="s2">&quot;station_id&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;latitude&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;longitude&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;elevation_m&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;release&quot;</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">}</span>
+                    <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;products&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="n">merged</span><span class="p">[</span><span class="n">sid</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span>
+                <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;products&quot;</span><span class="p">][</span><span class="n">product</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;begin_date&quot;</span><span class="p">:</span> <span class="n">sta</span><span class="p">[</span><span class="s2">&quot;begin_date&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="n">sta</span><span class="p">[</span><span class="s2">&quot;end_date&quot;</span><span class="p">],</span>
+                <span class="p">}</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_finish_station</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">merged</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="n">active_only</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">out</span> <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Active&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_filter_by_bbox</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">bbox</span><span class="p">)</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_finish_station</span><span class="p">(</span><span class="n">entry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">prods</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;products&quot;</span><span class="p">]</span>
+        <span class="n">begins</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;begin_date&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">prods</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+        <span class="n">ends</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="s2">&quot;end_date&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">prods</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ends</span><span class="p">)</span>
+        <span class="n">cutoff</span> <span class="o">=</span> <span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">_ACTIVE_DAYS</span><span class="p">))</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="n">wa</span> <span class="o">=</span> <span class="n">prods</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;water_equiv&quot;</span><span class="p">)</span>
+        <span class="n">entry</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;Active&quot;</span> <span class="k">if</span> <span class="n">end</span> <span class="o">&gt;=</span> <span class="n">cutoff</span> <span class="k">else</span> <span class="s2">&quot;Inactive&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operator&quot;</span><span class="p">:</span> <span class="s2">&quot;Deutscher Wetterdienst (DWD) or partner network&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;measurement_method&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s2">&quot;manual snow-sampler SWE and snow-stake depth&quot;</span>
+                    <span class="k">if</span> <span class="n">wa</span>
+                    <span class="k">else</span> <span class="s2">&quot;snow depth (mostly manual snow stake)&quot;</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;has_swe&quot;</span><span class="p">:</span> <span class="n">wa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="c1"># water_equiv rows always carry SH_TAG; more_precip lists</span>
+                <span class="c1"># every precipitation station, and SH_TAG may be all</span>
+                <span class="c1"># missing at some of them.</span>
+                <span class="s2">&quot;has_snwd&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">&quot;begin_date&quot;</span><span class="p">:</span> <span class="nb">min</span><span class="p">(</span><span class="n">begins</span><span class="p">),</span>
+                <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="n">end</span><span class="p">,</span>
+                <span class="s2">&quot;swe_begin_date&quot;</span><span class="p">:</span> <span class="n">wa</span><span class="p">[</span><span class="s2">&quot;begin_date&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">wa</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;swe_end_date&quot;</span><span class="p">:</span> <span class="n">wa</span><span class="p">[</span><span class="s2">&quot;end_date&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">wa</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;station_url&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">entry</span>
+
+<div class="viewcode-block" id="DWDClient.get_all_stations">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.DWDClient.html#easysnowdata.stations.clients.DWDClient.get_all_stations">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_all_stations</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">active_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        All SWE (water_equiv) and snow-depth (more_precip) stations.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        active_only : bool</span>
+<span class="sd">            Keep stations whose latest ``bis_datum`` is within ~400 days.</span>
+<span class="sd">        bbox : tuple, optional</span>
+<span class="sd">            ``(min_lon, min_lat, max_lon, max_lat)``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[dict]</span>
+<span class="sd">            Same schema as :meth:`get_stations` (which can also select one</span>
+<span class="sd">            product).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        DWDError</span>
+<span class="sd">            If a station list cannot be downloaded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_stations</span><span class="p">(</span><span class="n">active_only</span><span class="o">=</span><span class="n">active_only</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DWDClient.get_metadata">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.DWDClient.html#easysnowdata.stations.clients.DWDClient.get_metadata">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">station_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Metadata and variable inventory for one station.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        station_id : str or int</span>
+<span class="sd">            DWD station id, with or without zero padding (``&quot;00020&quot;``,</span>
+<span class="sd">            ``20``).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            The :meth:`get_stations` dict plus ``data_variables``: one entry</span>
+<span class="sd">            per variable available from the station&#39;s products, with</span>
+<span class="sd">            ``name``, ``type``, ``interval``, ``units`` (emitted),</span>
+<span class="sd">            ``description``, ``notes``, ``begin_date``/``end_date`` (from</span>
+<span class="sd">            the product station list: the period of record of the product,</span>
+<span class="sd">            not of the individual column) and ``n_obs`` (``None``).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        DWDError</span>
+<span class="sd">            If the id is not numeric or the station is in neither station</span>
+<span class="sd">            list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sid</span> <span class="o">=</span> <span class="n">_pad_id</span><span class="p">(</span><span class="n">station_id</span><span class="p">)</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_stations</span><span class="p">()</span> <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;station_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">sid</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DWDError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Station </span><span class="si">{</span><span class="n">sid</span><span class="si">!r}</span><span class="s2"> not found in DWD station lists&quot;</span><span class="p">)</span>
+        <span class="n">sta</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dvars</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">prod</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;product&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">sta</span><span class="p">[</span><span class="s2">&quot;products&quot;</span><span class="p">]),</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">prod</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">dvars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">var</span><span class="p">,</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;interval&quot;</span><span class="p">:</span> <span class="s2">&quot;daily&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;output_units&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;notes&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; Product: </span><span class="si">{</span><span class="n">prod</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;begin_date&quot;</span><span class="p">:</span> <span class="n">sta</span><span class="p">[</span><span class="s2">&quot;products&quot;</span><span class="p">][</span><span class="n">prod</span><span class="p">][</span><span class="s2">&quot;begin_date&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="n">sta</span><span class="p">[</span><span class="s2">&quot;products&quot;</span><span class="p">][</span><span class="n">prod</span><span class="p">][</span><span class="s2">&quot;end_date&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;n_obs&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="n">sta</span><span class="p">[</span><span class="s2">&quot;data_variables&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dvars</span>
+        <span class="k">return</span> <span class="n">sta</span></div>
+
+
+    <span class="c1"># ── Public API — data ────────────────────────────────────────────────────</span>
+
+<div class="viewcode-block" id="DWDClient.get_station_rows">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.DWDClient.html#easysnowdata.stations.clients.DWDClient.get_station_rows">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_station_rows</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">station_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">product</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">begin_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Merged historical + recent rows for one station and product.</span>
+
+<span class="sd">        Historical rows win on overlapping dates.  Files that cannot hold</span>
+<span class="sd">        the window (by historical file name / recent span) are not</span>
+<span class="sd">        downloaded.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        station_id : str or int</span>
+<span class="sd">            DWD station id.</span>
+<span class="sd">        product : str</span>
+<span class="sd">            ``&quot;water_equiv&quot;`` or ``&quot;more_precip&quot;``.</span>
+<span class="sd">        begin_date, end_date : str or date, optional</span>
+<span class="sd">            Inclusive ``YYYY-MM-DD`` bounds.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            ``{YYYY-MM-DD: {column: stored value or None, &quot;QN_6&quot;: str}}`` in</span>
+<span class="sd">            native units; ``{}`` when the station has no file.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        DWDError</span>
+<span class="sd">            On an unknown product, a bad station id, a failed download or a</span>
+<span class="sd">            malformed zip.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">product</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">PRODUCTS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DWDError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown DWD product </span><span class="si">{</span><span class="n">product</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">sid</span> <span class="o">=</span> <span class="n">_pad_id</span><span class="p">(</span><span class="n">station_id</span><span class="p">)</span>
+        <span class="n">begin</span> <span class="o">=</span> <span class="n">_date_str</span><span class="p">(</span><span class="n">begin_date</span><span class="p">)</span> <span class="k">if</span> <span class="n">begin_date</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">_date_str</span><span class="p">(</span><span class="n">end_date</span><span class="p">)</span> <span class="k">if</span> <span class="n">end_date</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="n">hist_rows</span> <span class="o">=</span> <span class="n">recent_rows</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">hist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listing</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="s2">&quot;historical&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hist</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">begin</span> <span class="ow">and</span> <span class="n">hist</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">hist</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">begin</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="p">(</span><span class="n">end</span> <span class="ow">and</span> <span class="n">hist</span><span class="p">[</span><span class="s2">&quot;begin&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">hist</span><span class="p">[</span><span class="s2">&quot;begin&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">end</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">hist_rows</span> <span class="o">=</span> <span class="n">_parse_produkt</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_zip</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="s2">&quot;historical&quot;</span><span class="p">,</span> <span class="n">hist</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">])</span>
+            <span class="p">)</span>
+        <span class="n">recent_cutoff</span> <span class="o">=</span> <span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">_RECENT_SPAN_DAYS</span><span class="p">))</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="n">hist_covers</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">hist</span> <span class="ow">and</span> <span class="n">hist</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">end</span> <span class="ow">and</span> <span class="n">hist</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">end</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">hist_covers</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">end</span> <span class="ow">and</span> <span class="n">end</span> <span class="o">&lt;</span> <span class="n">recent_cutoff</span><span class="p">):</span>
+            <span class="n">rec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listing</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="s2">&quot;recent&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sid</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">rec</span><span class="p">:</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">recent_rows</span> <span class="o">=</span> <span class="n">_parse_produkt</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_zip</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="s2">&quot;recent&quot;</span><span class="p">,</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">])</span>
+                <span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">_merge</span><span class="p">(</span><span class="n">hist_rows</span><span class="p">,</span> <span class="n">recent_rows</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">d</span><span class="p">:</span> <span class="n">r</span>
+            <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">begin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">d</span> <span class="o">&gt;=</span> <span class="n">begin</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">end</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">d</span> <span class="o">&lt;=</span> <span class="n">end</span><span class="p">)</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="DWDClient.get_data">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.DWDClient.html#easysnowdata.stations.clients.DWDClient.get_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">station_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">variables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">begin_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">interval</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;daily&quot;</span><span class="p">,</span>
+        <span class="n">include_flags</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Standardized data fetch — returns a flat list of observation records.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        station_ids : list[str] or str or None</span>
+<span class="sd">            DWD station id(s), with or without zero padding (``&quot;00020&quot;``,</span>
+<span class="sd">            ``&quot;20&quot;``, ``20``).  Required unless ``bbox`` is provided.</span>
+<span class="sd">        variables : list[str] or str or None</span>
+<span class="sd">            Native columns (``&quot;WASH_6&quot;``) or standardized types</span>
+<span class="sd">            (``&quot;swe&quot;``, ``&quot;snwd&quot;``, ``&quot;snowfall&quot;``, ``&quot;precip&quot;``).</span>
+<span class="sd">            ``None`` means snow only: ``WASH_6`` and ``SH_TAG``.</span>
+<span class="sd">        bbox : tuple, optional</span>
+<span class="sd">            ``(min_lon, min_lat, max_lon, max_lat)``.</span>
+<span class="sd">        begin_date, end_date : str or date, optional</span>
+<span class="sd">            Inclusive ``YYYY-MM-DD`` bounds.</span>
+<span class="sd">        interval : str</span>
+<span class="sd">            Only ``&quot;daily&quot;`` is supported.</span>
+<span class="sd">        include_flags : bool</span>
+<span class="sd">            Add ``flag`` = the row&#39;s ``QN_6`` quality level.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[dict]</span>
+<span class="sd">            ``{station_id, date, variable, type, value, units, interval}``</span>
+<span class="sd">            records (plus ``flag``), only for dates with a non-missing value.</span>
+<span class="sd">            Stations whose files cannot be fetched are logged and skipped.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If neither ``station_ids`` nor ``bbox`` is provided.</span>
+<span class="sd">        DWDError</span>
+<span class="sd">            On an unknown variable or interval.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        &gt;&gt;&gt; client = DWDClient()</span>
+<span class="sd">        &gt;&gt;&gt; records = client.get_data(</span>
+<span class="sd">        ...     station_ids=&quot;00020&quot;,</span>
+<span class="sd">        ...     variables=[&quot;snwd&quot;],</span>
+<span class="sd">        ...     begin_date=&quot;2024-01-01&quot;,</span>
+<span class="sd">        ...     end_date=&quot;2024-01-15&quot;,</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; records[0][&quot;units&quot;]</span>
+<span class="sd">        &#39;cm&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;daily&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DWDError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unsupported interval </span><span class="si">{</span><span class="n">interval</span><span class="si">!r}</span><span class="s2"> for DWD — only &#39;daily&#39; exists.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">variables_</span> <span class="o">=</span> <span class="n">_resolve_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">station_ids</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;station_id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_stations</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="n">station_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">_pad_id</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">_coerce_list</span><span class="p">(</span><span class="n">station_ids</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Provide station_ids or bbox.&quot;</span><span class="p">)</span>
+
+        <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sid</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">:</span>
+            <span class="n">cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables_</span><span class="p">:</span>
+                <span class="n">prod</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_product_for</span><span class="p">(</span><span class="n">sid</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">prod</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">prod</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cache</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">cache</span><span class="p">[</span><span class="n">prod</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_station_rows</span><span class="p">(</span>
+                            <span class="n">sid</span><span class="p">,</span> <span class="n">prod</span><span class="p">,</span> <span class="n">begin_date</span><span class="p">,</span> <span class="n">end_date</span>
+                        <span class="p">)</span>
+                    <span class="k">except</span> <span class="n">DWDError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="s2">&quot;DWD: skipping </span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2"> for station </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="n">prod</span><span class="p">,</span>
+                            <span class="n">var</span><span class="p">,</span>
+                            <span class="n">sid</span><span class="p">,</span>
+                            <span class="n">exc</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="n">cache</span><span class="p">[</span><span class="n">prod</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">records</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_records</span><span class="p">(</span><span class="n">sid</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">cache</span><span class="p">[</span><span class="n">prod</span><span class="p">],</span> <span class="n">include_flags</span><span class="o">=</span><span class="n">include_flags</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="n">records</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;station_id&quot;</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;variable&quot;</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">records</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_product_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;First product (in the variable&#39;s priority order) holding the station.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">prod</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="s2">&quot;product&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">sid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listing</span><span class="p">(</span><span class="n">prod</span><span class="p">,</span> <span class="s2">&quot;recent&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">sid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listing</span><span class="p">(</span>
+                <span class="n">prod</span><span class="p">,</span> <span class="s2">&quot;historical&quot;</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="n">prod</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_records</span><span class="p">(</span>
+        <span class="n">sid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">rows</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">include_flags</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+        <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">day</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[</span><span class="n">day</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">row</span> <span class="ow">or</span> <span class="n">row</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">rec</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;station_id&quot;</span><span class="p">:</span> <span class="n">sid</span><span class="p">,</span>
+                <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">day</span><span class="p">,</span>
+                <span class="s2">&quot;variable&quot;</span><span class="p">:</span> <span class="n">var</span><span class="p">,</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">_convert</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="n">var</span><span class="p">]),</span>
+                <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;output_units&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;interval&quot;</span><span class="p">:</span> <span class="s2">&quot;daily&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">include_flags</span><span class="p">:</span>
+                <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;flag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;QN_6&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="c1"># ── Internal helpers ─────────────────────────────────────────────────────</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">request_with_retries</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">error_cls</span><span class="o">=</span><span class="n">DWDError</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span>
+            <span class="n">max_retries</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span><span class="p">,</span>
+            <span class="n">backoff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">backoff</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<span class="c1"># ── Exception ────────────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="DWDError">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.DWDError.html#easysnowdata.stations.clients.DWDError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DWDError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a DWD CDC file cannot be fetched or parsed.&quot;&quot;&quot;</span></div>
+
+
+
+<span class="c1"># ── Private helpers ──────────────────────────────────────────────────────────</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Translate native columns and/or standardized types to native columns.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_DEFAULT_VARS</span><span class="p">)</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="p">[</span><span class="n">variables</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">raw</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_DEFAULT_VARS</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">raw</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="p">:</span>
+            <span class="n">candidates</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_TYPE_TO_VARS</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">!=</span> <span class="s2">&quot;other&quot;</span><span class="p">:</span>
+            <span class="n">candidates</span> <span class="o">=</span> <span class="n">_TYPE_TO_VARS</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># No silent fallback (DESIGN.md §3.6)</span>
+            <span class="k">raise</span> <span class="n">DWDError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown variable </span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s2"> for DWD — expected one of &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">VARIABLES</span><span class="p">)</span><span class="si">}</span><span class="s2"> or a standardized type &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">_TYPE_TO_VARS</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s1">&#39;other&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">).&quot;</span>
+            <span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">candidates</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">out</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

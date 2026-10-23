@@ -1,0 +1,1514 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>easysnowdata.stations.clients.alberta.alberta_client &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../../../_static/documentation_options.js?v=1e500ddc"></script>
+    <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/easysnowdata/stations/clients/alberta/alberta_client';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.4.dev3" />
+  
+    
+    <script src="../../../../../_static/searchtools.js"></script>
+    <script src="../../../../../_static/language_data.js"></script>
+    <script src="../../../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../catalog/index.html">
+    Dataset catalog and status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../development.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../catalog/index.html">
+    Dataset catalog and status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../development.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">easysnowdata.stations.clients.alberta.alberta_client</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for easysnowdata.stations.clients.alberta.alberta_client</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">clients/alberta/alberta_client.py</span>
+<span class="sd">=================================</span>
+<span class="sd">Python client for the snow data behind Alberta Environment and Protected</span>
+<span class="sd">Areas&#39; (AEPA) *Alberta River Basins* web app (https://rivers.alberta.ca/).</span>
+
+<span class="sd">Primary use case: automated snow-pillow SWE and snow depth in the Alberta</span>
+<span class="sd">Rockies and foothills (near-real-time, 15-minute, records back to the</span>
+<span class="sd">1980s at most AEPA pillows) plus the manual snow-survey (snow course) SWE</span>
+<span class="sd">and depth record (back to the 1960s–1970s at many courses).</span>
+
+<span class="sd">Data source       : https://rivers.alberta.ca/ (Alberta River Basins)</span>
+<span class="sd">Authentication    : none</span>
+<span class="sd">Documented API    : none.  Everything here is what the public web page&#39;s</span>
+<span class="sd">                    own JavaScript calls (``/js/ArbPublicPageScripts``,</span>
+<span class="sd">                    inspected 2026-10); it may change without notice.</span>
+
+<span class="sd">Endpoints used (the same ones the public map uses)</span>
+<span class="sd">--------------------------------------------------</span>
+<span class="sd">- Station catalog — ArcGIS MapServer</span>
+<span class="sd">  ``https://geospatial.alberta.ca/europa/rest/services/arb/alberta_river_basins/MapServer``</span>
+<span class="sd">  reached through the site&#39;s own proxy::</span>
+
+<span class="sd">      https://rivers.alberta.ca/proxy.ashx?&lt;MapServer&gt;/&lt;layer&gt;/query?where=...&amp;f=json</span>
+
+<span class="sd">  The MapServer itself answers ``499 Token Required``; the proxy needs a</span>
+<span class="sd">  ``Referer: https://rivers.alberta.ca/`` header (it answers 403</span>
+<span class="sd">  otherwise), exactly as a browser on the page sends.</span>
+
+<span class="sd">  * layer **39** ``ARB_STATIONS_ENVDATA_TIMESERIES_TABLE`` — one row per</span>
+<span class="sd">    station × parameter time series: ``station_number``, ``ParNumber``</span>
+<span class="sd">    (``SW``, ``SD``, ``SW-SS``, ``SD-SS``, ``TA``, ``PC`` …), ``tsID``</span>
+<span class="sd">    (the WISKI time-series id), ``TsIdLowres`` (its daily aggregate),</span>
+<span class="sd">    ``TsUnitSymbol``, ``TsMinDataAsCurrentTime``/``TsMaxDataAsCurrentTime``</span>
+<span class="sd">    (first/last value, MST wall clock encoded as epoch ms),</span>
+<span class="sd">    ``CurrentData`` (``current``/``not_current``), ``station_status``,</span>
+<span class="sd">    ``SiteNumber`` (province/state: AB, BC, MT, SK).</span>
+<span class="sd">  * layer **11** ``ARB_STATIONS_ENVDATA`` — station name, latitude,</span>
+<span class="sd">    longitude, status.  18 BC stations listed in layer 39 are missing</span>
+<span class="sd">    here and therefore have no coordinates.</span>
+
+<span class="sd">- Data — ``https://rivers.alberta.ca/WiskiLiveDataService/Download``</span>
+<span class="sd">  ``?tsId=&lt;tsID&gt;&amp;from=YYYY-MM-DD&amp;to=YYYY-MM-DD&amp;filename=..&amp;zip=false&amp;json=true``</span>
+<span class="sd">  (the page&#39;s &quot;Data Download&quot; button).  Returns</span>
+<span class="sd">  ``[{&quot;station_no&quot;, &quot;stationparameter_name&quot;, &quot;ts_name&quot;, &quot;ts_unitsymbol&quot;,</span>
+<span class="sd">  &quot;rows&quot;, &quot;columns&quot;: &quot;Timestamp,Value&quot;, &quot;data&quot;: [[&quot;YYYY-MM-DD HH:MM:SS&quot;,</span>
+<span class="sd">  value|null], ...]}]``.  ``to`` is inclusive of the whole day.  No row</span>
+<span class="sd">  cap was hit (7 years of 15-minute data, 145 000 rows, in ~8 s).  An</span>
+<span class="sd">  unknown ``tsId`` gives HTTP 500.</span>
+
+<span class="sd">Time convention</span>
+<span class="sd">---------------</span>
+<span class="sd">Timestamps are **MST (UTC−7) all year, no daylight saving**.  Verified by</span>
+<span class="sd">lag-correlating hourly air temperature at the two SNOTEL sites mirrored</span>
+<span class="sd">here (Many Glacier 13A27S, Flattop Mtn 13A19S) against NRCS AWDB (PST):</span>
+<span class="sd">the Alberta timestamps lead AWDB by exactly 1 h in both March and August</span>
+<span class="sd">2026.  Sub-daily records carry ``datetime`` as ISO 8601 with ``-07:00``.</span>
+<span class="sd">(The catalog&#39;s ``TsMinDateUtc``/``TsMaxDateUtc`` fields are MST + 6 h, not</span>
+<span class="sd">true UTC; this client uses the ``*AsCurrentTime`` fields instead.)</span>
+
+<span class="sd">Intervals</span>
+<span class="sd">---------</span>
+<span class="sd">- ``&quot;sub_hourly&quot;`` — the native series (``C.Corrected-Seasonal`` for</span>
+<span class="sd">  SW/SD): 15-minute at AEPA pillows since ~2010s, hourly in older years</span>
+<span class="sd">  and at mirrored SNOTEL sites.</span>
+<span class="sd">- ``&quot;hourly&quot;`` — the native samples that fall exactly on HH:00 MST</span>
+<span class="sd">  (instantaneous, not an hourly mean); hours without an :00 sample are</span>
+<span class="sd">  absent.</span>
+<span class="sd">- ``&quot;daily&quot;`` — for SW, SD and PC the source&#39;s own WISKI daily aggregate</span>
+<span class="sd">  (``TsIdLowres``: ``A.DayMean`` for SW/SD, ``A.DayTotal`` for PC),</span>
+<span class="sd">  labelled at 00:00 MST of the day it summarises (a few early years are</span>
+<span class="sd">  labelled 01:00; the date part is used either way).  ``A.DayMean`` is</span>
+<span class="sd">  AEPA&#39;s own (time-weighted) mean and differs by a fraction of a mm from a</span>
+<span class="sd">  plain arithmetic mean of the 15-minute values.  For TA — whose</span>
+<span class="sd">  ``TsIdLowres`` sometimes points at a *different* sensor (e.g. ``TA2``) —</span>
+<span class="sd">  and for any series whose daily aggregate is missing or mislabelled, the</span>
+<span class="sd">  daily value is computed here as the arithmetic mean of the native</span>
+<span class="sd">  samples in the MST calendar day, kept only when they span at least 20</span>
+<span class="sd">  distinct hours.</span>
+<span class="sd">- ``&quot;periodic&quot;`` — manual snow survey ``SW-SS`` / ``SD-SS`` (``P.Survey``),</span>
+<span class="sd">  one value per visit (typically monthly, Jan–Jun).</span>
+
+<span class="sd">Variables</span>
+<span class="sd">---------</span>
+<span class="sd">See :data:`VARIABLES`.  Native units: SW / SW-SS mm, SD / SD-SS cm, TA</span>
+<span class="sd">°C, PC mm.  Output: SWE and depth in cm, TA in °C, PC in mm.  Snow values</span>
+<span class="sd">outside 0–1500 cm (including small negative pillow readings) are nulled.</span>
+<span class="sd">``PC`` (precipitation gauge) is offered only as the daily total</span>
+<span class="sd">(``A.DayTotal``) because the native series is a cumulative gauge level.</span>
+
+<span class="sd">Stations</span>
+<span class="sd">--------</span>
+<span class="sd">At 2026-10-14 the catalog listed 291 snow stations (any of SW, SD, SW-SS,</span>
+<span class="sd">SD-SS): 55 with automated SWE (19 AEPA pillows, 27 BC Snow Survey sites,</span>
+<span class="sd">7 NRCS SNOTEL sites in Montana, 2 Global Water Futures Observatory</span>
+<span class="sd">sites), 129 with automated snow depth, 202 manual snow courses.  The</span>
+<span class="sd">operator is the suffix of the station name (&quot;... - EPA&quot;, &quot;- BC&quot;,</span>
+<span class="sd">&quot;- Snotel&quot;, &quot;- MSC&quot;, &quot;- Merchant&quot;, &quot;- AGI&quot; ...); it is passed through as</span>
+<span class="sd">``operator_code`` and only the codes whose meaning is unambiguous are</span>
+<span class="sd">expanded in ``operator``.  **Elevation is not published** by the app and</span>
+<span class="sd">is ``None``.</span>
+
+<span class="sd">``status`` is ``&quot;Active&quot;`` when any automated snow series is flagged</span>
+<span class="sd">``CurrentData == &quot;current&quot;`` or the latest snow survey is within the last</span>
+<span class="sd">550 days; the catalog&#39;s own status (Active / Discontinued / Inactive /</span>
+<span class="sd">Unknown / Pending / Decommissioned — &quot;Unknown&quot; for most BC sites) is kept</span>
+<span class="sd">as ``source_status``.</span>
+
+<span class="sd">Licence / terms</span>
+<span class="sd">---------------</span>
+<span class="sd">No licence is stated for this web app or its download.  The page shows a</span>
+<span class="sd">&quot;Download Disclaimer&quot;: data are provisional, automatically generated by</span>
+<span class="sd">remote equipment that may not be under Government of Alberta control, not</span>
+<span class="sd">reviewed, may change, and are used at your own risk.  The footer links</span>
+<span class="sd">the general Government of Alberta &quot;Copyright and Disclaimer&quot; page</span>
+<span class="sd">(https://www.alberta.ca/disclaimer.aspx).  Alberta&#39;s Open Government</span>
+<span class="sd">Licence – Alberta applies to datasets published on open.alberta.ca; the</span>
+<span class="sd">ARB snow data are *not* published there (only PDF protocols are), so OGL–</span>
+<span class="sd">Alberta has not been verified to cover this data.  Mirrored BC and SNOTEL</span>
+<span class="sd">series are also available from their own operators.</span>
+
+<span class="sd">Quality flags</span>
+<span class="sd">-------------</span>
+<span class="sd">The download carries no quality flags.  :data:`DATA_FLAGS` is empty and</span>
+<span class="sd">``include_flags=True`` adds ``flag: None``.</span>
+
+<span class="sd">Design principles</span>
+<span class="sd">-----------------</span>
+<span class="sd">- Returns plain Python objects (dicts / lists).</span>
+<span class="sd">- Metric-first: SWE returned in cm (native mm × 0.1); depth cm, TA °C and</span>
+<span class="sd">  PC mm pass through.</span>
+<span class="sd">- Missing values are ``None``; snow values outside 0–15 m are nulled.</span>
+<span class="sd">- Unknown variables or intervals raise :class:`AlbertaError` (no</span>
+<span class="sd">  fallback); a named parameter not offered at ``interval`` raises too.</span>
+<span class="sd">- HTTP retries use the shared ``_common.request_with_retries`` loop.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">urllib.parse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">UTC</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">chunk</span> <span class="k">as</span> <span class="n">_chunk</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">coerce_list</span> <span class="k">as</span> <span class="n">_coerce_list</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">date_str</span> <span class="k">as</span> <span class="n">_date_str</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">filter_by_bbox</span> <span class="k">as</span> <span class="n">_filter_by_bbox</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">request_with_retries</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">to_float</span> <span class="k">as</span> <span class="n">_to_float</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># ── Constants ────────────────────────────────────────────────────────────────</span>
+
+<span class="n">BASE_URL</span> <span class="o">=</span> <span class="s2">&quot;https://rivers.alberta.ca&quot;</span>
+<span class="n">MAPSERVER_URL</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;https://geospatial.alberta.ca/europa/rest/services/arb/&quot;</span>
+    <span class="s2">&quot;alberta_river_basins/MapServer&quot;</span>
+<span class="p">)</span>
+<span class="c1">#: Station × time-series table (layer 39) and station point layer (layer 11).</span>
+<span class="n">TIMESERIES_LAYER</span> <span class="o">=</span> <span class="mi">39</span>
+<span class="n">STATIONS_LAYER</span> <span class="o">=</span> <span class="mi">11</span>
+
+<span class="n">_PROXY_PATH</span> <span class="o">=</span> <span class="s2">&quot;/proxy.ashx?&quot;</span>
+<span class="n">_DOWNLOAD_PATH</span> <span class="o">=</span> <span class="s2">&quot;/WiskiLiveDataService/Download&quot;</span>
+
+<span class="n">_DEFAULT_TIMEOUT</span> <span class="o">=</span> <span class="mi">120</span>
+<span class="n">_DEFAULT_RETRIES</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">_DEFAULT_BACKOFF</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">_PAGE_SIZE</span> <span class="o">=</span> <span class="mi">2000</span>  <span class="c1"># MapServer maxRecordCount</span>
+<span class="n">_IN_CHUNK</span> <span class="o">=</span> <span class="mi">100</span>  <span class="c1"># station ids per IN (...) clause</span>
+
+<span class="c1">#: Fixed MST offset used by every timestamp on the site (no DST).</span>
+<span class="n">MST</span> <span class="o">=</span> <span class="n">timezone</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=-</span><span class="mi">7</span><span class="p">),</span> <span class="s2">&quot;MST&quot;</span><span class="p">)</span>
+
+<span class="c1"># Snow plausibility (output units, cm): 0–15 m.</span>
+<span class="n">_MAX_SNOW_CM</span> <span class="o">=</span> <span class="mf">1500.0</span>
+
+<span class="c1"># A manual-survey-only station counts as Active if surveyed this recently.</span>
+<span class="n">_SURVEY_ACTIVE_DAYS</span> <span class="o">=</span> <span class="mi">550</span>
+
+<span class="c1"># Client-side daily means need native samples in at least this many hours.</span>
+<span class="n">_MIN_HOURS_FOR_DAILY</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="n">_SOURCE</span> <span class="o">=</span> <span class="s2">&quot;Alberta Environment and Protected Areas — Alberta River Basins, &quot;</span> <span class="o">+</span> <span class="p">(</span>
+    <span class="n">BASE_URL</span> <span class="o">+</span> <span class="n">_DOWNLOAD_PATH</span>
+<span class="p">)</span>
+
+<span class="c1"># ── Public variable / flag tables ────────────────────────────────────────────</span>
+
+<span class="c1">#: Native ARB parameters (``ParNumber``) this client serves.  ``scale``</span>
+<span class="c1">#: converts native units to ``output_units``; ``intervals`` lists the</span>
+<span class="c1">#: intervals each parameter supports.</span>
+<span class="n">VARIABLES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;SW&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Snow Water Equivalent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;swe&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="s2">&quot;intervals&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;sub_hourly&quot;</span><span class="p">,</span> <span class="s2">&quot;hourly&quot;</span><span class="p">,</span> <span class="s2">&quot;daily&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Automated snow water equivalent (snow pillow at AEPA sites; &quot;</span>
+            <span class="s2">&quot;mirrored BC, SNOTEL and GWFO sensors).&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Native C.Corrected-Seasonal series (provisional), mm → cm. &quot;</span>
+            <span class="s2">&quot;Daily = AEPA&#39;s A.DayMean aggregate (00:00 MST label). &quot;</span>
+            <span class="s2">&quot;Values outside 0–1500 cm are nulled.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;SD&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Snow Depth&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;snwd&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;intervals&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;sub_hourly&quot;</span><span class="p">,</span> <span class="s2">&quot;hourly&quot;</span><span class="p">,</span> <span class="s2">&quot;daily&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Automated (ultrasonic) snow depth.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Native C.Corrected-Seasonal series (provisional), cm. Daily = &quot;</span>
+            <span class="s2">&quot;AEPA&#39;s A.DayMean aggregate. Values outside 0–1500 cm are nulled.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;SW-SS&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Snow Water Equivalent (snow survey)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;swe&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="s2">&quot;intervals&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;periodic&quot;</span><span class="p">,),</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Manual snow-course SWE, one value per survey visit.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="s2">&quot;P.Survey series, mm → cm. Survey date in MST.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;SD-SS&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Snow Depth (snow survey)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;snwd&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;intervals&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;periodic&quot;</span><span class="p">,),</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Manual snow-course depth, one value per survey visit.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="s2">&quot;P.Survey series, cm.&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;TA&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Air Temperature&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;temp&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;°C&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;°C&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;intervals&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;sub_hourly&quot;</span><span class="p">,</span> <span class="s2">&quot;hourly&quot;</span><span class="p">,</span> <span class="s2">&quot;daily&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Air temperature at snow stations.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Native C.Corrected-Sensor or P.NRT series. Daily = arithmetic &quot;</span>
+            <span class="s2">&quot;mean of native samples in the MST day, computed in-client &quot;</span>
+            <span class="s2">&quot;(kept when they span &gt;= 20 hours); the source&#39;s own daily &quot;</span>
+            <span class="s2">&quot;series sometimes belongs to a secondary sensor (TA2).&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;PC&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Precipitation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;precip&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;intervals&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;daily&quot;</span><span class="p">,),</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Daily precipitation total from the station gauge.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;AEPA&#39;s A.DayTotal aggregate of the cumulative gauge series. &quot;</span>
+            <span class="s2">&quot;Sub-daily precipitation is not offered (the native series is &quot;</span>
+            <span class="s2">&quot;cumulative gauge level).&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1">#: Parameters that make a station a *snow* station.</span>
+<span class="n">SNOW_PARAMETERS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;SW&quot;</span><span class="p">,</span> <span class="s2">&quot;SD&quot;</span><span class="p">,</span> <span class="s2">&quot;SW-SS&quot;</span><span class="p">,</span> <span class="s2">&quot;SD-SS&quot;</span><span class="p">)</span>
+<span class="n">_AUTOMATED_SNOW</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;SW&quot;</span><span class="p">,</span> <span class="s2">&quot;SD&quot;</span><span class="p">)</span>
+<span class="n">_SURVEY_SNOW</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;SW-SS&quot;</span><span class="p">,</span> <span class="s2">&quot;SD-SS&quot;</span><span class="p">)</span>
+
+<span class="c1">#: Default variables when ``variables=None`` (snow only), per interval.</span>
+<span class="n">_DEFAULT_BY_INTERVAL</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;sub_hourly&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SW&quot;</span><span class="p">,</span> <span class="s2">&quot;SD&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;hourly&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SW&quot;</span><span class="p">,</span> <span class="s2">&quot;SD&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;daily&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SW&quot;</span><span class="p">,</span> <span class="s2">&quot;SD&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;periodic&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SW-SS&quot;</span><span class="p">,</span> <span class="s2">&quot;SD-SS&quot;</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="c1">#: Daily aggregate ``ts_name`` the source uses, per parameter.</span>
+<span class="n">_DAILY_TS_NAME</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;SW&quot;</span><span class="p">:</span> <span class="s2">&quot;A.DayMean&quot;</span><span class="p">,</span> <span class="s2">&quot;SD&quot;</span><span class="p">:</span> <span class="s2">&quot;A.DayMean&quot;</span><span class="p">,</span> <span class="s2">&quot;PC&quot;</span><span class="p">:</span> <span class="s2">&quot;A.DayTotal&quot;</span><span class="p">}</span>
+
+<span class="c1">#: The download exposes no quality flags.</span>
+<span class="n">DATA_FLAGS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="c1">#: Station-name suffix → operator.  Only unambiguous codes are expanded.</span>
+<span class="n">OPERATORS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;EPA&quot;</span><span class="p">:</span> <span class="s2">&quot;Alberta Environment and Protected Areas&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BC&quot;</span><span class="p">:</span> <span class="s2">&quot;British Columbia Snow Survey Network&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Snotel&quot;</span><span class="p">:</span> <span class="s2">&quot;USDA NRCS SNOTEL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GWFO&quot;</span><span class="p">:</span> <span class="s2">&quot;Global Water Futures Observatories&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;OSM&quot;</span><span class="p">:</span> <span class="s2">&quot;Oil Sands Monitoring Program&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="c1"># ── Parsers / helpers ────────────────────────────────────────────────────────</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_epoch_ms_to_mst_wall</span><span class="p">(</span><span class="n">ms</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decode a ``*AsCurrentTime`` field: MST wall clock stored as epoch ms.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">ms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">ms</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="n">UTC</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">OverflowError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_split_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``&quot;Sunshine Village - EPA&quot;`` → ``(&quot;Sunshine Village&quot;, &quot;EPA&quot;)``.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">name</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(.*?)\s+-\s+([A-Za-z]+)$&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_download_json</span><span class="p">(</span><span class="n">payload</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a ``Download?...&amp;json=true`` payload.</span>
+
+<span class="sd">    Returns ``(header, rows)`` with ``rows`` as ``(naive MST datetime, raw</span>
+<span class="sd">    value)``.  Raises :class:`AlbertaError` on an unexpected shape.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">payload</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{},</span> <span class="p">[]</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">payload</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;data&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">payload</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">AlbertaError</span><span class="p">(</span><span class="s2">&quot;Unexpected WISKI download payload (no &#39;data&#39; field)&quot;</span><span class="p">)</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">payload</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;data&quot;</span><span class="p">}</span>
+    <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">item</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ts</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">])[:</span><span class="mi">19</span><span class="p">],</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">ts</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">header</span><span class="p">,</span> <span class="n">rows</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert</span><span class="p">(</span><span class="n">param</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Native value → output units, nulling implausible snow values.&quot;&quot;&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">_to_float</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">value</span> <span class="o">*</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;scale&quot;</span><span class="p">],</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;swe&quot;</span><span class="p">,</span> <span class="s2">&quot;snwd&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="n">_MAX_SNOW_CM</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">value</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_daily_means</span><span class="p">(</span>
+    <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">param</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Arithmetic daily mean of native samples per MST calendar day.</span>
+
+<span class="sd">    A day is kept only when its non-missing samples span at least</span>
+<span class="sd">    ``_MIN_HOURS_FOR_DAILY`` distinct hours.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">by_day</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">date</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">ts</span><span class="p">,</span> <span class="n">raw</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">_to_float</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">by_day</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">ts</span><span class="o">.</span><span class="n">hour</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">day</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">by_day</span><span class="p">):</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">by_day</span><span class="p">[</span><span class="n">day</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">({</span><span class="n">h</span> <span class="k">for</span> <span class="n">h</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">})</span> <span class="o">&lt;</span> <span class="n">_MIN_HOURS_FOR_DAILY</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">datetime</span><span class="p">(</span><span class="n">day</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">day</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">day</span><span class="o">.</span><span class="n">day</span><span class="p">),</span> <span class="n">mean</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">interval</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve native names / standardized types to native parameters.</span>
+
+<span class="sd">    Raises :class:`AlbertaError` for unknown names, for a native parameter</span>
+<span class="sd">    that does not support ``interval``, or for a type with no parameter at</span>
+<span class="sd">    that interval.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">_coerce_list</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span> <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">items</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_DEFAULT_BY_INTERVAL</span><span class="p">[</span><span class="n">interval</span><span class="p">])</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="p">:</span>
+            <span class="n">native</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">interval</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">native</span><span class="p">][</span><span class="s2">&quot;intervals&quot;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="n">AlbertaError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Variable </span><span class="si">{</span><span class="n">native</span><span class="si">!r}</span><span class="s2"> is not available at interval &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">interval</span><span class="si">!r}</span><span class="s2"> (supported: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">VARIABLES</span><span class="p">[</span><span class="n">native</span><span class="p">][</span><span class="s1">&#39;intervals&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">).&quot;</span>
+                <span class="p">)</span>
+            <span class="n">matches</span> <span class="o">=</span> <span class="p">[</span><span class="n">native</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">matches</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">p</span>
+                <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">and</span> <span class="n">interval</span> <span class="ow">in</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;intervals&quot;</span><span class="p">]</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">matches</span><span class="p">:</span>
+                <span class="n">known_type</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+                <span class="k">if</span> <span class="n">known_type</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">AlbertaError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;No Alberta variable of type </span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2"> at interval </span><span class="si">{</span><span class="n">interval</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">raise</span> <span class="n">AlbertaError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Unknown variable </span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2"> — expected one of &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">VARIABLES</span><span class="p">)</span><span class="si">}</span><span class="s2"> or their types.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">m</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_interval</span><span class="p">(</span><span class="n">interval</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">iv</span> <span class="o">=</span> <span class="p">(</span><span class="n">interval</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">supported</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">_DEFAULT_BY_INTERVAL</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">iv</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">supported</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">AlbertaError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unsupported interval </span><span class="si">{</span><span class="n">interval</span><span class="si">!r}</span><span class="s2"> for Alberta — expected one of &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">supported</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">iv</span>
+
+
+<div class="viewcode-block" id="AlbertaError">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.AlbertaError.html#easysnowdata.stations.clients.AlbertaError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlbertaError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised for Alberta River Basins source failures and bad requests.&quot;&quot;&quot;</span></div>
+
+
+
+<span class="c1"># ── Client ───────────────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="AlbertaClient">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.AlbertaClient.html#easysnowdata.stations.clients.AlbertaClient">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AlbertaClient</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Client for snow data on the Alberta River Basins site (rivers.alberta.ca).</span>
+
+<span class="sd">    No credentials are needed.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    base_url : str</span>
+<span class="sd">        Site root (``https://rivers.alberta.ca``).</span>
+<span class="sd">    timeout : int</span>
+<span class="sd">        HTTP timeout in seconds.</span>
+<span class="sd">    max_retries : int</span>
+<span class="sd">        Retry attempts on transient errors (5xx, network).</span>
+<span class="sd">    backoff : int</span>
+<span class="sd">        Base backoff delay in seconds (delay = backoff × attempt).</span>
+<span class="sd">    session : requests.Session or None</span>
+<span class="sd">        Optional pre-configured session.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">BASE_URL</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_DEFAULT_TIMEOUT</span><span class="p">,</span>
+        <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_DEFAULT_RETRIES</span><span class="p">,</span>
+        <span class="n">backoff</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_DEFAULT_BACKOFF</span><span class="p">,</span>
+        <span class="n">session</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">=</span> <span class="n">base_url</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">=</span> <span class="n">max_retries</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backoff</span> <span class="o">=</span> <span class="n">backoff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">session</span> <span class="ow">or</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+        <span class="c1"># The site&#39;s proxy refuses requests without a referer from the page.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;User-Agent&quot;</span><span class="p">:</span> <span class="s2">&quot;easysnowdata&quot;</span><span class="p">,</span> <span class="s2">&quot;Referer&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_series_cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stations_cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># ── HTTP ─────────────────────────────────────────────────────────────────</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">request_with_retries</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="p">,</span>
+            <span class="n">url</span><span class="p">,</span>
+            <span class="n">error_cls</span><span class="o">=</span><span class="n">AlbertaError</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span>
+            <span class="n">max_retries</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span><span class="p">,</span>
+            <span class="n">backoff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">backoff</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_query_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">where</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">out_fields</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run an ArcGIS ``query`` on the ARB MapServer via the site proxy.</span>
+
+<span class="sd">        Pages with ``resultOffset`` until the server stops reporting</span>
+<span class="sd">        ``exceededTransferLimit``.  Returns the feature ``attributes``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">qs</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;where&quot;</span><span class="p">:</span> <span class="n">where</span><span class="p">,</span>
+                    <span class="s2">&quot;outFields&quot;</span><span class="p">:</span> <span class="n">out_fields</span><span class="p">,</span>
+                    <span class="s2">&quot;returnGeometry&quot;</span><span class="p">:</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;orderByFields&quot;</span><span class="p">:</span> <span class="s2">&quot;OBJECTID&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;resultOffset&quot;</span><span class="p">:</span> <span class="n">offset</span><span class="p">,</span>
+                    <span class="s2">&quot;resultRecordCount&quot;</span><span class="p">:</span> <span class="n">_PAGE_SIZE</span><span class="p">,</span>
+                    <span class="s2">&quot;f&quot;</span><span class="p">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}{</span><span class="n">_PROXY_PATH</span><span class="si">}{</span><span class="n">MAPSERVER_URL</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">/query?</span><span class="si">{</span><span class="n">qs</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">AlbertaError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Non-JSON reply from ARB layer </span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+            <span class="k">if</span> <span class="s2">&quot;error&quot;</span> <span class="ow">in</span> <span class="n">payload</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">AlbertaError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;ARB layer </span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2"> query failed: </span><span class="si">{</span><span class="n">payload</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="n">feats</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;features&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;attributes&quot;</span><span class="p">,</span> <span class="p">{})</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">feats</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;exceededTransferLimit&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">feats</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">rows</span>
+            <span class="n">offset</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">feats</span><span class="p">)</span>
+
+    <span class="c1"># ── Catalog ──────────────────────────────────────────────────────────────</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_series</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;``{station_number: {ParNumber: layer-39 row}}`` for snow stations.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series_cache</span>
+        <span class="n">snow_in</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&#39;&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">SNOW_PARAMETERS</span><span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_layer</span><span class="p">(</span><span class="n">TIMESERIES_LAYER</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;ParNumber IN (</span><span class="si">{</span><span class="n">snow_in</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="n">series</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="n">sid</span><span class="p">,</span> <span class="n">par</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;station_number&quot;</span><span class="p">),</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ParNumber&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sid</span> <span class="ow">and</span> <span class="n">par</span><span class="p">:</span>
+                <span class="n">series</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">sid</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">par</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+        <span class="n">extra_in</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&#39;&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">VARIABLES</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SNOW_PARAMETERS</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ids</span> <span class="ow">in</span> <span class="n">_chunk</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">series</span><span class="p">),</span> <span class="n">_IN_CHUNK</span><span class="p">):</span>
+            <span class="n">id_in</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&#39;&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_layer</span><span class="p">(</span>
+                <span class="n">TIMESERIES_LAYER</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;ParNumber IN (</span><span class="si">{</span><span class="n">extra_in</span><span class="si">}</span><span class="s2">) AND station_number IN (</span><span class="si">{</span><span class="n">id_in</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="n">sid</span><span class="p">,</span> <span class="n">par</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;station_number&quot;</span><span class="p">),</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ParNumber&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">sid</span> <span class="ow">in</span> <span class="n">series</span> <span class="ow">and</span> <span class="n">par</span><span class="p">:</span>
+                    <span class="n">series</span><span class="p">[</span><span class="n">sid</span><span class="p">]</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">par</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Alberta: </span><span class="si">%d</span><span class="s2"> snow stations in the ARB catalog&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">series</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_series_cache</span> <span class="o">=</span> <span class="n">series</span>
+        <span class="k">return</span> <span class="n">series</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_station_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="n">points</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">_chunk</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">_IN_CHUNK</span><span class="p">):</span>
+            <span class="n">id_in</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&#39;&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">group</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_layer</span><span class="p">(</span>
+                <span class="n">STATIONS_LAYER</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;station_number IN (</span><span class="si">{</span><span class="n">id_in</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;station_number,station_name,station_latitude,&quot;</span>
+                <span class="s2">&quot;station_longitude,station_status,data_type&quot;</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;station_number&quot;</span><span class="p">):</span>
+                    <span class="n">points</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;station_number&quot;</span><span class="p">],</span> <span class="n">r</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">points</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_stations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stations_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stations_cache</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series</span><span class="p">()</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_station_points</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">series</span><span class="p">))</span>
+        <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">sid</span><span class="p">,</span> <span class="n">pars</span> <span class="ow">in</span> <span class="n">series</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">sid</span><span class="p">]</span> <span class="o">=</span> <span class="n">_build_station</span><span class="p">(</span><span class="n">sid</span><span class="p">,</span> <span class="n">pars</span><span class="p">,</span> <span class="n">points</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sid</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stations_cache</span> <span class="o">=</span> <span class="n">out</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="c1"># ── Public API — stations ────────────────────────────────────────────────</span>
+
+<div class="viewcode-block" id="AlbertaClient.get_all_stations">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.AlbertaClient.html#easysnowdata.stations.clients.AlbertaClient.get_all_stations">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_all_stations</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">active_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        All ARB stations with automated or manual SWE / snow depth.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        active_only : bool</span>
+<span class="sd">            Keep stations with a ``current`` automated snow series or a snow</span>
+<span class="sd">            survey in the last 550 days.</span>
+<span class="sd">        bbox : tuple, optional</span>
+<span class="sd">            ``(min_lon, min_lat, max_lon, max_lat)``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[dict]</span>
+<span class="sd">            ``station_id``, ``name``, ``latitude``, ``longitude``,</span>
+<span class="sd">            ``elevation_m`` (always ``None``: not published), ``status``,</span>
+<span class="sd">            ``source_status``, ``state`` (AB/BC/MT/SK), ``operator``,</span>
+<span class="sd">            ``operator_code``, ``measurement_method``, ``has_swe``,</span>
+<span class="sd">            ``has_snwd``, ``has_pillow_swe``, ``has_survey``,</span>
+<span class="sd">            ``begin_date``, ``end_date``, ``parameters`` and</span>
+<span class="sd">            ``station_url``.  Stations without coordinates are dropped when</span>
+<span class="sd">            ``bbox`` is given.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AlbertaError</span>
+<span class="sd">            On a catalog query failure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stations</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stations</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">active_only</span><span class="p">:</span>
+            <span class="n">stations</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">stations</span> <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Active&quot;</span><span class="p">]</span>
+        <span class="n">stations</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">stations</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_filter_by_bbox</span><span class="p">(</span><span class="n">stations</span><span class="p">,</span> <span class="n">bbox</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AlbertaClient.get_metadata">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.AlbertaClient.html#easysnowdata.stations.clients.AlbertaClient.get_metadata">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">station_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Metadata and series inventory for one station.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        station_id : str</span>
+<span class="sd">            ARB station number, e.g. ``&quot;05BB803&quot;``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            The :meth:`get_all_stations` dict plus ``data_variables`` (one</span>
+<span class="sd">            entry per parameter × supported interval) with ``name``,</span>
+<span class="sd">            ``type``, ``interval``, ``units`` (emitted), ``description``,</span>
+<span class="sd">            ``notes``, ``begin_date``, ``end_date`` and ``n_obs``</span>
+<span class="sd">            (``None``), plus the WISKI ``ts_id`` / ``ts_name``.  Dates are</span>
+<span class="sd">            MST.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AlbertaError</span>
+<span class="sd">            If the station is not a snow station in the ARB catalog.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">station_id</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">stations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stations</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stations</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AlbertaError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Station </span><span class="si">{</span><span class="n">sid</span><span class="si">!r}</span><span class="s2"> not found in the ARB snow catalog&quot;</span><span class="p">)</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">stations</span><span class="p">[</span><span class="n">sid</span><span class="p">])</span>
+        <span class="n">dvars</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">par</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series</span><span class="p">()[</span><span class="n">sid</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">par</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">par</span><span class="p">]</span>
+            <span class="n">begin</span> <span class="o">=</span> <span class="n">_epoch_ms_to_mst_wall</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TsMinDataAsCurrentTime&quot;</span><span class="p">))</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">_epoch_ms_to_mst_wall</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TsMaxDataAsCurrentTime&quot;</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">iv</span> <span class="ow">in</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;intervals&quot;</span><span class="p">]:</span>
+                <span class="n">dvars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">par</span><span class="p">,</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;interval&quot;</span><span class="p">:</span> <span class="n">iv</span><span class="p">,</span>
+                        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;output_units&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;notes&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;begin_date&quot;</span><span class="p">:</span> <span class="n">begin</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="n">begin</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="n">end</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="n">end</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="s2">&quot;n_obs&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="s2">&quot;ts_id&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tsID&quot;</span><span class="p">),</span>
+                        <span class="s2">&quot;ts_name&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TsName&quot;</span><span class="p">),</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+        <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;data_variables&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dvars</span>
+        <span class="k">return</span> <span class="n">meta</span></div>
+
+
+    <span class="c1"># ── Public API — data ────────────────────────────────────────────────────</span>
+
+<div class="viewcode-block" id="AlbertaClient.download_series">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.AlbertaClient.html#easysnowdata.stations.clients.AlbertaClient.download_series">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_series</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ts_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">begin_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Raw WISKI download for one time series.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ts_id : str</span>
+<span class="sd">            WISKI time-series id (``tsID`` / ``TsIdLowres`` from the catalog).</span>
+<span class="sd">        begin_date, end_date : str</span>
+<span class="sd">            Inclusive ``YYYY-MM-DD`` bounds (MST).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple[dict, list[tuple[datetime, Any]]]</span>
+<span class="sd">            ``(header, rows)``; ``header`` is the download&#39;s metadata</span>
+<span class="sd">            (``station_no``, ``stationparameter_name``, ``ts_name``, …) and</span>
+<span class="sd">            rows are ``(naive MST datetime, raw value)`` in native units.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AlbertaError</span>
+<span class="sd">            On a failed request (HTTP 500 for an unknown ``tsId``) or an</span>
+<span class="sd">            unexpected payload.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qs</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;tsId&quot;</span><span class="p">:</span> <span class="n">ts_id</span><span class="p">,</span>
+                <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="n">begin_date</span><span class="p">,</span>
+                <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="n">end_date</span><span class="p">,</span>
+                <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="s2">&quot;easysnowdata&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;zip&quot;</span><span class="p">:</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;json&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}{</span><span class="n">_DOWNLOAD_PATH</span><span class="si">}</span><span class="s2">?</span><span class="si">{</span><span class="n">qs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AlbertaError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Non-JSON WISKI download for tsId </span><span class="si">{</span><span class="n">ts_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+        <span class="k">return</span> <span class="n">_parse_download_json</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AlbertaClient.get_data">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.AlbertaClient.html#easysnowdata.stations.clients.AlbertaClient.get_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">station_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">variables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">begin_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">interval</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;daily&quot;</span><span class="p">,</span>
+        <span class="n">include_flags</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Standardized data fetch — returns a flat list of observation records.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        station_ids : list[str] or str or None</span>
+<span class="sd">            ARB station numbers, e.g. ``&quot;05BB803&quot;``.  Required unless</span>
+<span class="sd">            ``bbox`` is given.</span>
+<span class="sd">        variables : list[str] or str or None</span>
+<span class="sd">            Native parameters (``&quot;SW&quot;``, ``&quot;SW-SS&quot;``) or standardized types</span>
+<span class="sd">            (``&quot;swe&quot;``).  A type resolves to the parameters available at</span>
+<span class="sd">            ``interval`` (``swe`` → ``SW`` for daily/hourly, ``SW-SS`` for</span>
+<span class="sd">            periodic).  ``None`` = snow only.</span>
+<span class="sd">        bbox : tuple, optional</span>
+<span class="sd">            ``(min_lon, min_lat, max_lon, max_lat)``.</span>
+<span class="sd">        begin_date, end_date : str or date, optional</span>
+<span class="sd">            Inclusive ``YYYY-MM-DD`` bounds in MST.  Default: the series&#39;</span>
+<span class="sd">            first value / today.</span>
+<span class="sd">        interval : str</span>
+<span class="sd">            ``&quot;daily&quot;`` (default), ``&quot;hourly&quot;``, ``&quot;sub_hourly&quot;`` or</span>
+<span class="sd">            ``&quot;periodic&quot;``.  See the module docstring for conventions.</span>
+<span class="sd">        include_flags : bool</span>
+<span class="sd">            Add ``flag`` (always ``None``: the source has no flags).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[dict]</span>
+<span class="sd">            ``{station_id, date, variable, type, value, units, interval}``</span>
+<span class="sd">            (+ ``datetime`` ISO 8601 with ``-07:00`` for hourly/sub_hourly).</span>
+<span class="sd">            Unknown stations and failed downloads are logged and skipped;</span>
+<span class="sd">            parameters a station does not have are skipped silently.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If neither ``station_ids`` nor ``bbox`` is given.</span>
+<span class="sd">        AlbertaError</span>
+<span class="sd">            On an unknown variable or unsupported interval.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        &gt;&gt;&gt; client = AlbertaClient()</span>
+<span class="sd">        &gt;&gt;&gt; records = client.get_data(</span>
+<span class="sd">        ...     station_ids=&quot;05BB803&quot;,</span>
+<span class="sd">        ...     variables=[&quot;swe&quot;],</span>
+<span class="sd">        ...     begin_date=&quot;2026-03-01&quot;,</span>
+<span class="sd">        ...     end_date=&quot;2026-03-15&quot;,</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; records[0][&quot;units&quot;]</span>
+<span class="sd">        &#39;cm&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">iv</span> <span class="o">=</span> <span class="n">_check_interval</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">_resolve_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">iv</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">station_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="n">_coerce_list</span><span class="p">(</span><span class="n">station_ids</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;station_id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_stations</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Provide station_ids or bbox.&quot;</span><span class="p">)</span>
+
+        <span class="n">begin</span> <span class="o">=</span> <span class="n">_date_str</span><span class="p">(</span><span class="n">begin_date</span><span class="p">)</span> <span class="k">if</span> <span class="n">begin_date</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">_date_str</span><span class="p">(</span><span class="n">end_date</span><span class="p">)</span> <span class="k">if</span> <span class="n">end_date</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_series</span><span class="p">()</span>
+
+        <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sid</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">series</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Alberta: station </span><span class="si">%s</span><span class="s2"> not in the snow catalog&quot;</span><span class="p">,</span> <span class="n">sid</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="n">series</span><span class="p">[</span><span class="n">sid</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">par</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">row</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">records</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_fetch</span><span class="p">(</span><span class="n">sid</span><span class="p">,</span> <span class="n">par</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">iv</span><span class="p">,</span> <span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">include_flags</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">except</span> <span class="n">AlbertaError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Alberta: skipping </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">sid</span><span class="p">,</span> <span class="n">par</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">records</span></div>
+
+
+    <span class="c1"># ── Internals ────────────────────────────────────────────────────────────</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fetch</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">par</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">interval</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">begin</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">include_flags</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="n">_epoch_ms_to_mst_wall</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TsMinDataAsCurrentTime&quot;</span><span class="p">))</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">begin</span> <span class="ow">or</span> <span class="p">(</span><span class="n">first</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="n">first</span> <span class="k">else</span> <span class="s2">&quot;1900-01-01&quot;</span><span class="p">)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">end</span> <span class="ow">or</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">MST</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="n">native_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tsID&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">native_id</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="n">sub_daily</span> <span class="o">=</span> <span class="n">interval</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;hourly&quot;</span><span class="p">,</span> <span class="s2">&quot;sub_hourly&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">interval</span> <span class="o">==</span> <span class="s2">&quot;daily&quot;</span><span class="p">:</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_daily_rows</span><span class="p">(</span><span class="n">par</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">native_id</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_series</span><span class="p">(</span><span class="n">native_id</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">interval</span> <span class="o">==</span> <span class="s2">&quot;hourly&quot;</span><span class="p">:</span>
+                <span class="n">rows</span> <span class="o">=</span> <span class="p">[(</span><span class="n">ts</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">ts</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">rows</span> <span class="k">if</span> <span class="n">ts</span><span class="o">.</span><span class="n">minute</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">ts</span><span class="o">.</span><span class="n">second</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">info</span> <span class="o">=</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">par</span><span class="p">]</span>
+        <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ts</span><span class="p">,</span> <span class="n">raw</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="n">day</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">begin</span> <span class="ow">and</span> <span class="n">day</span> <span class="o">&lt;</span> <span class="n">begin</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">end</span> <span class="ow">and</span> <span class="n">day</span> <span class="o">&gt;</span> <span class="n">end</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">rec</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;station_id&quot;</span><span class="p">:</span> <span class="n">sid</span><span class="p">,</span>
+                <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">day</span><span class="p">,</span>
+                <span class="s2">&quot;variable&quot;</span><span class="p">:</span> <span class="n">par</span><span class="p">,</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">_convert</span><span class="p">(</span><span class="n">par</span><span class="p">,</span> <span class="n">raw</span><span class="p">),</span>
+                <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;output_units&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;interval&quot;</span><span class="p">:</span> <span class="n">interval</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">sub_daily</span><span class="p">:</span>
+                <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;datetime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">MST</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">include_flags</span><span class="p">:</span>
+                <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;flag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_daily_rows</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">par</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">native_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Daily rows: the source&#39;s aggregate when trustworthy, else computed.&quot;&quot;&quot;</span>
+        <span class="n">lowres</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TsIdLowres&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">wanted</span> <span class="o">=</span> <span class="n">_DAILY_TS_NAME</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">par</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wanted</span> <span class="ow">and</span> <span class="n">lowres</span> <span class="ow">and</span> <span class="n">lowres</span> <span class="o">!=</span> <span class="n">native_id</span><span class="p">:</span>
+            <span class="n">header</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_series</span><span class="p">(</span><span class="n">lowres</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;stationparameter_name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="n">par</span>
+                <span class="ow">and</span> <span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ts_name&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">wanted</span>
+            <span class="p">):</span>
+                <span class="c1"># One row per day; keep the first if a day repeats.</span>
+                <span class="n">seen</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">date</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+                <span class="n">kept</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">ts</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">ts</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                        <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">date</span><span class="p">())</span>
+                        <span class="n">kept</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">ts</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">kept</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Alberta: daily series </span><span class="si">%s</span><span class="s2"> for </span><span class="si">%s</span><span class="s2"> is </span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">, computing daily means&quot;</span><span class="p">,</span>
+                <span class="n">lowres</span><span class="p">,</span>
+                <span class="n">par</span><span class="p">,</span>
+                <span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;stationparameter_name&quot;</span><span class="p">),</span>
+                <span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ts_name&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">par</span> <span class="o">==</span> <span class="s2">&quot;PC&quot;</span><span class="p">:</span>
+            <span class="c1"># A mean of a cumulative gauge is meaningless; no fallback.</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">native</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_series</span><span class="p">(</span><span class="n">native_id</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_daily_means</span><span class="p">(</span><span class="n">native</span><span class="p">,</span> <span class="n">par</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_station</span><span class="p">(</span><span class="n">sid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pars</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">],</span> <span class="n">point</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Assemble one station dict from its layer-39 rows and layer-11 point.&quot;&quot;&quot;</span>
+    <span class="n">any_row</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">pars</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+    <span class="n">raw_name</span> <span class="o">=</span> <span class="p">(</span><span class="n">point</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;station_name&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span>
+    <span class="n">name</span><span class="p">,</span> <span class="n">op_code</span> <span class="o">=</span> <span class="n">_split_name</span><span class="p">(</span><span class="n">raw_name</span><span class="p">)</span>
+    <span class="n">lat</span> <span class="o">=</span> <span class="n">_to_float</span><span class="p">((</span><span class="n">point</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;station_latitude&quot;</span><span class="p">))</span>
+    <span class="n">lon</span> <span class="o">=</span> <span class="n">_to_float</span><span class="p">((</span><span class="n">point</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;station_longitude&quot;</span><span class="p">))</span>
+
+    <span class="n">has_pillow</span> <span class="o">=</span> <span class="s2">&quot;SW&quot;</span> <span class="ow">in</span> <span class="n">pars</span>
+    <span class="n">has_survey</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span> <span class="ow">in</span> <span class="n">pars</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">_SURVEY_SNOW</span><span class="p">)</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="n">pars</span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;CurrentData&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;current&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">_AUTOMATED_SNOW</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pars</span>
+    <span class="p">)</span>
+    <span class="n">survey_end</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">_epoch_ms_to_mst_wall</span><span class="p">(</span><span class="n">pars</span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TsMaxDataAsCurrentTime&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">_SURVEY_SNOW</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pars</span>
+    <span class="p">]</span>
+    <span class="n">recent_survey</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="n">d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="ow">and</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">MST</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">days</span> <span class="o">&lt;=</span> <span class="n">_SURVEY_ACTIVE_DAYS</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">survey_end</span>
+    <span class="p">)</span>
+    <span class="n">starts</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">_epoch_ms_to_mst_wall</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TsMinDataAsCurrentTime&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">pars</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">SNOW_PARAMETERS</span>
+    <span class="p">]</span>
+    <span class="n">ends</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">_epoch_ms_to_mst_wall</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TsMaxDataAsCurrentTime&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">pars</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">SNOW_PARAMETERS</span>
+    <span class="p">]</span>
+    <span class="n">starts</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">starts</span> <span class="k">if</span> <span class="n">d</span><span class="p">]</span>
+    <span class="n">ends</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">ends</span> <span class="k">if</span> <span class="n">d</span><span class="p">]</span>
+
+    <span class="n">methods</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">has_pillow</span><span class="p">:</span>
+        <span class="n">methods</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;automated SWE (snow pillow)&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;SD&quot;</span> <span class="ow">in</span> <span class="n">pars</span><span class="p">:</span>
+        <span class="n">methods</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;automated snow depth&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">has_survey</span><span class="p">:</span>
+        <span class="n">methods</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;manual snow survey&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;station_id&quot;</span><span class="p">:</span> <span class="n">sid</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">sid</span><span class="p">,</span>
+        <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span>
+        <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">lon</span><span class="p">,</span>
+        <span class="s2">&quot;elevation_m&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;Active&quot;</span> <span class="k">if</span> <span class="p">(</span><span class="n">current</span> <span class="ow">or</span> <span class="n">recent_survey</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;Inactive&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;source_status&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">point</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;station_status&quot;</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">any_row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;station_status&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">any_row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SiteNumber&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;operator&quot;</span><span class="p">:</span> <span class="n">OPERATORS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">op_code</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">op_code</span><span class="p">),</span>
+        <span class="s2">&quot;operator_code&quot;</span><span class="p">:</span> <span class="n">op_code</span><span class="p">,</span>
+        <span class="s2">&quot;measurement_method&quot;</span><span class="p">:</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">methods</span><span class="p">),</span>
+        <span class="s2">&quot;has_swe&quot;</span><span class="p">:</span> <span class="n">has_pillow</span> <span class="ow">or</span> <span class="s2">&quot;SW-SS&quot;</span> <span class="ow">in</span> <span class="n">pars</span><span class="p">,</span>
+        <span class="s2">&quot;has_snwd&quot;</span><span class="p">:</span> <span class="s2">&quot;SD&quot;</span> <span class="ow">in</span> <span class="n">pars</span> <span class="ow">or</span> <span class="s2">&quot;SD-SS&quot;</span> <span class="ow">in</span> <span class="n">pars</span><span class="p">,</span>
+        <span class="s2">&quot;has_pillow_swe&quot;</span><span class="p">:</span> <span class="n">has_pillow</span><span class="p">,</span>
+        <span class="s2">&quot;has_survey&quot;</span><span class="p">:</span> <span class="n">has_survey</span><span class="p">,</span>
+        <span class="s2">&quot;begin_date&quot;</span><span class="p">:</span> <span class="nb">min</span><span class="p">(</span><span class="n">starts</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="n">starts</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="n">ends</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="n">ends</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;parameters&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pars</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="p">),</span>
+        <span class="s2">&quot;station_url&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">BASE_URL</span><span class="si">}</span><span class="s2">/?StationNumber=</span><span class="si">{</span><span class="n">sid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1466 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>easysnowdata.stations.clients.ceaza.ceaza_client &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../../../_static/documentation_options.js?v=1e500ddc"></script>
+    <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/easysnowdata/stations/clients/ceaza/ceaza_client';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.4.dev3" />
+  
+    
+    <script src="../../../../../_static/searchtools.js"></script>
+    <script src="../../../../../_static/language_data.js"></script>
+    <script src="../../../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../catalog/index.html">
+    Dataset catalog and status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../development.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../catalog/index.html">
+    Dataset catalog and status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../development.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">easysnowdata.stations.clients.ceaza.ceaza_client</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for easysnowdata.stations.clients.ceaza.ceaza_client</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">clients/ceaza/ceaza_client.py</span>
+<span class="sd">=============================</span>
+<span class="sd">Python client for CEAZA-Met, the station network of the Centro de Estudios</span>
+<span class="sd">Avanzados en Zonas Áridas (CEAZA, La Serena, Chile), through its open</span>
+<span class="sd">monitoring-data web service.</span>
+
+<span class="sd">Primary use case: automatic snow depth and snow water equivalent from the</span>
+<span class="sd">high Andes of the Coquimbo region (30–32° S, 2,284–4,306 m): the</span>
+<span class="sd">glacier, hydrology and snow stations El Tapado, Tascadero, Guandacol, Llano</span>
+<span class="sd">de Las Liebres, La Laguna and others.  The same stations also measure air</span>
+<span class="sd">temperature (and, at Tascadero, precipitation), which this client serves as</span>
+<span class="sd">non-default variables.  The network has about 95 stations in all (coast,</span>
+<span class="sd">valleys and islands included); by default the client lists only the 17 that</span>
+<span class="sd">carry a snow sensor.</span>
+
+<span class="sd">Data source       : https://www.ceazamet.cl/ws/pop_ws.php (``http://`` also</span>
+<span class="sd">                    works; this client uses ``https://``)</span>
+<span class="sd">Documentation     : https://www.ceazamet.cl/ws/pop_ws_doc.php</span>
+<span class="sd">                    (&quot;Documentación webservice [WS] Datos monitoreo</span>
+<span class="sd">                    CEAZA-Met&quot;)</span>
+<span class="sd">Authentication    : none needed.  The service takes an optional ``user``</span>
+<span class="sd">                    parameter (an e-mail address); without it, queries &quot;are</span>
+<span class="sd">                    limited in the maximum number of records returned and in</span>
+<span class="sd">                    the number of queries per day&quot; (documentation page).</span>
+<span class="sd">                    Pass ``user=`` once you have registered (see Licence).</span>
+<span class="sd">Licence           : no licence is stated.  The documentation page&#39;s</span>
+<span class="sd">                    &quot;Condiciones de uso&quot; (terms of use) say that users of</span>
+<span class="sd">                    the system are required to request a user name by</span>
+<span class="sd">                    e-mailing ceazamet@ceaza.cl with their name, e-mail,</span>
+<span class="sd">                    organisation, sector, intended use of the data, download</span>
+<span class="sd">                    frequency and amount of data downloaded per day, and</span>
+<span class="sd">                    that the data source must be credited with a link (e.g.</span>
+<span class="sd">                    &quot;Datos provistos por el laboratorio de meteorología</span>
+<span class="sd">                    CEAZA&quot;, linked to https://www.ceazamet.cl).  A</span>
+<span class="sd">                    disclaimer states that the services come with no</span>
+<span class="sd">                    guarantee of data reliability or availability and may</span>
+<span class="sd">                    change at the author&#39;s discretion.  Every response</span>
+<span class="sd">                    header repeats &quot;Revisar condiciones de uso en</span>
+<span class="sd">                    www.ceazamet.cl&quot;.</span>
+
+<span class="sd">Functions used</span>
+<span class="sd">--------------</span>
+<span class="sd">All three are ``GET pop_ws.php?fn=&lt;function&gt;&amp;p_cod=ceazamet&amp;…``.</span>
+
+<span class="sd">- ``GetListaEstaciones`` — station list, CSV.  ``c0``…``c9`` choose and</span>
+<span class="sd">  order the columns (``e_cod, e_nombre, e_lat, e_lon, e_altitud,</span>
+<span class="sd">  e_primera_lectura, e_ultima_lectura, e_cod_provincia, e_owner``); this</span>
+<span class="sd">  client always names them, as the documentation recommends.</span>
+<span class="sd">- ``GetListaSensores`` — sensor list, CSV.  Documented per station</span>
+<span class="sd">  (``e_cod``), but without ``e_cod`` it returns every sensor of the network</span>
+<span class="sd">  in one response (1,515 sensors on 99 station codes in October 2026; four</span>
+<span class="sd">  codes are not in the station list).  Columns ``e_cod, s_cod, tf_nombre``</span>
+<span class="sd">  (measured quantity), ``um_notacion`` (units), ``s_altura`` (sensor height,</span>
+<span class="sd">  m), ``s_primera_lectura``, ``s_ultima_lectura``, ``tm_cod`` (measurement</span>
+<span class="sd">  type code, the key of :data:`VARIABLES`).</span>
+<span class="sd">- ``GetSerieSensor`` — one sensor&#39;s series between ``fecha_inicio`` and</span>
+<span class="sd">  ``fecha_fin`` (both inclusive; ``YYYY-MM-DD``), ``interv=hora`` (default)</span>
+<span class="sd">  or ``dia``.  This client asks for ``tipo_resp=json``: rows of</span>
+<span class="sd">  ``{fecha, min, prom, max, data_pc, fecha_min, fecha_max}``.</span>
+
+<span class="sd">Known quirks (checked October 2026)</span>
+<span class="sd">-----------------------------------</span>
+<span class="sd">- The **CSV** form of ``GetSerieSensor`` returns at most 24 rows per</span>
+<span class="sd">  request without ``user`` (one day hourly, or 24 days daily), whatever the</span>
+<span class="sd">  date range and also with the documentation&#39;s example ``user`` values.</span>
+<span class="sd">  The **JSON** form returned full ranges (13 years daily for Tascadero</span>
+<span class="sd">  snow depth, 4,748 rows, in 3.5 s).  The client uses JSON and splits</span>
+<span class="sd">  requests into windows of at most one year (365 days), the limit CEAZA-Met</span>
+<span class="sd">  gave for registered users (e-mail from Cristian Orrego, 2026-10-23: &quot;hasta</span>
+<span class="sd">  1 año en cada [consulta]&quot;).</span>
+<span class="sd">- Errors come back as HTTP 200: an unsupported ``interv`` gives an HTML</span>
+<span class="sd">  ``&lt;p&gt;ERROR en lib_datos…&lt;/p&gt;`` before the JSON (no ``serie``); an unknown</span>
+<span class="sd">  sensor gives ``e_cod: null`` and a ``serie`` of empty rows.  Both raise</span>
+<span class="sd">  :class:`CEAZAError`.</span>
+<span class="sd">- The service returns a row for every interval of the request, including</span>
+<span class="sd">  intervals with no data (``prom: null``, ``data_pc: 0``); those rows are</span>
+<span class="sd">  dropped.</span>
+<span class="sd">- Times are UTC−4 (``gmt-4``, the documented default, no daylight saving):</span>
+<span class="sd">  a daily row is the aggregate of the hourly rows labelled 00:00–23:00 of</span>
+<span class="sd">  that UTC−4 day.  The daily ``prom`` of Tascadero snow depth on 2025-07-01</span>
+<span class="sd">  is exactly the mean of its 24 hourly values.  For precipitation</span>
+<span class="sd">  (``pp_mm``) every aggregate is a **sum**: ``min``, ``prom`` and ``max``</span>
+<span class="sd">  all hold the interval total (Tascadero 2025-06-12: 28.2 mm daily = the</span>
+<span class="sd">  sum of its hourly rows).</span>
+<span class="sd">- ``data_pc`` is the share (%) of the expected records present in the</span>
+<span class="sd">  interval (daily: of 24 hours; hourly: of the logger&#39;s sub-hourly</span>
+<span class="sd">  records).</span>
+<span class="sd">- The values are raw logger output, not quality controlled.  Bare-ground</span>
+<span class="sd">  snow depth is often slightly negative (zero offset; 875 of 1,952 daily</span>
+<span class="sd">  Tascadero depths), snow-weight and SWE sensors drift below zero in summer</span>
+<span class="sd">  (El Tapado ``TPFSWE_K`` down to −113 mm), and there are spikes (El Jote</span>
+<span class="sd">  depth 4,021 cm, El Tapado air temperature −82.8 °C).  The plausibility</span>
+<span class="sd">  bounds below null these; negatives are **not** set to zero.</span>
+<span class="sd">- ``s_ultima_lectura`` is not always the last real value: El Tapado&#39;s</span>
+<span class="sd">  ``TPFSNOWD`` lists 2025-10-08 but its last daily value is 2023-10-25.</span>
+
+<span class="sd">Variables</span>
+<span class="sd">---------</span>
+<span class="sd">Keyed by ``tm_cod``.  Snow (default): ``ani_cm`` &quot;Altura de Nieve&quot; (depth,</span>
+<span class="sd">cm, 18 sensors at 17 stations), ``ae_mm`` &quot;Agua equivalente&quot; (SWE, mm:</span>
+<span class="sd">El Tapado ``TPFSWE_K`` and ``TPFSWE_TL``, Tascadero ``TASCPN``), ``ae_cm``</span>
+<span class="sd">&quot;Agua equivalente&quot; (SWE, cm: Hualtatas ``HUALPN`` 2014–2019, La Laguna</span>
+<span class="sd">``LAGELSP`` 2013–2017), ``pnkg`` &quot;Peso de la Nieve&quot; (snow weight, kg/m²,</span>
+<span class="sd">i.e. mm of water: Guandacol ``HDCPN``, Llano de Las Liebres</span>
+<span class="sd">``LLLSW1Wins1h`` and ``LLLSW2Wins1h``).  The units were checked against</span>
+<span class="sd">the co-located depth sensors: the implied median snow densities are</span>
+<span class="sd">190–370 kg/m³.  Non-default: ``ta_c`` (air temperature) and ``pp_mm``</span>
+<span class="sd">(precipitation).  Not served: ``ppa_mm`` &quot;Precipitación Acumulada&quot; (a</span>
+<span class="sd">cumulative gauge level, not a per-interval amount), ``acol_mm`` &quot;Agua</span>
+<span class="sd">Colectada&quot;, and ``an_mm`` &quot;Agua Nieve&quot; (only at Puerto Williams, sea level,</span>
+<span class="sd">undocumented, values up to 7,999.7).</span>
+
+<span class="sd">A station can have two sensors of one type (El Tapado: two depth and two</span>
+<span class="sd">SWE sensors; Llano de Las Liebres: two snow-weight sensors), so every record</span>
+<span class="sd">carries ``sensor`` (the ``s_cod``).  ``get_data(sensors=…)`` picks one.</span>
+
+<span class="sd">Design principles</span>
+<span class="sd">-----------------</span>
+<span class="sd">- Metric-first: SWE and snow weight are returned in cm (mm and kg/m² ×</span>
+<span class="sd">  0.1), depth in cm, temperature in °C, precipitation in mm.</span>
+<span class="sd">- ``interval=&quot;daily&quot;`` (``interv=dia``) and ``&quot;hourly&quot;`` (``interv=hora``);</span>
+<span class="sd">  anything else raises :class:`CEAZAError`.  Hourly records carry</span>
+<span class="sd">  ``datetime`` with the ``-04:00`` offset, labelled as the service labels</span>
+<span class="sd">  them (the service does not document whether a label opens or closes its</span>
+<span class="sd">  hour).</span>
+<span class="sd">- ``value`` is the interval mean (``prom``; the total for precipitation).</span>
+<span class="sd">  Records also carry ``value_min`` and ``value_max`` (the interval extremes,</span>
+<span class="sd">  same units and bounds; ``None`` for precipitation) and ``data_pct``.</span>
+<span class="sd">- ``include_flags=True`` adds ``flag``: &quot;complete&quot; (``data_pc`` = 100) or</span>
+<span class="sd">  &quot;partial&quot; (1–99), see :data:`DATA_FLAGS`.</span>
+<span class="sd">- Plausibility bounds: SWE and depth 0–15 m, air temperature −60 to 50 °C,</span>
+<span class="sd">  precipitation 0–500 mm per interval; values outside are ``None``.</span>
+<span class="sd">- ``status`` is &quot;Active&quot; when the station&#39;s latest reading</span>
+<span class="sd">  (``e_ultima_lectura``) is at most 90 days old, otherwise &quot;Inactive&quot;.</span>
+<span class="sd">  High stations are often down for weeks in winter, hence the long window.</span>
+<span class="sd">- Not wired into ``stations.networks``, the catalog or</span>
+<span class="sd">  ``global_snow_networks``.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="n">coerce_list</span> <span class="k">as</span> <span class="n">_coerce_list</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="n">date_str</span> <span class="k">as</span> <span class="n">_date_str</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_by_bbox</span> <span class="k">as</span> <span class="n">_filter_by_bbox</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="n">request_with_retries</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="n">to_float</span> <span class="k">as</span> <span class="n">_to_float</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># ── Constants ────────────────────────────────────────────────────────────────</span>
+
+<span class="n">BASE_URL</span> <span class="o">=</span> <span class="s2">&quot;https://www.ceazamet.cl/ws/pop_ws.php&quot;</span>
+<span class="n">DOC_URL</span> <span class="o">=</span> <span class="s2">&quot;https://www.ceazamet.cl/ws/pop_ws_doc.php&quot;</span>
+<span class="n">HOME_URL</span> <span class="o">=</span> <span class="s2">&quot;https://www.ceazamet.cl/&quot;</span>
+<span class="n">STATION_URL</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;https://www.ceazamet.cl/index.php?pag=mod_estacion&amp;e_cod=</span><span class="si">{}</span><span class="s2">&amp;p_cod=ceazamet&quot;</span>
+<span class="p">)</span>
+
+<span class="c1">#: The project (``p_cod``) this client queries.</span>
+<span class="n">PROJECT</span> <span class="o">=</span> <span class="s2">&quot;ceazamet&quot;</span>
+
+<span class="c1">#: Attribution text the terms of use ask for (with a link to HOME_URL).</span>
+<span class="n">ATTRIBUTION</span> <span class="o">=</span> <span class="s2">&quot;Datos provistos por el laboratorio de meteorología CEAZA&quot;</span>
+
+<span class="c1">#: Columns requested from GetListaEstaciones / GetListaSensores, in order.</span>
+<span class="n">STATION_COLUMNS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;e_cod&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;e_nombre&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;e_lat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;e_lon&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;e_altitud&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;e_primera_lectura&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;e_ultima_lectura&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;e_cod_provincia&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;e_owner&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">SENSOR_COLUMNS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;e_cod&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;s_cod&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tf_nombre&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;um_notacion&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;s_altura&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;s_primera_lectura&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;s_ultima_lectura&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tm_cod&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#: Interval enum → ``interv`` code, and the request window per interval.</span>
+<span class="n">_INTERV</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;daily&quot;</span><span class="p">:</span> <span class="s2">&quot;dia&quot;</span><span class="p">,</span> <span class="s2">&quot;hourly&quot;</span><span class="p">:</span> <span class="s2">&quot;hora&quot;</span><span class="p">}</span>
+<span class="c1">#: CEAZA-Met allows registered users at most one year per request.</span>
+<span class="n">_WINDOW_DAYS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;daily&quot;</span><span class="p">:</span> <span class="mi">365</span><span class="p">,</span> <span class="s2">&quot;hourly&quot;</span><span class="p">:</span> <span class="mi">365</span><span class="p">}</span>
+
+<span class="c1">#: Earliest date the documentation allows for ``fecha_inicio``.</span>
+<span class="n">_EARLIEST</span> <span class="o">=</span> <span class="s2">&quot;2004-01-31&quot;</span>
+
+<span class="c1">#: Fixed offset of the service&#39;s timestamps (``gmt-4``).</span>
+<span class="n">UTC_OFFSET</span> <span class="o">=</span> <span class="s2">&quot;-04:00&quot;</span>
+
+<span class="n">_DEFAULT_TIMEOUT</span> <span class="o">=</span> <span class="mi">120</span>
+<span class="n">_DEFAULT_RETRIES</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">_DEFAULT_BACKOFF</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="c1">#: A station whose latest reading is at most this old is Active.</span>
+<span class="n">_ACTIVE_DAYS</span> <span class="o">=</span> <span class="mi">90</span>
+
+<span class="c1">#: Plausibility bounds per type, output units (DESIGN.md §3.6).</span>
+<span class="n">_BOUNDS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;swe&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1500.0</span><span class="p">),</span>  <span class="c1"># cm</span>
+    <span class="s2">&quot;snwd&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1500.0</span><span class="p">),</span>  <span class="c1"># cm</span>
+    <span class="s2">&quot;temp&quot;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">60.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">),</span>  <span class="c1"># °C</span>
+    <span class="s2">&quot;precip&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">500.0</span><span class="p">),</span>  <span class="c1"># mm per interval</span>
+<span class="p">}</span>
+
+<span class="n">_SOURCE</span> <span class="o">=</span> <span class="s2">&quot;CEAZA-Met web service (GetSerieSensor) — &quot;</span> <span class="o">+</span> <span class="n">BASE_URL</span>
+
+<span class="c1">#: ``e_owner`` codes of the station list whose owner is named in the</span>
+<span class="c1">#: station names or on the CEAZA-Met site.  Other codes (``uconce``,</span>
+<span class="c1">#: ``ulagos``, ``upla``, ``jvre``) are kept as given in ``owner``.</span>
+<span class="n">OWNERS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;ceaza&quot;</span><span class="p">:</span> <span class="s2">&quot;Centro de Estudios Avanzados en Zonas Áridas (CEAZA)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;inia&quot;</span><span class="p">:</span> <span class="s2">&quot;Instituto de Investigaciones Agropecuarias (INIA)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dga&quot;</span><span class="p">:</span> <span class="s2">&quot;Dirección General de Aguas (DGA)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ieb&quot;</span><span class="p">:</span> <span class="s2">&quot;Instituto de Ecología y Biodiversidad (IEB)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;uls&quot;</span><span class="p">:</span> <span class="s2">&quot;Universidad de La Serena (ULS)&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># ── Public variable / flag tables ────────────────────────────────────────────</span>
+
+<span class="c1">#: Variables served by :meth:`CEAZAClient.get_data`, keyed by ``tm_cod``.</span>
+<span class="n">VARIABLES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;ani_cm&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Altura de Nieve&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;snwd&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Snow depth from an automatic snow-depth sensor.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Raw logger values. Bare ground often reads slightly negative &quot;</span>
+            <span class="s2">&quot;(zero offset); those values are nulled by the 0–15 m bound, not &quot;</span>
+            <span class="s2">&quot;set to zero. El Tapado has two sensors (TPFSNOWD to 2023, &quot;</span>
+            <span class="s2">&quot;TPFANSHM31 from 2018).&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;ae_mm&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Agua equivalente&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;swe&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Snow water equivalent from an automatic sensor (El Tapado &quot;</span>
+            <span class="s2">&quot;TPFSWE_K and TPFSWE_TL, Tascadero TASCPN).&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Published in mm; returned in cm (× 0.1). The sensor type is not &quot;</span>
+            <span class="s2">&quot;given by the service. Summer values drift below zero and are &quot;</span>
+            <span class="s2">&quot;nulled. El Tapado&#39;s two sensors disagree: median difference &quot;</span>
+            <span class="s2">&quot;15 mm, largest 210 mm, on days when either reads over 50 mm.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;ae_cm&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Agua equivalente&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;swe&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Snow water equivalent, published in cm (Hualtatas HUALPN &quot;</span>
+            <span class="s2">&quot;2014–2019, La Laguna LAGELSP 2013–2017).&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Same quantity as ae_mm but served in cm; the unit is confirmed &quot;</span>
+            <span class="s2">&quot;by the co-located depth sensors (median density about 260 &quot;</span>
+            <span class="s2">&quot;kg/m³ at Hualtatas).&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;pnkg&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Peso de la Nieve&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;swe&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;kg/m²&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Snow weight per unit area (Guandacol HDCPN, Llano de Las &quot;</span>
+            <span class="s2">&quot;Liebres LLLSW1Wins1h and LLLSW2Wins1h), i.e. SWE: 1 kg/m² = &quot;</span>
+            <span class="s2">&quot;1 mm of water.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Published in kg/m²; returned as SWE in cm (× 0.1). The two &quot;</span>
+            <span class="s2">&quot;Llano de Las Liebres sensors disagree: on days when either &quot;</span>
+            <span class="s2">&quot;reads over 10 kg/m² the median difference is 32 kg/m² and the &quot;</span>
+            <span class="s2">&quot;largest 182 kg/m² (2024-08-02).&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;ta_c&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Temperatura del Aire&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;temp&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;°C&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;°C&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Air temperature; value is the interval mean.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;value_min / value_max are the interval extremes. Values outside &quot;</span>
+            <span class="s2">&quot;−60 to 50 °C are nulled.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;pp_mm&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Precipitación&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;precip&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SOURCE</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Precipitation total over the interval (the service sums).&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Only Tascadero (TASCPP) among the snow stations. The gauge &quot;</span>
+            <span class="s2">&quot;type is not given by the service. A partial day (data_pct &lt; &quot;</span>
+            <span class="s2">&quot;100) undercounts. Not the cumulative ppa_mm gauge level, &quot;</span>
+            <span class="s2">&quot;which is not served.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1">#: Flag text from the service&#39;s ``data_pc`` (share of expected records).</span>
+<span class="n">DATA_FLAGS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;complete&quot;</span><span class="p">:</span> <span class="s2">&quot;data_pc = 100: every expected record of the interval was present&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;partial&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;data_pc 1–99: some records of the interval were missing; the &quot;</span>
+        <span class="s2">&quot;percentage is in data_pct (a partial precipitation total undercounts)&quot;</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+<span class="n">_TYPE_TO_VARS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">_code</span><span class="p">,</span> <span class="n">_info</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">_TYPE_TO_VARS</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_code</span><span class="p">)</span>
+
+<span class="c1">#: Measurement types that make a station a snow station.</span>
+<span class="n">SNOW_VARIABLES</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;ani_cm&quot;</span><span class="p">,</span> <span class="s2">&quot;ae_mm&quot;</span><span class="p">,</span> <span class="s2">&quot;ae_cm&quot;</span><span class="p">,</span> <span class="s2">&quot;pnkg&quot;</span><span class="p">)</span>
+<span class="n">_SWE_VARS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">_TYPE_TO_VARS</span><span class="p">[</span><span class="s2">&quot;swe&quot;</span><span class="p">])</span>
+
+<span class="n">_DEFAULT_VARS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">SNOW_VARIABLES</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="CEAZAError">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.CEAZAError.html#easysnowdata.stations.clients.CEAZAError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CEAZAError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised for CEAZA-Met web-service failures and bad requests.&quot;&quot;&quot;</span></div>
+
+
+
+<span class="c1"># ── Parsers ──────────────────────────────────────────────────────────────────</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Map ``tm_cod`` codes or standardized types to ``tm_cod`` codes.&quot;&quot;&quot;</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">_coerce_list</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span> <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">items</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_DEFAULT_VARS</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="p">:</span>
+            <span class="n">codes</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_TYPE_TO_VARS</span><span class="p">:</span>
+            <span class="n">codes</span> <span class="o">=</span> <span class="n">_TYPE_TO_VARS</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">CEAZAError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown CEAZA-Met variable </span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s2"> — expected one of &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">VARIABLES</span><span class="p">)</span><span class="si">}</span><span class="s2"> or types </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_TYPE_TO_VARS</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">codes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert</span><span class="p">(</span><span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">raw</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Native value → output units, nulling missing and implausible values.&quot;&quot;&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">_to_float</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">code</span><span class="p">]</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">value</span> <span class="o">*</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;scale&quot;</span><span class="p">],</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">_BOUNDS</span><span class="p">[</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">low</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="n">high</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">value</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_text</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">text</span> <span class="ow">or</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_csv</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a CEAZA-Met CSV response into row dicts.</span>
+
+<span class="sd">    Lines starting with ``#`` are metadata; the last of them holds the</span>
+<span class="sd">    column names (with a trailing comma, as does every data row).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">header</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">body</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;﻿&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="n">body</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">header</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">CEAZAError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CEAZA-Met response has no header line: </span><span class="si">{</span><span class="n">text</span><span class="p">[:</span><span class="mi">200</span><span class="p">]</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">header</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">header</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+    <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">fields</span> <span class="ow">in</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span><span class="n">h</span><span class="p">:</span> <span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">header</span><span class="p">)}</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">rows</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_series</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a ``GetSerieSensor`` JSON response.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    CEAZAError</span>
+<span class="sd">        On an error message from the service, non-JSON text, or an unknown</span>
+<span class="sd">        sensor (``e_cod`` null).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;﻿&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;{&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">start</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">body</span><span class="p">[:</span> <span class="n">start</span> <span class="k">if</span> <span class="n">start</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">300</span><span class="p">]</span>
+        <span class="k">raise</span> <span class="n">CEAZAError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CEAZA-Met error: </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">strip</span><span class="p">()[:</span><span class="mi">300</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">CEAZAError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CEAZA-Met returned non-JSON: </span><span class="si">{</span><span class="n">body</span><span class="p">[:</span><span class="mi">200</span><span class="p">]</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;e_cod&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">CEAZAError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown CEAZA-Met sensor </span><span class="si">{</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;s_cod&#39;</span><span class="p">)</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;serie&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">payload</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">CEAZAError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;CEAZA-Met response for </span><span class="si">{</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;s_cod&#39;</span><span class="p">)</span><span class="si">!r}</span><span class="s2"> has no &#39;serie&#39;&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">payload</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_day</span><span class="p">(</span><span class="n">stamp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``&quot;2016-10-29 20:00:00&quot;`` → ``&quot;2016-10-29&quot;``.&quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="p">(</span><span class="n">stamp</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">text</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span> <span class="k">if</span> <span class="n">text</span> <span class="k">else</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_station</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;GetListaEstaciones row → station dict (no sensor fields yet).&quot;&quot;&quot;</span>
+    <span class="n">sid</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;e_cod&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">owner</span> <span class="o">=</span> <span class="n">_text</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;e_owner&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;station_id&quot;</span><span class="p">:</span> <span class="n">sid</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">_text</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;e_nombre&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">_to_float</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;e_lat&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">_to_float</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;e_lon&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;elevation_m&quot;</span><span class="p">:</span> <span class="n">_to_float</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;e_altitud&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;network&quot;</span><span class="p">:</span> <span class="s2">&quot;CEAZA-Met&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;owner&quot;</span><span class="p">:</span> <span class="n">owner</span><span class="p">,</span>
+        <span class="s2">&quot;operator&quot;</span><span class="p">:</span> <span class="n">OWNERS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">owner</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">owner</span><span class="p">),</span>
+        <span class="s2">&quot;province_code&quot;</span><span class="p">:</span> <span class="n">_text</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;e_cod_provincia&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;first_reading&quot;</span><span class="p">:</span> <span class="n">_text</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;e_primera_lectura&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;last_reading&quot;</span><span class="p">:</span> <span class="n">_text</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;e_ultima_lectura&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;begin_date&quot;</span><span class="p">:</span> <span class="n">_day</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;e_primera_lectura&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="n">_day</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;e_ultima_lectura&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;station_url&quot;</span><span class="p">:</span> <span class="n">STATION_URL</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sid</span><span class="p">),</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_sensor</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;GetListaSensores row → sensor dict.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;station_id&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;e_cod&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+        <span class="s2">&quot;sensor&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;s_cod&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+        <span class="s2">&quot;variable&quot;</span><span class="p">:</span> <span class="n">_text</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tm_cod&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">_text</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tf_nombre&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="n">_text</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;um_notacion&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;height_m&quot;</span><span class="p">:</span> <span class="n">_to_float</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;s_altura&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;begin_date&quot;</span><span class="p">:</span> <span class="n">_day</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;s_primera_lectura&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="n">_day</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;s_ultima_lectura&quot;</span><span class="p">)),</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_method</span><span class="p">(</span><span class="n">variables</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="s2">&quot;ani_cm&quot;</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;automatic snow depth&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">variables</span> <span class="o">&amp;</span> <span class="p">{</span><span class="s2">&quot;ae_mm&quot;</span><span class="p">,</span> <span class="s2">&quot;ae_cm&quot;</span><span class="p">}:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;automatic SWE sensor&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;pnkg&quot;</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;snow-weight sensor (SWE)&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;automatic weather station&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_windows</span><span class="p">(</span><span class="n">begin</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">days</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split ``[begin, end]`` into inclusive windows of at most ``days``.&quot;&quot;&quot;</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">begin</span><span class="p">)</span>
+    <span class="n">last</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">end</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">start</span> <span class="o">&lt;=</span> <span class="n">last</span><span class="p">:</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">days</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">last</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">start</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span> <span class="n">stop</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()))</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">stop</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="c1"># ── Client ───────────────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="CEAZAClient">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.CEAZAClient.html#easysnowdata.stations.clients.CEAZAClient">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CEAZAClient</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Client for the CEAZA-Met web service (Coquimbo region, Chile).</span>
+
+<span class="sd">    No credentials are needed; see the module docstring for the terms of</span>
+<span class="sd">    use (registration by e-mail, attribution).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    user : str, optional</span>
+<span class="sd">        The e-mail address registered with CEAZA-Met, sent as ``user=``.</span>
+<span class="sd">        Without it the service applies its anonymous limits.</span>
+<span class="sd">    base_url : str</span>
+<span class="sd">        Web-service URL.</span>
+<span class="sd">    timeout, max_retries, backoff : int</span>
+<span class="sd">        HTTP settings for the shared retry loop.</span>
+<span class="sd">    session : requests.Session, optional</span>
+<span class="sd">        Pre-configured session.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">user</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">BASE_URL</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_DEFAULT_TIMEOUT</span><span class="p">,</span>
+        <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_DEFAULT_RETRIES</span><span class="p">,</span>
+        <span class="n">backoff</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_DEFAULT_BACKOFF</span><span class="p">,</span>
+        <span class="n">session</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">user</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">=</span> <span class="n">base_url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">=</span> <span class="n">max_retries</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backoff</span> <span class="o">=</span> <span class="n">backoff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">session</span> <span class="ow">or</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;User-Agent&quot;</span><span class="p">:</span> <span class="s2">&quot;easysnowdata&quot;</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stations</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensors</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># ── HTTP ─────────────────────────────────────────────────────────────────</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">query</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span> <span class="s2">&quot;p_cod&quot;</span><span class="p">:</span> <span class="n">PROJECT</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">:</span>
+            <span class="n">query</span><span class="p">[</span><span class="s2">&quot;user&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="n">request_with_retries</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
+            <span class="n">error_cls</span><span class="o">=</span><span class="n">CEAZAError</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span>
+            <span class="n">max_retries</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span><span class="p">,</span>
+            <span class="n">backoff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">backoff</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">resp</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">encoding</span> <span class="ow">or</span> <span class="s2">&quot;utf-8&quot;</span>
+        <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">text</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_columns</span><span class="p">(</span><span class="n">names</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;c</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">name</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">names</span><span class="p">)}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Station list and network-wide sensor list (two requests, cached).&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">stations</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">_parse_station</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">parse_csv</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="s2">&quot;GetListaEstaciones&quot;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">(</span><span class="n">STATION_COLUMNS</span><span class="p">))</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;e_cod&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="p">]</span>
+        <span class="n">sensors</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">parse_csv</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="s2">&quot;GetListaSensores&quot;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">(</span><span class="n">SENSOR_COLUMNS</span><span class="p">))</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;e_cod&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">and</span> <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;s_cod&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                <span class="n">sen</span> <span class="o">=</span> <span class="n">_parse_sensor</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+                <span class="n">sensors</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">sen</span><span class="p">[</span><span class="s2">&quot;station_id&quot;</span><span class="p">],</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sen</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stations</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">CEAZAError</span><span class="p">(</span><span class="s2">&quot;CEAZA-Met returned an empty station list&quot;</span><span class="p">)</span>
+        <span class="n">cutoff</span> <span class="o">=</span> <span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">_ACTIVE_DAYS</span><span class="p">))</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">sta</span> <span class="ow">in</span> <span class="n">stations</span><span class="p">:</span>
+            <span class="n">own</span> <span class="o">=</span> <span class="n">sensors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sta</span><span class="p">[</span><span class="s2">&quot;station_id&quot;</span><span class="p">],</span> <span class="p">[])</span>
+            <span class="n">kinds</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;variable&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">own</span><span class="p">}</span>
+            <span class="n">served</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">own</span> <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;variable&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="p">]</span>
+            <span class="n">sta</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">&quot;Active&quot;</span>
+                        <span class="k">if</span> <span class="n">sta</span><span class="p">[</span><span class="s2">&quot;end_date&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">sta</span><span class="p">[</span><span class="s2">&quot;end_date&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">cutoff</span>
+                        <span class="k">else</span> <span class="s2">&quot;Inactive&quot;</span>
+                    <span class="p">),</span>
+                    <span class="s2">&quot;measurement_method&quot;</span><span class="p">:</span> <span class="n">_method</span><span class="p">(</span><span class="n">kinds</span><span class="p">),</span>
+                    <span class="s2">&quot;has_swe&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">kinds</span> <span class="o">&amp;</span> <span class="n">_SWE_VARS</span><span class="p">),</span>
+                    <span class="s2">&quot;has_snwd&quot;</span><span class="p">:</span> <span class="s2">&quot;ani_cm&quot;</span> <span class="ow">in</span> <span class="n">kinds</span><span class="p">,</span>
+                    <span class="s2">&quot;has_temp&quot;</span><span class="p">:</span> <span class="s2">&quot;ta_c&quot;</span> <span class="ow">in</span> <span class="n">kinds</span><span class="p">,</span>
+                    <span class="s2">&quot;has_precip&quot;</span><span class="p">:</span> <span class="s2">&quot;pp_mm&quot;</span> <span class="ow">in</span> <span class="n">kinds</span><span class="p">,</span>
+                    <span class="s2">&quot;is_snow_station&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">kinds</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">SNOW_VARIABLES</span><span class="p">)),</span>
+                    <span class="s2">&quot;snow_sensors&quot;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="n">s</span><span class="p">[</span><span class="s2">&quot;sensor&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">own</span> <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;variable&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">SNOW_VARIABLES</span>
+                    <span class="p">],</span>
+                    <span class="s2">&quot;snow_variables&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">kinds</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">SNOW_VARIABLES</span><span class="p">)),</span>
+                    <span class="s2">&quot;n_sensors&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">own</span><span class="p">),</span>
+                    <span class="s2">&quot;served_sensors&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;sensor&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">served</span><span class="p">],</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stations</span> <span class="o">=</span> <span class="n">stations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sensors</span> <span class="o">=</span> <span class="n">sensors</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;CEAZA-Met: </span><span class="si">%d</span><span class="s2"> stations (</span><span class="si">%d</span><span class="s2"> with snow sensors)&quot;</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">stations</span><span class="p">),</span>
+            <span class="nb">sum</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;is_snow_station&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">stations</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="c1"># ── Public API — stations ────────────────────────────────────────────────</span>
+
+<div class="viewcode-block" id="CEAZAClient.get_all_stations">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.CEAZAClient.html#easysnowdata.stations.clients.CEAZAClient.get_all_stations">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_all_stations</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">active_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">snow_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        CEAZA-Met stations; by default only those with a snow sensor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        active_only : bool</span>
+<span class="sd">            Keep stations whose latest reading is at most 90 days old.</span>
+<span class="sd">        bbox : tuple, optional</span>
+<span class="sd">            ``(min_lon, min_lat, max_lon, max_lat)``.</span>
+<span class="sd">        snow_only : bool</span>
+<span class="sd">            Keep stations with a snow-depth, SWE or snow-weight sensor</span>
+<span class="sd">            (default).  ``False`` lists the whole network.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[dict]</span>
+<span class="sd">            ``station_id`` (``e_cod``), ``name``, ``latitude``,</span>
+<span class="sd">            ``longitude``, ``elevation_m``, ``status``, ``network``</span>
+<span class="sd">            (``&quot;CEAZA-Met&quot;``), ``owner`` (``e_owner`` code), ``operator``</span>
+<span class="sd">            (from :data:`OWNERS`, else the code), ``province_code``,</span>
+<span class="sd">            ``first_reading`` / ``last_reading`` (as served) and</span>
+<span class="sd">            ``begin_date`` / ``end_date`` (their dates),</span>
+<span class="sd">            ``measurement_method``, ``has_swe``, ``has_snwd``,</span>
+<span class="sd">            ``has_temp``, ``has_precip``, ``is_snow_station``,</span>
+<span class="sd">            ``snow_sensors`` (``s_cod`` list), ``snow_variables``</span>
+<span class="sd">            (``tm_cod`` list), ``n_sensors``, ``served_sensors`` and</span>
+<span class="sd">            ``station_url``.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        CEAZAError</span>
+<span class="sd">            If the service cannot be reached or returns nothing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stations</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">snow_only</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">out</span> <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;is_snow_station&quot;</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">active_only</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">out</span> <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Active&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_filter_by_bbox</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">bbox</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CEAZAClient.get_sensors">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.CEAZAClient.html#easysnowdata.stations.clients.CEAZAClient.get_sensors">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_sensors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">station_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Every sensor of a station, as the network-wide sensor list gives it.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[dict]</span>
+<span class="sd">            ``station_id``, ``sensor`` (``s_cod``), ``variable``</span>
+<span class="sd">            (``tm_cod``), ``name`` (``tf_nombre``), ``units``</span>
+<span class="sd">            (``um_notacion``), ``height_m``, ``begin_date``, ``end_date``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sensors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sensors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">station_id</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="p">[])]</span></div>
+
+
+<div class="viewcode-block" id="CEAZAClient.get_metadata">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.CEAZAClient.html#easysnowdata.stations.clients.CEAZAClient.get_metadata">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">station_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Station metadata plus ``data_variables`` and ``sensors``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        station_id : str</span>
+<span class="sd">            ``e_cod`` (e.g. ``&quot;TPF&quot;``, ``&quot;TASC&quot;``); any station, snow or</span>
+<span class="sd">            not.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            The station dict plus ``data_variables`` (one entry per sensor</span>
+<span class="sd">            this client serves: ``name`` (``tm_cod``), ``sensor``,</span>
+<span class="sd">            ``native_name``, ``type``, ``units`` (native),</span>
+<span class="sd">            ``output_units``, ``height_m``, ``begin_date``, ``end_date``,</span>
+<span class="sd">            ``intervals``) and ``sensors`` (every sensor, see</span>
+<span class="sd">            :meth:`get_sensors`).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        CEAZAError</span>
+<span class="sd">            If the station is not in the station list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">station_id</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_stations</span><span class="p">(</span><span class="n">snow_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;station_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">sid</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">CEAZAError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Station </span><span class="si">{</span><span class="n">sid</span><span class="si">!r}</span><span class="s2"> not in the CEAZA-Met station list&quot;</span><span class="p">)</span>
+        <span class="n">sta</span> <span class="o">=</span> <span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">sensors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sensors</span><span class="p">(</span><span class="n">sid</span><span class="p">)</span>
+        <span class="n">sta</span><span class="p">[</span><span class="s2">&quot;sensors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sensors</span>
+        <span class="n">sta</span><span class="p">[</span><span class="s2">&quot;data_variables&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;variable&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;sensor&quot;</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;sensor&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;native_name&quot;</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;variable&quot;</span><span class="p">]][</span><span class="s2">&quot;type&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;variable&quot;</span><span class="p">]][</span><span class="s2">&quot;output_units&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;height_m&quot;</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;height_m&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;begin_date&quot;</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;begin_date&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;end_date&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;intervals&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">_INTERV</span><span class="p">),</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sensors</span>
+            <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;variable&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">VARIABLES</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">sta</span></div>
+
+
+    <span class="c1"># ── Public API — data ────────────────────────────────────────────────────</span>
+
+<div class="viewcode-block" id="CEAZAClient.get_series">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.CEAZAClient.html#easysnowdata.stations.clients.CEAZAClient.get_series">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_series</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">begin_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">date</span><span class="p">,</span>
+        <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">date</span><span class="p">,</span>
+        <span class="n">interval</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;daily&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Raw ``GetSerieSensor`` JSON for one sensor and one window.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            The service&#39;s payload (``e_cod``, ``s_cod``, ``tf_nombre``,</span>
+<span class="sd">            ``um_notacion``, ``serie``, …).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        CEAZAError</span>
+<span class="sd">            On an unsupported interval, an unknown sensor or a service error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">interval</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_INTERV</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">CEAZAError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unsupported interval </span><span class="si">{</span><span class="n">interval</span><span class="si">!r}</span><span class="s2"> for CEAZA-Met — expected &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;one of </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_INTERV</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span>
+            <span class="s2">&quot;GetSerieSensor&quot;</span><span class="p">,</span>
+            <span class="n">s_cod</span><span class="o">=</span><span class="n">sensor</span><span class="p">,</span>
+            <span class="n">fecha_inicio</span><span class="o">=</span><span class="n">_date_str</span><span class="p">(</span><span class="n">begin_date</span><span class="p">),</span>
+            <span class="n">fecha_fin</span><span class="o">=</span><span class="n">_date_str</span><span class="p">(</span><span class="n">end_date</span><span class="p">),</span>
+            <span class="n">interv</span><span class="o">=</span><span class="n">_INTERV</span><span class="p">[</span><span class="n">interval</span><span class="p">],</span>
+            <span class="n">tipo_resp</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">parse_series</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_record</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">sid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sensor</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">interval</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">stamp</span> <span class="o">=</span> <span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fecha&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stamp</span> <span class="ow">or</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prom&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># an interval without data</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="n">VARIABLES</span><span class="p">[</span><span class="n">code</span><span class="p">]</span>
+        <span class="n">precip</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;precip&quot;</span>
+        <span class="n">pct</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data_pc&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pct</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pct</span><span class="p">)</span> <span class="k">if</span> <span class="n">pct</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">pct</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">rec</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;station_id&quot;</span><span class="p">:</span> <span class="n">sid</span><span class="p">,</span>
+            <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">stamp</span><span class="p">[:</span><span class="mi">10</span><span class="p">],</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">interval</span> <span class="o">!=</span> <span class="s2">&quot;daily&quot;</span><span class="p">:</span>
+            <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;datetime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stamp</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;T&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">UTC_OFFSET</span>
+        <span class="n">rec</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;variable&quot;</span><span class="p">:</span> <span class="n">code</span><span class="p">,</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">_convert</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prom&quot;</span><span class="p">)),</span>
+                <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;output_units&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;interval&quot;</span><span class="p">:</span> <span class="n">interval</span><span class="p">,</span>
+                <span class="s2">&quot;sensor&quot;</span><span class="p">:</span> <span class="n">sensor</span><span class="p">,</span>
+                <span class="s2">&quot;value_min&quot;</span><span class="p">:</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">precip</span> <span class="k">else</span> <span class="n">_convert</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">)),</span>
+                <span class="s2">&quot;value_max&quot;</span><span class="p">:</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">precip</span> <span class="k">else</span> <span class="n">_convert</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max&quot;</span><span class="p">)),</span>
+                <span class="s2">&quot;data_pct&quot;</span><span class="p">:</span> <span class="n">pct</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">flags</span><span class="p">:</span>
+            <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;flag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;complete&quot;</span> <span class="k">if</span> <span class="n">pct</span> <span class="o">==</span> <span class="mi">100</span> <span class="k">else</span> <span class="s2">&quot;partial&quot;</span> <span class="k">if</span> <span class="n">pct</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">rec</span>
+
+<div class="viewcode-block" id="CEAZAClient.get_data">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.CEAZAClient.html#easysnowdata.stations.clients.CEAZAClient.get_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">station_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">variables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">begin_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">interval</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;daily&quot;</span><span class="p">,</span>
+        <span class="n">include_flags</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">sensors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Station data as flat records, one per sensor and interval with data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        station_ids : list[str] or str or None</span>
+<span class="sd">            ``e_cod`` code(s).  Required unless ``bbox`` is given.</span>
+<span class="sd">        variables : list[str] or str or None</span>
+<span class="sd">            ``tm_cod`` codes (``&quot;ani_cm&quot;``, ``&quot;ae_mm&quot;``, ``&quot;ae_cm&quot;``,</span>
+<span class="sd">            ``&quot;pnkg&quot;``, ``&quot;ta_c&quot;``, ``&quot;pp_mm&quot;``) or types (``&quot;snwd&quot;``,</span>
+<span class="sd">            ``&quot;swe&quot;``, ``&quot;temp&quot;``, ``&quot;precip&quot;``).  ``None`` = the snow</span>
+<span class="sd">            variables (``snwd`` + ``swe``).</span>
+<span class="sd">        bbox : tuple, optional</span>
+<span class="sd">            ``(min_lon, min_lat, max_lon, max_lat)``; selects snow stations.</span>
+<span class="sd">        begin_date, end_date : str or date, optional</span>
+<span class="sd">            Inclusive ``YYYY-MM-DD`` bounds (UTC−4 days).  Default: each</span>
+<span class="sd">            sensor&#39;s first reading to today.</span>
+<span class="sd">        interval : str</span>
+<span class="sd">            ``&quot;daily&quot;`` (default) or ``&quot;hourly&quot;``.</span>
+<span class="sd">        include_flags : bool</span>
+<span class="sd">            Add ``flag`` (&quot;complete&quot; / &quot;partial&quot;, see :data:`DATA_FLAGS`).</span>
+<span class="sd">        sensors : list[str] or str, optional</span>
+<span class="sd">            Keep only these sensor codes (``s_cod``), e.g. ``&quot;TPFSWE_K&quot;``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[dict]</span>
+<span class="sd">            ``{station_id, date, variable, type, value, units, interval,</span>
+<span class="sd">            sensor, value_min, value_max, data_pct}`` (+ ``datetime`` for</span>
+<span class="sd">            hourly, ``flag``).  ``value`` is the interval mean (precipitation:</span>
+<span class="sd">            the total) and is ``None`` outside the plausibility bounds.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If neither ``station_ids`` nor ``bbox`` is given.</span>
+<span class="sd">        CEAZAError</span>
+<span class="sd">            On an unknown variable, station or sensor, an unsupported</span>
+<span class="sd">            interval, or a service error.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        &gt;&gt;&gt; client = CEAZAClient()</span>
+<span class="sd">        &gt;&gt;&gt; recs = client.get_data(</span>
+<span class="sd">        ...     &quot;TASC&quot;, variables=&quot;snwd&quot;,</span>
+<span class="sd">        ...     begin_date=&quot;2025-08-01&quot;, end_date=&quot;2025-08-31&quot;,</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; recs[0][&quot;units&quot;], recs[0][&quot;sensor&quot;]</span>
+<span class="sd">        (&#39;cm&#39;, &#39;TASCAN&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">interval</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">interval</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_INTERV</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">CEAZAError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unsupported interval </span><span class="si">{</span><span class="n">interval</span><span class="si">!r}</span><span class="s2"> for CEAZA-Met — expected &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;one of </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_INTERV</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">codes</span> <span class="o">=</span> <span class="n">_resolve_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">station_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">_coerce_list</span><span class="p">(</span><span class="n">station_ids</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;station_id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_stations</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Provide station_ids or bbox.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sensors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">known</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;station_id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stations</span><span class="p">}</span>
+        <span class="n">unknown</span> <span class="o">=</span> <span class="p">[</span><span class="n">sid</span> <span class="k">for</span> <span class="n">sid</span> <span class="ow">in</span> <span class="n">ids</span> <span class="k">if</span> <span class="n">sid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">known</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">unknown</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">CEAZAError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Station(s) </span><span class="si">{</span><span class="n">unknown</span><span class="si">}</span><span class="s2"> not in the CEAZA-Met station list&quot;</span><span class="p">)</span>
+        <span class="n">wanted</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">_coerce_list</span><span class="p">(</span><span class="n">sensors</span><span class="p">)}</span> <span class="k">if</span> <span class="n">sensors</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">wanted</span><span class="p">:</span>
+            <span class="n">have</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;sensor&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">sid</span> <span class="ow">in</span> <span class="n">ids</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sensors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sid</span><span class="p">,</span> <span class="p">[])}</span>
+            <span class="k">if</span> <span class="n">wanted</span> <span class="o">-</span> <span class="n">have</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CEAZAError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Sensor(s) </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">wanted</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">have</span><span class="p">)</span><span class="si">}</span><span class="s2"> not at station(s) </span><span class="si">{</span><span class="n">ids</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+        <span class="n">begin</span> <span class="o">=</span> <span class="n">_date_str</span><span class="p">(</span><span class="n">begin_date</span><span class="p">)</span> <span class="k">if</span> <span class="n">begin_date</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">_date_str</span><span class="p">(</span><span class="n">end_date</span><span class="p">)</span> <span class="k">if</span> <span class="n">end_date</span> <span class="k">else</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sid</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">sen</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sensors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sid</span><span class="p">,</span> <span class="p">[]):</span>
+                <span class="n">code</span> <span class="o">=</span> <span class="n">sen</span><span class="p">[</span><span class="s2">&quot;variable&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">code</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">codes</span> <span class="ow">or</span> <span class="p">(</span><span class="n">wanted</span> <span class="ow">and</span> <span class="n">sen</span><span class="p">[</span><span class="s2">&quot;sensor&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">wanted</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="n">lo</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">begin</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">sen</span><span class="p">[</span><span class="s2">&quot;begin_date&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">_EARLIEST</span><span class="p">)</span>
+                <span class="n">hi</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">sen</span><span class="p">[</span><span class="s2">&quot;end_date&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">end</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">lo</span> <span class="o">&gt;</span> <span class="n">hi</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">for</span> <span class="n">w_begin</span><span class="p">,</span> <span class="n">w_end</span> <span class="ow">in</span> <span class="n">_windows</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">,</span> <span class="n">_WINDOW_DAYS</span><span class="p">[</span><span class="n">interval</span><span class="p">]):</span>
+                    <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_series</span><span class="p">(</span><span class="n">sen</span><span class="p">[</span><span class="s2">&quot;sensor&quot;</span><span class="p">],</span> <span class="n">w_begin</span><span class="p">,</span> <span class="n">w_end</span><span class="p">,</span> <span class="n">interval</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;serie&quot;</span><span class="p">]:</span>
+                        <span class="n">rec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record</span><span class="p">(</span>
+                            <span class="n">sid</span><span class="p">,</span> <span class="n">sen</span><span class="p">[</span><span class="s2">&quot;sensor&quot;</span><span class="p">],</span> <span class="n">code</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">include_flags</span>
+                        <span class="p">)</span>
+                        <span class="k">if</span> <span class="n">rec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">records</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
