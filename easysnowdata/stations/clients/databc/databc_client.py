@@ -1333,12 +1333,7 @@ class DataBCClient:
             ``precip_cumul_mm`` (float or NaN).
         """
         url = f"{SNOW_ALL_BASE}/{location_id}.csv"
-        _cols = ["date", "swe_mm", "snwd_cm", "air_temp_degc", "precip_cumul_mm"]
-        try:
-            resp = self._request(url)
-        except DataBCError as exc:
-            logger.warning("Could not load SnowAll/%s.csv: %s", location_id, exc)
-            return pd.DataFrame(columns=_cols)
+        resp = self._request(url)
 
         df = pd.read_csv(io.StringIO(resp.text))
         df.columns = df.columns.str.strip()
@@ -1443,16 +1438,10 @@ class DataBCClient:
         """
         dfs = []
 
-        try:
-            dfs.append(self._load_mss_csv(f"{DATA_BASE}/allmss_current.csv"))
-        except DataBCError as exc:
-            logger.warning("Could not load allmss_current.csv: %s", exc)
+        dfs.append(self._load_mss_csv(f"{DATA_BASE}/allmss_current.csv"))
 
         if archive:
-            try:
-                dfs.append(self._load_mss_csv(f"{DATA_BASE}/allmss_archive.csv"))
-            except DataBCError as exc:
-                logger.warning("Could not load allmss_archive.csv: %s", exc)
+            dfs.append(self._load_mss_csv(f"{DATA_BASE}/allmss_archive.csv"))
 
         if not dfs:
             return pd.DataFrame()
@@ -1634,24 +1623,18 @@ class DataBCClient:
         """Generic helper for fetching a single variable from ASWS wide CSVs."""
         time_col = "date" if daily_only else "datetime"
         dfs = []
-        try:
-            dfs.append(
-                self._load_asws_wide_csv(
-                    current_url, value_col=value_col, daily_only=daily_only
-                )
+        dfs.append(
+            self._load_asws_wide_csv(
+                current_url, value_col=value_col, daily_only=daily_only
             )
-        except DataBCError as exc:
-            logger.warning("Could not load %s: %s", current_url, exc)
+        )
 
         if archive and archive_url:
-            try:
-                dfs.append(
-                    self._load_asws_wide_csv(
-                        archive_url, value_col=value_col, daily_only=daily_only
-                    )
+            dfs.append(
+                self._load_asws_wide_csv(
+                    archive_url, value_col=value_col, daily_only=daily_only
                 )
-            except DataBCError as exc:
-                logger.warning("Could not load %s: %s", archive_url, exc)
+            )
 
         if not dfs:
             return pd.DataFrame(columns=[time_col, "location_id", value_col])
