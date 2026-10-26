@@ -900,3 +900,11 @@ def test_temperature_output_units_are_degrees_celsius():
                 if unit != "°C":
                     bad[(name, key)] = unit
     assert bad == {}, bad
+
+
+def test_yukon_series_without_visibility_column_is_public():
+    """AquaCache dropped `publicly_visible` from /timeseries in October 2026."""
+    row = {"timeseries_id": "1", "parameter_name": "snow depth", "aggregation_type": ""}
+    assert YukonClient()._parse_series(row)["publicly_visible"] is True
+    hidden = {**row, "publicly_visible": "FALSE"}
+    assert YukonClient()._parse_series(hidden)["publicly_visible"] is False
