@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
+## [v0.3.4](https://github.com/egagli/easysnowdata/releases/tag/v0.3.4) - 2026-10-26
+
+<small>[Compare with v0.3.3](https://github.com/egagli/easysnowdata/compare/v0.3.3...v0.3.4)</small>
+
+### Fixed
+
+- fix(yukon): read series visibility from default_show ([b32ef2a](https://github.com/egagli/easysnowdata/commit/b32ef2a09990c57c91ee187bf92285a669f2dc53) by Claude).
+- fix(yukon): keep series when /timeseries omits publicly_visible ([e7d9ef0](https://github.com/egagli/easysnowdata/commit/e7d9ef0a0b6275b95d09c25b9f3d418f138701c3) by Claude).
+- fix(ceaza): request at most one year per web-service call ([3fbf985](https://github.com/egagli/easysnowdata/commit/3fbf985b9e4191c6994a028432f9f77c5b744d00) by Claude).
+
 ## [v0.3.3](https://github.com/egagli/easysnowdata/releases/tag/v0.3.3) - 2026-10-21
 
 <small>[Compare with v0.3.2](https://github.com/egagli/easysnowdata/compare/v0.3.2...v0.3.3)</small>
