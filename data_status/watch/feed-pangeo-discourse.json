@@ -1,6 +1,9 @@
 {
   "lines": [
     "Welcome to Pangeo Discourse",
+    "Ocean-plot: a small CLI for SST maps, wind vectors and point time series from NetCDF",
+    "Pangeo Showcase: “Building Analysis-Ready Antarctic Data Cubes with Pangeo” (November 11, 12 PM EST / 17:00 UTC)",
+    "Introducing GeoD Global: a Windows workbench for discovering and downloading geospatial data",
     "Staff Scientist position at [C]Worthy working on ocean modeling tools",
     "Scientific Developer for UFS In-Core Data Assimilation",
     "Pangeo Showcase: \"Firecube: A plugin-based batch ingestion engine for creating operational analysis-ready data cubes\" (October 14, 12 PM EDT / 16:00 UTC)",
@@ -26,9 +29,6 @@
     "AMS 2027 EIPT Sessions",
     "WxData 2.2 Released",
     "Problems downloading CMIP6 historical simulations from PANGEO gallery",
-    "Where Do You Spend the Most Time in an ICESat-2 Workflow?",
-    "EGU27 Pangeo session",
-    "New Working Group for Distributed Array Computing",
-    "Dask in Rust -- Frisky"
+    "Where Do You Spend the Most Time in an ICESat-2 Workflow?"
   ]
 }

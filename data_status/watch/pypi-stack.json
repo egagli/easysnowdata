@@ -12,7 +12,7 @@
     "url": "https://github.com/nsidc/earthaccess/releases"
   },
   "earthengine-api": {
-    "latest_version": "1.7.48",
+    "latest_version": "1.7.49",
     "url": "https://pypi.org/project/earthengine-api/"
   },
   "geopandas": {
@@ -44,7 +44,7 @@
     "url": "https://pypi.org/project/pyogrio/"
   },
   "pystac-client": {
-    "latest_version": "0.9.0",
+    "latest_version": "0.9.1",
     "url": "https://pypi.org/project/pystac-client/"
   },
   "rasterio": {

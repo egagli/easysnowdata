@@ -1,20 +1,27 @@
 {
   "awdb": {
-    "active": 4398,
-    "count": 7148,
+    "active": 4397,
+    "count": 7150,
     "daily": 1219
   },
   "cdec": {
-    "active": 564,
-    "count": 564,
-    "daily": 564
+    "active": 0,
+    "count": 0,
+    "daily": "not advertised"
   },
   "databc": {
     "active": 275,
     "count": 570,
     "daily": 180
   },
+  "nve": {
+    "active": 1903,
+    "count": 1903,
+    "daily": 32
+  },
   "yukon": {
-    "count": "unreachable: YukonError"
+    "active": 63,
+    "count": 92,
+    "daily": 0
   }
 }

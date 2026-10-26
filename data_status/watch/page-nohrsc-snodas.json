@@ -1,7 +1,7 @@
 {
   "lines": [
     "Snow Data Assimilation System (SNODAS) Data Products at NSIDC, Version 1 | National Snow and Ice Data Center",
-    "This data set was recently downgraded to a “Basic” Level of Service. Learn more about what this means for users",
+    "This data set has been downgraded to a “Basic” Level of Service. Learn more about what this means for users",
     "National Snow and Ice Data Center",
     "a part of CIRES at the University of Colorado Boulder",
     "NASA National Snow and Ice Data Center Distributed Active Archive Center (NSIDC DAAC)",
@@ -16,7 +16,7 @@
     ". (G02158, Version 1). [Data Set]. Boulder, Colorado USA. National Snow and Ice Data Center.",
     "https://doi.org/10.7265/N5TB14TC",
     "describe subset used if applicable",
-    "]. Date Accessed 10-19-2026.",
+    "]. Date Accessed 10-26-2026.",
     "Other standard citation formats may be found on the",
     "DOI Citation Formatter website",
     "into the top form field).",
