@@ -17,6 +17,11 @@ Primary use cases:
 API documentation : https://service.yukon.ca/water-data/api/v2/__docs__/
 Base URL          : https://service.yukon.ca/water-data/api/v2
 Authentication    : None — the API is fully open.
+Source code       : https://github.com/YukonWRB/YGwater (``inst/plumber/``; as of
+                    2026-10-26 the live API matches ``dev.WRB``, not ``main``) on top of
+                    the https://github.com/YukonWRB/AquaCache database, whose
+                    ``inst/patches/`` record schema changes such as the
+                    ``publicly_visible`` → ``default_show`` rename.
 
 Endpoints used
 --------------
@@ -210,7 +215,7 @@ _ROW_LIMIT = 1_000_000
 #: depth starts 1963-12-26, so 1900 is comfortably early.
 _EPOCH = "1900-01-01"
 
-_YUKON_DATA_SOURCE = f"Yukon Water Data (AquaCache) API v1 — {BASE_URL}"
+_YUKON_DATA_SOURCE = f"Yukon Water Data (AquaCache) API v2 — {BASE_URL}"
 
 # ── Public variable / flag tables ────────────────────────────────────────────
 

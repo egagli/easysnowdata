@@ -289,7 +289,7 @@ YUKON_PRODUCT = Product(
             temporal="~1975/present",
             latency="hours to a day",
             notes="the open AquaCache REST API; no account",
-            title="Yukon Water Data (AquaCache) API v1",
+            title="Yukon Water Data (AquaCache) API v2",
             health=_health_probe(
                 "Yukon stations (AquaCache API)",
                 f"{networks.NETWORKS['yukon'].api_url}/locations?limit=1",
@@ -298,15 +298,20 @@ YUKON_PRODUCT = Product(
     ),
     variables=variables_for("yukon"),
     citation=(
-        "Government of Yukon, Water Resources Branch. Yukon Water Data "
-        "(AquaCache) API; Yukon Snow Survey Network."
+        "Government of Yukon, Department of Environment, Water Science and "
+        "Stewardship Branch. Yukon Water Data (AquaCache) API v2, "
+        "https://service.yukon.ca/water-data/api/v2/; Yukon Snow Survey "
+        "Network. Contains information licensed under the Open Government "
+        "Licence – Yukon."
     ),
     license="Open Government Licence – Yukon",
     loader=_LOADER,
     examples=("stations/plot_yukon_stations.py", "stations/plot_all_networks.py"),
     references=(
+        "https://service.yukon.ca/water-data/api/v2/__docs__/",
         "https://service.yukon.ca/water-data/shiny/?page=home&lang=en",
         "https://yukon.ca/en/snow-survey-bulletin",
+        "https://open.yukon.ca/node/15612",
     ),
     tags=("swe", "snow depth", "stations", "yukon", "snow course"),
 )
