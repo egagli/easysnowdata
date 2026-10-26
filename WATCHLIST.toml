@@ -426,6 +426,14 @@ url = "https://water.ca.gov/News"
 products = ["cdec-stations"]
 
 [[page]]
+id = "page-ceaza-ws-doc"
+# CEAZA-Met's web-service documentation and terms of use. Its coordinator
+# said (e-mail, 2026-10-23) that API keys will replace the user= name "in the
+# coming months"; a change here is the early warning for CEAZAClient.
+url = "https://www.ceazamet.cl/ws/pop_ws_doc.php"
+products = ["snow-station-archive"]
+
+[[page]]
 id = "page-earth-search"
 url = "https://element84.com/earth-search/"
 products = ["sentinel-2-l2a", "copernicus-dem"]
