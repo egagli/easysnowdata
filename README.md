@@ -45,12 +45,12 @@ and both Earth Engine catalogs, under "Worth adding" when they are about the
 cryosphere.
 
 <!-- DATA_STATUS_START -->
-_Last updated: 2026-10-19 08:22 UTC_  
+_Last updated: 2026-10-26 08:22 UTC_  
 _⚠️ = skipped (credentials not available in this run). Latency and virtualization probes are on the [status page](https://egagli.github.io/easysnowdata/status.html)._
 
 ### Stations (`esd.stations`)
 
-| Data Source | Latest (Oct 19) | Oct 12 | Oct 5 | Sep 29 |
+| Data Source | Latest (Oct 26) | Oct 19 | Oct 12 | Oct 5 |
 | :---------- | :------: | :------: | :------: | :------: |
 | AWDB stations (NRCS REST API) | ✅ | ✅ | ✅ | ✅ |
 | CDEC stations (JSON data servlet) | ✅ | ✅ | ✅ | ✅ |
@@ -64,7 +64,7 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Snow (`esd.snow`)
 
-| Data Source | Latest (Oct 19) | Oct 12 | Oct 5 | Sep 29 |
+| Data Source | Latest (Oct 26) | Oct 19 | Oct 12 | Oct 5 |
 | :---------- | :------: | :------: | :------: | :------: |
 | MODIS snow cover MOD10A1F (NASA NSIDC) | ✅ | ✅ | ✅ | ✅ |
 | MODIS snow cover MOD10A1 (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
@@ -79,7 +79,7 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### SAR (`esd.sar`)
 
-| Data Source | Latest (Oct 19) | Oct 12 | Oct 5 | Sep 29 |
+| Data Source | Latest (Oct 26) | Oct 19 | Oct 12 | Oct 5 |
 | :---------- | :------: | :------: | :------: | :------: |
 | Sentinel-1 RTC (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | Sentinel-1 RTC OPERA (CMR-STAC ASF) | ✅ | ✅ | ✅ | ✅ |
@@ -90,7 +90,7 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Optical imagery (`esd.optical`)
 
-| Data Source | Latest (Oct 19) | Oct 12 | Oct 5 | Sep 29 |
+| Data Source | Latest (Oct 26) | Oct 19 | Oct 12 | Oct 5 |
 | :---------- | :------: | :------: | :------: | :------: |
 | HLS L30 (CMR-STAC LPCLOUD) | ✅ | ✅ | ✅ | ✅ |
 | HLS S30 (CMR-STAC LPCLOUD) | ✅ | ✅ | ✅ | ✅ |
@@ -104,31 +104,31 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Terrain (`esd.terrain`)
 
-| Data Source | Latest (Oct 19) | Oct 12 | Oct 5 | Sep 29 |
+| Data Source | Latest (Oct 26) | Oct 19 | Oct 12 | Oct 5 |
 | :---------- | :------: | :------: | :------: | :------: |
 | CHILI (GEE/CSP ERGo) | ✅ | ✅ | ✅ | ✅ |
 | Copernicus DEM (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | Copernicus DEM (Earth Search) | ✅ | ✅ | ✅ | ✅ |
 | Copernicus DEM (Earth Engine) | ✅ | ✅ | ✅ | ✅ |
-| Copernicus DEM (OpenTopography) | ✅ | ✅ | ✅ | — |
+| Copernicus DEM (OpenTopography) | ✅ | ✅ | ✅ | ✅ |
 | NASADEM (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | NASADEM (Earth Engine) | ✅ | ✅ | ✅ | ✅ |
-| NASADEM (OpenTopography) | ✅ | ✅ | ✅ | — |
-| SRTM GL1 (OpenTopography) | ✅ | ✅ | ✅ | — |
+| NASADEM (OpenTopography) | ✅ | ✅ | ✅ | ✅ |
+| SRTM GL1 (OpenTopography) | ✅ | ✅ | ✅ | ✅ |
 | SRTM GL1 (Earth Engine) | ✅ | ✅ | ✅ | ✅ |
 | 3DEP seamless (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | 3DEP 10 m (Earth Engine) | ✅ | ✅ | ✅ | ✅ |
 | ALOS World 3D (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | ALOS World 3D (Earth Engine) | ✅ | ✅ | ✅ | ✅ |
-| ALOS World 3D (OpenTopography) | ✅ | ✅ | ✅ | — |
-| GEDTM30 (OpenTopography) | ✅ | ✅ | ✅ | — |
+| ALOS World 3D (OpenTopography) | ✅ | ✅ | ✅ | ✅ |
+| GEDTM30 (OpenTopography) | ✅ | ✅ | ✅ | ✅ |
 | Natural Earth hillshade (S3) | ✅ | ✅ | ✅ | ✅ |
 
 ### Land cover (`esd.land`)
 
-| Data Source | Latest (Oct 19) | Oct 12 | Oct 5 | Sep 29 |
+| Data Source | Latest (Oct 26) | Oct 19 | Oct 12 | Oct 5 |
 | :---------- | :------: | :------: | :------: | :------: |
-| Forest cover fraction (Zenodo) | ✅ | <abbr title="ReadTimeout: HTTPSConnectionPool(host=&#x27;zenodo.org&#x27;, port=443): Read timed out. (">❌</abbr> | ✅ | ✅ |
+| Forest cover fraction (Zenodo) | ✅ | ✅ | <abbr title="ReadTimeout: HTTPSConnectionPool(host=&#x27;zenodo.org&#x27;, port=443): Read timed out. (">❌</abbr> | ✅ |
 | Forest cover fraction (GEE/CGLS-LC100) | ✅ | ✅ | ✅ | ✅ |
 | ESA WorldCover (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | ESA WorldCover (AWS bucket) | ✅ | ✅ | ✅ | ✅ |
@@ -137,7 +137,7 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Hydrography (`esd.hydro`)
 
-| Data Source | Latest (Oct 19) | Oct 12 | Oct 5 | Sep 29 |
+| Data Source | Latest (Oct 26) | Oct 19 | Oct 12 | Oct 5 |
 | :---------- | :------: | :------: | :------: | :------: |
 | HUC geometries (USGS WBD REST) | ✅ | ✅ | ✅ | ✅ |
 | HUC geometries (GEE/USGS WBD) | ✅ | ✅ | ✅ | ✅ |
@@ -149,7 +149,7 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Boundaries (`esd.boundaries`)
 
-| Data Source | Latest (Oct 19) | Oct 12 | Oct 5 | Sep 29 |
+| Data Source | Latest (Oct 26) | Oct 19 | Oct 12 | Oct 5 |
 | :---------- | :------: | :------: | :------: | :------: |
 | Natural Earth countries (naciscdn) | ✅ | ✅ | ✅ | ✅ |
 | geoBoundaries countries (ADM0, gbOpen) | ✅ | ✅ | ✅ | ✅ |
@@ -166,14 +166,14 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Climate (`esd.climate`)
 
-| Data Source | Latest (Oct 19) | Oct 12 | Oct 5 | Sep 29 |
+| Data Source | Latest (Oct 26) | Oct 19 | Oct 12 | Oct 5 |
 | :---------- | :------: | :------: | :------: | :------: |
 | ARCO-ERA5 (GCS anonymous) | ✅ | ✅ | ✅ | ✅ |
 | ERA5 (Google Earth Engine) | ✅ | ✅ | ✅ | ✅ |
-| Climate indices (CPC RONI) | ✅ | — | — | — |
-| Climate indices (NCEI PDO) | ✅ | — | — | — |
-| Climate indices (PSL MEI.v2) | ✅ | — | — | — |
-| Climate indices (PSL pdo.data) | ✅ | — | — | — |
+| Climate indices (CPC RONI) | ✅ | ✅ | — | — |
+| Climate indices (NCEI PDO) | ✅ | ✅ | — | — |
+| Climate indices (PSL MEI.v2) | ✅ | ✅ | — | — |
+| Climate indices (PSL pdo.data) | ✅ | ✅ | — | — |
 | Köppen-Geiger classification (figshare) | ✅ | ✅ | ✅ | ✅ |
 <!-- DATA_STATUS_END -->
 
