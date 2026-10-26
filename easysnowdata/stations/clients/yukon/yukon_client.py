@@ -14,8 +14,8 @@ Primary use cases:
    daily snow-depth records reaching the Arctic coast (Herschel Island
    69.57°N; Komakuk Beach from 1963).
 
-API documentation : https://service.yukon.ca/water-data/api/v1/openapi.json
-Base URL          : https://service.yukon.ca/water-data/api/v1
+API documentation : https://service.yukon.ca/water-data/api/v2/__docs__/
+Base URL          : https://service.yukon.ca/water-data/api/v2
 Authentication    : None — the API is fully open.
 
 Endpoints used
@@ -114,7 +114,10 @@ logger = logging.getLogger(__name__)
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
-BASE_URL = "https://service.yukon.ca/water-data/api/v1"
+BASE_URL = "https://service.yukon.ca/water-data/api/v2"
+
+#: Identifies easysnowdata traffic to the AquaCache operators.
+_USER_AGENT = "easysnowdata (+https://github.com/egagli/easysnowdata)"
 
 _DEFAULT_TIMEOUT = 120
 _DEFAULT_RETRIES = 3
@@ -830,7 +833,7 @@ class YukonClient:
         self.max_retries = max_retries
         self.backoff = backoff
         self._session = session or requests.Session()
-        self._session.headers.update({"Accept": "text/csv"})
+        self._session.headers.update({"Accept": "text/csv", "User-Agent": _USER_AGENT})
 
         # Response caches — the catalogue endpoints are queried repeatedly
         # while resolving stations and variables.
@@ -916,6 +919,7 @@ class YukonClient:
             Restrict to these :data:`VARIABLES` keys or standardized types.
         publicly_visible_only : bool
             Drop series flagged ``publicly_visible = FALSE`` (default True).
+            Series from a response without that column count as visible.
 
         Returns
         -------
@@ -1810,7 +1814,11 @@ class YukonClient:
             "start_datetime": (row.get("start_datetime") or "").strip(),
             "end_datetime": (row.get("end_datetime") or "").strip(),
             "active": _to_bool(row.get("active")),
-            "publicly_visible": _to_bool(row.get("publicly_visible")),
+            # AquaCache stopped returning this column in October 2026 and
+            # now serves only public series, so its absence means visible.
+            "publicly_visible": (
+                _to_bool(row["publicly_visible"]) if "publicly_visible" in row else True
+            ),
             "owner": (row.get("default_owner") or "").strip(),
             "networks": _parse_pg_array(row.get("networks")),
         }
