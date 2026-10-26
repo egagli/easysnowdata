@@ -841,6 +841,10 @@ The continuous-series catalogue.  Only series whose parameter appears in
 groundwater and water-quality series that have no place in a snow archive.
 This is the source of truth for per-station variable inventories, so period of
 record and interval always reflect what the API currently serves.
+`publicly_visible_only` (default True) drops series AquaCache hides from its
+default public listings.  The flag is read from `default_show`, which AquaCache
+patch 65 renamed from `publicly_visible` on 2026-10-15; a response carrying
+neither column counts every series as shown.
 
 #### `get_snow_course_stations(active_only, bbox)` → `list[dict]`
 

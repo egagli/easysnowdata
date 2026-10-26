@@ -536,6 +536,15 @@ def _to_bool(value: Any) -> bool:
     return str(value).strip().upper() == "TRUE"
 
 
+def _series_shown(row: dict) -> bool:
+    """Read a ``/timeseries`` row's ``default_show`` flag (``publicly_visible``
+    before AquaCache patch 65); a row carrying neither counts as shown."""
+    for key in ("default_show", "publicly_visible"):
+        if key in row:
+            return _to_bool(row[key])
+    return True
+
+
 def _normalize_value(value: Any) -> float | None:
     """Convert a raw field to float, mapping sentinels to ``None``."""
     num = _to_float(value)
@@ -918,8 +927,9 @@ class YukonClient:
         variables : list[str] or str, optional
             Restrict to these :data:`VARIABLES` keys or standardized types.
         publicly_visible_only : bool
-            Drop series flagged ``publicly_visible = FALSE`` (default True).
-            Series from a response without that column count as visible.
+            Drop series AquaCache hides from its default public listings
+            (``default_show = FALSE``, formerly ``publicly_visible``;
+            default True).
 
         Returns
         -------
@@ -1814,11 +1824,9 @@ class YukonClient:
             "start_datetime": (row.get("start_datetime") or "").strip(),
             "end_datetime": (row.get("end_datetime") or "").strip(),
             "active": _to_bool(row.get("active")),
-            # AquaCache stopped returning this column in October 2026 and
-            # now serves only public series, so its absence means visible.
-            "publicly_visible": (
-                _to_bool(row["publicly_visible"]) if "publicly_visible" in row else True
-            ),
+            # AquaCache patch 65 (2026-10-15) renamed publicly_visible to
+            # default_show; read either, and count a row with neither as shown.
+            "publicly_visible": _series_shown(row),
             "owner": (row.get("default_owner") or "").strip(),
             "networks": _parse_pg_array(row.get("networks")),
         }

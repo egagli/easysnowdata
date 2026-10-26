@@ -902,9 +902,22 @@ def test_temperature_output_units_are_degrees_celsius():
     assert bad == {}, bad
 
 
-def test_yukon_series_without_visibility_column_is_public():
-    """AquaCache dropped `publicly_visible` from /timeseries in October 2026."""
-    row = {"timeseries_id": "1", "parameter_name": "snow depth", "aggregation_type": ""}
-    assert YukonClient()._parse_series(row)["publicly_visible"] is True
-    hidden = {**row, "publicly_visible": "FALSE"}
-    assert YukonClient()._parse_series(hidden)["publicly_visible"] is False
+@pytest.mark.parametrize(
+    ("extra", "shown"),
+    [
+        ({"default_show": "TRUE"}, True),
+        ({"default_show": "FALSE"}, False),
+        # Responses from before AquaCache patch 65 (2026-10-15).
+        ({"publicly_visible": "TRUE"}, True),
+        ({"publicly_visible": "FALSE"}, False),
+        ({}, True),
+    ],
+)
+def test_yukon_series_visibility_flag(extra, shown):
+    row = {
+        "timeseries_id": "1",
+        "parameter_name": "snow depth",
+        "aggregation_type": "",
+        **extra,
+    }
+    assert YukonClient()._parse_series(row)["publicly_visible"] is shown
