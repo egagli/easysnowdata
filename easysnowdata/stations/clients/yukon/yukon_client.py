@@ -17,6 +17,11 @@ Primary use cases:
 API documentation : https://service.yukon.ca/water-data/api/v2/__docs__/
 Base URL          : https://service.yukon.ca/water-data/api/v2
 Authentication    : None — the API is fully open.
+Source code       : https://github.com/YukonWRB/YGwater (``inst/plumber/``; as of
+                    2026-10-26 the live API matches ``dev.WRB``, not ``main``) on top of
+                    the https://github.com/YukonWRB/AquaCache database, whose
+                    ``inst/patches/`` record schema changes such as the
+                    ``publicly_visible`` → ``default_show`` rename.
 
 Endpoints used
 --------------
@@ -210,7 +215,7 @@ _ROW_LIMIT = 1_000_000
 #: depth starts 1963-12-26, so 1900 is comfortably early.
 _EPOCH = "1900-01-01"
 
-_YUKON_DATA_SOURCE = f"Yukon Water Data (AquaCache) API v1 — {BASE_URL}"
+_YUKON_DATA_SOURCE = f"Yukon Water Data (AquaCache) API v2 — {BASE_URL}"
 
 # ── Public variable / flag tables ────────────────────────────────────────────
 
@@ -534,6 +539,15 @@ DATA_FLAGS: dict[str, str] = {
 def _to_bool(value: Any) -> bool:
     """Parse an AquaCache ``TRUE``/``FALSE`` CSV field."""
     return str(value).strip().upper() == "TRUE"
+
+
+def _series_shown(row: dict) -> bool:
+    """Read a ``/timeseries`` row's ``default_show`` flag (``publicly_visible``
+    before AquaCache patch 65); a row carrying neither counts as shown."""
+    for key in ("default_show", "publicly_visible"):
+        if key in row:
+            return _to_bool(row[key])
+    return True
 
 
 def _normalize_value(value: Any) -> float | None:
@@ -918,8 +932,9 @@ class YukonClient:
         variables : list[str] or str, optional
             Restrict to these :data:`VARIABLES` keys or standardized types.
         publicly_visible_only : bool
-            Drop series flagged ``publicly_visible = FALSE`` (default True).
-            Series from a response without that column count as visible.
+            Drop series AquaCache hides from its default public listings
+            (``default_show = FALSE``, formerly ``publicly_visible``;
+            default True).
 
         Returns
         -------
@@ -1814,11 +1829,9 @@ class YukonClient:
             "start_datetime": (row.get("start_datetime") or "").strip(),
             "end_datetime": (row.get("end_datetime") or "").strip(),
             "active": _to_bool(row.get("active")),
-            # AquaCache stopped returning this column in October 2026 and
-            # now serves only public series, so its absence means visible.
-            "publicly_visible": (
-                _to_bool(row["publicly_visible"]) if "publicly_visible" in row else True
-            ),
+            # AquaCache patch 65 (2026-10-15) renamed publicly_visible to
+            # default_show; read either, and count a row with neither as shown.
+            "publicly_visible": _series_shown(row),
             "owner": (row.get("default_owner") or "").strip(),
             "networks": _parse_pg_array(row.get("networks")),
         }
