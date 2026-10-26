@@ -758,7 +758,7 @@ per API key — the client spaces requests and honours `Retry-After` on 429.
 
 **Module:** `easysnowdata.stations.clients.yukon.yukon_client`
 **Class:** `YukonClient`
-**API:** [AquaCache API v1](https://service.yukon.ca/water-data/api/v1/openapi.json)
+**API:** [AquaCache API v2](https://service.yukon.ca/water-data/api/v2/__docs__/)
 **Operator:** Yukon Government Department of Environment, Water Science and
 Stewardship
 
@@ -814,7 +814,7 @@ variables are already metric.
 
 ```python
 YukonClient(
-    base_url: str = "https://service.yukon.ca/water-data/api/v1",
+    base_url: str = "https://service.yukon.ca/water-data/api/v2",
     timeout: int = 120,
     max_retries: int = 3,
     backoff: int = 4,
@@ -971,7 +971,7 @@ Five vocabularies, exported separately and unioned into `DATA_FLAGS`:
 | Course trends | `GET /snow-survey/trends` |
 | Flag vocabularies | `GET /grades`, `/approvals`, `/qualifiers` |
 
-Base URL: `https://service.yukon.ca/water-data/api/v1`
+Base URL: `https://service.yukon.ca/water-data/api/v2`
 
 ### Notes and gotchas
 

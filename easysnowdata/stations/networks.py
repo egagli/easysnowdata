@@ -131,7 +131,7 @@ NETWORKS: dict[str, Network] = {
         requires=(),
         extent="Yukon and neighbouring BC/Alaska courses",
         data_provider="Government of Yukon",
-        api_url="https://service.yukon.ca/water-data/api/v1",
+        api_url="https://service.yukon.ca/water-data/api/v2",
         id_key="station_id",
         # "09AA-M1", "08AA-SC01", "10MD-MET-00004" — hyphenated
         code_pattern=r"^[0-9]{2}[A-Z]{2}-[A-Z0-9-]+$",

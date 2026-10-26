@@ -2,7 +2,7 @@
 Live-API tests for YukonClient.
 
 These tests hit the real Yukon Water Data (AquaCache) API
-(https://service.yukon.ca/water-data/api/v1) — an internet connection is
+(https://service.yukon.ca/water-data/api/v2) — an internet connection is
 required.  No API key is needed; the service is fully open.
 
 Station-level assertions use long-running Yukon Snow Survey sites: the
