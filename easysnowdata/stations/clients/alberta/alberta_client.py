@@ -487,6 +487,11 @@ class AlbertaClient:
         Base backoff delay in seconds (delay = backoff × attempt).
     session : requests.Session or None
         Optional pre-configured session.
+    allow_partial : bool
+        :meth:`get_data` downloads one series per station and parameter.
+        By default a failed download raises :class:`AlbertaError` rather
+        than return the other series without it.  ``True`` logs a warning
+        and skips that series, for interactive use.
     """
 
     def __init__(
@@ -496,7 +501,9 @@ class AlbertaClient:
         max_retries: int = _DEFAULT_RETRIES,
         backoff: int = _DEFAULT_BACKOFF,
         session: requests.Session | None = None,
+        allow_partial: bool = False,
     ) -> None:
+        self.allow_partial = allow_partial
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.max_retries = max_retries
@@ -743,6 +750,13 @@ class AlbertaClient:
             }
         )
         resp = self._get(f"{self.base_url}{_DOWNLOAD_PATH}?{qs}")
+        if not resp.content:
+            # Seen from 2026-10-26: HTTP 200, text/csv, zero bytes, for
+            # every series, including from the site's own download button.
+            raise AlbertaError(
+                f"Empty WISKI download for tsId {ts_id} (HTTP {resp.status_code}, "
+                f"{resp.headers.get('Content-Type', 'no content type')})"
+            )
         try:
             payload = resp.json()
         except ValueError as exc:
@@ -788,15 +802,17 @@ class AlbertaClient:
         list[dict]
             ``{station_id, date, variable, type, value, units, interval}``
             (+ ``datetime`` ISO 8601 with ``-07:00`` for hourly/sub_hourly).
-            Unknown stations and failed downloads are logged and skipped;
-            parameters a station does not have are skipped silently.
+            Unknown stations are logged and skipped; parameters a station
+            does not have are skipped silently.  A failed download raises,
+            unless the client was built with ``allow_partial=True``.
 
         Raises
         ------
         ValueError
             If neither ``station_ids`` nor ``bbox`` is given.
         AlbertaError
-            On an unknown variable or unsupported interval.
+            On an unknown variable or unsupported interval, or a failed
+            download (see ``allow_partial``).
 
         Example
         -------
@@ -837,7 +853,14 @@ class AlbertaClient:
                         self._fetch(sid, par, row, iv, begin, end, include_flags)
                     )
                 except AlbertaError as exc:
-                    logger.warning("Alberta: skipping %s %s: %s", sid, par, exc)
+                    if not self.allow_partial:
+                        raise
+                    logger.warning(
+                        "Alberta: skipping %s %s: %s (allow_partial=True)",
+                        sid,
+                        par,
+                        exc,
+                    )
         return records
 
     # ── Internals ────────────────────────────────────────────────────────────

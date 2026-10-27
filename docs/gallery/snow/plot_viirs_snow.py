@@ -10,6 +10,10 @@ clear observation forward and records how old it is in ``Cloud_Persistence``.
 The byte convention is MODIS's: 0-100 is the NDSI, values above 100 are the
 sentinels named in the array's CF flags.
 
+``load`` defaults to the NOAA-20 ``VJ110A1F`` (from 2018-01-05), because NASA
+expected Suomi-NPP deliveries to stop on 2026-11-02. This example names
+``VNP10A1F`` to show the S-NPP record, which stays available from 2012.
+
 One route, ``source="nsidc"``, behind Earthdata Login. The granules are
 HDF-EOS5 files, downloaded once into the cache and opened through the HDF5
 driver with the grid taken from their ``StructMetadata``.

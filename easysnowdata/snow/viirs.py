@@ -1,9 +1,15 @@
-"""VIIRS snow cover: VNP10A1 and the cloud-gap-filled VNP10A1F (375 m).
+"""VIIRS snow cover: VJ110A1/VNP10A1 and the cloud-gap-filled VJ110A1F/VNP10A1F (375 m).
 
 New in the rewrite and Eric's first priority (plan §12 Q11): VIIRS is the
 successor to MODIS snow cover as Terra winds down, at 375 m instead of 500 m
 and with the same NDSI byte convention, so the same threshold expression
 works on both.
+
+The default is the NOAA-20 (JPSS-1) ``VJ110A1F``, from 2018-01-05. NASA
+expected Suomi-NPP deliveries, ``VNP10A1``/``VNP10A1F`` included, to stop on
+2026-11-02; the S-NPP record from 2012-01-19 stays available, so ask for
+``product="VNP10A1F"`` for dates before 2018 or to continue an S-NPP series.
+Nothing switches satellites for you: a request with no granules raises.
 
 One source: NSIDC via ``earthaccess`` (``NSIDC_CPRD``, cloud-hosted). The
 granules are HDF-EOS5 (``.h5``), which — unlike the HDF4 MODIS granules —
@@ -14,8 +20,9 @@ which carries the sinusoidal corner coordinates.
 ::
 
     import easysnowdata as esd
-    granules_gdf = esd.snow.viirs.search(aoi, "2023-03", product="VNP10A1F")
-    snow_ds = esd.snow.viirs.load(aoi, "2023-03", product="VNP10A1F")
+    granules_gdf = esd.snow.viirs.search(aoi, "2023-03")            # VJ110A1F
+    snow_ds = esd.snow.viirs.load(aoi, "2023-03")
+    snpp_ds = esd.snow.viirs.load(aoi, "2015-03", product="VNP10A1F")  # before 2018
     ndsi_da = snow_ds["CGF_NDSI_Snow_Cover"]
     binary_da = (ndsi_da >= 40).where(ndsi_da <= 100)   # sentinels (cloud, night …) → NaN
 """
@@ -44,6 +51,7 @@ from easysnowdata.processing import snow as snow_processing
 __all__ = [
     "PRODUCT",
     "PRODUCTS",
+    "DEFAULT_PRODUCT",
     "DEFAULT_VARIABLES",
     "GRID_GROUP",
     "SINUSOIDAL",
@@ -61,6 +69,11 @@ PRODUCTS: dict[str, str] = {
     "VJ110A1": "NDSI_Snow_Cover",  # NOAA-20 sibling
     "VJ110A1F": "CGF_NDSI_Snow_Cover",
 }
+#: The product ``search`` and ``load`` use when none is named. NOAA-20,
+#: because Suomi-NPP deliveries were expected to stop on 2026-11-02.
+DEFAULT_PRODUCT = "VJ110A1F"
+#: First day of each satellite's record, for the "no granules" message.
+FIRST_DAY = {"VNP": "2012-01-19", "VJ1": "2018-01-05"}
 DEFAULT_VARIABLES = {name: (field,) for name, field in PRODUCTS.items()}
 #: Where the data fields live inside the HDF-EOS5 file.
 GRID_GROUP = "HDFEOS/GRIDS/VIIRS_Grid_IMG_2D/Data Fields"
@@ -68,7 +81,8 @@ GRID_GROUP = "HDFEOS/GRIDS/VIIRS_Grid_IMG_2D/Data Fields"
 SINUSOIDAL = "+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +R=6371007.181 +units=m +no_defs"
 
 VIIRS_VERSION = "2"
-_NSIDC_DOCS = "https://nsidc.org/data/vnp10a1f/versions/2"
+_NSIDC_DOCS = "https://nsidc.org/data/vj110a1f/versions/2"
+_NSIDC_DOCS_SNPP = "https://nsidc.org/data/vnp10a1f/versions/2"
 _GRANULE_DATE = re.compile(r"\.A(\d{4})(\d{3})\.")
 _STRUCT_UL = re.compile(r"UpperLeftPointMtrs=\(([-0-9.eE+]+),([-0-9.eE+]+)\)")
 _STRUCT_LR = re.compile(r"LowerRightMtrs=\(([-0-9.eE+]+),([-0-9.eE+]+)\)")
@@ -88,17 +102,18 @@ _NDSI_FLAGS = {
 PRODUCT = Product(
     id="viirs-snow",
     theme="snow",
-    title="VIIRS snow cover (VNP10A1, VNP10A1F)",
+    title="VIIRS snow cover (VJ110A1F, VNP10A1F)",
     description=(
-        "Suomi-NPP VIIRS daily NDSI snow cover and the cloud-gap-filled daily "
-        "product at 375 m, version 2, with the NOAA-20 (VJ1) siblings. The "
+        "VIIRS daily NDSI snow cover and the cloud-gap-filled daily product at "
+        "375 m, version 2, from NOAA-20 (VJ1, the default, from 2018) and "
+        "Suomi-NPP (VNP, 2012 on; deliveries expected to stop 2026-11-02). The "
         "successor to the MODIS snow products as Terra winds down."
     ),
     sources=(
         Source(
             id="nsidc",
             provider="earthdata",
-            location="VNP10A1 / VNP10A1F (and the VJ1 NOAA-20 siblings)",
+            location="VJ110A1 / VJ110A1F (NOAA-20) and VNP10A1 / VNP10A1F (Suomi-NPP)",
             requires=("earthdata",),
             resolution_m=375,
             temporal="2012-01/present",
@@ -110,24 +125,24 @@ PRODUCT = Product(
             title="NSIDC (Earthdata)",
             health=(
                 Probe(
-                    "VIIRS snow cover VNP10A1F (NASA NSIDC)",
+                    "VIIRS snow cover VJ110A1F (NASA NSIDC)",
                     partial(
                         health.earthdata_search,
-                        "VNP10A1F",
+                        "VJ110A1F",
                         temporal=("2023-01-01", "2023-01-07"),
                     ),
                 ),
                 Probe(
-                    "VIIRS snow cover VNP10A1F latency (CMR)",
-                    partial(health.cmr_latest, "VNP10A1F"),
+                    "VIIRS snow cover VJ110A1F latency (CMR)",
+                    partial(health.cmr_latest, "VJ110A1F"),
                     requires=(),
                     kind="latency",
                 ),
                 Probe(
-                    "VIIRS snow cover VNP10A1F DMR++ (CMR)",
+                    "VIIRS snow cover VJ110A1F DMR++ (CMR)",
                     partial(
                         health.dmrpp_status,
-                        "VNP10A1F",
+                        "VJ110A1F",
                         fallback=health.FALLBACK_PARSERS["HDF5"],
                     ),
                     requires=(),
@@ -179,16 +194,18 @@ PRODUCT = Product(
         ),
     ),
     citation=(
-        "Riggs, G. A., Hall, D. K. and Román, M. O. (2019). VIIRS/NPP Snow Cover Daily "
-        "L3 Global 375m SIN Grid, Version 2 (VNP10A1); Cloud Gap Filled (VNP10A1F). "
-        "NASA NSIDC DAAC."
+        "Riggs, G. and Hall, D. K. (2023). VIIRS/JPSS1 CGF Snow Cover Daily L3 Global "
+        "375m SIN Grid (VJ110A1F, Version 2). NASA NSIDC DAAC. "
+        "https://doi.org/10.5067/2YJ7GZPW2NNB. For Suomi-NPP: VIIRS/NPP CGF Snow "
+        "Cover Daily L3 Global 375m SIN Grid (VNP10A1F, Version 2), "
+        "https://doi.org/10.5067/PN50Y51IVNLE."
     ),
     license="NASA Earthdata (free registration)",
-    doi="10.5067/VIIRS/VNP10A1F.002",
-    references=(_NSIDC_DOCS,),
+    doi="10.5067/2YJ7GZPW2NNB",
+    references=(_NSIDC_DOCS, _NSIDC_DOCS_SNPP),
     loader="easysnowdata.snow.viirs.load",
     examples=("snow/plot_viirs_snow.py",),
-    tags=("snow cover", "ndsi", "viirs", "suomi-npp"),
+    tags=("snow cover", "ndsi", "viirs", "noaa-20", "suomi-npp"),
 )
 catalog.register(PRODUCT, replace=True)
 
@@ -268,7 +285,7 @@ def search(
     aoi: Any = None,
     time: Any = None,
     *,
-    product: str = "VNP10A1F",
+    product: str = DEFAULT_PRODUCT,
     source: str | None = None,
     max_items: int | None = None,
     **kwargs: Any,
@@ -294,7 +311,7 @@ def load(
     aoi: Any = None,
     time: Any = None,
     *,
-    product: str = "VNP10A1F",
+    product: str = DEFAULT_PRODUCT,
     variables: str | Sequence[str] | None = None,
     source: str | None = None,
     granules: Any = None,
@@ -309,8 +326,9 @@ def load(
     aoi, time
         The usual spatial and temporal inputs.
     product
-        ``"VNP10A1F"`` (cloud-gap-filled, default), ``"VNP10A1"``, or a
-        NOAA-20 sibling (``"VJ110A1"``, ``"VJ110A1F"``).
+        ``"VJ110A1F"`` (NOAA-20, cloud-gap-filled, default, from 2018-01-05),
+        ``"VJ110A1"``, or the Suomi-NPP ``"VNP10A1F"`` / ``"VNP10A1"`` (from
+        2012-01-19; deliveries expected to stop 2026-11-02).
     variables
         Data fields to read; the product's main field by default. The others
         are ``Cloud_Persistence``, ``Basic_QA`` and
@@ -334,7 +352,11 @@ def load(
             "returns), not the GeoDataFrame from snow.viirs.search()."
         )
     if not len(granules):
-        raise ValueError(f"No {name} granules at NSIDC for this AOI and time.")
+        raise ValueError(
+            f"No {name} granules at NSIDC for this AOI and time. {name} starts "
+            f"{FIRST_DAY[name[:3]]}; for 2012-01-19 to 2018-01-04 ask for the "
+            'Suomi-NPP product, product="VNP10A1F".'
+        )
     paths = providers.earthdata.download(granules, name)
 
     per_date: dict[pd.Timestamp, list[xr.Dataset]] = {}

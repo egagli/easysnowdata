@@ -387,7 +387,7 @@ def load(
     interval: str = "daily",
     networks: Any = None,
     include_flags: bool = False,
-    hemisphere: str = "northern",
+    hemisphere: str = "auto",
     daily_only: bool = True,
 ) -> xr.Dataset:
     """Station observations as a ``(station, time)`` Dataset.
@@ -424,8 +424,10 @@ def load(
         Ask the clients for per-value quality flags. The Dataset keeps the
         values; use the clients directly when you need the flags themselves.
     hemisphere
-        Which water year to attach: ``"northern"`` (1 October, default) or
-        ``"southern"`` (1 April).
+        Which water year to attach: ``"auto"`` (default) gives each station
+        its own hemisphere's, from its latitude; ``"northern"`` (1 October)
+        or ``"southern"`` (1 April) applies one to every station. See
+        :func:`easysnowdata.stations.archive.load` for the mixed case.
     daily_only
         When the stations come from *aoi* rather than being named, keep only
         the daily-or-better ones. Reading every periodic snow course in a
@@ -437,8 +439,9 @@ def load(
         Dims ``(station, time)``; one data variable per standardized type,
         each carrying ``units``, ``long_name``, ``native_variables`` and
         ``interval``; station metadata (name, latitude, longitude,
-        elevation_m, network, …) as non-dimension coordinates on ``station``;
-        ``water_year`` and ``dowy`` on ``time``.
+        elevation_m, network, hemisphere, …) as non-dimension coordinates on
+        ``station``; ``water_year`` and ``dowy`` on ``time`` (on
+        ``(station, time)`` when the stations span both hemispheres).
 
     Examples
     --------

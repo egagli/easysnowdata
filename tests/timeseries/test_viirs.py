@@ -27,7 +27,7 @@ def test_catalog_entry_is_registered_from_this_module():
     assert product.requires == ("earthdata",)
     assert product.credential_free_sources == ()
     assert [p.label for p in product.default_source.health if p.kind == "health"] == [
-        "VIIRS snow cover VNP10A1F (NASA NSIDC)"
+        "VIIRS snow cover VJ110A1F (NASA NSIDC)"
     ]
     assert product.default_source.resolution_m == 375
     names = {v.name for v in product.variables}
@@ -96,9 +96,10 @@ def fake_nsidc(monkeypatch, ts_fixtures, fake_credentials):
 @pytest.mark.recorded
 def test_load_output_contract(fake_nsidc):
     ds = viirs.load(RAINIER, "2023-03-01/2023-03-02")
-    assert fake_nsidc["search"][0] == "VNP10A1F"
+    # NOAA-20 by default: Suomi-NPP deliveries were expected to stop 2026-11-02
+    assert fake_nsidc["search"][0] == viirs.DEFAULT_PRODUCT == "VJ110A1F"
     assert fake_nsidc["search"][1]["version"] == "2"
-    assert fake_nsidc["download"] == "VNP10A1F"
+    assert fake_nsidc["download"] == "VJ110A1F"
 
     band = ds["CGF_NDSI_Snow_Cover"]
     assert band.dims == ("time", "y", "x") and ds.sizes["time"] == 1
@@ -108,7 +109,7 @@ def test_load_output_contract(fake_nsidc):
     assert 250 in band.attrs["flag_values"]  # cloud stays meaningful
     assert ds.rio.crs is not None and ds.odc.crs is not None
     assert ds.attrs["product_id"] == "viirs-snow"
-    assert ds.attrs["viirs_product"] == "VNP10A1F" and ds.attrs["version"] == "2"
+    assert ds.attrs["viirs_product"] == "VJ110A1F" and ds.attrs["version"] == "2"
     assert ds.attrs["easysnowdata_version"] == esd.__version__
     assert all(not callable(v) for v in ds.attrs.values())
 
@@ -133,8 +134,13 @@ def test_load_variables_masking_and_errors(fake_nsidc, monkeypatch):
     with pytest.raises(TypeError, match="not the GeoDataFrame"):
         viirs.load(RAINIER, "2023-03-01", granules=gpd.GeoDataFrame())
     monkeypatch.setattr(viirs.providers.earthdata, "search", lambda *a, **k: [])
-    with pytest.raises(ValueError, match="No VNP10A1F granules"):
-        viirs.load(RAINIER, "1999-01")
+    with pytest.raises(ValueError, match="No VJ110A1F granules.*starts 2018-01-05"):
+        viirs.load(RAINIER, "2015-01")
+    # The message names the S-NPP product rather than switching to it
+    with pytest.raises(ValueError, match='product="VNP10A1F"'):
+        viirs.load(RAINIER, "2015-01")
+    with pytest.raises(ValueError, match="No VNP10A1F granules.*starts 2012-01-19"):
+        viirs.load(RAINIER, "1999-01", product="VNP10A1F")
 
 
 @pytest.mark.recorded
@@ -177,7 +183,7 @@ def test_live_viirs_search():
 @pytest.mark.live
 @pytest.mark.requires_earthaccess
 def test_live_viirs_load_cloud_gap_filled():
-    ds = viirs.load(RAINIER, "2023-03-01/2023-03-02", product="VNP10A1F")
+    ds = viirs.load(RAINIER, "2023-03-01/2023-03-02")  # VJ110A1F
     band = ds["CGF_NDSI_Snow_Cover"]
     assert band.dims == ("time", "y", "x") and ds.sizes["time"] >= 1
     assert band.dtype == np.uint8

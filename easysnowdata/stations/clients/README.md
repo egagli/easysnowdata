@@ -55,6 +55,14 @@ See [DESIGN.md](https://github.com/egagli/global_snow_networks/blob/main/DESIGN.
 - **Fail clearly, never silently.**  All source errors raise
   `{Client}Error(Exception)` with descriptive messages; unknown variables
   and unsupported intervals also raise rather than falling back.
+- **A partial result is an error unless the caller asks for it.**  When a
+  request combines several upstream pieces (DataBC's current and archive
+  files, Yukon's snow courses and automated stations) and one fails, the
+  client raises rather than return the rest.  Clients that combine pieces
+  take `allow_partial=True` to log a warning and return what loaded, for
+  interactive use.  On 2026-10-22 both clients returned partial results
+  without an error, and the archive built on them stored 81 blanked
+  depth records and marked 17 stations as gone.
 - **Sub-daily records carry a `datetime` key** alongside `date`, so hourly
   observations stay distinguishable.
 - **Data flags are opt-in.**  Pass `include_flags=True` to `get_data()` to
@@ -393,6 +401,13 @@ surveys).  Also fetches ASWS station photos from the AQRT BCMOE portal.
 from easysnowdata.stations.clients.databc import DataBCClient
 client = DataBCClient()
 ```
+
+Most requests merge several files: a variable's current file and its
+archive (`SD.csv` + `SD_Archive.csv`, `allmss_current.csv` +
+`allmss_archive.csv`), one file per variable in `get_data()`. If any of
+them fails to load, the request raises `DataBCError` naming the file.
+`DataBCClient(allow_partial=True)` logs a warning instead and returns the
+files that loaded.
 
 ### Station types
 
@@ -782,6 +797,14 @@ client = YukonClient()
 
 17 stations (AWS + ECCC) carry a continuous series and appear in the merged
 daily inventory.
+
+`get_all_stations()` raises `YukonError` when either half fails: the snow
+courses, or the automated and ECCC stations. `get_automated_stations()`
+also raises when `/timeseries` lists no visible SWE or snow-depth series
+at all, which the network never legitimately does. On 2026-10-22 a renamed
+visibility column made every series read as hidden, and the client
+returned the 92 courses alone. `YukonClient(allow_partial=True)` logs a
+warning and returns the half that loaded.
 
 ### Key data variables
 
@@ -1616,8 +1639,12 @@ raw value)`.
 #### `get_data(station_ids, variables, bbox, begin_date, end_date, interval, include_flags)` → `list[dict]`
 
 Dates are inclusive and in MST. Sub-daily records carry `datetime` as ISO
-8601 with `-07:00`. Unknown stations and failed downloads are logged and
-skipped.
+8601 with `-07:00`. Unknown stations are logged and skipped. A failed
+download raises `AlbertaError` rather than return the station's other
+series without it; `AlbertaClient(allow_partial=True)` logs and skips it
+instead. From 2026-10-26 the site's download service answered every
+series with an empty `text/csv` body (HTTP 200), which the client reports
+as `Empty WISKI download`.
 
 ```python
 recs = client.get_data("05BB803", variables="swe", interval="hourly",

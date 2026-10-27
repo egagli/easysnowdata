@@ -75,6 +75,16 @@ obs_ds.resample(time="YS-OCT").max()  # water-year aggregation, the xarray way
 `hemisphere="southern"` for 1 April). It is a plain integer coordinate, so it
 can be swapped in as a plotting axis or grouped on directly.
 
+A southern water year starts 1 April and is named for the year it starts, so
+water year *N* is the snow season that peaks in calendar year *N* in either
+hemisphere. The station loaders (`stations.load`, `stations.archive.load`)
+default to `hemisphere="auto"`: each station gets its own hemisphere's water
+year from its latitude, recorded in a `hemisphere` coordinate. When one load
+spans both hemispheres, `water_year` and `dowy` become `(station, time)`
+coordinates. `groupby("water_year")` still works on them, while `swap_dims`
+needs one station selected first:
+`ds.sel(station=code).swap_dims({"time": "dowy"})`.
+
 (concepts-lazy)=
 ## Lazy by default
 

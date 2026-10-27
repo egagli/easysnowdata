@@ -847,6 +847,17 @@ def _water_year_axis(ax: Any) -> None:
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
 
 
+def _series_hemisphere(da: xr.DataArray) -> str:
+    """One series' hemisphere from its scalar coordinates, else northern."""
+    from easysnowdata.processing import wateryear  # noqa: PLC0415
+
+    if "hemisphere" in da.coords and da["hemisphere"].ndim == 0:
+        return str(da["hemisphere"].values)
+    if "latitude" in da.coords and da["latitude"].ndim == 0:
+        return str(wateryear.station_hemispheres(da["latitude"].values).item())
+    return "northern"
+
+
 def timeseries(
     obj: xr.DataArray | xr.Dataset,
     ax: Any = None,
@@ -856,7 +867,7 @@ def timeseries(
     labels: dict[Any, str] | None = None,
     title: str | None = None,
     by_water_year: bool = False,
-    hemisphere: str = "northern",
+    hemisphere: str = "auto",
     legend: bool = True,
     figsize: tuple[float, float] = (9, 4),
     **plot_kwargs: Any,
@@ -878,7 +889,10 @@ def timeseries(
         names) instead of a continuous calendar. The lines are labelled by
         water year, and *hue* must then be absent or of length one.
     hemisphere
-        For *by_water_year*: ``"northern"`` (1 October) or ``"southern"``.
+        For *by_water_year*: ``"northern"`` (1 October), ``"southern"``
+        (1 April) or ``"auto"`` (default): the series' ``hemisphere``
+        coordinate (what the station loaders attach), else the sign of its
+        ``latitude``, else northern.
     **plot_kwargs
         Passed to ``Axes.plot`` (``linewidth``, ``alpha``, ``color`` …).
 
@@ -917,6 +931,8 @@ def timeseries(
             raise ValueError(
                 "by_water_year overlays one series; select one station first."
             )
+        if hemisphere == "auto":
+            hemisphere = _series_hemisphere(series_da)
         years = wateryear.water_year(times, hemisphere)
         dowy = wateryear.day_of_water_year(times, hemisphere)
         # A synthetic, non-leap water year to hang the month axis on.

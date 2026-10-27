@@ -179,6 +179,8 @@ class _Resp:
         self.status_code = status
         self.ok = status == 200
         self.text = json.dumps(payload)
+        self.content = self.text.encode()
+        self.headers = {"Content-Type": "application/json"}
 
     def json(self):
         return self._payload
@@ -430,9 +432,15 @@ def test_pc_daily_total(client):
     ]
 
 
-def test_failed_download_is_skipped(client):
-    # 4A37P's series ids are not served by the stub → logged and skipped.
+def test_failed_download_raises_unless_partial_is_allowed(client):
+    # 4A37P's series ids are not served by the stub.
+    with pytest.raises(AlbertaError):
+        client.get_data("4A37P", variables="SW", interval="sub_hourly")
+    client.allow_partial = True
     assert client.get_data("4A37P", variables="SW", interval="sub_hourly") == []
+
+
+def test_unknown_station_is_skipped(client):
     assert client.get_data("UNKNOWN") == []
 
 

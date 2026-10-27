@@ -59,6 +59,17 @@ def pytest_configure(config: pytest.Config) -> None:
     )
 
 
+def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
+    # A live test needs the network even inside a module that narrows
+    # sockets for its offline tests (test_archive.py allows only 127.0.0.1
+    # so zarr's event loop works on Windows). `enable_socket` outranks a
+    # module-level `allow_hosts` in pytest-socket; without it the weekly
+    # live run failed every archive test with SocketConnectBlockedError.
+    for item in items:
+        if item.get_closest_marker("live") is not None:
+            item.add_marker(pytest.mark.enable_socket)
+
+
 _REQUIRES = {
     "requires_earthengine": "earthengine",
     "requires_earthaccess": "earthdata",

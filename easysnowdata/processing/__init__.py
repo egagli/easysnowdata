@@ -70,6 +70,7 @@ from easysnowdata.processing.snow import (
 from easysnowdata.processing.wateryear import (
     add_water_year_coords,
     day_of_water_year,
+    station_hemispheres,
     water_year,
     water_year_start,
 )
@@ -91,6 +92,7 @@ __all__ = [
     "MOD10A2_CLASSES",
     "NDSI_FLAGS",
     "add_water_year_coords",
+    "station_hemispheres",
     "apply_fmask",
     "apply_scl_mask",
     "day_of_water_year",

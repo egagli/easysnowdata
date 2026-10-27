@@ -16,6 +16,7 @@ import io
 import zipfile
 from datetime import datetime
 
+import pandas as pd
 import pytest
 
 from easysnowdata.stations.clients.alberta import AlbertaClient, AlbertaError
@@ -687,6 +688,62 @@ def test_alberta_hourly_keeps_on_the_hour_samples_in_mst():
     assert recs[0]["interval"] == "hourly"
 
 
+def _alberta_with_failing_sd(allow_partial=False):
+    client = AlbertaClient(allow_partial=allow_partial)
+    client._series_cache = {
+        "05BB803": {
+            "SW": {"tsID": "1", "TsMinDataAsCurrentTime": None},
+            "SD": {"tsID": "2", "TsMinDataAsCurrentTime": None},
+        }
+    }
+
+    def download(ts_id, b, e):
+        if ts_id == "2":
+            raise AlbertaError("Empty WISKI download for tsId 2 (HTTP 200, text/csv)")
+        return {}, [(datetime(2024, 1, 1, 5, 0), 100.0)]
+
+    client.download_series = download
+    return client
+
+
+def test_alberta_failed_download_raises():
+    client = _alberta_with_failing_sd()
+    with pytest.raises(AlbertaError, match="Empty WISKI download for tsId 2"):
+        client.get_data(
+            "05BB803",
+            variables=["swe", "snwd"],
+            interval="hourly",
+            begin_date="2024-01-01",
+            end_date="2024-01-01",
+        )
+
+
+def test_alberta_allow_partial_skips_the_failed_series(caplog):
+    client = _alberta_with_failing_sd(allow_partial=True)
+    recs = client.get_data(
+        "05BB803",
+        variables=["swe", "snwd"],
+        interval="hourly",
+        begin_date="2024-01-01",
+        end_date="2024-01-01",
+    )
+    assert {r["type"] for r in recs} == {"swe"}
+    assert "allow_partial" in caplog.text
+
+
+def test_alberta_empty_download_body_is_an_error(monkeypatch):
+    client = AlbertaClient()
+
+    class _Empty:
+        content = b""
+        status_code = 200
+        headers = {"Content-Type": "text/csv"}
+
+    monkeypatch.setattr(client, "_get", lambda url: _Empty())
+    with pytest.raises(AlbertaError, match="Empty WISKI download for tsId 9"):
+        client.download_series("9", "2026-03-01", "2026-03-01")
+
+
 def test_alberta_client_daily_mean_needs_twenty_hours():
     rows = [(datetime(2024, 1, 1, h), 1.0) for h in range(19)]
     rows += [(datetime(2024, 1, 2, h), float(h)) for h in range(24)]
@@ -921,3 +978,144 @@ def test_yukon_series_visibility_flag(extra, shown):
         **extra,
     }
     assert YukonClient()._parse_series(row)["publicly_visible"] is shown
+
+
+# ══ Partial results are an error unless asked for (#72, #73) ═════════════════
+
+_SD_WIDE = pd.DataFrame(
+    {"date": ["2026-10-20"], "location_id": ["1A01P"], "snwd_cm": [12.0]}
+)
+
+
+def _databc_failing_on(monkeypatch, client, bad_url):
+    """Stub DataBC's wide-CSV loader: ``bad_url`` fails with HTTP 503."""
+
+    def fake_load(url, value_col, daily_only=True):
+        if url.endswith(bad_url):
+            raise DataBCError(f"HTTP 503 Service Unavailable: {url}")
+        return _SD_WIDE.rename(columns={"snwd_cm": value_col})
+
+    monkeypatch.setattr(client, "_load_asws_wide_csv", fake_load)
+
+
+@pytest.mark.parametrize("bad", ["SD_Archive.csv", "SD.csv"])
+def test_databc_failed_asws_file_raises(monkeypatch, bad):
+    client = DataBCClient()
+    _databc_failing_on(monkeypatch, client, f"/{bad}")
+    with pytest.raises(DataBCError, match=f"Could not load .*/{bad}.*503"):
+        client._get_asws_sd_data(location_ids=["1A01P"])
+    with pytest.raises(DataBCError, match="503"):
+        client.get_data("1A01P", variables="snwd")
+
+
+def test_databc_allow_partial_returns_the_rest_with_a_warning(monkeypatch, caplog):
+    client = DataBCClient(allow_partial=True)
+    _databc_failing_on(monkeypatch, client, "/SD_Archive.csv")
+    df = client._get_asws_sd_data(location_ids=["1A01P"])
+    assert df["snwd_cm"].tolist() == [12.0]
+    assert "SD_Archive.csv" in caplog.text and "allow_partial" in caplog.text
+
+
+@pytest.mark.parametrize("bad", ["allmss_archive.csv", "allmss_current.csv"])
+def test_databc_failed_mss_file_raises(monkeypatch, bad):
+    client = DataBCClient()
+
+    def fake_load(url):
+        if url.endswith(bad):
+            raise DataBCError("HTTP 503 Service Unavailable")
+        return pd.DataFrame(
+            {"location_id": ["1A01"], "date": ["2026-03-01"], "swe_mm": [100.0]}
+        )
+
+    monkeypatch.setattr(client, "_load_mss_csv", fake_load)
+    with pytest.raises(DataBCError, match=f"Could not load {bad}"):
+        client._get_mss_survey_data(location_ids=["1A01"])
+
+
+def test_databc_failed_snowall_file_raises(monkeypatch):
+    client = DataBCClient()
+
+    def fake_request(url, params=None):
+        raise DataBCError("HTTP 503 Service Unavailable")
+
+    monkeypatch.setattr(client, "_request", fake_request)
+    with pytest.raises(DataBCError, match="SnowAll/1A01P.csv"):
+        client._get_asws_combined_data("1A01P")
+
+
+_YUKON_LOCATIONS = (
+    "location_id,location_code,name,latitude,longitude,elevation,networks\n"
+    '7,09AA-M1,Log Cabin,59.76,-134.96,880,"{Yukon Snow Survey Network}"\n'
+)
+
+
+def _yukon_with(monkeypatch, timeseries_body):
+    client = YukonClient()
+
+    def fake_get(endpoint, params=None):
+        if endpoint == "timeseries":
+            return timeseries_body
+        if endpoint == "locations":
+            return _YUKON_LOCATIONS
+        raise AssertionError(endpoint)
+
+    monkeypatch.setattr(client, "_get", fake_get)
+    monkeypatch.setattr(
+        client,
+        "get_snow_course_stations",
+        lambda **kw: [{"station_id": "09AA-SC01", "station_type": "SC"}],
+    )
+    return client
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        # Status envelope: an empty listing.
+        'status,message\ninfo,"No timeseries found."\n',
+        # Every series hidden (how the 2026-10-22 column rename read).
+        "timeseries_id,location_id,parameter_name,aggregation_type,default_show\n"
+        "1,7,snow water equivalent,instantaneous,FALSE\n",
+        # Series listed, but none of them snow.
+        "timeseries_id,location_id,parameter_name,aggregation_type\n"
+        "1,7,water level,instantaneous\n",
+    ],
+)
+def test_yukon_no_snow_series_raises_instead_of_returning_courses_only(
+    monkeypatch, body
+):
+    client = _yukon_with(monkeypatch, body)
+    with pytest.raises(YukonError, match="none of SWE or snow depth"):
+        client.get_automated_stations()
+    with pytest.raises(YukonError):
+        client.get_all_stations()
+
+
+def test_yukon_snow_series_still_lists_the_station(monkeypatch):
+    client = _yukon_with(
+        monkeypatch,
+        "timeseries_id,location_id,parameter_name,aggregation_type,default_show\n"
+        "1,7,snow water equivalent,instantaneous,TRUE\n",
+    )
+    ids = [s["station_id"] for s in client.get_all_stations()]
+    assert ids == ["09AA-M1", "09AA-SC01"]
+
+
+def test_yukon_failed_timeseries_request_raises(monkeypatch):
+    client = YukonClient()
+
+    def fake_get(endpoint, params=None):
+        raise YukonError(f"HTTP 500 from {endpoint} after 3 attempts")
+
+    monkeypatch.setattr(client, "_get", fake_get)
+    monkeypatch.setattr(client, "get_snow_course_stations", lambda **kw: [])
+    with pytest.raises(YukonError, match="HTTP 500"):
+        client.get_all_stations()
+
+
+def test_yukon_allow_partial_returns_courses_with_a_warning(monkeypatch, caplog):
+    client = _yukon_with(monkeypatch, 'status,message\ninfo,"none"\n')
+    client.allow_partial = True
+    stations = client.get_all_stations()
+    assert [s["station_id"] for s in stations] == ["09AA-SC01"]
+    assert "automated and ECCC stations" in caplog.text

@@ -8,6 +8,8 @@ the routes agree.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pytest
 import xarray as xr
@@ -354,6 +356,51 @@ def test_water_year_coordinates_span_the_boundary(local_archive):
     ds = archive.load()
     assert list(ds["water_year"].values) == [2023, 2023, 2024, 2024, 2024, 2024, 2024]
     assert list(ds["dowy"].values) == [364, 365, 1, 2, 3, 4, 5]
+
+
+@pytest.fixture
+def one_southern_station(local_archive, monkeypatch, tmp_path):
+    """The fixture inventory with Paradise moved to 46.78 °S."""
+    import json
+
+    inv = json.loads(Path(local_archive["inventory"]).read_text(encoding="utf-8"))
+    for feature in inv["features"]:
+        if feature["properties"]["code"] == PARADISE_CODE:
+            feature["properties"]["latitude"] *= -1
+            lon, lat = feature["geometry"]["coordinates"][:2]
+            feature["geometry"]["coordinates"] = [lon, -lat]
+    path = tmp_path / "inventory.geojson"
+    path.write_text(json.dumps(inv), encoding="utf-8")
+    monkeypatch.setattr(archive, "INVENTORY_URL", str(path), raising=False)
+    monkeypatch.setattr(archive, "_INVENTORY_CACHE", {})
+    return local_archive
+
+
+@pytest.mark.recorded
+def test_a_load_across_hemispheres_gives_each_station_its_own_water_year(
+    one_southern_station,
+):
+    ds = archive.load()
+    assert ds["water_year"].dims == ("station", "time")
+    assert ds["hemisphere"].sel(station=PARADISE_CODE).item() == "southern"
+    north = ds.sel(station="QUA")
+    assert ds["hemisphere"].sel(station="QUA").item() == "northern"
+    # The fixture window straddles 1 October: the northern rows are unchanged
+    assert list(north["water_year"].values) == [
+        2023,
+        2023,
+        2024,
+        2024,
+        2024,
+        2024,
+        2024,
+    ]
+    south = ds.sel(station=PARADISE_CODE)
+    assert set(south["water_year"].values.tolist()) == {2023}  # Apr 2023 – Mar 2024
+    assert south.swap_dims({"time": "dowy"})["dowy"].dims == ("dowy",)
+    # One convention for everyone is still available
+    pinned = archive.load(hemisphere="northern")
+    assert pinned["water_year"].dims == ("time",)
 
 
 @pytest.mark.recorded

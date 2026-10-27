@@ -149,6 +149,7 @@ _KEEP = (
     "daily_or_better",
     "daily_verified",
     "daily_provenance",
+    "day_convention",
     "metadata_fetched_at",
 )
 
@@ -473,7 +474,7 @@ def load(
     time: Any = None,
     networks: Any = None,
     source: str | None = None,
-    hemisphere: str = "northern",
+    hemisphere: str = "auto",
 ) -> xr.Dataset:
     """Daily SWE and snow depth for many stations, from the published archive.
 
@@ -515,14 +516,22 @@ def load(
         ``"github-csv"`` fetches one CSV per station instead, which needs
         neither a store nor a temporary file.
     hemisphere
-        Which water year to attach.
+        Which water year to attach. ``"auto"`` (default) gives each station
+        its own hemisphere's: 1 October in the north, 1 April in the south
+        (named for the year it starts, so water year *N* peaks in calendar
+        year *N* in both). When the stations span both hemispheres,
+        ``water_year`` and ``dowy`` are ``(station, time)`` coordinates;
+        ``groupby("water_year")`` works on them, ``swap_dims`` needs one
+        station selected first. ``"northern"`` or ``"southern"`` applies
+        one convention to every station.
 
     Returns
     -------
     xarray.Dataset
         ``swe`` and ``snwd`` in centimetres with dims ``(station, time)``,
-        station metadata on ``station`` and water-year coordinates on
-        ``time``.
+        station metadata (with ``hemisphere``) on ``station`` and water-year
+        coordinates on ``time``, or on ``(station, time)`` for a load that
+        spans both hemispheres.
 
     Notes
     -----
