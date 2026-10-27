@@ -299,11 +299,11 @@ def test_databc_negative_filter_spares_air_temperature():
     client = DataBCClient()
 
     class FakeResp:
-        text = (
-            "DATE(UTC),1A01P Yellowhead Lake\n"
-            "2024-01-01 16:00,-12.5\n"
-            "2024-01-02 16:00,-99999\n"
-            "2024-01-03 16:00,3.0\n"
+        content = (
+            b"DATE(UTC),1A01P Yellowhead Lake\n"
+            b"2024-01-01 16:00,-12.5\n"
+            b"2024-01-02 16:00,-99999\n"
+            b"2024-01-03 16:00,3.0\n"
         )
 
     client._request = lambda url, **k: FakeResp()
@@ -315,6 +315,62 @@ def test_databc_negative_filter_spares_air_temperature():
 
     df_swe = client._load_asws_wide_csv("fake://sw.csv", value_col="swe_mm")
     assert pd.isna(df_swe["swe_mm"].tolist()[0])  # negative SWE nulled
+
+
+def _wide_csv(stations, hours):
+    """A DataBC-style wide hourly CSV: value = station index * 1000 + hour."""
+    import pandas as pd
+
+    stamps = pd.date_range("2024-01-01", periods=hours, freq="h")
+    header = "DATE(UTC)," + ",".join(f"{sid} Station {sid}" for sid in stations)
+    rows = [
+        f"{t:%Y-%m-%d %H:%M},"
+        + ",".join(str(i * 1000 + h) for i in range(len(stations)))
+        for h, t in enumerate(stamps)
+    ]
+    return ("\n".join([header, *rows]) + "\n").encode()
+
+
+def test_databc_wide_csv_reads_only_the_asked_stations_in_chunks(monkeypatch):
+    from easysnowdata.stations.clients.databc import databc_client
+
+    client = DataBCClient()
+    body = _wide_csv(["1A01P", "1A02P", "2F05P"], hours=96)  # 4 days
+
+    class FakeResp:
+        content = body
+
+    client._request = lambda url, **k: FakeResp()
+    monkeypatch.setattr(databc_client, "_WIDE_CSV_CHUNK_ROWS", 10)  # many chunks
+
+    hourly = client._load_asws_wide_csv(
+        "fake://sd.csv",
+        value_col="snwd_cm",
+        daily_only=False,
+        location_ids=["1A02P"],
+        begin_date="2024-01-02",
+        end_date="2024-01-03",
+    )
+    assert set(hourly["location_id"]) == {"1A02P"}
+    assert len(hourly) == 48  # two days, every hour, across chunk boundaries
+    assert hourly["datetime"].iloc[0] == "2024-01-02 00:00"
+    assert hourly["snwd_cm"].iloc[0] == 1000 + 24
+
+    daily = client._load_asws_wide_csv("fake://sd.csv", value_col="snwd_cm")
+    assert set(daily["location_id"]) == {"1A01P", "1A02P", "2F05P"}
+    assert sorted(set(daily["date"])) == [
+        "2024-01-01",
+        "2024-01-02",
+        "2024-01-03",
+        "2024-01-04",
+    ]
+    one = daily[(daily["location_id"] == "2F05P") & (daily["date"] == "2024-01-02")]
+    assert one["snwd_cm"].item() == 2000 + 24 + 16  # the 16:00 UTC reading
+
+    nothing = client._load_asws_wide_csv(
+        "fake://sd.csv", value_col="snwd_cm", location_ids=["9Z99P"]
+    )
+    assert nothing.empty and list(nothing.columns) == ["date", "location_id", "snwd_cm"]
 
 
 # ── the shared type vocabulary (global_snow_networks' DESIGN.md §3.2) ────────
@@ -990,7 +1046,7 @@ _SD_WIDE = pd.DataFrame(
 def _databc_failing_on(monkeypatch, client, bad_url):
     """Stub DataBC's wide-CSV loader: ``bad_url`` fails with HTTP 503."""
 
-    def fake_load(url, value_col, daily_only=True):
+    def fake_load(url, value_col, daily_only=True, **window):
         if url.endswith(bad_url):
             raise DataBCError(f"HTTP 503 Service Unavailable: {url}")
         return _SD_WIDE.rename(columns={"snwd_cm": value_col})
