@@ -255,7 +255,7 @@ def main(argv: list[str] | None = None) -> int:
     if not path.exists():
         print(f"No report at {path}; nothing to report.")
         return 0
-    outcomes = parse(path.read_text())
+    outcomes = parse(path.read_text(encoding="utf-8"))
     table = summary(outcomes)
     print(table)
     if args.summary:

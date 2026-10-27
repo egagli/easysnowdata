@@ -130,9 +130,9 @@ def test_apply_opens_updates_and_closes_by_marker(live):
 def test_main_without_a_token_only_prints(live, tmp_path, monkeypatch, capsys):
     monkeypatch.delenv("GITHUB_TOKEN", raising=False)
     report = tmp_path / "live.xml"
-    report.write_text(REPORT)
+    report.write_text(REPORT, encoding="utf-8")
     summary = tmp_path / "summary.md"
     assert live.main([str(report), "--summary", str(summary)]) == 0
     out = capsys.readouterr().out
     assert "[open]  Live tests failing: yukon (3 tests)" in out
-    assert "| 🔴 hls | 1 | 0 | 0 |" in summary.read_text()
+    assert "| 🔴 hls | 1 | 0 | 0 |" in summary.read_text(encoding="utf-8")
