@@ -311,7 +311,8 @@ YUKON_PRODUCT = Product(
         "https://service.yukon.ca/water-data/api/v2/__docs__/",
         "https://service.yukon.ca/water-data/shiny/?page=home&lang=en",
         "https://yukon.ca/en/snow-survey-bulletin",
-        "https://open.yukon.ca/node/15612",
+        "https://yukon.ca/en/your-government/open-government/"
+        "open-government-licence-yukon",
     ),
     tags=("swe", "snow depth", "stations", "yukon", "snow course"),
 )

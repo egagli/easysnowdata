@@ -135,6 +135,9 @@ jobs:
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_live)
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    permissions:
+      contents: read
+      issues: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -154,4 +157,18 @@ jobs:
           NVE_API_KEY: ${{ secrets.NVE_API_KEY }}
           AISORI_USERNAME: ${{ secrets.AISORI_USERNAME }}
           AISORI_PASSWORD: ${{ secrets.AISORI_PASSWORD }}
-        run: pixi run -e test-py313 test-live -v --tb=short -rfEs
+        run: pixi run -e test-py313 test-live -v --tb=short -rfEs --junitxml=live-results.xml
+
+      # One red run hides which provider broke (four red weeks in Sep-Oct 2026
+      # buried a Yukon API change), so file one issue per failing data source,
+      # under the health check's `data-source` label, and close it on recovery.
+      # Scheduled runs file issues; manual runs only write the job summary.
+      - name: Report failures by data source
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.event_name == 'schedule' && secrets.GITHUB_TOKEN || '' }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          pixi run -e test-py313 python scripts/report_live.py live-results.xml \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --checked "$(date -u +%Y-%m-%d)"
