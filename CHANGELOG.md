@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
+## [v0.3.5](https://github.com/egagli/easysnowdata/releases/tag/v0.3.5) - 2026-10-27
+
+<small>[Compare with v0.3.4](https://github.com/egagli/easysnowdata/compare/v0.3.4...v0.3.5)</small>
+
+### Fixed
+
+- fix(databc): parse the wide ASWS archives in chunks, only the asked stations ([32fc476](https://github.com/egagli/easysnowdata/commit/32fc476035717c6481eb8c71f592ab185dfb301e) by Claude).
+- fix(watch): readable page items, end-of-delivery notices, shorter to-do list ([e6945f4](https://github.com/egagli/easysnowdata/commit/e6945f46af9762f8d909a3ea8f105e911af6ac64) by Claude).
+- fix(stations): a partial upstream result is an error unless asked for ([5972d12](https://github.com/egagli/easysnowdata/commit/5972d12eb910587d277de2b80b102c7e8d1d3469) by Claude).
+- fix(ci): read and write the live report as UTF-8 so Windows decodes it ([ef26950](https://github.com/egagli/easysnowdata/commit/ef269502ddcd158f30a758b613f6883960ef3f13) by Claude).
+
 ## [v0.3.4](https://github.com/egagli/easysnowdata/releases/tag/v0.3.4) - 2026-10-26
 
 <small>[Compare with v0.3.3](https://github.com/egagli/easysnowdata/compare/v0.3.3...v0.3.4)</small>
