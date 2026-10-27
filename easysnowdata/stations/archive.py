@@ -149,6 +149,7 @@ _KEEP = (
     "daily_or_better",
     "daily_verified",
     "daily_provenance",
+    "day_convention",
     "metadata_fetched_at",
 )
 
