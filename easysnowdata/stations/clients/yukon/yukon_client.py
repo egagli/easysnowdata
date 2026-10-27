@@ -823,6 +823,12 @@ class YukonClient:
         Linear backoff multiplier, in seconds, between attempts.
     session : requests.Session, optional
         Session to reuse.  A new one is created when omitted.
+    allow_partial : bool
+        By default :meth:`get_all_stations` raises :class:`YukonError`
+        when either half of the station list (snow courses, or the
+        automated and ECCC stations) cannot be built, rather than return
+        the other half alone.  ``True`` logs a warning and returns the
+        half that loaded, for interactive use.
 
     Examples
     --------
@@ -841,7 +847,9 @@ class YukonClient:
         max_retries: int = _DEFAULT_RETRIES,
         backoff: int = _DEFAULT_BACKOFF,
         session: requests.Session | None = None,
+        allow_partial: bool = False,
     ) -> None:
+        self.allow_partial = allow_partial
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.max_retries = max_retries
@@ -1124,7 +1132,12 @@ class YukonClient:
         Raises
         ------
         YukonError
-            On network / API failure.
+            On network / API failure, or when ``/timeseries`` lists no
+            publicly visible snow series at all.  The network always has
+            some, so an empty listing means the response changed: on
+            2026-10-22 AquaCache dropped the ``publicly_visible`` column,
+            every series read as hidden, and this method returned no
+            stations without an error.
         """
         wanted_nets = (
             set(_coerce_list(networks))
@@ -1132,8 +1145,15 @@ class YukonClient:
             else {SNOW_SURVEY_NETWORK, ECCC_NETWORK}
         )
 
+        catalogue = self.get_timeseries()
+        if not any(s["variable"] in SNOW_VARIABLES for s in catalogue):
+            raise YukonError(
+                f"/timeseries listed {len(catalogue)} publicly visible series "
+                "and none of SWE or snow depth; the response has probably "
+                "changed (an empty or unreadable listing, or a renamed column)"
+            )
         series_by_loc: dict[str, list[dict]] = {}
-        for series in self.get_timeseries():
+        for series in catalogue:
             series_by_loc.setdefault(str(series["location_id"]), []).append(series)
 
         locations = {str(loc["location_id"]): loc for loc in self.get_locations()}
@@ -1220,11 +1240,36 @@ class YukonClient:
         Raises
         ------
         YukonError
-            On network / API failure.
+            On network / API failure in either half, unless the client was
+            built with ``allow_partial=True``.
         """
-        courses = self.get_snow_course_stations(active_only=active_only, bbox=bbox)
-        automated = self.get_automated_stations(active_only=active_only, bbox=bbox)
+        courses = self._station_half(
+            "snow courses", self.get_snow_course_stations, active_only, bbox
+        )
+        automated = self._station_half(
+            "automated and ECCC stations",
+            self.get_automated_stations,
+            active_only,
+            bbox,
+        )
         return sorted(courses + automated, key=lambda s: s["station_id"])
+
+    def _station_half(
+        self, what: str, method: Any, active_only: bool, bbox: Any
+    ) -> list[dict]:
+        """One half of :meth:`get_all_stations`; raises unless ``allow_partial``."""
+        try:
+            return method(active_only=active_only, bbox=bbox)
+        except YukonError as exc:
+            if not self.allow_partial:
+                raise
+            logger.warning(
+                "Could not list Yukon %s: %s — continuing without them "
+                "(allow_partial=True)",
+                what,
+                exc,
+            )
+            return []
 
     def get_metadata(self, station_id: str) -> dict:
         """

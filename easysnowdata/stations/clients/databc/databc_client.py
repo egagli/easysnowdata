@@ -358,6 +358,12 @@ class DataBCClient:
         Base backoff delay in seconds.
     session : requests.Session or None
         Optional pre-configured session for data/WFS requests.
+    allow_partial : bool
+        Most requests merge several BC files (a current file and its
+        archive, or one file per variable).  By default a file that fails
+        to load raises :class:`DataBCError`, because the rest would be a
+        silently incomplete record.  ``True`` logs a warning, drops that
+        file and returns what is left, for interactive use.
     """
 
     def __init__(
@@ -366,7 +372,9 @@ class DataBCClient:
         max_retries: int = _DEFAULT_RETRIES,
         backoff: int = _DEFAULT_BACKOFF,
         session: requests.Session | None = None,
+        allow_partial: bool = False,
     ) -> None:
+        self.allow_partial = allow_partial
         self.timeout = timeout
         self.max_retries = max_retries
         self.backoff = backoff
@@ -737,6 +745,8 @@ class DataBCClient:
                     try:
                         df = method(**kwargs)
                     except DataBCError as exc:
+                        if not self.allow_partial:
+                            raise
                         logger.warning(
                             "get_data: %s fetch failed: %s",
                             var_key,
@@ -1337,7 +1347,7 @@ class DataBCClient:
         try:
             resp = self._request(url)
         except DataBCError as exc:
-            logger.warning("Could not load SnowAll/%s.csv: %s", location_id, exc)
+            self._partial(f"SnowAll/{location_id}.csv", exc)
             return pd.DataFrame(columns=_cols)
 
         df = pd.read_csv(io.StringIO(resp.text))
@@ -1446,13 +1456,13 @@ class DataBCClient:
         try:
             dfs.append(self._load_mss_csv(f"{DATA_BASE}/allmss_current.csv"))
         except DataBCError as exc:
-            logger.warning("Could not load allmss_current.csv: %s", exc)
+            self._partial("allmss_current.csv", exc)
 
         if archive:
             try:
                 dfs.append(self._load_mss_csv(f"{DATA_BASE}/allmss_archive.csv"))
             except DataBCError as exc:
-                logger.warning("Could not load allmss_archive.csv: %s", exc)
+                self._partial("allmss_archive.csv", exc)
 
         if not dfs:
             return pd.DataFrame()
@@ -1641,7 +1651,7 @@ class DataBCClient:
                 )
             )
         except DataBCError as exc:
-            logger.warning("Could not load %s: %s", current_url, exc)
+            self._partial(current_url, exc)
 
         if archive and archive_url:
             try:
@@ -1651,7 +1661,7 @@ class DataBCClient:
                     )
                 )
             except DataBCError as exc:
-                logger.warning("Could not load %s: %s", archive_url, exc)
+                self._partial(archive_url, exc)
 
         if not dfs:
             return pd.DataFrame(columns=[time_col, "location_id", value_col])
@@ -1789,6 +1799,23 @@ class DataBCClient:
         ]
 
         return df
+
+    def _partial(self, what: str, exc: DataBCError) -> None:
+        """Raise for a file that failed to load, unless partial results were asked for.
+
+        Called where one of several merged files failed: by default the
+        caller gets an error rather than a record missing that file
+        (on 2026-10-22 a 503 on ``allmss_archive.csv`` returned snow depth
+        without its history, and global_snow_networks archived 81 blanked
+        depth records).
+        """
+        if not self.allow_partial:
+            raise DataBCError(f"Could not load {what}: {exc}") from exc
+        logger.warning(
+            "Could not load %s: %s — continuing without it (allow_partial=True)",
+            what,
+            exc,
+        )
 
     def _request(
         self,
