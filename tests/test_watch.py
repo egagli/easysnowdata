@@ -139,6 +139,18 @@ class TestClassify:
     def test_short_keywords_match_whole_words_only(self, watch, text):
         assert watch.classify(text) == []
 
+    def test_end_of_delivery_is_a_removal_for_the_product_it_names(
+        self, watch, watchlist
+    ):
+        line = (
+            "Delivery of science data products from the Suomi National "
+            "Polar-orbiting Partnership (Suomi NPP) satellite is expected to "
+            "cease at 13:00 UTC on November 2, 2026."
+        )
+        assert "removal" in watch.classify(line)
+        (nsidc,) = [e for e in watchlist["page"] if e["id"] == "page-nsidc-updates"]
+        assert watch.products_for(nsidc, line) == ["viirs-snow"]
+
     def test_a_sensor_name_alone_is_not_worth_adding(self, watch):
         # #51: every line naming VIIRS, MODIS, HLS or ERA5 used to land here.
         assert "new-dataset" not in watch.classify(
@@ -285,6 +297,19 @@ class TestDiffMapping:
         )
         assert change.section == "Worth adding"
 
+    def test_a_network_added_to_the_watchlist_is_recorded_quietly(self, watch):
+        entry = {"id": "stations-counts", "networks": ["awdb", "nve"]}
+        before = {"awdb": {"count": 7000}}
+        after = {"awdb": {"count": 7000}, "nve": {"count": 300}}
+        assert watch.diff_mapping(entry, before, after) == []
+
+    def test_a_revision_date_alone_is_not_a_to_do(self, watch):
+        entry = {"id": "cmr-x"}
+        before = {"NSIDC-0770": {"revision_date": "2026-07-30"}}
+        after = {"NSIDC-0770": {"revision_date": "2026-10-08"}}
+        (change,) = watch.diff_mapping(entry, before, after)
+        assert change.section == "Changed"
+
     def test_a_station_count_moving_is_reported(self, watch):
         changes = watch.diff_mapping(
             {"id": "stations-counts", "products": ["awdb-stations"]},
@@ -411,6 +436,12 @@ class TestDigest:
         body = watch.digest(changes, [], when="2026-09-17")
         assert body.count("- [ ] **S") == 40 and "more, from" not in body
 
+    def test_the_same_line_is_listed_once(self, watch):
+        twice = [
+            watch.Change("p", "page", "New release", categories=["new-dataset"])
+        ] * 2
+        assert watch.digest(twice, []).count("New release") == 1
+
     def test_routine_and_other_are_folded(self, watch):
         body = watch.digest(
             [
@@ -487,8 +518,25 @@ class TestSupersede:
         assert "- [ ] **[ERA5](u)**" in body and "_(from #51)_" in body
         assert body.count("**A** gone") == 1  # already in this week's list
         assert "Earlier discussion is in #51." in body
-        # carried again next week, still from #51
-        assert watch.unaddressed(body, 70)[-1].endswith("_(from #51)_")
+        # carried again next week, still from #51, and counted
+        assert watch.unaddressed(body, 70)[-1].endswith("_(from #51, carried 2×)_")
+
+    def test_an_item_carried_too_often_expires_once_and_is_not_carried(self, watch):
+        stale = "**A** gone `removal` _(from #40, carried 3×)_"
+        recent = "**B** gone `removal` _(from #41, carried 2×)_"
+        # A digest carries both; next week A has been carried a fourth time
+        body = watch.digest([], [], carried=[stale, recent])
+        again = watch.unaddressed(body, 50)
+        assert again == [
+            "**A** gone `removal` _(from #40, carried 4×)_",
+            "**B** gone `removal` _(from #41, carried 3×)_",
+        ]
+        body = watch.digest([], [], carried=again)
+        assert "## Carried over (1)" in body
+        assert "Expired unhandled (1)" in body and "**A** gone" in body
+        assert watch.unaddressed(body, 51) == [
+            "**B** gone `removal` _(from #41, carried 4×)_"
+        ]
 
     def test_the_old_digest_closes_only_after_the_new_one_opens(
         self, watch, tmp_path, monkeypatch
@@ -715,6 +763,27 @@ class TestVisibleText:
     def test_short_lines_and_duplicates_are_dropped(self, watch):
         html = "<p>ok</p><p>A repeated sentence long enough to keep.</p>" * 3
         assert watch.visible_text(html) == ["A repeated sentence long enough to keep."]
+
+    def test_a_linked_name_stays_in_its_sentence(self, watch):
+        # NSIDC's data-updates page, 2026-10-20
+        html = (
+            '<p dir="ltr">The&nbsp;<a href="https://doi.org/10.5067/1M2W6PZRN4VD">'
+            "Near Real-Time VIIRS/JPSS-1 Snow Cover</a>&nbsp;data set is now "
+            "available.</p>"
+        )
+        assert watch.visible_text(html) == [
+            "The Near Real-Time VIIRS/JPSS-1 Snow Cover data set is now available."
+        ]
+
+    def test_a_new_page_format_records_instead_of_reporting(self, watch):
+        entry = {"id": "p", "url": "u"}
+        old = {"lines": ["The old way of splitting this page."]}
+        new = {"lines": ["The new way of splitting it."], "format": watch.PAGE_FORMAT}
+        assert watch.diff_lines(entry, old, new) == []
+        newer = {**new, "lines": [*new["lines"], "A genuinely new line here."]}
+        assert [c.detail for c in watch.diff_lines(entry, new, newer)] == [
+            "A genuinely new line here."
+        ]
 
     def test_the_line_count_is_bounded(self, watch):
         html = "".join(

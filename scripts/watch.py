@@ -47,6 +47,7 @@ import sys
 import tomllib
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
+from html import unescape
 from pathlib import Path
 from typing import Any
 
@@ -62,6 +63,10 @@ CATEGORIES: dict[str, tuple[str, ...]] = {
         "decommission",
         "retire",
         "end of life",
+        "end of mission",
+        "cease",
+        "stopped forward processing",
+        "will stop",
         "no longer",
         "archived",
         "sunset",
@@ -159,7 +164,10 @@ ROLLING_FIELDS = ("temporal_end", "end", "updated")
 FIELD_CATEGORY = {
     "version": "reprocessing",
     "version_id": "reprocessing",
-    "revision_date": "reprocessing",
+    # CMR bumps it for any metadata edit: on 2026-10-08 one NSIDC edit moved
+    # seven collections' dates, none reprocessed. A version or a new concept
+    # id is the reprocessing signal; this is only worth knowing.
+    "revision_date": "republished",
     "latest_version": "reprocessing",
     "temporal_start": "extent",
     "count": "extent",
@@ -352,8 +360,11 @@ def diff_mapping(
     changes: list[Change] = []
     entry_id = entry["id"]
 
+    # A subject the watchlist itself names (a network added to the station
+    # counts) is new to the snapshot, not upstream: record it quietly.
+    configured = {str(n) for n in entry.get("networks", [])}
     for subject in sorted(set(after) - set(before)):
-        if not before:
+        if not before or subject in configured:
             continue  # the first run records, it does not report
         changes.append(
             Change(
@@ -411,6 +422,8 @@ def diff_lines(
     """Compare two page snapshots line by line, reporting what is new."""
     if not before.get("lines"):
         return []  # first run: record only
+    if after.get("format") != before.get("format"):
+        return []  # the lines are split differently now: record only
     old = set(before["lines"])
     new_lines = [
         line for line in after["lines"] if line not in old and not _ignored(entry, line)
@@ -710,7 +723,15 @@ def check_pypi(entry: dict[str, Any], session: Any) -> dict[str, Any]:
 
 
 _TAG_RE = re.compile(r"<(script|style)[^>]*>.*?</\1>", re.S | re.I)
+#: Tags inside a sentence: dropped without a break, so a linked dataset name
+#: stays in its sentence (NSIDC's updates name the dataset in an <a>).
+_INLINE_RE = re.compile(
+    r"</?(a|abbr|b|code|em|i|small|span|strong|sub|sup|time|u)\b[^>]*>", re.I
+)
 _MARKUP_RE = re.compile(r"<[^>]+>")
+#: Bumped when visible_text changes how it splits a page, so the first run
+#: after the change records the new lines instead of reporting all of them.
+PAGE_FORMAT = 2
 
 
 def visible_text(html: str, *, min_length: int = 25, limit: int = 600) -> list[str]:
@@ -720,7 +741,9 @@ def visible_text(html: str, *, min_length: int = 25, limit: int = 600) -> list[s
     what the digest needs is only "which sentences are new since last week".
     """
     text = _TAG_RE.sub(" ", html)
+    text = _INLINE_RE.sub("", text)
     text = _MARKUP_RE.sub("\n", text)
+    text = unescape(text).replace("\xa0", " ")
     seen, lines = set(), []
     for raw in text.splitlines():
         line = " ".join(raw.split())
@@ -736,7 +759,7 @@ def visible_text(html: str, *, min_length: int = 25, limit: int = 600) -> list[s
 def check_page(entry: dict[str, Any], session: Any) -> dict[str, Any]:
     response = session.get(entry["url"], timeout=TIMEOUT)
     response.raise_for_status()
-    return {"lines": visible_text(response.text)}
+    return {"lines": visible_text(response.text), "format": PAGE_FORMAT}
 
 
 def check_feed(entry: dict[str, Any], session: Any) -> dict[str, Any]:
@@ -1080,11 +1103,18 @@ def digest(
     ]
     order = [*SECTIONS, "Other"]
     by_section: dict[str, list[Change]] = {name: [] for name in order}
+    seen: set[str] = set()
     for change in changes:
+        key = _item(change)
+        if key in seen:
+            continue  # the same line, reported twice by one page
+        seen.add(key)
         by_section[change.section].append(change)
 
     fresh = {_item(c) for name in TODO_SECTIONS for c in by_section[name]}
     carried = [c for c in (carried or []) if _strip_origin(c) not in fresh]
+    expired = [c for c in carried if _carries(c) > MAX_CARRIES]
+    carried = [c for c in carried if _carries(c) <= MAX_CARRIES]
 
     for section in order:
         found = by_section[section]
@@ -1113,6 +1143,18 @@ def digest(
         if section in FOLDED_SECTIONS:
             lines += ["</details>", ""]
 
+    if expired:
+        lines += [
+            f"<details><summary><b>Expired unhandled ({len(expired)})</b></summary>",
+            "",
+            f"Carried {MAX_CARRIES} times without being ticked off, so no longer "
+            "carried. Listed here once, so nothing disappears silently.",
+            "",
+            *(f"- {item}" for item in expired),
+            "",
+            "</details>",
+            "",
+        ]
     if errors:
         lines += [
             f"## Could not be checked ({len(errors)})",
@@ -1135,11 +1177,27 @@ def digest(
 # ── superseding the previous digest ──────────────────────────────────────────
 
 CARRIED_HEADING = "## Carried over"
-_ORIGIN_RE = re.compile(r"\s*_\(from #\d+\)_$")
+_ORIGIN_RE = re.compile(r"\s*_\(from #(\d+)(?:, carried (\d+)×)?\)_$")
+#: A to-do carried more often than this is listed once as expired and dropped.
+MAX_CARRIES = 3
 
 
 def _strip_origin(item: str) -> str:
     return _ORIGIN_RE.sub("", item)
+
+
+def _carries(item: str) -> int:
+    """How many digests have carried *item* (its origin tag says)."""
+    match = _ORIGIN_RE.search(item)
+    if match is None:
+        return 0
+    return int(match.group(2) or 1)
+
+
+def _origin_tag(origin: int, carries: int) -> str:
+    if carries <= 1:
+        return f" _(from #{origin})_"
+    return f" _(from #{origin}, carried {carries}×)_"
 
 
 def _carried_section(
@@ -1165,13 +1223,17 @@ def unaddressed(body: str, number: int) -> list[str]:
     unticked checkboxes (``- [ ]``); in a digest from before the checkboxes,
     every bullet in those sections, including a "...and N more" line, since
     there is no way to tell what was handled. Each is tagged with the issue
-    it first appeared in, which it keeps as it is carried on.
+    it first appeared in, which it keeps as it is carried on, and with how
+    many digests have carried it (:data:`MAX_CARRIES`).
     """
     items: list[str] = []
     section = ""
     for line in body.splitlines():
         if line.startswith("## "):
             section = line[3:]
+            continue
+        if line.startswith("<details>"):
+            section = ""  # a folded block (Routine, Other, Expired) is not a to-do
             continue
         if not any(
             section.startswith(name) for name in (*TODO_SECTIONS, "Carried over")
@@ -1185,8 +1247,13 @@ def unaddressed(body: str, number: int) -> list[str]:
             text = line[2:]
         else:
             continue
-        if not _ORIGIN_RE.search(text):
-            text = f"{text} _(from #{number})_"
+        match = _ORIGIN_RE.search(text)
+        if match is None:
+            text = f"{text}{_origin_tag(number, 1)}"
+        else:
+            text = _strip_origin(text) + _origin_tag(
+                int(match.group(1)), _carries(text) + 1
+            )
         items.append(text)
     return items
 
