@@ -209,7 +209,7 @@ def records_to_dataset(
     network: str | None = None,
     *,
     metadata: gpd.GeoDataFrame | None = None,
-    hemisphere: str = "northern",
+    hemisphere: str = "auto",
     stations: Sequence[str] | None = None,
 ) -> xr.Dataset:
     """The clients' records as a ``(station, time)`` Dataset.
@@ -225,8 +225,11 @@ def records_to_dataset(
         Station frame (from :func:`easysnowdata.stations.inventory`) whose
         columns become non-dimension coordinates on ``station``.
     hemisphere
-        Which water year to attach — ``"northern"`` (1 October) or
-        ``"southern"`` (1 April).
+        Which water year to attach: ``"auto"`` (default) gives each station
+        the water year of its own hemisphere, from the ``latitude`` the
+        *metadata* carries; ``"northern"`` (1 October) or ``"southern"``
+        (1 April) applies one to every station. See
+        :func:`easysnowdata.processing.wateryear.add_water_year_coords`.
     stations
         Codes to keep on the ``station`` axis even when they returned no data,
         so a request for five stations always comes back with five.
@@ -236,7 +239,8 @@ def records_to_dataset(
     xarray.Dataset
         One data variable per standardized type (``swe``, ``snwd``, …) with
         dims ``(station, time)``, ``water_year`` and ``dowy`` coordinates on
-        ``time``, and the station metadata on ``station``.
+        ``time`` (on ``(station, time)`` when the stations span both
+        hemispheres), and the station metadata on ``station``.
     """
     if isinstance(records, dict):
         by_network: dict[str, Any] = dict(records)

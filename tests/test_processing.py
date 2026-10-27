@@ -306,6 +306,59 @@ class TestWaterYear:
         with pytest.raises(ValueError, match="dimension"):
             wateryear.add_water_year_coords(ds.rename({"time": "t"}))
 
+    @staticmethod
+    def _stations(lats):
+        times = pd.date_range("2024-01-01", "2025-12-31")
+        return xr.Dataset(
+            {"swe": (("station", "time"), np.zeros((len(lats), len(times))))},
+            coords={
+                "station": [f"S{i}" for i in range(len(lats))],
+                "time": times,
+                "latitude": ("station", lats),
+            },
+        )
+
+    def test_auto_one_hemisphere_stays_one_dimensional(self):
+        north = wateryear.add_water_year_coords(self._stations([47.0, 39.0]), "auto")
+        assert north["water_year"].dims == ("time",)
+        assert north["hemisphere"].values.tolist() == ["northern", "northern"]
+        same = wateryear.add_water_year_coords(self._stations([47.0, 39.0]))
+        assert (north["water_year"] == same["water_year"]).all()
+        south = wateryear.add_water_year_coords(self._stations([-33.0, -40.0]), "auto")
+        assert south["water_year"].dims == ("time",)
+        season = south.sel(time=slice("2024-04-01", "2024-12-31"))
+        assert np.unique(season["water_year"]).tolist() == [2024]
+        assert int(south["dowy"].sel(time="2024-04-01")) == 1
+        assert south.swap_dims({"time": "dowy"})["dowy"].dims == ("dowy",)
+
+    def test_auto_mixed_hemispheres_are_per_station(self):
+        ds = wateryear.add_water_year_coords(self._stations([47.0, -33.0]), "auto")
+        assert ds["water_year"].dims == ("station", "time")
+        assert ds["dowy"].dims == ("station", "time")
+        north, south = ds.isel(station=0), ds.isel(station=1)
+        # The southern April–December season is one water year, day 1 = 1 April
+        season = south.sel(time=slice("2024-04-01", "2024-12-31"))
+        assert np.unique(season["water_year"]).tolist() == [2024]
+        assert int(south["dowy"].sel(time="2024-04-01")) == 1
+        # The northern station is exactly what "northern" gives
+        expected = wateryear.water_year(ds["time"], "northern").values
+        assert (north["water_year"].values == expected).all()
+        assert int(north["dowy"].sel(time="2024-10-01")) == 1
+        # groupby still works; one station can still swap to dowy
+        # North: WY2024–2026 over 2024–2025; south (April starts): WY2023–2025
+        peaks = ds["swe"].groupby("water_year").max()
+        assert peaks["water_year"].values.tolist() == [2023, 2024, 2025, 2026]
+        assert south.swap_dims({"time": "dowy"})["dowy"].dims == ("dowy",)
+
+    def test_auto_without_latitude_is_northern_with_a_warning(self, caplog):
+        ds = self._stations([47.0]).drop_vars("latitude")
+        out = wateryear.add_water_year_coords(ds, "auto")
+        assert out["water_year"].dims == ("time",)
+        assert "hemisphere='auto' needs" in caplog.text
+        nan = wateryear.add_water_year_coords(self._stations([np.nan, -33.0]), "auto")
+        assert nan["hemisphere"].values.tolist() == ["northern", "southern"]
+        assert "No latitude for 1 station" in caplog.text
+
 
 def test_public_surface():
     for name in proc.__all__:

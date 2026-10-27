@@ -15,10 +15,21 @@ southern-hemisphere one starts 1 April and is named for the year it starts.
 For aggregation prefer the pandas anchored offsets:
 ``swe_ds.resample(time="YS-OCT").max()``. Day-of-water-year has no pandas
 primitive, hence :func:`day_of_water_year` and :func:`add_water_year_coords`.
+
+The two namings line up: water year *N* is, in both hemispheres, the snow
+season that peaks in calendar year *N*. The southern convention is the one
+the Andes SWE reanalysis uses (Cortés and Margulis 2017; its Dryad record,
+doi:10.5061/dryad.ngf1vhj0s: "WY1985 corresponds to April 1st, 1985 through
+March 31st, 1986").
+
+A ``(station, time)`` Dataset can mix hemispheres. ``hemisphere="auto"``
+in :func:`add_water_year_coords` gives each station its own water year from
+its latitude (:func:`station_hemispheres`).
 """
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 import numpy as np
@@ -33,10 +44,13 @@ __all__ = [
     "water_year_range",
     "water_year_length",
     "add_water_year_coords",
+    "station_hemispheres",
     "START_MONTH",
 ]
 
 START_MONTH = {"northern": 10, "southern": 4}
+
+_logger = logging.getLogger(__name__)
 
 
 def _start_month(hemisphere: str) -> int:
@@ -146,28 +160,90 @@ def water_year_length(year: int, hemisphere: str = "northern") -> int:
     return int((end - start).days) + 1
 
 
+def station_hemispheres(latitudes: Any) -> np.ndarray:
+    """``"southern"`` where the latitude is negative, else ``"northern"``.
+
+    A missing latitude counts as northern; :func:`add_water_year_coords`
+    warns about those.
+    """
+    lat = np.asarray(latitudes, dtype="float64")
+    return np.where(lat < 0, "southern", "northern")
+
+
 def add_water_year_coords(
     obj: xr.Dataset | xr.DataArray,
     hemisphere: str = "northern",
     *,
     dim: str = "time",
     names: tuple[str, str] = ("water_year", "dowy"),
+    station_dim: str = "station",
+    latitude: str = "latitude",
 ) -> xr.Dataset | xr.DataArray:
     """Attach ``water_year`` and ``dowy`` coordinates along *dim*.
 
     Both are plain integer coordinates, so ``obj.groupby("water_year")`` and
     ``obj.swap_dims({"time": "dowy"})`` work directly.
+
+    *hemisphere* is ``"northern"``, ``"southern"`` or ``"auto"``. ``"auto"``
+    reads each station's hemisphere from the *latitude* coordinate on
+    *station_dim* and records it as a ``hemisphere`` coordinate there:
+
+    * every station in one hemisphere: the coordinates stay 1-D on *dim*,
+      exactly as with that hemisphere named;
+    * stations in both: the coordinates become 2-D, ``(station_dim, dim)``,
+      so a southern station's April–March season is one water year while a
+      northern one's is October–September. ``groupby("water_year")`` still
+      works and compares like with like (water year *N* peaks in calendar
+      year *N* in both hemispheres); ``swap_dims`` needs one station first,
+      e.g. ``ds.sel(station=code).swap_dims({"time": "dowy"})``.
+
+    Without a *latitude* coordinate ``"auto"`` falls back to northern with a
+    warning.
     """
     if dim not in obj.dims:
         raise ValueError(f"{dim!r} is not a dimension of the input.")
     times_da = obj[dim]
     wy_name, dowy_name = names
+    if str(hemisphere).lower() != "auto":
+        return obj.assign_coords(
+            {
+                wy_name: (dim, np.asarray(water_year(times_da, hemisphere).values)),
+                dowy_name: (
+                    dim,
+                    np.asarray(day_of_water_year(times_da, hemisphere).values),
+                ),
+            }
+        )
+    if station_dim not in obj.dims or latitude not in obj.coords:
+        _logger.warning(
+            "hemisphere='auto' needs a %r coordinate on %r; using the northern "
+            "water year (1 October). Pass hemisphere= to choose.",
+            latitude,
+            station_dim,
+        )
+        return add_water_year_coords(obj, "northern", dim=dim, names=names)
+    lat = np.asarray(obj[latitude].values, dtype="float64")
+    if np.isnan(lat).any():
+        missing = np.asarray(obj[station_dim].values)[np.isnan(lat)]
+        _logger.warning(
+            "No latitude for %d station(s) (%s); they get the northern water year.",
+            len(missing),
+            ", ".join(str(m) for m in missing[:10]),
+        )
+    hems = station_hemispheres(lat)
+    obj = obj.assign_coords(hemisphere=(station_dim, hems.astype("str")))
+    kinds = sorted(set(hems.tolist()))
+    if len(kinds) == 1:
+        return add_water_year_coords(obj, kinds[0], dim=dim, names=names)
+    per_hem = {
+        h: (
+            np.asarray(water_year(times_da, h).values),
+            np.asarray(day_of_water_year(times_da, h).values),
+        )
+        for h in kinds
+    }
+    wy = np.stack([per_hem[h][0] for h in hems])
+    dowy = np.stack([per_hem[h][1] for h in hems])
     return obj.assign_coords(
-        {
-            wy_name: (dim, np.asarray(water_year(times_da, hemisphere).values)),
-            dowy_name: (
-                dim,
-                np.asarray(day_of_water_year(times_da, hemisphere).values),
-            ),
-        }
+        {wy_name: ((station_dim, dim), wy), dowy_name: ((station_dim, dim), dowy)}
     )
