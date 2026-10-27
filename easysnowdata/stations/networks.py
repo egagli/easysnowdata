@@ -1,4 +1,4 @@
-"""The five snow-station networks, and how a station code maps to one of them.
+"""The snow-station networks, and how a station code maps to one of them.
 
 Each :class:`Network` ties a catalog source id to the vendored client that
 speaks to it (:mod:`easysnowdata.stations.clients`) and to the spelling of a
@@ -6,11 +6,13 @@ station identifier in that network. Two spellings matter:
 
 ``code``
     The globally unique code the inventory and the archive use, e.g.
-    ``"679_WA_SNTL"``. Unique across all five networks.
+    ``"679_WA_SNTL"``. Unique across all networks.
 ``station_id``
     What the network's own API calls the station, e.g. the AWDB triplet
-    ``"679:WA:SNTL"``. Only AWDB's two spellings differ; for the other four
-    the code *is* the station id.
+    ``"679:WA:SNTL"``. AWDB swaps ``:`` for ``_``; Alberta, SLF, SNIH and
+    CEAZA codes add a prefix (``"ARB-05BB803"``, ``"SLF-IMIS-WFJ2"``,
+    ``"SNIH-12817"``, ``"CEAZA-HDC"``), as global_snow_networks names them;
+    for the rest the code *is* the station id.
 
 :func:`split_by_network` turns a mix of codes, station ids and inventory rows
 into ``{network_id: [station_id, …]}``, which is what :func:`easysnowdata.stations.load`
@@ -27,9 +29,11 @@ from typing import Any
 __all__ = [
     "NETWORKS",
     "Network",
+    "SLF_DATASET_CODES",
     "TYPES",
     "canonical_units",
     "get",
+    "slf_split",
     "split_by_network",
     "to_code",
     "to_station_id",
@@ -58,6 +62,8 @@ class Network:
     #: Regex a *code* of this network matches; ``None`` when it cannot be
     #: told apart from another network's by shape alone.
     code_pattern: str | None = None
+    #: Text the global code puts before the network's own id (``"ARB-"``).
+    code_prefix: str = ""
 
     def client_class(self) -> Any:
         """Import and return the client class."""
@@ -67,10 +73,14 @@ class Network:
 
     def station_id(self, station: str) -> str:
         """The native station id for *station* (a code or an id already)."""
+        if self.code_prefix:
+            return station.removeprefix(self.code_prefix)
         return station.replace("_", ":") if self.colon_code else station
 
     def code(self, station_id: str) -> str:
         """The globally unique code for a native *station_id*."""
+        if self.code_prefix:
+            return f"{self.code_prefix}{station_id.removeprefix(self.code_prefix)}"
         return station_id.replace(":", "_") if self.colon_code else station_id
 
 
@@ -136,7 +146,90 @@ NETWORKS: dict[str, Network] = {
         # "09AA-M1", "08AA-SC01", "10MD-MET-00004" — hyphenated
         code_pattern=r"^[0-9]{2}[A-Z]{2}-[A-Z0-9-]+$",
     ),
+    "alberta": Network(
+        id="alberta",
+        title="Alberta River Basins snow stations (AEPA)",
+        client="AlbertaClient",
+        requires=(),
+        extent="Alberta (Rocky Mountain eastern slopes)",
+        data_provider="Alberta Environment and Protected Areas",
+        api_url="https://rivers.alberta.ca",
+        id_key="station_id",
+        code_pattern=r"^ARB-",
+        code_prefix="ARB-",
+    ),
+    "hydroquebec": Network(
+        id="hydroquebec",
+        title="Hydro-Québec hydrometeorological network",
+        client="HydroQuebecClient",
+        requires=(),
+        extent="Québec (Hydro-Québec watersheds)",
+        data_provider="Hydro-Québec open data (CC BY-NC 4.0)",
+        api_url="https://donnees.hydroquebec.com/api/explore/v2.1",
+        id_key="station_id",
+        # "1-10613"
+        code_pattern=r"^\d+-\d+$",
+    ),
+    "slf": Network(
+        id="slf",
+        title="SLF IMIS stations, study plots and GCOS SWE (Switzerland)",
+        client="SLFClient",
+        requires=(),
+        extent="Swiss Alps",
+        data_provider="WSL Institute for Snow and Avalanche Research SLF",
+        api_url="https://measurement-data.slf.ch",
+        id_key="station_id",
+        # "SLF-IMIS-WFJ2", "SLF-SP-5WJ0", "SLF-GCOS-5WJ": the station id keeps
+        # the dataset ("IMIS-WFJ2"), because SLF reuses ids across datasets
+        code_pattern=r"^SLF-",
+        code_prefix="SLF-",
+    ),
+    "snih": Network(
+        id="snih",
+        title="SNIH snow pillows and snow courses (Argentina)",
+        client="SNIHClient",
+        requires=(),
+        extent="Argentine Andes",
+        data_provider="Subsecretaría de Recursos Hídricos (SNIH)",
+        api_url="https://snih.hidricosargentina.gob.ar",
+        id_key="station_id",
+        code_pattern=r"^SNIH-",
+        code_prefix="SNIH-",
+    ),
+    "ceaza": Network(
+        id="ceaza",
+        title="CEAZA-Met snow stations (Chile)",
+        client="CEAZAClient",
+        requires=(),
+        extent="Atacama and Coquimbo, Chile",
+        data_provider="CEAZA-Met",
+        api_url="https://www.ceazamet.cl/ws/pop_ws.php",
+        id_key="station_id",
+        code_pattern=r"^CEAZA-",
+        code_prefix="CEAZA-",
+    ),
 }
+
+#: SLF dataset → the code segment global_snow_networks gives it.
+SLF_DATASET_CODES: dict[str, str] = {
+    "imis": "IMIS",
+    "study_plot": "SP",
+    "gcos": "GCOS",
+}
+
+
+def slf_split(station_id: str) -> tuple[str, str]:
+    """``"IMIS-WFJ2"`` (or ``"SLF-IMIS-WFJ2"``) → ``("imis", "WFJ2")``."""
+    text = str(station_id).removeprefix("SLF-")
+    head, _, sid = text.partition("-")
+    for dataset, segment in SLF_DATASET_CODES.items():
+        if head.upper() == segment:
+            return dataset, sid
+    raise ValueError(
+        f"SLF station {station_id!r} does not name its dataset; write it "
+        "as SLF-IMIS-<id>, SLF-SP-<id> or SLF-GCOS-<id>."
+    )
+
 
 #: Standardized variable type -> (canonical units, long name). The vocabulary
 #: and the units are ``global_snow_networks``' DESIGN.md §3.2 and §3.5.
@@ -338,7 +431,7 @@ def split_by_network(
         if missing:
             raise ValueError(
                 f"Unknown station code(s): {', '.join(sorted(missing))}. They "
-                "are in none of the five networks' inventories."
+                "are in none of the networks' inventories."
             )
         for code in unknown:
             net = found[code]

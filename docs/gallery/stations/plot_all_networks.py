@@ -1,19 +1,22 @@
 # esd-requires: nve
 """
-All five station networks in one call
-=====================================
+Every station network in one call
+=================================
 
-``easysnowdata.stations`` reads five public snow-station networks: the USDA
+``easysnowdata.stations`` reads ten public snow-station networks: the USDA
 NRCS AWDB (SNOTEL and snow courses), California's CDEC, British Columbia's
-DataBC, Norway's NVE HydAPI and the Yukon's AquaCache. Each has its own
-catalog entry and client, but ``inventory()`` and ``load()`` take station
-codes from any of them and fan the request out to the right client.
+DataBC, Norway's NVE HydAPI, the Yukon's AquaCache, Alberta River Basins,
+Hydro-Québec, Switzerland's SLF, Argentina's SNIH and Chile's CEAZA-Met.
+Each has its own catalog entry and client, but ``inventory()`` and
+``load()`` take station codes from any of them and fan the request out to
+the right client. This page draws the original five.
 
 ``inventory()`` defaults to ``source="archive"``, the published inventory
-from ``global_snow_networks``: one request for all five networks, no
-credentials. ``source="clients"`` asks the five APIs instead. ``load()``
+from ``global_snow_networks``: one request for every network, no
+credentials. ``source="clients"`` asks each network's API instead. ``load()``
 always goes to the live clients, so a list that includes a Norwegian station
-needs the NVE key in ``NVE_API_KEY``; the other four need no account.
+needs the NVE key in ``NVE_API_KEY``; no other network needs an account
+(CEAZA asks for a registered user name in ``CEAZA_USER``).
 
 The figures show every daily station in the world coloured by network, and
 one water year of SWE at one station from each network on a common time axis.
@@ -24,7 +27,7 @@ import easysnowdata as esd
 print(f"easysnowdata {esd.__version__}")
 
 # %%
-# The five products and the routes behind them. Only NVE needs a credential.
+# The products and the routes behind them. Only NVE needs a credential.
 for product_id in sorted(esd.stations.PRODUCT_IDS.values()):
     for src in esd.catalog.get(product_id).sources:
         print(
@@ -33,7 +36,7 @@ for product_id in sorted(esd.stations.PRODUCT_IDS.values()):
         )
 
 # %%
-# Every station with a probe-verified daily record, across all five networks,
+# Every station with a probe-verified daily record, across every network,
 # in one request. AWDB is two thirds of the total.
 inv_gdf = esd.stations.inventory(daily_only=True)
 print(inv_gdf["network"].value_counts().to_string())
@@ -47,7 +50,9 @@ ax = esd.plotting.points(
     column="network",
     markersize=6,
     figsize=(12, 5),
-    title=f"{len(inv_gdf)} daily snow stations in five networks",
+    title=(
+        f"{len(inv_gdf)} daily snow stations in {inv_gdf['network'].nunique()} networks"
+    ),
 )
 
 # %%

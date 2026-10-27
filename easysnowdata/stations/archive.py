@@ -5,7 +5,7 @@ station its probe has verified as daily-or-better, and publishes three
 artefacts that this module reads (§9 step 3):
 
 ``all_snow_stations.geojson``
-    Every station from all five networks, periodic sites included, with the
+    Every station from every archived network, periodic sites included, with the
     26 normalized properties of that repo's DESIGN.md §6.1 — including
     ``daily_or_better``, which is the **probe's verdict** rather than what a
     network advertises about itself.
@@ -735,7 +735,7 @@ PRODUCT = Product(
     title="Daily snow-station archive (global snow networks)",
     description=(
         "Daily SWE and snow depth for every station whose daily "
-        "record has been probe-verified, across all five networks, "
+        "record has been probe-verified, across every archived network, "
         "pre-downloaded and published by global_snow_networks: a normalized "
         "station inventory as GeoJSON, a chunked Zarr store on its Pages site "
         "that a query reads only the touched chunks of, and one CSV per "
