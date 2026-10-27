@@ -526,6 +526,25 @@ id = "feed-geoboundaries-releases"
 url = "https://github.com/wmgeolab/geoBoundaries/releases.atom"
 products = ["countries", "states-provinces", "admin-boundaries"]
 
+# Yukon AquaCache: the API and the database schema live on GitHub, and their
+# development branches run ahead of `main` and of the deployed service's docs.
+# AquaCache patch 65 ("patch_65 live", 2026-10-15) renamed the /timeseries
+# column `publicly_visible` to `default_show`; the commit was public a week
+# before the client broke. These are path-filtered commit feeds on the branches
+# that matched the live API on 2026-10-26 (YGwater `dev.WRB`, AquaCache
+# `dev.g`). The branch names change: a feed reported unreachable here means
+# check https://github.com/YukonWRB/YGwater/branches and
+# https://github.com/YukonWRB/AquaCache/branches and update the URL.
+[[feed]]
+id = "feed-yukon-ygwater-api-commits"
+url = "https://github.com/YukonWRB/YGwater/commits/dev.WRB/inst/plumber.atom"
+products = ["yukon-stations", "snow-station-archive"]
+
+[[feed]]
+id = "feed-yukon-aquacache-patch-commits"
+url = "https://github.com/YukonWRB/AquaCache/commits/dev.g/inst/patches.atom"
+products = ["yukon-stations", "snow-station-archive"]
+
 # ── Discovery ─────────────────────────────────────────────────────────────────
 # Everything above watches something the package already uses. These search for
 # what it does not use yet (scripts/watch.py, check_discover): each run lists a
