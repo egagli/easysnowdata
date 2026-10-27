@@ -145,6 +145,11 @@ _DEFAULT_BACKOFF = 5
 # The 16:00 UTC daily reading time used as the canonical daily value
 _DAILY_UTC_HOUR = "16:00"
 
+#: Rows per chunk when parsing a wide ASWS CSV (#22). The hourly archives
+#: are tens of MB with one column per station; parsing them whole as text
+#: and melting every station was OOM-killed on a small machine.
+_WIDE_CSV_CHUNK_ROWS = 20_000
+
 # Variables that can never be negative — for these, any negative reading
 # is a sensor/sentinel artefact and is nulled.  Air temperature is NOT in
 # this set: sub-zero readings are real data (DESIGN.md §3.6 requires
@@ -1647,7 +1652,12 @@ class DataBCClient:
         try:
             dfs.append(
                 self._load_asws_wide_csv(
-                    current_url, value_col=value_col, daily_only=daily_only
+                    current_url,
+                    value_col=value_col,
+                    daily_only=daily_only,
+                    location_ids=location_ids,
+                    begin_date=begin_date,
+                    end_date=end_date,
                 )
             )
         except DataBCError as exc:
@@ -1657,7 +1667,12 @@ class DataBCClient:
             try:
                 dfs.append(
                     self._load_asws_wide_csv(
-                        archive_url, value_col=value_col, daily_only=daily_only
+                        archive_url,
+                        value_col=value_col,
+                        daily_only=daily_only,
+                        location_ids=location_ids,
+                        begin_date=begin_date,
+                        end_date=end_date,
                     )
                 )
             except DataBCError as exc:
@@ -1684,12 +1699,20 @@ class DataBCClient:
         url: str,
         value_col: str = "swe_mm",
         daily_only: bool = True,
+        location_ids: list[str] | None = None,
+        begin_date: str | None = None,
+        end_date: str | None = None,
     ) -> pd.DataFrame:
         """
         Load a wide-format ASWS CSV and convert to long format.
 
         The CSV has one row per UTC timestamp and one column per station.
         Column headers are of the form ``"1A01P Yellowhead Lake"``.
+
+        Only the columns of *location_ids* are parsed, in chunks of
+        :data:`_WIDE_CSV_CHUNK_ROWS` rows, and each chunk is cut to the
+        date window before it is melted, so a few stations from the hourly
+        archive cost a few stations' memory (#22).
 
         Parameters
         ----------
@@ -1701,42 +1724,65 @@ class DataBCClient:
             If True, filter to the 16:00 UTC reading and return a ``date``
             column (``"YYYY-MM-DD"``).  If False, return all rows with a
             ``datetime`` column (``"YYYY-MM-DD HH:MM"`` UTC).
+        location_ids : list[str] or None
+            Stations to keep; ``None`` keeps every column.
+        begin_date, end_date : str or None
+            Inclusive ``"YYYY-MM-DD"`` bounds on the UTC date.
         """
-        resp = self._request(url)
-        df = pd.read_csv(io.StringIO(resp.text))
-
         time_col = "date" if daily_only else "datetime"
+        empty = pd.DataFrame(columns=[time_col, "location_id", value_col])
+        resp = self._request(url)
+        raw = io.BytesIO(resp.content)
 
-        if df.empty or len(df.columns) < 2:
-            return pd.DataFrame(columns=[time_col, "location_id", value_col])
+        header = list(pd.read_csv(raw, nrows=0).columns)
+        if len(header) < 2:
+            return empty
+        date_col = header[0]  # "DATE(UTC)"
+        wanted = None if location_ids is None else set(location_ids)
+        station_cols = [
+            c for c in header[1:] if wanted is None or c.split()[0].strip() in wanted
+        ]
+        if not station_cols:
+            return empty
 
-        date_col = df.columns[0]  # "DATE(UTC)"
+        raw.seek(0)
+        parts: list[pd.DataFrame] = []
+        for chunk in pd.read_csv(
+            raw,
+            usecols=[date_col, *station_cols],
+            dtype={date_col: str},
+            chunksize=_WIDE_CSV_CHUNK_ROWS,
+        ):
+            stamps = chunk[date_col].astype(str).str.strip()
+            keep = pd.Series(True, index=chunk.index)
+            if daily_only:
+                # Use only the 16:00 UTC reading as the canonical daily value
+                keep &= stamps.str.endswith(_DAILY_UTC_HOUR)
+            days = stamps.str[:10]
+            if begin_date:
+                keep &= days >= begin_date
+            if end_date:
+                keep &= days <= end_date
+            chunk = chunk[keep]
+            if chunk.empty:
+                continue
+            # "YYYY-MM-DD" for daily rows, "YYYY-MM-DD HH:MM" for hourly
+            chunk = chunk.assign(
+                **{time_col: days[keep] if daily_only else stamps[keep].str[:16]}
+            ).drop(columns=[date_col])
+            long_df = chunk.melt(
+                id_vars=[time_col], var_name="station_col", value_name=value_col
+            )
+            # Extract location ID from "1A01P Yellowhead Lake"
+            long_df["location_id"] = (
+                long_df["station_col"].str.split().str[0].str.strip()
+            )
+            long_df[value_col] = pd.to_numeric(long_df[value_col], errors="coerce")
+            parts.append(long_df[[time_col, "location_id", value_col]])
+        if not parts:
+            return empty
+        long_df = pd.concat(parts, ignore_index=True)
 
-        if daily_only:
-            # Use only the 16:00 UTC reading as the canonical daily value
-            mask = df[date_col].astype(str).str.strip().str.endswith(_DAILY_UTC_HOUR)
-            df = df[mask].copy()
-            if df.empty:
-                return pd.DataFrame(columns=[time_col, "location_id", value_col])
-            df[time_col] = df[date_col].astype(str).str[:10]
-        else:
-            # Return all hourly rows; keep "YYYY-MM-DD HH:MM" format
-            df[time_col] = df[date_col].astype(str).str.strip().str[:16]
-
-        df = df.drop(columns=[date_col])
-
-        # Melt to long format
-        long_df = df.melt(
-            id_vars=[time_col],
-            var_name="station_col",
-            value_name=value_col,
-        )
-
-        # Extract location ID from "1A01P Yellowhead Lake"
-        long_df["location_id"] = long_df["station_col"].str.split().str[0].str.strip()
-        long_df = long_df.drop(columns=["station_col"])
-
-        long_df[value_col] = pd.to_numeric(long_df[value_col], errors="coerce")
         # Null sentinel / physically impossible values, scoped per type
         if value_col in _NON_NEGATIVE_VARS:
             long_df.loc[long_df[value_col] < 0, value_col] = float("nan")
@@ -1744,8 +1790,7 @@ class DataBCClient:
             long_df.loc[long_df[value_col] < _MIN_PLAUSIBLE_TEMP_C, value_col] = float(
                 "nan"
             )
-
-        return long_df[[time_col, "location_id", value_col]]
+        return long_df
 
     def _load_mss_csv(self, url: str) -> pd.DataFrame:
         """Load a long-format MSS (manual snow survey) CSV."""

@@ -129,6 +129,46 @@ STATION_LISTS = {
 }
 
 
+def _st(station_id, name, lat, lon, **flags):
+    return {
+        "station_id": station_id,
+        "name": name,
+        "latitude": lat,
+        "longitude": lon,
+        "elevation_m": 1500.0,
+        "status": "Active",
+        **flags,
+    }
+
+
+STATION_LISTS.update(
+    {
+        "alberta": [
+            _st("05BB803", "Sunshine Village", 51.08, -115.78, has_pillow_swe=True),
+            _st("05BB810", "A survey course", 51.1, -115.7, has_survey=True),
+        ],
+        "hydroquebec": [
+            _st("1-10613", "Cooper Ouvert", 48.85, -71.3, has_swe=True),
+            _st("1-7714", "Barrage Robert-Bourassa", 53.8, -77.4),
+        ],
+        # One IMIS station and one GCOS series: SLF ids repeat across
+        # datasets, so each dataset lists its own
+        "slf": [
+            _st("WFJ2", "Weissfluhjoch", 46.83, 9.81, has_snwd=True, dataset="imis"),
+            _st("5WJ", "Weissfluhjoch", 46.83, 9.81, has_swe=True, dataset="gcos"),
+        ],
+        "snih": [
+            _st("12817", "Toscas", -33.2, -69.9, snow_codes=[73]),
+            _st("12201", "A course", -33.0, -69.8, snow_codes=[74]),
+        ],
+        "ceaza": [
+            _st("HDC", "Guandacol", -29.9, -69.9, has_snwd=True),
+            _st("CDC", "A weather station", -30.0, -70.0),
+        ],
+    }
+)
+
+
 class StubClient:
     """Stands in for one network client, recording what it was asked."""
 
@@ -143,6 +183,9 @@ class StubClient:
             {"method": "get_all_stations", "active_only": active_only, "bbox": bbox}
         )
         stations = list(STATION_LISTS[type(self).network])
+        dataset = self.init_kwargs.get("dataset")
+        if dataset is not None:
+            stations = [s for s in stations if s.get("dataset") == dataset]
         if active_only:
             stations = [s for s in stations if s.get("status") == "Active"]
         if bbox is not None:
@@ -236,7 +279,7 @@ def _last_call(stub: type[StubClient], method: str) -> dict:
 
 def test_inventory_queries_every_network_and_concatenates(stub_clients):
     inv = esd.stations.inventory(source="clients")
-    assert len(inv) == 10  # two per network
+    assert len(inv) == 2 * len(networks.NETWORKS)  # two per network
     assert set(inv["network"]) == set(networks.NETWORKS)
     assert inv.crs.to_epsg() == 4326
     assert inv.index.name == "code"
@@ -300,12 +343,33 @@ def test_advertised_daily_reads_each_networks_own_signal(stub_clients):
     assert bool(inv.loc["1.15.0", "daily"]) is False
     assert bool(inv.loc["09AA-M1", "daily"]) is True
     assert bool(inv.loc["08AA-SC01", "daily"]) is False
+    assert bool(inv.loc["ARB-05BB803", "daily"]) is True  # pillow
+    assert bool(inv.loc["ARB-05BB810", "daily"]) is False  # survey only
+    assert bool(inv.loc["1-10613", "daily"]) is True
+    assert bool(inv.loc["1-7714", "daily"]) is False  # no snow series
+    assert bool(inv.loc["SLF-IMIS-WFJ2", "daily"]) is True
+    assert bool(inv.loc["SLF-GCOS-5WJ", "daily"]) is False  # fortnightly
+    assert bool(inv.loc["SNIH-12817", "daily"]) is True  # pillow (73)
+    assert bool(inv.loc["SNIH-12201", "daily"]) is False  # course (74)
+    assert bool(inv.loc["CEAZA-HDC", "daily"]) is True
+    assert bool(inv.loc["CEAZA-CDC", "daily"]) is False
 
 
 def test_daily_only_keeps_the_advertised_stations_on_the_live_route(stub_clients):
     inv = esd.stations.inventory(daily_only=True, source="clients")
     assert set(inv["network"]) == set(networks.NETWORKS)
-    assert set(inv.index) == {PARADISE_CODE, "QUA", "1A01P", "12.142.0", "09AA-M1"}
+    assert set(inv.index) == {
+        PARADISE_CODE,
+        "QUA",
+        "1A01P",
+        "12.142.0",
+        "09AA-M1",
+        "ARB-05BB803",
+        "1-10613",
+        "SLF-IMIS-WFJ2",
+        "SNIH-12817",
+        "CEAZA-HDC",
+    }
 
 
 def test_daily_only_drops_the_unknowns_on_the_live_route(stub_clients, monkeypatch):
@@ -316,7 +380,7 @@ def test_daily_only_drops_the_unknowns_on_the_live_route(stub_clients, monkeypat
 
     monkeypatch.setattr(stub_clients["awdb"], "get_metadata", boom)
     inv = esd.stations.inventory(daily_only=True, source="clients")
-    assert set(inv["network"]) == {"cdec", "databc", "nve", "yukon"}
+    assert set(inv["network"]) == set(networks.NETWORKS) - {"awdb"}
 
 
 def test_unknown_network_names_the_five(stub_clients):
@@ -340,6 +404,56 @@ def test_load_sends_each_station_to_its_own_network(stub_clients):
     assert sorted(ds["station"].values.tolist()) == sorted(
         [PARADISE_CODE, "12.142.0", "09AA-M1"]
     )
+
+
+def test_load_reaches_the_networks_added_in_october_2026(stub_clients, monkeypatch):
+    monkeypatch.setenv("CEAZA_USER", "registered-name")
+    ds = esd.stations.load(
+        [
+            "ARB-05BB803",
+            "1-10613",
+            "SLF-IMIS-WFJ2",
+            "SLF-SP-5WJ0",
+            "SNIH-12817",
+            "CEAZA-HDC",
+        ],
+        variables="swe",
+        time="2024-03-01/2024-03-03",
+    )
+    # Each client gets its own ids, without the archive's prefixes
+    assert stub_clients["alberta"].calls[-1]["station_ids"] == ["05BB803"]
+    assert stub_clients["hydroquebec"].calls[-1]["station_ids"] == ["1-10613"]
+    assert stub_clients["snih"].calls[-1]["station_ids"] == ["12817"]
+    assert stub_clients["ceaza"].calls[-1]["station_ids"] == ["HDC"]
+    # SLF: one call per dataset
+    slf = [
+        c["station_ids"] for c in stub_clients["slf"].calls if c["method"] == "get_data"
+    ]
+    assert sorted(slf) == [["5WJ0"], ["WFJ2"]]
+    assert sorted(ds["station"].values.tolist()) == sorted(
+        [
+            "ARB-05BB803",
+            "1-10613",
+            "SLF-IMIS-WFJ2",
+            "SLF-SP-5WJ0",
+            "SNIH-12817",
+            "CEAZA-HDC",
+        ]
+    )
+    # Every station came back with data under its own code
+    assert int(ds["swe"].notnull().sum()) == 6 * 3
+
+
+def test_ceaza_gets_the_registered_user_name(stub_clients, monkeypatch):
+    monkeypatch.setenv("CEAZA_USER", "registered-name")
+    assert _adapter._client("ceaza").init_kwargs["user"] == "registered-name"
+    monkeypatch.delenv("CEAZA_USER")
+    assert _adapter._client("ceaza").init_kwargs["user"] is None
+
+
+def test_an_slf_code_must_name_its_dataset():
+    with pytest.raises(ValueError, match="SLF-IMIS-<id>"):
+        networks.slf_split("SLF-WFJ2")
 
 
 def test_load_passes_the_window_variables_and_interval_to_the_client(stub_clients):

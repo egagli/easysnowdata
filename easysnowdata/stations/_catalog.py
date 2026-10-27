@@ -1,6 +1,6 @@
-"""Catalog entries for the five snow-station networks (§3.3).
+"""Catalog entries for the snow-station networks (§3.3).
 
-One product per network, not one product with five sources: the networks are
+One product per network, not one product with one source per network: the networks are
 different geographies, not alternative routes to the same data, so
 ``source=`` would be the wrong knob. The same shape ``easysnowdata.hydro.basins``
 uses for its four basin datasets.
@@ -317,12 +317,234 @@ YUKON_PRODUCT = Product(
     tags=("swe", "snow depth", "stations", "yukon", "snow course"),
 )
 
+ALBERTA_PRODUCT = Product(
+    id="alberta-stations",
+    theme="stations",
+    title="Alberta River Basins snow pillows and snow courses (AEPA)",
+    description=(
+        "Daily and sub-hourly SWE and snow depth from Alberta Environment and "
+        "Protected Areas' snow pillows on the Rocky Mountain eastern slopes, "
+        "plus monthly snow surveys, read through the Alberta River Basins "
+        "site. Station codes are ARB-<station number> (ARB-05BB803); the "
+        "BC Snow Survey and SNOTEL pillows the site mirrors are better read "
+        "from their own networks."
+    ),
+    sources=(
+        Source(
+            id="alberta",
+            provider="stations",
+            location=networks.NETWORKS["alberta"].api_url,
+            extent="Alberta",
+            temporal="1984/present (pillows)",
+            latency="hours",
+            notes=(
+                "the endpoints the site's own pages call; no documented API "
+                "and no account. A failed download raises unless "
+                "allow_partial=True"
+            ),
+            title="Alberta River Basins (rivers.alberta.ca)",
+            health=_health_probe(
+                "Alberta River Basins site", networks.NETWORKS["alberta"].api_url
+            ),
+        ),
+    ),
+    variables=variables_for("alberta"),
+    citation=(
+        "Alberta Environment and Protected Areas. Alberta River Basins, "
+        "https://rivers.alberta.ca/."
+    ),
+    license="No licence stated (site disclaimer only)",
+    loader=_LOADER,
+    examples=("station_datasets/plot_alberta.py",),
+    references=("https://rivers.alberta.ca/",),
+    tags=("swe", "snow depth", "stations", "alberta", "snow pillow"),
+)
+
+HYDROQUEBEC_PRODUCT = Product(
+    id="hydroquebec-stations",
+    theme="stations",
+    title="Hydro-Québec GMON SWE and snow depth (rolling 10-day feed)",
+    description=(
+        "Hourly SWE from GMON passive-gamma sensors and snow depth across "
+        "Hydro-Québec's watersheds. The open feed keeps only about ten days; "
+        "longer records are in global_snow_networks' archive "
+        "(stations.archive.load) and, before October 2026, in CanSWE. "
+        "Station codes are Hydro-Québec identifiants (1-10613). Licensed "
+        "CC BY-NC 4.0: no commercial use."
+    ),
+    sources=(
+        Source(
+            id="hydroquebec",
+            provider="stations",
+            location=networks.NETWORKS["hydroquebec"].api_url,
+            extent="Québec",
+            temporal="rolling ~10 days",
+            latency="hours",
+            notes="Opendatasoft API, dataset donnees-hydrometeorologiques; no account",
+            title="Hydro-Québec open data (Opendatasoft)",
+            health=_health_probe(
+                "Hydro-Québec open data (Opendatasoft)",
+                f"{networks.NETWORKS['hydroquebec'].api_url}/catalog/datasets/"
+                "donnees-hydrometeorologiques",
+            ),
+        ),
+    ),
+    variables=variables_for("hydroquebec"),
+    citation=(
+        "Hydro-Québec. Données hydrométéorologiques, "
+        "https://donnees.hydroquebec.com/explore/dataset/"
+        "donnees-hydrometeorologiques/ (CC BY-NC 4.0)."
+    ),
+    license="CC BY-NC 4.0 (attribution, no commercial use)",
+    loader=_LOADER,
+    examples=("station_datasets/plot_hydroquebec.py",),
+    references=(
+        "https://donnees.hydroquebec.com/explore/dataset/donnees-hydrometeorologiques/",
+        "https://creativecommons.org/licenses/by-nc/4.0/",
+    ),
+    tags=("swe", "snow depth", "stations", "quebec", "gmon"),
+)
+
+SLF_PRODUCT = Product(
+    id="slf-stations",
+    theme="stations",
+    title="SLF IMIS stations, study plots and GCOS SWE (Switzerland)",
+    description=(
+        "Snow depth and new snow from the WSL Institute for Snow and Avalanche "
+        "Research SLF: the automatic IMIS stations and the manual study "
+        "plots, plus the fortnightly GCOS SWE series. Station codes name the "
+        "dataset, because SLF reuses ids across them: SLF-IMIS-WFJ2, "
+        "SLF-SP-5WJ0, SLF-GCOS-5WJ."
+    ),
+    sources=(
+        Source(
+            id="slf",
+            provider="stations",
+            location=networks.NETWORKS["slf"].api_url,
+            extent="Swiss Alps",
+            temporal="study plots from the 1930s-1990s; IMIS from the late 1990s",
+            latency="a day",
+            notes=(
+                "the SLF file service and EnviDat; no account. Cite SLF "
+                "(CC BY 4.0; GCOS is ODbL)"
+            ),
+            title="SLF measurement data / EnviDat",
+            health=_health_probe(
+                "SLF measurement data", f"{networks.NETWORKS['slf'].api_url}/imis/"
+            ),
+        ),
+    ),
+    variables=variables_for("slf"),
+    citation=(
+        "WSL Institute for Snow and Avalanche Research SLF. IMIS and manual "
+        "study-plot measurements, https://measurement-data.slf.ch/; GCOS SWE "
+        "data, EnviDat doi:10.16904/15."
+    ),
+    license="CC BY 4.0 (IMIS, study plots); ODbL-1.0 (GCOS)",
+    loader=_LOADER,
+    examples=("station_datasets/plot_slf.py",),
+    references=(
+        "https://measurement-data.slf.ch/",
+        "https://www.slf.ch/en/services-and-products/slf-data-service/",
+    ),
+    tags=("swe", "snow depth", "stations", "switzerland", "imis"),
+)
+
+SNIH_PRODUCT = Product(
+    id="snih-stations",
+    theme="stations",
+    title="SNIH snow pillows and snow courses (Argentina)",
+    description=(
+        "Snow-pillow SWE (validated daily to 2023-24, raw telemetry since) "
+        "and snow-course SWE, depth and density from Argentina's Sistema "
+        "Nacional de Información Hídrica. Station codes are SNIH-<code> "
+        "(SNIH-12817)."
+    ),
+    sources=(
+        Source(
+            id="snih",
+            provider="stations",
+            location=networks.NETWORKS["snih"].api_url,
+            extent="Argentine Andes",
+            temporal="1951/present (courses), 1989/present (pillows)",
+            latency="hours (raw telemetry)",
+            notes=(
+                "the portal's own JSON page methods; no account. Cite SIPH "
+                "and/or the network and the date of the last update"
+            ),
+            title="SNIH portal",
+            health=_health_probe("SNIH portal", networks.NETWORKS["snih"].api_url),
+        ),
+    ),
+    variables=variables_for("snih"),
+    citation=(
+        "Subsecretaría de Recursos Hídricos, Argentina. Sistema Nacional de "
+        "Información Hídrica, https://snih.hidricosargentina.gob.ar/."
+    ),
+    license="SNIH terms: free use with citation of SIPH and the update date",
+    loader=_LOADER,
+    examples=("station_datasets/plot_snih.py",),
+    references=(
+        "https://snih.hidricosargentina.gob.ar/",
+        "https://snih.hidricosargentina.gob.ar/Terminos.aspx",
+    ),
+    tags=("swe", "snow depth", "stations", "argentina", "andes"),
+)
+
+CEAZA_PRODUCT = Product(
+    id="ceaza-stations",
+    theme="stations",
+    title="CEAZA-Met snow stations (Chile)",
+    description=(
+        "Snow depth and, at a few sites, SWE from the CEAZA-Met network in "
+        "the arid Andes of Atacama and Coquimbo. Station codes are "
+        "CEAZA-<code> (CEAZA-HDC). CEAZA asks users to register a user name "
+        "by e-mail; set it in CEAZA_USER."
+    ),
+    sources=(
+        Source(
+            id="ceaza",
+            provider="stations",
+            location=networks.NETWORKS["ceaza"].api_url,
+            extent="Atacama and Coquimbo, Chile",
+            temporal="~2011/present (snow)",
+            latency="hours",
+            notes=(
+                "the CEAZA-Met web service; a registered user name is asked "
+                "for (CEAZA_USER) and the data credited to CEAZA"
+            ),
+            title="CEAZA-Met web service",
+            health=_health_probe(
+                "CEAZA-Met web service", "https://www.ceazamet.cl/ws/pop_ws_doc.php"
+            ),
+        ),
+    ),
+    variables=variables_for("ceaza"),
+    citation=(
+        "Datos provistos por el laboratorio de meteorología CEAZA, "
+        "https://www.ceazamet.cl/."
+    ),
+    license="No licence stated; register a user name and credit CEAZA",
+    loader=_LOADER,
+    examples=("station_datasets/plot_ceaza.py",),
+    references=(
+        "https://www.ceazamet.cl/",
+        "https://www.ceazamet.cl/ws/pop_ws_doc.php",
+    ),
+    tags=("swe", "snow depth", "stations", "chile", "andes"),
+)
+
 PRODUCTS: tuple[Product, ...] = (
     AWDB_PRODUCT,
     CDEC_PRODUCT,
     DATABC_PRODUCT,
     NVE_PRODUCT,
     YUKON_PRODUCT,
+    ALBERTA_PRODUCT,
+    HYDROQUEBEC_PRODUCT,
+    SLF_PRODUCT,
+    SNIH_PRODUCT,
+    CEAZA_PRODUCT,
 )
 
 catalog.register(*PRODUCTS, replace=True)

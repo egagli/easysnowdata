@@ -75,7 +75,12 @@ class TestGalleryLinks:
             "gallery scripts no catalog entry claims: "
             f"{sorted(on_disk - claimed)}. Add them to a product's examples=."
         )
-        assert claimed <= on_disk
+        # A product may also claim a station_datasets script: the networks
+        # stations.load reaches since October 2026 are drawn there.
+        everywhere = {
+            path.relative_to(GALLERY).as_posix() for path in GALLERY.rglob("plot_*.py")
+        }
+        assert claimed <= everywhere, sorted(claimed - everywhere)
 
 
 class TestCredentialMarkers:

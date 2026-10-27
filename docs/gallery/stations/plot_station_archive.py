@@ -3,7 +3,7 @@ Daily snow-station archive (global_snow_networks)
 =================================================
 
 ``global_snow_networks`` pre-downloads daily SWE and snow depth for every
-station across the five networks whose daily record its probe has verified,
+station across its networks whose daily record its probe has verified,
 and publishes three things: a normalized inventory of every station, periodic
 snow courses included; the observations as a chunked Zarr store on its GitHub
 Pages site; and one CSV per daily station bundled into a single archive of

@@ -51,6 +51,11 @@ def test_only_nve_needs_a_credential():
         "databc": (),
         "nve": ("nve",),
         "yukon": (),
+        "alberta": (),
+        "hydroquebec": (),
+        "slf": (),
+        "snih": (),
+        "ceaza": (),
     }
     assert networks.get("nve").requires == ("nve",)
 

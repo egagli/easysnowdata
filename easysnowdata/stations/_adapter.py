@@ -15,6 +15,8 @@ The ``networks`` module is imported under an alias throughout, because
 from __future__ import annotations
 
 import logging
+import os
+from collections.abc import Callable
 from typing import Any
 
 import geopandas as gpd
@@ -40,7 +42,15 @@ PRODUCT_IDS = {
     "databc": "databc-stations",
     "nve": "nve-stations",
     "yukon": "yukon-stations",
+    "alberta": "alberta-stations",
+    "hydroquebec": "hydroquebec-stations",
+    "slf": "slf-stations",
+    "snih": "snih-stations",
+    "ceaza": "ceaza-stations",
 }
+
+#: SLF datasets ``inventory(source="clients")`` lists, in this order.
+_SLF_DATASETS = ("imis", "study_plot", "gcos")
 
 _DEFAULT_VARIABLES = ("swe", "snwd")
 
@@ -63,12 +73,45 @@ def _bbox(aoi: Any) -> tuple[float, float, float, float] | None:
     return tuple(float(v) for v in parsed.bounds)  # type: ignore[return-value]
 
 
-def _client(network: str) -> Any:
-    """An initialised client for *network*, credentials ensured first (§5.2)."""
+def _client(network: str, **kwargs: Any) -> Any:
+    """An initialised client for *network*, credentials ensured first (§5.2).
+
+    CEAZA asks users to register a user name, which its client takes as
+    ``user=``; it is read from ``CEAZA_USER``, as global_snow_networks does,
+    and the client works without one. SLF builds one client per dataset
+    (``dataset=``).
+    """
     net = _nets.get(network)
     product = catalog.get(PRODUCT_IDS[network])
     ensure_source(product, resolve_source(product, net.id))
-    return net.client_class()()
+    if network == "ceaza":
+        kwargs.setdefault("user", os.environ.get("CEAZA_USER") or None)
+    return net.client_class()(**kwargs)
+
+
+def _slf_qualify(dataset: str, station_id: str) -> str:
+    """SLF's own id → the dataset-qualified id the codes use (``IMIS-WFJ2``)."""
+    return f"{_nets.SLF_DATASET_CODES[dataset]}-{station_id}"
+
+
+def _requests(
+    network: str, ids: list[str]
+) -> list[tuple[dict[str, Any], list[str], Callable[[str], str]]]:
+    """``(client kwargs, ids the client takes, id → station_id)`` per call.
+
+    One call per network, except SLF: its ids repeat across datasets, so
+    ``station_id`` carries the dataset and each dataset is its own client.
+    """
+    if network != "slf":
+        return [({}, list(ids), str)]
+    by_dataset: dict[str, list[str]] = {}
+    for station_id in ids:
+        dataset, raw = _nets.slf_split(station_id)
+        by_dataset.setdefault(dataset, []).append(raw)
+    return [
+        ({"dataset": dataset}, raws, lambda sid, d=dataset: _slf_qualify(d, sid))
+        for dataset, raws in by_dataset.items()
+    ]
 
 
 def _archive_lookup(codes: list[str]) -> dict[str, str]:
@@ -167,7 +210,8 @@ def inventory(
         every station in the chosen networks.
     networks
         Which networks to list — any of ``"awdb"``, ``"cdec"``, ``"databc"``,
-        ``"nve"``, ``"yukon"``. ``None`` (default) means all five.
+        ``"nve"``, ``"yukon"``, ``"alberta"``, ``"hydroquebec"``, ``"slf"``,
+        ``"snih"``, ``"ceaza"``. ``None`` (default) means all of them.
     daily_only
         Keep only stations with a daily-or-better SWE or snow-depth record.
         On ``source="archive"`` this is the **probe-verified** verdict
@@ -183,8 +227,9 @@ def inventory(
         ``"archive"`` (default) reads the daily-refreshed inventory
         ``global_snow_networks`` publishes: one HTTP request, normalized
         columns and probe-verified daily flags, at most a day old.
-        ``"clients"`` asks the five APIs for today's station list instead —
-        five sweeps, slower, and NVE needs its key.
+        ``"clients"`` asks each network's API for today's station list
+        instead — one sweep per network (three for SLF's datasets), slower,
+        and NVE needs its key.
     **kwargs
         On the archive route, passed to ``geopandas.read_file`` (``rows=``,
         ``columns=``, …).
@@ -220,9 +265,22 @@ def inventory(
     bbox = _bbox(aoi)
     frames = []
     for network in wanted:
-        client = _client(network)
-        with auth.env(*_nets.get(network).requires):
-            stations = client.get_all_stations(active_only=active_only, bbox=bbox)
+        stations: list[dict] = []
+        for kwargs in (
+            [{"dataset": d} for d in _SLF_DATASETS] if network == "slf" else [{}]
+        ):
+            client = _client(network, **kwargs)
+            with auth.env(*_nets.get(network).requires):
+                listed = client.get_all_stations(active_only=active_only, bbox=bbox)
+            if network == "slf":
+                listed = [
+                    {
+                        **st,
+                        "station_id": _slf_qualify(kwargs["dataset"], st["station_id"]),
+                    }
+                    for st in listed
+                ]
+            stations.extend(listed)
         _logger.info("%s: %d stations", network, len(stations))
         network_gdf = _frames.stations_to_geodataframe(stations, network)
         with auth.env(*_nets.get(network).requires):
@@ -290,7 +348,7 @@ def _advertised_daily(
     """What each network's station list *says* about daily SWE / snow depth.
 
     Advertised, never verified — DESIGN.md §4 is explicit that capability
-    flags are hints. Four networks answer from their station list alone. AWDB
+    flags are hints. Every network but AWDB answers from its station list. AWDB
     does not carry elements there, so given a *client* the flag comes from
     one batched element-inventory call (:func:`_awdb_daily_triplets`);
     without one, or when that call fails, it is ``None``.
@@ -320,6 +378,24 @@ def _advertised_daily(
             )
         elif network == "databc":
             out.append(str(station.get("station_type", "")).upper() == "ASWS")
+        elif network == "alberta":
+            # Pillows and automated depth; manual surveys are monthly
+            out.append(
+                bool(station.get("has_pillow_swe"))
+                or "SD" in (station.get("parameters") or ())
+            )
+        elif network in ("hydroquebec", "ceaza"):
+            # Hourly feeds: any snow series is daily once aggregated
+            out.append(bool(station.get("has_swe") or station.get("has_snwd")))
+        elif network == "slf":
+            # IMIS and study plots are daily; GCOS SWE is fortnightly
+            out.append(
+                not str(station.get("station_id", "")).startswith("GCOS-")
+                and bool(station.get("has_swe") or station.get("has_snwd"))
+            )
+        elif network == "snih":
+            # Code 73 is a snow pillow; the courses (74) are periodic
+            out.append(73 in (station.get("snow_codes") or ()))
         else:
             out.append(None)
     return out
@@ -334,19 +410,21 @@ def metadata(stations: Any, *, networks: Any = None) -> dict[str, Any]:
     grouped = _split(stations, networks)
     out: dict[str, Any] = {}
     for net, ids in grouped.items():
-        client = _client(net)
-        with auth.env(*_nets.get(net).requires):
-            for station_id in ids:
-                out[_nets.to_code(station_id, net)] = _one_metadata(
-                    client.get_metadata(station_id), net, station_id
-                )
+        for kwargs, native_ids, qualify in _requests(net, ids):
+            client = _client(net, **kwargs)
+            with auth.env(*_nets.get(net).requires):
+                for native_id in native_ids:
+                    station_id = qualify(native_id)
+                    out[_nets.to_code(station_id, net)] = _one_metadata(
+                        client.get_metadata(native_id), net, station_id
+                    )
     return out
 
 
 def _one_metadata(value: Any, network: str, station_id: str) -> Any:
     """One station's metadata as a dict, whatever shape the client used.
 
-    DESIGN.md §3.4 says ``get_metadata(station_id) -> dict`` and all five
+    DESIGN.md §3.4 says ``get_metadata(station_id) -> dict`` and all the
     clients now do that — AWDB used to return a one-element list and was fixed
     upstream. This stays as a cheap guard so a client that regresses, or a
     future one that batches, cannot leak two shapes to callers.
@@ -482,7 +560,6 @@ def load(
     products: list[Any] = []
     sources: list[Any] = []
     for network, ids in grouped.items():
-        client = _client(network)
         product = catalog.get(PRODUCT_IDS[network])
         products.append(product)
         sources.append(resolve_source(product, network))
@@ -494,14 +571,20 @@ def load(
             begin or "start of record",
             end or "today",
         )
-        with auth.env(*_nets.get(network).requires):
-            records[network] = client.get_data(
-                station_ids=ids,
-                variables=list(wanted),
-                begin_date=begin,
-                end_date=end,
-                interval=interval,
-                include_flags=include_flags,
+        records[network] = []
+        for kwargs, native_ids, qualify in _requests(network, ids):
+            client = _client(network, **kwargs)
+            with auth.env(*_nets.get(network).requires):
+                got = client.get_data(
+                    station_ids=native_ids,
+                    variables=list(wanted),
+                    begin_date=begin,
+                    end_date=end,
+                    interval=interval,
+                    include_flags=include_flags,
+                )
+            records[network].extend(
+                {**r, "station_id": qualify(str(r.get("station_id")))} for r in got
             )
 
     codes = [

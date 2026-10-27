@@ -9,8 +9,8 @@ its climate and hydrometric sites, all served through HydAPI. Parameter 2003
 is SWE and 2002 is snow depth; ``daily_only`` keeps the stations that carry
 either at daily resolution.
 
-There is one route, ``source="nve"``, HydAPI v1, and it is the one network of
-the five that needs a credential: a free API key in ``NVE_API_KEY`` (request
+There is one route, ``source="nve"``, HydAPI v1, and it is the one station
+network that needs a credential: a free API key in ``NVE_API_KEY`` (request
 one at https://hydapi.nve.no/). The key is read through the ``nve`` auth
 provider, so a missing one raises ``CredentialError`` with the setup steps
 before any request is made. The station inventory does not need it, because
