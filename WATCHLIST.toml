@@ -45,9 +45,17 @@ products = ["modis-snow"]
 # here is load-bearing.
 
 [[cmr]]
+id = "cmr-vj110a1f"
+short_name = "VJ110A1F"
+products = ["viirs-snow"]
+# NOAA-20, the default since Suomi-NPP deliveries were expected to stop on
+# 2026-11-02.
+
+[[cmr]]
 id = "cmr-vnp10a1f"
 short_name = "VNP10A1F"
 products = ["viirs-snow"]
+# Suomi-NPP: the 2012–2018 record that VJ110A1F does not cover.
 
 [[cmr]]
 id = "cmr-wus-ucla-sr"
