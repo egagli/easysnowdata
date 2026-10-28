@@ -1,0 +1,1274 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../../" data-theme="auto">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>easysnowdata.stations.clients.syke.syke_client &#8212; easysnowdata</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "auto";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "auto";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=b94a366f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../../../_static/documentation_options.js?v=56133b4f"></script>
+    <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/easysnowdata/stations/clients/syke/syke_client';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.5.dev15" />
+  
+    
+    <script src="../../../../../_static/searchtools.js"></script>
+    <script src="../../../../../_static/language_data.js"></script>
+    <script src="../../../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="auto">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">easysnowdata</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../catalog/index.html">
+    Dataset catalog and status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../development.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../auto_examples/index.html">
+    Example gallery
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../catalog/index.html">
+    Dataset catalog and status
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../faq.html">
+    FAQ
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../../development.html">
+    Development
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/egagli/easysnowdata" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/easysnowdata/" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">easysnowdata.stations.clients.syke.syke_client</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for easysnowdata.stations.clients.syke.syke_client</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">clients/syke/syke_client.py</span>
+<span class="sd">===========================</span>
+<span class="sd">Python client for the Finnish Environment Institute (Syke) hydrology OData</span>
+<span class="sd">API (&quot;Hydrologiarajapinta&quot;).</span>
+
+<span class="sd">Primary use case: Finnish snow-course snow water equivalent (quantity ``S``,</span>
+<span class="sd">&quot;Lumilinjamittaus&quot; / &quot;Snow course measurement&quot;) — manual snow-tube surveys</span>
+<span class="sd">along a fixed course, normally once a month from November to May.  The same</span>
+<span class="sd">API also serves Syke&#39;s areal snow water equivalent (quantity ``SA``,</span>
+<span class="sd">&quot;Lumen aluevesiarvo&quot;), a catchment-average SWE produced on the 1st and 16th</span>
+<span class="sd">of each month; it is not a point measurement, so it is exposed separately</span>
+<span class="sd">through :meth:`SYKEClient.get_areal_units` / :meth:`SYKEClient.get_areal_swe`.</span>
+
+<span class="sd">Data source       : https://rajapinnat.ymparisto.fi/api/Hydrologiarajapinta/1.1/odata/</span>
+<span class="sd">Schema            : ``$metadata`` of the same root (OData v3, WCF Data</span>
+<span class="sd">                    Services; JSON via ``Accept: application/json``)</span>
+<span class="sd">Authentication    : none</span>
+<span class="sd">Licence           : Syke open data, Creative Commons Attribution 4.0 (CC BY</span>
+<span class="sd">                    4.0) — https://www.syke.fi/en/environmental-data/use-license-and-responsibilities</span>
+<span class="sd">                    and the avoindata.fi &quot;Hydrologiarajapinta&quot; listing.</span>
+<span class="sd">                    Attribute &quot;Finnish Environment Institute (Syke)&quot;.</span>
+
+<span class="sd">Tables used</span>
+<span class="sd">-----------</span>
+<span class="sd">- ``Paikka``    — sites.  ``Suure_Id`` 8 = snow course, 7 = areal SWE unit.</span>
+<span class="sd">  Coordinates come in three systems: ``KoordErTmPohj``/``KoordErTmIta``</span>
+<span class="sd">  (ETRS-TM35FIN, EPSG:3067, used here), ``KoordYk*`` (KKJ uniform</span>
+<span class="sd">  coordinate system, EPSG:2393) and ``KoordLat``/``KoordLong`` as</span>
+<span class="sd">  ``DDMMSS`` text on the KKJ datum (~175 m from WGS84 — do not read it as</span>
+<span class="sd">  WGS84).</span>
+<span class="sd">  There is **no elevation** column, so ``elevation_m`` is always ``None``.</span>
+<span class="sd">  ``Tila_Id`` is the site state (see :data:`SITE_STATES`).</span>
+<span class="sd">- ``LumiPiste`` — snow-course values: ``Paikka_Id, Aika, Arvo (mm), Lippu_Id``.</span>
+<span class="sd">  One value per survey: SWE only.  Snow depth and density are *not*</span>
+<span class="sd">  published by this API.</span>
+<span class="sd">- ``LumiAlue``  — areal SWE values: ``Paikka_Id, Aika, Arvo (mm)``.</span>
+
+<span class="sd">Paging</span>
+<span class="sd">------</span>
+<span class="sd">The server returns at most 500 rows per response and appends</span>
+<span class="sd">``odata.nextLink`` (``…&amp;$skip=500``) when more remain; the client follows</span>
+<span class="sd">it until exhausted.  ``$count`` is not supported (``$inlinecount=allpages``</span>
+<span class="sd">is, and gives ``odata.count``).  OData v3 has no ``in`` operator, so</span>
+<span class="sd">station ids are sent as ``or`` chains in chunks of 15 — the server rejects</span>
+<span class="sd">filters over 100 parse nodes with HTTP 400.</span>
+
+<span class="sd">Design principles</span>
+<span class="sd">-----------------</span>
+<span class="sd">- Metric-first: SWE is published in mm and returned in cm (× 0.1).</span>
+<span class="sd">- ``station_id`` is the API&#39;s ``Paikka_Id`` (as a string); the official</span>
+<span class="sd">  site number is ``site_number`` (``Nro``).</span>
+<span class="sd">- ``status`` is derived from ``Tila``: &quot;Jatkuva&quot; (continuous) and</span>
+<span class="sd">  &quot;Määräaikainen&quot; (fixed-term) are Active; &quot;Lopetettu&quot; (discontinued),</span>
+<span class="sd">  &quot;Satunnainen&quot; (occasional) and &quot;Ei poiminnassa&quot; are Inactive.</span>
+<span class="sd">- Values whose ``Lippu`` marks a model calculation (``Lumimallilaskenta``)</span>
+<span class="sd">  rather than a measurement are nulled unless ``keep_modelled=True``.  None</span>
+<span class="sd">  were present in October 2026 (every row was flag 96, &quot;Mittaus&quot;).</span>
+<span class="sd">- SWE outside 0–15 m is nulled.</span>
+<span class="sd">- Snow courses support only ``interval=&quot;periodic&quot;``; the areal product</span>
+<span class="sd">  only ``&quot;semi_monthly&quot;``.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">chunk</span> <span class="k">as</span> <span class="n">_chunk</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">coerce_list</span> <span class="k">as</span> <span class="n">_coerce_list</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">date_str</span> <span class="k">as</span> <span class="n">_date_str</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">filter_by_bbox</span> <span class="k">as</span> <span class="n">_filter_by_bbox</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">request_with_retries</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">to_float</span> <span class="k">as</span> <span class="n">_to_float</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># ── Constants ────────────────────────────────────────────────────────────────</span>
+
+<span class="n">BASE_URL</span> <span class="o">=</span> <span class="s2">&quot;https://rajapinnat.ymparisto.fi/api/Hydrologiarajapinta/1.1/odata&quot;</span>
+
+<span class="n">_DEFAULT_TIMEOUT</span> <span class="o">=</span> <span class="mi">60</span>
+<span class="n">_DEFAULT_RETRIES</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">_DEFAULT_BACKOFF</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="c1">#: ``Suure_Id`` of the quantities this client serves.</span>
+<span class="n">SUURE_SNOW_COURSE</span> <span class="o">=</span> <span class="mi">8</span>  <span class="c1"># &quot;S&quot;  — LumiPiste</span>
+<span class="n">SUURE_AREAL_SWE</span> <span class="o">=</span> <span class="mi">7</span>  <span class="c1"># &quot;SA&quot; — LumiAlue</span>
+
+<span class="c1">#: Ids per ``or``-chain filter.  The server enforces an OData node-count</span>
+<span class="c1">#: limit of 100 (&quot;The node count limit of &#39;100&#39; has been exceeded&quot;): 18 ids</span>
+<span class="c1">#: plus two date bounds pass, 19 fail.  15 leaves headroom.</span>
+<span class="n">_ID_CHUNK</span> <span class="o">=</span> <span class="mi">15</span>
+
+<span class="c1">#: Plausibility bound for SWE, cm (DESIGN.md: 0–15 m).</span>
+<span class="n">_MAX_SWE_CM</span> <span class="o">=</span> <span class="mf">1500.0</span>
+
+<span class="n">_SOURCE</span> <span class="o">=</span> <span class="s2">&quot;Finnish Environment Institute (Syke) Hydrologiarajapinta — &quot;</span> <span class="o">+</span> <span class="n">BASE_URL</span>
+
+<span class="c1">#: Native ``Tila`` (site state) table, ``Tila_Id`` → (Finnish name, English).</span>
+<span class="n">SITE_STATES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;Jatkuva&quot;</span><span class="p">,</span> <span class="s2">&quot;continuous&quot;</span><span class="p">),</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;Lopetettu&quot;</span><span class="p">,</span> <span class="s2">&quot;discontinued&quot;</span><span class="p">),</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;Satunnainen&quot;</span><span class="p">,</span> <span class="s2">&quot;occasional&quot;</span><span class="p">),</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;Ei poiminnassa&quot;</span><span class="p">,</span> <span class="s2">&quot;not collected&quot;</span><span class="p">),</span>
+    <span class="mi">5</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;Määräaikainen&quot;</span><span class="p">,</span> <span class="s2">&quot;fixed-term&quot;</span><span class="p">),</span>
+<span class="p">}</span>
+<span class="n">_ACTIVE_STATES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">})</span>
+
+<span class="c1">#: ``Laitteisto`` (equipment) entries seen on snow-course sites.</span>
+<span class="n">EQUIPMENT</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">12</span><span class="p">:</span> <span class="s2">&quot;Mittauksista laskettu (computed from measurements)&quot;</span><span class="p">,</span>
+    <span class="mi">14</span><span class="p">:</span> <span class="s2">&quot;Lumipuntari (snow-tube scale)&quot;</span><span class="p">,</span>
+    <span class="mi">16</span><span class="p">:</span> <span class="s2">&quot;Lumipuntari, pienet alueet (snow-tube scale, small catchments)&quot;</span><span class="p">,</span>
+    <span class="mi">17</span><span class="p">:</span> <span class="s2">&quot;Lumipuntari, Värriö (snow-tube scale, Värriö)&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># ── Public variable / flag tables ────────────────────────────────────────────</span>
+
+<span class="c1">#: Point variables served by :meth:`SYKEClient.get_data`, keyed by the</span>
+<span class="c1">#: native Syke quantity code (``Suure.Suurekoodi``).</span>
+<span class="n">VARIABLES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Snow Water Equivalent (snow course)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;swe&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SOURCE</span> <span class="o">+</span> <span class="s2">&quot;/LumiPiste&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Snow water equivalent from a manual snow-course survey &quot;</span>
+            <span class="s2">&quot;(Lumilinjamittaus), table LumiPiste.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Published in mm; returned in cm (× 0.1). Typically monthly, &quot;</span>
+            <span class="s2">&quot;mid-month, November–May. Snow depth and density are not &quot;</span>
+            <span class="s2">&quot;published by the API.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1">#: Areal product served by :meth:`SYKEClient.get_areal_swe` (not a point).</span>
+<span class="n">AREAL_VARIABLES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;SA&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Areal Snow Water Equivalent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;swe&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;mm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;output_units&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">_SOURCE</span> <span class="o">+</span> <span class="s2">&quot;/LumiAlue&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Catchment-average snow water equivalent (Lumen aluevesiarvo), &quot;</span>
+            <span class="s2">&quot;table LumiAlue.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Published in mm; returned in cm. Values on the 1st and 16th of &quot;</span>
+            <span class="s2">&quot;each month, year round (0 in summer). Derived product; the &quot;</span>
+            <span class="s2">&quot;Paikka coordinates are the reference point of the unit, not a &quot;</span>
+            <span class="s2">&quot;measurement site. The derivation method is not documented in &quot;</span>
+            <span class="s2">&quot;the API.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1">#: ``Lippu`` (flag) codes that occur, or may occur, on snow-course values,</span>
+<span class="c1">#: keyed by ``Lippu_Id`` as a string (what ``flag`` carries).</span>
+<span class="n">DATA_FLAGS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;96&quot;</span><span class="p">:</span> <span class="s2">&quot;Mittaus — snow course measurement result&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;110&quot;</span><span class="p">:</span> <span class="s2">&quot;Lumimallilaskenta — value calculated with the snow model&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;117&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;Lumimallilaskenta 2022 — value calculated with the snow-course &quot;</span>
+        <span class="s2">&quot;model introduced in autumn 2022&quot;</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+<span class="c1">#: Flags marking modelled rather than measured values.</span>
+<span class="n">_MODELLED_FLAGS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;110&quot;</span><span class="p">,</span> <span class="s2">&quot;117&quot;</span><span class="p">})</span>
+
+<span class="n">_TYPE_TO_VARS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">_code</span><span class="p">,</span> <span class="n">_info</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">_TYPE_TO_VARS</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">_info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_code</span><span class="p">)</span>
+
+<span class="n">_DEFAULT_VARS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;S&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="SYKEError">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.SYKEError.html#easysnowdata.stations.clients.SYKEError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SYKEError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised for Syke hydrology API failures and bad requests.&quot;&quot;&quot;</span></div>
+
+
+
+<span class="c1"># ── Parsers ──────────────────────────────────────────────────────────────────</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Map native codes or standardized types to native codes.&quot;&quot;&quot;</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">_coerce_list</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span> <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">items</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_DEFAULT_VARS</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="p">:</span>
+            <span class="n">codes</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">v</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="n">VARIABLES</span><span class="p">:</span>
+            <span class="n">codes</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
+        <span class="k">elif</span> <span class="n">v</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">_TYPE_TO_VARS</span><span class="p">:</span>
+            <span class="n">codes</span> <span class="o">=</span> <span class="n">_TYPE_TO_VARS</span><span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">SYKEError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown Syke variable </span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s2"> — expected one of &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">VARIABLES</span><span class="p">)</span><span class="si">}</span><span class="s2"> or types </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_TYPE_TO_VARS</span><span class="p">)</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Snow depth and density are not published by this API; &quot;</span>
+                <span class="s2">&quot;areal SWE (&#39;SA&#39;) is served by get_areal_swe().&quot;</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">codes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_dms_to_deg</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse Syke&#39;s ``DDMMSS`` (``DDDMMSS``) coordinate text to degrees.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">deg</span><span class="p">,</span> <span class="n">mins</span><span class="p">,</span> <span class="n">secs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])</span>
+    <span class="k">if</span> <span class="n">mins</span> <span class="o">&gt;=</span> <span class="mi">60</span> <span class="ow">or</span> <span class="n">secs</span> <span class="o">&gt;=</span> <span class="mi">60</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="n">deg</span> <span class="o">+</span> <span class="n">mins</span> <span class="o">/</span> <span class="mi">60</span> <span class="o">+</span> <span class="n">secs</span> <span class="o">/</span> <span class="mi">3600</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+
+
+<span class="n">_TRANSFORMERS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_to_wgs84</span><span class="p">(</span><span class="n">crs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform ``(x, y)`` in ``crs`` to WGS84 ``(lat, lon)``; None if absent.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">xf</span><span class="p">,</span> <span class="n">yf</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">xf</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">yf</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">crs</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_TRANSFORMERS</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pyproj</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformer</span>
+
+        <span class="n">_TRANSFORMERS</span><span class="p">[</span><span class="n">crs</span><span class="p">]</span> <span class="o">=</span> <span class="n">Transformer</span><span class="o">.</span><span class="n">from_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">,</span> <span class="s2">&quot;EPSG:4326&quot;</span><span class="p">,</span> <span class="n">always_xy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="n">_TRANSFORMERS</span><span class="p">[</span><span class="n">crs</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">xf</span><span class="p">,</span> <span class="n">yf</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_tm35fin_to_wgs84</span><span class="p">(</span><span class="n">northing</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">easting</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert ETRS-TM35FIN (EPSG:3067) to WGS84 (lat, lon).&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_to_wgs84</span><span class="p">(</span><span class="s2">&quot;EPSG:3067&quot;</span><span class="p">,</span> <span class="n">easting</span><span class="p">,</span> <span class="n">northing</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_site_coords</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Best WGS84 position for a ``Paikka`` row.</span>
+
+<span class="sd">    Order: ETRS-TM35FIN (``KoordErTm*``); KKJ uniform coordinates</span>
+<span class="sd">    (``KoordYk*``, EPSG:2393), which agree with it to ~2 m; and last the</span>
+<span class="sd">    ``KoordLat``/``KoordLong`` DDMMSS text, which is on the old KKJ datum</span>
+<span class="sd">    (EPSG:4123) — read as WGS84 it is off by ~175 m, so it is transformed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="n">_tm35fin_to_wgs84</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;KoordErTmPohj&quot;</span><span class="p">),</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;KoordErTmIta&quot;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">lat</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="n">_to_wgs84</span><span class="p">(</span><span class="s2">&quot;EPSG:2393&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;KoordYkIta&quot;</span><span class="p">),</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;KoordYkPohj&quot;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">lat</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dlat</span><span class="p">,</span> <span class="n">dlon</span> <span class="o">=</span> <span class="n">_dms_to_deg</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;KoordLat&quot;</span><span class="p">)),</span> <span class="n">_dms_to_deg</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;KoordLong&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">dlat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">dlon</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="n">_to_wgs84</span><span class="p">(</span><span class="s2">&quot;EPSG:4123&quot;</span><span class="p">,</span> <span class="n">dlon</span><span class="p">,</span> <span class="n">dlat</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_site</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">owners</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Turn a ``Paikka`` row into a station dict.&quot;&quot;&quot;</span>
+    <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="n">_site_coords</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="n">tila</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Tila_Id&quot;</span><span class="p">)</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">SITE_STATES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tila</span><span class="p">,</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+    <span class="n">owner_id</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Omistaja_Id&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;station_id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;Paikka_Id&quot;</span><span class="p">]),</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Nimi&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+        <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span>
+        <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">lon</span><span class="p">,</span>
+        <span class="s2">&quot;elevation_m&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;Active&quot;</span> <span class="k">if</span> <span class="n">tila</span> <span class="ow">in</span> <span class="n">_ACTIVE_STATES</span> <span class="k">else</span> <span class="s2">&quot;Inactive&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;status_native&quot;</span><span class="p">:</span> <span class="n">state</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="s2">&quot;status_description&quot;</span><span class="p">:</span> <span class="n">state</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="s2">&quot;site_number&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Nro&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;municipality&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;KuntaNimi&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;basin&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PaaVesalNimi&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;sub_basin&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;VesalNimi&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;operator&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">owners</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">owner_id</span><span class="p">,</span> <span class="s2">&quot;Finnish Environment Institute&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;owner_id&quot;</span><span class="p">:</span> <span class="n">owner_id</span><span class="p">,</span>
+        <span class="s2">&quot;measurement_method&quot;</span><span class="p">:</span> <span class="n">EQUIPMENT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Laitteisto_Id&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;equipment_id&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Laitteisto_Id&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;etrs_tm35fin_n&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;KoordErTmPohj&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;etrs_tm35fin_e&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;KoordErTmIta&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;coordinate_accuracy_code&quot;</span><span class="p">:</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;KoordTarkkuus&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;station_url&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;mm string/decimal → cm, nulling values outside 0–15 m.&quot;&quot;&quot;</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">_to_float</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">cm</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">v</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">cm</span> <span class="o">&lt;=</span> <span class="n">_MAX_SWE_CM</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">cm</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_odata_dt</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;datetime&#39;</span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">T00:00:00&#39;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_filter</span><span class="p">(</span>
+    <span class="n">ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">begin</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">parts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">ids</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="s2">&quot; or &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Paikka_Id eq </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">begin</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Aika ge </span><span class="si">{</span><span class="n">_odata_dt</span><span class="p">(</span><span class="n">begin</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">end</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Aika le </span><span class="si">{</span><span class="n">_odata_dt</span><span class="p">(</span><span class="n">end</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot; and &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">None</span>
+
+
+<span class="c1"># ── Client ───────────────────────────────────────────────────────────────────</span>
+
+
+<div class="viewcode-block" id="SYKEClient">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.SYKEClient.html#easysnowdata.stations.clients.SYKEClient">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SYKEClient</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Client for the Syke hydrology OData API (snow courses and areal SWE).</span>
+
+<span class="sd">    No credentials are needed.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    base_url : str</span>
+<span class="sd">        OData service root.</span>
+<span class="sd">    timeout, max_retries, backoff : int</span>
+<span class="sd">        HTTP settings for the shared retry loop.</span>
+<span class="sd">    session : requests.Session or None</span>
+<span class="sd">        Optional pre-configured session.</span>
+<span class="sd">    keep_modelled : bool</span>
+<span class="sd">        If False (default), snow-course values flagged as snow-model output</span>
+<span class="sd">        (``Lippu_Id`` 110/117) are returned as ``None``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">BASE_URL</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_DEFAULT_TIMEOUT</span><span class="p">,</span>
+        <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_DEFAULT_RETRIES</span><span class="p">,</span>
+        <span class="n">backoff</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_DEFAULT_BACKOFF</span><span class="p">,</span>
+        <span class="n">session</span><span class="p">:</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">keep_modelled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span> <span class="o">=</span> <span class="n">base_url</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">=</span> <span class="n">max_retries</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backoff</span> <span class="o">=</span> <span class="n">backoff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keep_modelled</span> <span class="o">=</span> <span class="n">keep_modelled</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="n">session</span> <span class="ow">or</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;User-Agent&quot;</span><span class="p">:</span> <span class="s2">&quot;easysnowdata&quot;</span><span class="p">,</span> <span class="s2">&quot;Accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sites_cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_owners_cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># ── HTTP ─────────────────────────────────────────────────────────────────</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="n">request_with_retries</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="p">,</span>
+            <span class="n">url</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+            <span class="n">error_cls</span><span class="o">=</span><span class="n">SYKEError</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span>
+            <span class="n">max_retries</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span><span class="p">,</span>
+            <span class="n">backoff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">backoff</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">SYKEError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Non-JSON response from </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">resp</span><span class="o">.</span><span class="n">text</span><span class="p">[:</span><span class="mi">200</span><span class="p">]</span><span class="si">!r}</span><span class="s2">&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;GET ``table`` and follow ``odata.nextLink`` to the end.&quot;&quot;&quot;</span>
+        <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="k">while</span> <span class="n">url</span><span class="p">:</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;value&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">payload</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">SYKEError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unexpected payload from </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="p">)[:</span><span class="mi">200</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">payload</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">])</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;odata.nextLink&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;@odata.nextLink&quot;</span><span class="p">)</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># nextLink already carries the query</span>
+        <span class="k">return</span> <span class="n">rows</span>
+
+    <span class="c1"># ── Sites ────────────────────────────────────────────────────────────────</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_owners</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owners_cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;Omistaja&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_owners_cache</span> <span class="o">=</span> <span class="p">{</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;Omistaja_Id&quot;</span><span class="p">]:</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;Nimi&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">}</span>
+            <span class="k">except</span> <span class="n">SYKEError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Syke: could not read Omistaja table: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_owners_cache</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owners_cache</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suure_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">suure_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sites_cache</span><span class="p">:</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;Paikka&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;$filter&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Suure_Id eq </span><span class="si">{</span><span class="n">suure_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+            <span class="n">owners</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owners</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sites_cache</span><span class="p">[</span><span class="n">suure_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">_parse_site</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">owners</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Syke: </span><span class="si">%d</span><span class="s2"> sites for Suure_Id </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span> <span class="n">suure_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sites_cache</span><span class="p">[</span><span class="n">suure_id</span><span class="p">]</span>
+
+<div class="viewcode-block" id="SYKEClient.get_all_stations">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.SYKEClient.html#easysnowdata.stations.clients.SYKEClient.get_all_stations">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_all_stations</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">active_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        All Syke snow courses (``Suure_Id`` 8).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        active_only : bool</span>
+<span class="sd">            Keep sites whose ``Tila`` is continuous or fixed-term.</span>
+<span class="sd">        bbox : tuple, optional</span>
+<span class="sd">            ``(min_lon, min_lat, max_lon, max_lat)``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[dict]</span>
+<span class="sd">            ``station_id`` (Paikka_Id), ``name``, ``latitude``,</span>
+<span class="sd">            ``longitude``, ``elevation_m`` (always ``None``), ``status``,</span>
+<span class="sd">            ``status_native``, ``site_number``, ``municipality``, ``basin``,</span>
+<span class="sd">            ``sub_basin``, ``operator``, ``measurement_method``,</span>
+<span class="sd">            ETRS-TM35FIN coordinates and ``station_url`` (``None``).  The</span>
+<span class="sd">            period of record is not in the site table; use</span>
+<span class="sd">            :meth:`get_metadata`.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        SYKEError</span>
+<span class="sd">            On an API failure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sites</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">(</span><span class="n">SUURE_SNOW_COURSE</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">active_only</span><span class="p">:</span>
+            <span class="n">sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sites</span> <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Active&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_filter_by_bbox</span><span class="p">(</span><span class="n">sites</span><span class="p">,</span> <span class="n">bbox</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SYKEClient.get_areal_units">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.SYKEClient.html#easysnowdata.stations.clients.SYKEClient.get_areal_units">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_areal_units</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">active_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Areal-SWE units (``Suure_Id`` 7).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        active_only : bool</span>
+<span class="sd">            Keep units whose ``Tila`` is continuous or fixed-term.</span>
+<span class="sd">        bbox : tuple, optional</span>
+<span class="sd">            ``(min_lon, min_lat, max_lon, max_lat)``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[dict]</span>
+<span class="sd">            Same schema as :meth:`get_all_stations`.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        SYKEError</span>
+<span class="sd">            On an API failure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sites</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">(</span><span class="n">SUURE_AREAL_SWE</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">active_only</span><span class="p">:</span>
+            <span class="n">sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sites</span> <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Active&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_filter_by_bbox</span><span class="p">(</span><span class="n">sites</span><span class="p">,</span> <span class="n">bbox</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_por</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">paikka_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;First date, last date and row count for one site.&quot;&quot;&quot;</span>
+        <span class="n">flt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Paikka_Id eq </span><span class="si">{</span><span class="n">paikka_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;$filter&quot;</span><span class="p">:</span> <span class="n">flt</span><span class="p">,</span>
+                <span class="s2">&quot;$orderby&quot;</span><span class="p">:</span> <span class="s2">&quot;Aika asc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;$top&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;$inlinecount&quot;</span><span class="p">:</span> <span class="s2">&quot;allpages&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">first</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">first</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;odata.count&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="n">last</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_json</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;$filter&quot;</span><span class="p">:</span> <span class="n">flt</span><span class="p">,</span> <span class="s2">&quot;$orderby&quot;</span><span class="p">:</span> <span class="s2">&quot;Aika desc&quot;</span><span class="p">,</span> <span class="s2">&quot;$top&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">lrows</span> <span class="o">=</span> <span class="n">last</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">rows</span>
+        <span class="k">return</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;Aika&quot;</span><span class="p">][:</span><span class="mi">10</span><span class="p">],</span> <span class="n">lrows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;Aika&quot;</span><span class="p">][:</span><span class="mi">10</span><span class="p">],</span> <span class="n">n</span>
+
+<div class="viewcode-block" id="SYKEClient.get_metadata">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.SYKEClient.html#easysnowdata.stations.clients.SYKEClient.get_metadata">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">station_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Site metadata plus ``data_variables`` (with period of record).</span>
+
+<span class="sd">        Works for snow courses and for areal-SWE units (``variable`` &quot;SA&quot;,</span>
+<span class="sd">        ``interval`` &quot;semi_monthly&quot;).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        station_id : str</span>
+<span class="sd">            ``Paikka_Id`` of a snow course or areal-SWE unit.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            The station dict plus ``kind`` (``&quot;snow_course&quot;`` / ``&quot;areal&quot;``)</span>
+<span class="sd">            and ``data_variables``: one entry with ``name``, ``type``,</span>
+<span class="sd">            ``interval``, ``units`` (emitted), ``description``, ``notes``,</span>
+<span class="sd">            ``begin_date``, ``end_date`` and ``n_obs`` (from the data</span>
+<span class="sd">            table).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        SYKEError</span>
+<span class="sd">            If the id is neither a snow course nor an areal-SWE unit, or on</span>
+<span class="sd">            an API failure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">station_id</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">suure</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">reg</span><span class="p">,</span> <span class="n">interval</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">SUURE_SNOW_COURSE</span><span class="p">,</span> <span class="s2">&quot;LumiPiste&quot;</span><span class="p">,</span> <span class="n">VARIABLES</span><span class="p">,</span> <span class="s2">&quot;periodic&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">SUURE_AREAL_SWE</span><span class="p">,</span> <span class="s2">&quot;LumiAlue&quot;</span><span class="p">,</span> <span class="n">AREAL_VARIABLES</span><span class="p">,</span> <span class="s2">&quot;semi_monthly&quot;</span><span class="p">),</span>
+        <span class="p">):</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">(</span><span class="n">suure</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;station_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">sid</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">sta</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_por</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">sid</span><span class="p">))</span>
+            <span class="n">code</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">reg</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+            <span class="n">sta</span><span class="p">[</span><span class="s2">&quot;kind&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;snow_course&quot;</span> <span class="k">if</span> <span class="n">suure</span> <span class="o">==</span> <span class="n">SUURE_SNOW_COURSE</span> <span class="k">else</span> <span class="s2">&quot;areal&quot;</span>
+            <span class="n">sta</span><span class="p">[</span><span class="s2">&quot;data_variables&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">code</span><span class="p">,</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;interval&quot;</span><span class="p">:</span> <span class="n">interval</span><span class="p">,</span>
+                    <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;output_units&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;notes&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;begin_date&quot;</span><span class="p">:</span> <span class="n">begin</span><span class="p">,</span>
+                    <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="n">end</span><span class="p">,</span>
+                    <span class="s2">&quot;n_obs&quot;</span><span class="p">:</span> <span class="n">n</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+            <span class="k">return</span> <span class="n">sta</span>
+        <span class="k">raise</span> <span class="n">SYKEError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Station </span><span class="si">{</span><span class="n">sid</span><span class="si">!r}</span><span class="s2"> not found among Syke snow sites&quot;</span><span class="p">)</span></div>
+
+
+    <span class="c1"># ── Data ─────────────────────────────────────────────────────────────────</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fetch_values</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">table</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">begin</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+        <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ids_chunk</span> <span class="ow">in</span> <span class="n">_chunk</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">_ID_CHUNK</span><span class="p">):</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;$orderby&quot;</span><span class="p">:</span> <span class="s2">&quot;Paikka_Id,Aika&quot;</span><span class="p">}</span>
+            <span class="n">flt</span> <span class="o">=</span> <span class="n">_build_filter</span><span class="p">(</span><span class="n">ids_chunk</span><span class="p">,</span> <span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">flt</span><span class="p">:</span>
+                <span class="n">params</span><span class="p">[</span><span class="s2">&quot;$filter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flt</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">params</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">rows</span>
+
+<div class="viewcode-block" id="SYKEClient.get_data">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.SYKEClient.html#easysnowdata.stations.clients.SYKEClient.get_data">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">station_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">variables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">begin_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">interval</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;periodic&quot;</span><span class="p">,</span>
+        <span class="n">include_flags</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Snow-course SWE as flat records.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        station_ids : list[str] or str or None</span>
+<span class="sd">            Paikka_Id(s).  Required unless ``bbox`` is given.</span>
+<span class="sd">        variables : list[str] or str or None</span>
+<span class="sd">            ``&quot;S&quot;`` or ``&quot;swe&quot;``; ``None`` = ``[&quot;S&quot;]``.</span>
+<span class="sd">        bbox : tuple, optional</span>
+<span class="sd">            ``(min_lon, min_lat, max_lon, max_lat)``.</span>
+<span class="sd">        begin_date, end_date : str or date, optional</span>
+<span class="sd">            Inclusive ``YYYY-MM-DD`` bounds (applied server side).</span>
+<span class="sd">        interval : str</span>
+<span class="sd">            Only ``&quot;periodic&quot;``.</span>
+<span class="sd">        include_flags : bool</span>
+<span class="sd">            Add ``flag`` = the ``Lippu_Id`` (see :data:`DATA_FLAGS`).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[dict]</span>
+<span class="sd">            ``{station_id, date, variable, type, value, units, interval}``</span>
+<span class="sd">            (+ ``flag``).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If neither ``station_ids`` nor ``bbox`` is given.</span>
+<span class="sd">        SYKEError</span>
+<span class="sd">            On an unknown variable, unsupported interval, non-integer</span>
+<span class="sd">            station id or API failure.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        &gt;&gt;&gt; client = SYKEClient()</span>
+<span class="sd">        &gt;&gt;&gt; stations = client.get_all_stations(active_only=True)</span>
+<span class="sd">        &gt;&gt;&gt; records = client.get_data(</span>
+<span class="sd">        ...     station_ids=stations[0][&quot;station_id&quot;],</span>
+<span class="sd">        ...     begin_date=&quot;2024-01-01&quot;,</span>
+<span class="sd">        ...     end_date=&quot;2024-05-31&quot;,</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; records[0][&quot;units&quot;]</span>
+<span class="sd">        &#39;cm&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">interval</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;periodic&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">SYKEError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unsupported interval </span><span class="si">{</span><span class="n">interval</span><span class="si">!r}</span><span class="s2"> for Syke snow courses — &quot;</span>
+                <span class="s2">&quot;only &#39;periodic&#39; exists (areal SWE: get_areal_swe()).&quot;</span>
+            <span class="p">)</span>
+        <span class="n">codes</span> <span class="o">=</span> <span class="n">_resolve_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">station_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="n">_coerce_list</span><span class="p">(</span><span class="n">station_ids</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;station_id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_stations</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Provide station_ids or bbox.&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">i</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="n">SYKEError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Syke station ids are integers (Paikka_Id); got </span><span class="si">{</span><span class="n">i</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ids</span> <span class="ow">or</span> <span class="s2">&quot;S&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">codes</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="n">begin</span> <span class="o">=</span> <span class="n">_date_str</span><span class="p">(</span><span class="n">begin_date</span><span class="p">)</span> <span class="k">if</span> <span class="n">begin_date</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">_date_str</span><span class="p">(</span><span class="n">end_date</span><span class="p">)</span> <span class="k">if</span> <span class="n">end_date</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_values</span><span class="p">(</span><span class="s2">&quot;LumiPiste&quot;</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_record</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;periodic&quot;</span><span class="p">,</span> <span class="n">include_flags</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="SYKEClient.get_areal_swe">
+<a class="viewcode-back" href="../../../../../generated/easysnowdata.stations.clients.SYKEClient.html#easysnowdata.stations.clients.SYKEClient.get_areal_swe">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_areal_swe</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">area_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">begin_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">active_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Areal (catchment-average) SWE, ``interval=&quot;semi_monthly&quot;``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        area_ids : list[str] or str or None</span>
+<span class="sd">            Areal-unit ``Paikka_Id`` values (see :meth:`get_areal_units`).</span>
+<span class="sd">            With neither ``area_ids`` nor ``bbox`` every unit is fetched</span>
+<span class="sd">            (≈116 000 rows for the full record — pass dates).</span>
+<span class="sd">        bbox : tuple, optional</span>
+<span class="sd">            ``(min_lon, min_lat, max_lon, max_lat)``.</span>
+<span class="sd">        begin_date, end_date : str or date, optional</span>
+<span class="sd">            Inclusive ``YYYY-MM-DD`` bounds (applied server side).</span>
+<span class="sd">        active_only : bool</span>
+<span class="sd">            When resolving units from ``bbox`` / all units, keep active ones.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[dict]</span>
+<span class="sd">            ``{station_id, date, variable (&quot;SA&quot;), type, value (cm), units,</span>
+<span class="sd">            interval (&quot;semi_monthly&quot;)}`` records.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        SYKEError</span>
+<span class="sd">            On an API failure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">area_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="n">_coerce_list</span><span class="p">(</span><span class="n">area_ids</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">s</span><span class="p">[</span><span class="s2">&quot;station_id&quot;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_areal_units</span><span class="p">(</span><span class="n">active_only</span><span class="o">=</span><span class="n">active_only</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ids</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="n">begin</span> <span class="o">=</span> <span class="n">_date_str</span><span class="p">(</span><span class="n">begin_date</span><span class="p">)</span> <span class="k">if</span> <span class="n">begin_date</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">_date_str</span><span class="p">(</span><span class="n">end_date</span><span class="p">)</span> <span class="k">if</span> <span class="n">end_date</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_values</span><span class="p">(</span><span class="s2">&quot;LumiAlue&quot;</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_record</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="s2">&quot;SA&quot;</span><span class="p">,</span> <span class="s2">&quot;semi_monthly&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">interval</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">include_flags</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="n">VARIABLES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">code</span><span class="p">)</span> <span class="ow">or</span> <span class="n">AREAL_VARIABLES</span><span class="p">[</span><span class="n">code</span><span class="p">]</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Lippu_Id&quot;</span><span class="p">)</span>
+        <span class="n">flag_s</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span> <span class="k">if</span> <span class="n">flag</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">_convert</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Arvo&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">flag_s</span> <span class="ow">in</span> <span class="n">_MODELLED_FLAGS</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_modelled</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">rec</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;station_id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;Paikka_Id&quot;</span><span class="p">]),</span>
+            <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;Aika&quot;</span><span class="p">])[:</span><span class="mi">10</span><span class="p">],</span>
+            <span class="s2">&quot;variable&quot;</span><span class="p">:</span> <span class="n">code</span><span class="p">,</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span>
+            <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;output_units&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;interval&quot;</span><span class="p">:</span> <span class="n">interval</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">include_flags</span><span class="p">:</span>
+            <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;flag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flag_s</span>
+        <span class="k">return</span> <span class="n">rec</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Eric Gagliano.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
