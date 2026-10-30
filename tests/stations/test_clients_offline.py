@@ -133,6 +133,72 @@ def test_databc_unsupported_interval_raises():
         client.get_data(station_ids=["1A01P"], interval="monthly")
 
 
+def test_databc_asws_archive_load_failure_raises(monkeypatch):
+    client = DataBCClient()
+
+    def load(url, **kwargs):
+        if url == "archive.csv":
+            raise DataBCError("HTTP 503")
+        import pandas as pd
+
+        return pd.DataFrame(
+            {"date": ["2026-10-22"], "location_id": ["1A01P"], "snwd_cm": [10.0]}
+        )
+
+    monkeypatch.setattr(client, "_load_asws_wide_csv", load)
+    with pytest.raises(DataBCError, match="HTTP 503"):
+        client._get_asws_var_data(
+            "current.csv", "archive.csv", "snwd_cm", True, None, None, None
+        )
+
+
+@pytest.mark.parametrize("url", ["current.csv", "archive.csv"])
+def test_databc_asws_file_load_failure_raises(monkeypatch, url):
+    client = DataBCClient()
+
+    def load(requested_url, **kwargs):
+        if requested_url == url:
+            raise DataBCError("HTTP 503")
+        import pandas as pd
+
+        return pd.DataFrame(
+            {"date": ["2026-10-22"], "location_id": ["1A01P"], "snwd_cm": [10.0]}
+        )
+
+    monkeypatch.setattr(client, "_load_asws_wide_csv", load)
+    with pytest.raises(DataBCError, match="HTTP 503"):
+        client._get_asws_var_data(
+            "current.csv", "archive.csv", "snwd_cm", True, None, None, None
+        )
+
+
+def test_databc_snowall_file_load_failure_raises(monkeypatch):
+    client = DataBCClient()
+    monkeypatch.setattr(
+        client,
+        "_request",
+        lambda url, **kwargs: (_ for _ in ()).throw(DataBCError("HTTP 503")),
+    )
+    with pytest.raises(DataBCError, match="HTTP 503"):
+        client._get_asws_combined_data("1A01P")
+
+
+@pytest.mark.parametrize("url", ["allmss_current.csv", "allmss_archive.csv"])
+def test_databc_manual_survey_file_load_failure_raises(monkeypatch, url):
+    client = DataBCClient()
+
+    def load(requested_url):
+        if requested_url.endswith(url):
+            raise DataBCError("HTTP 503")
+        import pandas as pd
+
+        return pd.DataFrame({"location_id": ["1A01P"], "date": ["2026-10-22"]})
+
+    monkeypatch.setattr(client, "_load_mss_csv", load)
+    with pytest.raises(DataBCError, match="HTTP 503"):
+        client._get_mss_survey_data()
+
+
 def test_yukon_unsupported_interval_raises():
     client = YukonClient()
     with pytest.raises(YukonError, match="Unsupported interval"):
