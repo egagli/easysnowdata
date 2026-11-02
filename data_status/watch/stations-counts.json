@@ -1,27 +1,52 @@
 {
+  "alberta": {
+    "active": 187,
+    "count": 291,
+    "daily": 135
+  },
   "awdb": {
-    "active": 4397,
+    "active": 4396,
     "count": 7150,
     "daily": 1219
   },
   "cdec": {
-    "active": 0,
-    "count": 0,
-    "daily": "not advertised"
+    "active": 564,
+    "count": 564,
+    "daily": 564
+  },
+  "ceaza": {
+    "active": 10,
+    "count": 17,
+    "daily": 17
   },
   "databc": {
     "active": 275,
     "count": 570,
     "daily": 180
   },
+  "hydroquebec": {
+    "active": 143,
+    "count": 144,
+    "daily": 144
+  },
   "nve": {
     "active": 1903,
     "count": 1903,
     "daily": 32
   },
+  "slf": {
+    "active": 252,
+    "count": 325,
+    "daily": 314
+  },
+  "snih": {
+    "active": 31,
+    "count": 51,
+    "daily": 35
+  },
   "yukon": {
-    "active": 63,
-    "count": 92,
-    "daily": 0
+    "active": 77,
+    "count": 109,
+    "daily": 17
   }
 }

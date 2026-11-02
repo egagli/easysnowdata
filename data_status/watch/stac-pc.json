@@ -1,12 +1,12 @@
 {
   "stac-pc/cop-dem-glo-30": {
-    "license": "proprietary",
+    "license": "other",
     "temporal_end": "2021-04-22",
     "temporal_start": "2021-04-22",
     "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/cop-dem-glo-30"
   },
   "stac-pc/cop-dem-glo-90": {
-    "license": "proprietary",
+    "license": "other",
     "temporal_end": "2021-04-22",
     "temporal_start": "2021-04-22",
     "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/cop-dem-glo-90"
@@ -30,13 +30,13 @@
     "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/hls2-s30"
   },
   "stac-pc/modis-10A1-061": {
-    "license": "proprietary",
+    "license": "other",
     "temporal_end": "ongoing",
     "temporal_start": "2000-02-24",
     "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/modis-10A1-061"
   },
   "stac-pc/modis-10A2-061": {
-    "license": "proprietary",
+    "license": "other",
     "temporal_end": "ongoing",
     "temporal_start": "2000-02-18",
     "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/modis-10A2-061"

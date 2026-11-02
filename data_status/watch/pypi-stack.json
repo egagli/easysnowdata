@@ -12,7 +12,7 @@
     "url": "https://github.com/nsidc/earthaccess/releases"
   },
   "earthengine-api": {
-    "latest_version": "1.7.49",
+    "latest_version": "1.7.50",
     "url": "https://pypi.org/project/earthengine-api/"
   },
   "geopandas": {
@@ -20,11 +20,11 @@
     "url": "https://pypi.org/project/geopandas/"
   },
   "icechunk": {
-    "latest_version": "2.3.0",
+    "latest_version": "2.3.1",
     "url": "https://github.com/earth-mover/icechunk/releases"
   },
   "odc-geo": {
-    "latest_version": "0.5.3",
+    "latest_version": "0.5.4",
     "url": "https://pypi.org/project/odc-geo/"
   },
   "odc-stac": {
@@ -52,7 +52,7 @@
     "url": "https://rasterio.readthedocs.io/en/stable/"
   },
   "rioxarray": {
-    "latest_version": "0.23.0",
+    "latest_version": "0.24.0",
     "url": "https://pypi.org/project/rioxarray/"
   },
   "sphinx-gallery": {
@@ -72,7 +72,7 @@
     "url": "https://pypi.org/project/xee/"
   },
   "zarr": {
-    "latest_version": "3.4.1",
+    "latest_version": "3.4.2",
     "url": "https://zarr.readthedocs.io/en/stable/release-notes.html"
   }
 }

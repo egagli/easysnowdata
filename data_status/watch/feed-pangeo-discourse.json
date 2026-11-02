@@ -1,6 +1,13 @@
 {
   "lines": [
     "Welcome to Pangeo Discourse",
+    "WxData 3.0 Released - WxData Clients Now Have a Command-Line Interface Tool Bringing WxData into the Shell For Advanced ETL Weather Data Pipelines",
+    "Pyinterp 2026.11.0: fast interpolation and conservative regridding from xarray",
+    "Local CFL instability in a 2D explicit Navier-Stokes solver (from CFD to Oceanography)",
+    "Pangeo Showcase: Lightning talks (December 2, 2026 at 4 PM EST / 21:00 UTC) - Sign up now!",
+    "HTTP API for Statistics from Zarr stores?",
+    "Join us at the ESA EarthCODE 2026 Hackathon! (30th November - 4th December at ESA ESRIN)",
+    "Join the Global Dialogue on Digital Twins of the Ocean | DITTO Summit 2026 (Online, 28–29 October)",
     "Ocean-plot: a small CLI for SST maps, wind vectors and point time series from NetCDF",
     "Pangeo Showcase: “Building Analysis-Ready Antarctic Data Cubes with Pangeo” (November 11, 12 PM EST / 17:00 UTC)",
     "Introducing GeoD Global: a Windows workbench for discovering and downloading geospatial data",
@@ -14,7 +21,6 @@
     "[JOB] Simons Center Postdoctoral Fellows in Computational Climate at NYU",
     "GeoD Global development preview: preserving context from STAC to local rasters",
     "FROST: Front Range Open Science Teamup",
-    "HTTP API for Statistics from Zarr stores?",
     "WakeAtlas: an ocean-data exploration globe — feedback welcome",
     "Pangeo Showcase: “Earth2Studio: A Python Toolkit for AI Weather and Climate Workflows” (September 30, 12 PM EDT / 16:00 UTC)",
     "Pangeo Showcase: \"insitubatch: Streaming ML Batches from Cloud Zarr Without Resharding\" (September 16, 12 PM EDT / 16:00 UTC)",
@@ -23,12 +29,6 @@
     "CNG Forum 2026 - Saturday is the final day for the room block",
     "How are reseachers using AI in Earth Observation workflows today?",
     "Experiment: querying large Zarr datasets directly from PostgreSQL/PostGIS without ETL",
-    "Xue: A binary format for animating weather forecasts in the browser",
-    "WxData 2.3 Released",
-    "Public Virtual Zarr of the NASA (NEX-GDDP-CMIP6) Dataset",
-    "AMS 2027 EIPT Sessions",
-    "WxData 2.2 Released",
-    "Problems downloading CMIP6 historical simulations from PANGEO gallery",
-    "Where Do You Spend the Most Time in an ICESat-2 Workflow?"
+    "Xue: A binary format for animating weather forecasts in the browser"
   ]
 }
