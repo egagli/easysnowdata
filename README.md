@@ -45,18 +45,23 @@ and both Earth Engine catalogs, under "Worth adding" when they are about the
 cryosphere.
 
 <!-- DATA_STATUS_START -->
-_Last updated: 2026-10-26 08:22 UTC_  
+_Last updated: 2026-11-02 08:12 UTC_  
 _⚠️ = skipped (credentials not available in this run). Latency and virtualization probes are on the [status page](https://egagli.github.io/easysnowdata/status.html)._
 
 ### Stations (`esd.stations`)
 
-| Data Source | Latest (Oct 26) | Oct 19 | Oct 12 | Oct 5 |
+| Data Source | Latest (Nov 2) | Oct 26 | Oct 19 | Oct 12 |
 | :---------- | :------: | :------: | :------: | :------: |
 | AWDB stations (NRCS REST API) | ✅ | ✅ | ✅ | ✅ |
 | CDEC stations (JSON data servlet) | ✅ | ✅ | ✅ | ✅ |
 | BC snow stations (DataBC WFS) | ✅ | ✅ | ✅ | ✅ |
 | NVE stations (HydAPI) | ✅ | ✅ | ✅ | ✅ |
 | Yukon stations (AquaCache API) | ✅ | ✅ | ✅ | ✅ |
+| Alberta River Basins site | ✅ | — | — | — |
+| Hydro-Québec open data (Opendatasoft) | ✅ | — | — | — |
+| SLF measurement data | ✅ | — | — | — |
+| SNIH portal | ✅ | — | — | — |
+| CEAZA-Met web service | ✅ | — | — | — |
 | Snow station Zarr archive (global_snow_networks) | ✅ | ✅ | ✅ | ✅ |
 | Snow station inventory (global_snow_networks) | ✅ | ✅ | ✅ | ✅ |
 | Snow station archive tarball (global_snow_networks) | ✅ | ✅ | ✅ | ✅ |
@@ -64,7 +69,7 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Snow (`esd.snow`)
 
-| Data Source | Latest (Oct 26) | Oct 19 | Oct 12 | Oct 5 |
+| Data Source | Latest (Nov 2) | Oct 26 | Oct 19 | Oct 12 |
 | :---------- | :------: | :------: | :------: | :------: |
 | MODIS snow cover MOD10A1F (NASA NSIDC) | ✅ | ✅ | ✅ | ✅ |
 | MODIS snow cover MOD10A1 (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
@@ -75,11 +80,11 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 | Sturm & Liston snow classification (Azure) | ✅ | ✅ | ✅ | ✅ |
 | UCLA Snow Reanalysis (NASA NSIDC) | ✅ | ✅ | ✅ | ✅ |
 | HMA Snow Reanalysis (NASA NSIDC) | ✅ | ✅ | ✅ | ✅ |
-| VIIRS snow cover VNP10A1F (NASA NSIDC) | ✅ | ✅ | ✅ | ✅ |
+| VIIRS snow cover VJ110A1F (NASA NSIDC) | ✅ | — | — | — |
 
 ### SAR (`esd.sar`)
 
-| Data Source | Latest (Oct 26) | Oct 19 | Oct 12 | Oct 5 |
+| Data Source | Latest (Nov 2) | Oct 26 | Oct 19 | Oct 12 |
 | :---------- | :------: | :------: | :------: | :------: |
 | Sentinel-1 RTC (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | Sentinel-1 RTC OPERA (CMR-STAC ASF) | ✅ | ✅ | ✅ | ✅ |
@@ -90,12 +95,12 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Optical imagery (`esd.optical`)
 
-| Data Source | Latest (Oct 26) | Oct 19 | Oct 12 | Oct 5 |
+| Data Source | Latest (Nov 2) | Oct 26 | Oct 19 | Oct 12 |
 | :---------- | :------: | :------: | :------: | :------: |
 | HLS L30 (CMR-STAC LPCLOUD) | ✅ | ✅ | ✅ | ✅ |
 | HLS S30 (CMR-STAC LPCLOUD) | ✅ | ✅ | ✅ | ✅ |
-| HLS L30 COG read (CMR-STAC LPCLOUD, Earthdata Login) | ✅ | ✅ | ✅ | ✅ |
-| HLS S30 COG read (CMR-STAC LPCLOUD, Earthdata Login) | ✅ | ✅ | ✅ | ✅ |
+| HLS L30 COG read (CMR-STAC LPCLOUD, Earthdata Login) | <abbr title="RasterioIOError: HTTP response code: 400">❌</abbr> | ✅ | ✅ | ✅ |
+| HLS S30 COG read (CMR-STAC LPCLOUD, Earthdata Login) | <abbr title="RasterioIOError: HTTP response code: 400">❌</abbr> | ✅ | ✅ | ✅ |
 | HLS L30 (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | HLS S30 (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | PlanetScope (Planet Data API) | ✅ | ✅ | ✅ | ✅ |
@@ -104,7 +109,7 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Terrain (`esd.terrain`)
 
-| Data Source | Latest (Oct 26) | Oct 19 | Oct 12 | Oct 5 |
+| Data Source | Latest (Nov 2) | Oct 26 | Oct 19 | Oct 12 |
 | :---------- | :------: | :------: | :------: | :------: |
 | CHILI (GEE/CSP ERGo) | ✅ | ✅ | ✅ | ✅ |
 | Copernicus DEM (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
@@ -126,9 +131,9 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Land cover (`esd.land`)
 
-| Data Source | Latest (Oct 26) | Oct 19 | Oct 12 | Oct 5 |
+| Data Source | Latest (Nov 2) | Oct 26 | Oct 19 | Oct 12 |
 | :---------- | :------: | :------: | :------: | :------: |
-| Forest cover fraction (Zenodo) | ✅ | ✅ | <abbr title="ReadTimeout: HTTPSConnectionPool(host=&#x27;zenodo.org&#x27;, port=443): Read timed out. (">❌</abbr> | ✅ |
+| Forest cover fraction (Zenodo) | ✅ | ✅ | ✅ | <abbr title="ReadTimeout: HTTPSConnectionPool(host=&#x27;zenodo.org&#x27;, port=443): Read timed out. (">❌</abbr> |
 | Forest cover fraction (GEE/CGLS-LC100) | ✅ | ✅ | ✅ | ✅ |
 | ESA WorldCover (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | ESA WorldCover (AWS bucket) | ✅ | ✅ | ✅ | ✅ |
@@ -137,7 +142,7 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Hydrography (`esd.hydro`)
 
-| Data Source | Latest (Oct 26) | Oct 19 | Oct 12 | Oct 5 |
+| Data Source | Latest (Nov 2) | Oct 26 | Oct 19 | Oct 12 |
 | :---------- | :------: | :------: | :------: | :------: |
 | HUC geometries (USGS WBD REST) | ✅ | ✅ | ✅ | ✅ |
 | HUC geometries (GEE/USGS WBD) | ✅ | ✅ | ✅ | ✅ |
@@ -149,7 +154,7 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Boundaries (`esd.boundaries`)
 
-| Data Source | Latest (Oct 26) | Oct 19 | Oct 12 | Oct 5 |
+| Data Source | Latest (Nov 2) | Oct 26 | Oct 19 | Oct 12 |
 | :---------- | :------: | :------: | :------: | :------: |
 | Natural Earth countries (naciscdn) | ✅ | ✅ | ✅ | ✅ |
 | geoBoundaries countries (ADM0, gbOpen) | ✅ | ✅ | ✅ | ✅ |
@@ -166,14 +171,14 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Climate (`esd.climate`)
 
-| Data Source | Latest (Oct 26) | Oct 19 | Oct 12 | Oct 5 |
+| Data Source | Latest (Nov 2) | Oct 26 | Oct 19 | Oct 12 |
 | :---------- | :------: | :------: | :------: | :------: |
 | ARCO-ERA5 (GCS anonymous) | ✅ | ✅ | ✅ | ✅ |
 | ERA5 (Google Earth Engine) | ✅ | ✅ | ✅ | ✅ |
-| Climate indices (CPC RONI) | ✅ | ✅ | — | — |
-| Climate indices (NCEI PDO) | ✅ | ✅ | — | — |
-| Climate indices (PSL MEI.v2) | ✅ | ✅ | — | — |
-| Climate indices (PSL pdo.data) | ✅ | ✅ | — | — |
+| Climate indices (CPC RONI) | ✅ | ✅ | ✅ | — |
+| Climate indices (NCEI PDO) | ✅ | ✅ | ✅ | — |
+| Climate indices (PSL MEI.v2) | ✅ | ✅ | ✅ | — |
+| Climate indices (PSL pdo.data) | ✅ | ✅ | ✅ | — |
 | Köppen-Geiger classification (figshare) | ✅ | ✅ | ✅ | ✅ |
 <!-- DATA_STATUS_END -->
 
@@ -218,11 +223,11 @@ Some data sources need free accounts and credentials passed as environment varia
 ## What is in it
 
 <!-- CATALOG_START -->
-42 products across 9 themes, each with one or more access routes:
+47 products across 9 themes, each with one or more access routes:
 
 | theme | products | open without an account |
 | --- | --- | --- |
-| **stations** | [`awdb-stations`](https://egagli.github.io/easysnowdata/catalog/awdb-stations.html), [`cdec-stations`](https://egagli.github.io/easysnowdata/catalog/cdec-stations.html), [`databc-stations`](https://egagli.github.io/easysnowdata/catalog/databc-stations.html), [`nve-stations`](https://egagli.github.io/easysnowdata/catalog/nve-stations.html), [`snow-station-archive`](https://egagli.github.io/easysnowdata/catalog/snow-station-archive.html), [`yukon-stations`](https://egagli.github.io/easysnowdata/catalog/yukon-stations.html) | 5 of 6 |
+| **stations** | [`alberta-stations`](https://egagli.github.io/easysnowdata/catalog/alberta-stations.html), [`awdb-stations`](https://egagli.github.io/easysnowdata/catalog/awdb-stations.html), [`cdec-stations`](https://egagli.github.io/easysnowdata/catalog/cdec-stations.html), [`ceaza-stations`](https://egagli.github.io/easysnowdata/catalog/ceaza-stations.html), [`databc-stations`](https://egagli.github.io/easysnowdata/catalog/databc-stations.html), [`hydroquebec-stations`](https://egagli.github.io/easysnowdata/catalog/hydroquebec-stations.html), [`nve-stations`](https://egagli.github.io/easysnowdata/catalog/nve-stations.html), [`slf-stations`](https://egagli.github.io/easysnowdata/catalog/slf-stations.html), [`snih-stations`](https://egagli.github.io/easysnowdata/catalog/snih-stations.html), [`snow-station-archive`](https://egagli.github.io/easysnowdata/catalog/snow-station-archive.html), [`yukon-stations`](https://egagli.github.io/easysnowdata/catalog/yukon-stations.html) | 10 of 11 |
 | **snow** | [`modis-snow`](https://egagli.github.io/easysnowdata/catalog/modis-snow.html), [`mountain-snow-mask`](https://egagli.github.io/easysnowdata/catalog/mountain-snow-mask.html), [`snodas`](https://egagli.github.io/easysnowdata/catalog/snodas.html), [`snow-classification`](https://egagli.github.io/easysnowdata/catalog/snow-classification.html), [`ucla-snow-reanalysis`](https://egagli.github.io/easysnowdata/catalog/ucla-snow-reanalysis.html), [`viirs-snow`](https://egagli.github.io/easysnowdata/catalog/viirs-snow.html) | 4 of 6 |
 | **sar** | [`sentinel-1-local-incidence-angle`](https://egagli.github.io/easysnowdata/catalog/sentinel-1-local-incidence-angle.html), [`sentinel-1-rtc`](https://egagli.github.io/easysnowdata/catalog/sentinel-1-rtc.html) | 2 of 2 |
 | **optical** | [`hls`](https://egagli.github.io/easysnowdata/catalog/hls.html), [`planetscope`](https://egagli.github.io/easysnowdata/catalog/planetscope.html), [`sentinel-2-l2a`](https://egagli.github.io/easysnowdata/catalog/sentinel-2-l2a.html) | 2 of 3 |
