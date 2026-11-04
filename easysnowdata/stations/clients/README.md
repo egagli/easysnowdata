@@ -2871,6 +2871,13 @@ recs = client.get_data("101932", begin_date="2024-01-01", end_date="2024-04-30")
 #    "type": "snwd", "value": 57.0, "units": "cm", "interval": "daily"}
 ```
 
+#### `reporting_station_ids(day, variable="snow", bbox=FINLAND_BBOX)` → `set[str]`
+
+fmisids with a daily value on one day, from a single whole-Finland request
+(~1 MB): a `bbox` query returns only stations that have data. Sampling a
+few days a year finds every station with a daily record in a few hundred
+requests, where screening all 2,244 ids takes over half an hour.
+
 #### `screen_station_ids(station_ids)` → `(known, unknown)`
 
 Splits fmisids into those the observation service knows and those it does

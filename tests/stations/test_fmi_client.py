@@ -202,6 +202,14 @@ class _StubSession:
         query = d["storedquery_id"]
         if query == STATIONS_QUERY:
             return _Resp(200, STATIONS_XML)
+        if "bbox" in d:
+            return _Resp(
+                200,
+                _collection(
+                    _series("101932", "snow", [(d["starttime"], "57.0")]),
+                    _series("101933", "snow", [(d["starttime"], "NaN")]),
+                ),
+            )
         if UNKNOWN_IDS & set(ids):
             return _Resp(400, _exception("Unknown &apos;fmisid&apos; value!"))
         start = d["starttime"]
@@ -547,3 +555,12 @@ def test_default_span_follows_the_activity_period(client):
     assert begin == date(1900, 1, 1) and end == date.today()  # 1891 → floor 1900
     # A station not in the list: the whole range.
     assert client._record_span(["999999"]) == (date(1900, 1, 1), date.today())
+
+
+def test_reporting_station_ids_keeps_stations_with_a_value(client):
+    assert client.reporting_station_ids("2024-01-15") == {"101932"}
+    call = dict(client._session.calls[-1])
+    assert call["bbox"] == "19.0,59.0,33.0,71.0"
+    assert call["starttime"] == call["endtime"] == "2024-01-15T00:00:00Z"
+    with pytest.raises(FMIError, match="not 'daily'"):
+        client.reporting_station_ids("2024-01-15", variable="snow_aws")

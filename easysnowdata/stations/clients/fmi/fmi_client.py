@@ -151,6 +151,10 @@ _MAX_IDS = 99
 _DAILY_WINDOW = timedelta(days=365)
 _INSTANT_WINDOW = timedelta(hours=168)
 
+#: ``(min_lon, min_lat, max_lon, max_lat)`` around Finland, including the
+#: areas ceded in 1944 where FMI had stations until then.
+FINLAND_BBOX: tuple[float, float, float, float] = (19.0, 59.0, 33.0, 71.0)
+
 #: Earliest date asked for when no begin date is given and a station's
 #: period of record is unknown.
 _EARLIEST = date(1900, 1, 1)
@@ -920,6 +924,58 @@ class FMIClient:
         known = [i for i in ids if i in self._known_ids]
         unknown = [i for i in ids if i in self._unknown_ids]
         return known, unknown
+
+    def reporting_station_ids(
+        self,
+        day: str | date,
+        variable: str = "snow",
+        bbox: tuple[float, float, float, float] = FINLAND_BBOX,
+    ) -> set[str]:
+        """
+        fmisids with a daily value of *variable* on *day*, from one request.
+
+        A ``bbox`` query returns only stations that have data, so sampling a
+        few days a year is a cheap way to find every station with a daily
+        record — far cheaper than :meth:`screen_station_ids` over thousands
+        of closed stations, most of which the observation service does not
+        know.  One day for all of Finland is about 1 MB.
+
+        Parameters
+        ----------
+        day : str or date
+            ``YYYY-MM-DD``.
+        variable : str
+            A daily FMI parameter (default ``"snow"``).
+        bbox : tuple
+            ``(min_lon, min_lat, max_lon, max_lat)``; default
+            :data:`FINLAND_BBOX`.
+
+        Returns
+        -------
+        set[str]
+            fmisids with a non-missing value that day.
+
+        Raises
+        ------
+        FMIError
+            On a variable not served daily, or an API failure.
+        """
+        code = _resolve_variables(variable, "daily")[0]
+        d = date.fromisoformat(_date_str(day))
+        content = self._wfs(
+            DAILY_QUERY,
+            [
+                ("parameters", code),
+                ("bbox", ",".join(str(v) for v in bbox)),
+                ("starttime", _iso(d)),
+                ("endtime", _iso(d)),
+            ],
+        )
+        return {
+            fmisid
+            for fmisid, _param, pairs in _parse_series(content)
+            if any(_to_float(v) is not None for _t, v in pairs)
+        }
 
     # ── Data ─────────────────────────────────────────────────────────────────
 
