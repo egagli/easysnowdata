@@ -294,7 +294,7 @@ products = ["rgi-glaciers"]
 id = "stations-counts"
 networks = [
     "awdb", "cdec", "databc", "nve", "yukon",
-    "alberta", "hydroquebec", "slf", "snih", "ceaza",
+    "alberta", "hydroquebec", "slf", "snih", "ceaza", "fmi",
 ]
 products = ["snow-station-archive"]
 # nve needs an API key: upstream_watch.yml passes the NVE_API_KEY secret.
@@ -311,6 +311,7 @@ products = ["snow-station-archive"]
 "slf" = ["slf-stations", "snow-station-archive"]
 "snih" = ["snih-stations", "snow-station-archive"]
 "ceaza" = ["ceaza-stations", "snow-station-archive"]
+"fmi" = ["fmi-stations"]
 
 # Dependencies: the PyPI JSON for each, with a link to its changelog.
 [[pypi]]
@@ -457,6 +458,15 @@ id = "page-ceaza-ws-doc"
 # coming months"; a change here is the early warning for CEAZAClient.
 url = "https://www.ceazamet.cl/ws/pop_ws_doc.php"
 products = ["snow-station-archive"]
+
+[[page]]
+id = "page-fmi-wfs-manual"
+# FMI's open-data WFS manual: the request limits (20 000 a day, 600 per 5
+# minutes) FMIClient paces itself to. The per-request time limits (372 days
+# daily, 7 days instantaneous) are not on it; they come from the service's
+# own HTTP 400 answers.
+url = "https://en.ilmatieteenlaitos.fi/open-data-manual-fmi-wfs-services"
+products = ["fmi-stations"]
 
 [[page]]
 id = "page-earth-search"

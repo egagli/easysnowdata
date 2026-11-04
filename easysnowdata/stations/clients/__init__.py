@@ -5,6 +5,7 @@ from .cdec.cdec_client import CDECClient, CDECError
 from .ceaza.ceaza_client import CEAZAClient, CEAZAError
 from .databc.databc_client import DataBCClient, DataBCError
 from .dwd.dwd_client import DWDClient, DWDError
+from .fmi.fmi_client import FMIClient, FMIError
 from .ghcnd.ghcnd_client import GHCNDClient, GHCNDError
 from .hydroquebec.hydroquebec_client import HydroQuebecClient, HydroQuebecError
 from .norswe.norswe_client import NorSWEClient, NorSWEError
@@ -34,6 +35,8 @@ __all__ = [
     "DWDError",
     "DataBCClient",
     "DataBCError",
+    "FMIClient",
+    "FMIError",
     "GHCNDClient",
     "GHCNDError",
     "HydroQuebecClient",

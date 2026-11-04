@@ -20,7 +20,8 @@ supporting modules sit underneath them.
 : Station data that is *not* one of the five daily networks above, read only
   through its own client: GHCN-Daily snow depth worldwide, CanSWE and NorSWE
   (historical SWE, mostly snow courses), Hydro-Québec's gamma SWE sensors,
-  Alberta's pillows and courses, Germany's DWD, Finland's Syke, Switzerland's
+  Alberta's pillows and courses, Germany's DWD, Finland's Syke and FMI
+  (snow courses and daily snow depth), Switzerland's
   SLF, Russia's route snow surveys, daily snow depth in the Southern Andes, and
   Andean snow pillows and sensors from Argentina's SNIH and Chile's CEAZA.
   Much of it is periodic SWE or daily snow

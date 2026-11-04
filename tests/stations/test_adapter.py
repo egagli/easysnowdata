@@ -56,15 +56,18 @@ def test_only_nve_needs_a_credential():
         "slf": (),
         "snih": (),
         "ceaza": (),
+        "fmi": (),
     }
     assert networks.get("nve").requires == ("nve",)
 
 
 def test_catalog_variables_come_from_the_client_registry():
-    # swe and snwd everywhere; only the richer networks carry wind and temp
-    for product_id in esd.stations.PRODUCT_IDS.values():
+    # swe and snwd everywhere but FMI, which publishes depth only; only the
+    # richer networks carry wind and temp
+    for network, product_id in esd.stations.PRODUCT_IDS.items():
         names = {v.name for v in catalog.get(product_id).variables}
-        assert {"swe", "snwd"} <= names
+        assert ({"snwd"} if network == "fmi" else {"swe", "snwd"}) <= names
+    assert "swe" not in {v.name for v in catalog.get("fmi-stations").variables}
     assert {"swe", "snwd"} == {v.name for v in catalog.get("nve-stations").variables}
     assert "wind_spd" in {v.name for v in catalog.get("awdb-stations").variables}
     # units follow DESIGN.md §3.5

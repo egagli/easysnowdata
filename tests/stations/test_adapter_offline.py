@@ -165,6 +165,11 @@ STATION_LISTS.update(
             _st("HDC", "Guandacol", -29.9, -69.9, has_snwd=True),
             _st("CDC", "A weather station", -30.0, -70.0),
         ],
+        # Every FMI station of a snow-depth network reports daily depth
+        "fmi": [
+            _st("101932", "Sodankylä Tähtelä", 67.37, 26.63, network_code="AWS"),
+            _st("100694", "Kitee Närsäkkälä", 61.92, 30.14, network_code="PRCP"),
+        ],
     }
 )
 
@@ -353,6 +358,8 @@ def test_advertised_daily_reads_each_networks_own_signal(stub_clients):
     assert bool(inv.loc["SNIH-12201", "daily"]) is False  # course (74)
     assert bool(inv.loc["CEAZA-HDC", "daily"]) is True
     assert bool(inv.loc["CEAZA-CDC", "daily"]) is False
+    assert bool(inv.loc["FMI-101932", "daily"]) is True
+    assert bool(inv.loc["FMI-100694", "daily"]) is True  # closed, still daily
 
 
 def test_daily_only_keeps_the_advertised_stations_on_the_live_route(stub_clients):
@@ -369,6 +376,8 @@ def test_daily_only_keeps_the_advertised_stations_on_the_live_route(stub_clients
         "SLF-IMIS-WFJ2",
         "SNIH-12817",
         "CEAZA-HDC",
+        "FMI-101932",
+        "FMI-100694",
     }
 
 
@@ -442,6 +451,19 @@ def test_load_reaches_the_networks_added_in_october_2026(stub_clients, monkeypat
     )
     # Every station came back with data under its own code
     assert int(ds["swe"].notnull().sum()) == 6 * 3
+
+
+def test_load_reaches_fmi_and_asks_it_for_depth_only(stub_clients):
+    """FMI serves no SWE: the default ("swe", "snwd") becomes ["snwd"] there,
+    while a network that has both is still asked for both."""
+    esd.stations.load(["FMI-101932", "12.142.0"], time="2024-03-01/2024-03-03")
+    fmi = stub_clients["fmi"].calls[-1]
+    assert fmi["station_ids"] == ["101932"]
+    assert fmi["variables"] == ["snwd"]
+    assert stub_clients["nve"].calls[-1]["variables"] == ["swe", "snwd"]
+    # Named explicitly, a variable is passed on as it is
+    esd.stations.load(["FMI-101932"], variables="swe", time="2024-03-01/2024-03-03")
+    assert stub_clients["fmi"].calls[-1]["variables"] == ["swe"]
 
 
 def test_ceaza_gets_the_registered_user_name(stub_clients, monkeypatch):
