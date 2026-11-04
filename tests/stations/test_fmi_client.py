@@ -164,6 +164,24 @@ TABLE_PAYLOAD = [
     "Kitee Närsäkkälä",
     "weather, sounding, air quality (FMI)",
     "precipitation",
+    {
+        "fmisid": 12,
+        "name": 13,
+        "y": 14,
+        "x": 15,
+        "z": 16,
+        "started": 17,
+        "ended": 18,
+        "groups": 19,
+    },
+    101839,
+    "Ylitornio Portimojärvi",
+    66.4,
+    23.9,
+    79,
+    1935,
+    2002,
+    "weather",
 ]
 TABLE_HTML = (
     '<html><body><script type="application/json" data-nuxt-data="nuxt-app" '
@@ -266,8 +284,8 @@ def test_output_units_are_canonical():
         assert info["output_units"] == canonical_units(info["type"]), code
 
 
-def test_snow_networks_cover_the_four_reporting_networks():
-    assert set(SNOW_NETWORKS) == {121, 122, 123, 124}
+def test_snow_networks_cover_the_reporting_networks():
+    assert set(SNOW_NETWORKS) == {121, 122, 123, 124, 224}
 
 
 def test_resolve_variables():
@@ -323,10 +341,10 @@ def test_parse_stations():
 
 def test_parse_station_table_reads_devalue_indices():
     table = _parse_station_table(TABLE_HTML)
-    assert table["101932"] == {
-        "elevation_m": 179.0,
-        "groups": "weather, sounding, air quality (FMI)",
-    }
+    assert table["101932"]["elevation_m"] == 179.0
+    assert table["101932"]["groups"] == "weather, sounding, air quality (FMI)"
+    assert table["101839"]["latitude"] == 66.4
+    assert table["101839"]["end_year"] == 2002
     assert table["100694"]["elevation_m"] is None
     with pytest.raises(FMIError, match="__NUXT_DATA__"):
         _parse_station_table("<html></html>")
@@ -344,9 +362,16 @@ def test_parse_series():
 
 def test_get_all_stations(client):
     stas = client.get_all_stations()
-    # The air-quality station (network 151) is not a snow-depth station.
-    assert [s["station_id"] for s in stas] == ["101932", "100694"]
-    sod, kitee = stas
+    # The air-quality station (network 151) is not a snow-depth station;
+    # 101839 is only in the station table.
+    assert [s["station_id"] for s in stas] == ["101932", "100694", "101839"]
+    sod, kitee, ylitornio = stas
+    assert ylitornio["station_source"] == "station_table"
+    assert ylitornio["coordinate_precision_deg"] == 0.1
+    assert ylitornio["network_code"] == "WS" and ylitornio["status"] == "Inactive"
+    assert (ylitornio["begin_year"], ylitornio["end_year"]) == (1935, 2002)
+    assert client._record_span(["101839"]) == (date(1935, 1, 1), date(2002, 12, 31))
+    assert sod["station_source"] == "wfs"
     assert sod["status"] == "Active" and sod["end_date"] is None
     assert sod["begin_date"] == "1891-01-01"
     assert sod["elevation_m"] == 179.0
@@ -367,6 +392,7 @@ def test_get_all_stations(client):
         "101932"
     ]
     assert client.get_all_stations(bbox=(29, 61, 31, 62))[0]["station_id"] == "100694"
+    assert len(client.get_all_stations(active_only=True)) == 1
 
 
 def test_station_table_failure_raises_unless_partial():
@@ -559,6 +585,7 @@ def test_default_span_follows_the_activity_period(client):
 
 def test_reporting_station_ids_keeps_stations_with_a_value(client):
     assert client.reporting_station_ids("2024-01-15") == {"101932"}
+    assert set(client.reporting_stations("2024-01-15")) == {"101932"}
     call = dict(client._session.calls[-1])
     assert call["bbox"] == "19.0,59.0,33.0,71.0"
     assert call["starttime"] == call["endtime"] == "2024-01-15T00:00:00Z"

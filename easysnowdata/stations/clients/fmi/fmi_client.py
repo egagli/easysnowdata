@@ -170,9 +170,19 @@ SNOW_NETWORKS: dict[int, tuple[str, str, str]] = {
     122: ("Sääasema", "manned weather station", "WS"),
     123: ("Ilmastoasema", "climate station", "CLIM"),
     124: ("Sadeasema", "precipitation station", "PRCP"),
+    224: (
+        "IL:n hallinnoima lentosääasema",
+        "FMI-administered airport weather station",
+        "AIRP",
+    ),
 }
 #: Priority when a station belongs to several snow networks.
-_NETWORK_PRIORITY = (121, 123, 122, 124)
+_NETWORK_PRIORITY = (121, 224, 123, 122, 124)
+
+#: Station-table ``groups`` of stations the WFS station list does not hold
+#: but the observation service has snow depth for (111 of them on
+#: 2026-11-04), → ``network_code``.
+_TABLE_GROUPS = {"weather": "WS", "precipitation": "PRCP"}
 
 _SOURCE_DAILY = f"{BASE_URL} — stored query {DAILY_QUERY}"
 _SOURCE_INSTANT = f"{BASE_URL} — stored query {INSTANT_QUERY}"
@@ -565,6 +575,35 @@ def _station_from_raw(raw: dict, elevations: dict[str, dict]) -> dict:
         "station_groups": extra.get("groups"),
         "operator": "Finnish Meteorological Institute",
         "station_url": None,
+        "station_source": "wfs",
+        "coordinate_precision_deg": None,
+    }
+
+
+def _station_from_table(fmisid: str, row: dict) -> dict:
+    """A station only FMI's public station table lists (coarse position)."""
+    end_year = row.get("end_year")
+    return {
+        "station_id": fmisid,
+        "name": row.get("name") or fmisid,
+        "latitude": row.get("latitude"),
+        "longitude": row.get("longitude"),
+        "elevation_m": row.get("elevation_m"),
+        "status": "Inactive" if end_year else "Active",
+        "begin_date": None,
+        "end_date": None,
+        "begin_year": row.get("begin_year"),
+        "end_year": end_year,
+        "wmo_id": f"{row['wmo']:05d}" if isinstance(row.get("wmo"), int) else None,
+        "region": None,
+        "network_code": _TABLE_GROUPS.get(str(row.get("groups"))),
+        "network_ids": [],
+        "networks": [],
+        "station_groups": row.get("groups"),
+        "operator": "Finnish Meteorological Institute",
+        "station_url": None,
+        "station_source": "station_table",
+        "coordinate_precision_deg": 0.1,
     }
 
 
@@ -599,12 +638,64 @@ def _parse_station_table(html: str) -> dict[str, dict]:
         if fmisid is None:
             continue
         z = _devalue(payload, obj.get("z"))
+        lat = _devalue(payload, obj.get("y"))
+        lon = _devalue(payload, obj.get("x"))
+        started = _devalue(payload, obj.get("started"))
+        ended = _devalue(payload, obj.get("ended"))
         out[str(fmisid)] = {
             "elevation_m": float(z) if isinstance(z, (int, float)) else None,
             "groups": _devalue(payload, obj.get("groups")),
+            "name": _devalue(payload, obj.get("name")),
+            "wmo": _devalue(payload, obj.get("wmo")),
+            # Rounded to 0.1° by the page.
+            "latitude": float(lat) if isinstance(lat, (int, float)) else None,
+            "longitude": float(lon) if isinstance(lon, (int, float)) else None,
+            "begin_year": started if isinstance(started, int) else None,
+            "end_year": ended if isinstance(ended, int) else None,
         }
     if not out:
         raise FMIError("FMI station table: no stations in the payload")
+    return out
+
+
+def _parse_positions(content: bytes) -> dict[str, dict]:
+    """Observation response → ``{fmisid: {name, latitude, longitude}}``."""
+    try:
+        root = ET.fromstring(content)
+    except ET.ParseError as exc:
+        raise FMIError(f"Unreadable observation response: {exc}") from exc
+    out: dict[str, dict] = {}
+    for loc in root.iter():
+        if _local(loc.tag) != "Location":
+            continue
+        fmisid = name = None
+        for el in loc:
+            space = el.get("codeSpace", "")
+            if _local(el.tag) == "identifier" and space.endswith("/fmisid"):
+                fmisid = (el.text or "").strip()
+            elif _local(el.tag) == "name" and space.endswith("/name"):
+                name = (el.text or "").strip()
+        if fmisid and fmisid not in out:
+            out[fmisid] = {"name": name, "latitude": None, "longitude": None}
+    # The point sits beside the location, in the same sampling feature
+    for feat in root.iter():
+        if _local(feat.tag) != "SF_SpatialSamplingFeature":
+            continue
+        ident = next(
+            (
+                (el.text or "").strip()
+                for el in feat.iter()
+                if _local(el.tag) == "identifier"
+                and el.get("codeSpace", "").endswith("/fmisid")
+            ),
+            None,
+        )
+        pos = feat.find(".//gml:Point/gml:pos", _NS)
+        if ident in out and pos is not None and pos.text:
+            parts = pos.text.split()
+            if len(parts) >= 2:
+                out[ident]["latitude"] = _to_float(parts[0])
+                out[ident]["longitude"] = _to_float(parts[1])
     return out
 
 
@@ -763,16 +854,25 @@ class FMIClient:
             raw = _parse_stations(content)
             if not raw:
                 raise FMIError("FMI station list is empty")
-            elevations = self._elevations()
-            self._stations_cache = [
-                _station_from_raw(r, elevations)
+            table = self._elevations()
+            stations = [
+                _station_from_raw(r, table)
                 for r in raw
                 if any(n in SNOW_NETWORKS for n, _ in r["networks"])
             ]
+            listed = {r["fmisid"] for r in raw}
+            extra = [
+                _station_from_table(fmisid, row)
+                for fmisid, row in table.items()
+                if fmisid not in listed and str(row.get("groups")) in _TABLE_GROUPS
+            ]
+            self._stations_cache = stations + extra
             logger.info(
-                "FMI: %d stations in snow-depth networks (of %d listed)",
-                len(self._stations_cache),
+                "FMI: %d stations in snow-depth networks (of %d listed) and %d "
+                "only in the station table",
+                len(stations),
                 len(raw),
+                len(extra),
             )
         return self._stations_cache
 
@@ -925,20 +1025,22 @@ class FMIClient:
         unknown = [i for i in ids if i in self._unknown_ids]
         return known, unknown
 
-    def reporting_station_ids(
+    def reporting_stations(
         self,
         day: str | date,
         variable: str = "snow",
         bbox: tuple[float, float, float, float] = FINLAND_BBOX,
-    ) -> set[str]:
+    ) -> dict[str, dict]:
         """
-        fmisids with a daily value of *variable* on *day*, from one request.
+        Stations with a daily value of *variable* on *day*, from one request.
 
         A ``bbox`` query returns only stations that have data, so sampling a
         few days a year is a cheap way to find every station with a daily
         record — far cheaper than :meth:`screen_station_ids` over thousands
         of closed stations, most of which the observation service does not
-        know.  One day for all of Finland is about 1 MB.
+        know.  One day for all of Finland is about 1 MB.  The response also
+        gives each station's exact position, which the public station table
+        rounds to 0.1°.
 
         Parameters
         ----------
@@ -952,8 +1054,9 @@ class FMIClient:
 
         Returns
         -------
-        set[str]
-            fmisids with a non-missing value that day.
+        dict[str, dict]
+            ``{fmisid: {"name", "latitude", "longitude"}}`` for the stations
+            with a non-missing value that day.
 
         Raises
         ------
@@ -971,11 +1074,25 @@ class FMIClient:
                 ("endtime", _iso(d)),
             ],
         )
-        return {
+        with_value = {
             fmisid
             for fmisid, _param, pairs in _parse_series(content)
             if any(_to_float(v) is not None for _t, v in pairs)
         }
+        positions = _parse_positions(content)
+        return {
+            i: positions.get(i, {"name": None, "latitude": None, "longitude": None})
+            for i in with_value
+        }
+
+    def reporting_station_ids(
+        self,
+        day: str | date,
+        variable: str = "snow",
+        bbox: tuple[float, float, float, float] = FINLAND_BBOX,
+    ) -> set[str]:
+        """The fmisids of :meth:`reporting_stations`."""
+        return set(self.reporting_stations(day, variable, bbox))
 
     # ── Data ─────────────────────────────────────────────────────────────────
 
@@ -1111,7 +1228,18 @@ class FMIClient:
         """
         by_id = {s["station_id"]: s for s in self._stations()}
         today = date.today()
-        listed = [by_id[i] for i in ids if i in by_id]
+        listed = [
+            {
+                **s,
+                "begin_date": s["begin_date"]
+                or (f"{s['begin_year']}-01-01" if s.get("begin_year") else None),
+                "end_date": s["end_date"]
+                or (f"{s['end_year']}-12-31" if s.get("end_year") else None),
+            }
+            for i in ids
+            if i in by_id
+            for s in [by_id[i]]
+        ]
         begins = [s["begin_date"] for s in listed if s["begin_date"]]
         begin = (
             max(_EARLIEST, date.fromisoformat(min(begins)))
