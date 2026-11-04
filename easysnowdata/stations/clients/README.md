@@ -2928,11 +2928,16 @@ Table-only stations have `begin_date` / `end_date` `None` and
   ~30 days; it is not.)
 - **At most 99 stations per request**: a 100th `fmisid` is rejected
   ("specified more than 99 times").
-- **Unknown stations fail the whole request.** Some closed stations are
-  listed by `fmi::ef::stations` but unknown to the observation service,
-  which answers HTTP 400 "Unknown 'fmisid' value!" for any request naming
-  one. They are mostly stations closed before about 2011, though not all.
-  The client finds them by halving a failing batch on a one-day request.
+- **The `fmisid` parameter rejects stations the bbox query serves.**
+  Hundreds of stations answer HTTP 400 "Unknown 'fmisid' value!" for any
+  request naming them, and one such id fails the whole request, yet a
+  `bbox` query returns their data (`fmisid=101088`, Äetsä Pehula, is
+  rejected; a box around it returns 364 values for 1965). The client finds
+  rejected ids by halving a failing batch on a one-day request, then asks
+  for a ±0.25° box around each station and keeps only its own series.
+  `get_data(bbox=...)` is the service's own bbox query, the cheapest way
+  to fetch many stations: all 907 stations with data, full record, took
+  9.3 minutes on 2026-11-04 (151 MB of CSV).
 - **Elevation is not in the WFS.** It comes from the station table page,
   a Nuxt app whose payload stores each station as indices into one array.
   If that page changes shape, `get_all_stations()` raises unless
