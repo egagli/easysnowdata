@@ -525,7 +525,7 @@ def test_other_400_still_raises():
 def test_live_stations():
     c = FMIClient()
     stas = c.get_all_stations()
-    assert len(stas) > 2000  # 2 244 in November 2026, open and closed
+    assert len(stas) > 2000  # 2 458 in November 2026, open and closed
     active = [s for s in stas if s["status"] == "Active"]
     assert len(active) > 150
     sod = next(s for s in stas if s["station_id"] == "101932")
@@ -578,9 +578,9 @@ def test_default_span_follows_the_activity_period(client):
     assert client._record_span(["100694"]) == (date(1925, 5, 1), date(1958, 12, 31))
     # An active station extends the span to today.
     begin, end = client._record_span(["100694", "101932"])
-    assert begin == date(1900, 1, 1) and end == date.today()  # 1891 → floor 1900
+    assert begin == date(1891, 1, 1) and end == date.today()
     # A station not in the list: the whole range.
-    assert client._record_span(["999999"]) == (date(1900, 1, 1), date.today())
+    assert client._record_span(["999999"]) == (date(1840, 1, 1), date.today())
 
 
 def test_reporting_station_ids_keeps_stations_with_a_value(client):

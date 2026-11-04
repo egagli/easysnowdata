@@ -6,8 +6,8 @@ laitos) open-data WFS download service — daily snow depth for Finland,
 with the other daily and hourly weather parameters the service serves.
 
 Primary use case: daily snow depth (parameter ``snow``) at FMI's automatic
-weather stations and its manual precipitation and climate stations, from the
-1930s at the long-record stations.  FMI publishes no snow water equivalent
+weather stations and its manual precipitation and climate stations, from 1895
+at Helsinki Kaisaniemi and from 1959 at most stations.  FMI publishes no snow water equivalent
 through this service; Finnish snow-course SWE comes from Syke
 (:mod:`easysnowdata.stations.clients.syke`), and Sodankylä's research SWE
 record from FMI's separate LITDB portal (https://litdb.fmi.fi).
@@ -75,14 +75,19 @@ Stations
 --------
 :meth:`FMIClient.get_all_stations` lists the stations of the networks that
 report snow depth (:data:`SNOW_NETWORKS`: automatic weather stations,
-manned weather stations, climate stations and precipitation stations), open
-and closed.  ``station_id`` is the ``fmisid`` as a string.  Elevations come
-from FMI's public station table (``z``, metres); a station missing from it
-has ``elevation_m = None``.  Some closed stations are listed by
-``fmi::ef::stations`` but unknown to the observation service (stations
-closed before about 2011, though not all of them);
+airport weather stations, manned weather stations, climate stations and
+precipitation stations), open and closed, plus the weather and
+precipitation stations that only FMI's public station table lists (194 in
+November 2026; ``station_source = "station_table"``, positions rounded to
+0.1°, years instead of dates).  Of the 2 458, 907 had daily snow depth on at
+least one of ~350 sampled days.  ``station_id`` is the ``fmisid`` as a
+string.  Elevations come from the station table (``z``, metres); a station
+missing from it has ``elevation_m = None``.  Many closed stations are
+listed by ``fmi::ef::stations`` but unknown to the observation service;
 :meth:`FMIClient.screen_station_ids` finds them, and :meth:`get_data`
-skips them with a log message rather than failing the whole request.
+skips them with a warning rather than failing the whole request.
+:meth:`FMIClient.reporting_stations` finds the stations with data far more
+cheaply, one sampled day per request.
 
 Design principles
 -----------------
@@ -156,8 +161,9 @@ _INSTANT_WINDOW = timedelta(hours=168)
 FINLAND_BBOX: tuple[float, float, float, float] = (19.0, 59.0, 33.0, 71.0)
 
 #: Earliest date asked for when no begin date is given and a station's
-#: period of record is unknown.
-_EARLIEST = date(1900, 1, 1)
+#: period of record is unknown.  Helsinki Kaisaniemi has daily snow depth
+#: from 1895 at least (its record begins in 1844).
+_EARLIEST = date(1840, 1, 1)
 
 #: Plausibility bound for snow depth, cm (DESIGN.md: 0–15 m).
 _MAX_SNWD_CM = 1500.0

@@ -1167,7 +1167,7 @@ window of a season.
 | [`SouthernAndesClient`](#17-southernandesclient) | Southern Andes snow depth (Zenodo, Medina Mendoza & Caro 2026) | 69 (57 reporting in 2024) | no SWE: ultrasonic snow depth, daily | none | 2010–2024; versioned | CC BY 4.0 |
 | [`SNIHClient`](#18-snihclient) | SNIH / Base de Datos Hidrológica Integrada, Argentina (portal page methods) | 50 snow (34 pillows; 29 reporting) | pillows: validated daily SWE + raw 4–6 h telemetry; manual snow courses at 5 sites | 23 in 2023 (validated); 25 in 2026 from raw telemetry | validated 1989–2024; courses from 1951; raw 2009–present | SNIH terms of use: free use incl. commercial, cite SIPH/network |
 | [`CEAZAClient`](#19-ceazaclient) | CEAZA-Met web service (CEAZA, Chile) | 17 snow stations (10 active) of ~95 | automatic SWE (5 sensors) and snow weight (3 sensors) at 6 stations; hourly | 3 in 2025 (El Tapado, Tascadero, Llano de Las Liebres) | snow from 2011; near real time | none stated; terms: register by e-mail, credit CEAZA |
-| [`FMIClient`](#20-fmiclient) | FMI open-data WFS (Finland) | 2,244 snow-depth stations (243 active) | no SWE: daily snow depth, automatic (06 UTC reading) and manual | none | snow depth from the 1930s; daily | CC BY 4.0 |
+| [`FMIClient`](#20-fmiclient) | FMI open-data WFS (Finland) | 2,458 stations (255 active); 907 with daily snow depth | no SWE: daily snow depth, automatic (06 UTC reading) and manual | none | snow depth from 1895 (Helsinki), most from 1959; daily | CC BY 4.0 |
 
 Overlaps to know about: NorSWE contains CanSWE, SNOTEL, NRCS courses,
 CDEC, NVE, SYKE, SLF GCOS and RIHMI route surveys; CanSWE contains the
@@ -2763,7 +2763,7 @@ attribute "Finnish Meteorological Institute".
 
 Daily snow depth from FMI's automatic weather stations and its manual
 precipitation, climate and manned weather stations, open and closed, with
-records from the 1930s at the long-record sites. Daily temperature and
+records from 1895 at Helsinki Kaisaniemi and from 1959 at most stations. Daily temperature and
 precipitation, and hourly or 10-minute automatic-station data, come from
 the same service. **No SWE**: Finnish snow-course SWE is Syke's
 ([§14](#14-sykeclient)); Sodankylä's research SWE record is on FMI's
@@ -2844,12 +2844,16 @@ raises.
 
 #### `get_all_stations(active_only, bbox)` → `list[dict]`
 
-Every station of the four networks that report snow depth
+Every station of the five networks that report snow depth
 (`SNOW_NETWORKS`: 121 automatic weather station, 122 manned weather
-station, 123 climate station, 124 precipitation station), open and closed:
-2 244 in November 2026, 243 of them active. Read from `fmi::ef::stations`
-with `starttime=1900-01-01`; without a time range that query lists only
-active stations.
+station, 123 climate station, 124 precipitation station, 224
+FMI-administered airport weather station), open and closed, read from
+`fmi::ef::stations` with `starttime=1900-01-01` (without a time range that
+query lists only active stations); plus the weather and precipitation
+stations that only FMI's public station table lists (`station_source =
+"station_table"`). 2 458 in November 2026, 255 of them active, 194 from the
+table. A sample of ~350 days found daily snow depth at 907 of them, and at
+6 stations in neither list.
 
 #### `get_metadata(station_id)` → `dict`
 
@@ -2871,12 +2875,16 @@ recs = client.get_data("101932", begin_date="2024-01-01", end_date="2024-04-30")
 #    "type": "snwd", "value": 57.0, "units": "cm", "interval": "daily"}
 ```
 
-#### `reporting_station_ids(day, variable="snow", bbox=FINLAND_BBOX)` → `set[str]`
+#### `reporting_stations(day, variable="snow", bbox=FINLAND_BBOX)` → `dict`
 
 fmisids with a daily value on one day, from a single whole-Finland request
 (~1 MB): a `bbox` query returns only stations that have data. Sampling a
 few days a year finds every station with a daily record in a few hundred
-requests, where screening all 2,244 ids takes over half an hour.
+requests (~350 days cover the record in about 3 minutes), where
+screening all ~2,250 listed ids took over half an hour and did not
+finish. Returns `{fmisid: {name, latitude, longitude}}`, the position
+exact (the station table rounds it); `reporting_station_ids()` returns
+the ids alone.
 
 #### `screen_station_ids(station_ids)` → `(known, unknown)`
 
@@ -2892,10 +2900,15 @@ with a warning; results are cached on the client.
 has none, which is most closed precipitation stations), `status`
 (`Active` while any activity period is open), `begin_date`, `end_date`
 (`None` while active), `wmo_id`, `region`, `network_code` (the main snow
-network: `AWS`, `CLIM`, `WS` or `PRCP`), `network_ids` and `networks`
-(every network the station belongs to, Finnish names), `station_groups`
-(the station table's summary, e.g. `"precipitation"`), `operator` and
-`station_url` (`None`: FMI has no per-station page).
+network: `AWS`, `AIRP`, `CLIM`, `WS` or `PRCP`), `network_ids` and
+`networks` (every network the station belongs to, Finnish names),
+`station_groups` (the station table's summary, e.g. `"precipitation"`),
+`operator`, `station_url` (`None`: FMI has no per-station page),
+`station_source` (`"wfs"` or `"station_table"`) and
+`coordinate_precision_deg` (`0.1` for table-only stations, whose
+position the table rounds; `reporting_stations()` gives the exact one).
+Table-only stations have `begin_date` / `end_date` `None` and
+`begin_year` / `end_year` instead.
 
 ### Endpoints used
 

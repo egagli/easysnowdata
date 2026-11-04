@@ -4,8 +4,8 @@ Finnish daily snow depth (FMI)
 
 The Finnish Meteorological Institute (FMI) publishes daily snow depth from its
 automatic weather stations and its manual precipitation and climate stations
-through its open-data WFS (CC BY 4.0), with records from the 1930s at the
-long-record sites. It publishes no SWE; Finnish snow-course SWE is Syke's.
+through its open-data WFS (CC BY 4.0), from 1895 at Helsinki Kaisaniemi and
+from 1959 at most stations. It publishes no SWE; Finnish snow-course SWE is Syke's.
 
 ``FMIClient`` reads the service, with no account. It lists open and closed
 stations; some closed ones are unknown to the observation service and are
@@ -25,9 +25,10 @@ from easysnowdata.stations.clients import FMIClient
 client = FMIClient()
 
 # %%
-# Every station of the four networks that report snow depth. ``network_code``
-# is the station's main network: AWS (automatic weather station), CLIM
-# (climate), WS (manned weather station) or PRCP (precipitation).
+# Every station of the networks that report snow depth. ``network_code`` is
+# the station's main network: AWS (automatic weather station), AIRP
+# (airport), CLIM (climate), WS (manned weather station) or PRCP
+# (precipitation).
 stations = client.get_all_stations()
 stations_gdf = gpd.GeoDataFrame(
     pd.DataFrame(stations).set_index("station_id"),

@@ -541,7 +541,7 @@ FMI_PRODUCT = Product(
     description=(
         "Daily snow depth from the Finnish Meteorological Institute's "
         "automatic weather stations and its manual precipitation and climate "
-        "stations, open and closed, from the 1930s at the long-record sites; "
+        "stations, open and closed, from 1895 at Helsinki and 1959 at most; "
         "no SWE (Finnish snow-course SWE is Syke's). Station codes are "
         "FMI-<fmisid> (FMI-101932, Sodankylä Tähtelä)."
     ),
@@ -551,7 +551,7 @@ FMI_PRODUCT = Product(
             provider="stations",
             location=networks.NETWORKS["fmi"].api_url,
             extent="Finland",
-            temporal="1930s/present (snow depth)",
+            temporal="1895/present (snow depth; most stations from 1959)",
             latency="a day",
             notes=(
                 "the FMI open-data WFS stored queries; no account; 600 "
