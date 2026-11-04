@@ -221,13 +221,14 @@ class _StubSession:
         if query == STATIONS_QUERY:
             return _Resp(200, STATIONS_XML)
         if "bbox" in d:
-            return _Resp(
-                200,
-                _collection(
-                    _series("101932", "snow", [(d["starttime"], "57.0")]),
-                    _series("101933", "snow", [(d["starttime"], "NaN")]),
-                ),
-            )
+            west = float(d["bbox"].split(",")[0])
+            members = [
+                _series("101932", "snow", [(d["starttime"], "57.0")]),
+                _series("101933", "snow", [(d["starttime"], "NaN")]),
+            ]
+            if 29 < west < 31:  # a box around Kitee: the rejected station's data
+                members.append(_series("100694", "snow", [(d["starttime"], "12.0")]))
+            return _Resp(200, _collection(*members))
         if UNKNOWN_IDS & set(ids):
             return _Resp(400, _exception("Unknown &apos;fmisid&apos; value!"))
         start = d["starttime"]
@@ -432,13 +433,19 @@ def test_get_data_schema_flags_and_unknown_station(client, caplog):
         end_date="2024-12-31",
         include_flags=True,
     )
-    # 100694 is unknown to the observation service: skipped, not fatal.
-    assert {r["station_id"] for r in recs} == {"101932"}
-    assert "unknown to the observation service" in caplog.text
-    assert [(r["date"], r["value"], r["flag"]) for r in recs] == [
+    # 100694 is rejected by fmisid but reached through a box around it;
+    # the other stations in that box are dropped.
+    assert {r["station_id"] for r in recs} == {"101932", "100694"}
+    kitee = [r for r in recs if r["station_id"] == "100694"]
+    assert [(r["date"], r["value"]) for r in kitee] == [("2024-01-01", 12.0)]
+    box = [dict(c)["bbox"] for c in client._session.calls if "bbox" in dict(c)]
+    assert box and box[0].startswith("29.89")
+    sod = [r for r in recs if r["station_id"] == "101932"]
+    assert [(r["date"], r["value"], r["flag"]) for r in sod] == [
         ("2024-01-01", 57.0, None),
         ("2024-07-01", 0.0, "snow_free"),
     ]
+    assert "no data for" not in caplog.text
     for r in recs:
         assert set(r) == RECORD_KEYS | {"flag"}
         assert r["units"] == "cm" and r["interval"] == "daily"
@@ -499,11 +506,13 @@ def test_get_data_errors(client):
         client.get_data("101932", variables="swe")
 
 
-def test_get_data_bbox_resolves_stations(client):
+def test_get_data_bbox_is_the_services_own_query(client):
     recs = client.get_data(
         bbox=(26, 67, 27, 68), begin_date="2024-01-01", end_date="2024-01-31"
     )
-    assert {r["station_id"] for r in recs} == {"101932"}
+    assert {r["station_id"] for r in recs} == {"101932"}  # 101933 had only NaN
+    call = dict(client._session.calls[-1])
+    assert call["bbox"] == "26.0,67.0,27.0,68.0" and "fmisid" not in call
 
 
 def test_other_400_still_raises():

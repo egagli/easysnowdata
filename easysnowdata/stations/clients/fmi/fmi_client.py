@@ -83,9 +83,12 @@ November 2026; ``station_source = "station_table"``, positions rounded to
 least one of ~350 sampled days.  ``station_id`` is the ``fmisid`` as a
 string.  Elevations come from the station table (``z``, metres); a station
 missing from it has ``elevation_m = None``.  Many closed stations are
-listed by ``fmi::ef::stations`` but unknown to the observation service;
-:meth:`FMIClient.screen_station_ids` finds them, and :meth:`get_data`
-skips them with a warning rather than failing the whole request.
+listed by ``fmi::ef::stations`` but rejected by the observation queries'
+``fmisid`` parameter, although a ``bbox`` query still returns their data
+(checked 2026-11-04: ``fmisid=101088`` answers "Unknown 'fmisid' value!",
+while a box around Äetsä Pehula returns its 1965 record).
+:meth:`FMIClient.screen_station_ids` finds those ids, and :meth:`get_data`
+asks for a box around each one and keeps only its own series.
 :meth:`FMIClient.reporting_stations` finds the stations with data far more
 cheaply, one sampled day per request.
 
@@ -491,6 +494,22 @@ def _windows(begin: date, end: date, interval: str) -> list[tuple[str, str]]:
         out.append((_iso(cur_dt), _iso(stop_dt)))
         cur_dt = stop_dt + step
     return out
+
+
+def _bbox_param(bbox: tuple[float, float, float, float]) -> str:
+    return ",".join(str(round(float(v), 5)) for v in bbox)
+
+
+#: Half-width of the box asked for around a station the fmisid parameter
+#: rejects.  Positions in the station list and in observation responses
+#: differ by up to 0.22° (station moves), and table-only positions are
+#: rounded to 0.1°.
+_FALLBACK_BOX_DEG = 0.25
+
+
+def _around(lat: float, lon: float) -> tuple[float, float, float, float]:
+    d = _FALLBACK_BOX_DEG
+    return (lon - d, lat - d, lon + d, lat + d)
 
 
 def _local(tag: str) -> str:
@@ -1118,15 +1137,23 @@ class FMIClient:
         Parameters
         ----------
         station_ids : list[str] or str or None
-            fmisid(s).  Required unless ``bbox`` is given.
+            fmisid(s).  Required unless ``bbox`` is given.  Stations the
+            ``fmisid`` parameter rejects are fetched with a box of
+            ±0.25° around their listed position, keeping only their own
+            series.
         variables : list[str] or str or None
             FMI parameter names (``"snow"``, ``"tday"``, ``"snow_aws"``, …)
             or standardized types (``"snwd"``, ``"temp"``, …).  ``None`` =
             snow depth (``snow`` daily, ``snow_aws`` sub-daily).
         bbox : tuple, optional
-            ``(min_lon, min_lat, max_lon, max_lat)``.
+            ``(min_lon, min_lat, max_lon, max_lat)``, used when
+            ``station_ids`` is None: the service's own bbox query, which
+            returns every station with data in the box (the cheapest way to
+            fetch many stations: all of Finland for a year is one request of
+            ~20–60 MB).  Without dates it covers 1840 to today.
         begin_date, end_date : str or date, optional
-            Inclusive ``YYYY-MM-DD`` bounds.  Without them the request
+            Inclusive ``YYYY-MM-DD`` bounds.  With ``station_ids`` and no
+            dates, the request
             covers the stations' joint activity period: from the earliest
             ``begin_date`` to the latest ``end_date``, or to today when any
             station is active (the whole record).  Ranges are split into
@@ -1143,8 +1170,7 @@ class FMIClient:
         list[dict]
             ``{station_id, date, variable, type, value, units, interval}``
             (+ ``datetime`` for sub-daily, ``flag``), one per non-missing
-            value.  Stations the observation service does not know are
-            logged and skipped.
+            value.  A station no request reaches is logged.
 
         Raises
         ------
@@ -1168,54 +1194,79 @@ class FMIClient:
         """
         iv = _resolve_interval(interval)
         codes = _resolve_variables(variables, iv)
-        if station_ids is not None:
-            ids = list(dict.fromkeys(s.strip() for s in _coerce_list(station_ids)))
-        elif bbox is not None:
-            ids = [s["station_id"] for s in self.get_all_stations(bbox=bbox)]
-        else:
+        if station_ids is None and bbox is None:
             raise ValueError("Provide station_ids or bbox.")
-        for i in ids:
-            if not i.isdigit():
-                raise FMIError(f"FMI station ids are integers (fmisid); got {i!r}")
-        if not ids:
-            return []
-
-        if begin_date is None or end_date is None:
-            span_begin, span_end = self._record_span(ids)
-        begin = date.fromisoformat(_date_str(begin_date)) if begin_date else span_begin
-        end = date.fromisoformat(_date_str(end_date)) if end_date else span_end
-        if begin > end:
-            return []
-
-        known, unknown = self.screen_station_ids(ids)
-        if unknown:
-            logger.warning(
-                "FMI: %d station(s) unknown to the observation service, skipped: %s",
-                len(unknown),
-                ", ".join(unknown[:20]) + (" …" if len(unknown) > 20 else ""),
-            )
-        if not known:
-            return []
-
         query = DAILY_QUERY if iv == "daily" else INSTANT_QUERY
         extra: list[tuple[str, Any]] = [("parameters", ",".join(codes))]
         if iv != "daily":
             extra.append(("timestep", _TIMESTEP[iv]))
-        records: list[dict] = []
-        for group in _chunk(known, _MAX_IDS):
+
+        def fetch(where: list[tuple[str, Any]], keep: set[str] | None) -> list[dict]:
+            out: list[dict] = []
             for start, stop in _windows(begin, end, iv):
                 content = self._wfs(
-                    query,
-                    extra
-                    + [("starttime", start), ("endtime", stop)]
-                    + [("fmisid", i) for i in group],
+                    query, extra + [("starttime", start), ("endtime", stop)] + where
                 )
                 for fmisid, param, pairs in _parse_series(content):
-                    if param not in VARIABLES:
-                        continue
-                    records.extend(
-                        _records(fmisid, param, pairs, iv, include_flags, begin, end)
-                    )
+                    if param in VARIABLES and (keep is None or fmisid in keep):
+                        out.extend(
+                            _records(
+                                fmisid, param, pairs, iv, include_flags, begin, end
+                            )
+                        )
+            return out
+
+        records: list[dict] = []
+        if station_ids is None:
+            # The service's own bbox query: every station with data in the
+            # box, including those its fmisid parameter rejects.
+            begin = (
+                date.fromisoformat(_date_str(begin_date)) if begin_date else _EARLIEST
+            )
+            end = date.fromisoformat(_date_str(end_date)) if end_date else date.today()
+            if begin > end:
+                return []
+            records = fetch([("bbox", _bbox_param(bbox))], None)
+        else:
+            ids = list(dict.fromkeys(s.strip() for s in _coerce_list(station_ids)))
+            for i in ids:
+                if not i.isdigit():
+                    raise FMIError(f"FMI station ids are integers (fmisid); got {i!r}")
+            if not ids:
+                return []
+            if begin_date is None or end_date is None:
+                span_begin, span_end = self._record_span(ids)
+            begin = (
+                date.fromisoformat(_date_str(begin_date)) if begin_date else span_begin
+            )
+            end = date.fromisoformat(_date_str(end_date)) if end_date else span_end
+            if begin > end:
+                return []
+            known, unknown = self.screen_station_ids(ids)
+            for group in _chunk(known, _MAX_IDS):
+                records.extend(fetch([("fmisid", i) for i in group], set(group)))
+            # The fmisid parameter rejects some stations whose data the bbox
+            # query still returns: ask for a box around each, keep its own.
+            by_id = {s["station_id"]: s for s in self._stations()}
+            unreachable: list[str] = []
+            for sid in unknown:
+                sta = by_id.get(sid)
+                if not sta or sta.get("latitude") is None:
+                    unreachable.append(sid)
+                    continue
+                box = _around(sta["latitude"], sta["longitude"])
+                got = fetch([("bbox", _bbox_param(box))], {sid})
+                if not got:
+                    unreachable.append(sid)
+                records.extend(got)
+            if unreachable:
+                logger.warning(
+                    "FMI: no data for %d station(s) the fmisid parameter rejects "
+                    "and a box around them does not return: %s",
+                    len(unreachable),
+                    ", ".join(unreachable[:20])
+                    + (" …" if len(unreachable) > 20 else ""),
+                )
         records.sort(
             key=lambda r: (
                 r["station_id"],
