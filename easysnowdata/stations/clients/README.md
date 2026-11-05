@@ -312,9 +312,16 @@ Fields: `station_id`, `name`, `elevation_ft`, `latitude`, `longitude`,
 
 #### `get_stations(sensors, active_only)` → `list[dict]`
 
-Queries the CDEC station search for each sensor number and merges results.
-Also supplements with the snow course and pillow lists to set `is_snow_course`,
-`is_snow_pillow`, `has_daily_swe`, `has_daily_snwd` flags on each station dict.
+Queries the CDEC station search for each sensor number and merges results,
+then repeats each search with CDEC's duration filter (`dur=D/H/E/M`, 12 more
+requests) to record `sensor_durations` (`{3: ["D", "H"], 18: ["M"], …}`).
+`has_daily_swe` (sensor 3 or 82) and `has_daily_snwd` (18) are True only for a
+**daily** sensor: the plain search lists every station with the sensor at any
+duration, and most of its ~560 snow stations are monthly courses. In November
+2026, 145 had a daily snow sensor, ~340 only monthly ones and 74 only hourly
+or event ones. If a duration search fails, the flags fall back to sensor
+presence (with a warning) and `sensor_durations` is `None`. The snow course
+and pillow lists set `is_snow_course` and `is_snow_pillow`.
 
 ```python
 # All stations with any snow sensor
