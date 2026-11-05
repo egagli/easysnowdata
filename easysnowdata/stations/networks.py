@@ -9,10 +9,11 @@ station identifier in that network. Two spellings matter:
     ``"679_WA_SNTL"``. Unique across all networks.
 ``station_id``
     What the network's own API calls the station, e.g. the AWDB triplet
-    ``"679:WA:SNTL"``. AWDB swaps ``:`` for ``_``; Alberta, SLF, SNIH and
-    CEAZA codes add a prefix (``"ARB-05BB803"``, ``"SLF-IMIS-WFJ2"``,
-    ``"SNIH-12817"``, ``"CEAZA-HDC"``), as global_snow_networks names them;
-    for the rest the code *is* the station id.
+    ``"679:WA:SNTL"``. AWDB swaps ``:`` for ``_``; Alberta, SLF, SNIH, CEAZA
+    and FMI codes add a prefix (``"ARB-05BB803"``, ``"SLF-IMIS-WFJ2"``,
+    ``"SNIH-12817"``, ``"CEAZA-HDC"``, ``"FMI-101932"``), as
+    global_snow_networks names them; for the rest the code *is* the station
+    id.
 
 :func:`split_by_network` turns a mix of codes, station ids and inventory rows
 into ``{network_id: [station_id, …]}``, which is what :func:`easysnowdata.stations.load`
@@ -207,6 +208,19 @@ NETWORKS: dict[str, Network] = {
         id_key="station_id",
         code_pattern=r"^CEAZA-",
         code_prefix="CEAZA-",
+    ),
+    "fmi": Network(
+        id="fmi",
+        title="FMI weather, climate and precipitation stations (Finland)",
+        client="FMIClient",
+        requires=(),
+        extent="Finland",
+        data_provider="Finnish Meteorological Institute open data",
+        api_url="https://opendata.fmi.fi/wfs",
+        id_key="station_id",
+        # "FMI-101932": the fmisid, prefixed
+        code_pattern=r"^FMI-",
+        code_prefix="FMI-",
     ),
 }
 

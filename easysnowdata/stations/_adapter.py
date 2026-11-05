@@ -47,6 +47,7 @@ PRODUCT_IDS = {
     "slf": "slf-stations",
     "snih": "snih-stations",
     "ceaza": "ceaza-stations",
+    "fmi": "fmi-stations",
 }
 
 #: SLF datasets ``inventory(source="clients")`` lists, in this order.
@@ -211,7 +212,8 @@ def inventory(
     networks
         Which networks to list — any of ``"awdb"``, ``"cdec"``, ``"databc"``,
         ``"nve"``, ``"yukon"``, ``"alberta"``, ``"hydroquebec"``, ``"slf"``,
-        ``"snih"``, ``"ceaza"``. ``None`` (default) means all of them.
+        ``"snih"``, ``"ceaza"``, ``"fmi"``. ``None`` (default) means all of
+        them.
     daily_only
         Keep only stations with a daily-or-better SWE or snow-depth record.
         On ``source="archive"`` this is the **probe-verified** verdict
@@ -393,6 +395,10 @@ def _advertised_daily(
                 not str(station.get("station_id", "")).startswith("GCOS-")
                 and bool(station.get("has_swe") or station.get("has_snwd"))
             )
+        elif network == "fmi":
+            # Every station of the four snow-depth networks reports daily
+            # depth; the archive's probe decides whether it has any
+            out.append(bool(station.get("network_code")))
         elif network == "snih":
             # Code 73 is a snow pillow; the courses (74) are periodic
             out.append(73 in (station.get("snow_codes") or ()))
@@ -483,7 +489,10 @@ def load(
     variables
         Standardized types (``"swe"``, ``"snwd"``, ``"temp"``, … — the
         vocabulary in :data:`easysnowdata.stations.networks.TYPES`) or a
-        network's own native names. Default: SWE and snow depth. The returned
+        network's own native names. Default: SWE and snow depth, each network
+        asked only for the ones it serves (FMI has no SWE); a variable named
+        explicitly is passed on as it is, and a network that lacks it
+        raises. The returned
         data variables are always named for the *type*, whichever spelling
         went in; the native names that fed each one are in its
         ``native_variables`` attribute.
@@ -555,6 +564,7 @@ def load(
     grouped = _split(stations, networks)
     begin, end = _window(time)
     wanted = _variable_names(variables)
+    default_variables = variables is _DEFAULT_VARIABLES or variables is None
 
     records: dict[str, list[dict]] = {}
     products: list[Any] = []
@@ -572,12 +582,16 @@ def load(
             end or "today",
         )
         records[network] = []
+        asked = list(wanted)
+        if default_variables:
+            served = {v.name for v in product.variables}
+            asked = [w for w in wanted if w in served] or asked
         for kwargs, native_ids, qualify in _requests(network, ids):
             client = _client(network, **kwargs)
             with auth.env(*_nets.get(network).requires):
                 got = client.get_data(
                     station_ids=native_ids,
-                    variables=list(wanted),
+                    variables=asked,
                     begin_date=begin,
                     end_date=end,
                     interval=interval,

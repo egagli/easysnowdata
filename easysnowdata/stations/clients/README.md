@@ -33,8 +33,9 @@ time-series data.
 17. [SouthernAndesClient — Southern Andes snow depth (Chile, Argentina)](#17-southernandesclient)
 18. [SNIHClient — SNIH snow pillows and courses (Argentina)](#18-snihclient)
 19. [CEAZAClient — CEAZA-Met (Chile)](#19-ceazaclient)
-20. [Error Handling](#20-error-handling)
-21. [Adding a New Client](#21-adding-a-new-client)
+20. [FMIClient — FMI open data (Finland)](#20-fmiclient)
+21. [Error Handling](#21-error-handling)
+22. [Adding a New Client](#22-adding-a-new-client)
 
 ---
 
@@ -1138,14 +1139,17 @@ for rec in c.get_year_data(2026, station_ids=["RSM00027612", "USC00457780"]):
 
 ## 8. Other SWE and snow-depth clients: overview
 
-The eleven clients in §9–§19 follow the same contract (DESIGN.md §3) but
-are **not wired into** `stations.networks`, the catalog,
-`inventory()`/`load()` or the `global_snow_networks` archive. Use them
-directly. All are exported from `easysnowdata.stations.clients` and need no
+The twelve clients in §9–§20 follow the same contract (DESIGN.md §3) but
+were added without being wired into `stations.networks`, the catalog,
+`inventory()`/`load()` or the `global_snow_networks` archive; use them
+directly. Since then Alberta, Hydro-Québec, SLF, SNIH, CEAZA and FMI have
+been registered in `stations.networks` and the catalog (each section's
+**Status** line says where it stands). All are exported from `easysnowdata.stations.clients` and need no
 credentials (RIHMI's scripted АИСОРИ-М export and a registered CEAZA user
 name are optional), and their module docstrings document endpoints, units,
 conventions and caveats in full. Counts were checked live on 2026-10-14
-(the Southern Andes, SNIH and CEAZA clients on 2026-10-15).
+(the Southern Andes, SNIH and CEAZA clients on 2026-10-15, FMI on
+2026-11-04).
 
 "Daily SWE" means at least 30 days with SWE > 0 in the densest 90-day
 window of a season.
@@ -1163,6 +1167,7 @@ window of a season.
 | [`SouthernAndesClient`](#17-southernandesclient) | Southern Andes snow depth (Zenodo, Medina Mendoza & Caro 2026) | 69 (57 reporting in 2024) | no SWE: ultrasonic snow depth, daily | none | 2010–2024; versioned | CC BY 4.0 |
 | [`SNIHClient`](#18-snihclient) | SNIH / Base de Datos Hidrológica Integrada, Argentina (portal page methods) | 50 snow (34 pillows; 29 reporting) | pillows: validated daily SWE + raw 4–6 h telemetry; manual snow courses at 5 sites | 23 in 2023 (validated); 25 in 2026 from raw telemetry | validated 1989–2024; courses from 1951; raw 2009–present | SNIH terms of use: free use incl. commercial, cite SIPH/network |
 | [`CEAZAClient`](#19-ceazaclient) | CEAZA-Met web service (CEAZA, Chile) | 17 snow stations (10 active) of ~95 | automatic SWE (5 sensors) and snow weight (3 sensors) at 6 stations; hourly | 3 in 2025 (El Tapado, Tascadero, Llano de Las Liebres) | snow from 2011; near real time | none stated; terms: register by e-mail, credit CEAZA |
+| [`FMIClient`](#20-fmiclient) | FMI open-data WFS (Finland) | 2,458 stations (255 active); 907 with daily snow depth | no SWE: daily snow depth, automatic (06 UTC reading) and manual | none | snow depth from 1895 (Helsinki), most from 1959; daily | CC BY 4.0 |
 
 Overlaps to know about: NorSWE contains CanSWE, SNOTEL, NRCS courses,
 CDEC, NVE, SYKE, SLF GCOS and RIHMI route surveys; CanSWE contains the
@@ -2744,7 +2749,205 @@ All `GET https://www.ceazamet.cl/ws/pop_ws.php?fn=…&p_cod=ceazamet`:
 
 ---
 
-## 20. Error Handling
+## 20. FMIClient
+
+**Module:** `easysnowdata.stations.clients.fmi.fmi_client`
+**Source:** Finnish Meteorological Institute (FMI) open-data WFS download
+service, <https://opendata.fmi.fi/wfs> (WFS 2.0 stored queries); manual at
+<https://en.ilmatieteenlaitos.fi/open-data-manual-fmi-wfs-services>
+**Auth:** none
+**Licence:** CC BY 4.0 (<https://en.ilmatieteenlaitos.fi/open-data-licence>);
+attribute "Finnish Meteorological Institute".
+**Status:** registered in `stations.networks` and the catalog (codes
+`FMI-<fmisid>`); not yet in `global_snow_networks`.
+
+Daily snow depth from FMI's automatic weather stations and its manual
+precipitation, climate and manned weather stations, open and closed, with
+records from 1895 at Helsinki Kaisaniemi and from 1959 at most stations. Daily temperature and
+precipitation, and hourly or 10-minute automatic-station data, come from
+the same service. **No SWE**: Finnish snow-course SWE is Syke's
+([§14](#14-sykeclient)); Sodankylä's research SWE record is on FMI's
+separate LITDB portal (<https://litdb.fmi.fi>), which this client does not
+read.
+
+```python
+from easysnowdata.stations.clients import FMIClient
+from easysnowdata.stations.clients.fmi.fmi_client import (
+    VARIABLES, DATA_FLAGS, SNOW_NETWORKS,
+)
+client = FMIClient()
+```
+
+### Variables
+
+| Key | `type` | Native | Emitted | Interval |
+|---|---|---|---|---|
+| `snow` | `snwd` | cm | cm | `daily` |
+| `tday` | `temp` | °C | °C | `daily` |
+| `tmin` / `tmax` | `temp_min` / `temp_max` | °C | °C | `daily` |
+| `rrday` | `precip` | mm | mm | `daily` |
+| `snow_aws` | `snwd` | cm | cm | `hourly`, `sub_hourly` |
+| `t2m`, `rh`, `p_sea` | `temp`, `rh`, `baro` | °C, %, hPa | same | `hourly`, `sub_hourly` |
+| `ws_10min` / `wg_10min` | `wind_spd` / `wind_gust` | m/s | **km/h** (× 3.6) | `hourly`, `sub_hourly` |
+| `wd_10min` | `wind_dir` | degrees | degrees | `hourly`, `sub_hourly` |
+| `r_1h` | `precip` | mm | mm | `hourly` |
+
+`variables=None` is snow depth (`snow` daily, `snow_aws` sub-daily). A
+variable asked for at an interval it is not served at raises: the daily
+query rejects `snow_aws` upstream with HTTP 400 "Unrecognized parameter".
+Snow depth outside 0–15 m is nulled.
+
+**What a daily `snow` value is.** At automatic weather stations the value
+dated D is the `snow_aws` reading at 06:00 UTC on D: checked against the
+hourly series at Sodankylä Tähtelä and Helsinki Kaisaniemi for 15 days in
+January–April 2024, every day matched the 06 UTC reading (2026-11-04). At
+manual stations it is the observer's reading, at a time the service does
+not state. Dates are UTC days.
+
+### Flags
+
+The service publishes no quality flags in this format. With
+`include_flags=True`, `flag` marks the one native code the client
+rewrites:
+
+| Flag | Meaning |
+|---|---|
+| `snow_free` | Source value `-1` on `snow` / `snow_aws`: snow-free ground, returned as `0.0` cm |
+| `no_precipitation` | Source value `-1` on `rrday`: no precipitation, returned as `0.0` mm |
+
+FMI's pages do not state the `-1` convention; it is read off the data. All
+1 792 daily depths in Finland on 2024-07-01..10 were `-1`, and in November
+the `-1` days sit between positive depths, while `0` also occurs as a
+value. Every other value has `flag = None`.
+
+### Constructor
+
+```python
+FMIClient(
+    base_url: str = "https://opendata.fmi.fi/wfs",
+    timeout: int = 120,
+    max_retries: int = 3,
+    backoff: int = 4,
+    min_interval: float = 0.5,
+    session: requests.Session | None = None,
+    allow_partial: bool = False,
+)
+```
+
+`min_interval` spaces requests: FMI allows 20 000 download requests a day
+and 600 per 5 minutes (download and view services combined).
+`allow_partial=True` lets `get_all_stations()` continue without
+elevations when FMI's station table cannot be read; by default that
+raises.
+
+### Key methods
+
+#### `get_all_stations(active_only, bbox)` → `list[dict]`
+
+Every station of the five networks that report snow depth
+(`SNOW_NETWORKS`: 121 automatic weather station, 122 manned weather
+station, 123 climate station, 124 precipitation station, 224
+FMI-administered airport weather station), open and closed, read from
+`fmi::ef::stations` with `starttime=1900-01-01` (without a time range that
+query lists only active stations); plus the weather and precipitation
+stations that only FMI's public station table lists (`station_source =
+"station_table"`). 2 458 in November 2026, 255 of them active, 194 from the
+table. A sample of ~350 days found daily snow depth at 907 of them, and at
+6 stations in neither list.
+
+#### `get_metadata(station_id)` → `dict`
+
+The station dict plus `data_variables`: the daily variables for every
+station and the sub-daily ones for automatic weather stations, with the
+station's activity period as `begin_date` / `end_date` and `n_obs = None`.
+The service has no per-series inventory.
+
+#### `get_data(station_ids, variables, bbox, begin_date, end_date, interval, include_flags)` → `list[dict]`
+
+`interval` is `"daily"` (default), `"hourly"` or `"sub_hourly"` (10-minute
+values). Without `begin_date` the request starts at the earliest
+requested station's `begin_date`; without `end_date` it ends today.
+Sub-daily records carry `datetime` (UTC).
+
+```python
+recs = client.get_data("101932", begin_date="2024-01-01", end_date="2024-04-30")
+# → {"station_id": "101932", "date": "2024-01-01", "variable": "snow",
+#    "type": "snwd", "value": 57.0, "units": "cm", "interval": "daily"}
+```
+
+#### `reporting_stations(day, variable="snow", bbox=FINLAND_BBOX)` → `dict`
+
+fmisids with a daily value on one day, from a single whole-Finland request
+(~1 MB): a `bbox` query returns only stations that have data. Sampling a
+few days a year finds every station with a daily record in a few hundred
+requests (~350 days cover the record in about 3 minutes), where
+screening all ~2,250 listed ids took over half an hour and did not
+finish. Returns `{fmisid: {name, latitude, longitude}}`, the position
+exact (the station table rounds it); `reporting_station_ids()` returns
+the ids alone.
+
+#### `screen_station_ids(station_ids)` → `(known, unknown)`
+
+Splits fmisids into those the observation service knows and those it does
+not (see the gotchas). `get_data()` calls it and skips the unknown ones
+with a warning; results are cached on the client.
+
+### Station dict schema
+
+`station_id` (fmisid as a string), `name`, `latitude`, `longitude`
+(ETRS89, EPSG:4258), `elevation_m` (from FMI's public station table,
+<https://en.ilmatieteenlaitos.fi/observation-stations>; `None` where it
+has none, which is most closed precipitation stations), `status`
+(`Active` while any activity period is open), `begin_date`, `end_date`
+(`None` while active), `wmo_id`, `region`, `network_code` (the main snow
+network: `AWS`, `AIRP`, `CLIM`, `WS` or `PRCP`), `network_ids` and
+`networks` (every network the station belongs to, Finnish names),
+`station_groups` (the station table's summary, e.g. `"precipitation"`),
+`operator`, `station_url` (`None`: FMI has no per-station page),
+`station_source` (`"wfs"` or `"station_table"`) and
+`coordinate_precision_deg` (`0.1` for table-only stations, whose
+position the table rounds; `reporting_stations()` gives the exact one).
+Table-only stations have `begin_date` / `end_date` `None` and
+`begin_year` / `end_year` instead.
+
+### Endpoints used
+
+| Purpose | Request |
+|---|---|
+| Stations | `storedquery_id=fmi::ef::stations&starttime=1900-01-01T00:00:00Z&endtime=<now>` |
+| Elevations | `GET https://en.ilmatieteenlaitos.fi/observation-stations` (the `__NUXT_DATA__` payload; `z` is metres) |
+| Daily values | `storedquery_id=fmi::observations::weather::daily::timevaluepair&fmisid=…&parameters=snow,…` |
+| Sub-daily values | `storedquery_id=fmi::observations::weather::timevaluepair&fmisid=…&timestep=60` (or `10`) |
+
+### Notes and gotchas
+
+- **Time limits.** The daily query allows at most 8 928 h (372 days) per
+  request and the instantaneous query 168 h (7 days); above that both
+  answer HTTP 400 "Too long time interval requested!". The client asks
+  for 366 days or 7 days at a time. (An earlier note on issue #37 said
+  ~30 days; it is not.)
+- **At most 99 stations per request**: a 100th `fmisid` is rejected
+  ("specified more than 99 times").
+- **The `fmisid` parameter rejects stations the bbox query serves.**
+  Hundreds of stations answer HTTP 400 "Unknown 'fmisid' value!" for any
+  request naming them, and one such id fails the whole request, yet a
+  `bbox` query returns their data (`fmisid=101088`, Äetsä Pehula, is
+  rejected; a box around it returns 364 values for 1965). The client finds
+  rejected ids by halving a failing batch on a one-day request, then asks
+  for a ±0.25° box around each station and keeps only its own series.
+  `get_data(bbox=...)` is the service's own bbox query, the cheapest way
+  to fetch many stations: all 907 stations with data, full record, took
+  9.3 minutes on 2026-11-04 (151 MB of CSV).
+- **Elevation is not in the WFS.** It comes from the station table page,
+  a Nuxt app whose payload stores each station as indices into one array.
+  If that page changes shape, `get_all_stations()` raises unless
+  `allow_partial=True`.
+- **`place=` queries** (`place=oulu`) pick the station nearest a place
+  name; the client always asks by `fmisid`.
+
+---
+
+## 21. Error Handling
 
 | Client | Exception | Scenarios |
 |---|---|---|
@@ -2765,6 +2968,7 @@ All `GET https://www.ceazamet.cl/ws/pop_ws.php?fn=…&p_cod=ceazamet`:
 | SouthernAndesClient | `SouthernAndesError` | Zenodo lookup/download failure, unexpected file layout, unknown station, network, variable or interval |
 | SNIHClient | `SNIHError` | HTTP 4xx/5xx (incl. ASP.NET 500 for a malformed body), non-JSON answer, `RespuestaOK` false, unknown variable or interval, variable not offered at that interval, non-numeric station id, station not a snow station (`get_metadata`) |
 | CEAZAClient | `CEAZAError` | HTTP 4xx/5xx, network timeout, service error text in an HTTP 200 reply, unknown station/sensor/variable, unsupported interval |
+| FMIClient | `FMIError` | HTTP 4xx/5xx (incl. the 400s for too long an interval or too many stations), unreadable XML, unreadable station table (unless `allow_partial`), unknown variable or interval, variable not served at that interval, non-numeric station id, station not in a snow-depth network (`get_metadata`) |
 
 All exceptions are subclasses of `Exception` with descriptive messages.
 
@@ -2776,7 +2980,7 @@ from easysnowdata.stations.clients.nve import NVEClient, NVEError
 from easysnowdata.stations.clients.yukon import YukonClient, YukonError
 from easysnowdata.stations.clients.ghcnd import GHCNDClient, GHCNDError
 # ... and likewise CanSWEError, NorSWEError, HydroQuebecError, AlbertaError,
-# DWDError, SYKEError, SLFError, RIHMIError, SouthernAndesError, SNIHError and CEAZAError, all also re-exported from
+# DWDError, SYKEError, SLFError, RIHMIError, SouthernAndesError, SNIHError, CEAZAError and FMIError, all also re-exported from
 # easysnowdata.stations.clients.
 
 try:
@@ -2790,7 +2994,7 @@ with linear backoff up to `max_retries` attempts.
 
 ---
 
-## 21. Adding a New Client
+## 22. Adding a New Client
 
 The full normative contract and checklist live in
 [DESIGN.md](https://github.com/egagli/global_snow_networks/blob/main/DESIGN.md) §3 and the

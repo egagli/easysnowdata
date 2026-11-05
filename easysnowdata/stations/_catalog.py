@@ -534,6 +534,51 @@ CEAZA_PRODUCT = Product(
     tags=("swe", "snow depth", "stations", "chile", "andes"),
 )
 
+FMI_PRODUCT = Product(
+    id="fmi-stations",
+    theme="stations",
+    title="FMI weather, climate and precipitation stations (Finland)",
+    description=(
+        "Daily snow depth from the Finnish Meteorological Institute's "
+        "automatic weather stations and its manual precipitation and climate "
+        "stations, open and closed, from 1895 at Helsinki and 1959 at most; "
+        "no SWE (Finnish snow-course SWE is Syke's). Station codes are "
+        "FMI-<fmisid> (FMI-101932, Sodankylä Tähtelä)."
+    ),
+    sources=(
+        Source(
+            id="fmi",
+            provider="stations",
+            location=networks.NETWORKS["fmi"].api_url,
+            extent="Finland",
+            temporal="1895/present (snow depth; most stations from 1959)",
+            latency="a day",
+            notes=(
+                "the FMI open-data WFS stored queries; no account; 600 "
+                "requests per 5 minutes, which the client keeps to"
+            ),
+            title="FMI open-data WFS",
+            health=_health_probe(
+                "FMI open-data WFS",
+                "https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0"
+                "&request=describeStoredQueries"
+                "&storedquery_id=fmi::observations::weather::daily::timevaluepair",
+            ),
+        ),
+    ),
+    variables=variables_for("fmi"),
+    citation="Finnish Meteorological Institute open data, https://en.ilmatieteenlaitos.fi/open-data.",
+    license="CC BY 4.0",
+    loader=_LOADER,
+    examples=("station_datasets/plot_fmi.py",),
+    references=(
+        "https://en.ilmatieteenlaitos.fi/open-data-manual-fmi-wfs-services",
+        "https://en.ilmatieteenlaitos.fi/open-data-licence",
+        "https://en.ilmatieteenlaitos.fi/observation-stations",
+    ),
+    tags=("snow depth", "stations", "finland"),
+)
+
 PRODUCTS: tuple[Product, ...] = (
     AWDB_PRODUCT,
     CDEC_PRODUCT,
@@ -545,6 +590,7 @@ PRODUCTS: tuple[Product, ...] = (
     SLF_PRODUCT,
     SNIH_PRODUCT,
     CEAZA_PRODUCT,
+    FMI_PRODUCT,
 )
 
 catalog.register(*PRODUCTS, replace=True)

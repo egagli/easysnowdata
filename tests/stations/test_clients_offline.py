@@ -39,6 +39,8 @@ from easysnowdata.stations.clients.ceaza import ceaza_client as ceaza
 from easysnowdata.stations.clients.databc import DataBCClient, DataBCError
 from easysnowdata.stations.clients.dwd import DWDClient, DWDError
 from easysnowdata.stations.clients.dwd import dwd_client as dwd
+from easysnowdata.stations.clients.fmi import FMIClient, FMIError
+from easysnowdata.stations.clients.fmi import fmi_client as fmi
 from easysnowdata.stations.clients.ghcnd import GHCNDClient, GHCNDError
 from easysnowdata.stations.clients.ghcnd import ghcnd_client as ghcnd
 from easysnowdata.stations.clients.hydroquebec import (
@@ -393,6 +395,7 @@ _ALL_CLIENT_MODULES = (
     "southern_andes",
     "snih",
     "ceaza",
+    "fmi",
 )
 
 
@@ -506,6 +509,7 @@ _NEW_CLIENTS = (
     (SouthernAndesClient, SouthernAndesError, "5703009", "periodic"),
     (SNIHClient, SNIHError, "19145", "hourly"),
     (CEAZAClient, CEAZAError, "TPF", "periodic"),
+    (FMIClient, FMIError, "101932", "periodic"),
 )
 
 
@@ -550,6 +554,7 @@ def test_new_clients_data_flags_importable():
     assert "W" in ghcnd.DATA_FLAGS  # QFLAG "too warm for snow"
     assert dwd.DATA_FLAGS["10"].startswith("Quality control finished")
     assert set(syke.DATA_FLAGS) == {"96", "110", "117"}
+    assert set(fmi.DATA_FLAGS) == {"snow_free", "no_precipitation"}
     assert "NSIDC:3" in rihmi.DATA_FLAGS and "Q1:9" in rihmi.DATA_FLAGS
 
 
@@ -566,6 +571,7 @@ def test_new_clients_snow_output_units_are_cm():
         "southern_andes": southern_andes.VARIABLES,
         "snih": snih.VARIABLES,
         "ceaza": ceaza.VARIABLES,
+        "fmi": fmi.VARIABLES,
     }
     bad = {
         (name, key): info["output_units"]
