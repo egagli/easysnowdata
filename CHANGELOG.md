@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
+## [v0.3.7](https://github.com/egagli/easysnowdata/releases/tag/v0.3.7) - 2026-11-05
+
+<small>[Compare with v0.3.6](https://github.com/egagli/easysnowdata/compare/v0.3.6...v0.3.7)</small>
+
+### Fixed
+
+- fix(cdec): null SWE and snow depth outside 0-15 m ([998abec](https://github.com/egagli/easysnowdata/commit/998abec362a8f7a9f1b5720f69d2401d37f452e6) by Claude).
+- fix(cdec): has_daily_* only for daily sensors; record each sensor's durations ([8f255df](https://github.com/egagli/easysnowdata/commit/8f255dffd7b148eb52d26b5d7a607dff59996189) by Claude).
+
 ## [v0.3.6](https://github.com/egagli/easysnowdata/releases/tag/v0.3.6) - 2026-11-04
 
 <small>[Compare with v0.3.5](https://github.com/egagli/easysnowdata/compare/v0.3.5...v0.3.6)</small>
