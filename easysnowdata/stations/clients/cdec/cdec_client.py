@@ -296,6 +296,13 @@ SNOW_SENSORS: tuple[int, ...] = (3, 18, 82)
 # In-client metric conversions keyed by sensor number
 # (transform, emitted unit).  Sensors not listed pass through unchanged
 # with their registry output_units (already metric).
+#: Plausibility bound for SWE and snow depth after conversion, cm (DESIGN.md
+#: §3.6: 0–15 m).  The hourly and event series of CDEC's wireless sensor
+#: networks carry values far outside it (−799 899 cm at G01, 21 049 cm at
+#: DPK, 5 894 cm at HEM; checked 2026-11-05).
+_SNOW_MAX_CM = 1500.0
+_SNOW_SENSORS_CM = frozenset({3, 18, 82})
+
 _SENSOR_CONVERSIONS: dict[int, Any] = {
     3: lambda v: v * 2.54,  # in → cm
     18: lambda v: v * 2.54,
@@ -859,6 +866,12 @@ class CDECClient:
                             value = round(transform(fv), 3)
                         else:
                             value = fv
+                        if (
+                            value is not None
+                            and sensor_num in _SNOW_SENSORS_CM
+                            and not 0.0 <= value <= _SNOW_MAX_CM
+                        ):
+                            value = None
                     except (TypeError, ValueError):
                         value = None
 

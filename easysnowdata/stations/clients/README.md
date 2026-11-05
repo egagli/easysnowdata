@@ -320,7 +320,10 @@ requests) to record `sensor_durations` (`{3: ["D", "H"], 18: ["M"], …}`).
 duration, and most of its ~560 snow stations are monthly courses. In November
 2026, 145 had a daily snow sensor, ~340 only monthly ones and 74 only hourly
 or event ones. If a duration search fails, the flags fall back to sensor
-presence (with a warning) and `sensor_durations` is `None`. The snow course
+presence (with a warning) and `sensor_durations` is `None`. SWE and snow depth
+outside 0–15 m are returned as `None` at every duration (DESIGN.md §3.6): the
+hourly and event series of CDEC's wireless sensor networks carry values such
+as −799,899 cm (G01) and 21,049 cm (DPK). The snow course
 and pillow lists set `is_snow_course` and `is_snow_pillow`.
 
 ```python

@@ -1247,3 +1247,19 @@ def test_cdec_failed_duration_search_falls_back_to_sensor_presence(monkeypatch, 
     assert st["EMV"]["sensor_durations"] is None
     assert st["EMV"]["has_daily_swe"]  # over-advertised, never hidden
     assert "fall back to sensor presence" in caplog.text
+
+
+def test_cdec_snow_values_outside_0_to_15_m_are_nulled(monkeypatch):
+    """DESIGN.md §3.6. CDEC's sensor-network event series carry values like
+    -314 920 in (G01) or 8 287 in (DPK); a small negative depth is noise."""
+    client = CDECClient()
+    rows = [
+        {"stationId": "G01", "SENSOR_NUM": 18, "date": "2024-1-1 0:00", "value": v}
+        for v in (-314920.0, 8287.0, -2.0, 0.0, 60.0)
+    ] + [{"stationId": "G01", "SENSOR_NUM": 30, "date": "2024-1-1 0:00", "value": -4.0}]
+    monkeypatch.setattr(client, "_get_json", lambda url, params=None: rows)
+    out = client._get_data_cdec(["G01"], [18, 30], "E", "2024-01-01", "2024-01-01")
+    by_sensor = {b["stationElement"]["sensorNum"]: b["values"] for b in out[0]["data"]}
+    assert [v["value"] for v in by_sensor[18]] == [None, None, None, 0.0, 152.4]
+    # the limit is for snow only: -4 °F is a real temperature
+    assert by_sensor[30][0]["value"] == pytest.approx(-20.0)
