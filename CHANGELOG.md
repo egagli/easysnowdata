@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
+## [v0.3.6](https://github.com/egagli/easysnowdata/releases/tag/v0.3.6) - 2026-11-04
+
+<small>[Compare with v0.3.5](https://github.com/egagli/easysnowdata/compare/v0.3.5...v0.3.6)</small>
+
+### Fixed
+
+- fix(fmi): reach stations the fmisid parameter rejects through a bbox query ([5682f88](https://github.com/egagli/easysnowdata/commit/5682f8802d1b24e27841829630853cc6f928e75c) by Claude).
+- fix(fmi): reach records before 1900; document measured station counts ([ab465ea](https://github.com/egagli/easysnowdata/commit/ab465ea2aafa6c4319ef232f4cc7d3432922b36d) by Claude).
+
 ## [v0.3.5](https://github.com/egagli/easysnowdata/releases/tag/v0.3.5) - 2026-10-27
 
 <small>[Compare with v0.3.4](https://github.com/egagli/easysnowdata/compare/v0.3.4...v0.3.5)</small>
