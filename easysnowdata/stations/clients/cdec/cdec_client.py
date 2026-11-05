@@ -296,6 +296,13 @@ SNOW_SENSORS: tuple[int, ...] = (3, 18, 82)
 # In-client metric conversions keyed by sensor number
 # (transform, emitted unit).  Sensors not listed pass through unchanged
 # with their registry output_units (already metric).
+#: Plausibility bound for SWE and snow depth after conversion, cm (DESIGN.md
+#: §3.6: 0–15 m).  The hourly and event series of CDEC's wireless sensor
+#: networks carry values far outside it (−799 899 cm at G01, 21 049 cm at
+#: DPK, 5 894 cm at HEM; checked 2026-11-05).
+_SNOW_MAX_CM = 1500.0
+_SNOW_SENSORS_CM = frozenset({3, 18, 82})
+
 _SENSOR_CONVERSIONS: dict[int, Any] = {
     3: lambda v: v * 2.54,  # in → cm
     18: lambda v: v * 2.54,
@@ -576,8 +583,19 @@ class CDECClient:
         list[dict]
             One dict per unique station with keys from staSearch plus:
             ``sensors`` (sorted list of found sensor numbers),
-            ``has_daily_swe``, ``has_daily_snwd``,
+            ``sensor_durations`` (``{sensor: ["D", "H", …]}``, the CDEC
+            duration codes each sensor is recorded at, or ``None`` when the
+            duration searches failed), ``has_daily_swe``, ``has_daily_snwd``,
             ``is_snow_course``, ``is_snow_pillow``, ``station_url``.
+
+            ``has_daily_swe`` / ``has_daily_snwd`` are True only for a
+            daily (``D``) SWE (3, 82) or depth (18) sensor.  The plain
+            sensor search lists every station with the sensor at any
+            duration, so most of its ~560 snow stations are monthly snow
+            courses: in November 2026, 145 had a daily snow sensor, ~340
+            only monthly ones and 74 only hourly or event ones.  If a
+            duration search fails, the flags fall back to sensor presence
+            (over-advertising, never hiding a daily station) with a warning.
         """
         all_by_id: dict[str, dict] = {}
 
@@ -611,6 +629,44 @@ class CDECClient:
                     all_by_id[sid]["is_snow_pillow"] = False
                 all_by_id[sid]["sensors"].add(sensor_num)
 
+        # Which durations each sensor is recorded at: the station search
+        # takes a duration filter (dur=D/H/E/M), one request each.
+        durations: dict[str, dict[int, set[str]]] | None = {}
+        for sensor_num in sensors:
+            for dur in _CDEC_DURATION_TO_INTERVAL:
+                params = {
+                    "sensor_chk": "on",
+                    "sensor": str(sensor_num),
+                    "dur_chk": "on",
+                    "dur": dur,
+                    "elev1": "-5",
+                    "elev2": "99000",
+                    "numRecord": "2000",
+                    "submit_btn": "Search",
+                }
+                if active_only:
+                    params["active"] = "Y"
+                try:
+                    html = self._get_html(
+                        f"{BASE_URL}/dynamicapp/staSearch", params=params
+                    )
+                except CDECError as exc:
+                    logger.warning(
+                        "Duration search (sensor %d, %s) failed: %s — daily "
+                        "flags fall back to sensor presence",
+                        sensor_num,
+                        dur,
+                        exc,
+                    )
+                    durations = None
+                    break
+                for row in _parse_station_search_html(html):
+                    durations.setdefault(row["station_id"], {}).setdefault(
+                        sensor_num, set()
+                    ).add(dur)
+            if durations is None:
+                break
+
         # Mark snow courses and snow pillows from official lists
         try:
             for course in self.get_snow_courses():
@@ -641,8 +697,15 @@ class CDECClient:
         for sid, sta in all_by_id.items():
             sset = sta.get("sensors", set())
             sta["sensors"] = sorted(sset)
-            sta["has_daily_swe"] = bool({3, 82} & sset)
-            sta["has_daily_snwd"] = bool({18} & sset)
+            if durations is None:
+                sta["sensor_durations"] = None
+                sta["has_daily_swe"] = bool({3, 82} & sset)
+                sta["has_daily_snwd"] = bool({18} & sset)
+            else:
+                sd = durations.get(sid, {})
+                sta["sensor_durations"] = {s: sorted(d) for s, d in sorted(sd.items())}
+                sta["has_daily_swe"] = any("D" in sd.get(s, ()) for s in (3, 82))
+                sta["has_daily_snwd"] = "D" in sd.get(18, ())
             sta.setdefault(
                 "station_url",
                 f"{BASE_URL}/dynamicapp/staMeta?station_id={sid}",
@@ -803,6 +866,12 @@ class CDECClient:
                             value = round(transform(fv), 3)
                         else:
                             value = fv
+                        if (
+                            value is not None
+                            and sensor_num in _SNOW_SENSORS_CM
+                            and not 0.0 <= value <= _SNOW_MAX_CM
+                        ):
+                            value = None
                     except (TypeError, ValueError):
                         value = None
 

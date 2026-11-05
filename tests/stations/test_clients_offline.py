@@ -1181,3 +1181,85 @@ def test_yukon_allow_partial_returns_courses_with_a_warning(monkeypatch, caplog)
     stations = client.get_all_stations()
     assert [s["station_id"] for s in stations] == ["09AA-SC01"]
     assert "automated and ECCC stations" in caplog.text
+
+
+# ── CDEC: daily flags come from daily sensors, not sensor presence ───────────
+
+
+def _cdec_stub(monkeypatch, client, by_query, fail=None):
+    """Stub the station searches: ``by_query[(sensor, dur or None)]`` lists ids."""
+    from easysnowdata.stations.clients.cdec import cdec_client as cdec
+
+    def fake_html(url, params=None, **kwargs):
+        key = (int(params["sensor"]), params.get("dur"))
+        if fail == key:
+            raise CDECError("HTTP 503")
+        return f"{key[0]}|{key[1]}"
+
+    def fake_parse(html):
+        sensor, dur = html.split("|")
+        key = (int(sensor), None if dur == "None" else dur)
+        return [
+            {"station_id": sid, "name": sid, "elevation_ft": 8000.0}
+            for sid in by_query.get(key, [])
+        ]
+
+    monkeypatch.setattr(client, "_get_html", fake_html)
+    monkeypatch.setattr(cdec, "_parse_station_search_html", fake_parse)
+    monkeypatch.setattr(client, "get_snow_courses", lambda: [])
+    monkeypatch.setattr(client, "get_snow_pillows", lambda: [])
+
+
+_CDEC_QUERIES = {
+    # EMV: a monthly snow course (all three sensors, monthly only)
+    # QUA: a pillow, SWE daily + hourly, depth daily
+    # BU1: depth recorded hourly only
+    (3, None): ["EMV", "QUA"],
+    (18, None): ["EMV", "QUA", "BU1"],
+    (82, None): ["EMV", "QUA"],
+    (3, "M"): ["EMV"],
+    (18, "M"): ["EMV"],
+    (82, "M"): ["EMV"],
+    (3, "D"): ["QUA"],
+    (82, "D"): ["QUA"],
+    (18, "D"): ["QUA"],
+    (3, "H"): ["QUA"],
+    (18, "H"): ["QUA", "BU1"],
+}
+
+
+def test_cdec_daily_flags_follow_daily_sensors(monkeypatch):
+    client = CDECClient()
+    _cdec_stub(monkeypatch, client, _CDEC_QUERIES)
+    st = {s["station_id"]: s for s in client.get_stations()}
+    assert st["EMV"]["sensor_durations"] == {3: ["M"], 18: ["M"], 82: ["M"]}
+    assert not st["EMV"]["has_daily_swe"] and not st["EMV"]["has_daily_snwd"]
+    assert st["QUA"]["has_daily_swe"] and st["QUA"]["has_daily_snwd"]
+    assert st["QUA"]["sensor_durations"][3] == ["D", "H"]
+    assert st["BU1"]["sensor_durations"] == {18: ["H"]}
+    assert not st["BU1"]["has_daily_snwd"]
+
+
+def test_cdec_failed_duration_search_falls_back_to_sensor_presence(monkeypatch, caplog):
+    client = CDECClient()
+    _cdec_stub(monkeypatch, client, _CDEC_QUERIES, fail=(18, "D"))
+    st = {s["station_id"]: s for s in client.get_stations()}
+    assert st["EMV"]["sensor_durations"] is None
+    assert st["EMV"]["has_daily_swe"]  # over-advertised, never hidden
+    assert "fall back to sensor presence" in caplog.text
+
+
+def test_cdec_snow_values_outside_0_to_15_m_are_nulled(monkeypatch):
+    """DESIGN.md §3.6. CDEC's sensor-network event series carry values like
+    -314 920 in (G01) or 8 287 in (DPK); a small negative depth is noise."""
+    client = CDECClient()
+    rows = [
+        {"stationId": "G01", "SENSOR_NUM": 18, "date": "2024-1-1 0:00", "value": v}
+        for v in (-314920.0, 8287.0, -2.0, 0.0, 60.0)
+    ] + [{"stationId": "G01", "SENSOR_NUM": 30, "date": "2024-1-1 0:00", "value": -4.0}]
+    monkeypatch.setattr(client, "_get_json", lambda url, params=None: rows)
+    out = client._get_data_cdec(["G01"], [18, 30], "E", "2024-01-01", "2024-01-01")
+    by_sensor = {b["stationElement"]["sensorNum"]: b["values"] for b in out[0]["data"]}
+    assert [v["value"] for v in by_sensor[18]] == [None, None, None, 0.0, 152.4]
+    # the limit is for snow only: -4 °F is a real temperature
+    assert by_sensor[30][0]["value"] == pytest.approx(-20.0)
