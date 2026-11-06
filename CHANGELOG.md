@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 <!-- insertion marker -->
+## [v0.3.8](https://github.com/egagli/easysnowdata/releases/tag/v0.3.8) - 2026-11-06
+
+<small>[Compare with v0.3.7](https://github.com/egagli/easysnowdata/compare/v0.3.7...v0.3.8)</small>
+
+### Fixed
+
+- fix(cdec): bound only sub-daily snow values; retry cut-off JSON once ([b7fca3d](https://github.com/egagli/easysnowdata/commit/b7fca3d11f876f819928fd8c9cc40819dfccfee2) by Claude).
+
 ## [v0.3.7](https://github.com/egagli/easysnowdata/releases/tag/v0.3.7) - 2026-11-05
 
 <small>[Compare with v0.3.6](https://github.com/egagli/easysnowdata/compare/v0.3.6...v0.3.7)</small>
