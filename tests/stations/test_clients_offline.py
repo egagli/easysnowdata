@@ -1263,3 +1263,39 @@ def test_cdec_snow_values_outside_0_to_15_m_are_nulled(monkeypatch):
     assert [v["value"] for v in by_sensor[18]] == [None, None, None, 0.0, 152.4]
     # the limit is for snow only: -4 °F is a real temperature
     assert by_sensor[30][0]["value"] == pytest.approx(-20.0)
+
+
+def test_cdec_daily_series_is_returned_as_published(monkeypatch):
+    """The bound is for the sub-daily series: CDEC's daily records carry
+    small negatives (-3 in at ADM) that archives built from them keep."""
+    client = CDECClient()
+    rows = [
+        {"stationId": "ADM", "SENSOR_NUM": 18, "date": "2024-1-1 0:00", "value": v}
+        for v in (-3.0, 0.0, 60.0)
+    ]
+    monkeypatch.setattr(client, "_get_json", lambda url, params=None: rows)
+    out = client._get_data_cdec(["ADM"], [18], "D", "2024-01-01", "2024-01-01")
+    assert [v["value"] for v in out[0]["data"][0]["values"]] == [-7.62, 0.0, 152.4]
+
+
+def test_cdec_cut_off_json_is_retried_once_then_raises(monkeypatch):
+    client = CDECClient()
+
+    class _Resp:
+        def __init__(self, body):
+            self.content = body
+
+        def json(self):
+            import json
+
+            return json.loads(self.content)
+
+    bodies = [b'[{"a": 1}, {"b"', b'[{"a": 1}]']
+    monkeypatch.setattr(
+        client, "_request", lambda m, u, params=None: _Resp(bodies.pop(0))
+    )
+    assert client._get_json("u") == [{"a": 1}]
+
+    monkeypatch.setattr(client, "_request", lambda m, u, params=None: _Resp(b'[{"b"'))
+    with pytest.raises(CDECError, match="Unreadable JSON"):
+        client._get_json("u")
