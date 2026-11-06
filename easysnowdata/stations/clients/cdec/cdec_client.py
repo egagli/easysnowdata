@@ -297,11 +297,16 @@ SNOW_SENSORS: tuple[int, ...] = (3, 18, 82)
 # (transform, emitted unit).  Sensors not listed pass through unchanged
 # with their registry output_units (already metric).
 #: Plausibility bound for SWE and snow depth after conversion, cm (DESIGN.md
-#: §3.6: 0–15 m).  The hourly and event series of CDEC's wireless sensor
-#: networks carry values far outside it (−799 899 cm at G01, 21 049 cm at
-#: DPK, 5 894 cm at HEM; checked 2026-11-05).
+#: §3.6: 0–15 m), applied to the hourly and event series only.  Those, from
+#: CDEC's wireless sensor networks, carry values far outside it (−799 899 cm
+#: at G01, 21 049 cm at DPK, 5 894 cm at HEM; checked 2026-11-05).  CDEC's
+#: daily series is returned as published: its small negative readings
+#: (sensor noise around zero, e.g. −7.6 cm depth at ADM, −18.7 cm SWE at
+#: FLV) are part of archives built from it, and nulling them in 0.3.7 made
+#: every refresh of those stations look like lost data.
 _SNOW_MAX_CM = 1500.0
 _SNOW_SENSORS_CM = frozenset({3, 18, 82})
+_BOUNDED_DURATIONS = frozenset({"H", "E"})
 
 _SENSOR_CONVERSIONS: dict[int, Any] = {
     3: lambda v: v * 2.54,  # in → cm
@@ -825,6 +830,7 @@ class CDECClient:
         # Batch by station to keep URL lengths reasonable.
         batch_size = 20
         results_by_id: dict[str, dict] = {}
+        bounded = str(duration).upper() in _BOUNDED_DURATIONS
 
         for i in range(0, len(station_ids), batch_size):
             batch = station_ids[i : i + batch_size]
@@ -868,6 +874,7 @@ class CDECClient:
                             value = fv
                         if (
                             value is not None
+                            and bounded
                             and sensor_num in _SNOW_SENSORS_CM
                             and not 0.0 <= value <= _SNOW_MAX_CM
                         ):
@@ -1118,8 +1125,23 @@ class CDECClient:
         url: str,
         params: dict[str, str] | None = None,
     ) -> Any:
-        resp = self._request("GET", url, params=params)
-        return resp.json()
+        # A long full-record response sometimes arrives cut off (a 62 MB
+        # body ending mid-object, 2026-11-06).  Retry once, then raise
+        # CDECError like any other failed request.
+        for attempt in (1, 2):
+            resp = self._request("GET", url, params=params)
+            try:
+                return resp.json()
+            except ValueError as exc:
+                if attempt == 2:
+                    raise CDECError(
+                        f"Unreadable JSON from {url} "
+                        f"({len(resp.content):,} bytes): {exc}"
+                    ) from exc
+                logger.warning(
+                    "Unreadable JSON from %s (%d bytes); retrying once: %s",
+                    url, len(resp.content), exc,
+                )
 
     def _request(
         self,
