@@ -1140,7 +1140,9 @@ class CDECClient:
                     ) from exc
                 logger.warning(
                     "Unreadable JSON from %s (%d bytes); retrying once: %s",
-                    url, len(resp.content), exc,
+                    url,
+                    len(resp.content),
+                    exc,
                 )
 
     def _request(

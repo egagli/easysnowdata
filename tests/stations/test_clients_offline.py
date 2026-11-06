@@ -1287,10 +1287,13 @@ def test_cdec_cut_off_json_is_retried_once_then_raises(monkeypatch):
 
         def json(self):
             import json
+
             return json.loads(self.content)
 
     bodies = [b'[{"a": 1}, {"b"', b'[{"a": 1}]']
-    monkeypatch.setattr(client, "_request", lambda m, u, params=None: _Resp(bodies.pop(0)))
+    monkeypatch.setattr(
+        client, "_request", lambda m, u, params=None: _Resp(bodies.pop(0))
+    )
     assert client._get_json("u") == [{"a": 1}]
 
     monkeypatch.setattr(client, "_request", lambda m, u, params=None: _Resp(b'[{"b"'))
