@@ -2,7 +2,6 @@
   "format": 2,
   "lines": [
     "Randolph Glacier Inventory - A Dataset of Global Glacier Outlines, Version 7 | National Snow and Ice Data Center",
-    "ATL07QL and ATL10QL have been experiencing a data outage since 22 October 2026 due to maintenance of a distribution portal for an upstream data set. We expect distribution to resume soon.",
     "National Snow and Ice Data Center",
     "a part of CIRES at the University of Colorado Boulder",
     "NASA National Snow and Ice Data Center Distributed Active Archive Center (NSIDC DAAC)",
@@ -12,7 +11,7 @@
     "DOI: 10.5067/F6JMOVY5NAVZ",
     "Data Citation and Acknowledgment",
     "As a condition of using these data, you must cite the use of this data set. Such a practice gives credit to data set producers and advances principles of transparency and reproducibility.",
-    "RGI Consortium. (2023). Randolph Glacier Inventory - A Dataset of Global Glacier Outlines. (NSIDC-0770, Version 7). [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/F6JMOVY5NAVZ. [describe subset used if applicable]. Date Accessed 11-02-2026.",
+    "RGI Consortium. (2023). Randolph Glacier Inventory - A Dataset of Global Glacier Outlines. (NSIDC-0770, Version 7). [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/F6JMOVY5NAVZ. [describe subset used if applicable]. Date Accessed 11-09-2026.",
     "Other standard citation formats may be found on the DOI Citation Formatter website (paste 10.5067/F6JMOVY5NAVZ into the top form field).",
     "Describing subset: When applicable, include the information a reader would need to extract the same subset at the end of your citation. If multiple or complex steps were incolved, it may be more appropriate to include this information in the paper itself.",
     "See our Citation Policies for more details about how to structure your data citation.",

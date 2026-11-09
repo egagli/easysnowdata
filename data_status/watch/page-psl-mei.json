@@ -92,7 +92,7 @@
     "relative to the 1980-2018 reference period are projected onto the leading",
     "EOF pattern. Because the OLR record starts in January 1979, the DJ 1979",
     "MEI.v2 value is based on January 1979 OLR data only.",
-    "Generally, this page will be updated by the 10th of each month (depending on source data availability). For the period between 1979 and 2018, the ICOADS-based MEI and MEI.v2 are correlated at 0.95. The correlation between the JRA55 vs the JRA3Q based is .999. Last data update: 6 October 2026",
+    "Generally, this page will be updated by the 10th of each month (depending on source data availability). For the period between 1979 and 2018, the ICOADS-based MEI and MEI.v2 are correlated at 0.95. The correlation between the JRA55 vs the JRA3Q based is .999. Last data update: 5 November 2026",
     "Warm (red) and cold (blue) periods based on a threshold of +/-",
     "(Download or Display As Text)",
     "MEI.v2 Values JRA55 and Comparison with Current JRA3Q-Based Index",

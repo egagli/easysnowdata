@@ -1,0 +1,25 @@
+{
+  "format": 2,
+  "lines": [
+    "FMI WFS services - Finnish Meteorological Institute",
+    "Search for local weather. Search opens the Local weather page.",
+    "» WFS examples and guidelines",
+    "International co-operation",
+    "FMI Open data WFS services",
+    "FMI Open Data WFS service implements the Simple WFS conformance class of the WFS 2.0 specification. The service uses stored queries extensively to select features, areas and times. Stored queries are named and parametrized queries to be used with GetFeature operation.",
+    "Stored queries of FMI's Open Data WFS service",
+    "List of stored queries can be requested from the service:",
+    "https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=listStoredQueries",
+    "or for more details https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=describeStoredQueries",
+    "You may choose a stored query that matches your purposes from the stored query descriptions. Then, storedquery_id can be used to query feature data, for example, for certain place:",
+    "https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=fmi::forecast::harmonie::surface::point::multipointcoverage&place=helsinki",
+    "The list of the stored queries of FMI's Open Data WFS service is also presented below",
+    "User must accept Creative Commons license before using the open data service interfaces.",
+    "Services contain user specific request limitations:",
+    "Download Service has limit of 20000 requests per day",
+    "View Service has limit of 10000 requests per day",
+    "Download and View Services have combined limit of 600 requests per 5 minutes",
+    "Erik Palménin aukio 1, FI-00560 Helsinki",
+    "©Finnish Meteorological Institute"
+  ]
+}

@@ -12,7 +12,7 @@
     "url": "https://github.com/nsidc/earthaccess/releases"
   },
   "earthengine-api": {
-    "latest_version": "1.7.50",
+    "latest_version": "1.7.51",
     "url": "https://pypi.org/project/earthengine-api/"
   },
   "geopandas": {
