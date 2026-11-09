@@ -6,6 +6,1058 @@
       "route": "natural-earth",
       "kind": "health",
       "requires": [],
+      "checked_at": "2026-11-09T08:10:46Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "geoBoundaries countries (ADM0, gbOpen)",
+      "product": "countries",
+      "route": "geoboundaries",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:10:46Z",
+      "status": "fail",
+      "error": "RuntimeError: Unreachable: HTTP 504"
+    },
+    {
+      "source": "Natural Earth states and provinces (naciscdn)",
+      "product": "states-provinces",
+      "route": "natural-earth",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:10:58Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "US Census states (cartographic boundaries)",
+      "product": "states-provinces",
+      "route": "us-census",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:10:58Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "geoBoundaries states and provinces (ADM1, gbOpen)",
+      "product": "states-provinces",
+      "route": "geoboundaries",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:10:58Z",
+      "status": "fail",
+      "error": "RuntimeError: Unreachable: HTTP 504"
+    },
+    {
+      "source": "US Census counties (cartographic boundaries)",
+      "product": "us-counties",
+      "route": "us-census",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:10Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "geoBoundaries admin units (ADM2, gbOpen)",
+      "product": "admin-boundaries",
+      "route": "geoboundaries",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:10Z",
+      "status": "fail",
+      "error": "RuntimeError: Unreachable: HTTP 504"
+    },
+    {
+      "source": "RGI 7.0 glacier outlines (NSIDC)",
+      "product": "rgi-glaciers",
+      "route": "nsidc",
+      "kind": "health",
+      "requires": [
+        "earthdata"
+      ],
+      "checked_at": "2026-11-09T08:11:22Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "RGI 6.0 glacier outlines (NSIDC)",
+      "product": "rgi-glaciers",
+      "route": "nsidc",
+      "kind": "health",
+      "requires": [
+        "earthdata"
+      ],
+      "checked_at": "2026-11-09T08:11:23Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "RGI 6.0 glacier outlines (OGGM mirror)",
+      "product": "rgi-glaciers",
+      "route": "oggm-mirror",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:24Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "GMBA mountains (EarthEnv)",
+      "product": "gmba-mountains",
+      "route": "earthenv",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:25Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Natural Earth vector layers (naciscdn)",
+      "product": "natural-earth-vectors",
+      "route": "natural-earth",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:25Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "ARCO-ERA5 (GCS anonymous)",
+      "product": "era5",
+      "route": "arco-era5-gcs",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:25Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "ARCO-ERA5 latency (GCS anonymous)",
+      "product": "era5",
+      "route": "arco-era5-gcs",
+      "kind": "latency",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:27Z",
+      "status": "pass",
+      "error": null,
+      "value": "2026-11-03T00:00:00Z"
+    },
+    {
+      "source": "ERA5 (Google Earth Engine)",
+      "product": "era5",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-11-09T08:11:28Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Climate indices (CPC RONI)",
+      "product": "climate-indices",
+      "route": "noaa",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:30Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Climate indices (NCEI PDO)",
+      "product": "climate-indices",
+      "route": "noaa",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:30Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Climate indices (PSL MEI.v2)",
+      "product": "climate-indices",
+      "route": "noaa",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:30Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Climate indices (NCEI PDO latest)",
+      "product": "climate-indices",
+      "route": "noaa",
+      "kind": "latency",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:31Z",
+      "status": "pass",
+      "error": null,
+      "value": "2026-10-01T00:00:00Z"
+    },
+    {
+      "source": "Climate indices (PSL pdo.data)",
+      "product": "climate-indices",
+      "route": "psl",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:31Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Köppen-Geiger classification (figshare)",
+      "product": "koppen-geiger",
+      "route": "figshare",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:31Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "HUC geometries (USGS WBD REST)",
+      "product": "huc",
+      "route": "usgs-wbd",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:32Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "HUC geometries (GEE/USGS WBD)",
+      "product": "huc",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-11-09T08:11:32Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "HydroATLAS basins (figshare)",
+      "product": "hydrobasins",
+      "route": "figshare-basinatlas",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:34Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "HydroBASINS (HydroSHEDS regional zip)",
+      "product": "hydrobasins",
+      "route": "hydrosheds",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:34Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "HydroBASINS (GEE/HydroATLAS)",
+      "product": "hydrobasins",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-11-09T08:11:35Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "GRDC major river basins (World Bank)",
+      "product": "grdc-major-river-basins",
+      "route": "world-bank",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:36Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "GRDC WMO basins",
+      "product": "grdc-wmo-basins",
+      "route": "grdc",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:36Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Forest cover fraction (Zenodo)",
+      "product": "forest-cover-fraction",
+      "route": "zenodo",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:37Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Forest cover fraction (GEE/CGLS-LC100)",
+      "product": "forest-cover-fraction",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-11-09T08:11:38Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "ESA WorldCover (Planetary Computer)",
+      "product": "esa-worldcover",
+      "route": "planetary-computer",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:38Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "ESA WorldCover (AWS bucket)",
+      "product": "esa-worldcover",
+      "route": "aws-open-data",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:40Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Annual NLCD (GEE community asset)",
+      "product": "nlcd",
+      "route": "gee-annual",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-11-09T08:11:41Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "NLCD (GEE/USGS)",
+      "product": "nlcd",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-11-09T08:11:41Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "HLS L30 (CMR-STAC LPCLOUD)",
+      "product": "hls",
+      "route": "lpcloud-cmr-stac",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:41Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "HLS S30 (CMR-STAC LPCLOUD)",
+      "product": "hls",
+      "route": "lpcloud-cmr-stac",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:44Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "HLS L30 COG read (CMR-STAC LPCLOUD, Earthdata Login)",
+      "product": "hls",
+      "route": "lpcloud-cmr-stac",
+      "kind": "health",
+      "requires": [
+        "earthdata"
+      ],
+      "checked_at": "2026-11-09T08:11:46Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "HLS S30 COG read (CMR-STAC LPCLOUD, Earthdata Login)",
+      "product": "hls",
+      "route": "lpcloud-cmr-stac",
+      "kind": "health",
+      "requires": [
+        "earthdata"
+      ],
+      "checked_at": "2026-11-09T08:11:54Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "HLS L30 (Planetary Computer)",
+      "product": "hls",
+      "route": "planetary-computer",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:11:58Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "HLS S30 (Planetary Computer)",
+      "product": "hls",
+      "route": "planetary-computer",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:00Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "PlanetScope (Planet Data API)",
+      "product": "planetscope",
+      "route": "orders-api",
+      "kind": "health",
+      "requires": [
+        "planet"
+      ],
+      "checked_at": "2026-11-09T08:12:01Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Sentinel-2 L2A (Planetary Computer)",
+      "product": "sentinel-2-l2a",
+      "route": "planetary-computer",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:02Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Sentinel-2 L2A latency (Planetary Computer)",
+      "product": "sentinel-2-l2a",
+      "route": "planetary-computer",
+      "kind": "latency",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:04Z",
+      "status": "pass",
+      "error": null,
+      "value": "2026-11-09T01:18:49Z"
+    },
+    {
+      "source": "Sentinel-2 L2A (Earth Search)",
+      "product": "sentinel-2-l2a",
+      "route": "earth-search",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:07Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Sentinel-1 RTC (Planetary Computer)",
+      "product": "sentinel-1-rtc",
+      "route": "planetary-computer",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:07Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Sentinel-1 RTC latency (Planetary Computer)",
+      "product": "sentinel-1-rtc",
+      "route": "planetary-computer",
+      "kind": "latency",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:09Z",
+      "status": "pass",
+      "error": null,
+      "value": "2026-11-08T17:29:34Z"
+    },
+    {
+      "source": "Sentinel-1 RTC OPERA (CMR-STAC ASF)",
+      "product": "sentinel-1-rtc",
+      "route": "opera-rtc-s1",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:10Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Sentinel-1 RTC OPERA (Earth Engine)",
+      "product": "sentinel-1-rtc",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-11-09T08:12:12Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Sentinel-1 static layers (CMR-STAC ASF)",
+      "product": "sentinel-1-local-incidence-angle",
+      "route": "opera-static",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:18Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Copernicus DEM for the incidence angle (Planetary Computer)",
+      "product": "sentinel-1-local-incidence-angle",
+      "route": "dem",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:20Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Sentinel-1 GRD angle band (Earth Engine)",
+      "product": "sentinel-1-local-incidence-angle",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-11-09T08:12:21Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "MODIS snow cover MOD10A1F (NASA NSIDC)",
+      "product": "modis-snow",
+      "route": "nsidc",
+      "kind": "health",
+      "requires": [
+        "earthdata"
+      ],
+      "checked_at": "2026-11-09T08:12:22Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "MODIS snow cover MOD10A1F latency (CMR)",
+      "product": "modis-snow",
+      "route": "nsidc",
+      "kind": "latency",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:22Z",
+      "status": "pass",
+      "error": null,
+      "value": "2026-11-08T00:00:00Z"
+    },
+    {
+      "source": "MODIS snow cover MOD10A1F DMR++ (CMR)",
+      "product": "modis-snow",
+      "route": "nsidc",
+      "kind": "virtualization",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:23Z",
+      "status": "pass",
+      "error": null,
+      "value": "absent; fallback: VirtualiZarr HDF4Parser (kerchunk wrapper, root group only)"
+    },
+    {
+      "source": "MODIS snow cover MOD10A1 (Planetary Computer)",
+      "product": "modis-snow",
+      "route": "planetary-computer",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:23Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Mountain snow mask (Zenodo)",
+      "product": "mountain-snow-mask",
+      "route": "zenodo",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:25Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "SNODAS (NSIDC G02158)",
+      "product": "snodas",
+      "route": "nsidc",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:26Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "SNODAS latency (NSIDC G02158)",
+      "product": "snodas",
+      "route": "nsidc",
+      "kind": "latency",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:26Z",
+      "status": "pass",
+      "error": null,
+      "value": "2026-11-08T00:00:00Z"
+    },
+    {
+      "source": "SNODAS (GEE/Climate Engine)",
+      "product": "snodas",
+      "route": "gee-climate-engine",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-11-09T08:12:26Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Sturm & Liston snow classification (NSIDC-0768)",
+      "product": "snow-classification",
+      "route": "nsidc",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:26Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Sturm & Liston snow classification (Azure)",
+      "product": "snow-classification",
+      "route": "hosted-cog",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:27Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "UCLA Snow Reanalysis (NASA NSIDC)",
+      "product": "ucla-snow-reanalysis",
+      "route": "nsidc",
+      "kind": "health",
+      "requires": [
+        "earthdata"
+      ],
+      "checked_at": "2026-11-09T08:12:27Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "UCLA Snow Reanalysis DMR++ (CMR)",
+      "product": "ucla-snow-reanalysis",
+      "route": "nsidc",
+      "kind": "virtualization",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:28Z",
+      "status": "pass",
+      "error": null,
+      "value": "absent; fallback: VirtualiZarr HDFParser"
+    },
+    {
+      "source": "HMA Snow Reanalysis (NASA NSIDC)",
+      "product": "ucla-snow-reanalysis",
+      "route": "nsidc-hma",
+      "kind": "health",
+      "requires": [
+        "earthdata"
+      ],
+      "checked_at": "2026-11-09T08:12:28Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "VIIRS snow cover VJ110A1F (NASA NSIDC)",
+      "product": "viirs-snow",
+      "route": "nsidc",
+      "kind": "health",
+      "requires": [
+        "earthdata"
+      ],
+      "checked_at": "2026-11-09T08:12:28Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "VIIRS snow cover VJ110A1F latency (CMR)",
+      "product": "viirs-snow",
+      "route": "nsidc",
+      "kind": "latency",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:29Z",
+      "status": "pass",
+      "error": null,
+      "value": "2026-11-04T00:00:00Z"
+    },
+    {
+      "source": "VIIRS snow cover VJ110A1F DMR++ (CMR)",
+      "product": "viirs-snow",
+      "route": "nsidc",
+      "kind": "virtualization",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:29Z",
+      "status": "pass",
+      "error": null,
+      "value": "absent; fallback: VirtualiZarr HDFParser"
+    },
+    {
+      "source": "AWDB stations (NRCS REST API)",
+      "product": "awdb-stations",
+      "route": "awdb",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:29Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "CDEC stations (JSON data servlet)",
+      "product": "cdec-stations",
+      "route": "cdec",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:30Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "BC snow stations (DataBC WFS)",
+      "product": "databc-stations",
+      "route": "databc",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:30Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "NVE stations (HydAPI)",
+      "product": "nve-stations",
+      "route": "nve",
+      "kind": "health",
+      "requires": [
+        "nve"
+      ],
+      "checked_at": "2026-11-09T08:12:30Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Yukon stations (AquaCache API)",
+      "product": "yukon-stations",
+      "route": "yukon",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:31Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Alberta River Basins site",
+      "product": "alberta-stations",
+      "route": "alberta",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:31Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Hydro-Québec open data (Opendatasoft)",
+      "product": "hydroquebec-stations",
+      "route": "hydroquebec",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:32Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "SLF measurement data",
+      "product": "slf-stations",
+      "route": "slf",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:32Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "SNIH portal",
+      "product": "snih-stations",
+      "route": "snih",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:33Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "CEAZA-Met web service",
+      "product": "ceaza-stations",
+      "route": "ceaza",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:34Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "FMI open-data WFS",
+      "product": "fmi-stations",
+      "route": "fmi",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:35Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Snow station Zarr archive (global_snow_networks)",
+      "product": "snow-station-archive",
+      "route": "github-pages-zarr",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:36Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Snow station inventory (global_snow_networks)",
+      "product": "snow-station-archive",
+      "route": "github-tarball",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:36Z",
+      "status": "fail",
+      "error": "RuntimeError: Unreachable: HTTP 504"
+    },
+    {
+      "source": "Snow station archive tarball (global_snow_networks)",
+      "product": "snow-station-archive",
+      "route": "github-tarball",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:12:47Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Snow station CSV (global_snow_networks)",
+      "product": "snow-station-archive",
+      "route": "github-csv",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:13:10Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "CHILI (GEE/CSP ERGo)",
+      "product": "chili",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-11-09T08:13:10Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Copernicus DEM (Planetary Computer)",
+      "product": "copernicus-dem",
+      "route": "planetary-computer",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:13:11Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Copernicus DEM (Earth Search)",
+      "product": "copernicus-dem",
+      "route": "earth-search",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:13:11Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Copernicus DEM (Earth Engine)",
+      "product": "copernicus-dem",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-11-09T08:13:11Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Copernicus DEM (OpenTopography)",
+      "product": "copernicus-dem",
+      "route": "opentopography",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:13:13Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "NASADEM (Planetary Computer)",
+      "product": "nasadem",
+      "route": "planetary-computer",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:13:15Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "NASADEM (Earth Engine)",
+      "product": "nasadem",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-11-09T08:13:16Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "NASADEM (OpenTopography)",
+      "product": "nasadem",
+      "route": "opentopography",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:13:16Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "SRTM GL1 (OpenTopography)",
+      "product": "srtm",
+      "route": "opentopography",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:13:19Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "SRTM GL1 (Earth Engine)",
+      "product": "srtm",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-11-09T08:13:21Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "3DEP seamless (Planetary Computer)",
+      "product": "3dep",
+      "route": "planetary-computer",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:13:21Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "3DEP 10 m (Earth Engine)",
+      "product": "3dep",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-11-09T08:13:22Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "ALOS World 3D (Planetary Computer)",
+      "product": "alos-dem",
+      "route": "planetary-computer",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:13:23Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "ALOS World 3D (Earth Engine)",
+      "product": "alos-dem",
+      "route": "gee",
+      "kind": "health",
+      "requires": [
+        "earthengine"
+      ],
+      "checked_at": "2026-11-09T08:13:23Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "ALOS World 3D (OpenTopography)",
+      "product": "alos-dem",
+      "route": "opentopography",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:13:24Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "GEDTM30 (OpenTopography)",
+      "product": "gedtm30",
+      "route": "opentopography",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:13:27Z",
+      "status": "pass",
+      "error": null
+    },
+    {
+      "source": "Natural Earth hillshade (S3)",
+      "product": "hillshade",
+      "route": "natural-earth",
+      "kind": "health",
+      "requires": [],
+      "checked_at": "2026-11-09T08:13:29Z",
+      "status": "pass",
+      "error": null
+    }
+  ],
+  [
+    {
+      "source": "Natural Earth countries (naciscdn)",
+      "product": "countries",
+      "route": "natural-earth",
+      "kind": "health",
+      "requires": [],
       "checked_at": "2026-11-02T08:10:25Z",
       "status": "pass",
       "error": null
