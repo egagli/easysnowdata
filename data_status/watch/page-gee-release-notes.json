@@ -74,6 +74,10 @@
     "it lists releases by date and includes any new features, bug fixes, and significant",
     "performance improvements. You can also browse and filter release notes for all",
     "Google Cloud products in the Google Cloud console.",
+    "Added NASA/VIIRS/002/VJ209H1: VJ209H1: VIIRS Surface Reflectance 8-Day L3 Global 500m",
+    "Added NASA/VIIRS/002/VJ213A1: VJ213A1: VIIRS Vegetation Indices 16-Day 500m",
+    "Added projects/gcp-public-data-weathernext/assets/PARDIG_1_LR: PARDIG LR (Long-Record)",
+    "Added projects/gcp-public-data-weathernext/assets/PARDIG_1_NRT: PARDIG NRT (Near-Real-Time)",
     "Added NASA/VIIRS/002/VJ146A2: VJ146A2: VIIRS Lunar Gap-Filled BRDF Nighttime Lights Daily L3 Global 500m",
     "Added NASA/VIIRS/002/VJ209GA: VJ209GA: VIIRS Surface Reflectance Daily 500m and 1km",
     "Added NASA/VIIRS/002/VJ214A1: VJ214A1.002: Thermal Anomalies/Fire Daily L3 Global 1km SIN Grid",
@@ -596,10 +600,6 @@
     "Added IGN/RGE_ALTI/1M/2_0: RGE ALTI: IGN RGE ALTI Digital Elevation 1m",
     "Added USFS/GTAC/MTBS/annual_burn_severity_mosaics/v1: Monitoring Trends in Burn Severity (MTBS) Burn Severity Images",
     "Added LARSE/GEDI/GEDI02_B_002_MONTHLY: GEDI L2B Raster Canopy Cover Vertical Profile Metrics (Version 2)",
-    "Added LARSE/GEDI/GEDI02_B_002: GEDI L2B Vector Canopy Cover Vertical Profile Metrics (Version 2)",
-    "Added LARSE/GEDI/GEDI02_B_002_INDEX: GEDI L2B table index",
-    "Added NASA/GEOS-CF/v1/rpl/tavg1hr: GEOS-CF rpl tavg1hr v1: Goddard Earth Observing System Composition Forecast",
-    "Added LARSE/GEDI/GEDI02_A_002_INDEX: GEDI L2A table index",
-    "Added BNU/FGS/CCNL/v1: CCNL: Consistent and Corrected Nighttime Light Dataset from DMSP-OLS (1992-2013) v1"
+    "Added LARSE/GEDI/GEDI02_B_002: GEDI L2B Vector Canopy Cover Vertical Profile Metrics (Version 2)"
   ]
 }
