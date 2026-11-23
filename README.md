@@ -45,32 +45,32 @@ and both Earth Engine catalogs, under "Worth adding" when they are about the
 cryosphere.
 
 <!-- DATA_STATUS_START -->
-_Last updated: 2026-11-16 08:22 UTC_  
+_Last updated: 2026-11-23 08:12 UTC_  
 _⚠️ = skipped (credentials not available in this run). Latency and virtualization probes are on the [status page](https://egagli.github.io/easysnowdata/status.html)._
 
 ### Stations (`esd.stations`)
 
-| Data Source | Latest (Nov 16) | Nov 9 | Nov 2 | Oct 26 |
+| Data Source | Latest (Nov 23) | Nov 16 | Nov 9 | Nov 2 |
 | :---------- | :------: | :------: | :------: | :------: |
 | AWDB stations (NRCS REST API) | ✅ | ✅ | ✅ | ✅ |
 | CDEC stations (JSON data servlet) | ✅ | ✅ | ✅ | ✅ |
 | BC snow stations (DataBC WFS) | ✅ | ✅ | ✅ | ✅ |
 | NVE stations (HydAPI) | ✅ | ✅ | ✅ | ✅ |
 | Yukon stations (AquaCache API) | ✅ | ✅ | ✅ | ✅ |
-| Alberta River Basins site | ✅ | ✅ | ✅ | — |
-| Hydro-Québec open data (Opendatasoft) | ✅ | ✅ | ✅ | — |
-| SLF measurement data | ✅ | ✅ | ✅ | — |
-| SNIH portal | ✅ | ✅ | ✅ | — |
-| CEAZA-Met web service | ✅ | ✅ | ✅ | — |
-| FMI open-data WFS | ✅ | ✅ | — | — |
+| Alberta River Basins site | ✅ | ✅ | ✅ | ✅ |
+| Hydro-Québec open data (Opendatasoft) | ✅ | ✅ | ✅ | ✅ |
+| SLF measurement data | ✅ | ✅ | ✅ | ✅ |
+| SNIH portal | ✅ | ✅ | ✅ | ✅ |
+| CEAZA-Met web service | ✅ | ✅ | ✅ | ✅ |
+| FMI open-data WFS | ✅ | ✅ | ✅ | — |
 | Snow station Zarr archive (global_snow_networks) | ✅ | ✅ | ✅ | ✅ |
-| Snow station inventory (global_snow_networks) | ✅ | <abbr title="RuntimeError: Unreachable: HTTP 504">❌</abbr> | ✅ | ✅ |
+| Snow station inventory (global_snow_networks) | ✅ | ✅ | <abbr title="RuntimeError: Unreachable: HTTP 504">❌</abbr> | ✅ |
 | Snow station archive tarball (global_snow_networks) | ✅ | ✅ | ✅ | ✅ |
 | Snow station CSV (global_snow_networks) | ✅ | ✅ | ✅ | ✅ |
 
 ### Snow (`esd.snow`)
 
-| Data Source | Latest (Nov 16) | Nov 9 | Nov 2 | Oct 26 |
+| Data Source | Latest (Nov 23) | Nov 16 | Nov 9 | Nov 2 |
 | :---------- | :------: | :------: | :------: | :------: |
 | MODIS snow cover MOD10A1F (NASA NSIDC) | ✅ | ✅ | ✅ | ✅ |
 | MODIS snow cover MOD10A1 (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
@@ -81,11 +81,11 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 | Sturm & Liston snow classification (Azure) | ✅ | ✅ | ✅ | ✅ |
 | UCLA Snow Reanalysis (NASA NSIDC) | ✅ | ✅ | ✅ | ✅ |
 | HMA Snow Reanalysis (NASA NSIDC) | ✅ | ✅ | ✅ | ✅ |
-| VIIRS snow cover VJ110A1F (NASA NSIDC) | ✅ | ✅ | ✅ | — |
+| VIIRS snow cover VJ110A1F (NASA NSIDC) | ✅ | ✅ | ✅ | ✅ |
 
 ### SAR (`esd.sar`)
 
-| Data Source | Latest (Nov 16) | Nov 9 | Nov 2 | Oct 26 |
+| Data Source | Latest (Nov 23) | Nov 16 | Nov 9 | Nov 2 |
 | :---------- | :------: | :------: | :------: | :------: |
 | Sentinel-1 RTC (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | Sentinel-1 RTC OPERA (CMR-STAC ASF) | ✅ | ✅ | ✅ | ✅ |
@@ -96,12 +96,12 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Optical imagery (`esd.optical`)
 
-| Data Source | Latest (Nov 16) | Nov 9 | Nov 2 | Oct 26 |
+| Data Source | Latest (Nov 23) | Nov 16 | Nov 9 | Nov 2 |
 | :---------- | :------: | :------: | :------: | :------: |
 | HLS L30 (CMR-STAC LPCLOUD) | ✅ | ✅ | ✅ | ✅ |
 | HLS S30 (CMR-STAC LPCLOUD) | ✅ | ✅ | ✅ | ✅ |
-| HLS L30 COG read (CMR-STAC LPCLOUD, Earthdata Login) | ✅ | ✅ | <abbr title="RasterioIOError: HTTP response code: 400">❌</abbr> | ✅ |
-| HLS S30 COG read (CMR-STAC LPCLOUD, Earthdata Login) | ✅ | ✅ | <abbr title="RasterioIOError: HTTP response code: 400">❌</abbr> | ✅ |
+| HLS L30 COG read (CMR-STAC LPCLOUD, Earthdata Login) | ✅ | ✅ | ✅ | <abbr title="RasterioIOError: HTTP response code: 400">❌</abbr> |
+| HLS S30 COG read (CMR-STAC LPCLOUD, Earthdata Login) | ✅ | ✅ | ✅ | <abbr title="RasterioIOError: HTTP response code: 400">❌</abbr> |
 | HLS L30 (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | HLS S30 (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
 | PlanetScope (Planet Data API) | ✅ | ✅ | ✅ | ✅ |
@@ -110,7 +110,7 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Terrain (`esd.terrain`)
 
-| Data Source | Latest (Nov 16) | Nov 9 | Nov 2 | Oct 26 |
+| Data Source | Latest (Nov 23) | Nov 16 | Nov 9 | Nov 2 |
 | :---------- | :------: | :------: | :------: | :------: |
 | CHILI (GEE/CSP ERGo) | ✅ | ✅ | ✅ | ✅ |
 | Copernicus DEM (Planetary Computer) | ✅ | ✅ | ✅ | ✅ |
@@ -132,7 +132,7 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Land cover (`esd.land`)
 
-| Data Source | Latest (Nov 16) | Nov 9 | Nov 2 | Oct 26 |
+| Data Source | Latest (Nov 23) | Nov 16 | Nov 9 | Nov 2 |
 | :---------- | :------: | :------: | :------: | :------: |
 | Forest cover fraction (Zenodo) | ✅ | ✅ | ✅ | ✅ |
 | Forest cover fraction (GEE/CGLS-LC100) | ✅ | ✅ | ✅ | ✅ |
@@ -143,7 +143,7 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Hydrography (`esd.hydro`)
 
-| Data Source | Latest (Nov 16) | Nov 9 | Nov 2 | Oct 26 |
+| Data Source | Latest (Nov 23) | Nov 16 | Nov 9 | Nov 2 |
 | :---------- | :------: | :------: | :------: | :------: |
 | HUC geometries (USGS WBD REST) | ✅ | ✅ | ✅ | ✅ |
 | HUC geometries (GEE/USGS WBD) | ✅ | ✅ | ✅ | ✅ |
@@ -155,15 +155,15 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Boundaries (`esd.boundaries`)
 
-| Data Source | Latest (Nov 16) | Nov 9 | Nov 2 | Oct 26 |
+| Data Source | Latest (Nov 23) | Nov 16 | Nov 9 | Nov 2 |
 | :---------- | :------: | :------: | :------: | :------: |
 | Natural Earth countries (naciscdn) | ✅ | ✅ | ✅ | ✅ |
-| geoBoundaries countries (ADM0, gbOpen) | ✅ | <abbr title="RuntimeError: Unreachable: HTTP 504">❌</abbr> | ✅ | ✅ |
+| geoBoundaries countries (ADM0, gbOpen) | ✅ | ✅ | <abbr title="RuntimeError: Unreachable: HTTP 504">❌</abbr> | ✅ |
 | Natural Earth states and provinces (naciscdn) | ✅ | ✅ | ✅ | ✅ |
 | US Census states (cartographic boundaries) | ✅ | ✅ | ✅ | ✅ |
-| geoBoundaries states and provinces (ADM1, gbOpen) | ✅ | <abbr title="RuntimeError: Unreachable: HTTP 504">❌</abbr> | ✅ | ✅ |
+| geoBoundaries states and provinces (ADM1, gbOpen) | ✅ | ✅ | <abbr title="RuntimeError: Unreachable: HTTP 504">❌</abbr> | ✅ |
 | US Census counties (cartographic boundaries) | ✅ | ✅ | ✅ | ✅ |
-| geoBoundaries admin units (ADM2, gbOpen) | ✅ | <abbr title="RuntimeError: Unreachable: HTTP 504">❌</abbr> | ✅ | ✅ |
+| geoBoundaries admin units (ADM2, gbOpen) | ✅ | ✅ | <abbr title="RuntimeError: Unreachable: HTTP 504">❌</abbr> | ✅ |
 | RGI 7.0 glacier outlines (NSIDC) | ✅ | ✅ | ✅ | ✅ |
 | RGI 6.0 glacier outlines (NSIDC) | ✅ | ✅ | ✅ | ✅ |
 | RGI 6.0 glacier outlines (OGGM mirror) | ✅ | ✅ | ✅ | ✅ |
@@ -172,7 +172,7 @@ _⚠️ = skipped (credentials not available in this run). Latency and virtualiz
 
 ### Climate (`esd.climate`)
 
-| Data Source | Latest (Nov 16) | Nov 9 | Nov 2 | Oct 26 |
+| Data Source | Latest (Nov 23) | Nov 16 | Nov 9 | Nov 2 |
 | :---------- | :------: | :------: | :------: | :------: |
 | ARCO-ERA5 (GCS anonymous) | ✅ | ✅ | ✅ | ✅ |
 | ERA5 (Google Earth Engine) | ✅ | ✅ | ✅ | ✅ |
