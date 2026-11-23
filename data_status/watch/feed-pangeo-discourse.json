@@ -1,13 +1,16 @@
 {
   "lines": [
     "Welcome to Pangeo Discourse",
-    "Freelance remote work for Python geoscientists (xarray / GDAL / NetCDF), 60–120 $/h",
+    "ML Engineer (mid-level), satellite lidar object detection, remote (U.S.), federal R&D program starting 2027",
+    "HTTP API for Statistics from Zarr stores?",
+    "Unpaid portfolio collaboration: AI engineering & AI safety evaluation on public water-utility data (Meridian AI, remote)",
+    "ESIP Cloud Computing Cluster November 10th: Live-updating virtual datasets at dynamical.org",
+    "Postdoctoral Scholar at Berkeley Lab in Berkeley, CA",
     "AI Research Lead at Gaia Research (Haizea Analytics), Canberra, Australia",
     "Three worked notebooks on public NOAA and Sentinel-2 data: GOES-16 LST, National Water Model forecasts, Sentinel-2 resampling",
     "EO Excellence Award 2027 – Research Grants for Early-Career Earth Observation Scientists",
     "Research Software Engineer at [C]Worthy",
     "Introducing EO-Tools a python EO toolbox focused on SAR",
-    "ESIP Cloud Computing Cluster November 10th: Live-updating virtual datasets at dynamical.org",
     "Decode GeoTIFF to GPU memory",
     "WxData 3.0 Released - WxData Clients Now Have a Command-Line Interface Tool Bringing WxData into the Shell For Advanced ETL Weather Data Pipelines",
     "Earthaccess hackathon @ AGU 2026",
@@ -16,7 +19,6 @@
     "Pyinterp 2026.11.0: fast interpolation and conservative regridding from xarray",
     "Local CFL instability in a 2D explicit Navier-Stokes solver (from CFD to Oceanography)",
     "Pangeo Showcase: Lightning talks (December 2, 2026 at 4 PM EST / 21:00 UTC) - Sign up now!",
-    "HTTP API for Statistics from Zarr stores?",
     "Join us at the ESA EarthCODE 2026 Hackathon! (30th November - 4th December at ESA ESRIN)",
     "Join the Global Dialogue on Digital Twins of the Ocean | DITTO Summit 2026 (Online, 28–29 October)",
     "Ocean-plot: a small CLI for SST maps, wind vectors and point time series from NetCDF",
@@ -27,8 +29,6 @@
     "Pangeo Showcase: \"Firecube: A plugin-based batch ingestion engine for creating operational analysis-ready data cubes\" (October 14, 12 PM EDT / 16:00 UTC)",
     "Free Weather Data Scorecard: matched-window comparisons for historical dataset selection",
     "🎉 [Release] Stac-stack : A read-to-use docker stack to easily publish your dataset with STAC",
-    "Data Scientist position in global cryosphere and water modelling – MountAInWater project (ISTA, Austria)",
-    "Feedback wanted: recipe-based tool for building aligned radar/satellite/model/obs datasets (CONUS)",
-    "[JOB] Simons Center Postdoctoral Fellows in Computational Climate at NYU"
+    "Data Scientist position in global cryosphere and water modelling – MountAInWater project (ISTA, Austria)"
   ]
 }

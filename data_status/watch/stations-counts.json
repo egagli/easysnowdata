@@ -1,6 +1,6 @@
 {
   "alberta": {
-    "active": 187,
+    "active": 186,
     "count": 291,
     "daily": 135
   },
@@ -30,13 +30,13 @@
     "daily": 2458
   },
   "hydroquebec": {
-    "active": 142,
+    "active": 143,
     "count": 144,
     "daily": 144
   },
   "nve": {
-    "active": 1904,
-    "count": 1904,
+    "active": 1903,
+    "count": 1903,
     "daily": 32
   },
   "slf": {

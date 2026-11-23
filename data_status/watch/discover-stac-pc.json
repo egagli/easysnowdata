@@ -38,6 +38,7 @@
     "drcog-lulc",
     "eclipse",
     "ecmwf-forecast",
+    "ecmwf-forecast-0p1",
     "era5-pds",
     "esa-cci-lc",
     "esa-cci-lc-netcdf",
