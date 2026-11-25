@@ -134,7 +134,9 @@ jobs:
   test-live:
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_live)
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # ~25 min for a clean run; reruns add headroom for a week like 2026-10-20
+    # (47 failures), so the report step still gets a results file.
+    timeout-minutes: 90
     permissions:
       contents: read
       issues: write
@@ -157,7 +159,11 @@ jobs:
           NVE_API_KEY: ${{ secrets.NVE_API_KEY }}
           AISORI_USERNAME: ${{ secrets.AISORI_USERNAME }}
           AISORI_PASSWORD: ${{ secrets.AISORI_PASSWORD }}
-        run: pixi run -e test-py313 test-live -v --tb=short -rfEs --junitxml=live-results.xml
+        # Each failed test gets one more try 15 s later: most red weeks
+        # were a single 503 or timeout from Zenodo, NASA CMR or a station
+        # API, not a broken client. A source that fails twice still files
+        # its issue (report_live.py counts only the last attempt).
+        run: pixi run -e test-py313 test-live -v --tb=short -rfEsR --reruns 1 --reruns-delay 15 --junitxml=live-results.xml
 
       # One red run hides which provider broke (four red weeks in Sep-Oct 2026
       # buried a Yukon API change), so file one issue per failing data source,

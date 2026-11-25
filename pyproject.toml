@@ -247,6 +247,7 @@ hatch-vcs = "*"
 bump-my-version = "*"
 twine = "*"
 codespell = "*"
+pytest-rerunfailures = ">=16.6.1,<17"
 
 [tool.pixi.feature.dev.pypi-dependencies]
 git-changelog = "*"

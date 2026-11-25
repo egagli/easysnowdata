@@ -92,9 +92,20 @@ def _message(node: ET.Element) -> str:
 
 
 def parse(xml_text: str) -> dict[str, Outcome]:
-    """Read a pytest JUnit XML report into one :class:`Outcome` per source."""
-    outcomes: dict[str, Outcome] = {}
+    """Read a pytest JUnit XML report into one :class:`Outcome` per source.
+
+    The live tier reruns a failed test once (pytest-rerunfailures), and every
+    attempt is written as its own ``<testcase>``; the earlier attempts carry
+    no failure element, so they would read as passes. Only the last attempt
+    of each test is the outcome.
+    """
+    final: dict[tuple[str, str, str], ET.Element] = {}
     for case in ET.fromstring(xml_text).iter("testcase"):
+        key = (case.get("file", ""), case.get("classname", ""), case.get("name", "?"))
+        final.pop(key, None)  # re-insert so the dict keeps report order
+        final[key] = case
+    outcomes: dict[str, Outcome] = {}
+    for case in final.values():
         source, path = source_of(case.get("classname", ""), case.get("file"))
         outcome = outcomes.setdefault(source, Outcome(source, path))
         name = case.get("name", "?")

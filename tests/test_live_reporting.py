@@ -63,6 +63,28 @@ def test_tests_are_grouped_by_their_file(live):
     assert outcomes["planetscope"].skipped == ["test_live_search"]
 
 
+# What pytest-rerunfailures writes with --reruns 1: one <testcase> per
+# attempt, and the attempts before the last carry no failure element.
+RERUN_REPORT = """<?xml version="1.0" encoding="utf-8"?>
+<testsuites><testsuite name="pytest">
+  <testcase classname="tests.static.test_snow_mountain_snow_mask" name="test_smoke"/>
+  <testcase classname="tests.static.test_snow_mountain_snow_mask" name="test_smoke"/>
+  <testcase classname="tests.static.test_snow_mountain_snow_mask" name="test_clouds_layer"/>
+  <testcase classname="tests.static.test_snow_mountain_snow_mask" name="test_clouds_layer">
+    <failure message="ReadTimeout: zenodo.org read timed out">trace</failure>
+  </testcase>
+</testsuite></testsuites>
+"""
+
+
+def test_only_the_last_attempt_of_a_rerun_test_counts(live):
+    outcome = live.parse(RERUN_REPORT)["snow_mountain_snow_mask"]
+    assert outcome.passed == ["test_smoke"]  # failed once, passed on rerun
+    assert outcome.failed == [
+        ("test_clouds_layer", "ReadTimeout: zenodo.org read timed out")
+    ]
+
+
 def test_a_junit_file_attribute_wins_over_the_classname(live):
     assert live.source_of("x.y", "tests/stations/test_nve_client.py") == (
         "nve",
